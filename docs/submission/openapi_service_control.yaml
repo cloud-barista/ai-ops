@@ -1,0 +1,347 @@
+openapi: 3.0.3
+info:
+  title: AI Service Control API
+  version: "0.1.0"
+  description: >
+    Go Echo API contract for the team project service-control prototype.
+    The API exposes LLM selection, agent registry, CPU/GPU VM placement,
+    and AI application deployment-plan generation from the project configs.
+servers:
+  - url: http://127.0.0.1:8080
+paths:
+  /healthz:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+  /openapi.yaml:
+    get:
+      summary: Download this OpenAPI document
+      responses:
+        "200":
+          description: OpenAPI YAML
+          content:
+            application/yaml:
+              schema:
+                type: string
+  /api/v1/agents:
+    get:
+      summary: List registered AIOps agents
+      responses:
+        "200":
+          description: Registered agent profiles
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentListResponse"
+  /api/v1/ops-llm/select:
+    post:
+      summary: Select the Ops LLM for an operation policy
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpsLLMSelectRequest"
+      responses:
+        "200":
+          description: LLM ranking and selected model
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpsLLMSelectionResponse"
+        "400":
+          description: Invalid policy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/apps/placement:
+    post:
+      summary: Recommend CPU/GPU VM placement for an AI workload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkloadRequest"
+      responses:
+        "200":
+          description: Placement recommendation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlacementResponse"
+        "400":
+          description: Unknown workload or invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/apps/deployment-plan:
+    post:
+      summary: Build a Kubernetes deployment/control plan for an AI workload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkloadRequest"
+      responses:
+        "200":
+          description: Deployment/control plan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeploymentPlanResponse"
+        "400":
+          description: Unknown workload or invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/service-operations/run:
+    post:
+      summary: Run the Go service operations readiness pipeline
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceOperationsRequest"
+      responses:
+        "200":
+          description: Service operations readiness report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceOperationsResponse"
+        "400":
+          description: Invalid policy, workload, or config
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+        service:
+          type: string
+          example: service-control-api
+    ErrorResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+          example: false
+        error:
+          type: string
+    AgentListResponse:
+      type: object
+      properties:
+        command:
+          type: string
+          example: list-agents
+        version:
+          type: string
+          example: "1"
+        agents:
+          type: array
+          items:
+            $ref: "#/components/schemas/AgentProfile"
+    AgentProfile:
+      type: object
+      properties:
+        name:
+          type: string
+          example: AIApplicationManagementAgent
+        korean_name:
+          type: string
+          example: AI응용관리 자동화 에이전트
+        role:
+          type: string
+        responsibilities:
+          type: array
+          items:
+            type: string
+        bounded_actions:
+          type: array
+          items:
+            type: string
+        reward_signals:
+          type: array
+          items:
+            type: string
+        enabled:
+          type: boolean
+    OpsLLMSelectRequest:
+      type: object
+      properties:
+        policy:
+          type: string
+          example: quality_first
+    OpsLLMSelectionResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+        policy:
+          type: string
+        selected_model:
+          type: string
+          example: gpt-5.5
+        selected_score:
+          type: number
+        rationale:
+          type: string
+        ranking:
+          type: array
+          items:
+            type: object
+    WorkloadRequest:
+      type: object
+      required:
+        - workload
+      properties:
+        workload:
+          type: string
+          example: llm-chat-inference
+    ServiceOperationsRequest:
+      type: object
+      required:
+        - workload
+        - namespace
+        - deployment
+      properties:
+        llm_config:
+          type: string
+          example: config/ops_llm_benchmark.json
+        inference_config:
+          type: string
+          example: config/inference_optimization.json
+        llm_policy:
+          type: string
+          example: quality_first
+        workload:
+          type: string
+          example: llm-chat-inference
+        namespace:
+          type: string
+          example: online-boutique
+        deployment:
+          type: string
+          example: paymentservice
+        mode:
+          type: string
+          example: mock
+        guard_backend:
+          type: string
+          example: go
+    PlacementResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+        workload:
+          type: string
+        selected_resource:
+          type: string
+          example: gpu-vm-l4
+        action:
+          type: string
+          example: deploy_on_gpu_vm
+        score:
+          type: number
+        slo_satisfied:
+          type: boolean
+        rejected_resources:
+          type: object
+        ranked_candidates:
+          type: array
+          items:
+            type: object
+    DeploymentPlanResponse:
+      allOf:
+        - $ref: "#/components/schemas/PlacementResponse"
+        - type: object
+          properties:
+            deployment_plan:
+              $ref: "#/components/schemas/DeploymentPlan"
+    DeploymentPlan:
+      type: object
+      properties:
+        service_name:
+          type: string
+        container_image:
+          type: string
+        target_resource:
+          type: string
+        target_accelerator:
+          type: string
+        kubernetes:
+          type: object
+          properties:
+            namespace:
+              type: string
+            deployment:
+              type: string
+            replicas:
+              type: integer
+            node_selector:
+              type: object
+            resources:
+              type: object
+        control_actions:
+          type: array
+          items:
+            type: string
+        monitoring_metrics:
+          type: array
+          items:
+            type: string
+    ServiceOperationsResponse:
+      type: object
+      properties:
+        command:
+          type: string
+          example: run-service-operations
+        valid:
+          type: boolean
+        selected_llm:
+          type: string
+          example: gpt-5.5
+        runtime_model:
+          type: string
+          example: gpt-5.5
+        selected_resource:
+          type: string
+          example: gpu-vm-l4
+        deployment_plan:
+          $ref: "#/components/schemas/DeploymentPlan"
+        inference_deployment_plan:
+          $ref: "#/components/schemas/DeploymentPlanResponse"
+        deployment_manifest:
+          type: object
+        deployment_dry_run:
+          type: object
+        agent_reviews:
+          type: object
+        recovery:
+          type: object
+        recovery_pipeline_ready:
+          type: boolean
+        guard_backend:
+          type: string
+          example: go
+        metadata:
+          type: object

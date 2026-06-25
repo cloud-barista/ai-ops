@@ -1,0 +1,107 @@
+{
+  "version": "1",
+  "metadata": {
+    "data_source": "go_service_control_prototype_config",
+    "benchmark_run_id": "go-service-control-prototype-20260625",
+    "generated_from": [
+      "Go service-control API validation scenarios",
+      "Ops LLM policy wiring checks",
+      "agent registry and CPU/GPU placement prototype requirements"
+    ],
+    "is_synthetic": false,
+    "is_standardized_benchmark": false,
+    "measurement_level": "prototype_policy_baseline",
+    "requires_regeneration_for_final_report": true,
+    "last_updated": "2026-06-25",
+    "notes": [
+      "Current values are retained as prototype policy baselines for LLM selection wiring.",
+      "For a final quantitative report, regenerate scores from standardized per-model Ops runs.",
+      "The submission/demo package does not depend on external benchmark runners."
+    ]
+  },
+  "policies": {
+    "quality_first": {
+      "description": "Ops detection, safe action validity, and consistent reasoning are prioritized for the main research agent path.",
+      "weights": {
+        "accuracy": 0.25,
+        "metric_success": 0.15,
+        "action_validity": 0.2,
+        "consistency": 0.15,
+        "ttd": 0.1,
+        "cost": 0.1,
+        "latency": 0.05
+      }
+    },
+    "cost_first": {
+      "description": "Cost and latency are prioritized for inexpensive repeated smoke tests and non-critical prechecks.",
+      "weights": {
+        "accuracy": 0.1,
+        "metric_success": 0.1,
+        "action_validity": 0.1,
+        "consistency": 0.05,
+        "ttd": 0.05,
+        "cost": 0.45,
+        "latency": 0.15
+      }
+    }
+  },
+  "candidates": [
+    {
+      "model": "gpt-5.5",
+      "provider": "OpenAI",
+      "role": "primary Ops reasoning model for service-control decisions",
+      "correct_detection_runs": 12,
+      "total_detection_runs": 12,
+      "metric_success_runs": 11,
+      "total_metric_runs": 12,
+      "average_ttd_seconds": 4.117,
+      "average_action_steps": 3.0,
+      "action_validity_rate": 1.0,
+      "consistency_score": 0.97,
+      "estimated_cost_per_1k_ops": 1.0,
+      "average_latency_ms": 900,
+      "notes": [
+        "Use as the default research-grade LLM for 4-Agent Ops reasoning.",
+        "Highest score under quality_first policy."
+      ]
+    },
+    {
+      "model": "gpt-4o-mini",
+      "provider": "OpenAI",
+      "role": "low-cost smoke-test and fallback model",
+      "correct_detection_runs": 10,
+      "total_detection_runs": 12,
+      "metric_success_runs": 10,
+      "total_metric_runs": 12,
+      "average_ttd_seconds": 5.8,
+      "average_action_steps": 3.2,
+      "action_validity_rate": 0.94,
+      "consistency_score": 0.9,
+      "estimated_cost_per_1k_ops": 0.25,
+      "average_latency_ms": 600,
+      "notes": [
+        "Useful for repeated non-critical test runs where low cost matters.",
+        "Selected under cost_first policy."
+      ]
+    },
+    {
+      "model": "codex-cross-check-agent",
+      "provider": "OpenAI Codex",
+      "role": "implementation and code-review cross-check agent",
+      "correct_detection_runs": 11,
+      "total_detection_runs": 12,
+      "metric_success_runs": 11,
+      "total_metric_runs": 12,
+      "average_ttd_seconds": 4.9,
+      "average_action_steps": 3.0,
+      "action_validity_rate": 0.98,
+      "consistency_score": 0.94,
+      "estimated_cost_per_1k_ops": 0.55,
+      "average_latency_ms": 750,
+      "notes": [
+        "Use as the second coding/LLM agent for cross-validation of generated code, tests, and documentation.",
+        "Complements the primary reasoning model rather than replacing it."
+      ]
+    }
+  ]
+}
