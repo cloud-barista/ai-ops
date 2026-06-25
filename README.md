@@ -4,7 +4,6 @@
 
 [![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go&logoColor=white)](go/service-control-api/go.mod)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Branch](https://img.shields.io/badge/Branch-geon-lightgrey)](https://github.com/cloud-barista/ai-ops/tree/geon)
 
 ## 📌 Overview
 
