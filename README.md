@@ -49,3 +49,7 @@
 
 핵심 실행 로직은 Go로 구성되어 있으며, JSON 설정과 Markdown 문서는 보조
 산출물로 사용합니다.
+
+## License
+
+ai-ops is licensed under the [Apache License 2.0](./LICENSE).
