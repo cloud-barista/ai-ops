@@ -1,4 +1,4 @@
-# 🚀 Kyunghee AIOps Go
+# 🏛️ Kyunghee AIOps 🦁
 
 > A Go-based initial prototype for an AI-powered service control and management automation framework.
 
@@ -53,4 +53,4 @@ documents.
 
 ## License
 
-ai-ops is licensed under the [Apache License 2.0](./LICENSE).
+Kyunghee AIOpslicensed under the [Apache License 2.0](./LICENSE).
