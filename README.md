@@ -1,21 +1,25 @@
-# Kyunghee AIOps Go
+# 🚀 Kyunghee AIOps Go
 
-AI 기반 서비스 제어 및 관리 자동화 프레임워크의 Go 기반 초기 프로토타입입니다.
+> AI 기반 서비스 제어 및 관리 자동화 프레임워크의 Go 기반 초기 프로토타입입니다.
 
-## 개요
+[![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go&logoColor=white)](go/service-control-api/go.mod)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![Branch](https://img.shields.io/badge/Branch-geon-lightgrey)](https://github.com/cloud-barista/ai-ops/tree/geon)
+
+## 📌 개요
 
 본 프로젝트는 AI LLM 운영관리와 AI 응용 자동화 에이전트 구조를 Go 기반으로
 구현하기 위한 초기 버전입니다.
 
 주요 구현 범위는 다음과 같습니다.
 
-- Ops 분석 및 최적 LLM 선정
-- AI LLM 운영관리 구조 설계
-- AI 에이전트 등록관리 프로토타입
-- CPU/GPU VM 기반 AI 응용 배포/제어 추론 최적화 전략
-- 서비스 제어 action 검증을 위한 Go 기반 guard 구조
+- 🧠 Ops 분석 및 최적 LLM 선정
+- 🏗️ AI LLM 운영관리 구조 설계
+- 🤖 AI 에이전트 등록관리 프로토타입
+- ⚙️ CPU/GPU VM 기반 AI 응용 배포/제어 추론 최적화 전략
+- 🛡️ 서비스 제어 action 검증을 위한 Go 기반 guard 구조
 
-## 구성
+## 🧩 구성
 
 | 경로 | 설명 |
 | --- | --- |
@@ -24,7 +28,7 @@ AI 기반 서비스 제어 및 관리 자동화 프레임워크의 Go 기반 초
 | [`config/`](config/) | LLM 후보, Agent registry, CPU/GPU VM 정책 설정 |
 | [`docs/`](docs/) | 설계 개요, 제출 문서, 실행/검증 가이드 |
 
-## 참고 문서
+## 📚 참고 문서
 
 | 문서 | 내용 |
 | --- | --- |
@@ -36,7 +40,12 @@ AI 기반 서비스 제어 및 관리 자동화 프레임워크의 Go 기반 초
 | [실행 방법](docs/submission/install_and_run_guide.md) | Go API/CLI 실행 방법 |
 | [검증 방법](docs/submission/test_guide.md) | Go 테스트 및 team-validation 절차 |
 
-## 개발 언어
+## 🛠️ 개발 환경
+
+- 개발 언어: Go
+- 소스코드 관리: GitHub
+- 백엔드 프레임워크: Echo(Go)
+- 라이선스: Apache 2.0
 
 핵심 실행 로직은 Go로 구성되어 있으며, JSON 설정과 Markdown 문서는 보조
 산출물로 사용합니다.
