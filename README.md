@@ -53,4 +53,4 @@ documents.
 
 ## License
 
-Kyunghee AIOpslicensed under the [Apache License 2.0](./LICENSE).
+Kyunghee AIOps licensed under the [Apache License 2.0](./LICENSE).
