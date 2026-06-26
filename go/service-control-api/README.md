@@ -1,6 +1,8 @@
 # Service Control API
 
-Go implementation of the AI service-control prototype.
+Go implementation of the AI service-control prototype. This module performs
+LLM selection, agent registry validation, CPU/GPU placement recommendation,
+deployment-plan generation, manifest dry-run, and readiness reporting.
 
 ## Run Tests
 
@@ -26,8 +28,8 @@ go run ./cmd/aiops-service-control run-service-operations \
   --llm-policy quality_first \
   --inference-config ../../config/inference_optimization.json \
   --workload llm-chat-inference \
-  --namespace online-boutique \
-  --deployment paymentservice \
+  --recovery-namespace online-boutique \
+  --recovery-deployment paymentservice \
   --mode mock \
   --guard-backend go
 ```
@@ -58,4 +60,5 @@ deployment_dry_run
 agent_reviews
 recovery_pipeline_ready
 guard_backend
+guard_validation
 ```

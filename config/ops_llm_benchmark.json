@@ -1,6 +1,7 @@
 {
   "version": "1",
   "metadata": {
+    "data_origin": "manually_defined_prototype_policy_values",
     "data_source": "go_service_control_prototype_config",
     "benchmark_run_id": "go-service-control-prototype-20260625",
     "generated_from": [
@@ -8,14 +9,16 @@
       "Ops LLM policy wiring checks",
       "agent registry and CPU/GPU placement prototype requirements"
     ],
-    "is_synthetic": false,
+    "is_synthetic": true,
     "is_standardized_benchmark": false,
     "measurement_level": "prototype_policy_baseline",
     "requires_regeneration_for_final_report": true,
+    "candidate_identity_policy": "Candidate names are role labels for prototype policy wiring, not verified provider benchmark claims.",
     "last_updated": "2026-06-25",
     "notes": [
-      "Current values are retained as prototype policy baselines for LLM selection wiring.",
-      "For a final quantitative report, regenerate scores from standardized per-model Ops runs.",
+      "Current values are manually defined prototype policy baselines for LLM selection wiring.",
+      "These values are not final standardized benchmark results.",
+      "For a final quantitative report, regenerate scores from standardized per-model Ops evaluation runs.",
       "The submission/demo package does not depend on external benchmark runners."
     ]
   },
@@ -47,8 +50,8 @@
   },
   "candidates": [
     {
-      "model": "gpt-5.5",
-      "provider": "OpenAI",
+      "model": "primary-ops-llm",
+      "provider": "prototype-policy",
       "role": "primary Ops reasoning model for service-control decisions",
       "correct_detection_runs": 12,
       "total_detection_runs": 12,
@@ -61,13 +64,13 @@
       "estimated_cost_per_1k_ops": 1.0,
       "average_latency_ms": 900,
       "notes": [
-        "Use as the default research-grade LLM for 4-Agent Ops reasoning.",
+        "Use as the default prototype policy candidate for 4-Agent Ops reasoning.",
         "Highest score under quality_first policy."
       ]
     },
     {
-      "model": "gpt-4o-mini",
-      "provider": "OpenAI",
+      "model": "low-cost-ops-llm",
+      "provider": "prototype-policy",
       "role": "low-cost smoke-test and fallback model",
       "correct_detection_runs": 10,
       "total_detection_runs": 12,
@@ -85,8 +88,8 @@
       ]
     },
     {
-      "model": "codex-cross-check-agent",
-      "provider": "OpenAI Codex",
+      "model": "code-cross-check-agent",
+      "provider": "prototype-policy",
       "role": "implementation and code-review cross-check agent",
       "correct_detection_runs": 11,
       "total_detection_runs": 12,

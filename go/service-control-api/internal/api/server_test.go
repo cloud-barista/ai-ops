@@ -49,8 +49,8 @@ func TestSelectOpsLLM(t *testing.T) {
 	if response.Code != http.StatusOK {
 		t.Fatalf("expected status 200, got %d body=%s", response.Code, response.Body.String())
 	}
-	if !strings.Contains(response.Body.String(), `"selected_model":"gpt-5.5"`) {
-		t.Fatalf("expected gpt-5.5 selection: %s", response.Body.String())
+	if !strings.Contains(response.Body.String(), `"selected_model":"primary-ops-llm"`) {
+		t.Fatalf("expected primary-ops-llm selection: %s", response.Body.String())
 	}
 }
 
@@ -79,8 +79,8 @@ func TestRunServiceOperationsEndpoint(t *testing.T) {
 	body := strings.NewReader(`{
 		"llm_policy":"quality_first",
 		"workload":"llm-chat-inference",
-		"namespace":"online-boutique",
-		"deployment":"paymentservice",
+		"recovery_namespace":"online-boutique",
+		"recovery_deployment":"paymentservice",
 		"mode":"mock",
 		"guard_backend":"go"
 	}`)
@@ -98,5 +98,8 @@ func TestRunServiceOperationsEndpoint(t *testing.T) {
 	}
 	if !strings.Contains(response.Body.String(), `"guard_backend":"go"`) {
 		t.Fatalf("expected Go guard backend: %s", response.Body.String())
+	}
+	if !strings.Contains(response.Body.String(), `"guard_validation"`) {
+		t.Fatalf("expected guard validation result: %s", response.Body.String())
 	}
 }

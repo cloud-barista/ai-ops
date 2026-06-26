@@ -30,10 +30,10 @@ func (service Service) ListAgentsFromPath(path string) (map[string]any, error) {
 		return nil, err
 	}
 	return map[string]any{
-		"command": "list-agents",
+		"command":  "list-agents",
 		"registry": path,
-		"version": registry.Version,
-		"agents":  registry.Agents,
+		"version":  registry.Version,
+		"agents":   registry.Agents,
 	}, nil
 }
 
@@ -313,18 +313,23 @@ func (service Service) RunServiceOperations(request ServiceOperationsRequest) (S
 	if err != nil {
 		return ServiceOperationsResponse{}, err
 	}
+	recoveryNamespace, recoveryDeployment := normalizeRecoveryContext(request)
 	dryRun := validateDeploymentManifest(manifest, request.Mode)
 	reviews := buildAgentReviews(deploymentPlan)
 	recovery := RecoveryReadiness{
-		Valid:   true,
-		Skipped: true,
-		Reason:  "no alert supplied; recovery pipeline readiness only",
+		Valid:      recoveryNamespace != "" && recoveryDeployment != "",
+		Skipped:    true,
+		Namespace:  recoveryNamespace,
+		Deployment: recoveryDeployment,
+		Reason:     "no alert supplied; recovery context is validated for readiness only",
 	}
+	guardValidation := buildGuardValidation(request, recoveryNamespace, recoveryDeployment)
 	ready := dryRun.Valid &&
 		reviews.Application.Approved &&
 		reviews.Infrastructure.Approved &&
 		reviews.Cost.Approved &&
-		recovery.Valid
+		recovery.Valid &&
+		guardValidation.Valid
 
 	return ServiceOperationsResponse{
 		Command:                 "run-service-operations",
@@ -340,12 +345,57 @@ func (service Service) RunServiceOperations(request ServiceOperationsRequest) (S
 		Recovery:                recovery,
 		RecoveryPipelineReady:   ready,
 		GuardBackend:            request.GuardBackend,
+		GuardValidation:         guardValidation,
 		Metadata: map[string]string{
-			"llm_policy": request.LLMPolicy,
-			"workload":   request.Workload,
-			"mode":       request.Mode,
+			"llm_policy":          request.LLMPolicy,
+			"workload":            request.Workload,
+			"mode":                request.Mode,
+			"recovery_namespace":  recoveryNamespace,
+			"recovery_deployment": recoveryDeployment,
 		},
 	}, nil
+}
+
+func normalizeRecoveryContext(request ServiceOperationsRequest) (string, string) {
+	namespace := request.RecoveryNamespace
+	if namespace == "" {
+		namespace = request.Namespace
+	}
+	deployment := request.RecoveryDeployment
+	if deployment == "" {
+		deployment = request.Deployment
+	}
+	return namespace, deployment
+}
+
+func buildGuardValidation(request ServiceOperationsRequest, namespace string, deployment string) GuardValidation {
+	result := GuardValidation{
+		Backend:            request.GuardBackend,
+		RuntimeWired:       false,
+		Mode:               request.Mode,
+		Boundary:           "standalone aiops-guard bounded-action contract",
+		RecoveryNamespace:  namespace,
+		RecoveryDeployment: deployment,
+		CheckedActions: []string{
+			"get_status",
+			"restart_deployment",
+			"scale_out",
+			"scale_in",
+		},
+	}
+	if request.GuardBackend != "go" {
+		result.Valid = false
+		result.Reason = "only the Go guard backend is supported in the prototype validation path"
+		return result
+	}
+	if namespace == "" || deployment == "" {
+		result.Valid = false
+		result.Reason = "recovery_namespace and recovery_deployment are required to prepare bounded guard validation"
+		return result
+	}
+	result.Valid = true
+	result.Reason = "service-control-api prepared the bounded recovery context; full runtime invocation of aiops-guard remains a planned integration step"
+	return result
 }
 
 func (service Service) resolvePath(path string, defaultParts ...string) string {
@@ -571,10 +621,10 @@ func buildAgentReviews(plan DeploymentPlanResponse) AgentReviews {
 			Approved: plan.Valid,
 			Reason:   "AI application deployment plan is ready for Kubernetes manifest generation and dry-run validation.",
 			Parameters: map[string]string{
-				"workload":           plan.Workload,
-				"namespace":          plan.DeploymentPlan.Kubernetes.Namespace,
-				"deployment":         plan.DeploymentPlan.Kubernetes.Deployment,
-				"selected_resource":  plan.SelectedResource,
+				"workload":          plan.Workload,
+				"namespace":         plan.DeploymentPlan.Kubernetes.Namespace,
+				"deployment":        plan.DeploymentPlan.Kubernetes.Deployment,
+				"selected_resource": plan.SelectedResource,
 			},
 		},
 		Infrastructure: buildInfrastructureReview(plan),
@@ -633,11 +683,11 @@ func buildCostReview(plan DeploymentPlanResponse) AgentReview {
 }
 
 func runtimeModelFromSelection(selection OpsLLMSelectionResponse) string {
-	if selection.SelectedModel != "codex-cross-check-agent" {
+	if selection.SelectedModel != "code-cross-check-agent" {
 		return selection.SelectedModel
 	}
 	for _, candidate := range selection.Ranking {
-		if candidate.Model != "" && candidate.Model != "codex-cross-check-agent" {
+		if candidate.Model != "" && candidate.Model != "code-cross-check-agent" {
 			return candidate.Model
 		}
 	}

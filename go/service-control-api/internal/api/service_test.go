@@ -10,8 +10,8 @@ func TestSelectOpsLLMMatchesConfiguredBaseline(t *testing.T) {
 		t.Fatalf("SelectOpsLLM returned error: %v", err)
 	}
 
-	if result.SelectedModel != "gpt-5.5" {
-		t.Fatalf("expected gpt-5.5, got %s", result.SelectedModel)
+	if result.SelectedModel != "primary-ops-llm" {
+		t.Fatalf("expected primary-ops-llm, got %s", result.SelectedModel)
 	}
 	if result.SelectedScore != 0.891333 {
 		t.Fatalf("expected score 0.891333, got %.6f", result.SelectedScore)
@@ -19,8 +19,8 @@ func TestSelectOpsLLMMatchesConfiguredBaseline(t *testing.T) {
 	if len(result.Ranking) != 3 {
 		t.Fatalf("expected 3 ranked models, got %d", len(result.Ranking))
 	}
-	if result.Ranking[1].Model != "gpt-4o-mini" {
-		t.Fatalf("expected gpt-4o-mini second, got %s", result.Ranking[1].Model)
+	if result.Ranking[1].Model != "low-cost-ops-llm" {
+		t.Fatalf("expected low-cost-ops-llm second, got %s", result.Ranking[1].Model)
 	}
 }
 
@@ -90,14 +90,14 @@ func TestRunServiceOperationsCombinesCoreDecisionsInGo(t *testing.T) {
 	service := NewService(NewServerConfig())
 
 	report, err := service.RunServiceOperations(ServiceOperationsRequest{
-		LLMPolicy:       "quality_first",
-		Workload:        "llm-chat-inference",
-		Namespace:       "online-boutique",
-		Deployment:      "paymentservice",
-		Mode:            "mock",
-		GuardBackend:    "go",
-		LLMConfigPath:   "config/ops_llm_benchmark.json",
-		InferenceConfig: "config/inference_optimization.json",
+		LLMPolicy:          "quality_first",
+		Workload:           "llm-chat-inference",
+		RecoveryNamespace:  "online-boutique",
+		RecoveryDeployment: "paymentservice",
+		Mode:               "mock",
+		GuardBackend:       "go",
+		LLMConfigPath:      "config/ops_llm_benchmark.json",
+		InferenceConfig:    "config/inference_optimization.json",
 	})
 	if err != nil {
 		t.Fatalf("RunServiceOperations returned error: %v", err)
@@ -106,8 +106,8 @@ func TestRunServiceOperationsCombinesCoreDecisionsInGo(t *testing.T) {
 	if !report.Valid {
 		t.Fatalf("expected report to be valid: %#v", report)
 	}
-	if report.SelectedLLM != "gpt-5.5" {
-		t.Fatalf("expected gpt-5.5, got %s", report.SelectedLLM)
+	if report.SelectedLLM != "primary-ops-llm" {
+		t.Fatalf("expected primary-ops-llm, got %s", report.SelectedLLM)
 	}
 	if report.SelectedResource != "gpu-vm-l4" {
 		t.Fatalf("expected gpu-vm-l4, got %s", report.SelectedResource)
@@ -117,6 +117,12 @@ func TestRunServiceOperationsCombinesCoreDecisionsInGo(t *testing.T) {
 	}
 	if report.GuardBackend != "go" {
 		t.Fatalf("expected guard backend go, got %s", report.GuardBackend)
+	}
+	if !report.GuardValidation.Valid {
+		t.Fatalf("expected guard validation to be valid: %#v", report.GuardValidation)
+	}
+	if report.GuardValidation.RuntimeWired {
+		t.Fatal("expected standalone guard runtime wiring to remain false")
 	}
 	if report.DeploymentManifest.Kind != "Deployment" {
 		t.Fatalf("expected Deployment manifest, got %s", report.DeploymentManifest.Kind)

@@ -83,7 +83,7 @@
       "batch_size": 8,
       "service_name": "llm-chat-inference",
       "namespace": "ai-inference",
-      "container_image": "ghcr.io/gunsun2000/aiops-llm-chat:latest",
+      "container_image": "ghcr.io/cloud-barista/ai-ops/llm-chat:prototype",
       "replicas": 1
     },
     {
@@ -96,7 +96,7 @@
       "batch_size": 16,
       "service_name": "text-classifier",
       "namespace": "ai-inference",
-      "container_image": "ghcr.io/gunsun2000/aiops-text-classifier:latest",
+      "container_image": "ghcr.io/cloud-barista/ai-ops/text-classifier:prototype",
       "replicas": 1
     }
   ]

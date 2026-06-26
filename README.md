@@ -1,33 +1,33 @@
-# 🏛️ Kyunghee AIOps 🦁
+# AI-Based Service Control and Management Automation Framework
 
-> A Go-based initial prototype for an AI-powered service control and management automation framework.
+> Initial Go-based prototype for AI LLM operation management, agent registration management, and CPU/GPU VM-based AI application deployment-control planning.
 
 [![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go&logoColor=white)](go/service-control-api/go.mod)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-## 📌 Overview
+## Overview
 
-This project is an initial Go-based prototype for AI LLM operation management
-and AI application automation agents.
+This repository contains a 1st-year research prototype for an AI-based service
+control and management automation framework. It is intended for functional
+validation and demonstration, not as a production-ready AIOps platform.
 
-The main implementation scope includes:
+The current implementation scope corresponds to:
 
-- 🧠 Ops analysis and optimal LLM selection
-- 🏗️ AI LLM operation-management structure design
-- 🤖 AI agent registration-management prototype
-- ⚙️ CPU/GPU VM-based AI application deployment and control optimization strategy
-- 🛡️ Go-based guard structure for validating service-control actions
+- AI LLM operation-management design and prototype
+- AI agent registration-management prototype
+- CPU/GPU VM-based AI application deployment/control optimization strategy
+- Go-based bounded-action validation boundary
 
-## 🧩 Project Structure
+## Project Structure
 
 | Path | Description |
 | --- | --- |
 | [`go/service-control-api/`](go/service-control-api/) | LLM selection, Agent registry, CPU/GPU VM placement, and operation-management pipeline |
-| [`go/aiops-guard/`](go/aiops-guard/) | Safety validation for service-control actions |
+| [`go/aiops-guard/`](go/aiops-guard/) | Standalone bounded-action validator for service-control actions |
 | [`config/`](config/) | LLM candidates, Agent registry, and CPU/GPU VM policy configuration |
 | [`docs/`](docs/) | Design overview, submission documents, and execution/validation guides |
 
-## 📚 Reference Documents
+## Reference Documents
 
 | Document | Description |
 | --- | --- |
@@ -36,12 +36,14 @@ The main implementation scope includes:
 | [Ops LLM Selection Guide](docs/design/ops_llm_selection_guide.md) | Ops analysis and optimal LLM selection structure |
 | [Agent Registry Guide](docs/design/agent_registry_guide.md) | Agent registry and bounded-action management |
 | [Inference Optimization Guide](docs/design/inference_optimization_guide.md) | CPU/GPU VM placement recommendation policy |
+| [Evaluation Summary](docs/submission/evaluation_summary.md) | Functional prototype evaluation summary |
 | [Install and Run Guide](docs/submission/install_and_run_guide.md) | Go API/CLI execution guide |
 | [Test Guide](docs/submission/test_guide.md) | Go test and team-validation guide |
 
-## 🛠️ Development Environment
+## Development Environment
 
 - Development language: Go
+- Go version baseline: Go 1.25
 - Source code management: GitHub
 - Backend framework: Echo (Go)
 - License: Apache 2.0
@@ -50,6 +52,16 @@ The core execution logic is implemented in Go. JSON files are used for
 configuration, and Markdown files are used as supporting design and submission
 documents.
 
+Both Go modules use Go 1.25 because the service-control API dependency set is
+normalized by `go mod tidy` to `go 1.25.0`.
+
+## Prototype Boundary
+
+The LLM policy values in this repository are manually defined prototype policy
+baselines. They are not final standardized benchmark results. Final quantitative
+reporting must regenerate those values through controlled per-model Ops
+evaluation runs.
+
 ## License
 
-Kyunghee AIOps licensed under the [Apache License 2.0](./LICENSE).
+ai-ops is licensed under the [Apache License 2.0](./LICENSE).

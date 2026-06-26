@@ -60,10 +60,10 @@ func run(args []string) error {
 			return err
 		}
 		return emitReport("show-agent", map[string]any{
-			"command": "show-agent",
-			"valid": true,
+			"command":  "show-agent",
+			"valid":    true,
 			"registry": registryPath,
-			"agent": agent,
+			"agent":    agent,
 		}, *saveResultDir)
 	case "validate-agent-action":
 		flags := flag.NewFlagSet("validate-agent-action", flag.ContinueOnError)
@@ -86,11 +86,11 @@ func run(args []string) error {
 			return err
 		}
 		return emitReport("validate-agent-action", map[string]any{
-			"command": "validate-agent-action",
-			"valid": valid,
+			"command":  "validate-agent-action",
+			"valid":    valid,
 			"registry": registryPath,
-			"agent": *agentName,
-			"action": *action,
+			"agent":    *agentName,
+			"action":   *action,
 		}, *saveResultDir)
 	case "select-ops-llm":
 		flags := flag.NewFlagSet("select-ops-llm", flag.ContinueOnError)
@@ -107,7 +107,7 @@ func run(args []string) error {
 		}
 		return emitReport("select-ops-llm", withFields(result, map[string]any{
 			"command": "select-ops-llm",
-			"config": configPath,
+			"config":  configPath,
 		}), *saveResultDir)
 	case "recommend-inference-placement":
 		flags := flag.NewFlagSet("recommend-inference-placement", flag.ContinueOnError)
@@ -127,7 +127,7 @@ func run(args []string) error {
 		}
 		return emitReport("recommend-inference-placement", withFields(result, map[string]any{
 			"command": "recommend-inference-placement",
-			"config": configPath,
+			"config":  configPath,
 		}), *saveResultDir)
 	case "plan-inference-deployment":
 		flags := flag.NewFlagSet("plan-inference-deployment", flag.ContinueOnError)
@@ -147,7 +147,7 @@ func run(args []string) error {
 		}
 		return emitReport("plan-inference-deployment", withFields(result, map[string]any{
 			"command": "plan-inference-deployment",
-			"config": configPath,
+			"config":  configPath,
 		}), *saveResultDir)
 	case "run-service-operations":
 		flags := flag.NewFlagSet("run-service-operations", flag.ContinueOnError)
@@ -155,8 +155,10 @@ func run(args []string) error {
 		llmPolicy := flags.String("llm-policy", "quality_first", "Ops LLM selection policy")
 		inferenceConfig := flags.String("inference-config", "config/inference_optimization.json", "Inference optimization JSON path")
 		workload := flags.String("workload", "", "Inference workload ID")
-		namespace := flags.String("namespace", "", "Kubernetes namespace for recovery context")
-		deployment := flags.String("deployment", "", "Kubernetes deployment for recovery context")
+		recoveryNamespace := flags.String("recovery-namespace", "", "Kubernetes namespace for recovery/operation context")
+		recoveryDeployment := flags.String("recovery-deployment", "", "Kubernetes deployment for recovery/operation context")
+		namespace := flags.String("namespace", "", "Deprecated alias for --recovery-namespace")
+		deployment := flags.String("deployment", "", "Deprecated alias for --recovery-deployment")
 		mode := flags.String("mode", "mock", "Execution mode")
 		guardBackend := flags.String("guard-backend", "go", "Guard backend")
 		saveResultDir := addSaveResultDirFlag(flags)
@@ -166,21 +168,25 @@ func run(args []string) error {
 		if *workload == "" {
 			return fmt.Errorf("--workload is required")
 		}
-		if *namespace == "" {
-			return fmt.Errorf("--namespace is required")
+		normalizedNamespace := firstNonEmpty(*recoveryNamespace, *namespace)
+		normalizedDeployment := firstNonEmpty(*recoveryDeployment, *deployment)
+		if normalizedNamespace == "" {
+			return fmt.Errorf("--recovery-namespace is required")
 		}
-		if *deployment == "" {
-			return fmt.Errorf("--deployment is required")
+		if normalizedDeployment == "" {
+			return fmt.Errorf("--recovery-deployment is required")
 		}
 		result, err := service.RunServiceOperations(api.ServiceOperationsRequest{
-			LLMConfigPath:   resolveInputPath(serverConfig, *llmConfig),
-			InferenceConfig: resolveInputPath(serverConfig, *inferenceConfig),
-			LLMPolicy:       *llmPolicy,
-			Workload:        *workload,
-			Namespace:       *namespace,
-			Deployment:      *deployment,
-			Mode:            *mode,
-			GuardBackend:    *guardBackend,
+			LLMConfigPath:      resolveInputPath(serverConfig, *llmConfig),
+			InferenceConfig:    resolveInputPath(serverConfig, *inferenceConfig),
+			LLMPolicy:          *llmPolicy,
+			Workload:           *workload,
+			RecoveryNamespace:  normalizedNamespace,
+			RecoveryDeployment: normalizedDeployment,
+			Namespace:          *namespace,
+			Deployment:         *deployment,
+			Mode:               *mode,
+			GuardBackend:       *guardBackend,
 		})
 		if err != nil {
 			return err
@@ -218,6 +224,15 @@ func resolveInputPath(config api.ServerConfig, path string) string {
 		return path
 	}
 	return filepath.Join(config.RepoRoot, path)
+}
+
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		if value != "" {
+			return value
+		}
+	}
+	return ""
 }
 
 func withFields(value any, fields map[string]any) map[string]any {
@@ -342,14 +357,14 @@ func runTeamValidation(service api.Service, config api.ServerConfig, outputDir s
 	addStep("plan-inference-deployment", deploymentPlan, err == nil && deploymentPlan.Valid, err)
 
 	serviceOperations, err := service.RunServiceOperations(api.ServiceOperationsRequest{
-		LLMConfigPath:   llmConfig,
-		InferenceConfig: inferenceConfig,
-		LLMPolicy:       "quality_first",
-		Workload:        "llm-chat-inference",
-		Namespace:       "online-boutique",
-		Deployment:      "paymentservice",
-		Mode:            "mock",
-		GuardBackend:    "go",
+		LLMConfigPath:      llmConfig,
+		InferenceConfig:    inferenceConfig,
+		LLMPolicy:          "quality_first",
+		Workload:           "llm-chat-inference",
+		RecoveryNamespace:  "online-boutique",
+		RecoveryDeployment: "paymentservice",
+		Mode:               "mock",
+		GuardBackend:       "go",
 	})
 	addStep("run-service-operations", serviceOperations, err == nil && serviceOperations.Valid, err)
 

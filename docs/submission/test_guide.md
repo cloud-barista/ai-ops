@@ -26,14 +26,22 @@ The validation checks:
 - Agent registry listing
 - Agent bounded-action validation
 - CPU/GPU VM placement recommendation
-- Deployment-plan generation
+- Kubernetes deployment-plan generation
+- Mock deployment dry-run and guard-readiness validation
 - Integrated service-operations readiness
 
 ## Expected Signals
 
 ```text
-selected_model = gpt-5.5
+selected_model = primary-ops-llm
 selected_resource = gpu-vm-l4
 valid = true
 guard_backend = go
+guard_validation.valid = true
 ```
+
+## Evaluation Boundary
+
+These tests validate functional prototype behavior. They do not prove final
+production performance, live GPU scheduling, or standardized LLM benchmark
+quality.

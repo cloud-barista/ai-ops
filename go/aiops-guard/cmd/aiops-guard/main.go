@@ -7,7 +7,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/gunsun2000/aiops_research/go/aiops-guard/internal/guard"
+	"github.com/cloud-barista/ai-ops/go/aiops-guard/internal/guard"
 )
 
 func main() {

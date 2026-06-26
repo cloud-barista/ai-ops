@@ -3,9 +3,10 @@ info:
   title: AI Service Control API
   version: "0.1.0"
   description: >
-    Go Echo API contract for the team project service-control prototype.
-    The API exposes LLM selection, agent registry, CPU/GPU VM placement,
-    and AI application deployment-plan generation from the project configs.
+    Go Echo API contract for the 1st-year service-control prototype. The API
+    exposes LLM selection, agent registry listing, CPU/GPU VM placement,
+    Kubernetes deployment-plan generation, and service-operations readiness.
+    It is a functional prototype contract, not a production AIOps API.
 servers:
   - url: http://127.0.0.1:8080
 paths:
@@ -41,7 +42,7 @@ paths:
                 $ref: "#/components/schemas/AgentListResponse"
   /api/v1/ops-llm/select:
     post:
-      summary: Select the Ops LLM for an operation policy
+      summary: Select the prototype Ops LLM candidate for an operation policy
       requestBody:
         required: false
         content:
@@ -50,7 +51,7 @@ paths:
               $ref: "#/components/schemas/OpsLLMSelectRequest"
       responses:
         "200":
-          description: LLM ranking and selected model
+          description: LLM ranking and selected candidate
           content:
             application/json:
               schema:
@@ -167,7 +168,7 @@ components:
           example: AIApplicationManagementAgent
         korean_name:
           type: string
-          example: AI응용관리 자동화 에이전트
+          example: AI application management agent
         role:
           type: string
         responsibilities:
@@ -199,7 +200,7 @@ components:
           type: string
         selected_model:
           type: string
-          example: gpt-5.5
+          example: primary-ops-llm
         selected_score:
           type: number
         rationale:
@@ -220,8 +221,8 @@ components:
       type: object
       required:
         - workload
-        - namespace
-        - deployment
+        - recovery_namespace
+        - recovery_deployment
       properties:
         llm_config:
           type: string
@@ -234,12 +235,25 @@ components:
           example: quality_first
         workload:
           type: string
+          description: AI workload ID used for placement and deployment-plan generation.
           example: llm-chat-inference
+        recovery_namespace:
+          type: string
+          description: Service operation or recovery target namespace.
+          example: online-boutique
+        recovery_deployment:
+          type: string
+          description: Service operation or recovery target Deployment.
+          example: paymentservice
         namespace:
           type: string
+          deprecated: true
+          description: Deprecated alias for recovery_namespace.
           example: online-boutique
         deployment:
           type: string
+          deprecated: true
+          description: Deprecated alias for recovery_deployment.
           example: paymentservice
         mode:
           type: string
@@ -293,8 +307,10 @@ components:
           properties:
             namespace:
               type: string
+              description: AI application workload namespace from inference config.
             deployment:
               type: string
+              description: AI application workload Deployment generated from inference config.
             replicas:
               type: integer
             node_selector:
@@ -309,6 +325,32 @@ components:
           type: array
           items:
             type: string
+    GuardValidation:
+      type: object
+      properties:
+        backend:
+          type: string
+          example: go
+        valid:
+          type: boolean
+        runtime_wired:
+          type: boolean
+          example: false
+        mode:
+          type: string
+          example: mock
+        boundary:
+          type: string
+        recovery_namespace:
+          type: string
+        recovery_deployment:
+          type: string
+        checked_actions:
+          type: array
+          items:
+            type: string
+        reason:
+          type: string
     ServiceOperationsResponse:
       type: object
       properties:
@@ -319,10 +361,10 @@ components:
           type: boolean
         selected_llm:
           type: string
-          example: gpt-5.5
+          example: primary-ops-llm
         runtime_model:
           type: string
-          example: gpt-5.5
+          example: primary-ops-llm
         selected_resource:
           type: string
           example: gpu-vm-l4
@@ -343,5 +385,7 @@ components:
         guard_backend:
           type: string
           example: go
+        guard_validation:
+          $ref: "#/components/schemas/GuardValidation"
         metadata:
           type: object

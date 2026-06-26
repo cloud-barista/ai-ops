@@ -4,10 +4,11 @@
 
 | Research scope | Go implementation |
 | --- | --- |
-| AI LLM 운영관리 설계 | Ops LLM policy ranking and runtime model selection |
-| AI 에이전트 등록관리 | Agent registry plus bounded-action validation |
-| AI 응용 자동화 에이전트 | Application, infrastructure, and cost review outputs |
-| CPU/GPU VM 기반 AI 응용 배포/제어 | Placement and deployment-plan generation |
+| AI LLM operation-management design | Ops LLM policy ranking and runtime candidate selection |
+| AI agent registration management | Agent registry plus bounded-action validation |
+| AI application automation agent design | Application, infrastructure, and cost review outputs |
+| CPU/GPU VM-based AI application deployment/control | Placement recommendation and deployment-plan generation |
+| Safety validation | Standalone `aiops-guard` plus service-control guard-readiness response |
 
 ## Pipeline
 
@@ -27,3 +28,6 @@ config/ops_llm_benchmark.json
 The Go layer validates the selected action and deployment plan before a service
 operation is considered ready. The default team validation uses `mock` mode and
 does not require cluster credentials.
+
+`aiops-guard` remains a standalone bounded-action validator. Full runtime
+wiring between `service-control-api` and `aiops-guard` is a planned next step.

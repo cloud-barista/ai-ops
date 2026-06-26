@@ -106,14 +106,16 @@ type WorkloadRequest struct {
 }
 
 type ServiceOperationsRequest struct {
-	LLMConfigPath   string `json:"llm_config"`
-	InferenceConfig string `json:"inference_config"`
-	LLMPolicy       string `json:"llm_policy"`
-	Workload        string `json:"workload"`
-	Namespace       string `json:"namespace"`
-	Deployment      string `json:"deployment"`
-	Mode            string `json:"mode"`
-	GuardBackend    string `json:"guard_backend"`
+	LLMConfigPath      string `json:"llm_config"`
+	InferenceConfig    string `json:"inference_config"`
+	LLMPolicy          string `json:"llm_policy"`
+	Workload           string `json:"workload"`
+	RecoveryNamespace  string `json:"recovery_namespace"`
+	RecoveryDeployment string `json:"recovery_deployment"`
+	Namespace          string `json:"namespace"`
+	Deployment         string `json:"deployment"`
+	Mode               string `json:"mode"`
+	GuardBackend       string `json:"guard_backend"`
 }
 
 type PlacementResponse struct {
@@ -159,10 +161,10 @@ type DeploymentPlan struct {
 }
 
 type DeploymentManifest struct {
-	APIVersion string                   `json:"apiVersion"`
-	Kind       string                   `json:"kind"`
-	Metadata   map[string]any           `json:"metadata"`
-	Spec       map[string]any           `json:"spec"`
+	APIVersion string         `json:"apiVersion"`
+	Kind       string         `json:"kind"`
+	Metadata   map[string]any `json:"metadata"`
+	Spec       map[string]any `json:"spec"`
 }
 
 type DeploymentDryRun struct {
@@ -189,9 +191,23 @@ type AgentReview struct {
 }
 
 type RecoveryReadiness struct {
-	Valid   bool   `json:"valid"`
-	Skipped bool   `json:"skipped"`
-	Reason  string `json:"reason"`
+	Valid      bool   `json:"valid"`
+	Skipped    bool   `json:"skipped"`
+	Namespace  string `json:"namespace"`
+	Deployment string `json:"deployment"`
+	Reason     string `json:"reason"`
+}
+
+type GuardValidation struct {
+	Backend            string   `json:"backend"`
+	Valid              bool     `json:"valid"`
+	RuntimeWired       bool     `json:"runtime_wired"`
+	Mode               string   `json:"mode"`
+	Boundary           string   `json:"boundary"`
+	RecoveryNamespace  string   `json:"recovery_namespace"`
+	RecoveryDeployment string   `json:"recovery_deployment"`
+	CheckedActions     []string `json:"checked_actions"`
+	Reason             string   `json:"reason"`
 }
 
 type ServiceOperationsResponse struct {
@@ -208,6 +224,7 @@ type ServiceOperationsResponse struct {
 	Recovery                RecoveryReadiness      `json:"recovery"`
 	RecoveryPipelineReady   bool                   `json:"recovery_pipeline_ready"`
 	GuardBackend            string                 `json:"guard_backend"`
+	GuardValidation         GuardValidation        `json:"guard_validation"`
 	Metadata                map[string]string      `json:"metadata"`
 }
 

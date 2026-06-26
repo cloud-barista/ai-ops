@@ -1,6 +1,7 @@
 # aiops-guard
 
-`aiops-guard` is the Go safety gate for bounded service-control actions.
+`aiops-guard` is the standalone Go safety gate for bounded service-control
+actions.
 
 It receives a structured action request, validates it against an explicit
 policy, renders the allowed `kubectl` command, and executes only in the
@@ -12,6 +13,16 @@ selected mode.
 - The guard is independent from LLM reasoning and external experiment tools.
 - The JSON request/response contract can be checked by the service-control API,
   CI, or a reviewer without running a cluster mutation.
+
+## Relationship To service-control-api
+
+`go/service-control-api` performs LLM selection, agent registry validation,
+CPU/GPU placement, deployment-plan generation, and readiness reporting.
+
+`go/aiops-guard` validates bounded Kubernetes service-control actions through a
+separate CLI contract. The service-control readiness response reports
+`guard_validation` for the Go guard boundary. Full runtime invocation of this
+standalone guard from the API module is a planned next integration step.
 
 ## Request Example
 

@@ -7,20 +7,20 @@ automation prototype.
 
 | Path | Purpose |
 | --- | --- |
-| `go/service-control-api/` | Go Echo API and Go CLI for LLM selection, agent registry, CPU/GPU placement, and service-operations readiness |
-| `go/aiops-guard/` | Go bounded-action guard used by service-control execution paths |
+| `go/service-control-api/` | Go Echo API and Go CLI for LLM selection, agent registry, CPU/GPU placement, deployment-plan generation, and service-operations readiness |
+| `go/aiops-guard/` | Standalone Go bounded-action validator for service-control actions |
 | `config/agent_registry.json` | Agent registry and bounded-action metadata |
-| `config/ops_llm_benchmark.json` | Ops LLM candidate metrics and selection policy weights |
+| `config/ops_llm_benchmark.json` | Prototype LLM candidate policy values and selection weights |
 | `config/inference_optimization.json` | CPU/GPU VM resource profiles and workload requirements |
 | `docs/design/` | Go-centered design notes |
-| `docs/submission/` | Submission-facing guides, API contract, and requirement mapping |
+| `docs/submission/` | Submission-facing guides, API contract, requirement mapping, and evaluation summary |
 
 ## Excluded
 
 | Excluded item | Reason |
 | --- | --- |
 | Non-core legacy code and tests | Removed so the submission/demo package is Go-centered |
-| External benchmark/orchestration integrations | Experimental paths that blur the ETRI deliverable scope |
+| External benchmark/orchestration integrations | Experimental paths that blur the assigned deliverable scope |
 | Provider-specific monitoring adapters | Removed in favor of provider-neutral Ops input/config |
 | Local cluster experiment manifests and helper tooling | Environment-specific checks, not core deliverables |
 | `runs/` | Local execution artifacts and validation outputs |
@@ -30,8 +30,8 @@ automation prototype.
 ## Submission Scope
 
 ```text
-AI LLM 운영관리 구조 설계 및 프로토타입
-AI 에이전트 등록관리 프로토타입
-CPU/GPU VM 기반 AI 응용 배포/제어 추론 최적화 전략
-Go 기반 API/CLI 구현 및 검증
+AI LLM operation-management structure design and prototype
+AI agent registration-management prototype
+CPU/GPU VM-based AI application deployment/control inference optimization strategy
+Go-based API/CLI implementation and functional validation
 ```
