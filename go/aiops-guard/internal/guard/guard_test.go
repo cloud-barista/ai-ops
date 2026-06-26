@@ -12,12 +12,12 @@ func ptr(v int) *int {
 func validScaleRequest() Request {
 	return Request{
 		Mode:               "mock",
-		Namespace:          "online-boutique",
-		Deployment:         "paymentservice",
+		Namespace:          "aiops-demo",
+		Deployment:         "aiops-service",
 		Action:             "scale_out",
 		Replicas:           ptr(3),
-		AllowedNamespaces:  []string{"online-boutique"},
-		AllowedDeployments: []string{"paymentservice", "checkoutservice"},
+		AllowedNamespaces:  []string{"aiops-demo"},
+		AllowedDeployments: []string{"aiops-service", "aiops-worker"},
 		MinReplicas:        1,
 		MaxReplicas:        5,
 	}
@@ -30,7 +30,7 @@ func TestScaleOutRendersStableKubectlCommand(t *testing.T) {
 		t.Fatalf("expected valid result, got stderr=%q", result.Stderr)
 	}
 
-	want := "kubectl scale deployment paymentservice --replicas=3 -n online-boutique"
+	want := "kubectl scale deployment aiops-service --replicas=3 -n aiops-demo"
 	if result.Command != want {
 		t.Fatalf("command mismatch\nwant: %s\n got: %s", want, result.Command)
 	}
@@ -84,11 +84,11 @@ func TestDryRunAddsServerDryRunToMutatingCommand(t *testing.T) {
 
 	result := Execute(req, func(name string, args ...string) (string, string, int) {
 		got := name + " " + strings.Join(args, " ")
-		want := "kubectl scale deployment paymentservice --replicas=3 -n online-boutique --dry-run=server"
+		want := "kubectl scale deployment aiops-service --replicas=3 -n aiops-demo --dry-run=server"
 		if got != want {
 			t.Fatalf("command mismatch\nwant: %s\n got: %s", want, got)
 		}
-		return "deployment.apps/paymentservice scaled (server dry run)", "", 0
+		return "deployment.apps/aiops-service scaled (server dry run)", "", 0
 	})
 
 	if !result.Valid {
@@ -121,11 +121,11 @@ func TestObserveOnlyRendersReadOnlyKubectlCommand(t *testing.T) {
 
 	result := Execute(req, func(name string, args ...string) (string, string, int) {
 		got := name + " " + strings.Join(args, " ")
-		want := "kubectl get deployment paymentservice -n online-boutique -o json"
+		want := "kubectl get deployment aiops-service -n aiops-demo -o json"
 		if got != want {
 			t.Fatalf("command mismatch\nwant: %s\n got: %s", want, got)
 		}
-		return "paymentservice 3/3", "", 0
+		return "aiops-service 3/3", "", 0
 	})
 
 	if !result.Valid {
@@ -158,11 +158,11 @@ func TestRolloutRestartDryRunCommand(t *testing.T) {
 
 	result := Execute(req, func(name string, args ...string) (string, string, int) {
 		got := name + " " + strings.Join(args, " ")
-		want := "kubectl rollout restart deployment paymentservice -n online-boutique --dry-run=server"
+		want := "kubectl rollout restart deployment aiops-service -n aiops-demo --dry-run=server"
 		if got != want {
 			t.Fatalf("command mismatch\nwant: %s\n got: %s", want, got)
 		}
-		return "deployment.apps/paymentservice restarted (server dry run)", "", 0
+		return "deployment.apps/aiops-service restarted (server dry run)", "", 0
 	})
 
 	if !result.Valid {

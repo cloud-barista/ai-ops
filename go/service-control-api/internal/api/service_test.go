@@ -92,8 +92,8 @@ func TestRunServiceOperationsCombinesCoreDecisionsInGo(t *testing.T) {
 	report, err := service.RunServiceOperations(ServiceOperationsRequest{
 		LLMPolicy:          "quality_first",
 		Workload:           "llm-chat-inference",
-		RecoveryNamespace:  "online-boutique",
-		RecoveryDeployment: "paymentservice",
+		RecoveryNamespace:  "aiops-demo",
+		RecoveryDeployment: "aiops-service",
 		Mode:               "mock",
 		GuardBackend:       "go",
 		LLMConfigPath:      "config/ops_llm_benchmark.json",

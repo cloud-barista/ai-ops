@@ -240,21 +240,21 @@ components:
         recovery_namespace:
           type: string
           description: Service operation or recovery target namespace.
-          example: online-boutique
+          example: aiops-demo
         recovery_deployment:
           type: string
           description: Service operation or recovery target Deployment.
-          example: paymentservice
+          example: aiops-service
         namespace:
           type: string
           deprecated: true
           description: Deprecated alias for recovery_namespace.
-          example: online-boutique
+          example: aiops-demo
         deployment:
           type: string
           deprecated: true
           description: Deprecated alias for recovery_deployment.
-          example: paymentservice
+          example: aiops-service
         mode:
           type: string
           example: mock

@@ -28,8 +28,8 @@ go run ./cmd/aiops-service-control run-service-operations \
   --llm-policy quality_first \
   --inference-config ../../config/inference_optimization.json \
   --workload llm-chat-inference \
-  --recovery-namespace online-boutique \
-  --recovery-deployment paymentservice \
+  --recovery-namespace aiops-demo \
+  --recovery-deployment aiops-service \
   --mode mock \
   --guard-backend go
 ```

@@ -79,8 +79,8 @@ func TestRunServiceOperationsEndpoint(t *testing.T) {
 	body := strings.NewReader(`{
 		"llm_policy":"quality_first",
 		"workload":"llm-chat-inference",
-		"recovery_namespace":"online-boutique",
-		"recovery_deployment":"paymentservice",
+		"recovery_namespace":"aiops-demo",
+		"recovery_deployment":"aiops-service",
 		"mode":"mock",
 		"guard_backend":"go"
 	}`)

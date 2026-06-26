@@ -41,8 +41,8 @@ go run ./cmd/aiops-service-control run-service-operations \
   --llm-policy quality_first \
   --inference-config ../../config/inference_optimization.json \
   --workload llm-chat-inference \
-  --recovery-namespace online-boutique \
-  --recovery-deployment paymentservice \
+  --recovery-namespace aiops-demo \
+  --recovery-deployment aiops-service \
   --mode mock \
   --guard-backend go
 ```
@@ -67,7 +67,7 @@ curl http://127.0.0.1:8080/openapi.yaml
 ```bash
 curl -s -X POST http://127.0.0.1:8080/api/v1/service-operations/run \
   -H 'content-type: application/json' \
-  -d '{"llm_policy":"quality_first","workload":"llm-chat-inference","recovery_namespace":"online-boutique","recovery_deployment":"paymentservice","mode":"mock","guard_backend":"go"}'
+  -d '{"llm_policy":"quality_first","workload":"llm-chat-inference","recovery_namespace":"aiops-demo","recovery_deployment":"aiops-service","mode":"mock","guard_backend":"go"}'
 ```
 
 ## Expected Result

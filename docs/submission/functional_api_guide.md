@@ -24,7 +24,7 @@ go run ./cmd/service-control-api
 ```bash
 curl -s -X POST http://127.0.0.1:8080/api/v1/service-operations/run \
   -H 'content-type: application/json' \
-  -d '{"llm_policy":"quality_first","workload":"llm-chat-inference","recovery_namespace":"online-boutique","recovery_deployment":"paymentservice","mode":"mock","guard_backend":"go"}'
+  -d '{"llm_policy":"quality_first","workload":"llm-chat-inference","recovery_namespace":"aiops-demo","recovery_deployment":"aiops-service","mode":"mock","guard_backend":"go"}'
 ```
 
 Key response fields:

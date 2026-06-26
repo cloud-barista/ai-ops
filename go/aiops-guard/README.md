@@ -29,12 +29,12 @@ standalone guard from the API module is a planned next integration step.
 ```json
 {
   "mode": "mock",
-  "namespace": "online-boutique",
-  "deployment": "paymentservice",
+  "namespace": "aiops-demo",
+  "deployment": "aiops-service",
   "action": "scale_out",
   "replicas": 3,
-  "allowed_namespaces": ["online-boutique"],
-  "allowed_deployments": ["paymentservice", "checkoutservice"],
+  "allowed_namespaces": ["aiops-demo"],
+  "allowed_deployments": ["aiops-service", "aiops-worker"],
   "min_replicas": 1,
   "max_replicas": 5
 }
@@ -51,12 +51,12 @@ go test ./...
 cat <<'JSON' | go run ./cmd/aiops-guard --input -
 {
   "mode": "mock",
-  "namespace": "online-boutique",
-  "deployment": "paymentservice",
+  "namespace": "aiops-demo",
+  "deployment": "aiops-service",
   "action": "scale_out",
   "replicas": 3,
-  "allowed_namespaces": ["online-boutique"],
-  "allowed_deployments": ["paymentservice", "checkoutservice"],
+  "allowed_namespaces": ["aiops-demo"],
+  "allowed_deployments": ["aiops-service", "aiops-worker"],
   "min_replicas": 1,
   "max_replicas": 5
 }

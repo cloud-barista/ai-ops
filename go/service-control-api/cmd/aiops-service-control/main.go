@@ -361,8 +361,8 @@ func runTeamValidation(service api.Service, config api.ServerConfig, outputDir s
 		InferenceConfig:    inferenceConfig,
 		LLMPolicy:          "quality_first",
 		Workload:           "llm-chat-inference",
-		RecoveryNamespace:  "online-boutique",
-		RecoveryDeployment: "paymentservice",
+		RecoveryNamespace:  "aiops-demo",
+		RecoveryDeployment: "aiops-service",
 		Mode:               "mock",
 		GuardBackend:       "go",
 	})
