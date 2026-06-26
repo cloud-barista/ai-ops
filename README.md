@@ -1,11 +1,21 @@
-🦁# Kyunghee AIOps 🏛️ 
+<h1 align="center">
+  🚀 Kyunghee AIOps
+</h1>
+
+<h2 align="center">
+  AI-Based Service Control and Management Automation Framework
+</h2>
+
+<p align="center">
+  <strong>Go-Based AIOps Service Control Prototype</strong>
+</p>
 
 > Initial Go-based prototype for AI LLM operation management, agent registration management, and CPU/GPU VM-based AI application deployment-control planning.
 
 [![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go&logoColor=white)](go/service-control-api/go.mod)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-## Overview
+## 📌 Overview
 
 This repository contains a 1st-year research prototype for an AI-based service
 control and management automation framework. It is intended for functional
@@ -18,7 +28,7 @@ The current implementation scope corresponds to:
 - CPU/GPU VM-based AI application deployment/control optimization strategy
 - Go-based bounded-action validation boundary
 
-## Project Structure
+## 🧩 Project Structure
 
 | Path | Description |
 | --- | --- |
@@ -27,7 +37,7 @@ The current implementation scope corresponds to:
 | [`config/`](config/) | LLM candidates, Agent registry, and CPU/GPU VM policy configuration |
 | [`docs/`](docs/) | Design overview, submission documents, and execution/validation guides |
 
-## Reference Documents
+## 📚 Reference Documents
 
 | Document | Description |
 | --- | --- |
@@ -40,7 +50,7 @@ The current implementation scope corresponds to:
 | [Install and Run Guide](docs/submission/install_and_run_guide.md) | Go API/CLI execution guide |
 | [Test Guide](docs/submission/test_guide.md) | Go test and team-validation guide |
 
-## Development Environment
+## 🛠️ Development Environment
 
 - Development language: Go
 - Go version baseline: Go 1.25
@@ -55,13 +65,13 @@ documents.
 Both Go modules use Go 1.25 because the service-control API dependency set is
 normalized by `go mod tidy` to `go 1.25.0`.
 
-## Prototype Boundary
+## 🧪 Prototype Boundary
 
 The LLM policy values in this repository are manually defined prototype policy
 baselines. They are not final standardized benchmark results. Final quantitative
 reporting must regenerate those values through controlled per-model Ops
 evaluation runs.
 
-## License
+## 📄 License
 
 ai-ops is licensed under the [Apache License 2.0](./LICENSE).
