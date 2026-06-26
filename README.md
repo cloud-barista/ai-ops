@@ -30,16 +30,31 @@ The main implementation scope includes:
 
 ## 📦 Deliverables
 
-The 1st-year service-control deliverables can be reviewed through the design
-documents, Go prototype code, configuration files, and validation outputs below.
+The formal 1st-year service-control deliverables are the design documents,
+prototype implementation, and strategy documents below. Runtime JSON files are
+validation evidence, not replacements for the design deliverables.
 
-| Deliverable | Where to View | Validation Output |
+| Deliverable | Primary Artifact | Supporting Implementation |
 | --- | --- | --- |
-| LLM 운영 관리 구조 설계서 | [Ops LLM Selection Guide](docs/design/ops_llm_selection_guide.md), [Research Task Integration Design](docs/design/research_task_integration_design.md), [Go and LLM Cross Validation](docs/design/go_and_llm_cross_validation.md) | `runs/<output-dir>/01_select_ops_llm.json`, `runs/<output-dir>/06_run_service_operations.json` |
-| 에이전트 등록 관리 프로토타입 | [Agent Registry Guide](docs/design/agent_registry_guide.md), [Agent Registry Config](config/agent_registry.json), [`go/service-control-api/`](go/service-control-api/) | `runs/<output-dir>/02_list_agents.json`, `runs/<output-dir>/03_validate_agent_action.json` |
-| AI 응용 배포·제어 추론 최적화 전략 설계서 | [AI Application Deployment Strategy](docs/design/ai_application_deployment_strategy.md), [Inference Optimization Guide](docs/design/inference_optimization_guide.md), [Inference Policy Config](config/inference_optimization.json) | `runs/<output-dir>/04_recommend_inference_placement.json`, `runs/<output-dir>/05_plan_inference_deployment.json` |
+| LLM 운영 관리 구조 설계서 | [Research Task Integration Design](docs/design/research_task_integration_design.md), [Ops LLM Selection Guide](docs/design/ops_llm_selection_guide.md), [Go and LLM Cross Validation](docs/design/go_and_llm_cross_validation.md) | [Ops LLM Benchmark Config](config/ops_llm_benchmark.json), [`go/service-control-api/`](go/service-control-api/) |
+| 에이전트 등록 관리 프로토타입 | [Agent Registry Guide](docs/design/agent_registry_guide.md), [Agent Action Reward Policy](docs/design/agent_action_reward_policy.md) | [Agent Registry Config](config/agent_registry.json), [`go/service-control-api/`](go/service-control-api/) |
+| AI 응용 배포·제어 추론 최적화 전략 설계서 | [AI Application Deployment Strategy](docs/design/ai_application_deployment_strategy.md), [Inference Optimization Guide](docs/design/inference_optimization_guide.md) | [Inference Policy Config](config/inference_optimization.json), [`go/service-control-api/`](go/service-control-api/) |
 
-To generate the validation outputs, run:
+## 🧪 Validation Evidence
+
+After running `team-validation`, the generated JSON files provide execution
+evidence for the deliverables:
+
+| Validation File | Meaning |
+| --- | --- |
+| `runs/<output-dir>/01_select_ops_llm.json` | Ops analysis and optimal LLM selection result |
+| `runs/<output-dir>/02_list_agents.json` | Registered AI agent list |
+| `runs/<output-dir>/03_validate_agent_action.json` | Agent bounded-action validation result |
+| `runs/<output-dir>/04_recommend_inference_placement.json` | CPU/GPU VM placement recommendation result |
+| `runs/<output-dir>/05_plan_inference_deployment.json` | AI application deployment/control plan result |
+| `runs/<output-dir>/06_run_service_operations.json` | Integrated service-control execution result |
+
+To generate the validation evidence, run:
 
 ```bash
 cd go/service-control-api
