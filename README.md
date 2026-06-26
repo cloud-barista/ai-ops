@@ -1,4 +1,4 @@
-# AI-Based Service Control and Management Automation Framework
+🦁# Kyunghee AIOps 🏛️ 
 
 > Initial Go-based prototype for AI LLM operation management, agent registration management, and CPU/GPU VM-based AI application deployment-control planning.
 
