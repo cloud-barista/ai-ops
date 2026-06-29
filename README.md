@@ -42,7 +42,7 @@
 ## 📦 제출 산출물
 
 | 산출물 | 형식 | 저장소 경로 | 상태 |
-| --- | --- | --- | --- |
+| --- | --- | --- | 
 | 요구사항 정의서 원본 | `.md` | [`docs/submission/requirements_definition.md`](docs/submission/requirements_definition.md) 
 | 요구사항 정의서 제출본 | `.docx` | [`docs/submission/requirements_definition.docx`](docs/submission/requirements_definition.docx) 
 | 기능/API 가이드 | `.md` | [`docs/submission/functional_api_guide.md`](docs/submission/functional_api_guide.md) 
