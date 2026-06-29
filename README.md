@@ -52,11 +52,11 @@
 
 ## 📝 공식 설계 산출물
 
-| 설계 산출물 | Markdown 원본 | DOCX 제출본 |
-| --- | --- | --- |
-| LLM 운영 관리 구조 설계서 | [`docs/deliverables/01_llm_operation_management_design.md`](docs/deliverables/01_llm_operation_management_design.md) | [`docs/deliverables/docx/01_LLM_Operation_Management_Design.docx`](docs/deliverables/docx/01_LLM_Operation_Management_Design.docx) |
-| 에이전트 등록 관리 프로토타입 | [`docs/deliverables/02_agent_registration_management_prototype.md`](docs/deliverables/02_agent_registration_management_prototype.md) | [`docs/deliverables/docx/02_Agent_Registration_Management_Prototype.docx`](docs/deliverables/docx/02_Agent_Registration_Management_Prototype.docx) |
-| AI 응용 배포·제어 추론 최적화 전략 설계서 | [`docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md`](docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md) | [`docs/deliverables/docx/03_AI_Application_Deployment_Control_Optimization_Strategy.docx`](docs/deliverables/docx/03_AI_Application_Deployment_Control_Optimization_Strategy.docx) |
+| 번호 | 설계 산출물 | Markdown 원본 | DOCX 제출본 |
+| --- | --- | --- | --- |
+| 1 | LLM 운영 관리 구조 설계서 | [원본 보기](docs/deliverables/01_llm_operation_management_design.md) | [DOCX 열기](docs/deliverables/docx/01_LLM_Operation_Management_Design.docx) |
+| 2 | 에이전트 등록 관리 프로토타입 | [원본 보기](docs/deliverables/02_agent_registration_management_prototype.md) | [DOCX 열기](docs/deliverables/docx/02_Agent_Registration_Management_Prototype.docx) |
+| 3 | AI 응용 배포·제어 추론 최적화 전략 설계서 | [원본 보기](docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md) | [DOCX 열기](docs/deliverables/docx/03_AI_Application_Deployment_Control_Optimization_Strategy.docx) |
 
 Markdown 파일이 공식 원본이며, DOCX 파일은 제출/검토용 변환본입니다.
 
