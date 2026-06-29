@@ -116,23 +116,12 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/service-operations/run \
   -d '{"llm_policy":"quality_first","workload":"llm-chat-inference","recovery_namespace":"aiops-demo","recovery_deployment":"aiops-service","mode":"mock","guard_backend":"go"}'
 ```
 
-## 📝 DOCX Conversion
+## 📝 DOCX Files
 
-The repository includes a Bash conversion script:
-
-```bash
-bash scripts/generate_docx_deliverables.sh
-```
-
-For Windows environments where Bash is not convenient, run the equivalent
-Pandoc commands from PowerShell:
-
-```powershell
-pandoc docs/submission/requirements_definition.md -o docs/submission/requirements_definition.docx
-pandoc docs/deliverables/01_llm_operation_management_design.md -o docs/deliverables/docx/01_LLM_Operation_Management_Design.docx
-pandoc docs/deliverables/02_agent_registration_management_prototype.md -o docs/deliverables/docx/02_Agent_Registration_Management_Prototype.docx
-pandoc docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md -o docs/deliverables/docx/03_AI_Application_Deployment_Control_Optimization_Strategy.docx
-```
+DOCX submission copies are already included in `docs/submission/` and
+`docs/deliverables/docx/`. Regeneration instructions are maintained in
+[`docs/submission/install_and_run_guide.md`](docs/submission/install_and_run_guide.md)
+and [`scripts/generate_docx_deliverables.sh`](scripts/generate_docx_deliverables.sh).
 
 ## 📚 Reference Documents
 
