@@ -1,37 +1,31 @@
-# Agent Registry Guide
+# 에이전트 Registry 가이드
 
-## Purpose
+## 목적
 
-The agent registry defines the AI agents used by the service-control prototype,
-including each agent role, responsibility boundary, allowed actions, and reward
-signals. The registry is represented as JSON so that the Go API/CLI can inspect
-and validate it deterministically.
+Agent registry는 service-control prototype에서 사용하는 AI agent를 정의합니다. 각 agent의 role, responsibility boundary, allowed action, reward signal을 포함합니다. Go API/CLI가 결정론적으로 조회하고 검증할 수 있도록 JSON으로 표현합니다.
 
-Configuration file:
+설정 파일:
 
 ```text
 config/agent_registry.json
 ```
 
-## Registered Agents
+## 등록 에이전트
 
-| Agent | Role |
+| Agent | 역할 |
 | --- | --- |
-| `AIServiceHASupportAgent` | Detect service health, availability, and recovery needs |
-| `AIApplicationManagementAgent` | Propose AI application deployment/control actions |
-| `AISemiconductorInfraOpsAgent` | Validate CPU/GPU VM and infrastructure constraints |
-| `CostOptimizationAgent` | Review cost and resource-efficiency implications |
+| `AIServiceHASupportAgent` | service health, availability, recovery need 탐지 |
+| `AIApplicationManagementAgent` | AI application deployment/control action 제안 |
+| `AISemiconductorInfraOpsAgent` | CPU/GPU VM 및 infrastructure constraint 검증 |
+| `CostOptimizationAgent` | cost와 resource-efficiency implication 검토 |
 
-## Bounded Actions
+## Bounded Action
 
-Each agent has an explicit `bounded_actions` list. The Go service-control layer
-uses this list to reject actions that do not belong to a selected agent. This is
-the prototype-level boundary before any service-control action can be treated
-as ready.
+각 agent에는 명시적인 `bounded_actions` list가 있습니다. Go service-control layer는 이 list를 사용해 선택 agent의 범위에 속하지 않는 action을 거부합니다. 이는 service-control action을 ready로 취급하기 전의 prototype-level safety boundary입니다.
 
 ## Go CLI
 
-List registered agents:
+등록 agent 목록:
 
 ```bash
 cd go/service-control-api
@@ -39,7 +33,7 @@ go run ./cmd/aiops-service-control list-agents \
   --registry ../../config/agent_registry.json
 ```
 
-Show a single agent:
+단일 agent 조회:
 
 ```bash
 go run ./cmd/aiops-service-control show-agent \
@@ -47,7 +41,7 @@ go run ./cmd/aiops-service-control show-agent \
   --agent AIApplicationManagementAgent
 ```
 
-Validate an agent action:
+Agent action 검증:
 
 ```bash
 go run ./cmd/aiops-service-control validate-agent-action \
@@ -58,7 +52,7 @@ go run ./cmd/aiops-service-control validate-agent-action \
 
 ## API Path
 
-| Function | Path |
+| 기능 | Path |
 | --- | --- |
 | Agent list | `GET /api/v1/agents` |
 | Integrated readiness report | `POST /api/v1/service-operations/run` |

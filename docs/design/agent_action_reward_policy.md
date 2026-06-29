@@ -1,37 +1,31 @@
-# Agent Action And Reward Policy
+# 에이전트 Action 및 Reward 정책
 
-## Purpose
+## 목적
 
-This document defines how the four prototype agents expose action approvals and
-reward signals in the AI-based service-control framework.
+이 문서는 AI 기반 service-control framework에서 네 개 prototype agent가 action approval과 reward signal을 어떻게 노출하는지 정의합니다.
 
-The current reward values are prototype review signals. They are not produced by
-reinforcement learning. The Go implementation surfaces them in the
-`service-operations` readiness report so that reviewers can inspect the agent
-decision boundary.
+현재 reward value는 prototype review signal입니다. reinforcement learning으로 생성된 값이 아닙니다. Go 구현은 이를 `service-operations` readiness report에 포함하여 reviewer가 agent decision boundary를 확인할 수 있게 합니다.
 
-## Principles
+## 원칙
 
-- Each agent returns an `action`, `approved`, `reward`, and `reason` field.
-- `approved=true` means the action is allowed within that agent boundary.
-- `approved=false` blocks the integrated readiness path.
-- Final readiness is true only when all required agent reviews, manifest
-  dry-run, recovery context, and guard-readiness checks are valid.
-- `go/aiops-guard` remains the standalone bounded-action validator for
-  namespace, deployment, and replica constraints.
+- 각 agent는 `action`, `approved`, `reward`, `reason` field를 반환합니다.
+- `approved=true`는 해당 agent boundary 안에서 action이 허용됨을 의미합니다.
+- `approved=false`는 integrated readiness path를 차단합니다.
+- final readiness는 required agent review, manifest dry-run, recovery context, guard-readiness check가 모두 valid일 때만 true입니다.
+- `go/aiops-guard`는 namespace, deployment, replica constraint를 검증하는 standalone bounded-action validator로 유지됩니다.
 
-## Agent Policy Table
+## Agent 정책 표
 
-| Agent | Example approved action | Reward signal meaning |
+| Agent | 승인 action 예시 | Reward signal 의미 |
 | --- | --- | --- |
-| `AIServiceHASupportAgent` | `ha_scale_out_required`, `ha_no_action` | Service health, availability, and recovery need |
+| `AIServiceHASupportAgent` | `ha_scale_out_required`, `ha_no_action` | service health, availability, recovery need |
 | `AIApplicationManagementAgent` | `app_scale_deployment`, `app_select_inference_vm` | AI application deployment/control suitability |
 | `AISemiconductorInfraOpsAgent` | `infra_capacity_approved`, `infra_select_cpu_gpu_vm` | CPU/GPU VM feasibility |
-| `CostOptimizationAgent` | `cost_budget_approved`, `cost_budget_rejected` | Cost and resource-efficiency boundary |
+| `CostOptimizationAgent` | `cost_budget_approved`, `cost_budget_rejected` | cost 및 resource-efficiency boundary |
 
-## Readiness Example
+## Readiness 예시
 
-Input context:
+입력 context:
 
 ```text
 recovery_namespace=aiops-demo
@@ -41,7 +35,7 @@ mode=mock
 guard_backend=go
 ```
 
-Expected final result:
+기대 final result:
 
 ```text
 valid = true
@@ -65,10 +59,9 @@ go run ./cmd/aiops-service-control run-service-operations \
   --guard-backend go
 ```
 
-## Future Extension
+## 향후 확장
 
-- Replace prototype reward values with measured operation outcomes.
-- Add latency, availability, and cost deltas as reward calibration inputs.
-- Split the reward table into a separate versioned config if policy tuning
-  becomes part of the final evaluation.
-- Add AI semiconductor/NPU accelerator policies to the infrastructure agent.
+- prototype reward value를 측정된 operation outcome으로 대체
+- latency, availability, cost delta를 reward calibration input으로 추가
+- policy tuning이 최종 평가 범위가 되면 reward table을 별도 versioned config로 분리
+- infrastructure agent에 AI 반도체/NPU accelerator policy 추가

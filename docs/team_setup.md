@@ -1,31 +1,27 @@
-# Team Validation Guide
+# 팀 검증 가이드
 
-This document summarizes the common Go-based validation path for the
-submission/demo environment.
+이 문서는 제출/시연 환경에서 공통으로 사용하는 Go 기반 검증 경로를 요약합니다.
 
-## Development Language Baseline
+## 개발 언어 기준
 
-The common implementation language is Go. The following decision and validation
-logic is executed through Go API/CLI paths:
+공통 구현 언어는 Go입니다. 다음 판단 및 검증 로직은 Go API/CLI 경로로 실행됩니다.
 
 - Ops LLM selection
-- Agent registry listing and bounded-action validation
-- CPU/GPU VM inference placement recommendation
+- 에이전트 registry 목록 조회 및 bounded-action 검증
+- CPU/GPU VM 추론 배치 추천
 - Inference deployment-plan generation
 - Service-operations readiness pipeline
 
-Non-core legacy paths, external orchestration experiments, post-processing
-tools, and local cluster helper scripts are excluded from the submission/demo
-package.
+핵심 범위 밖 legacy path, external orchestration experiment, post-processing tool, local cluster helper script는 제출/시연 package에서 제외합니다.
 
-## Common Validation
+## 공통 검증
 
 ```bash
 cd go/service-control-api
 go run ./cmd/aiops-service-control team-validation
 ```
 
-The command runs the same logic as these individual commands:
+이 명령은 다음 개별 명령과 같은 로직을 순서대로 실행합니다.
 
 1. `select-ops-llm`
 2. `list-agents`
@@ -34,15 +30,15 @@ The command runs the same logic as these individual commands:
 5. `plan-inference-deployment`
 6. `run-service-operations`
 
-Results are saved under:
+결과는 다음 위치에 저장할 수 있습니다.
 
 ```text
 runs/team-validation/<timestamp>/
 ```
 
-`runs/` is local evidence and is not part of the submitted source package.
+`runs/`는 local evidence이며 제출 source package에는 포함하지 않습니다.
 
-## Success Criteria
+## 성공 기준
 
 ```text
 team-validation valid = true
@@ -55,14 +51,14 @@ run-service-operations guard_backend = go
 guard_validation.valid = true
 ```
 
-## Direct API Check
+## 직접 API 확인
 
 ```bash
 cd go/service-control-api
 go run ./cmd/service-control-api
 ```
 
-In another terminal:
+다른 터미널:
 
 ```bash
 curl http://127.0.0.1:8080/healthz
@@ -72,12 +68,12 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/service-operations/run \
   -d '{"llm_policy":"quality_first","workload":"llm-chat-inference","recovery_namespace":"aiops-demo","recovery_deployment":"aiops-service","mode":"mock","guard_backend":"go"}'
 ```
 
-## Troubleshooting
+## 문제 해결
 
-1. Confirm Go 1.25 or newer is installed.
-2. Run validation from `go/service-control-api`.
-3. Inspect failed step JSON files under `runs/team-validation/<timestamp>/`.
-4. Confirm required config files exist:
+1. Go 1.25 이상이 설치되어 있는지 확인합니다.
+2. `go/service-control-api`에서 검증을 실행합니다.
+3. 실패한 step의 JSON 파일을 `runs/team-validation/<timestamp>/`에서 확인합니다.
+4. 필수 설정 파일이 존재하는지 확인합니다.
 
 ```text
 config/ops_llm_benchmark.json

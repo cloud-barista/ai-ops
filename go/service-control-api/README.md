@@ -1,22 +1,20 @@
 # Service Control API
 
-Go implementation of the AI service-control prototype. This module performs
-LLM selection, agent registry validation, CPU/GPU placement recommendation,
-deployment-plan generation, manifest dry-run, and readiness reporting.
+AI service-control prototype의 Go 구현 모듈입니다. 이 모듈은 LLM selection, agent registry validation, CPU/GPU placement recommendation, deployment-plan generation, manifest dry-run, readiness reporting을 수행합니다.
 
-## Run Tests
+## 테스트 실행
 
 ```bash
 go test ./...
 ```
 
-## Run API
+## API 실행
 
 ```bash
 go run ./cmd/service-control-api
 ```
 
-## Run CLI
+## CLI 실행
 
 ```bash
 go run ./cmd/aiops-service-control select-ops-llm \
@@ -34,7 +32,7 @@ go run ./cmd/aiops-service-control run-service-operations \
   --guard-backend go
 ```
 
-## API Endpoints
+## API Endpoint
 
 | Method | Path |
 | --- | --- |
@@ -46,9 +44,9 @@ go run ./cmd/aiops-service-control run-service-operations \
 | `POST` | `/api/v1/apps/deployment-plan` |
 | `POST` | `/api/v1/service-operations/run` |
 
-## Response Signals
+## 응답 신호
 
-The integrated pipeline returns:
+통합 pipeline은 다음 값을 반환합니다.
 
 ```text
 selected_llm

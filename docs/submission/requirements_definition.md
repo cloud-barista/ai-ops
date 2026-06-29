@@ -1,98 +1,84 @@
 # 요구사항 정의서
 
-English title: Requirements Definition
+영문 제목: Requirements Definition
 
-## 1. Document Overview
+## 1. 문서 개요
 
-This document defines the functional, non-functional, submission, development,
-and validation requirements for the 1st-year Go-based service-control functional
-prototype. The prototype supports AI LLM operation management, AI agent
-registration management, CPU/GPU VM placement recommendation, and AI
-application deployment/control readiness validation.
+이 문서는 1차년도 Go 기반 서비스 제어 기능 프로토타입의 기능 요구사항, 비기능 요구사항, 제출 요구사항, 개발 요구사항, 검증 요구사항을 정의합니다. 프로토타입은 AI LLM 운영 관리, AI 에이전트 등록 관리, CPU/GPU VM 배치 추천, AI 응용 배포·제어 준비도 검증을 지원합니다.
 
-The document is maintained as the Markdown source for the requirements
-definition submission artifact. A DOCX submission copy can be generated from
-this source by using `scripts/generate_docx_deliverables.sh` or an equivalent
-Pandoc command.
+본 문서는 요구사항 정의서 제출 산출물의 Markdown 원본입니다. DOCX 제출본은 이 원본을 기준으로 생성합니다.
 
-## 2. Project Scope
+## 2. 프로젝트 범위
 
-The project scope is limited to a 1st-year functional prototype. The repository
-provides Go API/CLI components, JSON configuration files, design deliverables,
-and validation documents required to demonstrate the assigned service-control
-research scope.
+프로젝트 범위는 1차년도 기능 프로토타입으로 제한합니다. 저장소는 담당 연구 범위를 입증하기 위한 Go API/CLI 구성요소, JSON 설정 파일, 설계 산출물, 검증 문서를 제공합니다.
 
-Included scope:
+포함 범위는 다음과 같습니다.
 
-- Ops LLM selection policy prototype.
-- AI LLM operation-management structure validation.
-- Agent registry listing and bounded-action validation.
-- CPU/GPU VM placement recommendation for AI application workloads.
-- Kubernetes deployment-plan generation.
-- Mock deployment dry-run and service-operations readiness reporting.
+- Ops LLM 선정 정책 프로토타입
+- AI LLM 운영 관리 구조 검증
+- 에이전트 registry 조회 및 bounded action 검증
+- AI 응용 워크로드를 위한 CPU/GPU VM 배치 추천
+- Kubernetes 배포 계획 생성
+- mock 배포 dry-run 및 서비스 운영 준비도 보고
 
-Out-of-scope for the default validation path:
+기본 검증 경로의 제외 범위는 다음과 같습니다.
 
-- Production-ready AIOps operation.
-- Final standardized LLM benchmark reporting.
-- Real GPU VM provisioning.
-- Live Kubernetes mutation by default.
-- Replacement of CB-Tumblebug or AI-Infra provisioning components.
+- 운영 환경용 완성형 AIOps 운영
+- 최종 표준 LLM 벤치마크 보고
+- 실제 GPU VM 프로비저닝
+- 기본값 기준 live Kubernetes 변경
+- CB-Tumblebug 또는 AI-Infra 프로비저닝 구성요소 대체
 
-## 3. Functional Requirements
+## 3. 기능 요구사항
 
-| ID | Functional Requirement | Implementation Status |
+| ID | 기능 요구사항 | 구현 상태 |
 | --- | --- | --- |
-| FR-01 | Provide an Ops LLM selection policy prototype based on JSON-defined candidate roles and policy weights. | Implemented |
-| FR-02 | Provide Go API/CLI commands for policy-based LLM candidate ranking. | Implemented |
-| FR-03 | Provide agent registry listing, single-agent lookup, and bounded-action validation. | Implemented |
-| FR-04 | Recommend CPU/GPU VM placement based on accelerator requirement, SLO, throughput, cost, and capacity. | Implemented |
-| FR-05 | Generate Kubernetes deployment/control plans for selected AI application resources. | Implemented |
-| FR-06 | Generate an integrated service-operations readiness report that combines LLM selection, placement recommendation, deployment-plan generation, agent review, mock dry-run, and guard-readiness validation. | Implemented |
-| FR-07 | Expose the main functions through an Echo-based Go HTTP API. | Implemented |
-| FR-08 | Provide an OpenAPI contract for the service-control API. | Implemented |
+| FR-01 | JSON으로 정의한 candidate role과 policy weight를 기반으로 Ops LLM 선정 정책 프로토타입을 제공해야 한다. | 구현 |
+| FR-02 | 정책 기반 LLM 후보 ranking을 Go API/CLI 명령으로 제공해야 한다. | 구현 |
+| FR-03 | 에이전트 registry 조회, 단일 에이전트 확인, bounded action 검증을 제공해야 한다. | 구현 |
+| FR-04 | accelerator 요구, SLO, 처리량, 비용, capacity를 기준으로 CPU/GPU VM 배치를 추천해야 한다. | 구현 |
+| FR-05 | 선택된 AI 응용 자원에 대한 Kubernetes 배포·제어 계획을 생성해야 한다. | 구현 |
+| FR-06 | LLM 선정, 배치 추천, 배포 계획 생성, 에이전트 검토, mock dry-run, guard 준비도 검증을 결합한 통합 서비스 운영 준비도 보고서를 생성해야 한다. | 구현 |
+| FR-07 | 주요 기능을 Echo 기반 Go HTTP API로 제공해야 한다. | 구현 |
+| FR-08 | 서비스 제어 API의 OpenAPI 계약을 제공해야 한다. | 구현 |
 
-## 4. Non-Functional Requirements
+## 4. 비기능 요구사항
 
-| ID | Non-Functional Requirement | Rationale |
+| ID | 비기능 요구사항 | 근거 |
 | --- | --- | --- |
-| NFR-01 | Keep the implementation Go-centered for the submission/demo path. | Aligns with the development-language requirement and avoids mixed-language prototype ambiguity. |
-| NFR-02 | Keep LLM, agent, and placement policies reproducible through JSON configuration. | Supports reviewable and repeatable functional validation. |
-| NFR-03 | Use mock validation as the default execution path. | Allows local validation without live Kubernetes or GPU VM infrastructure. |
-| NFR-04 | Clearly separate prototype validation from production operation. | Prevents the prototype from being represented as an operational production system. |
-| NFR-05 | Clearly separate prototype policy baselines from final benchmark results. | Prevents manually defined LLM policy values from being interpreted as standardized model evaluation results. |
-| NFR-06 | Avoid unnecessary external dependencies and non-core experiment runners. | Keeps the repository focused on the assigned research deliverables. |
+| NFR-01 | 제출/시연 경로의 구현은 Go 중심으로 유지해야 한다. | 개발 언어 요구사항에 맞추고 혼합 언어 프로토타입의 모호성을 줄인다. |
+| NFR-02 | LLM, 에이전트, 배치 정책은 JSON 설정으로 재현 가능해야 한다. | 검토 가능하고 반복 가능한 기능 검증을 지원한다. |
+| NFR-03 | 기본 실행 경로는 mock 검증을 사용해야 한다. | live Kubernetes 또는 GPU VM 인프라 없이 로컬 검증을 가능하게 한다. |
+| NFR-04 | 프로토타입 검증과 운영 환경 배포를 명확히 구분해야 한다. | 기능 프로토타입이 운영 시스템으로 오해되는 것을 방지한다. |
+| NFR-05 | 프로토타입 정책 기준값과 최종 벤치마크 결과를 명확히 구분해야 한다. | 수동 정의 LLM 정책 값이 표준 모델 평가 결과로 해석되는 것을 방지한다. |
+| NFR-06 | 불필요한 외부 의존성과 핵심 범위 밖 실험 runner를 제거해야 한다. | 담당 연구 산출물 중심으로 저장소를 유지한다. |
 
-## 5. Submission Artifact Requirements
+## 5. 제출 산출물 요구사항
 
-| Required Artifact | Format | Repository Path | Requirement |
+| 필수 산출물 | 형식 | 저장소 경로 | 요구사항 |
 | --- | --- | --- | --- |
-| 요구사항 정의서 Source | Markdown | `docs/submission/requirements_definition.md` | Must define scope, requirements, validation method, and boundaries. |
-| 요구사항 정의서 Submission Copy | DOCX | `docs/submission/requirements_definition.docx` | Must be generated from the Markdown source when conversion tooling is available. |
-| Functional/API Guide | Markdown | `docs/submission/functional_api_guide.md` | Must describe API server execution, endpoints, request examples, and response fields. |
-| Swagger/OpenAPI | YAML | `docs/submission/openapi_service_control.yaml` | Must describe the HTTP API contract. |
-| Installation and Usage Guide | Markdown | `docs/submission/install_and_run_guide.md` | Must describe Go setup, CLI execution, API execution, mock mode, and expected outputs. |
-| Test Guide | Markdown | `docs/submission/test_guide.md` | Must describe Go tests, team-validation, expected signals, and log preservation. |
+| 요구사항 정의서 원본 | Markdown | `docs/submission/requirements_definition.md` | 범위, 요구사항, 검증 방법, 경계 조건을 정의해야 한다. |
+| 요구사항 정의서 제출본 | DOCX | `docs/submission/requirements_definition.docx` | Markdown 원본을 기준으로 생성되어야 한다. |
+| 기능/API 가이드 | Markdown | `docs/submission/functional_api_guide.md` | API 서버 실행, endpoint, request 예시, response 필드를 설명해야 한다. |
+| Swagger/OpenAPI | YAML | `docs/submission/openapi_service_control.yaml` | HTTP API 계약을 설명해야 한다. |
+| 설치 및 실행 가이드 | Markdown | `docs/submission/install_and_run_guide.md` | Go 설정, CLI 실행, API 실행, mock mode, 기대 출력을 설명해야 한다. |
+| 테스트 가이드 | Markdown | `docs/submission/test_guide.md` | Go 테스트, team-validation, 기대 신호, 로그 보존 방법을 설명해야 한다. |
 
-## 6. Development Guide Requirements
+## 6. 개발 가이드 요구사항
 
-The development guide and supporting records must document:
+개발 가이드와 보조 기록은 다음 내용을 문서화해야 합니다.
 
-- Go language development for API/CLI prototype implementation.
-- Cross-validation with at least two LLM or coding-agent roles.
-- Prompt-sharing documentation using cleaned representative prompt templates.
-- Log and error-message-based validation records.
-- Human testing and review of generated documents, README links, DOCX existence,
-  and prototype boundary statements.
+- API/CLI 프로토타입 구현을 위한 Go 언어 개발
+- 2종 이상 LLM 또는 코딩 에이전트 역할을 이용한 교차 검증
+- 정리된 대표 프롬프트 template 기반의 프롬프트 공유 문서
+- 로그와 오류 메시지 기반 검증 기록
+- 생성 문서, README link, DOCX 존재 여부, 프로토타입 경계 문장에 대한 사람 검토
 
-Specific LLM vendor names or coding-agent product names must not be invented if
-their actual use is unknown. Neutral role labels such as `Agent A`, `Agent B`,
-`primary coding agent`, and `secondary review agent` are acceptable for process
-documentation.
+실제 사용 여부가 확인되지 않은 특정 LLM vendor명이나 coding-agent product명을 임의로 만들지 않습니다. 문서화에는 `Agent A`, `Agent B`, `primary coding agent`, `secondary review agent`와 같은 중립적 역할명을 사용할 수 있습니다.
 
-## 7. Validation Method
+## 7. 검증 방법
 
-The default validation method is local Go execution:
+기본 검증 방법은 로컬 Go 실행입니다.
 
 ```bash
 cd go/aiops-guard
@@ -109,7 +95,7 @@ cd go/service-control-api
 go run ./cmd/aiops-service-control team-validation
 ```
 
-Expected prototype-level validation signals:
+기대되는 프로토타입 수준의 검증 신호는 다음과 같습니다.
 
 ```text
 selected_model = primary-ops-llm
@@ -119,36 +105,28 @@ guard_backend = go
 guard_validation.valid = true
 ```
 
-The validation confirms functional prototype behavior. It does not prove
-production performance, standardized LLM benchmark quality, or actual GPU VM
-provisioning.
+이 검증은 기능 프로토타입 동작을 확인합니다. 운영 성능, 표준 LLM 벤치마크 품질, 실제 GPU VM 프로비저닝을 증명하지는 않습니다.
 
-## 8. Prototype Boundary
+## 8. 프로토타입 경계
 
-The current LLM policy values are manually defined prototype policy baselines in
-`config/ops_llm_benchmark.json`. They are not final standardized benchmark
-results. Final quantitative reporting must regenerate these values through
-controlled per-model Ops evaluation runs with fixed prompts, fixed datasets,
-repeatable metrics, and documented scoring rules.
+현재 LLM 정책 값은 `config/ops_llm_benchmark.json`에 수동 정의된 프로토타입 정책 기준값입니다. 최종 표준 벤치마크 결과가 아닙니다. 최종 정량 보고를 위해서는 고정 프롬프트, 고정 데이터셋, 반복 가능한 지표, 문서화된 scoring rule을 갖춘 통제된 per-model Ops 평가가 필요합니다.
 
-The CPU/GPU VM placement logic is a recommendation and deployment-plan
-generation prototype. It does not replace production cloud schedulers,
-Kubernetes schedulers, GPU device plugins, or CB-Tumblebug provisioning.
+CPU/GPU VM 배치 로직은 추천 및 배포 계획 생성 프로토타입입니다. 운영 cloud scheduler, Kubernetes scheduler, GPU device plugin, CB-Tumblebug 프로비저닝을 대체하지 않습니다.
 
-The default `mock` mode does not mutate a live Kubernetes cluster.
+기본 `mock` mode는 live Kubernetes cluster를 변경하지 않습니다.
 
-## 9. Related Artifacts
+## 9. 관련 산출물
 
-| Artifact | Path |
+| 산출물 | 경로 |
 | --- | --- |
-| Core submission summary | `docs/core_submission_summary.md` |
-| Functional/API guide | `docs/submission/functional_api_guide.md` |
-| OpenAPI contract | `docs/submission/openapi_service_control.yaml` |
-| Install and run guide | `docs/submission/install_and_run_guide.md` |
-| Test guide | `docs/submission/test_guide.md` |
+| 핵심 제출 요약 | `docs/core_submission_summary.md` |
+| 기능/API 가이드 | `docs/submission/functional_api_guide.md` |
+| OpenAPI 계약 | `docs/submission/openapi_service_control.yaml` |
+| 설치 및 실행 가이드 | `docs/submission/install_and_run_guide.md` |
+| 테스트 가이드 | `docs/submission/test_guide.md` |
 | LLM 운영 관리 구조 설계서 | `docs/deliverables/01_llm_operation_management_design.md` |
 | 에이전트 등록 관리 프로토타입 | `docs/deliverables/02_agent_registration_management_prototype.md` |
 | AI 응용 배포·제어 추론 최적화 전략 설계서 | `docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md` |
-| LLM policy config | `config/ops_llm_benchmark.json` |
-| Agent registry config | `config/agent_registry.json` |
-| Inference optimization config | `config/inference_optimization.json` |
+| LLM 정책 설정 | `config/ops_llm_benchmark.json` |
+| 에이전트 registry 설정 | `config/agent_registry.json` |
+| 추론 최적화 설정 | `config/inference_optimization.json` |

@@ -1,54 +1,49 @@
-# Functional/API Guide
+# 기능/API 가이드
 
-## 1. Purpose
+## 1. 목적
 
-This guide describes the Go Echo HTTP API for the 1st-year service-control
-functional prototype. The API exposes the same core functions as the Go CLI:
-Ops LLM policy selection, agent registry listing, CPU/GPU VM placement
-recommendation, deployment-plan generation, and integrated service-operations
-readiness validation.
+이 가이드는 1차년도 service-control 기능 프로토타입의 Go Echo HTTP API를 설명합니다. API는 Go CLI와 동일한 핵심 기능인 Ops LLM 정책 선정, 에이전트 registry 조회, CPU/GPU VM 배치 추천, 배포 계획 생성, 통합 서비스 운영 준비도 검증을 제공합니다.
 
-The Swagger/OpenAPI deliverable is maintained at
-`docs/submission/openapi_service_control.yaml`.
+Swagger/OpenAPI 산출물은 `docs/submission/openapi_service_control.yaml`에 있습니다.
 
-## 2. Run the API Server
+## 2. API 서버 실행
 
 ```bash
 cd go/service-control-api
 go run ./cmd/service-control-api
 ```
 
-Expected startup signal:
+기대 시작 신호:
 
 ```text
 http server started on [::]:8080
 ```
 
-## 3. Endpoint List
+## 3. Endpoint 목록
 
-| Method | Path | Function |
+| Method | Path | 기능 |
 | --- | --- | --- |
-| `GET` | `/healthz` | Health check |
-| `GET` | `/openapi.yaml` | Returns the OpenAPI YAML contract |
-| `GET` | `/api/v1/agents` | Lists registered AI agents |
-| `POST` | `/api/v1/ops-llm/select` | Runs Ops LLM policy-based candidate selection |
-| `POST` | `/api/v1/apps/placement` | Recommends CPU/GPU VM placement for an AI workload |
-| `POST` | `/api/v1/apps/deployment-plan` | Generates an AI application deployment/control plan |
-| `POST` | `/api/v1/service-operations/run` | Runs the integrated service-operations readiness pipeline |
+| `GET` | `/healthz` | 상태 확인 |
+| `GET` | `/openapi.yaml` | OpenAPI YAML 계약 반환 |
+| `GET` | `/api/v1/agents` | 등록된 AI agent 목록 조회 |
+| `POST` | `/api/v1/ops-llm/select` | Ops LLM policy 기반 candidate selection 실행 |
+| `POST` | `/api/v1/apps/placement` | AI workload의 CPU/GPU VM 배치 추천 |
+| `POST` | `/api/v1/apps/deployment-plan` | AI 응용 배포·제어 계획 생성 |
+| `POST` | `/api/v1/service-operations/run` | 통합 service-operations readiness pipeline 실행 |
 
-## 4. Basic Checks
+## 4. 기본 확인
 
 ```bash
 curl http://127.0.0.1:8080/healthz
 ```
 
-Expected response:
+기대 응답:
 
 ```json
 {"service":"service-control-api","status":"ok"}
 ```
 
-OpenAPI contract:
+OpenAPI 계약 확인:
 
 ```bash
 curl http://127.0.0.1:8080/openapi.yaml
@@ -60,11 +55,9 @@ curl http://127.0.0.1:8080/openapi.yaml
 curl http://127.0.0.1:8080/api/v1/agents
 ```
 
-The response contains the registered agent names, roles, responsibilities,
-bounded actions, reward-signal descriptions, and enabled status. This endpoint
-is the API-facing view of `config/agent_registry.json`.
+응답에는 등록된 agent name, role, responsibility, bounded action, reward-signal description, enabled status가 포함됩니다. 이 endpoint는 `config/agent_registry.json`의 API-facing view입니다.
 
-## 6. Ops LLM Selection API
+## 6. Ops LLM 선정 API
 
 ```bash
 curl -s -X POST http://127.0.0.1:8080/api/v1/ops-llm/select \
@@ -72,20 +65,19 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/ops-llm/select \
   -d '{"policy":"quality_first"}'
 ```
 
-Major response fields:
+주요 응답 필드:
 
-| Field | Meaning |
+| Field | 의미 |
 | --- | --- |
-| `selected_model` | Candidate selected by the requested policy |
-| `selected_score` | Weighted prototype policy score |
-| `ranking` | Ranked candidate list |
-| `rationale` | Human-readable explanation of the selection |
-| `valid` | Whether the selection request was processed successfully |
+| `selected_model` | 요청 policy로 선택된 candidate |
+| `selected_score` | weighted prototype policy score |
+| `ranking` | score 기준 candidate ranking |
+| `rationale` | 선정 이유 설명 |
+| `valid` | 요청이 성공적으로 처리되었는지 여부 |
 
-The current policy values are manually defined prototype policy baselines, not
-final standardized benchmark results.
+현재 policy 값은 수동 정의된 prototype policy baseline이며 최종 표준 benchmark result가 아닙니다.
 
-## 7. Placement API
+## 7. 배치 추천 API
 
 ```bash
 curl -s -X POST http://127.0.0.1:8080/api/v1/apps/placement \
@@ -93,18 +85,18 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/apps/placement \
   -d '{"workload":"llm-chat-inference"}'
 ```
 
-Major response fields:
+주요 응답 필드:
 
-| Field | Meaning |
+| Field | 의미 |
 | --- | --- |
-| `selected_resource` | Recommended CPU/GPU VM resource profile |
-| `action` | Recommended deployment action |
-| `score` | Weighted placement score |
-| `slo_satisfied` | Whether the selected resource satisfies configured SLO requirements |
-| `ranked_candidates` | Eligible candidates ranked by score |
-| `rejected_resources` | Resources rejected by constraints |
+| `selected_resource` | 추천된 CPU/GPU VM resource profile |
+| `action` | 추천 deployment action |
+| `score` | weighted placement score |
+| `slo_satisfied` | 선택 resource가 설정 SLO를 만족하는지 여부 |
+| `ranked_candidates` | eligible candidate ranking |
+| `rejected_resources` | 제약 조건으로 제외된 resource |
 
-## 8. Deployment-Plan API
+## 8. 배포 계획 API
 
 ```bash
 curl -s -X POST http://127.0.0.1:8080/api/v1/apps/deployment-plan \
@@ -112,10 +104,7 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/apps/deployment-plan \
   -d '{"workload":"llm-chat-inference"}'
 ```
 
-The deployment-plan response includes a Kubernetes-oriented plan containing
-service name, container image, target resource, target accelerator, namespace,
-deployment name, replicas, node selector, resource requests, resource limits,
-control actions, monitoring metrics, and SLO values.
+배포 계획 응답에는 service name, container image, target resource, target accelerator, namespace, deployment name, replicas, node selector, resource requests, resource limits, control actions, monitoring metrics, SLO values가 포함됩니다.
 
 ## 9. Service Operations API
 
@@ -125,42 +114,38 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/service-operations/run \
   -d '{"llm_policy":"quality_first","workload":"llm-chat-inference","recovery_namespace":"aiops-demo","recovery_deployment":"aiops-service","mode":"mock","guard_backend":"go"}'
 ```
 
-Major response fields:
+주요 응답 필드:
 
-| Field | Meaning |
+| Field | 의미 |
 | --- | --- |
-| `valid` | Integrated readiness result |
-| `selected_llm` | Selected LLM policy candidate |
-| `runtime_model` | Runtime model label used in the readiness flow |
-| `selected_resource` | Selected CPU/GPU VM candidate |
-| `deployment_plan` | AI application deployment/control plan |
-| `deployment_manifest` | Generated Kubernetes Deployment manifest |
-| `deployment_dry_run` | Mock or dry-run deployment validation result |
-| `agent_reviews` | Application, infrastructure, and cost review results |
-| `recovery_pipeline_ready` | Whether the service operation/recovery context is ready |
-| `guard_backend` | Guard validation backend, expected as `go` |
-| `guard_validation` | Bounded-action readiness validation result |
+| `valid` | 통합 readiness 결과 |
+| `selected_llm` | 선택된 LLM policy candidate |
+| `runtime_model` | readiness flow에서 사용된 runtime model label |
+| `selected_resource` | 선택된 CPU/GPU VM candidate |
+| `deployment_plan` | AI 응용 배포·제어 계획 |
+| `deployment_manifest` | 생성된 Kubernetes Deployment manifest |
+| `deployment_dry_run` | mock 또는 dry-run 배포 검증 결과 |
+| `agent_reviews` | application, infrastructure, cost 관점 검토 결과 |
+| `recovery_pipeline_ready` | 서비스 운영/recovery context 준비 여부 |
+| `guard_backend` | guard 검증 backend, 기본 기대값은 `go` |
+| `guard_validation` | bounded-action readiness validation 결과 |
 
-## 10. Recovery Context Boundary
+## 10. Recovery Context 경계
 
-`recovery_namespace` and `recovery_deployment` are service operation/recovery
-context fields. They identify the service-control target used for readiness and
-guard validation. They are different from the AI application deployment
-namespace generated inside `deployment_plan.kubernetes.namespace`.
+`recovery_namespace`와 `recovery_deployment`는 service operation/recovery context field입니다. readiness와 guard validation에 사용하는 service-control target을 식별합니다. 이는 `deployment_plan.kubernetes.namespace` 안에서 생성되는 AI application deployment namespace와 다릅니다.
 
-For example:
+예:
 
 - `recovery_namespace = aiops-demo`
 - `recovery_deployment = aiops-service`
 - `deployment_plan.kubernetes.namespace = ai-inference`
 
-## 11. OpenAPI Deliverable
+## 11. OpenAPI 산출물
 
-The OpenAPI document is a required submission artifact:
+OpenAPI 문서는 필수 제출 산출물입니다.
 
 ```text
 docs/submission/openapi_service_control.yaml
 ```
 
-It should be reviewed together with this guide and the Go route definitions in
-`go/service-control-api/internal/api/server.go`.
+이 가이드와 `go/service-control-api/internal/api/server.go`의 Go route definition을 함께 검토해야 합니다.

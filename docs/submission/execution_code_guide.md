@@ -1,17 +1,17 @@
-# Execution Code Guide
+# 실행 코드 가이드
 
-## Core Go Code
+## 핵심 Go 코드
 
-| Code | Purpose |
+| 코드 | 목적 |
 | --- | --- |
 | `go/service-control-api/cmd/service-control-api/main.go` | HTTP API server entrypoint |
 | `go/service-control-api/cmd/aiops-service-control/main.go` | CLI entrypoint |
 | `go/service-control-api/internal/api/service.go` | LLM selection, agent registry, CPU/GPU placement, readiness pipeline |
-| `go/service-control-api/internal/api/server.go` | HTTP routes |
-| `go/service-control-api/internal/api/models.go` | Request/response models |
-| `go/aiops-guard/` | Standalone bounded-action guard |
+| `go/service-control-api/internal/api/server.go` | HTTP route |
+| `go/service-control-api/internal/api/models.go` | request/response model |
+| `go/aiops-guard/` | standalone bounded-action guard |
 
-## Validation Commands
+## 검증 명령
 
 ```bash
 cd go/aiops-guard
@@ -39,13 +39,12 @@ go run ./cmd/aiops-service-control run-service-operations \
 go run ./cmd/aiops-service-control team-validation
 ```
 
-## Output Evidence
+## 출력 증거
 
-The Go team-validation command saves JSON outputs under:
+Go `team-validation` 명령은 JSON 출력을 다음 위치에 저장할 수 있습니다.
 
 ```text
 runs/team-validation/<timestamp>/
 ```
 
-The `runs/` directory is local evidence and is not part of the committed source
-package.
+`runs/` directory는 local evidence이며 committed source package에는 포함하지 않습니다.

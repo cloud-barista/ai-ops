@@ -1,36 +1,34 @@
-# Test Guide
+# 테스트 가이드
 
-## 1. Purpose
+## 1. 목적
 
-This guide defines the functional test and validation procedure for the
-1st-year Go-based service-control prototype. The tests validate prototype
-behavior, not production performance or standardized LLM benchmark quality.
+이 가이드는 1차년도 Go 기반 service-control prototype의 기능 test와 validation 절차를 정의합니다. 테스트는 prototype behavior를 검증하며, production performance 또는 standardized LLM benchmark quality를 증명하지 않습니다.
 
-## 2. Go Guard Tests
+## 2. Go Guard 테스트
 
 ```bash
 cd go/aiops-guard
 go test ./...
 ```
 
-Validation item:
+검증 항목:
 
-- Go guard bounded-action validation.
+- Go guard bounded-action validation
 
-## 3. Service-Control API Tests
+## 3. Service-Control API 테스트
 
 ```bash
 cd go/service-control-api
 go test ./...
 ```
 
-Validation items:
+검증 항목:
 
-- API route behavior.
-- Service-control model behavior.
-- LLM policy selection logic.
-- Agent registry validation.
-- CPU/GPU placement and deployment-plan logic.
+- API route behavior
+- Service-control model behavior
+- LLM policy selection logic
+- Agent registry validation
+- CPU/GPU placement 및 deployment-plan logic
 
 ## 4. Team Validation
 
@@ -39,19 +37,19 @@ cd go/service-control-api
 go run ./cmd/aiops-service-control team-validation
 ```
 
-Validation items:
+검증 항목:
 
-- Ops LLM selection policy prototype.
-- Agent registry listing.
-- Agent bounded-action validation.
-- CPU/GPU VM placement recommendation.
-- Kubernetes deployment-plan generation.
-- Mock deployment dry-run and guard-readiness validation.
-- Integrated service-operations readiness.
+- Ops LLM selection policy prototype
+- Agent registry listing
+- Agent bounded-action validation
+- CPU/GPU VM placement recommendation
+- Kubernetes deployment-plan generation
+- Mock 배포 dry-run 및 guard-readiness 검증
+- 통합 service-operations readiness
 
-## 5. Expected Signals
+## 5. 기대 신호
 
-Expected prototype-level output signals:
+기대되는 prototype-level output signal:
 
 ```text
 selected_model = primary-ops-llm
@@ -61,18 +59,15 @@ guard_backend = go
 guard_validation.valid = true
 ```
 
-These signals confirm that the Go API/CLI validation flow is wired correctly.
-They do not prove standardized LLM evaluation quality, production performance, live GPU
-scheduling, or actual cloud provisioning.
+이 신호는 Go API/CLI validation flow가 올바르게 연결되었음을 확인합니다. standardized LLM evaluation quality, production performance, live GPU scheduling, actual cloud provisioning을 증명하지 않습니다.
 
-## 6. Validation Evidence Files
+## 6. 검증 증거 파일
 
-When `team-validation` is executed with `--output-dir`, the following JSON files
-can be preserved as validation evidence:
+`team-validation`을 `--output-dir`와 함께 실행하면 다음 JSON 파일을 validation evidence로 보존할 수 있습니다.
 
-| File | Validation Meaning |
+| 파일 | 검증 의미 |
 | --- | --- |
-| `00_team_validation_summary.json` | Summary of all validation steps |
+| `00_team_validation_summary.json` | 전체 validation step 요약 |
 | `01_select_ops_llm.json` | Ops LLM policy selection |
 | `02_list_agents.json` | Registered agent list |
 | `03_validate_agent_action.json` | Agent bounded-action validation |
@@ -80,10 +75,9 @@ can be preserved as validation evidence:
 | `05_plan_inference_deployment.json` | Kubernetes deployment-plan generation |
 | `06_run_service_operations.json` | Integrated service-operations readiness |
 
-## 7. Preserving Failed Logs and Error Messages
+## 7. 실패 로그와 오류 메시지 보존
 
-If validation fails, preserve the full terminal output and the generated JSON
-files under a dated directory, for example:
+검증 실패 시 전체 terminal output과 생성 JSON 파일을 날짜가 포함된 directory에 보존합니다.
 
 ```bash
 cd go/service-control-api
@@ -91,23 +85,23 @@ go run ./cmd/aiops-service-control team-validation \
   --output-dir ../../runs/validation-YYYYMMDD-HHMMSS
 ```
 
-Recommended failed-log record:
+권장 실패 로그 기록:
 
-| Item | What to Preserve |
+| 항목 | 보존 내용 |
 | --- | --- |
-| Command | Exact command that failed |
-| Environment | OS, Go version, branch, latest commit |
-| Error output | Full stderr/stdout text |
-| JSON evidence | Generated JSON files, if any |
-| Human note | Short explanation of the observed failure and next action |
+| Command | 실패한 정확한 command |
+| Environment | OS, Go 버전, branch, latest commit |
+| Error output | 전체 stderr/stdout text |
+| JSON evidence | 생성 JSON 파일 |
+| Human note | 관찰된 실패와 다음 조치에 대한 짧은 설명 |
 
-## 8. Human Review Items
+## 8. 사람 검토 항목
 
-Human review should confirm:
+사람 검토자는 다음을 확인해야 합니다.
 
-- Tests were run from the correct Go module directories.
-- README links and document links resolve correctly.
-- DOCX submission copies exist when claimed.
-- Prototype boundary statements are present.
-- The repository does not claim production readiness.
-- The repository does not claim final standardized LLM benchmark results.
+- 테스트가 올바른 Go module directory에서 실행되었는지
+- README link와 문서 link가 정상적으로 연결되는지
+- DOCX 제출본이 있다고 주장하는 경우 실제 파일이 존재하는지
+- prototype boundary statement가 포함되어 있는지
+- repository가 production readiness를 주장하지 않는지
+- repository가 final standardized LLM benchmark result를 주장하지 않는지

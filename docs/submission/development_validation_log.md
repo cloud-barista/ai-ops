@@ -1,20 +1,18 @@
-# Development/Test Validation Log
+# 개발/테스트 검증 로그
 
-## 1. Purpose
+## 1. 목적
 
-This document records the validation commands, expected outputs, log
-preservation method, human verification items, and current known limitations for
-the 1st-year Go-based service-control prototype.
+이 문서는 1차년도 Go 기반 service-control prototype의 validation command, expected output, log preservation method, human verification item, current known limitation을 기록합니다.
 
-## 2. Validation Commands
+## 2. 검증 명령
 
-Go guard tests:
+Go guard test:
 
 ```bash
 cd go/aiops-guard && go test ./...
 ```
 
-Service-control API tests:
+Service-control API test:
 
 ```bash
 cd go/service-control-api && go test ./...
@@ -26,9 +24,9 @@ Integrated team validation:
 cd go/service-control-api && go run ./cmd/aiops-service-control team-validation
 ```
 
-## 3. Expected Outputs
+## 3. 기대 출력
 
-Expected prototype-level signals:
+기대되는 prototype-level signal:
 
 ```text
 selected_model = primary-ops-llm
@@ -38,64 +36,62 @@ guard_backend = go
 guard_validation.valid = true
 ```
 
-Expected Go test behavior:
+기대되는 Go test behavior:
 
 ```text
 go test ./... exits with status 0
 ```
 
-## 4. Error Logging Policy
+## 4. 오류 로그 정책
 
-If a command fails, preserve:
+명령 실패 시 다음을 보존합니다.
 
-- The exact command.
-- The working directory.
-- Full stdout and stderr.
-- Go version.
-- Git branch and latest commit.
-- Generated JSON files, if any.
-- Human note describing the suspected cause.
+- 정확한 command
+- working directory
+- 전체 stdout 및 stderr
+- Go version
+- Git branch와 latest commit
+- 생성 JSON 파일
+- 추정 원인을 설명하는 human note
 
-Error messages should not be paraphrased away. Keep the exact error text in the
-record and add a short interpretation separately.
+오류 메시지는 과도하게 의역하지 않습니다. 정확한 error text를 기록하고, 해석은 별도 짧은 문장으로 덧붙입니다.
 
-## 5. Human Verification Items
+## 5. 사람 검증 항목
 
-Human reviewers should verify:
+사람 검토자는 다음을 확인해야 합니다.
 
-- Test output was produced from the correct directories.
-- README links point to existing repository files.
-- OpenAPI YAML exists and is linked.
-- Required Markdown deliverables exist.
-- DOCX files exist before being described as generated.
-- Prototype boundary statements are present.
-- LLM policy values are described as manually defined prototype baselines.
-- No production-ready claim is introduced.
-- No final standardized LLM benchmark claim is introduced.
+- test output이 올바른 directory에서 생성되었는지
+- README link가 기존 repository file을 가리키는지
+- OpenAPI YAML이 존재하고 연결되어 있는지
+- 필수 Markdown deliverable이 존재하는지
+- DOCX file이 있다고 설명하기 전에 실제 존재하는지
+- prototype boundary statement가 있는지
+- LLM policy value가 수동 정의 prototype baseline으로 설명되었는지
+- production-ready claim이 추가되지 않았는지
+- final standardized LLM benchmark claim이 추가되지 않았는지
 
-## 6. Current Known Limitations
+## 6. 현재 알려진 한계
 
-- The default validation path uses mock mode.
-- Actual GPU VM provisioning is outside the local default validation path.
-- Live Kubernetes mutation is not performed by default.
-- LLM policy values are manually defined prototype policy baselines.
-- Final quantitative model reporting requires controlled per-model evaluation
-  runs with fixed prompts, datasets, metrics, and scoring rules.
+- 기본 검증 경로는 mock mode를 사용합니다.
+- actual GPU VM provisioning은 local default validation path 밖입니다.
+- live Kubernetes mutation은 기본적으로 수행하지 않습니다.
+- LLM policy value는 수동 정의된 prototype policy baseline입니다.
+- final quantitative model reporting에는 fixed prompt, dataset, metric, scoring rule을 갖춘 controlled per-model evaluation run이 필요합니다.
 
-## 7. Latest Validation Record
+## 7. 최신 검증 기록
 
-Validation date: 2026-06-29
+검증 날짜: 2026-06-29
 
-| Item | Result |
+| 항목 | 결과 |
 | --- | --- |
-| Go guard tests | Executed in WSL Ubuntu-22.04 with `/usr/local/go/bin/go test ./...`; result: pass |
-| Service-control API tests | Executed in WSL Ubuntu-22.04 with `/usr/local/go/bin/go test ./...`; result: pass |
-| Team validation | Executed in WSL Ubuntu-22.04; result: `valid = true` |
+| Go guard tests | WSL Ubuntu-22.04에서 `/usr/local/go/bin/go test ./...` 실행, pass |
+| Service-control API tests | WSL Ubuntu-22.04에서 `/usr/local/go/bin/go test ./...` 실행, pass |
+| Team validation | WSL Ubuntu-22.04에서 실행, `valid = true` |
 | Team validation output directory | `runs/submission-validation-20260629-131247/` |
-| DOCX conversion | Executed with PowerShell `pandoc`; four DOCX files generated and structurally reopened with `python-docx` |
-| Link validation | Local Markdown links checked; result: pass |
+| DOCX conversion | PowerShell `pandoc`으로 실행, DOCX 4개 생성 후 `python-docx`로 구조 재확인 |
+| Link validation | 로컬 Markdown link 확인, pass |
 
-## 8. Latest Command Evidence
+## 8. 최신 명령 증거
 
 Go guard tests:
 
@@ -133,7 +129,7 @@ requirements_definition.docx = generated and reopened
 03_AI_Application_Deployment_Control_Optimization_Strategy.docx = generated and reopened
 ```
 
-Environment note:
+환경 note:
 
 ```text
 Windows PowerShell did not have go on PATH, so Go validation was executed

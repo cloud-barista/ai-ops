@@ -1,18 +1,16 @@
-# Research Task Integration Design
+# 연구 과제 통합 설계
 
-## Target Scope
+## 대상 범위
 
-The integrated research task is implemented as a Go-based prototype for an AI
-service-control and management automation framework. It focuses on the 1st-year
-deliverables assigned to the service-control layer.
+통합 연구 과제는 AI service-control and management automation framework의 Go 기반 prototype으로 구현되어 있습니다. 1차년도 service-control layer에 배정된 산출물에 초점을 둡니다.
 
-| Research item | Prototype implementation |
+| 연구 항목 | Prototype 구현 |
 | --- | --- |
-| Ops analysis and optimal LLM selection | `go/service-control-api` LLM selection logic |
-| AI LLM operation-management structure | Service-operations readiness pipeline |
-| AI agent registration management | `config/agent_registry.json` plus Go API/CLI validation |
-| CPU/GPU VM AI application deployment/control | CPU/GPU placement and Kubernetes deployment-plan generation |
-| Safety boundary | `go/aiops-guard` standalone bounded-action validator |
+| Ops 분석 및 최적 LLM 선정 | `go/service-control-api` LLM selection logic |
+| AI LLM 운영 관리 구조 | service-operations readiness pipeline |
+| AI agent registration management | `config/agent_registry.json`과 Go API/CLI validation |
+| CPU/GPU VM 기반 AI 응용 배포·제어 | CPU/GPU 배치 및 Kubernetes 배포 계획 생성 |
+| 안전 경계 | `go/aiops-guard` standalone bounded-action validator |
 
 ## System Flow
 
@@ -26,17 +24,10 @@ Ops policy/config
 -> service-operations readiness report
 ```
 
-## AI-Infra Boundary
+## AI-Infra 경계
 
-CB-Tumblebug or other AI-Infra components are treated as external VM
-provisioning and management infrastructure. This project does not replace those
-systems. It consumes CPU/GPU VM resource assumptions from configuration and
-produces AI application placement and deployment-control decisions on top of
-that infrastructure boundary.
+CB-Tumblebug 또는 다른 AI-Infra component는 외부 VM provisioning 및 management infrastructure로 취급합니다. 이 프로젝트는 해당 시스템을 대체하지 않습니다. 설정에서 CPU/GPU VM resource assumption을 소비하고, 그 infrastructure boundary 위에서 AI application placement와 deployment-control decision을 생성합니다.
 
-## Development Boundary
+## 개발 경계
 
-The submission/demo path does not include non-core experiment runners, external
-agent orchestration frameworks, provider-specific monitoring adapters, or local
-cluster helper scripts. This keeps the implementation aligned with the Go
-development-language requirement and the assigned research scope.
+제출/시연 경로에는 핵심 범위 밖 experiment runner, external agent orchestration framework, provider-specific monitoring adapter, local cluster helper script를 포함하지 않습니다. 이를 통해 Go 개발 언어 요구사항과 담당 연구 범위에 맞게 구현을 유지합니다.

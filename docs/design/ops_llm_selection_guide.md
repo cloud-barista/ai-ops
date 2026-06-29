@@ -1,53 +1,48 @@
-# Ops LLM Selection Guide
+# Ops LLM 선정 가이드
 
-## Purpose
+## 목적
 
-Ops LLM selection chooses the prototype runtime model label for service-control
-reasoning under a policy such as `quality_first` or `cost_first`.
+Ops LLM selection은 `quality_first` 또는 `cost_first` 같은 policy 아래에서 service-control reasoning에 사용할 prototype runtime model label을 선택합니다.
 
-The Go implementation is in:
+Go 구현 위치:
 
 ```text
 go/service-control-api/internal/api/service.go
 ```
 
-The policy data is in:
+정책 데이터 위치:
 
 ```text
 config/ops_llm_benchmark.json
 ```
 
-## Prototype Data Boundary
+## 프로토타입 데이터 경계
 
-The current candidate scores are manually defined prototype policy values. They
-exist to validate ranking logic, API wiring, and report generation. They are not
-standardized benchmark results.
+현재 candidate score는 수동 정의된 prototype policy value입니다. ranking logic, API wiring, report generation을 검증하기 위한 값이며 standardized benchmark result가 아닙니다.
 
-Final quantitative reporting must regenerate the values through controlled
-per-model Ops evaluation runs with fixed prompts, datasets, metric collection,
-and repeatable scoring rules.
+최종 정량 보고를 위해서는 fixed prompt, dataset, metric collection, repeatable scoring rule을 갖춘 controlled per-model Ops evaluation run으로 값을 재생성해야 합니다.
 
-## Candidate Roles
+## Candidate 역할
 
-| Candidate | Role |
+| Candidate | 역할 |
 | --- | --- |
-| `primary-ops-llm` | Primary Ops reasoning candidate |
-| `low-cost-ops-llm` | Low-cost smoke-test and fallback candidate |
-| `code-cross-check-agent` | Code and documentation cross-check candidate |
+| `primary-ops-llm` | 기본 Ops reasoning candidate |
+| `low-cost-ops-llm` | 저비용 smoke-test 및 fallback candidate |
+| `code-cross-check-agent` | 코드와 문서 교차 검증 candidate |
 
 ## Scoring
 
-Each policy combines normalized metrics:
+각 policy는 normalized metric을 조합합니다.
 
-| Metric | Meaning |
+| Metric | 의미 |
 | --- | --- |
 | `accuracy` | Ops task correctness baseline |
-| `metric_success` | Ability to use available operation metrics |
-| `action_validity` | Rate of bounded and safe action proposals |
-| `consistency` | Repeatability of decisions |
-| `ttd` | Inverse time-to-decision score |
-| `cost` | Inverse estimated cost score |
-| `latency` | Inverse latency score |
+| `metric_success` | 사용 가능한 operation metric 활용 능력 |
+| `action_validity` | bounded and safe action proposal 비율 |
+| `consistency` | 결정 반복 가능성 |
+| `ttd` | inverse time-to-decision score |
+| `cost` | inverse estimated cost score |
+| `latency` | inverse latency score |
 
 ## Go CLI
 
@@ -58,7 +53,7 @@ go run ./cmd/aiops-service-control select-ops-llm \
   --policy quality_first
 ```
 
-Expected selection:
+기대 selection:
 
 ```text
 selected_model = primary-ops-llm

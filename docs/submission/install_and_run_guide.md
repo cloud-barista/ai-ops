@@ -1,32 +1,28 @@
-# Installation and Usage Guide
+# 설치 및 실행 가이드
 
-## 1. Purpose
+## 1. 목적
 
-This guide describes how to install and run the 1st-year Go-based
-service-control functional prototype. The default validation path is local and
-uses mock execution. A live Kubernetes cluster or actual GPU VM provisioning is
-not required for the default validation path.
+이 가이드는 1차년도 Go 기반 service-control 기능 프로토타입의 설치와 실행 방법을 설명합니다. 기본 검증 경로는 로컬 실행이며 `mock` mode를 사용합니다. 기본 검증에는 live Kubernetes cluster나 실제 GPU VM provisioning이 필요하지 않습니다.
 
-## 2. Go Version Requirement
+## 2. Go 버전 요구사항
 
-- Go 1.25 or newer is recommended.
-- Both Go modules use Go 1.25 because the service-control API dependency set is
-  normalized by `go mod tidy` to `go 1.25.0`.
+- Go 1.25 이상을 권장합니다.
+- service-control API dependency set이 `go mod tidy` 기준 `go 1.25.0`으로 정리되어 있어 두 Go module 모두 Go 1.25 계열을 기준으로 합니다.
 
-Check the Go version:
+Go 버전 확인:
 
 ```bash
 go version
 ```
 
-## 3. Repository Setup
+## 3. 저장소 설정
 
 ```bash
 git checkout geon
 git pull --ff-only origin geon
 ```
 
-Download Go module dependencies:
+Go module dependency 다운로드:
 
 ```bash
 cd go/service-control-api
@@ -36,7 +32,7 @@ cd ../aiops-guard
 go mod download
 ```
 
-## 4. Run Team Validation
+## 4. Team Validation 실행
 
 ```bash
 cd go/service-control-api
@@ -44,24 +40,24 @@ go run ./cmd/aiops-service-control team-validation \
   --output-dir ../../runs/my-first-validation
 ```
 
-Expected integrated signal:
+기대 통합 신호:
 
 ```text
 valid = true
 ```
 
-Generated validation evidence:
+생성되는 검증 증거:
 
-| File | Meaning |
+| 파일 | 의미 |
 | --- | --- |
-| `runs/my-first-validation/01_select_ops_llm.json` | Ops LLM policy selection result |
-| `runs/my-first-validation/02_list_agents.json` | Agent registry listing |
+| `runs/my-first-validation/01_select_ops_llm.json` | Ops LLM policy selection 결과 |
+| `runs/my-first-validation/02_list_agents.json` | Agent registry 목록 |
 | `runs/my-first-validation/03_validate_agent_action.json` | Agent bounded-action validation |
 | `runs/my-first-validation/04_recommend_inference_placement.json` | CPU/GPU VM placement recommendation |
 | `runs/my-first-validation/05_plan_inference_deployment.json` | Deployment/control plan |
 | `runs/my-first-validation/06_run_service_operations.json` | Integrated service-operations readiness |
 
-## 5. Run CLI Commands
+## 5. CLI 명령 실행
 
 Ops LLM policy selection:
 
@@ -95,7 +91,7 @@ go run ./cmd/aiops-service-control plan-inference-deployment \
   --workload llm-chat-inference
 ```
 
-Integrated service-operations readiness:
+통합 service-operations readiness:
 
 ```bash
 go run ./cmd/aiops-service-control run-service-operations \
@@ -109,23 +105,23 @@ go run ./cmd/aiops-service-control run-service-operations \
   --guard-backend go
 ```
 
-## 6. Run the API Server
+## 6. API 서버 실행
 
-Terminal 1:
+터미널 1:
 
 ```bash
 cd go/service-control-api
 go run ./cmd/service-control-api
 ```
 
-Terminal 2:
+터미널 2:
 
 ```bash
 curl http://127.0.0.1:8080/healthz
 curl http://127.0.0.1:8080/openapi.yaml
 ```
 
-Integrated API example:
+통합 API 예시:
 
 ```bash
 curl -s -X POST http://127.0.0.1:8080/api/v1/service-operations/run \
@@ -133,9 +129,9 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/service-operations/run \
   -d '{"llm_policy":"quality_first","workload":"llm-chat-inference","recovery_namespace":"aiops-demo","recovery_deployment":"aiops-service","mode":"mock","guard_backend":"go"}'
 ```
 
-## 7. Expected Results
+## 7. 기대 결과
 
-Expected prototype-level signals:
+기대되는 prototype-level signal:
 
 ```text
 selected_model = primary-ops-llm
@@ -145,30 +141,27 @@ guard_backend = go
 guard_validation.valid = true
 ```
 
-The values above validate the policy and control-flow wiring of the prototype.
-They are not final standardized LLM benchmark results.
+위 값은 prototype의 policy와 control-flow wiring을 검증합니다. 최종 표준 LLM benchmark result가 아닙니다.
 
 ## 8. Mock Mode
 
-The default `mock` mode generates and validates the service-control readiness
-structure without mutating a live cluster. In mock mode:
+기본 `mock` mode는 live cluster를 변경하지 않고 service-control readiness structure를 생성하고 검증합니다. mock mode에서는 다음이 수행됩니다.
 
-- Kubernetes deployment manifests are generated.
-- Deployment dry-run output is simulated.
-- Agent review and guard-readiness fields are produced.
-- Actual GPU VM provisioning is not performed.
-- Live Kubernetes mutation is not performed.
+- Kubernetes deployment manifest 생성
+- simulated deployment dry-run output 생성
+- agent review와 guard-readiness field 생성
+- 실제 GPU VM provisioning 미수행
+- live Kubernetes mutation 미수행
 
-## 9. DOCX Conversion
+## 9. DOCX 변환
 
-The repository includes a Bash conversion script:
+DOCX 제출본은 저장소에 포함되어 있습니다. 재생성이 필요한 경우 Bash 변환 script를 사용할 수 있습니다.
 
 ```bash
 bash scripts/generate_docx_deliverables.sh
 ```
 
-For Windows environments where Bash is not convenient, run Pandoc directly from
-PowerShell:
+Windows PowerShell에서 Pandoc을 직접 사용할 수도 있습니다.
 
 ```powershell
 pandoc docs/submission/requirements_definition.md -o docs/submission/requirements_definition.docx
@@ -177,6 +170,4 @@ pandoc docs/deliverables/02_agent_registration_management_prototype.md -o docs/d
 pandoc docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md -o docs/deliverables/docx/03_AI_Application_Deployment_Control_Optimization_Strategy.docx
 ```
 
-If conversion tooling is unavailable, the Markdown source files remain the
-authoritative deliverable sources and the DOCX files should be treated as
-conversion targets.
+변환 도구가 없으면 Markdown 원본을 기준 산출물로 유지하고, DOCX 파일은 변환 대상 파일로 관리합니다.

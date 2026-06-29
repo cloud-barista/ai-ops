@@ -1,87 +1,83 @@
-# Delivery Package Manifest
+# 제출 패키지 매니페스트
 
-This package is scoped to the Go-based AI service-control and management
-automation functional prototype.
+이 패키지는 Go 기반 AI 서비스 제어 및 관리 자동화 기능 프로토타입을 제출/시연하기 위한 구성입니다.
 
-## Included Source Components
+## 포함 소스 구성요소
 
-| Path | Purpose |
+| 경로 | 설명 |
 | --- | --- |
-| `go/service-control-api/` | Go Echo API and Go CLI for LLM policy selection, agent registry validation, CPU/GPU placement, deployment-plan generation, and service-operations readiness |
-| `go/aiops-guard/` | Standalone Go bounded-action validator for service-control actions |
-| `config/agent_registry.json` | Agent registry and bounded-action metadata |
-| `config/ops_llm_benchmark.json` | Manually defined prototype LLM policy baselines and selection weights |
-| `config/inference_optimization.json` | CPU/GPU VM resource profiles and workload requirements |
+| `go/service-control-api/` | LLM 정책 선정, 에이전트 registry 검증, CPU/GPU 배치 추천, 배포 계획 생성, 서비스 운영 준비도 검증을 수행하는 Go Echo API/CLI |
+| `go/aiops-guard/` | 서비스 제어 action을 허용 범위 안에서 검증하는 독립 Go 안전 게이트 |
+| `config/agent_registry.json` | 에이전트 registry와 bounded action 메타데이터 |
+| `config/ops_llm_benchmark.json` | 수동 정의된 프로토타입 LLM 정책 기준값과 선정 가중치 |
+| `config/inference_optimization.json` | CPU/GPU VM 자원 프로파일과 워크로드 요구사항 |
 
-## Required Submission Artifacts
+## 필수 제출 산출물
 
-| Path | Purpose |
+| 경로 | 설명 |
 | --- | --- |
-| `docs/submission/requirements_definition.md` | 요구사항 정의서 source |
-| `docs/submission/requirements_definition.docx` | 요구사항 정의서 submission/review conversion copy |
-| `docs/submission/functional_api_guide.md` | Functional/API guide |
-| `docs/submission/openapi_service_control.yaml` | Swagger/OpenAPI contract |
-| `docs/submission/install_and_run_guide.md` | Installation and usage guide |
-| `docs/submission/test_guide.md` | Test guide |
+| `docs/submission/requirements_definition.md` | 요구사항 정의서 원본 |
+| `docs/submission/requirements_definition.docx` | 요구사항 정의서 제출/검토용 변환본 |
+| `docs/submission/functional_api_guide.md` | 기능/API 가이드 |
+| `docs/submission/openapi_service_control.yaml` | Swagger/OpenAPI 계약 |
+| `docs/submission/install_and_run_guide.md` | 설치 및 실행 가이드 |
+| `docs/submission/test_guide.md` | 테스트 가이드 |
 
-## Official Design Deliverables
+## 공식 설계 산출물
 
-| Path | Purpose |
+| 경로 | 설명 |
 | --- | --- |
-| `docs/deliverables/01_llm_operation_management_design.md` | LLM 운영 관리 구조 설계서 source |
-| `docs/deliverables/02_agent_registration_management_prototype.md` | 에이전트 등록 관리 프로토타입 source |
-| `docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md` | AI 응용 배포·제어 추론 최적화 전략 설계서 source |
-| `docs/deliverables/docx/01_LLM_Operation_Management_Design.docx` | DOCX conversion copy |
-| `docs/deliverables/docx/02_Agent_Registration_Management_Prototype.docx` | DOCX conversion copy |
-| `docs/deliverables/docx/03_AI_Application_Deployment_Control_Optimization_Strategy.docx` | DOCX conversion copy |
+| `docs/deliverables/01_llm_operation_management_design.md` | LLM 운영 관리 구조 설계서 원본 |
+| `docs/deliverables/02_agent_registration_management_prototype.md` | 에이전트 등록 관리 프로토타입 원본 |
+| `docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md` | AI 응용 배포·제어 추론 최적화 전략 설계서 원본 |
+| `docs/deliverables/docx/01_LLM_Operation_Management_Design.docx` | DOCX 제출/검토용 변환본 |
+| `docs/deliverables/docx/02_Agent_Registration_Management_Prototype.docx` | DOCX 제출/검토용 변환본 |
+| `docs/deliverables/docx/03_AI_Application_Deployment_Control_Optimization_Strategy.docx` | DOCX 제출/검토용 변환본 |
 
-## Development Validation Artifacts
+## 개발 검증 문서
 
-| Path | Purpose |
+| 경로 | 설명 |
 | --- | --- |
-| `docs/submission/coding_agent_cross_validation.md` | LLM/coding-agent role and cross-validation process record |
-| `docs/submission/prompt_usage_log.md` | Cleaned prompt categories and sharing policy |
-| `docs/submission/development_validation_log.md` | Validation commands, expected outputs, log policy, and human review items |
-| `docs/submission/evaluation_summary.md` | Functional prototype evaluation summary |
-| `docs/core_submission_summary.md` | Overall package scope and deliverable mapping |
+| `docs/submission/coding_agent_cross_validation.md` | LLM/코딩 에이전트 역할과 교차 검증 절차 기록 |
+| `docs/submission/prompt_usage_log.md` | 정리된 프롬프트 범주와 공유 정책 |
+| `docs/submission/development_validation_log.md` | 검증 명령, 기대 출력, 로그 정책, 사람 검토 항목 |
+| `docs/submission/evaluation_summary.md` | 기능 프로토타입 평가 요약 |
+| `docs/core_submission_summary.md` | 전체 패키지 범위와 산출물 매핑 |
 
-## Supporting Design Documents
+## 보조 설계 문서
 
-| Path | Purpose |
+| 경로 | 설명 |
 | --- | --- |
-| `docs/design/` | Supporting implementation-level design notes |
-| `docs/team_setup.md` | Team-oriented setup notes |
+| `docs/design/` | 구현 수준의 보조 설계 문서 |
+| `docs/team_setup.md` | 팀 단위 개발 환경 설정 참고 문서 |
 
-## Conversion Tooling
+## 변환 도구
 
-| Path | Purpose |
+| 경로 | 설명 |
 | --- | --- |
-| `scripts/generate_docx_deliverables.sh` | Converts Markdown deliverable sources into DOCX submission/review copies when conversion tooling is available |
+| `scripts/generate_docx_deliverables.sh` | 변환 도구가 준비된 환경에서 Markdown 산출물을 DOCX 제출본으로 변환 |
 
-## Excluded
+## 제외 항목
 
-| Excluded item | Reason |
+| 제외 항목 | 사유 |
 | --- | --- |
-| Non-core legacy code and tests | Removed or excluded so the submission/demo package remains Go-centered |
-| External benchmark/orchestration integrations | Experimental paths that blur the assigned deliverable scope |
-| Provider-specific monitoring adapters | Excluded in favor of provider-neutral Ops input/config |
-| Local cluster experiment manifests and helper tooling | Environment-specific checks, not core deliverables |
-| `runs/` | Local execution artifacts and validation outputs |
-| virtualenv/cache/build artifacts | Local generated artifacts |
-| `.env`, kubeconfig, API keys | Sensitive local credentials |
+| 핵심 범위 밖 legacy 코드와 테스트 | 제출/시연 패키지를 Go 중심 범위로 유지하기 위함 |
+| 외부 벤치마크/오케스트레이션 실험 통합 | 담당 산출물 범위를 흐릴 수 있는 실험 경로 |
+| 특정 provider 전용 모니터링 adapter | provider 중립적인 Ops 입력/설정을 우선 적용 |
+| 로컬 클러스터 실험 manifest와 helper 도구 | 환경 의존 검증 자료이며 핵심 산출물이 아님 |
+| `runs/` | 로컬 실행 결과와 검증 출력물 |
+| 가상환경, cache, build 산출물 | 로컬 생성 파일 |
+| `.env`, kubeconfig, API key | 민감한 로컬 credential |
 
-## Submission Scope
+## 제출 범위 요약
 
 ```text
-LLM 운영 관리 구조 설계서 및 프로토타입
-에이전트 등록 관리 프로토타입
-AI 응용 배포·제어 추론 최적화 전략 설계서
-Go-based API/CLI implementation and functional validation
+LLM 운영 관리 구조 설계서,
+에이전트 등록 관리 프로토타입,
+AI 응용 배포·제어 추론 최적화 전략 설계서,
+Go 기반 API/CLI 구현 및 기능 검증
 ```
 
-## Boundary Notes
+## 경계 조건
 
-The repository is a 1st-year functional prototype. It is not a production-ready
-AIOps platform. The LLM policy values are manually defined prototype baselines
-and are not final standardized benchmark results. Actual GPU VM provisioning is
-outside the local default validation path.
+이 저장소는 1차년도 기능 프로토타입입니다. 운영 환경용 완성형 AIOps 플랫폼이 아니며, LLM 정책 값은 수동 정의된 프로토타입 기준값입니다. 실제 GPU VM 프로비저닝은 기본 로컬 검증 범위 밖입니다.

@@ -1,30 +1,22 @@
 # aiops-guard
 
-`aiops-guard` is the standalone Go safety gate for bounded service-control
-actions.
+`aiops-guard`는 bounded service-control action을 검증하는 standalone Go safety gate입니다.
 
-It receives a structured action request, validates it against an explicit
-policy, renders the allowed `kubectl` command, and executes only in the
-selected mode.
+구조화된 action request를 입력받아 명시 policy와 비교하고, 허용된 `kubectl` command를 rendering하며, 선택된 mode에서만 실행합니다.
 
-## Why Go Is Used Here
+## 여기서 Go를 사용하는 이유
 
-- Final service-control actions should be deterministic and easy to audit.
-- The guard is independent from LLM reasoning and external experiment tools.
-- The JSON request/response contract can be checked by the service-control API,
-  CI, or a reviewer without running a cluster mutation.
+- 최종 service-control action은 deterministic하고 audit하기 쉬워야 합니다.
+- guard는 LLM reasoning과 외부 experiment tool에서 독립적입니다.
+- JSON request/response contract는 cluster mutation 없이 service-control API, CI, reviewer가 확인할 수 있습니다.
 
-## Relationship To service-control-api
+## service-control-api와의 관계
 
-`go/service-control-api` performs LLM selection, agent registry validation,
-CPU/GPU placement, deployment-plan generation, and readiness reporting.
+`go/service-control-api`는 LLM selection, agent registry validation, CPU/GPU placement, deployment-plan generation, readiness reporting을 수행합니다.
 
-`go/aiops-guard` validates bounded Kubernetes service-control actions through a
-separate CLI contract. The service-control readiness response reports
-`guard_validation` for the Go guard boundary. Full runtime invocation of this
-standalone guard from the API module is a planned next integration step.
+`go/aiops-guard`는 별도 CLI contract를 통해 bounded Kubernetes service-control action을 검증합니다. service-control readiness response는 Go guard boundary를 나타내기 위해 `guard_validation`을 보고합니다. 이 standalone guard를 API module에서 full runtime으로 호출하는 것은 다음 integration step입니다.
 
-## Request Example
+## Request 예시
 
 ```json
 {
@@ -40,7 +32,7 @@ standalone guard from the API module is a planned next integration step.
 }
 ```
 
-## Run
+## 실행
 
 ```bash
 cd go/aiops-guard
@@ -63,8 +55,8 @@ cat <<'JSON' | go run ./cmd/aiops-guard --input -
 JSON
 ```
 
-`mock` mode validates and renders a command without running `kubectl`.
+`mock` mode는 `kubectl`을 실행하지 않고 command를 validate/render합니다.
 
-`dry-run` mode appends `--dry-run=server` to mutating commands.
+`dry-run` mode는 mutating command에 `--dry-run=server`를 추가합니다.
 
-`real` mode runs the validated command with the current `KUBECONFIG`.
+`real` mode는 현재 `KUBECONFIG`로 검증된 command를 실행합니다.
