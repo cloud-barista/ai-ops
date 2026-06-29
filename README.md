@@ -41,14 +41,14 @@
 
 ## 📦 제출 산출물
 
-| 산출물 | 형식 | 저장소 경로 |
+| 산출물 | 저장소 경로 |
 | --- | --- | --- | 
-| 요구사항 정의서 원본 | `.md` | [`docs/submission/requirements_definition.md`](docs/submission/requirements_definition.md) 
-| 요구사항 정의서 제출본 | `.docx` | [`docs/submission/requirements_definition.docx`](docs/submission/requirements_definition.docx) 
-| 기능/API 가이드 | `.md` | [`docs/submission/functional_api_guide.md`](docs/submission/functional_api_guide.md) 
-| Swagger/OpenAPI 계약 | `.yaml` | [`docs/submission/openapi_service_control.yaml`](docs/submission/openapi_service_control.yaml) 
-| 설치 및 실행 가이드 | `.md` | [`docs/submission/install_and_run_guide.md`](docs/submission/install_and_run_guide.md) 
-| 테스트 가이드 | `.md` | [`docs/submission/test_guide.md`](docs/submission/test_guide.md) 
+| 요구사항 정의서 원본 |  [`docs/submission/requirements_definition.md`](docs/submission/requirements_definition.md) 
+| 요구사항 정의서 제출본 |  [`docs/submission/requirements_definition.docx`](docs/submission/requirements_definition.docx) 
+| 기능/API 가이드 |  [`docs/submission/functional_api_guide.md`](docs/submission/functional_api_guide.md) 
+| Swagger/OpenAPI 계약 |  [`docs/submission/openapi_service_control.yaml`](docs/submission/openapi_service_control.yaml) 
+| 설치 및 실행 가이드 |  [`docs/submission/install_and_run_guide.md`](docs/submission/install_and_run_guide.md) 
+| 테스트 가이드 |  [`docs/submission/test_guide.md`](docs/submission/test_guide.md) 
 
 ## 📝 공식 설계 산출물
 
