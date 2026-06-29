@@ -1,6 +1,6 @@
-# AI Application Deployment and Control Optimization Strategy
+# AI 응용 배포·제어 추론 최적화 전략 설계서
 
-AI 응용 배포·제어 추론 최적화 전략 설계서
+English title: AI Application Deployment and Control Optimization Strategy
 
 ## 1. Purpose
 

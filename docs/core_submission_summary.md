@@ -32,8 +32,8 @@ standardized LLM benchmark results.
 
 | Artifact | Path |
 | --- | --- |
-| Requirements definition source | `docs/submission/requirements_definition.md` |
-| Requirements definition DOCX copy | `docs/submission/requirements_definition.docx` |
+| 요구사항 정의서 source | `docs/submission/requirements_definition.md` |
+| 요구사항 정의서 DOCX copy | `docs/submission/requirements_definition.docx` |
 | Functional/API guide | `docs/submission/functional_api_guide.md` |
 | Swagger/OpenAPI contract | `docs/submission/openapi_service_control.yaml` |
 | Installation and usage guide | `docs/submission/install_and_run_guide.md` |
@@ -46,9 +46,9 @@ submission/review conversion copy generated from the Markdown source.
 
 | Design deliverable | Source Markdown | DOCX copy |
 | --- | --- | --- |
-| LLM operation-management structure design | `docs/deliverables/01_llm_operation_management_design.md` | `docs/deliverables/docx/01_LLM_Operation_Management_Design.docx` |
-| Agent registration-management prototype | `docs/deliverables/02_agent_registration_management_prototype.md` | `docs/deliverables/docx/02_Agent_Registration_Management_Prototype.docx` |
-| AI application deployment/control inference optimization strategy | `docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md` | `docs/deliverables/docx/03_AI_Application_Deployment_Control_Optimization_Strategy.docx` |
+| LLM 운영 관리 구조 설계서 | `docs/deliverables/01_llm_operation_management_design.md` | `docs/deliverables/docx/01_LLM_Operation_Management_Design.docx` |
+| 에이전트 등록 관리 프로토타입 | `docs/deliverables/02_agent_registration_management_prototype.md` | `docs/deliverables/docx/02_Agent_Registration_Management_Prototype.docx` |
+| AI 응용 배포·제어 추론 최적화 전략 설계서 | `docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md` | `docs/deliverables/docx/03_AI_Application_Deployment_Control_Optimization_Strategy.docx` |
 
 The `docs/design` directory remains as supporting design notes. The official
 one-to-one design deliverable sources are in `docs/deliverables`.

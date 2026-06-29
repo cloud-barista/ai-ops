@@ -54,8 +54,8 @@ the default local validation path.
 
 | Required Artifact | Format | Repository Path | Status |
 | --- | --- | --- | --- |
-| Requirements Definition Source | `.md` | [`docs/submission/requirements_definition.md`](docs/submission/requirements_definition.md) | Available |
-| Requirements Definition Submission Copy | `.docx` | [`docs/submission/requirements_definition.docx`](docs/submission/requirements_definition.docx) | Available |
+| 요구사항 정의서 Source | `.md` | [`docs/submission/requirements_definition.md`](docs/submission/requirements_definition.md) | Available |
+| 요구사항 정의서 Submission Copy | `.docx` | [`docs/submission/requirements_definition.docx`](docs/submission/requirements_definition.docx) | Available |
 | Functional/API Guide | `.md` | [`docs/submission/functional_api_guide.md`](docs/submission/functional_api_guide.md) | Available |
 | Swagger/OpenAPI | `.yaml` | [`docs/submission/openapi_service_control.yaml`](docs/submission/openapi_service_control.yaml) | Available |
 | Installation and Usage Guide | `.md` | [`docs/submission/install_and_run_guide.md`](docs/submission/install_and_run_guide.md) | Available |
@@ -65,9 +65,9 @@ the default local validation path.
 
 | Design Deliverable | Source Markdown | DOCX |
 | --- | --- | --- |
-| LLM Operation Management Structure Design | [`docs/deliverables/01_llm_operation_management_design.md`](docs/deliverables/01_llm_operation_management_design.md) | [`docs/deliverables/docx/01_LLM_Operation_Management_Design.docx`](docs/deliverables/docx/01_LLM_Operation_Management_Design.docx) |
-| Agent Registration Management Prototype | [`docs/deliverables/02_agent_registration_management_prototype.md`](docs/deliverables/02_agent_registration_management_prototype.md) | [`docs/deliverables/docx/02_Agent_Registration_Management_Prototype.docx`](docs/deliverables/docx/02_Agent_Registration_Management_Prototype.docx) |
-| AI Application Deployment and Control Inference Optimization Strategy | [`docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md`](docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md) | [`docs/deliverables/docx/03_AI_Application_Deployment_Control_Optimization_Strategy.docx`](docs/deliverables/docx/03_AI_Application_Deployment_Control_Optimization_Strategy.docx) |
+| LLM 운영 관리 구조 설계서 | [`docs/deliverables/01_llm_operation_management_design.md`](docs/deliverables/01_llm_operation_management_design.md) | [`docs/deliverables/docx/01_LLM_Operation_Management_Design.docx`](docs/deliverables/docx/01_LLM_Operation_Management_Design.docx) |
+| 에이전트 등록 관리 프로토타입 | [`docs/deliverables/02_agent_registration_management_prototype.md`](docs/deliverables/02_agent_registration_management_prototype.md) | [`docs/deliverables/docx/02_Agent_Registration_Management_Prototype.docx`](docs/deliverables/docx/02_Agent_Registration_Management_Prototype.docx) |
+| AI 응용 배포·제어 추론 최적화 전략 설계서 | [`docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md`](docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md) | [`docs/deliverables/docx/03_AI_Application_Deployment_Control_Optimization_Strategy.docx`](docs/deliverables/docx/03_AI_Application_Deployment_Control_Optimization_Strategy.docx) |
 
 The Markdown files are the official source documents. The DOCX files are
 submission/review conversion copies generated from those sources.

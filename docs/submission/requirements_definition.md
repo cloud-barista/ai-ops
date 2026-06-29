@@ -1,4 +1,6 @@
-# Requirements Definition
+# 요구사항 정의서
+
+English title: Requirements Definition
 
 ## 1. Document Overview
 
@@ -65,8 +67,8 @@ Out-of-scope for the default validation path:
 
 | Required Artifact | Format | Repository Path | Requirement |
 | --- | --- | --- | --- |
-| Requirements Definition Source | Markdown | `docs/submission/requirements_definition.md` | Must define scope, requirements, validation method, and boundaries. |
-| Requirements Definition Submission Copy | DOCX | `docs/submission/requirements_definition.docx` | Must be generated from the Markdown source when conversion tooling is available. |
+| 요구사항 정의서 Source | Markdown | `docs/submission/requirements_definition.md` | Must define scope, requirements, validation method, and boundaries. |
+| 요구사항 정의서 Submission Copy | DOCX | `docs/submission/requirements_definition.docx` | Must be generated from the Markdown source when conversion tooling is available. |
 | Functional/API Guide | Markdown | `docs/submission/functional_api_guide.md` | Must describe API server execution, endpoints, request examples, and response fields. |
 | Swagger/OpenAPI | YAML | `docs/submission/openapi_service_control.yaml` | Must describe the HTTP API contract. |
 | Installation and Usage Guide | Markdown | `docs/submission/install_and_run_guide.md` | Must describe Go setup, CLI execution, API execution, mock mode, and expected outputs. |
@@ -144,9 +146,9 @@ The default `mock` mode does not mutate a live Kubernetes cluster.
 | OpenAPI contract | `docs/submission/openapi_service_control.yaml` |
 | Install and run guide | `docs/submission/install_and_run_guide.md` |
 | Test guide | `docs/submission/test_guide.md` |
-| LLM operation-management design | `docs/deliverables/01_llm_operation_management_design.md` |
-| Agent registration-management prototype | `docs/deliverables/02_agent_registration_management_prototype.md` |
-| AI application deployment/control optimization strategy | `docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md` |
+| LLM 운영 관리 구조 설계서 | `docs/deliverables/01_llm_operation_management_design.md` |
+| 에이전트 등록 관리 프로토타입 | `docs/deliverables/02_agent_registration_management_prototype.md` |
+| AI 응용 배포·제어 추론 최적화 전략 설계서 | `docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md` |
 | LLM policy config | `config/ops_llm_benchmark.json` |
 | Agent registry config | `config/agent_registry.json` |
 | Inference optimization config | `config/inference_optimization.json` |

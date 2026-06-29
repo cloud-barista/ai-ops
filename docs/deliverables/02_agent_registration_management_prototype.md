@@ -1,6 +1,6 @@
-# Agent Registration Management Prototype
+# 에이전트 등록 관리 프로토타입
 
-에이전트 등록 관리 프로토타입
+English title: Agent Registration Management Prototype
 
 ## 1. Purpose
 

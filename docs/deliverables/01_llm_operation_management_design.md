@@ -1,6 +1,6 @@
-# LLM Operation Management Structure Design
+# LLM 운영 관리 구조 설계서
 
-LLM 운영 관리 구조 설계서
+English title: LLM Operation Management Structure Design
 
 ## 1. Purpose
 

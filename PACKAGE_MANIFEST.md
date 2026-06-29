@@ -17,8 +17,8 @@ automation functional prototype.
 
 | Path | Purpose |
 | --- | --- |
-| `docs/submission/requirements_definition.md` | Requirements definition source |
-| `docs/submission/requirements_definition.docx` | Requirements definition submission/review conversion copy |
+| `docs/submission/requirements_definition.md` | 요구사항 정의서 source |
+| `docs/submission/requirements_definition.docx` | 요구사항 정의서 submission/review conversion copy |
 | `docs/submission/functional_api_guide.md` | Functional/API guide |
 | `docs/submission/openapi_service_control.yaml` | Swagger/OpenAPI contract |
 | `docs/submission/install_and_run_guide.md` | Installation and usage guide |
@@ -28,9 +28,9 @@ automation functional prototype.
 
 | Path | Purpose |
 | --- | --- |
-| `docs/deliverables/01_llm_operation_management_design.md` | LLM operation-management structure design source |
-| `docs/deliverables/02_agent_registration_management_prototype.md` | Agent registration-management prototype source |
-| `docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md` | AI application deployment/control optimization strategy source |
+| `docs/deliverables/01_llm_operation_management_design.md` | LLM 운영 관리 구조 설계서 source |
+| `docs/deliverables/02_agent_registration_management_prototype.md` | 에이전트 등록 관리 프로토타입 source |
+| `docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md` | AI 응용 배포·제어 추론 최적화 전략 설계서 source |
 | `docs/deliverables/docx/01_LLM_Operation_Management_Design.docx` | DOCX conversion copy |
 | `docs/deliverables/docx/02_Agent_Registration_Management_Prototype.docx` | DOCX conversion copy |
 | `docs/deliverables/docx/03_AI_Application_Deployment_Control_Optimization_Strategy.docx` | DOCX conversion copy |
@@ -73,9 +73,9 @@ automation functional prototype.
 ## Submission Scope
 
 ```text
-AI LLM operation-management structure design and prototype
-AI agent registration-management prototype
-CPU/GPU VM-based AI application deployment/control inference optimization strategy
+LLM 운영 관리 구조 설계서 및 프로토타입
+에이전트 등록 관리 프로토타입
+AI 응용 배포·제어 추론 최적화 전략 설계서
 Go-based API/CLI implementation and functional validation
 ```
 
