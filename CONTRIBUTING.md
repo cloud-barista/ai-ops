@@ -1,8 +1,10 @@
 # Contributing
 
-Welcome to the Kyung Hee University AIOps Team!
+Welcome to the AI service-control prototype repository.
 
-This project focuses on LLM-based deployment and operation applications, scheduling research, and AIOps for cloud environments.
+This project focuses on a 1st-year Go-based functional prototype for AI LLM
+operation management, agent registration management, and AI application
+deployment/control strategy validation.
 
 Thank you for your interest in contributing to this project. This document provides a simple guide for contributing to our repository.
 
@@ -55,7 +57,9 @@ If your contribution is minor, such as fixing a typo or improving documentation,
 
 If your contribution is major, such as adding a new feature, changing the project structure, or modifying the main workflow, please open an issue first so the team can discuss it.
 
-For more details about opening and updating a Pull Request, please see [How to open and update a Pull Request](./contributing/how_to_open_a_pull_request-ko.md).
+For Pull Request details, include the change summary, validation commands,
+expected reviewer notes, and any relevant logs directly in the Pull Request
+description.
 
 ## Pull Request
 
