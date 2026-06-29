@@ -17,7 +17,7 @@
 - AI LLM 운영 관리 구조 검증
 - AI 에이전트 등록 관리 및 bounded action 검증
 - CPU/GPU VM 기반 AI 응용 추론 배치 추천
-- Kubernetes 배포 계획 생성
+- AI 응용 배포·제어 계획 생성
 - 서비스 운영 준비도 통합 검증
 
 이 저장소는 운영 환경에 바로 투입하는 완성형 AIOps 플랫폼이 아닙니다. 기본 검증 경로는 로컬 Go 실행과 mock/dry-run 검증을 중심으로 하며, 실제 AWS GPU VM 생성과 CB-Tumblebug 연동은 AI-Infra 환경이 준비된 뒤 확장하는 영역입니다.

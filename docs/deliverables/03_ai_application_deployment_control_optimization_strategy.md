@@ -13,7 +13,7 @@
 | 입력 | workload 요구사항, CPU/GPU VM resource profile |
 | 판단 기준 | accelerator, VRAM, latency SLO, throughput, cost, capacity |
 | 처리 | resource filtering, scoring, selected resource 결정 |
-| 출력 | deployment action, Kubernetes deployment plan, dry-run result |
+| 출력 | deployment action, AI 응용 배포·제어 계획, dry-run result |
 | 검증 | Go CLI/API 기반 placement 및 plan 재현 |
 
 ## 3. 판단 흐름
@@ -23,7 +23,7 @@ workload requirements
 -> resource candidate filtering
 -> CPU/GPU placement scoring
 -> selected resource
--> Kubernetes deployment plan
+-> AI 응용 배포·제어 계획
 -> mock/dry-run readiness
 ```
 
@@ -33,7 +33,7 @@ workload requirements
 | --- | --- | --- |
 | Workload | model type, accelerator 필요 여부, VRAM, latency SLO, throughput | AI 응용 실행 요구사항 |
 | Resource | accelerator type, latency, throughput, cost, capacity | CPU/GPU VM 후보 특성 |
-| Kubernetes hint | namespace, deployment, node selector, resource limit | 배포 계획 생성에 필요한 정보 |
+| 배포 실행 정보 | namespace, deployment, node selector, resource limit | 배포 계획 생성에 필요한 정보 |
 
 설정 파일:
 
@@ -77,7 +77,7 @@ score =
 | cost | 비용이 낮을수록 높은 score |
 | capacity | 사용 가능한 replica 여유가 클수록 높은 score |
 
-## 8. 배포 계획 출력
+## 8. 배포·제어 계획 출력
 
 | 출력 항목 | 설명 |
 | --- | --- |

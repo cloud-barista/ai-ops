@@ -13,7 +13,7 @@
 | 입력 | LLM candidate, metric, policy weight |
 | 처리 | policy별 weighted score 계산과 ranking |
 | 출력 | selected model, score, ranking, rationale |
-| 연계 | agent registry, CPU/GPU placement, deployment plan |
+| 연계 | agent registry, CPU/GPU placement, AI 응용 배포·제어 계획 |
 | 검증 | Go CLI/API 기반 재현 검증 |
 
 ## 3. 운영 흐름
@@ -24,7 +24,7 @@ Ops policy/config
 -> selected runtime candidate
 -> agent registry validation
 -> CPU/GPU VM placement
--> deployment plan
+-> AI 응용 배포·제어 계획
 -> service readiness report
 ```
 

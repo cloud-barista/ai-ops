@@ -10,7 +10,7 @@
 - AI LLM 운영 관리 구조 검증
 - AI 에이전트 등록 및 bounded action 검증
 - CPU/GPU VM 배치 추천
-- Kubernetes 배포 계획 생성
+- AI 응용 배포·제어 계획 생성
 - mock 서비스 운영 준비도 보고
 
 본 패키지는 운영 환경 투입을 위한 완성형 시스템이 아니며, 최종 표준 LLM 벤치마크 결과를 주장하지 않습니다.
@@ -22,7 +22,7 @@
 | Ops 분석 시험 및 최적 LLM 선정 | `config/ops_llm_benchmark.json`을 사용하는 Go API/CLI 정책 선정 흐름 |
 | AI LLM 운영 관리 구조 | 통합 Go 서비스 운영 준비도 pipeline |
 | AI 에이전트 등록 관리 프로토타입 | 에이전트 registry 설정과 Go list/show/validate action |
-| CPU/GPU VM 기반 AI 응용 배포·제어 전략 | Go CPU/GPU 배치 추천과 Kubernetes 배포 계획 생성 |
+| CPU/GPU VM 기반 AI 응용 배포·제어 전략 | Go CPU/GPU 배치 추천과 AI 응용 배포·제어 계획 생성 |
 | 안전 검증 경계 | 독립 Go `aiops-guard` 계약과 service-control guard 준비도 출력 |
 
 ## 3. 필수 제출 산출물

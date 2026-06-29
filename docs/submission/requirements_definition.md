@@ -56,7 +56,7 @@
 | 요구사항 정의서 | 과제 범위, 기능 요구사항, 비기능 요구사항, 검증 기준, 제외 범위를 정의한다. |
 | LLM 운영 관리 구조 설계서 | LLM 선정 기준, 운영 흐름, score 해석, 검증 방법을 설명한다. |
 | 에이전트 등록 관리 프로토타입 | agent registry 구조, agent 역할, bounded action 검증을 설명한다. |
-| AI 응용 배포·제어 추론 최적화 전략 설계서 | CPU/GPU VM 배치 기준, scoring, deployment plan, 검증 방식을 설명한다. |
+| AI 응용 배포·제어 추론 최적화 전략 설계서 | CPU/GPU VM 배치 기준, scoring, AI 응용 배포·제어 계획, 검증 방식을 설명한다. |
 | 기능/API 가이드 | endpoint, request/response, 실행 예시를 설명한다. |
 | 테스트 가이드 | Go test, team-validation, 실패 로그 보존 기준을 설명한다. |
 
@@ -65,7 +65,7 @@
 | 검증 항목 | 요구 결과 |
 | --- | --- |
 | Go guard test | bounded action validation이 정상 동작해야 한다. |
-| Service-control API test | LLM 선정, agent registry, placement, deployment plan 로직이 검증되어야 한다. |
+| Service-control API test | LLM 선정, agent registry, placement, AI 응용 배포·제어 계획 로직이 검증되어야 한다. |
 | Team validation | 주요 기능이 순차 실행되고 전체 `valid=true` 결과를 생성해야 한다. |
 | DOCX 확인 | 제출본 DOCX가 Markdown 원본과 동일한 제목과 핵심 내용을 포함해야 한다. |
 
