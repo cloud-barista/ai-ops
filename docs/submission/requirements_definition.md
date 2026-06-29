@@ -114,19 +114,3 @@ guard_validation.valid = true
 CPU/GPU VM 배치 로직은 추천 및 배포 계획 생성 프로토타입입니다. 운영 cloud scheduler, Kubernetes scheduler, GPU device plugin, CB-Tumblebug 프로비저닝을 대체하지 않습니다.
 
 기본 `mock` mode는 live Kubernetes cluster를 변경하지 않습니다.
-
-## 9. 관련 산출물
-
-| 산출물 | 경로 |
-| --- | --- |
-| 핵심 제출 요약 | `docs/core_submission_summary.md` |
-| 기능/API 가이드 | `docs/submission/functional_api_guide.md` |
-| OpenAPI 계약 | `docs/submission/openapi_service_control.yaml` |
-| 설치 및 실행 가이드 | `docs/submission/install_and_run_guide.md` |
-| 테스트 가이드 | `docs/submission/test_guide.md` |
-| LLM 운영 관리 구조 설계서 | `docs/deliverables/01_llm_operation_management_design.md` |
-| 에이전트 등록 관리 프로토타입 | `docs/deliverables/02_agent_registration_management_prototype.md` |
-| AI 응용 배포·제어 추론 최적화 전략 설계서 | `docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md` |
-| LLM 정책 설정 | `config/ops_llm_benchmark.json` |
-| 에이전트 registry 설정 | `config/agent_registry.json` |
-| 추론 최적화 설정 | `config/inference_optimization.json` |
