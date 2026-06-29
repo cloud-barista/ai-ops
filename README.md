@@ -1,5 +1,6 @@
-# AI-Based Service Control and Management Automation Framework
+# 🏛️ Kyung Hee AIOps 🦁
 
+> AI-Based Service Control and Management Automation Framework
 > 1st-year Go-based functional prototype for AI LLM operation management,
 > AI agent registration management, and AI application deployment/control
 > strategy validation.
@@ -7,7 +8,7 @@
 [![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go&logoColor=white)](go/service-control-api/go.mod)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-## Overview
+## 📌 Overview
 
 This repository is organized as an official graduate research and external
 collaboration deliverable for an AI-based service control and management
@@ -27,7 +28,7 @@ This repository is not intended for production operation. It does not claim
 final standardized LLM benchmark results, actual GPU VM provisioning results,
 or live cluster mutation in the default validation path.
 
-## Prototype Boundary
+## 🧪 Prototype Boundary
 
 The LLM policy values in `config/ops_llm_benchmark.json` are manually defined
 prototype policy baselines. They are used to validate the Go API/CLI-based LLM
@@ -39,7 +40,7 @@ The default execution path uses `mock` validation. A live Kubernetes cluster,
 actual GPU VM provisioning, and CB-Tumblebug/AWS GPU VM integration are outside
 the default local validation path.
 
-## Repository Structure
+## 🧩 Repository Structure
 
 | Path | Purpose |
 | --- | --- |
@@ -50,7 +51,7 @@ the default local validation path.
 | [`docs/design/`](docs/design/) | Supporting design notes for implementation-level details |
 | [`docs/submission/`](docs/submission/) | Required submission artifacts, API guide, OpenAPI contract, install guide, test guide, and validation records |
 
-## Submission Artifacts
+## 📦 Submission Artifacts
 
 | Required Artifact | Format | Repository Path | Status |
 | --- | --- | --- | --- |
@@ -61,7 +62,7 @@ the default local validation path.
 | Installation and Usage Guide | `.md` | [`docs/submission/install_and_run_guide.md`](docs/submission/install_and_run_guide.md) | Available |
 | Test Guide | `.md` | [`docs/submission/test_guide.md`](docs/submission/test_guide.md) | Available |
 
-## Design Deliverables
+## 🧾 Design Deliverables
 
 | Design Deliverable | Source Markdown | DOCX |
 | --- | --- | --- |
@@ -72,7 +73,7 @@ the default local validation path.
 The Markdown files are the official source documents. The DOCX files are
 submission/review conversion copies generated from those sources.
 
-## Development Validation Artifacts
+## 🔎 Development Validation Artifacts
 
 | Artifact | Format | Repository Path | Purpose |
 | --- | --- | --- | --- |
@@ -80,7 +81,7 @@ submission/review conversion copies generated from those sources.
 | Prompt Usage Log | `.md` | [`docs/submission/prompt_usage_log.md`](docs/submission/prompt_usage_log.md) | Records representative framework prompts and prompt-sharing policy |
 | Development Validation Log | `.md` | [`docs/submission/development_validation_log.md`](docs/submission/development_validation_log.md) | Records validation commands, expected outputs, logging policy, and human review items |
 
-## Running the Prototype
+## 🚀 Running the Prototype
 
 Run the integrated validation path:
 
@@ -115,7 +116,7 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/service-operations/run \
   -d '{"llm_policy":"quality_first","workload":"llm-chat-inference","recovery_namespace":"aiops-demo","recovery_deployment":"aiops-service","mode":"mock","guard_backend":"go"}'
 ```
 
-## DOCX Conversion
+## 📝 DOCX Conversion
 
 The repository includes a Bash conversion script:
 
@@ -133,7 +134,7 @@ pandoc docs/deliverables/02_agent_registration_management_prototype.md -o docs/d
 pandoc docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md -o docs/deliverables/docx/03_AI_Application_Deployment_Control_Optimization_Strategy.docx
 ```
 
-## Reference Documents
+## 📚 Reference Documents
 
 | Document | Purpose |
 | --- | --- |
@@ -144,7 +145,7 @@ pandoc docs/deliverables/03_ai_application_deployment_control_optimization_strat
 | [Test Guide](docs/submission/test_guide.md) | Go tests and team-validation guide |
 | [Evaluation Summary](docs/submission/evaluation_summary.md) | Functional prototype evaluation boundary |
 
-## Development Environment
+## 🛠️ Development Environment
 
 - Development language: Go
 - Go version baseline: Go 1.25
@@ -155,6 +156,6 @@ pandoc docs/deliverables/03_ai_application_deployment_control_optimization_strat
 Both Go modules use Go 1.25 because the service-control API dependency set is
 normalized by `go mod tidy` to `go 1.25.0`.
 
-## License
+## 📄 License
 
 ai-ops is licensed under the [Apache License 2.0](./LICENSE).
