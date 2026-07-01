@@ -1,0 +1,481 @@
+openapi: 3.0.3
+info:
+  title: KHU AI App Deployer External Interface API
+  version: 1.0.0-rc1
+  description: |
+    1차년도 CPU/GPU VM 기반 AI 응용 등록·배포 프로토타입 외부 제공 인터페이스 초안.
+    Docker/Kubernetes/Container 기반 배포 API는 1차년도 범위에서 제외한다.
+servers:
+  - url: http://localhost:8080
+paths:
+  /openapi.yaml:
+    get:
+      summary: OpenAPI YAML 조회
+      responses:
+        '200': { description: OpenAPI YAML }
+  /swagger:
+    get:
+      summary: Swagger UI 조회
+      responses:
+        '200': { description: Swagger UI }
+  /api/v1/healthz:
+    get:
+      summary: 서버 생존 상태 확인
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/HealthResponse' }
+  /api/v1/readiness:
+    get:
+      summary: 서버 준비 상태 확인
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReadinessResponse' }
+  /api/v1/apps:
+    post:
+      summary: AI App 등록
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AppSpec' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AppCreateResponse' }
+        '400': { $ref: '#/components/responses/Error' }
+    get:
+      summary: AI App 목록 조회
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request_id: { type: string }
+                  apps:
+                    type: array
+                    items: { $ref: '#/components/schemas/AppSummary' }
+  /api/v1/apps/{app_id}:
+    get:
+      summary: AI App 상세 조회
+      parameters:
+        - name: app_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AppDetailResponse' }
+        '404': { $ref: '#/components/responses/Error' }
+  /api/v1/runtime-profiles:
+    post:
+      summary: Runtime Profile 등록
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RuntimeProfile' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProfileCreateResponse' }
+        '400': { $ref: '#/components/responses/Error' }
+    get:
+      summary: Runtime Profile 목록 조회
+      responses:
+        '200':
+          description: OK
+  /api/v1/target-profiles:
+    post:
+      summary: Target Profile 등록
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TargetProfile' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProfileCreateResponse' }
+        '400': { $ref: '#/components/responses/Error' }
+    get:
+      summary: Target Profile 목록 조회
+      responses:
+        '200':
+          description: OK
+  /api/v1/resources/check:
+    post:
+      summary: Target 자원 readiness 점검
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ResourceCheckRequest' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ResourceCheckResponse' }
+        '400': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+  /api/v1/resources/inventory:
+    get:
+      summary: Resource Inventory 조회
+      responses:
+        '200':
+          description: OK
+  /api/v1/deployments:
+    post:
+      summary: AI App 배포 요청 생성
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DeploymentCreateRequest' }
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DeploymentCreateResponse' }
+        '400': { $ref: '#/components/responses/Error' }
+    get:
+      summary: Deployment 목록 조회
+      responses:
+        '200':
+          description: OK
+  /api/v1/deployments/{deployment_id}:
+    get:
+      summary: Deployment 상태 조회
+      parameters:
+        - name: deployment_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DeploymentStatusResponse' }
+        '404': { $ref: '#/components/responses/Error' }
+  /api/v1/deployments/{deployment_id}/logs:
+    get:
+      summary: Deployment 로그 조회
+      parameters:
+        - name: deployment_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DeploymentLogsResponse' }
+        '404': { $ref: '#/components/responses/Error' }
+  /api/v1/deployments/{deployment_id}/stop:
+    post:
+      summary: Deployment 중지 요청
+      parameters:
+        - name: deployment_id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DeploymentStopRequest' }
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DeploymentCreateResponse' }
+        '404': { $ref: '#/components/responses/Error' }
+  /api/v1/deployments/{deployment_id}/metrics:
+    post:
+      summary: Deployment metric placeholder 저장
+      parameters:
+        - name: deployment_id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MetricRecordRequest' }
+      responses:
+        '201':
+          description: Created
+    get:
+      summary: Deployment metric placeholder 조회
+      parameters:
+        - name: deployment_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  /api/v1/monitoring/summary:
+    get:
+      summary: Monitoring summary 조회
+      responses:
+        '200':
+          description: OK
+  /api/v1/monitoring/runtime-health:
+    get:
+      summary: Runtime health snapshot 조회
+      responses:
+        '200':
+          description: OK
+  /api/v1/monitoring/alarms:
+    get:
+      summary: Alarm summary 조회
+      responses:
+        '200':
+          description: OK
+  /api/v1/monitoring/metrics:
+    get:
+      summary: 전체 metric placeholder 조회
+      responses:
+        '200':
+          description: OK
+components:
+  responses:
+    Error:
+      description: 표준 에러 응답
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        request_id: { type: string }
+        status: { type: string, example: ok }
+    ReadinessResponse:
+      type: object
+      properties:
+        request_id: { type: string }
+        status: { type: string, example: ready }
+        checks: { type: object, additionalProperties: true }
+    ErrorResponse:
+      type: object
+      required: [request_id, error]
+      properties:
+        request_id: { type: string }
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { $ref: '#/components/schemas/ErrorCode' }
+            message: { type: string }
+            details: { type: object, additionalProperties: true }
+            retryable: { type: boolean }
+    ErrorCode:
+      type: string
+      enum:
+        - APP_SPEC_INVALID
+        - APP_ARTIFACT_NOT_FOUND
+        - ENTRYPOINT_INVALID
+        - RUNTIME_PROFILE_INVALID
+        - TARGET_PROFILE_INVALID
+        - RESOURCE_INSUFFICIENT
+        - GPU_RUNTIME_NOT_FOUND
+        - NVIDIA_DRIVER_NOT_FOUND
+        - CSP_VM_UNREACHABLE
+        - STORAGE_PATH_UNAVAILABLE
+        - AI_INFRA_API_TIMEOUT
+        - AI_INFRA_API_FAILED
+        - GATEWAY_AUTH_FAILED
+        - BESPIN_API_FAILED
+        - DEPLOYMENT_FAILED
+        - RUNTIME_FAILED
+    AppSpec:
+      type: object
+      required: [schema_version, kind, metadata, artifact, entrypoint, runtime, resources]
+      properties:
+        schema_version: { type: string, example: appspec.khu.ai/v1alpha1 }
+        kind: { type: string, enum: [AIApp] }
+        metadata:
+          type: object
+          required: [name, version]
+          properties:
+            name: { type: string }
+            version: { type: string }
+        artifact:
+          type: object
+          required: [type, uri]
+          properties:
+            type: { type: string, enum: [package, git, binary, script] }
+            uri: { type: string }
+            checksum: { type: string }
+        entrypoint:
+          type: object
+          required: [command]
+          properties:
+            command: { type: string }
+            args:
+              type: array
+              items: { type: string }
+        runtime:
+          type: object
+          properties:
+            type: { type: string, enum: [mock, cpu, gpu, aiinfra] }
+            accelerator: { type: string, enum: [none, nvidia] }
+        resources:
+          type: object
+          properties:
+            cpu: { type: string }
+            memory: { type: string }
+            gpu: { type: string }
+            storage: { type: string }
+    AppCreateResponse:
+      type: object
+      properties:
+        request_id: { type: string }
+        app_id: { type: string }
+        app_version_id: { type: string }
+        name: { type: string }
+        version: { type: string }
+        created_at: { type: string, format: date-time }
+    AppSummary:
+      type: object
+      properties:
+        app_id: { type: string }
+        name: { type: string }
+        latest_version: { type: string }
+    AppDetailResponse:
+      type: object
+      properties:
+        request_id: { type: string }
+        app_id: { type: string }
+        versions:
+          type: array
+          items: { $ref: '#/components/schemas/AppSpec' }
+    RuntimeProfile:
+      type: object
+      properties:
+        runtime_profile_id: { type: string }
+        name: { type: string }
+        runtime_type: { type: string, enum: [mock, cpu, gpu, aiinfra] }
+        adapter_type: { type: string, enum: [mock, cpu_vm, gpu_vm, etri_aiinfra] }
+        accelerator: { type: string, enum: [none, nvidia] }
+        operating_mode: { type: string, enum: [dry_run, vm_process, remote_api] }
+    TargetProfile:
+      type: object
+      properties:
+        target_profile_id: { type: string }
+        name: { type: string }
+        csp: { type: string }
+        region: { type: string }
+        os: { type: object, additionalProperties: true }
+        vm: { type: object, additionalProperties: true }
+        runtime: { type: object, additionalProperties: true }
+        gpu: { type: object, additionalProperties: true }
+        storage: { type: object, additionalProperties: true }
+    ProfileCreateResponse:
+      type: object
+      properties:
+        request_id: { type: string }
+        profile_id: { type: string }
+        created_at: { type: string, format: date-time }
+    ResourceCheckRequest:
+      type: object
+      properties:
+        runtime_profile_id: { type: string }
+        target_profile_id: { type: string }
+        checks:
+          type: array
+          items: { type: string, enum: [connectivity, storage, gpu, runtime] }
+    ResourceCheckResponse:
+      type: object
+      properties:
+        request_id: { type: string }
+        target_profile_id: { type: string }
+        runtime_profile_id: { type: string }
+        status: { type: string, enum: [READY, NOT_READY, UNKNOWN] }
+        checks: { type: object, additionalProperties: true }
+        details: { type: object, additionalProperties: true }
+        checked_at: { type: string, format: date-time }
+    DeploymentCreateRequest:
+      type: object
+      properties:
+        app_id: { type: string }
+        app_version_id: { type: string }
+        runtime_profile_id: { type: string }
+        target_profile_id: { type: string }
+        requested_by: { type: string }
+        parameters: { type: object, additionalProperties: true }
+    DeploymentCreateResponse:
+      type: object
+      properties:
+        request_id: { type: string }
+        deployment_id: { type: string }
+        status: { $ref: '#/components/schemas/DeploymentStatus' }
+        message: { type: string }
+    DeploymentStatus:
+      type: string
+      enum: [REQUESTED, VALIDATING, VALIDATED, SCHEDULING, DEPLOYING, RUNNING, STOPPING, STOPPED, VALIDATION_FAILED, SCHEDULING_FAILED, DEPLOYMENT_FAILED, RUNTIME_FAILED, EXTERNAL_API_FAILED, UNKNOWN]
+    DeploymentStatusResponse:
+      type: object
+      properties:
+        request_id: { type: string }
+        deployment_id: { type: string }
+        status: { $ref: '#/components/schemas/DeploymentStatus' }
+        app_id: { type: string }
+        app_version_id: { type: string }
+        runtime_profile_id: { type: string }
+        target_profile_id: { type: string }
+        updated_at: { type: string, format: date-time }
+    DeploymentLogsResponse:
+      type: object
+      properties:
+        request_id: { type: string }
+        deployment_id: { type: string }
+        logs:
+          type: array
+          items:
+            type: object
+            properties:
+              timestamp: { type: string, format: date-time }
+              level: { type: string }
+              component: { type: string }
+              stage: { type: string }
+              message: { type: string }
+              error_code: { type: string, nullable: true }
+    DeploymentStopRequest:
+      type: object
+      properties:
+        requested_by: { type: string }
+        reason: { type: string }
+    MetricRecordRequest:
+      type: object
+      properties:
+        latency_ms: { type: number }
+        throughput_rps: { type: number }
+        quality_score: { type: number }
+        request_count: { type: integer }
+        error_count: { type: integer }

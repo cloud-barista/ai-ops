@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KHU Deployment Request",
+  "type": "object",
+  "required": [
+    "app_version_id",
+    "runtime_profile_id",
+    "target_profile_id"
+  ],
+  "properties": {
+    "app_id": {
+      "type": "string"
+    },
+    "app_version_id": {
+      "type": "string"
+    },
+    "runtime_profile_id": {
+      "type": "string"
+    },
+    "target_profile_id": {
+      "type": "string"
+    },
+    "requested_by": {
+      "type": "string"
+    },
+    "parameters": {
+      "type": "object"
+    }
+  }
+}

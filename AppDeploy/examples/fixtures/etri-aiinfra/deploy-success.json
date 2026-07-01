@@ -1,0 +1,15 @@
+{
+  "provider": "etri",
+  "operation": "deploy",
+  "request": {
+    "deployment_id": "dep-aiinfra-001",
+    "app_version_id": "appver-aiinfra-001",
+    "runtime_profile_id": "rt-aiinfra-001",
+    "target_profile_id": "target-aiinfra-001"
+  },
+  "response": {
+    "external_deployment_id": "etri-aiinfra-dep-aiinfra-001",
+    "status": "RUNNING",
+    "message": "etri ai-infra mock deployment is running"
+  }
+}

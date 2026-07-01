@@ -1,0 +1,32 @@
+{
+  "target_profile_id": "target-nhn-gpu-001",
+  "name": "nhn-gpu-vm-target",
+  "csp": "local",
+  "region": "kr",
+  "os": {
+    "type": "ubuntu"
+  },
+  "vm": {
+    "host": "<replace-with-vm-host>",
+    "ssh_port": 22,
+    "credential_ref": "cred://nhn-cloud/gpu-vm-001"
+  },
+  "runtime": {
+    "runtime_type": "gpu",
+    "accelerator": "nvidia",
+    "operating_mode": "vm_process"
+  },
+  "gpu": {
+    "vendor": "nvidia",
+    "count": 1,
+    "driver_required": true
+  },
+  "storage": {
+    "artifact_dir": "/tmp/aiapp/artifacts",
+    "model_dir": "/tmp/aiapp/models",
+    "log_dir": "/tmp/aiapp/logs"
+  },
+  "network": {
+    "service_port_range": "18080-18089"
+  }
+}

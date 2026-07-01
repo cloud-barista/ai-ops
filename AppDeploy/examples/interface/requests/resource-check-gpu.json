@@ -1,0 +1,5 @@
+{
+  "runtime_profile_id": "runtime-gpu-vm-001",
+  "target_profile_id": "target-aws-gpu-001",
+  "checks": ["connectivity", "storage", "gpu", "runtime"]
+}

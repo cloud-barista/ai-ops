@@ -1,0 +1,27 @@
+{
+  "target_profile_id": "target-nhn-cpu-001",
+  "name": "nhn-cpu-vm-target",
+  "csp": "local",
+  "region": "kr",
+  "os": {
+    "type": "ubuntu"
+  },
+  "vm": {
+    "host": "<replace-with-vm-host>",
+    "ssh_port": 22,
+    "credential_ref": "cred://nhn-cloud/cpu-vm-001"
+  },
+  "runtime": {
+    "runtime_type": "cpu",
+    "accelerator": "none",
+    "operating_mode": "vm_process"
+  },
+  "storage": {
+    "artifact_dir": "/tmp/aiapp/artifacts",
+    "model_dir": "/tmp/aiapp/models",
+    "log_dir": "/tmp/aiapp/logs"
+  },
+  "network": {
+    "service_port_range": "18080-18089"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "method": "POST",
+  "path": "/generate",
+  "timeout_seconds": 60,
+  "body": {
+    "prompt": "Explain AI application deployment in one short sentence.",
+    "max_new_tokens": 64
+  }
+}

@@ -1,0 +1,8 @@
+﻿{
+    "status":  "ready",
+    "checks":  {
+                   "external_api":  "etri_mock",
+                   "repository":  "ready",
+                   "runtime_adapter":  "mock,cpu_vm,gpu_vm,etri_aiinfra"
+               }
+}

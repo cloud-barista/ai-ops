@@ -1,0 +1,8 @@
+{
+  "runtime_profile_id": "rt-gpu-001",
+  "name": "gpu-vm-runtime",
+  "runtime_type": "gpu",
+  "accelerator": "nvidia",
+  "adapter_type": "gpu_vm",
+  "operating_mode": "vm_process"
+}

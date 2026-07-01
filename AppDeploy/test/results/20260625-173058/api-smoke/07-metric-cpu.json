@@ -1,0 +1,14 @@
+﻿{
+    "metric_id":  "metric-1f9420a9-d5b5-40b2-ba12-60f7de5b1f4d",
+    "deployment_id":  "dep-7664e578-dfe4-4aa9-9e89-3f3a844fa80e",
+    "timestamp":  "2026-06-25T08:31:04.2088009Z",
+    "latency_ms":  42.5,
+    "throughput_rps":  12.25,
+    "quality_score":  0.97,
+    "request_count":  100,
+    "error_count":  1,
+    "metadata":  {
+                     "model":  "sample-cpu-model",
+                     "scenario":  "smoke"
+                 }
+}

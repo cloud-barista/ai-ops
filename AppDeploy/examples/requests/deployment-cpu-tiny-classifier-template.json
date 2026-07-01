@@ -1,0 +1,10 @@
+{
+  "app_version_id": "<replace-with-app_version_id>",
+  "runtime_profile_id": "rt-cpu-001",
+  "target_profile_id": "target-nhn-cpu-001",
+  "requested_by": "khu-john",
+  "parameters": {
+    "port": 18080,
+    "deployment_target": "nhn-cloud"
+  }
+}

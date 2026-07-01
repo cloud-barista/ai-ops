@@ -1,0 +1,12 @@
+{
+  "runtime_profile_id": "runtime-gpu-vm-001",
+  "name": "nvidia-gpu-vm-runtime",
+  "runtime_type": "gpu",
+  "adapter_type": "gpu_vm",
+  "accelerator": "nvidia",
+  "operating_mode": "dry_run",
+  "readiness": {
+    "type": "command",
+    "command": "nvidia-smi"
+  }
+}

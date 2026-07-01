@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KHU Runtime Profile",
+  "type": "object",
+  "required": [
+    "runtime_profile_id",
+    "runtime_type",
+    "adapter_type",
+    "operating_mode"
+  ],
+  "properties": {
+    "runtime_profile_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "runtime_type": {
+      "enum": [
+        "mock",
+        "cpu",
+        "gpu",
+        "aiinfra"
+      ]
+    },
+    "accelerator": {
+      "enum": [
+        "none",
+        "nvidia"
+      ]
+    },
+    "adapter_type": {
+      "enum": [
+        "mock",
+        "cpu_vm",
+        "gpu_vm",
+        "etri_aiinfra"
+      ]
+    },
+    "operating_mode": {
+      "enum": [
+        "local_mock",
+        "vm_process",
+        "remote_api"
+        ,
+        "dry_run"
+      ]
+    },
+    "readiness": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  }
+}

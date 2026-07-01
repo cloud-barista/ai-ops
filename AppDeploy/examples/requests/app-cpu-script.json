@@ -1,0 +1,45 @@
+{
+  "app_spec": {
+    "schema_version": "appspec.khu.ai/v1alpha1",
+    "kind": "AIApp",
+    "metadata": {
+      "name": "sample-cpu-app",
+      "version": "0.1.0",
+      "description": "CPU VM smoke app"
+    },
+    "artifact": {
+      "type": "script",
+      "uri": "file:///opt/examples/sample-cpu-app/run.sh"
+    },
+    "entrypoint": {
+      "command": "bash",
+      "args": [
+        "run.sh",
+        "--port=18080"
+      ]
+    },
+    "runtime": {
+      "type": "cpu",
+      "accelerator": "none"
+    },
+    "resources": {
+      "cpu": "2",
+      "memory": "4Gi",
+      "gpu": "0",
+      "storage": "5Gi"
+    },
+    "network": {
+      "ports": [
+        {
+          "name": "http",
+          "app_port": 18080,
+          "protocol": "TCP"
+        }
+      ]
+    },
+    "healthcheck": {
+      "type": "http",
+      "path": "/health"
+    }
+  }
+}

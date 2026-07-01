@@ -1,0 +1,10 @@
+{
+  "provider": "etri",
+  "operation": "deploy",
+  "fixture_error": {
+    "kind": "provider_failed",
+    "message": "etri fixture provider failed",
+    "retryable": true,
+    "mapped_error_code": "AI_INFRA_API_FAILED"
+  }
+}

@@ -1,0 +1,50 @@
+﻿{
+    "app_id":  "app-53ad73a2-3e33-4466-ac66-8d028c9d8157",
+    "app_version_id":  "appver-671a43b2-aa0a-432b-a5b4-30f5ff5d860b",
+    "name":  "sample-cpu-app-0625173104",
+    "version":  "0.1.0",
+    "app_spec":  {
+                     "schema_version":  "appspec.khu.ai/v1alpha1",
+                     "kind":  "AIApp",
+                     "metadata":  {
+                                      "name":  "sample-cpu-app-0625173104",
+                                      "version":  "0.1.0",
+                                      "description":  "CPU VM smoke app"
+                                  },
+                     "artifact":  {
+                                      "type":  "script",
+                                      "uri":  "file:///opt/examples/sample-cpu-app/run.sh"
+                                  },
+                     "entrypoint":  {
+                                        "command":  "bash",
+                                        "args":  [
+                                                     "run.sh",
+                                                     "--port=18080"
+                                                 ]
+                                    },
+                     "runtime":  {
+                                     "type":  "cpu",
+                                     "accelerator":  "none"
+                                 },
+                     "resources":  {
+                                       "cpu":  "2",
+                                       "memory":  "4Gi",
+                                       "gpu":  "0",
+                                       "storage":  "5Gi"
+                                   },
+                     "network":  {
+                                     "ports":  [
+                                                   {
+                                                       "name":  "http",
+                                                       "app_port":  18080,
+                                                       "protocol":  "TCP"
+                                                   }
+                                               ]
+                                 },
+                     "healthcheck":  {
+                                         "type":  "http",
+                                         "path":  "/health"
+                                     }
+                 },
+    "created_at":  "2026-06-25T08:31:04.123589Z"
+}

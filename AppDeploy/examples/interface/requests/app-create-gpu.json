@@ -1,0 +1,35 @@
+{
+  "schema_version": "appspec.khu.ai/v1alpha1",
+  "kind": "AIApp",
+  "metadata": {
+    "name": "sample-gpu-inference",
+    "version": "0.1.0"
+  },
+  "artifact": {
+    "type": "script",
+    "uri": "file://examples/gpu-smoke-run.sh"
+  },
+  "entrypoint": {
+    "command": "./gpu-smoke-run.sh",
+    "args": []
+  },
+  "runtime": {
+    "type": "gpu",
+    "accelerator": "nvidia"
+  },
+  "resources": {
+    "cpu": "4",
+    "memory": "16Gi",
+    "gpu": "1",
+    "storage": "20Gi"
+  },
+  "network": {
+    "ports": [
+      {
+        "name": "http",
+        "app_port": 8080,
+        "protocol": "TCP"
+      }
+    ]
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "app_spec": {
+    "schema_version": "appspec.khu.ai/v1alpha1",
+    "kind": "AIApp",
+    "metadata": {
+      "name": "qwen-0-5b-gpu",
+      "version": "0.1.0",
+      "description": "Qwen 0.5B Instruct GPU inference server for real VM deployment tests"
+    },
+    "artifact": {
+      "type": "script",
+      "uri": "file:///C:/Users/User/Desktop/AI-MCMP/app_deploy/examples/apps/qwen-0.5b/run.sh"
+    },
+    "entrypoint": {
+      "command": "bash",
+      "args": [
+        "run.sh",
+        "--port=18081",
+        "--model-id=Qwen/Qwen2.5-0.5B-Instruct",
+        "--model-cache=/tmp/aiapp/models/qwen-0.5b"
+      ]
+    },
+    "runtime": {
+      "type": "gpu",
+      "accelerator": "nvidia"
+    },
+    "resources": {
+      "cpu": "4",
+      "memory": "8Gi",
+      "gpu": "1",
+      "storage": "4Gi"
+    },
+    "network": {
+      "ports": [
+        {
+          "name": "http",
+          "app_port": 18081,
+          "protocol": "TCP"
+        }
+      ]
+    },
+    "healthcheck": {
+      "type": "http",
+      "path": "/health"
+    }
+  }
+}

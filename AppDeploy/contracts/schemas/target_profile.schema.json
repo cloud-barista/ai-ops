@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KHU Target Profile",
+  "type": "object",
+  "required": [
+    "target_profile_id",
+    "csp",
+    "vm",
+    "runtime"
+  ],
+  "properties": {
+    "target_profile_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "csp": {
+      "enum": [
+        "aws",
+        "azure",
+        "gcp",
+        "etri",
+        "local",
+        "mock"
+      ]
+    },
+    "region": {
+      "type": "string"
+    },
+    "os": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      }
+    },
+    "vm": {
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string"
+        },
+        "ssh_port": {
+          "type": "integer"
+        },
+        "credential_ref": {
+          "type": "string"
+        }
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "properties": {
+        "runtime_type": {
+          "enum": [
+            "mock",
+            "cpu",
+            "gpu",
+            "aiinfra"
+          ]
+        },
+        "accelerator": {
+          "enum": [
+            "none",
+            "nvidia"
+          ]
+        },
+        "operating_mode": {
+          "enum": [
+            "local_mock",
+            "dry_run",
+            "vm_process",
+            "remote_api"
+          ]
+        }
+      }
+    },
+    "gpu": {
+      "type": "object",
+      "properties": {
+        "vendor": {
+          "type": "string"
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "driver_required": {
+          "type": "boolean"
+        }
+      }
+    },
+    "storage": {
+      "type": "object",
+      "properties": {
+        "artifact_dir": {
+          "type": "string"
+        },
+        "model_dir": {
+          "type": "string"
+        },
+        "log_dir": {
+          "type": "string"
+        }
+      }
+    },
+    "network": {
+      "type": "object",
+      "properties": {
+        "service_port_range": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+﻿{
+    "generated_at":  "2026-06-25T08:31:04.264321Z",
+    "status":  "ok",
+    "deployments":  {
+                        "total":  1,
+                        "active":  0,
+                        "failed":  0,
+                        "stopped":  1,
+                        "by_status":  {
+                                          "STOPPED":  1
+                                      }
+                    },
+    "runtime_health":  [
+                           {
+                               "target_profile_id":  "target-cpu-001",
+                               "status":  "available",
+                               "runtime_health":  "ok",
+                               "cpu_available":  true,
+                               "memory_available":  true,
+                               "gpu_available":  false,
+                               "storage_available":  true,
+                               "last_checked_at":  "2026-06-25T08:31:04.1548515Z"
+                           }
+                       ],
+    "alarms":  [
+
+               ]
+}

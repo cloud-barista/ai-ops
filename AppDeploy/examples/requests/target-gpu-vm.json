@@ -1,0 +1,25 @@
+{
+  "target_profile_id": "target-gpu-001",
+  "name": "gpu-vm-target",
+  "csp": "local",
+  "vm": {
+    "host": "gpu-vm.example.internal",
+    "ssh_port": 22,
+    "credential_ref": "cred://local/gpu-vm-001"
+  },
+  "runtime": {
+    "runtime_type": "gpu",
+    "accelerator": "nvidia",
+    "operating_mode": "vm_process"
+  },
+  "gpu": {
+    "vendor": "nvidia",
+    "count": 1,
+    "driver_required": true
+  },
+  "storage": {
+    "artifact_dir": "/opt/aiapp/artifacts",
+    "model_dir": "/opt/aiapp/models",
+    "log_dir": "/var/log/aiapp"
+  }
+}

@@ -1,0 +1,27 @@
+schema_version: appspec.khu.ai/v1alpha1
+kind: AIApp
+metadata:
+  name: sample-cpu-script
+  version: 0.1.0
+artifact:
+  type: script
+  uri: file:///opt/examples/sample-cpu-script/run.sh
+entrypoint:
+  command: bash
+  args: ["run.sh", "--port=18080"]
+runtime:
+  type: cpu
+  accelerator: none
+resources:
+  cpu: "2"
+  memory: 4Gi
+  gpu: "0"
+  storage: 5Gi
+network:
+  ports:
+    - name: http
+      app_port: 18080
+      protocol: TCP
+healthcheck:
+  type: http
+  path: /health

@@ -1,0 +1,10 @@
+{
+  "provider": "etri",
+  "operation": "check",
+  "fixture_error": {
+    "kind": "timeout",
+    "message": "etri fixture timeout",
+    "retryable": true,
+    "mapped_error_code": "AI_INFRA_API_TIMEOUT"
+  }
+}

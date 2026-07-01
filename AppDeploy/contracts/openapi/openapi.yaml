@@ -1,0 +1,1506 @@
+openapi: 3.0.3
+info:
+  title: KHU AI App Deployer API
+  version: "1.0.0"
+  description: |
+    CPU/GPU VM 기반 AI 응용 등록·배포 프로토타입 API.
+
+    이 API는 AI App Spec 등록, Runtime/Target Profile 등록, 자원 readiness 점검,
+    배포 요청, 상태 조회, 로그 조회, 중지 요청을 제공한다.
+
+    1차년도 범위는 CPU VM, NVIDIA GPU VM, AI-Infra 연동 준비(Mock/Fixture)이며
+    Docker, Kubernetes, OCI Image, Container Registry 기반 배포는 포함하지 않는다.
+  license:
+    name: Internal research prototype
+servers:
+  - url: /api/v1
+    description: Version 1 API prefix
+security: []
+tags:
+  - name: System
+    description: 서버 생존 상태와 준비 상태를 확인한다.
+  - name: App Registry
+    description: AI App Spec을 등록하고 조회한다.
+  - name: Profiles
+    description: Runtime Profile과 Target Profile을 등록하고 조회한다.
+  - name: Resources
+    description: Target 자원 readiness와 최근 inventory를 확인한다.
+  - name: Deployments
+    description: AI App 배포 요청, 상태 조회, 로그 조회, 중지 요청을 처리한다.
+  - name: Inference
+    description: Running deployment inference proxy endpoints.
+  - name: Monitoring
+    description: Deployment 상태, Runtime health, 알람 요약을 조회한다.
+paths:
+  /healthz:
+    get:
+      tags: [System]
+      operationId: getHealthz
+      summary: Process liveness check
+      description: |
+        API 서버 프로세스가 살아 있는지 확인한다.
+        저장소, Runtime Adapter, 외부 API 연결 상태는 검사하지 않는다.
+      responses:
+        "200":
+          description: 서버 프로세스가 정상적으로 응답한다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /readiness:
+    get:
+      tags: [System]
+      operationId: getReadiness
+      summary: Readiness check for repository, runtime, target, and external adapters
+      description: |
+        저장소, Runtime Adapter, 외부 API Mock/Fixture 준비 상태를 반환한다.
+        현재 외부 API는 실제 호출이 아니라 ETRI AI-Infra Mock 경로를 기준으로 표시한다.
+      responses:
+        "200":
+          description: 서버가 처리 가능한 의존성 준비 상태를 반환한다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadinessResponse'
+  /apps:
+    post:
+      tags: [App Registry]
+      operationId: createApp
+      summary: Register AI App
+      description: |
+        AI App Spec을 등록하고 app_id와 app_version_id를 발급한다.
+        artifact.type은 package, git, binary, script만 허용하며 container는 1차년도 범위에서 거부한다.
+      requestBody:
+        description: 등록할 AI App Spec.
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/AppCreateRequest'
+                - $ref: '#/components/schemas/AppSpec'
+              description: 기존 app_spec 래퍼와 외부 제공 인터페이스의 직접 AppSpec 본문을 모두 허용한다.
+      responses:
+        "201":
+          description: App Spec 등록이 완료되었다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppResponse'
+        "400":
+          description: App Spec 필수 필드 누락, artifact type 오류, 중복 name/version 등으로 등록에 실패했다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags: [App Registry]
+      operationId: listApps
+      summary: List AI Apps
+      description: 등록된 AI App 버전 목록을 반환한다.
+      responses:
+        "200":
+          description: 등록된 AI App 목록.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: AI App 목록 응답.
+                properties:
+                  items:
+                    type: array
+                    description: 등록된 AI App 버전 배열.
+                    items:
+                      $ref: '#/components/schemas/AppResponse'
+  /apps/{app_id}:
+    get:
+      tags: [App Registry]
+      operationId: getApp
+      summary: Get AI App
+      description: app_id로 등록된 AI App 정보를 조회한다.
+      parameters:
+        - name: app_id
+          in: path
+          description: 조회할 AI App ID.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: AI App 상세 정보.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppResponse'
+        "404":
+          description: 지정한 app_id가 존재하지 않는다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /runtime-profiles:
+    post:
+      tags: [Profiles]
+      operationId: createRuntimeProfile
+      summary: Register Runtime Profile
+      description: |
+        배포 실행 방식과 Runtime Adapter를 정의하는 Runtime Profile을 등록한다.
+        CPU VM은 cpu/cpu_vm, GPU VM은 gpu/gpu_vm, AI-Infra 연동 준비는 aiinfra/etri_aiinfra 조합을 사용한다.
+      requestBody:
+        description: 등록할 Runtime Profile.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RuntimeProfile'
+      responses:
+        "201":
+          description: Runtime Profile 등록이 완료되었다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuntimeProfile'
+    get:
+      tags: [Profiles]
+      operationId: listRuntimeProfiles
+      summary: List Runtime Profiles
+      description: 등록된 Runtime Profile 목록을 반환한다.
+      responses:
+        "200":
+          description: Runtime Profile 목록.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Runtime Profile 목록 응답.
+                properties:
+                  items:
+                    type: array
+                    description: 등록된 Runtime Profile 배열.
+                    items:
+                      $ref: '#/components/schemas/RuntimeProfile'
+  /target-profiles:
+    post:
+      tags: [Profiles]
+      operationId: createTargetProfile
+      summary: Register Target Profile
+      description: |
+        배포 대상 VM, GPU, 저장소, Runtime 정보를 담은 Target Profile을 등록한다.
+        실제 Secret 값은 넣지 않고 credential_ref만 저장한다.
+      requestBody:
+        description: 등록할 Target Profile.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TargetProfile'
+      responses:
+        "201":
+          description: Target Profile 등록이 완료되었다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TargetProfile'
+    get:
+      tags: [Profiles]
+      operationId: listTargetProfiles
+      summary: List Target Profiles
+      description: 등록된 Target Profile 목록을 반환한다.
+      responses:
+        "200":
+          description: Target Profile 목록.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Target Profile 목록 응답.
+                properties:
+                  items:
+                    type: array
+                    description: 등록된 Target Profile 배열.
+                    items:
+                      $ref: '#/components/schemas/TargetProfile'
+  /resources/check:
+    post:
+      tags: [Resources]
+      operationId: checkResource
+      summary: Check target resource readiness
+      description: |
+        Target Profile 기준으로 Runtime Adapter readiness를 확인한다.
+        CPU VM은 VM 접근성, GPU VM은 nvidia-smi, AI-Infra는 ETRI Mock/Fixture readiness 경로를 확인한다.
+      requestBody:
+        description: readiness를 확인할 Target Profile ID.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Target 자원 readiness 확인 요청.
+              required: [target_profile_id]
+              properties:
+                runtime_profile_id:
+                  type: string
+                  description: 외부 인터페이스 호환용 Runtime Profile ID. 현재 readiness는 target_profile_id 기준으로 수행한다.
+                target_profile_id:
+                  type: string
+                  description: 확인할 Target Profile ID.
+                checks:
+                  type: array
+                  description: 외부 인터페이스 호환용 점검 항목 목록.
+                  items:
+                    type: string
+                    enum: [connectivity, storage, gpu, runtime]
+      responses:
+        "200":
+          description: Target 자원 readiness 결과.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceCheckResponse'
+  /resources/inventory:
+    get:
+      tags: [Resources]
+      operationId: listResourceInventory
+      summary: List recent resource inventory
+      description: "최근 `/resources/check` 호출로 저장된 Target별 Resource Inventory를 반환한다."
+      responses:
+        "200":
+          description: 최근 Resource Inventory 목록.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Resource Inventory 목록 응답.
+                properties:
+                  items:
+                    type: array
+                    description: Target별 최근 자원 점검 결과.
+                    items:
+                      $ref: '#/components/schemas/ResourceInventory'
+  /deployments:
+    post:
+      tags: [Deployments]
+      operationId: createDeployment
+      summary: Create deployment
+      description: |
+        app_version_id, runtime_profile_id, target_profile_id 조합으로 배포를 요청한다.
+        상태는 REQUESTED, VALIDATING, VALIDATED, SCHEDULING, DEPLOYING, RUNNING 순서로 전이된다.
+        실패 시 표준 상태와 ErrorResponse 코드로 정규화된다.
+      requestBody:
+        description: 배포 요청 본문.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentCreateRequest'
+      responses:
+        "202":
+          description: 배포 요청이 수락되었고 현재 상태를 반환한다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentResponse'
+    get:
+      tags: [Deployments]
+      operationId: listDeployments
+      summary: List deployments
+      description: 생성된 Deployment 목록과 현재 상태를 반환한다.
+      responses:
+        "200":
+          description: Deployment 목록.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Deployment 목록 응답.
+                properties:
+                  items:
+                    type: array
+                    description: 생성된 Deployment 배열.
+                    items:
+                      $ref: '#/components/schemas/DeploymentResponse'
+  /deployments/{deployment_id}:
+    get:
+      tags: [Deployments]
+      operationId: getDeployment
+      summary: Get deployment status
+      description: Deployment ID로 현재 배포 상태를 조회한다.
+      parameters:
+        - name: deployment_id
+          in: path
+          description: 조회할 Deployment ID.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deployment 현재 상태.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentResponse'
+  /deployments/{deployment_id}/logs:
+    get:
+      tags: [Deployments]
+      operationId: getDeploymentLogs
+      summary: Get deployment logs
+      description: |
+        DeploymentEvent와 Runtime Adapter 로그를 함께 반환한다.
+        stage query를 지정하면 특정 상태/단계 로그만 조회할 수 있다.
+      parameters:
+        - name: deployment_id
+          in: path
+          description: 로그를 조회할 Deployment ID.
+          required: true
+          schema:
+            type: string
+        - name: stage
+          in: query
+          description: "필터링할 배포 단계. 예: DEPLOYING, RUNNING, STOPPED."
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deployment 로그 목록.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Deployment 로그 목록 응답.
+                properties:
+                  request_id:
+                    type: string
+                    description: 요청 추적 ID.
+                    example: req-test-001
+                  deployment_id:
+                    type: string
+                    description: 로그를 조회한 Deployment ID.
+                  items:
+                    type: array
+                    description: DeploymentEvent와 Runtime Adapter 로그 배열.
+                    items:
+                      $ref: '#/components/schemas/DeploymentLog'
+                  logs:
+                    type: array
+                    description: 외부 인터페이스 호환용 로그 배열 alias.
+                    items:
+                      $ref: '#/components/schemas/DeploymentLog'
+  /deployments/{deployment_id}/metrics:
+    post:
+      tags: [Monitoring]
+      operationId: createDeploymentMetric
+      summary: Record deployment inference metric
+      description: Store an inference or operation metric sample for a deployment. This is a year-1 placeholder path for latency, throughput, quality, and counters.
+      parameters:
+        - name: deployment_id
+          in: path
+          description: Deployment ID for the metric sample.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Inference metric sample.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InferenceMetricCreateRequest'
+      responses:
+        "201":
+          description: Metric sample stored.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InferenceMetricRecord'
+        "400":
+          description: Invalid metric sample.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags: [Monitoring]
+      operationId: listDeploymentMetrics
+      summary: List deployment inference metrics
+      description: Return metric samples recorded for a deployment.
+      parameters:
+        - name: deployment_id
+          in: path
+          description: Deployment ID.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deployment metric samples.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/InferenceMetricRecord'
+  /deployments/{deployment_id}/stop:
+    post:
+      tags: [Deployments]
+      operationId: stopDeployment
+      summary: Stop deployment
+      description: 실행 중인 Deployment에 중지 요청을 보내고 CPU/GPU VM Adapter가 원격 VM의 배포 프로세스를 종료한 뒤 STOPPING, STOPPED 상태 전이를 기록한다.
+      parameters:
+        - name: deployment_id
+          in: path
+          description: 중지할 Deployment ID.
+          required: true
+          schema:
+            type: string
+      responses:
+        "202":
+          description: 원격 프로세스 종료 요청이 완료되었고 갱신된 Deployment 상태를 반환한다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentResponse'
+  /inference/{deployment_id}/health:
+    get:
+      tags: [Inference]
+      operationId: getInferenceHealth
+      summary: Check deployed inference app health
+      description: Calls `/health` inside the target VM for a running deployment and returns the proxied response.
+      parameters:
+        - name: deployment_id
+          in: path
+          description: Running deployment ID.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Proxied inference health response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InferenceInvokeResponse'
+        "409":
+          description: Deployment is not RUNNING.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /inference/{deployment_id}/invoke:
+    post:
+      tags: [Inference]
+      operationId: invokeInference
+      summary: Invoke a deployed inference app
+      description: Proxies an inference request to the app HTTP server running inside the target VM. The target port defaults to the first App Spec network port.
+      parameters:
+        - name: deployment_id
+          in: path
+          description: Running deployment ID.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Inference proxy request.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InferenceInvokeRequest'
+      responses:
+        "200":
+          description: Proxied inference response wrapper.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InferenceInvokeResponse'
+        "400":
+          description: Invalid inference request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "409":
+          description: Deployment is not RUNNING.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /monitoring/summary:
+    get:
+      tags: [Monitoring]
+      operationId: getMonitoringSummary
+      summary: Get monitoring summary
+      description: Deployment 상태 집계, Runtime health snapshot, 알람 요약을 한 번에 조회한다.
+      responses:
+        "200":
+          description: 모니터링 요약.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonitoringSummaryResponse'
+  /monitoring/runtime-health:
+    get:
+      tags: [Monitoring]
+      operationId: listRuntimeHealth
+      summary: List runtime health snapshots
+      description: 최근 resource check로 저장된 Target별 Runtime health snapshot을 반환한다.
+      responses:
+        "200":
+          description: Runtime health 목록.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Runtime health 목록 응답.
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RuntimeHealthSnapshot'
+  /monitoring/alarms:
+    get:
+      tags: [Monitoring]
+      operationId: listDeploymentAlarms
+      summary: List deployment alarms
+      description: DeploymentEvent의 ERROR 로그와 error_code를 표준 알람 요약으로 반환한다.
+      responses:
+        "200":
+          description: 알람 요약 목록.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: 알람 목록 응답.
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DeploymentAlarmSummary'
+  /monitoring/metrics:
+    get:
+      tags: [Monitoring]
+      operationId: listInferenceMetrics
+      summary: List all inference metrics
+      description: Return all recorded inference and operation metric samples across deployments.
+      responses:
+        "200":
+          description: Metric sample list.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/InferenceMetricRecord'
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      description: 서버 생존 상태 응답.
+      properties:
+        request_id:
+          type: string
+          description: 요청 추적 ID.
+          example: req-test-001
+        status:
+          type: string
+          description: 생존 상태. 구현체는 항상 ok를 반환한다.
+          example: ok
+    ReadinessResponse:
+      type: object
+      description: 저장소, Runtime Adapter, 외부 API Mock 준비 상태 응답.
+      properties:
+        request_id:
+          type: string
+          description: 요청 추적 ID.
+          example: req-test-001
+        status:
+          type: string
+          description: 서버 준비 상태.
+          enum: [ready, degraded, not_ready]
+          example: ready
+        checks:
+          type: object
+          description: 구현체가 노출하는 준비 상태 상세. 현재 runtime_adapter는 mock,cpu_vm,gpu_vm,etri_aiinfra를 반환한다.
+          additionalProperties:
+            type: string
+          example:
+            repository: ready
+            runtime_adapter: mock,cpu_vm,gpu_vm,etri_aiinfra
+            external_api: etri_mock
+    AppCreateRequest:
+      type: object
+      description: AI App 등록 요청.
+      required: [app_spec]
+      properties:
+        app_spec:
+          $ref: '#/components/schemas/AppSpec'
+    AppResponse:
+      type: object
+      description: 등록된 AI App 버전 응답.
+      properties:
+        request_id:
+          type: string
+          description: 요청 추적 ID.
+          example: req-test-001
+        app_id:
+          type: string
+          description: App 단위 식별자.
+          example: app-1f4b9d8c-0a7a-4a5f-9f2c-123456789abc
+        app_version_id:
+          type: string
+          description: App name/version 단위 식별자. 배포 요청은 이 값을 사용한다.
+          example: appver-1f4b9d8c-0a7a-4a5f-9f2c-123456789abc
+        name:
+          type: string
+          description: App Spec metadata.name.
+          example: sample-cpu-app
+        version:
+          type: string
+          description: App Spec metadata.version.
+          example: 0.1.0
+        app_spec:
+          $ref: '#/components/schemas/AppSpec'
+        created_at:
+          type: string
+          format: date-time
+          description: 등록 시각(UTC).
+          example: "2026-06-24T09:00:00Z"
+    AppSpec:
+      type: object
+      description: |
+        배포할 AI App 정의.
+        구현체는 schema_version=appspec.khu.ai/v1alpha1, kind=AIApp,
+        artifact.type=package|git|binary|script만 허용한다.
+      required: [schema_version, kind, metadata, artifact, entrypoint, runtime, resources]
+      properties:
+        schema_version:
+          type: string
+          description: App Spec 스키마 버전. 현재 구현은 appspec.khu.ai/v1alpha1만 허용한다.
+          example: appspec.khu.ai/v1alpha1
+        kind:
+          type: string
+          description: 리소스 종류. 현재 구현은 AIApp만 허용한다.
+          enum: [AIApp]
+          example: AIApp
+        metadata:
+          type: object
+          description: App 이름과 버전 메타데이터.
+          required: [name, version]
+          properties:
+            name:
+              type: string
+              description: 소문자/숫자/하이픈 기반 App 이름.
+              example: sample-cpu-app
+            version:
+              type: string
+              description: App 버전.
+              example: 0.1.0
+            description:
+              type: string
+              description: App 설명.
+              example: CPU VM smoke app
+        artifact:
+          type: object
+          description: |
+            배포할 산출물 위치.
+            script + file:// URI는 CPU/GPU SSH Runner에서 대상 VM으로 업로드된 뒤 entrypoint로 실행된다.
+          required: [type, uri]
+          properties:
+            type:
+              type: string
+              enum: [package, git, binary, script]
+              description: 1차년도는 package, git, binary, script만 허용한다. container는 거부된다.
+              example: script
+            uri:
+              type: string
+              description: "artifact 위치. 예: file:///opt/examples/sample-cpu-app/run.sh, git URL, package URI."
+              example: file:///opt/examples/sample-cpu-app/run.sh
+            checksum:
+              type: string
+              description: 선택적 체크섬. 현재 구현은 필드 저장만 수행한다.
+              example: sha256:example
+        entrypoint:
+          type: object
+          description: Runtime Adapter가 실행할 명령.
+          required: [command]
+          properties:
+            command:
+              type: string
+              description: 실행 명령. 비어 있으면 APP_SPEC_INVALID로 거부된다.
+              example: bash
+            args:
+              type: array
+              description: 실행 인자 배열.
+              items:
+                type: string
+              example: ["run.sh", "--port=18080"]
+            working_dir:
+              type: string
+              description: 실행 작업 디렉터리. 비어 있으면 VM Adapter가 artifact 업로드 경로를 사용한다.
+              example: /opt/aiapp/artifacts/sample-cpu-app/0.1.0
+        runtime:
+          type: object
+          description: App이 요구하는 Runtime 종류.
+          required: [type]
+          properties:
+            type:
+              type: string
+              description: App 실행 Runtime. 현재 구현은 mock, cpu, gpu, aiinfra를 지원한다.
+              enum: [cpu, gpu, aiinfra, mock]
+              example: cpu
+            accelerator:
+              type: string
+              description: GPU 가속기 종류. CPU/Mock/AI-Infra 일반 흐름은 none을 사용한다.
+              enum: [none, nvidia]
+              example: none
+        resources:
+          type: object
+          description: App이 요구하는 논리 자원. Matcher는 Runtime 호환성과 GPU 개수를 검증한다.
+          properties:
+            cpu:
+              type: string
+              description: CPU 요구량.
+              example: "2"
+            memory:
+              type: string
+              description: 메모리 요구량.
+              example: 4Gi
+            gpu:
+              type: string
+              description: GPU 요구 개수. gpu App은 기본 1개 이상으로 해석한다.
+              example: "0"
+            storage:
+              type: string
+              description: 저장소 요구량.
+              example: 5Gi
+        model_refs:
+          type: array
+          description: 선택적 모델 참조 목록. 현재 구현은 저장만 수행한다.
+          items:
+            type: object
+            required: [name, uri]
+            properties:
+              name:
+                type: string
+                example: sample-model
+              version:
+                type: string
+                example: 1.0.0
+              uri:
+                type: string
+                example: file:///models/sample-model
+              mount_path:
+                type: string
+                example: /models/sample-model
+        network:
+          type: object
+          description: App 서비스 포트 정보. 현재 구현은 저장만 수행한다.
+          properties:
+            ports:
+              type: array
+              items:
+                type: object
+                required: [app_port]
+                properties:
+                  name:
+                    type: string
+                    example: http
+                  app_port:
+                    type: integer
+                    minimum: 1
+                    maximum: 65535
+                    example: 18080
+                  protocol:
+                    type: string
+                    enum: [TCP, UDP]
+                    example: TCP
+        healthcheck:
+          type: object
+          description: App 헬스체크 정의. 현재 구현은 저장만 수행한다.
+          properties:
+            type:
+              type: string
+              enum: [http, command]
+              example: http
+            path:
+              type: string
+              example: /health
+            command:
+              type: string
+              example: curl -fsS http://localhost:18080/health
+      example:
+        schema_version: appspec.khu.ai/v1alpha1
+        kind: AIApp
+        metadata:
+          name: sample-cpu-app
+          version: 0.1.0
+          description: CPU VM smoke app
+        artifact:
+          type: script
+          uri: file:///opt/examples/sample-cpu-app/run.sh
+        entrypoint:
+          command: bash
+          args: ["run.sh", "--port=18080"]
+        runtime:
+          type: cpu
+          accelerator: none
+        resources:
+          cpu: "2"
+          memory: 4Gi
+          gpu: "0"
+          storage: 5Gi
+    RuntimeProfile:
+      type: object
+      description: Runtime Adapter 선택과 운영 방식을 정의한다.
+      required: [runtime_profile_id, runtime_type, adapter_type, operating_mode]
+      properties:
+        runtime_profile_id:
+          type: string
+          description: Runtime Profile ID.
+          example: rt-cpu-001
+        name:
+          type: string
+          description: 사람이 읽는 Runtime Profile 이름.
+          example: cpu-vm-runtime
+        runtime_type:
+          type: string
+          description: Runtime 종류. App Spec runtime.type과 호환되어야 한다.
+          enum: [mock, cpu, gpu, aiinfra]
+          example: cpu
+        accelerator:
+          type: string
+          description: 가속기 종류. GPU VM은 nvidia를 사용한다.
+          enum: [none, nvidia]
+          example: none
+        adapter_type:
+          type: string
+          description: 사용할 Runtime Adapter. 서버 구현은 mock, cpu_vm, gpu_vm, etri_aiinfra를 등록한다.
+          enum: [mock, cpu_vm, gpu_vm, etri_aiinfra]
+          example: cpu_vm
+        operating_mode:
+          type: string
+          description: local_mock, VM 프로세스 실행, 원격 API 연동 모드.
+          enum: [local_mock, dry_run, vm_process, remote_api]
+          example: vm_process
+        readiness:
+          type: object
+          description: 외부 인터페이스 예제 호환용 readiness 점검 방식. 현재 구현은 저장만 수행한다.
+          additionalProperties:
+            type: string
+          example:
+            type: command
+            command: nvidia-smi
+      example:
+        runtime_profile_id: rt-cpu-001
+        name: cpu-vm-runtime
+        runtime_type: cpu
+        accelerator: none
+        adapter_type: cpu_vm
+        operating_mode: vm_process
+    TargetProfile:
+      type: object
+      description: 배포 대상 VM 또는 AI-Infra Target 정보를 정의한다.
+      required: [target_profile_id, csp, vm, runtime]
+      properties:
+        target_profile_id:
+          type: string
+          description: Target Profile ID.
+          example: target-cpu-001
+        name:
+          type: string
+          description: 사람이 읽는 Target 이름.
+          example: cpu-vm-target
+        csp:
+          type: string
+          description: Target 제공자. mock 외에는 구현 검증에서 vm.host가 필요하다.
+          enum: [aws, azure, gcp, etri, local, mock]
+          example: local
+        region:
+          type: string
+          description: CSP 리전. 선택 필드.
+          example: ap-northeast-2
+        os:
+          type: object
+          description: Target OS 정보. 선택 필드.
+          properties:
+            type:
+              type: string
+              example: ubuntu
+            version:
+              type: string
+              example: "22.04"
+        vm:
+          type: object
+          description: |
+            VM 또는 외부 Gateway 접근 정보.
+            Secret 값은 저장하지 않고 credential_ref만 사용한다.
+          properties:
+            host:
+              type: string
+              description: VM hostname/IP 또는 AI-Infra Gateway host. mock 외에는 필수처럼 검증된다.
+              example: cpu-vm.example.internal
+            ssh_port:
+              type: integer
+              description: SSH 포트. CPU/GPU SSH Runner에서 사용한다.
+              example: 22
+            credential_ref:
+              type: string
+              description: Secret 참조. 실제 키/비밀번호는 환경변수 또는 Secret Store에서 주입한다.
+              example: cred://local/cpu-vm-001
+        runtime:
+          type: object
+          description: Target이 제공하는 Runtime 종류.
+          properties:
+            runtime_type:
+              type: string
+              description: Target Runtime. Adapter Router가 이 값으로 ValidateTarget/Prepare 경로를 선택한다.
+              enum: [mock, cpu, gpu, aiinfra]
+              example: cpu
+            accelerator:
+              type: string
+              description: Target 가속기 종류.
+              enum: [none, nvidia]
+              example: none
+            operating_mode:
+              type: string
+              description: Target 운영 모드.
+              enum: [local_mock, dry_run, vm_process, remote_api]
+              example: vm_process
+        gpu:
+          type: object
+          description: GPU VM Target 정보. gpu runtime일 때 gpu.count >= 1이 필요하다.
+          properties:
+            vendor:
+              type: string
+              example: nvidia
+            count:
+              type: integer
+              minimum: 0
+              example: 1
+            driver_required:
+              type: boolean
+              example: true
+        storage:
+          type: object
+          description: VM artifact/model/log 경로. CPU/GPU VM Adapter는 artifact_dir과 log_dir을 요구한다.
+          properties:
+            artifact_dir:
+              type: string
+              example: /opt/aiapp/artifacts
+            model_dir:
+              type: string
+              example: /opt/aiapp/models
+            log_dir:
+              type: string
+              example: /var/log/aiapp
+        network:
+          type: object
+          description: Target 네트워크 설정. 현재 구현은 저장만 수행한다.
+          properties:
+            service_port_range:
+              type: string
+              example: 18080-18100
+      example:
+        target_profile_id: target-cpu-001
+        name: cpu-vm-target
+        csp: local
+        vm:
+          host: cpu-vm.example.internal
+          ssh_port: 22
+          credential_ref: cred://local/cpu-vm-001
+        runtime:
+          runtime_type: cpu
+          accelerator: none
+          operating_mode: vm_process
+        storage:
+          artifact_dir: /opt/aiapp/artifacts
+          model_dir: /opt/aiapp/models
+          log_dir: /var/log/aiapp
+    DeploymentCreateRequest:
+      type: object
+      description: 배포 생성 요청.
+      required: [app_version_id, runtime_profile_id, target_profile_id]
+      properties:
+        app_id:
+          type: string
+          description: 외부 인터페이스 호환용 App ID. 현재 배포 생성은 app_version_id를 기준으로 처리한다.
+          example: app-1f4b9d8c-0a7a-4a5f-9f2c-123456789abc
+        app_version_id:
+          type: string
+          description: "`/apps` 등록 응답의 app_version_id."
+          example: appver-1f4b9d8c-0a7a-4a5f-9f2c-123456789abc
+        runtime_profile_id:
+          type: string
+          description: 사용할 Runtime Profile ID.
+          example: rt-cpu-001
+        target_profile_id:
+          type: string
+          description: 배포할 Target Profile ID.
+          example: target-cpu-001
+        requested_by:
+          type: string
+          description: 외부 호출 주체. 현재 구현은 선택 메타데이터로 수신한다.
+          example: bespin-console
+        parameters:
+          type: object
+          description: 배포 시 전달할 선택 파라미터. 현재 구현은 Runtime Adapter로 전달한다.
+          additionalProperties: true
+          example:
+            port: 18080
+      example:
+        app_version_id: appver-1f4b9d8c-0a7a-4a5f-9f2c-123456789abc
+        runtime_profile_id: rt-cpu-001
+        target_profile_id: target-cpu-001
+        parameters:
+          port: 18080
+    DeploymentResponse:
+      type: object
+      description: Deployment 상태 응답.
+      properties:
+        request_id:
+          type: string
+          description: 요청 추적 ID.
+          example: req-test-001
+        deployment_id:
+          type: string
+          description: Deployment ID.
+          example: dep-1f4b9d8c-0a7a-4a5f-9f2c-123456789abc
+        app_id:
+          type: string
+          description: App 단위 식별자.
+          example: app-1f4b9d8c-0a7a-4a5f-9f2c-123456789abc
+        app_version_id:
+          type: string
+          description: 배포 대상 App Version ID.
+          example: appver-1f4b9d8c-0a7a-4a5f-9f2c-123456789abc
+        runtime_profile_id:
+          type: string
+          description: 사용한 Runtime Profile ID.
+          example: rt-cpu-001
+        target_profile_id:
+          type: string
+          description: 사용한 Target Profile ID.
+          example: target-cpu-001
+        status:
+          $ref: '#/components/schemas/DeploymentStatus'
+        created_at:
+          type: string
+          format: date-time
+          description: Deployment 생성 시각(UTC).
+          example: "2026-06-24T09:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Deployment 최근 갱신 시각(UTC).
+          example: "2026-06-24T09:00:01Z"
+    DeploymentStatus:
+      type: string
+      description: 표준 Deployment 상태값.
+      enum: [REQUESTED, VALIDATING, VALIDATED, SCHEDULING, DEPLOYING, RUNNING, STOPPING, STOPPED, VALIDATION_FAILED, SCHEDULING_FAILED, DEPLOYMENT_FAILED, RUNTIME_FAILED, EXTERNAL_API_FAILED, UNKNOWN]
+      example: RUNNING
+    DeploymentLog:
+      type: object
+      description: Orchestrator 이벤트 또는 Runtime Adapter 로그.
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: 로그 시각(UTC).
+          example: "2026-06-24T09:00:01Z"
+        level:
+          type: string
+          description: 로그 레벨.
+          example: INFO
+        request_id:
+          type: string
+          description: 요청 추적 ID.
+          example: req-test-001
+        deployment_id:
+          type: string
+          description: 관련 Deployment ID.
+          example: dep-1f4b9d8c-0a7a-4a5f-9f2c-123456789abc
+        component:
+          type: string
+          description: 로그를 기록한 컴포넌트.
+          example: cpu-vm-adapter
+        stage:
+          type: string
+          description: Deployment 단계 또는 상태.
+          example: DEPLOYING
+        message:
+          type: string
+          description: 로그 메시지.
+          example: cpu vm command accepted
+        error_code:
+          type: string
+          description: 실패 시 표준 에러 코드.
+          example: DEPLOYMENT_FAILED
+    InferenceMetricCreateRequest:
+      type: object
+      description: Inference and operation metric sample request.
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Metric sample time. If omitted, the server stores the current time.
+          example: "2026-06-25T09:00:00Z"
+        latency_ms:
+          type: number
+          format: double
+          minimum: 0
+          description: End-to-end inference latency in milliseconds.
+          example: 42.5
+        throughput_rps:
+          type: number
+          format: double
+          minimum: 0
+          description: Throughput in requests per second.
+          example: 12.25
+        quality_score:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 1
+          description: Optional normalized quality score.
+          example: 0.97
+        request_count:
+          type: integer
+          minimum: 0
+          description: Number of observed requests in the sample window.
+          example: 100
+        error_count:
+          type: integer
+          minimum: 0
+          description: Number of failed requests in the sample window.
+          example: 1
+        metadata:
+          type: object
+          description: Optional metric labels such as model, scenario, or dataset.
+          additionalProperties: true
+          example:
+            model: sample-cpu-model
+            scenario: smoke
+    InferenceMetricRecord:
+      allOf:
+        - $ref: '#/components/schemas/InferenceMetricCreateRequest'
+        - type: object
+          description: Stored inference and operation metric sample.
+          properties:
+            request_id:
+              type: string
+              description: 요청 추적 ID.
+              example: req-test-001
+            metric_id:
+              type: string
+              description: Metric sample ID.
+              example: metric-1f4b9d8c-0a7a-4a5f-9f2c-123456789abc
+            deployment_id:
+              type: string
+              description: Deployment ID associated with the metric.
+              example: dep-1f4b9d8c-0a7a-4a5f-9f2c-123456789abc
+            timestamp:
+              type: string
+              format: date-time
+              description: Stored metric sample time.
+              example: "2026-06-25T09:00:00Z"
+    InferenceInvokeRequest:
+      type: object
+      description: Request body for proxying an inference call to a running deployment.
+      properties:
+        method:
+          type: string
+          enum: [GET, POST]
+          default: POST
+          example: POST
+        path:
+          type: string
+          description: Relative path on the deployed app. Defaults to `/generate`.
+          example: /generate
+        port:
+          type: integer
+          minimum: 1
+          maximum: 65535
+          description: Optional app port override. Defaults to the first App Spec network port.
+          example: 18081
+        timeout_seconds:
+          type: integer
+          minimum: 1
+          maximum: 300
+          default: 30
+          example: 30
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+          example:
+            x-demo: ai-app
+        body:
+          type: object
+          additionalProperties: true
+          example:
+            prompt: "Explain AI app deployment in one sentence."
+            max_new_tokens: 64
+    InferenceInvokeResponse:
+      type: object
+      description: Wrapper response returned by the inference proxy.
+      properties:
+        request_id:
+          type: string
+          example: req-test-001
+        deployment_id:
+          type: string
+          example: dep-1f4b9d8c-0a7a-4a5f-9f2c-123456789abc
+        app_id:
+          type: string
+          example: app-1f4b9d8c-0a7a-4a5f-9f2c-123456789abc
+        app_version_id:
+          type: string
+          example: appver-1f4b9d8c-0a7a-4a5f-9f2c-123456789abc
+        runtime_profile_id:
+          type: string
+          example: rt-gpu-001
+        target_profile_id:
+          type: string
+          example: target-nhn-gpu-001
+        method:
+          type: string
+          example: POST
+        path:
+          type: string
+          example: /generate
+        port:
+          type: integer
+          example: 18081
+        status_code:
+          type: integer
+          example: 200
+        body:
+          type: object
+          additionalProperties: true
+          example:
+            status: ok
+            output: "AI application inference completed."
+        raw_body:
+          type: string
+          description: Non-JSON response body, only populated when the proxied app does not return JSON.
+        duration_ms:
+          type: integer
+          example: 2700
+        invoked_at:
+          type: string
+          format: date-time
+          example: "2026-07-01T03:20:00Z"
+    ResourceCheckResponse:
+      type: object
+      description: Target readiness 점검 결과.
+      properties:
+        request_id:
+          type: string
+          description: 요청 추적 ID.
+          example: req-test-001
+        runtime_profile_id:
+          type: string
+          description: 요청에 포함된 Runtime Profile ID. 선택 입력이 없으면 생략된다.
+          example: rt-gpu-001
+        target_profile_id:
+          type: string
+          description: 점검한 Target Profile ID.
+          example: target-cpu-001
+        status:
+          type: string
+          description: readiness 결과.
+          enum: [available, degraded, unavailable]
+          example: available
+        checks:
+          type: object
+          description: target/runtime 점검 상세. 실패 시 에러 메시지를 포함한다.
+          additionalProperties:
+            type: string
+          example:
+            target: ok
+            runtime: ok
+        details:
+          type: object
+          description: Runtime/GPU 등 추가 readiness 상세.
+          additionalProperties: true
+        checked_at:
+          type: string
+          format: date-time
+          description: 점검 시각(UTC).
+    ResourceInventory:
+      type: object
+      description: 최근 Target 자원 점검 스냅샷.
+      properties:
+        target_profile_id:
+          type: string
+          example: target-gpu-001
+        cpu_available:
+          type: boolean
+          example: true
+        memory_available:
+          type: boolean
+          example: true
+        gpu_available:
+          type: boolean
+          example: true
+        storage_available:
+          type: boolean
+          example: true
+        runtime_health:
+          type: string
+          example: ok
+        last_checked_at:
+          type: string
+          format: date-time
+          example: "2026-06-24T09:00:00Z"
+    MonitoringSummaryResponse:
+      type: object
+      description: Deployment, Runtime health, 알람을 합친 모니터링 요약.
+      properties:
+        request_id:
+          type: string
+          description: 요청 추적 ID.
+          example: req-test-001
+        generated_at:
+          type: string
+          format: date-time
+          description: 요약 생성 시각(UTC).
+          example: "2026-06-25T09:00:00Z"
+        status:
+          type: string
+          description: 전체 모니터링 상태. 실패 Deployment나 알람이 있으면 degraded.
+          enum: [ok, degraded]
+          example: degraded
+        deployments:
+          $ref: '#/components/schemas/DeploymentMonitorSummary'
+        runtime_health:
+          type: array
+          items:
+            $ref: '#/components/schemas/RuntimeHealthSnapshot'
+        alarms:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeploymentAlarmSummary'
+    DeploymentMonitorSummary:
+      type: object
+      description: Deployment 상태 집계.
+      properties:
+        total:
+          type: integer
+          example: 2
+        active:
+          type: integer
+          example: 1
+        failed:
+          type: integer
+          example: 1
+        stopped:
+          type: integer
+          example: 0
+        by_status:
+          type: object
+          description: 상태별 Deployment 개수.
+          additionalProperties:
+            type: integer
+          example:
+            RUNNING: 1
+            VALIDATION_FAILED: 1
+    RuntimeHealthSnapshot:
+      type: object
+      description: Target별 Runtime health snapshot.
+      properties:
+        target_profile_id:
+          type: string
+          example: target-cpu-001
+        status:
+          type: string
+          enum: [available, degraded, unavailable]
+          example: available
+        runtime_health:
+          type: string
+          example: ok
+        cpu_available:
+          type: boolean
+          example: true
+        memory_available:
+          type: boolean
+          example: true
+        gpu_available:
+          type: boolean
+          example: false
+        storage_available:
+          type: boolean
+          example: true
+        last_checked_at:
+          type: string
+          format: date-time
+          example: "2026-06-25T09:00:00Z"
+    DeploymentAlarmSummary:
+      type: object
+      description: Deployment 실패 이벤트 기반 알람 요약.
+      properties:
+        severity:
+          type: string
+          enum: [error, critical]
+          example: error
+        error_code:
+          type: string
+          example: APP_SPEC_INVALID
+        count:
+          type: integer
+          example: 1
+        latest_deployment_id:
+          type: string
+          example: dep-1f4b9d8c-0a7a-4a5f-9f2c-123456789abc
+        latest_stage:
+          type: string
+          example: VALIDATION_FAILED
+        latest_message:
+          type: string
+          example: app version not found
+        latest_at:
+          type: string
+          format: date-time
+          example: "2026-06-25T09:00:00Z"
+        retryable:
+          type: boolean
+          example: false
+    ErrorResponse:
+      type: object
+      description: 표준 에러 응답. request_id는 요청 추적에 사용한다.
+      properties:
+        request_id:
+          type: string
+          description: 요청 추적 ID.
+          example: req-test-001
+        error:
+          $ref: '#/components/schemas/ErrorObject'
+    ErrorObject:
+      type: object
+      description: 표준 에러 본문.
+      properties:
+        code:
+          type: string
+          description: 표준 에러 코드. 일부 조회 실패는 구현상 NOT_FOUND를 반환한다.
+          enum: [APP_SPEC_INVALID, APP_ARTIFACT_NOT_FOUND, ENTRYPOINT_INVALID, RUNTIME_PROFILE_INVALID, TARGET_PROFILE_INVALID, RESOURCE_INSUFFICIENT, GPU_RUNTIME_NOT_FOUND, NVIDIA_DRIVER_NOT_FOUND, CSP_VM_UNREACHABLE, STORAGE_PATH_UNAVAILABLE, AI_INFRA_API_TIMEOUT, AI_INFRA_API_FAILED, GATEWAY_AUTH_FAILED, BESPIN_API_FAILED, DEPLOYMENT_FAILED, RUNTIME_FAILED, NOT_FOUND, UNKNOWN]
+          example: APP_SPEC_INVALID
+        message:
+          type: string
+          description: 사람이 읽을 수 있는 실패 사유.
+          example: artifact.type must be one of package, git, binary, script
+        details:
+          type: object
+          description: 에러별 추가 정보.
+          additionalProperties: true
+          example:
+            provider: etri
+        retryable:
+          type: boolean
+          description: 재시도 가능 여부.
+          example: false

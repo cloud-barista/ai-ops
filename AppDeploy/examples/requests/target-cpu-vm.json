@@ -1,0 +1,20 @@
+{
+  "target_profile_id": "target-cpu-001",
+  "name": "cpu-vm-target",
+  "csp": "local",
+  "vm": {
+    "host": "cpu-vm.example.internal",
+    "ssh_port": 22,
+    "credential_ref": "cred://local/cpu-vm-001"
+  },
+  "runtime": {
+    "runtime_type": "cpu",
+    "accelerator": "none",
+    "operating_mode": "vm_process"
+  },
+  "storage": {
+    "artifact_dir": "/opt/aiapp/artifacts",
+    "model_dir": "/opt/aiapp/models",
+    "log_dir": "/var/log/aiapp"
+  }
+}

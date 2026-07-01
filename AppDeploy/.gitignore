@@ -1,0 +1,53 @@
+# OS/editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Go build/test outputs
+bin/
+build/
+dist/
+*.exe
+*.test
+*.out
+coverage.out
+coverage.html
+
+# Runtime data and logs
+data/
+tmp/
+logs/
+handoff/
+*.log
+*.pid
+*.tmp
+*.bak
+*.local
+aiapp-store*.json
+*.json.tmp
+
+# Local markdown work tracking
+TODO.md
+log.md
+*.local.md
+*_local.md
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+id_rsa
+id_ed25519
+
+# Generated archives/artifacts
+*.tar
+*.tar.gz
+*.tgz
+*.zip

@@ -1,0 +1,26 @@
+{
+  "schema_version": "appspec.khu.ai/v1alpha1",
+  "kind": "AIApp",
+  "metadata": {
+    "name": "sample-cpu-inference",
+    "version": "0.1.0"
+  },
+  "artifact": {
+    "type": "script",
+    "uri": "file://examples/cpu-smoke-run.sh"
+  },
+  "entrypoint": {
+    "command": "./cpu-smoke-run.sh",
+    "args": []
+  },
+  "runtime": {
+    "type": "cpu",
+    "accelerator": "none"
+  },
+  "resources": {
+    "cpu": "2",
+    "memory": "4Gi",
+    "gpu": "0",
+    "storage": "10Gi"
+  }
+}

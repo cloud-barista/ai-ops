@@ -1,0 +1,67 @@
+﻿{
+    "items":  [
+                  {
+                      "timestamp":  "2026-06-25T08:30:26.1076423Z",
+                      "level":  "INFO",
+                      "request_id":  "req-smoke-0625173026",
+                      "deployment_id":  "dep-a6f7e728-fbdf-4dea-8613-bcb8a9efd27c",
+                      "component":  "orchestrator",
+                      "stage":  "REQUESTED",
+                      "message":  "deployment created"
+                  },
+                  {
+                      "timestamp":  "2026-06-25T08:30:26.1125234Z",
+                      "level":  "INFO",
+                      "request_id":  "req-smoke-0625173026",
+                      "deployment_id":  "dep-a6f7e728-fbdf-4dea-8613-bcb8a9efd27c",
+                      "component":  "validator",
+                      "stage":  "VALIDATING",
+                      "message":  "app, runtime profile, and target profile validation started"
+                  },
+                  {
+                      "timestamp":  "2026-06-25T08:30:26.1177059Z",
+                      "level":  "INFO",
+                      "request_id":  "req-smoke-0625173026",
+                      "deployment_id":  "dep-a6f7e728-fbdf-4dea-8613-bcb8a9efd27c",
+                      "component":  "validator",
+                      "stage":  "VALIDATED",
+                      "message":  "app, runtime profile, and target profile validation passed"
+                  },
+                  {
+                      "timestamp":  "2026-06-25T08:30:26.1223982Z",
+                      "level":  "INFO",
+                      "request_id":  "req-smoke-0625173026",
+                      "deployment_id":  "dep-a6f7e728-fbdf-4dea-8613-bcb8a9efd27c",
+                      "component":  "resource-matcher",
+                      "stage":  "SCHEDULING",
+                      "message":  "resource matching started"
+                  },
+                  {
+                      "timestamp":  "2026-06-25T08:30:26.1256908Z",
+                      "level":  "INFO",
+                      "request_id":  "req-smoke-0625173026",
+                      "deployment_id":  "dep-a6f7e728-fbdf-4dea-8613-bcb8a9efd27c",
+                      "component":  "orchestrator",
+                      "stage":  "DEPLOYING",
+                      "message":  "runtime deploy requested"
+                  },
+                  {
+                      "timestamp":  "2026-06-25T08:30:26.1312981Z",
+                      "level":  "INFO",
+                      "request_id":  "req-smoke-0625173026",
+                      "deployment_id":  "dep-a6f7e728-fbdf-4dea-8613-bcb8a9efd27c",
+                      "component":  "runtime-adapter",
+                      "stage":  "RUNNING",
+                      "message":  "app healthcheck passed"
+                  },
+                  {
+                      "timestamp":  "2026-06-25T08:30:26.1291868Z",
+                      "level":  "INFO",
+                      "request_id":  "req-smoke-0625173026",
+                      "deployment_id":  "dep-a6f7e728-fbdf-4dea-8613-bcb8a9efd27c",
+                      "component":  "cpu-vm-adapter",
+                      "stage":  "DEPLOYING",
+                      "message":  "cpu vm command accepted: dry-run bash on cpu-vm.example.internal"
+                  }
+              ]
+}

@@ -1,0 +1,11 @@
+{
+  "provider": "etri",
+  "operation": "check",
+  "response": {
+    "status": "available",
+    "message": "etri ai-infra mock readiness ok",
+    "details": {
+      "target_profile_id": "target-aiinfra-001"
+    }
+  }
+}

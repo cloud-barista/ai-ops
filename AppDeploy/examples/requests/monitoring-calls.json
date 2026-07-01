@@ -1,0 +1,20 @@
+{
+  "calls": [
+    {
+      "method": "GET",
+      "path": "/api/v1/monitoring/summary"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/monitoring/runtime-health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/monitoring/alarms"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/monitoring/metrics"
+    }
+  ]
+}

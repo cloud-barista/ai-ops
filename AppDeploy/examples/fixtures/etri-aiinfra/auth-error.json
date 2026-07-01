@@ -1,0 +1,10 @@
+{
+  "provider": "etri",
+  "operation": "check",
+  "fixture_error": {
+    "kind": "auth_failed",
+    "message": "etri fixture auth failed",
+    "retryable": false,
+    "mapped_error_code": "GATEWAY_AUTH_FAILED"
+  }
+}
