@@ -14,9 +14,13 @@
     "measurement_level": "prototype_policy_baseline",
     "requires_regeneration_for_final_report": true,
     "candidate_identity_policy": "Candidate names are role labels for prototype policy wiring, not verified provider benchmark claims.",
+    "actual_model_policy": "The model field is an internal role label. actual_model is a placeholder or a future linked LLM model name.",
+    "benchmark_status_policy": "If benchmark_status is not_executed, selected_actual_model must not be claimed as a final benchmark-selected model.",
     "last_updated": "2026-06-25",
     "notes": [
       "Current values are manually defined prototype policy baselines for LLM selection wiring.",
+      "Current scores are not actual LLM API benchmark results.",
+      "Actual LLM evaluation requires API keys from environment variables and a separate evaluation run.",
       "These values are not final standardized benchmark results.",
       "For a final quantitative report, regenerate scores from standardized per-model Ops evaluation runs.",
       "The submission/demo package does not depend on external benchmark runners."
@@ -51,7 +55,11 @@
   "candidates": [
     {
       "model": "primary-ops-llm",
+      "actual_model": "to-be-evaluated-primary-model",
       "provider": "prototype-policy",
+      "evaluation_source": "prototype_policy_config",
+      "evaluation_type": "prototype_policy_baseline",
+      "benchmark_status": "not_executed",
       "role": "primary Ops reasoning model for service-control decisions",
       "correct_detection_runs": 12,
       "total_detection_runs": 12,
@@ -70,7 +78,11 @@
     },
     {
       "model": "low-cost-ops-llm",
+      "actual_model": "to-be-evaluated-low-cost-model",
       "provider": "prototype-policy",
+      "evaluation_source": "prototype_policy_config",
+      "evaluation_type": "prototype_policy_baseline",
+      "benchmark_status": "not_executed",
       "role": "low-cost smoke-test and fallback model",
       "correct_detection_runs": 10,
       "total_detection_runs": 12,
@@ -89,7 +101,11 @@
     },
     {
       "model": "code-cross-check-agent",
+      "actual_model": "to-be-evaluated-cross-check-model",
       "provider": "prototype-policy",
+      "evaluation_source": "prototype_policy_config",
+      "evaluation_type": "prototype_policy_baseline",
+      "benchmark_status": "not_executed",
       "role": "implementation and code-review cross-check agent",
       "correct_detection_runs": 11,
       "total_detection_runs": 12,

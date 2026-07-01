@@ -105,7 +105,34 @@ go run ./cmd/aiops-service-control run-service-operations \
   --guard-backend go
 ```
 
-## 6. API 서버 실행
+## 6. Ops LLM 평가 Dry-Run
+
+실제 provider API를 호출하지 않고, Go 기반 scenario/candidate 연결과 평가 요약 생성을 검증합니다.
+
+```bash
+cd go/service-control-api
+go run ./cmd/aiops-service-control run-ops-llm-benchmark \
+  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
+  --candidates ../../config/ops_llm_eval_candidates.json \
+  --output-dir ../../runs/ops-llm-evaluation-dry-run \
+  --dry-run
+
+go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
+  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
+  --outputs ../../runs/ops-llm-evaluation-dry-run/model_outputs.jsonl \
+  --summary ../../runs/ops-llm-evaluation-dry-run/evaluation_summary.json
+```
+
+생성되는 검증 증거:
+
+| 파일 | 의미 |
+| --- | --- |
+| `runs/ops-llm-evaluation-dry-run/model_outputs.jsonl` | scenario별 prompt, role label, actual model placeholder, dry-run status |
+| `runs/ops-llm-evaluation-dry-run/evaluation_summary.json` | dry-run evaluation wiring summary |
+
+dry-run 결과는 실제 LLM API benchmark 결과가 아닙니다. 실제 모델 응답이 기록되고 `benchmark_status = executed`인 경우에만 최종 모델 평가 결과로 해석합니다.
+
+## 7. API 서버 실행
 
 터미널 1:
 
@@ -129,12 +156,14 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/service-operations/run \
   -d '{"llm_policy":"quality_first","workload":"llm-chat-inference","recovery_namespace":"aiops-demo","recovery_deployment":"aiops-service","mode":"mock","guard_backend":"go"}'
 ```
 
-## 7. 기대 결과
+## 8. 기대 결과
 
 기대되는 prototype-level signal:
 
 ```text
 selected_model = primary-ops-llm
+selected_actual_model = to-be-evaluated-primary-model
+benchmark_status = not_executed
 selected_resource = gpu-vm-l4
 valid = true
 guard_backend = go
@@ -143,17 +172,17 @@ guard_validation.valid = true
 
 위 값은 prototype의 policy와 control-flow wiring을 검증합니다. 최종 표준 LLM benchmark result가 아닙니다.
 
-## 8. Mock Mode
+## 9. Mock Mode
 
 기본 `mock` mode는 live cluster를 변경하지 않고 service-control readiness structure를 생성하고 검증합니다. mock mode에서는 다음이 수행됩니다.
 
-- Kubernetes deployment manifest 생성
+- AI 응용 배포·제어 manifest 생성
 - simulated deployment dry-run output 생성
 - agent review와 guard-readiness field 생성
 - 실제 GPU VM provisioning 미수행
 - live Kubernetes mutation 미수행
 
-## 9. DOCX 변환
+## 10. DOCX 변환
 
 DOCX 제출본은 저장소에 포함되어 있습니다. 재생성이 필요한 경우 Bash 변환 script를 사용할 수 있습니다.
 

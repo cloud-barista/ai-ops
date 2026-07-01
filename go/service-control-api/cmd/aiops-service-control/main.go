@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"kyunghee-aiops/service-control-api/internal/api"
+	"kyunghee-aiops/service-control-api/internal/benchmark"
 )
 
 func main() {
@@ -192,6 +193,63 @@ func run(args []string) error {
 			return err
 		}
 		return emitReport("run-service-operations", result, *saveResultDir)
+	case "run-ops-llm-benchmark":
+		flags := flag.NewFlagSet("run-ops-llm-benchmark", flag.ContinueOnError)
+		scenarios := flags.String("scenarios", "data/ops_llm_eval_scenarios.jsonl", "Ops LLM evaluation scenarios JSONL path")
+		candidates := flags.String("candidates", "config/ops_llm_eval_candidates.json", "Ops LLM evaluation candidates JSON path")
+		outputDir := flags.String("output-dir", "", "Directory where benchmark output JSONL is saved")
+		dryRun := flags.Bool("dry-run", false, "Generate benchmark prompts and output rows without provider API calls")
+		saveResultDir := addSaveResultDirFlag(flags)
+		if err := flags.Parse(args[1:]); err != nil {
+			return err
+		}
+		benchmarkOutputDir := *outputDir
+		if benchmarkOutputDir == "" {
+			benchmarkOutputDir = filepath.Join(
+				serverConfig.RepoRoot,
+				"runs",
+				"ops-llm-evaluation-"+time.Now().Format("20060102-150405"),
+			)
+		}
+		result, err := benchmark.RunOpsLLMBenchmark(benchmark.RunOptions{
+			ScenariosPath:  resolveInputPath(serverConfig, *scenarios),
+			CandidatesPath: resolveInputPath(serverConfig, *candidates),
+			OutputDir:      benchmarkOutputDir,
+			DryRun:         *dryRun,
+		})
+		if err != nil {
+			return err
+		}
+		return emitReport("run-ops-llm-benchmark", result, *saveResultDir)
+	case "evaluate-ops-llm-outputs":
+		flags := flag.NewFlagSet("evaluate-ops-llm-outputs", flag.ContinueOnError)
+		scenarios := flags.String("scenarios", "data/ops_llm_eval_scenarios.jsonl", "Ops LLM evaluation scenarios JSONL path")
+		outputs := flags.String("outputs", "", "Model output JSONL path produced by run-ops-llm-benchmark")
+		summary := flags.String("summary", "", "Evaluation summary JSON path")
+		saveResultDir := addSaveResultDirFlag(flags)
+		if err := flags.Parse(args[1:]); err != nil {
+			return err
+		}
+		if *outputs == "" {
+			return fmt.Errorf("--outputs is required")
+		}
+		summaryPath := *summary
+		if summaryPath != "" && !filepath.IsAbs(summaryPath) {
+			absolute, err := filepath.Abs(summaryPath)
+			if err != nil {
+				return err
+			}
+			summaryPath = absolute
+		}
+		result, err := benchmark.EvaluateOpsLLMOutputs(benchmark.EvaluateOptions{
+			ScenariosPath: resolveInputPath(serverConfig, *scenarios),
+			OutputsPath:   resolveInputPath(serverConfig, *outputs),
+			SummaryPath:   summaryPath,
+		})
+		if err != nil {
+			return err
+		}
+		return emitReport("evaluate-ops-llm-outputs", result, *saveResultDir)
 	case "team-validation":
 		flags := flag.NewFlagSet("team-validation", flag.ContinueOnError)
 		outputDir := flags.String("output-dir", "", "Directory where validation JSON reports are saved")

@@ -70,12 +70,17 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/ops-llm/select \
 | Field | 의미 |
 | --- | --- |
 | `selected_model` | 요청 policy로 선택된 candidate |
+| `selected_actual_model` | 실제 provider model 연결 placeholder 또는 향후 평가 모델명 |
+| `selected_provider` | 실제 model provider 연결 정보 |
+| `evaluation_source` | 현재 점수의 출처 |
+| `evaluation_type` | 현재 평가 값의 성격 |
+| `benchmark_status` | `not_executed`, `dry_run`, `executed` 중 benchmark 실행 상태 |
 | `selected_score` | weighted prototype policy score |
 | `ranking` | score 기준 candidate ranking |
 | `rationale` | 선정 이유 설명 |
 | `valid` | 요청이 성공적으로 처리되었는지 여부 |
 
-현재 policy 값은 수동 정의된 prototype policy baseline이며 최종 표준 benchmark result가 아닙니다.
+현재 policy 값은 수동 정의된 prototype policy baseline이며 최종 표준 benchmark result가 아닙니다. `primary-ops-llm`은 내부 역할 label이고, 실제 provider model은 `selected_actual_model`로 분리합니다.
 
 ## 7. 배치 추천 API
 
@@ -121,6 +126,9 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/service-operations/run \
 | `valid` | 통합 readiness 결과 |
 | `selected_llm` | 선택된 LLM policy candidate |
 | `runtime_model` | readiness flow에서 사용된 runtime model label |
+| `selected_actual_model` | 실제 provider model 연결 placeholder 또는 향후 평가 모델명 |
+| `selected_provider` | 실제 provider 연결 정보 |
+| `benchmark_status` | LLM benchmark 실행 상태 |
 | `selected_resource` | 선택된 CPU/GPU VM candidate |
 | `deployment_plan` | AI 응용 배포·제어 계획 |
 | `deployment_manifest` | 생성된 Kubernetes Deployment manifest |
@@ -130,7 +138,27 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/service-operations/run \
 | `guard_backend` | guard 검증 backend, 기본 기대값은 `go` |
 | `guard_validation` | bounded-action readiness validation 결과 |
 
-## 10. Recovery Context 경계
+## 10. Ops LLM 평가 Dry-Run CLI
+
+실제 provider API를 호출하지 않고 LLM 평가 scenario/candidate 연결을 확인하려면 CLI를 사용합니다.
+
+```bash
+cd go/service-control-api
+go run ./cmd/aiops-service-control run-ops-llm-benchmark \
+  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
+  --candidates ../../config/ops_llm_eval_candidates.json \
+  --output-dir ../../runs/ops-llm-evaluation-dry-run \
+  --dry-run
+
+go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
+  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
+  --outputs ../../runs/ops-llm-evaluation-dry-run/model_outputs.jsonl \
+  --summary ../../runs/ops-llm-evaluation-dry-run/evaluation_summary.json
+```
+
+dry-run 결과는 실제 LLM API benchmark 결과가 아닙니다.
+
+## 11. Recovery Context 경계
 
 `recovery_namespace`와 `recovery_deployment`는 service operation/recovery context field입니다. readiness와 guard validation에 사용하는 service-control target을 식별합니다. 이는 `deployment_plan.kubernetes.namespace` 안에서 생성되는 AI application deployment namespace와 다릅니다.
 
@@ -140,7 +168,7 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/service-operations/run \
 - `recovery_deployment = aiops-service`
 - `deployment_plan.kubernetes.namespace = ai-inference`
 
-## 11. OpenAPI 산출물
+## 12. OpenAPI 산출물
 
 OpenAPI 문서는 필수 제출 산출물입니다.
 

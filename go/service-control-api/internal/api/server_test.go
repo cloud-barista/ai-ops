@@ -52,6 +52,12 @@ func TestSelectOpsLLM(t *testing.T) {
 	if !strings.Contains(response.Body.String(), `"selected_model":"primary-ops-llm"`) {
 		t.Fatalf("expected primary-ops-llm selection: %s", response.Body.String())
 	}
+	if !strings.Contains(response.Body.String(), `"selected_actual_model":"to-be-evaluated-primary-model"`) {
+		t.Fatalf("expected selected actual model placeholder: %s", response.Body.String())
+	}
+	if !strings.Contains(response.Body.String(), `"benchmark_status":"not_executed"`) {
+		t.Fatalf("expected not_executed benchmark status: %s", response.Body.String())
+	}
 }
 
 func TestPlacementAndDeploymentPlan(t *testing.T) {
@@ -98,6 +104,12 @@ func TestRunServiceOperationsEndpoint(t *testing.T) {
 	}
 	if !strings.Contains(response.Body.String(), `"guard_backend":"go"`) {
 		t.Fatalf("expected Go guard backend: %s", response.Body.String())
+	}
+	if !strings.Contains(response.Body.String(), `"selected_actual_model":"to-be-evaluated-primary-model"`) {
+		t.Fatalf("expected selected actual model placeholder: %s", response.Body.String())
+	}
+	if !strings.Contains(response.Body.String(), `"benchmark_status":"not_executed"`) {
+		t.Fatalf("expected benchmark status: %s", response.Body.String())
 	}
 	if !strings.Contains(response.Body.String(), `"guard_validation"`) {
 		t.Fatalf("expected guard validation result: %s", response.Body.String())

@@ -27,6 +27,7 @@ go test ./...
 - API route behavior
 - Service-control model behavior
 - LLM policy selection logic
+- Ops LLM dry-run/evaluator wiring
 - Agent registry validation
 - CPU/GPU placement 및 deployment-plan logic
 
@@ -43,7 +44,7 @@ go run ./cmd/aiops-service-control team-validation
 - Agent registry listing
 - Agent bounded-action validation
 - CPU/GPU VM placement recommendation
-- Kubernetes deployment-plan generation
+- AI 응용 배포·제어 계획 생성
 - Mock 배포 dry-run 및 guard-readiness 검증
 - 통합 service-operations readiness
 
@@ -53,6 +54,8 @@ go run ./cmd/aiops-service-control team-validation
 
 ```text
 selected_model = primary-ops-llm
+selected_actual_model = to-be-evaluated-primary-model
+benchmark_status = not_executed
 selected_resource = gpu-vm-l4
 valid = true
 guard_backend = go
@@ -61,7 +64,32 @@ guard_validation.valid = true
 
 이 신호는 Go API/CLI validation flow가 올바르게 연결되었음을 확인합니다. standardized LLM evaluation quality, production performance, live GPU scheduling, actual cloud provisioning을 증명하지 않습니다.
 
-## 6. 검증 증거 파일
+## 6. Ops LLM 평가 Dry-Run
+
+```bash
+cd go/service-control-api
+go run ./cmd/aiops-service-control run-ops-llm-benchmark \
+  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
+  --candidates ../../config/ops_llm_eval_candidates.json \
+  --output-dir ../../runs/ops-llm-evaluation-dry-run \
+  --dry-run
+
+go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
+  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
+  --outputs ../../runs/ops-llm-evaluation-dry-run/model_outputs.jsonl \
+  --summary ../../runs/ops-llm-evaluation-dry-run/evaluation_summary.json
+```
+
+기대 신호:
+
+```text
+benchmark_status = dry_run
+selected_actual_model = ""
+```
+
+dry-run은 실제 LLM API를 호출하지 않으므로 최종 LLM 품질 benchmark 결과가 아닙니다.
+
+## 7. 검증 증거 파일
 
 `team-validation`을 `--output-dir`와 함께 실행하면 다음 JSON 파일을 validation evidence로 보존할 수 있습니다.
 
@@ -72,10 +100,10 @@ guard_validation.valid = true
 | `02_list_agents.json` | Registered agent list |
 | `03_validate_agent_action.json` | Agent bounded-action validation |
 | `04_recommend_inference_placement.json` | CPU/GPU VM placement recommendation |
-| `05_plan_inference_deployment.json` | Kubernetes deployment-plan generation |
+| `05_plan_inference_deployment.json` | AI 응용 배포·제어 계획 생성 |
 | `06_run_service_operations.json` | Integrated service-operations readiness |
 
-## 7. 실패 로그와 오류 메시지 보존
+## 8. 실패 로그와 오류 메시지 보존
 
 검증 실패 시 전체 terminal output과 생성 JSON 파일을 날짜가 포함된 directory에 보존합니다.
 
@@ -95,7 +123,7 @@ go run ./cmd/aiops-service-control team-validation \
 | JSON evidence | 생성 JSON 파일 |
 | Human note | 관찰된 실패와 다음 조치에 대한 짧은 설명 |
 
-## 8. 사람 검토 항목
+## 9. 사람 검토 항목
 
 사람 검토자는 다음을 확인해야 합니다.
 
@@ -105,3 +133,4 @@ go run ./cmd/aiops-service-control team-validation \
 - prototype boundary statement가 포함되어 있는지
 - repository가 production readiness를 주장하지 않는지
 - repository가 final standardized LLM benchmark result를 주장하지 않는지
+- dry-run 결과를 actual LLM benchmark로 표현하지 않았는지

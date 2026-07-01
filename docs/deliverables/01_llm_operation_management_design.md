@@ -35,6 +35,8 @@ LLM은 운영 판단 후보를 제공하고, Go service-control layer는 선정 
 | 항목 | 설명 |
 | --- | --- |
 | 설정 파일 | `config/ops_llm_benchmark.json` |
+| 실제 모델 연결 | `config/ops_llm_eval_candidates.json` |
+| 평가 scenario | `data/ops_llm_eval_scenarios.jsonl` |
 | policy 예시 | `quality_first`, `cost_first` |
 | candidate 예시 | `primary-ops-llm`, `low-cost-ops-llm`, `code-cross-check-agent` |
 | score 성격 | prototype policy baseline |
@@ -47,6 +49,8 @@ LLM은 운영 판단 후보를 제공하고, Go service-control layer는 선정 
 | `primary-ops-llm` | 기본 운영 판단 후보 | 품질 중심 정책에서 우선 선택 |
 | `low-cost-ops-llm` | 저비용 후보 | smoke-test 또는 비용 중심 검증 |
 | `code-cross-check-agent` | 교차 검토 후보 | 코드/문서 consistency 확인 |
+
+위 candidate 값은 내부 역할 label입니다. 실제 provider model 이름은 `actual_model`, `selected_actual_model`, `selected_provider`, `benchmark_status` 필드로 분리합니다. 현재 기본 benchmark status는 `not_executed`이며, 실제 모델 API 평가가 완료된 상태로 해석하지 않습니다.
 
 ## 6. Score 구성
 
@@ -75,6 +79,8 @@ go run ./cmd/aiops-service-control select-ops-llm \
 
 ```text
 selected_model = primary-ops-llm
+selected_actual_model = to-be-evaluated-primary-model
+benchmark_status = not_executed
 ```
 
 API 검증:
@@ -85,11 +91,32 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/ops-llm/select \
   -d '{"policy":"quality_first"}'
 ```
 
-## 8. 설계 경계
+## 8. Ops LLM 평가 Dry-Run
+
+실제 provider API를 호출하지 않고 scenario/candidate 연결과 evaluator 구조를 검증합니다.
+
+```bash
+cd go/service-control-api
+go run ./cmd/aiops-service-control run-ops-llm-benchmark \
+  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
+  --candidates ../../config/ops_llm_eval_candidates.json \
+  --output-dir ../../runs/ops-llm-evaluation-dry-run \
+  --dry-run
+
+go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
+  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
+  --outputs ../../runs/ops-llm-evaluation-dry-run/model_outputs.jsonl \
+  --summary ../../runs/ops-llm-evaluation-dry-run/evaluation_summary.json
+```
+
+dry-run 결과는 `benchmark_status = dry_run`으로 기록됩니다. `benchmark_status = executed`인 실제 모델 응답이 수집되기 전까지는 최종 LLM 품질 평가로 주장하지 않습니다.
+
+## 9. 설계 경계
 
 | 경계 | 설명 |
 | --- | --- |
 | Benchmark 경계 | 현재 score는 prototype baseline이며 최종 LLM benchmark가 아니다. |
+| Actual model 경계 | role label과 실제 provider model 이름을 분리한다. |
 | 실행 경계 | LLM이 직접 infrastructure action을 실행하지 않는다. |
 | 검증 경계 | Go layer가 action validity와 readiness를 검증한다. |
 | 확장 경계 | 향후 실제 Ops dataset과 반복 평가 metric을 연결할 수 있다. |

@@ -29,7 +29,11 @@ type OpsLLMPolicy struct {
 
 type OpsLLMCandidate struct {
 	Model                 string   `json:"model"`
+	ActualModel           string   `json:"actual_model"`
 	Provider              string   `json:"provider"`
+	EvaluationSource      string   `json:"evaluation_source"`
+	EvaluationType        string   `json:"evaluation_type"`
+	BenchmarkStatus       string   `json:"benchmark_status"`
 	Role                  string   `json:"role"`
 	CorrectDetectionRuns  float64  `json:"correct_detection_runs"`
 	TotalDetectionRuns    float64  `json:"total_detection_runs"`
@@ -48,21 +52,30 @@ type OpsLLMSelectRequest struct {
 }
 
 type OpsLLMSelectionResponse struct {
-	Valid         bool               `json:"valid"`
-	Policy        string             `json:"policy"`
-	SelectedModel string             `json:"selected_model"`
-	SelectedScore float64            `json:"selected_score"`
-	Rationale     string             `json:"rationale"`
-	Ranking       []OpsLLMRankedItem `json:"ranking"`
+	Valid               bool               `json:"valid"`
+	Policy              string             `json:"policy"`
+	SelectedModel       string             `json:"selected_model"`
+	SelectedActualModel string             `json:"selected_actual_model"`
+	SelectedProvider    string             `json:"selected_provider"`
+	EvaluationSource    string             `json:"evaluation_source"`
+	EvaluationType      string             `json:"evaluation_type"`
+	BenchmarkStatus     string             `json:"benchmark_status"`
+	SelectedScore       float64            `json:"selected_score"`
+	Rationale           string             `json:"rationale"`
+	Ranking             []OpsLLMRankedItem `json:"ranking"`
 }
 
 type OpsLLMRankedItem struct {
-	Model    string             `json:"model"`
-	Provider string             `json:"provider"`
-	Role     string             `json:"role"`
-	Score    float64            `json:"score"`
-	Metrics  map[string]float64 `json:"metrics"`
-	Notes    []string           `json:"notes"`
+	Model            string             `json:"model"`
+	ActualModel      string             `json:"actual_model"`
+	Provider         string             `json:"provider"`
+	EvaluationSource string             `json:"evaluation_source"`
+	EvaluationType   string             `json:"evaluation_type"`
+	BenchmarkStatus  string             `json:"benchmark_status"`
+	Role             string             `json:"role"`
+	Score            float64            `json:"score"`
+	Metrics          map[string]float64 `json:"metrics"`
+	Notes            []string           `json:"notes"`
 }
 
 type InferenceConfig struct {
@@ -214,6 +227,11 @@ type ServiceOperationsResponse struct {
 	Command                 string                 `json:"command"`
 	Valid                   bool                   `json:"valid"`
 	SelectedLLM             string                 `json:"selected_llm"`
+	SelectedActualModel     string                 `json:"selected_actual_model"`
+	SelectedProvider        string                 `json:"selected_provider"`
+	EvaluationSource        string                 `json:"evaluation_source"`
+	EvaluationType          string                 `json:"evaluation_type"`
+	BenchmarkStatus         string                 `json:"benchmark_status"`
 	RuntimeModel            string                 `json:"runtime_model"`
 	SelectedResource        string                 `json:"selected_resource"`
 	DeploymentPlan          DeploymentPlan         `json:"deployment_plan"`

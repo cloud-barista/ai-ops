@@ -1,0 +1,33 @@
+{
+  "version": "1",
+  "benchmark_status": "not_executed",
+  "description": "Project-specific Ops LLM evaluation candidates. These entries link role labels to future actual LLM models, but all candidates are disabled by default so no provider API call is executed during local validation.",
+  "candidates": [
+    {
+      "candidate_id": "primary-cloud-llm",
+      "role_label": "primary-ops-llm",
+      "provider": "openai-compatible",
+      "actual_model": "to-be-evaluated-primary-cloud-model",
+      "api_key_env": "OPENAI_API_KEY",
+      "endpoint": "https://api.openai.com/v1/chat/completions",
+      "enabled": false
+    },
+    {
+      "candidate_id": "local-gpu-llm",
+      "role_label": "primary-ops-llm",
+      "provider": "local-openai-compatible",
+      "actual_model": "to-be-evaluated-local-gpu-model",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "enabled": false
+    },
+    {
+      "candidate_id": "low-cost-cloud-llm",
+      "role_label": "low-cost-ops-llm",
+      "provider": "openai-compatible",
+      "actual_model": "to-be-evaluated-low-cost-model",
+      "api_key_env": "LOW_COST_LLM_API_KEY",
+      "endpoint": "https://example.com/v1/chat/completions",
+      "enabled": false
+    }
+  ]
+}

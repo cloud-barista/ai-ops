@@ -5,7 +5,7 @@ info:
   description: >
     Go Echo API contract for the 1st-year service-control prototype. The API
     exposes LLM selection, agent registry listing, CPU/GPU VM placement,
-    Kubernetes deployment-plan generation, and service-operations readiness.
+    AI application deployment/control plan generation, and service-operations readiness.
     It is a functional prototype contract, not a production AIOps API.
 servers:
   - url: http://127.0.0.1:8080
@@ -201,6 +201,21 @@ components:
         selected_model:
           type: string
           example: primary-ops-llm
+        selected_actual_model:
+          type: string
+          example: to-be-evaluated-primary-model
+        selected_provider:
+          type: string
+          example: prototype-policy
+        evaluation_source:
+          type: string
+          example: prototype_policy_config
+        evaluation_type:
+          type: string
+          example: prototype_policy_baseline
+        benchmark_status:
+          type: string
+          example: not_executed
         selected_score:
           type: number
         rationale:
@@ -362,6 +377,21 @@ components:
         selected_llm:
           type: string
           example: primary-ops-llm
+        selected_actual_model:
+          type: string
+          example: to-be-evaluated-primary-model
+        selected_provider:
+          type: string
+          example: prototype-policy
+        evaluation_source:
+          type: string
+          example: prototype_policy_config
+        evaluation_type:
+          type: string
+          example: prototype_policy_baseline
+        benchmark_status:
+          type: string
+          example: not_executed
         runtime_model:
           type: string
           example: primary-ops-llm

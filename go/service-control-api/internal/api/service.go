@@ -124,12 +124,16 @@ func (service Service) SelectOpsLLMFromPath(path string, policyName string) (Ops
 			score += weight * metrics[metric]
 		}
 		ranking = append(ranking, OpsLLMRankedItem{
-			Model:    candidate.Model,
-			Provider: candidate.Provider,
-			Role:     candidate.Role,
-			Score:    round6(score),
-			Metrics:  roundMetrics(metrics),
-			Notes:    candidate.Notes,
+			Model:            candidate.Model,
+			ActualModel:      candidate.ActualModel,
+			Provider:         candidate.Provider,
+			EvaluationSource: candidate.EvaluationSource,
+			EvaluationType:   candidate.EvaluationType,
+			BenchmarkStatus:  candidate.BenchmarkStatus,
+			Role:             candidate.Role,
+			Score:            round6(score),
+			Metrics:          roundMetrics(metrics),
+			Notes:            candidate.Notes,
 		})
 	}
 
@@ -142,10 +146,15 @@ func (service Service) SelectOpsLLMFromPath(path string, policyName string) (Ops
 
 	selected := ranking[0]
 	return OpsLLMSelectionResponse{
-		Valid:         true,
-		Policy:        policyName,
-		SelectedModel: selected.Model,
-		SelectedScore: selected.Score,
+		Valid:               true,
+		Policy:              policyName,
+		SelectedModel:       selected.Model,
+		SelectedActualModel: selected.ActualModel,
+		SelectedProvider:    selected.Provider,
+		EvaluationSource:    selected.EvaluationSource,
+		EvaluationType:      selected.EvaluationType,
+		BenchmarkStatus:     selected.BenchmarkStatus,
+		SelectedScore:       selected.Score,
 		Rationale: fmt.Sprintf(
 			"%s ranked first under %s because the weighted Ops accuracy, action safety, consistency, latency, and cost criteria produced the highest score.",
 			selected.Model,
@@ -335,6 +344,11 @@ func (service Service) RunServiceOperations(request ServiceOperationsRequest) (S
 		Command:                 "run-service-operations",
 		Valid:                   ready,
 		SelectedLLM:             llmSelection.SelectedModel,
+		SelectedActualModel:     llmSelection.SelectedActualModel,
+		SelectedProvider:        llmSelection.SelectedProvider,
+		EvaluationSource:        llmSelection.EvaluationSource,
+		EvaluationType:          llmSelection.EvaluationType,
+		BenchmarkStatus:         llmSelection.BenchmarkStatus,
 		RuntimeModel:            runtimeModelFromSelection(llmSelection),
 		SelectedResource:        deploymentPlan.SelectedResource,
 		DeploymentPlan:          deploymentPlan.DeploymentPlan,
@@ -347,11 +361,16 @@ func (service Service) RunServiceOperations(request ServiceOperationsRequest) (S
 		GuardBackend:            request.GuardBackend,
 		GuardValidation:         guardValidation,
 		Metadata: map[string]string{
-			"llm_policy":          request.LLMPolicy,
-			"workload":            request.Workload,
-			"mode":                request.Mode,
-			"recovery_namespace":  recoveryNamespace,
-			"recovery_deployment": recoveryDeployment,
+			"llm_policy":            request.LLMPolicy,
+			"workload":              request.Workload,
+			"mode":                  request.Mode,
+			"recovery_namespace":    recoveryNamespace,
+			"recovery_deployment":   recoveryDeployment,
+			"selected_actual_model": llmSelection.SelectedActualModel,
+			"selected_provider":     llmSelection.SelectedProvider,
+			"evaluation_source":     llmSelection.EvaluationSource,
+			"evaluation_type":       llmSelection.EvaluationType,
+			"benchmark_status":      llmSelection.BenchmarkStatus,
 		},
 	}, nil
 }
