@@ -2,29 +2,35 @@
 
 ## 1. 목적
 
-이 문서는 1차년도 service-control prototype에서 Ops LLM 후보를 어떻게 평가 대상으로 연결하는지 정의합니다. 현재 저장소는 실제 provider LLM API benchmark를 완료했다고 주장하지 않습니다. 대신 Go 기반 dry-run/evaluator를 제공하여 향후 동일한 scenario set으로 실제 모델 응답을 수집하고 평가할 수 있게 합니다.
+이 문서는 Go 기반 service-control prototype에서 Ops LLM 후보를 어떻게 평가하는지 정의합니다.
 
-## 2. 핵심 경계
+평가 목적은 일반 지식 benchmark가 아니라, 본 과제의 운영 판단 흐름에 맞는 LLM을 고르는 것입니다.
 
-| 항목 | 현재 상태 |
+- JSON 응답 형식 준수
+- bounded action 준수
+- CPU/GPU VM 배치 판단
+- SLO 위반 상황의 scale/rollback/monitor 판단
+- reason/confidence 필드 포함
+- 응답 지연 시간
+
+## 2. 평가 모드
+
+| 모드 | 의미 |
 | --- | --- |
-| 실행 언어 | Go |
-| 별도 Python runner | 사용하지 않음 |
-| 기본 실행 | dry-run |
-| 실제 LLM API 호출 | 기본값에서는 실행하지 않음 |
-| 현재 benchmark status | `dry_run` 또는 `not_executed` |
+| `dry_run` | 실제 LLM API를 호출하지 않고 prompt/output/evaluator 연결만 검증 |
+| `executed` | enabled candidate의 OpenAI-compatible endpoint를 실제 호출 |
+| `not_executed` | 후보가 비활성화되었거나 endpoint/API key 문제로 실행되지 않음 |
 
-`primary-ops-llm`, `low-cost-ops-llm`, `code-cross-check-agent`는 내부 역할 label입니다. 실제 provider model 이름은 `actual_model` 또는 `selected_actual_model` 필드로 별도 관리합니다.
+제출/보고서에서 실제 LLM 품질 평가로 말할 수 있는 것은 `benchmark_status = executed` 결과뿐입니다.
 
 ## 3. 입력 파일
 
 | 파일 | 역할 |
 | --- | --- |
 | `data/ops_llm_eval_scenarios.jsonl` | Ops LLM 평가 scenario set |
-| `config/ops_llm_eval_candidates.json` | role label과 future actual model 후보 연결 |
+| `config/ops_llm_eval_candidates.json` | 안전한 기본 candidate 설정. 기본적으로 provider 호출 없음 |
+| `config/ops_llm_eval_candidates.local_ollama.json` | local OpenAI-compatible endpoint 실행용 설정 |
 | `config/ops_llm_benchmark.json` | service-control prototype의 정책 기반 LLM selection baseline |
-
-`config/ops_llm_eval_candidates.json`의 후보는 기본적으로 `enabled: false`입니다. 따라서 로컬 검증에서는 provider API key가 있더라도 실수로 외부 API를 호출하지 않습니다.
 
 ## 4. Dry-Run 실행
 
@@ -35,43 +41,85 @@ go run ./cmd/aiops-service-control run-ops-llm-benchmark \
   --candidates ../../config/ops_llm_eval_candidates.json \
   --output-dir ../../runs/ops-llm-evaluation-dry-run \
   --dry-run
-```
 
-생성 파일:
-
-```text
-runs/ops-llm-evaluation-dry-run/model_outputs.jsonl
-```
-
-이 파일은 각 scenario와 candidate에 대해 평가 prompt, role label, actual model placeholder, benchmark status를 기록합니다. dry-run 결과는 실제 LLM 품질 점수가 아닙니다.
-
-## 5. 평가 요약 생성
-
-```bash
 go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
   --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
   --outputs ../../runs/ops-llm-evaluation-dry-run/model_outputs.jsonl \
   --summary ../../runs/ops-llm-evaluation-dry-run/evaluation_summary.json
 ```
 
-생성 파일:
+기대 신호:
 
 ```text
-runs/ops-llm-evaluation-dry-run/evaluation_summary.json
+benchmark_status = dry_run
+selected_actual_model = ""
 ```
 
-dry-run 입력을 평가하면 `benchmark_status = dry_run`이 유지됩니다. 이 경우 `selected_actual_model`은 최종 선정 모델로 채우지 않습니다.
+## 5. 실제 LLM 실행
 
-## 6. 실제 모델 평가로 확장하는 방법
+OpenAI-compatible endpoint가 준비되어 있으면 `--dry-run` 없이 실행합니다.
 
-실제 provider 또는 local OpenAI-compatible endpoint를 평가하려면 다음 절차가 필요합니다.
+예시: Ollama local endpoint
 
-| 단계 | 내용 |
+```bash
+ollama serve
+ollama pull llama3.1:8b
+```
+
+```bash
+cd go/service-control-api
+go run ./cmd/aiops-service-control run-ops-llm-benchmark \
+  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
+  --candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
+  --output-dir ../../runs/ops-llm-evaluation-executed
+
+go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
+  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
+  --outputs ../../runs/ops-llm-evaluation-executed/model_outputs.jsonl \
+  --summary ../../runs/ops-llm-evaluation-executed/evaluation_summary.json
+```
+
+기대 신호:
+
+```text
+benchmark_status = executed
+dry_run = false
+selected_actual_model = llama3.1:8b
+```
+
+## 6. System Validation과 연결
+
+로컬 또는 VM 검증에 실제 LLM benchmark를 포함하려면 다음과 같이 실행합니다.
+
+```bash
+cd go/service-control-api
+go run ./cmd/aiops-service-control validate-system \
+  --target local \
+  --run-llm-benchmark \
+  --llm-candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
+  --output-dir ../../runs/full-validation-local-executed
+```
+
+VM 내부에서는 `--target vm`으로 바꿔 실행합니다.
+
+```bash
+go run ./cmd/aiops-service-control validate-system \
+  --target vm \
+  --run-llm-benchmark \
+  --llm-candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
+  --output-dir ../../runs/full-validation-vm-executed
+```
+
+## 7. 점수 산정
+
+`evaluate-ops-llm-outputs`는 실행된 응답만 점수화합니다.
+
+| 항목 | 배점 |
 | --- | --- |
-| 1 | `config/ops_llm_eval_candidates.json`에 실제 endpoint와 model 이름 설정 |
-| 2 | 필요한 API key를 환경 변수로 설정 |
-| 3 | 해당 candidate만 `enabled: true`로 변경 |
-| 4 | `run-ops-llm-benchmark`를 `--dry-run` 없이 실행 |
-| 5 | `evaluate-ops-llm-outputs`로 JSON 응답을 평가 |
+| JSON validity | 25 |
+| allowed action validity | 25 |
+| required fields present | 20 |
+| expected action match | 20 |
+| latency score | 10 |
 
-실제 실행 결과가 존재하고 `benchmark_status = executed`인 경우에만 `selected_actual_model`을 최종 평가 선정 모델로 해석할 수 있습니다.
+dry-run row는 점수화하지 않으며, executed row만 candidate 평균 점수에 반영합니다.

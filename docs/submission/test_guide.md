@@ -77,6 +77,7 @@ go run ./cmd/aiops-service-control validate-system \
 - `go/service-control-api` 테스트
 - `team-validation`
 - service-operations readiness
+- 선택 사항: `--run-llm-benchmark` 사용 시 실제 LLM benchmark와 evaluator 실행
 
 VM 추가 검증 항목:
 
@@ -85,6 +86,19 @@ VM 추가 검증 항목:
 - AWS instance metadata
 
 주의: `--target vm`은 AWS GPU VM 내부에서 실행해야 합니다. 로컬 WSL에서 실행하면 GPU/metadata 검증이 실패하는 것이 정상입니다.
+
+실제 LLM benchmark를 포함하는 로컬 검증:
+
+```bash
+cd go/service-control-api
+go run ./cmd/aiops-service-control validate-system \
+  --target local \
+  --run-llm-benchmark \
+  --llm-candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
+  --output-dir ../../runs/full-validation-local-executed
+```
+
+위 명령은 `--llm-dry-run`을 붙이지 않는 한 실제 endpoint를 호출합니다.
 
 ## 6. 기대 신호
 
@@ -127,7 +141,34 @@ selected_actual_model = ""
 
 dry-run은 실제 LLM API를 호출하지 않으므로 최종 LLM 품질 benchmark 결과가 아닙니다.
 
-## 8. 검증 증거 파일
+## 8. Ops LLM 실제 실행 Benchmark
+
+OpenAI-compatible endpoint가 실행 중이면 `--dry-run` 없이 실행합니다.
+
+```bash
+cd go/service-control-api
+go run ./cmd/aiops-service-control run-ops-llm-benchmark \
+  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
+  --candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
+  --output-dir ../../runs/ops-llm-evaluation-executed
+
+go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
+  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
+  --outputs ../../runs/ops-llm-evaluation-executed/model_outputs.jsonl \
+  --summary ../../runs/ops-llm-evaluation-executed/evaluation_summary.json
+```
+
+기대 신호:
+
+```text
+benchmark_status = executed
+dry_run = false
+selected_actual_model = llama3.1:8b
+```
+
+endpoint가 없거나 model이 준비되지 않은 경우 benchmark command는 실패합니다. 이 실패는 실제 실행 검증이 수행되지 않았다는 명확한 증거로 보존합니다.
+
+## 9. 검증 증거 파일
 
 `team-validation` 또는 `validate-system`을 `--output-dir`와 함께 실행하면 validation evidence를 보존할 수 있습니다.
 
@@ -141,9 +182,9 @@ dry-run은 실제 LLM API를 호출하지 않으므로 최종 LLM 품질 benchma
 | `05_plan_inference_deployment.json` | AI 응용 배포·제어 계획 생성 |
 | `06_run_service_operations.json` | Integrated service-operations readiness |
 
-`validate-system`은 추가로 `00_system_validation_summary.json`, `01_environment.json`, Go test output, VM target의 GPU/metadata evidence를 저장합니다.
+`validate-system`은 추가로 `00_system_validation_summary.json`, `01_environment.json`, Go test output, LLM benchmark output, VM target의 GPU/metadata evidence를 저장합니다.
 
-## 9. 실패 로그와 오류 메시지 보존
+## 10. 실패 로그와 오류 메시지 보존
 
 검증 실패 시 전체 terminal output과 생성 JSON 파일을 날짜가 포함된 directory에 보존합니다.
 
@@ -163,7 +204,7 @@ go run ./cmd/aiops-service-control team-validation \
 | JSON evidence | 생성 JSON 파일 |
 | Human note | 관찰된 실패와 다음 조치에 대한 짧은 설명 |
 
-## 10. 사람 검토 항목
+## 11. 사람 검토 항목
 
 사람 검토자는 다음을 확인해야 합니다.
 
@@ -174,4 +215,5 @@ go run ./cmd/aiops-service-control team-validation \
 - repository가 production readiness를 주장하지 않는지
 - repository가 final standardized LLM benchmark result를 주장하지 않는지
 - dry-run 결과를 actual LLM benchmark로 표현하지 않았는지
+- actual LLM benchmark라고 주장하는 결과가 `benchmark_status = executed`인지
 - VM 검증이라고 주장하는 결과가 실제 VM 내부에서 `--target vm`으로 실행되었는지

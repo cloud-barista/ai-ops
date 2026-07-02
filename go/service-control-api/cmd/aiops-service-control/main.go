@@ -256,6 +256,10 @@ func run(args []string) error {
 		outputDir := flags.String("output-dir", "", "Directory where validation evidence is saved")
 		skipGoTests := flags.Bool("skip-go-tests", false, "Skip module go test steps")
 		skipTeamValidation := flags.Bool("skip-team-validation", false, "Skip team-validation step")
+		runLLMBenchmark := flags.Bool("run-llm-benchmark", false, "Run Ops LLM benchmark and evaluator as part of system validation")
+		llmScenarios := flags.String("llm-scenarios", "data/ops_llm_eval_scenarios.jsonl", "Ops LLM evaluation scenarios JSONL path")
+		llmCandidates := flags.String("llm-candidates", "config/ops_llm_eval_candidates.json", "Ops LLM evaluation candidates JSON path")
+		llmDryRun := flags.Bool("llm-dry-run", false, "Run the Ops LLM benchmark in dry-run mode")
 		if err := flags.Parse(args[1:]); err != nil {
 			return err
 		}
@@ -264,6 +268,10 @@ func run(args []string) error {
 			OutputDir:          *outputDir,
 			SkipGoTests:        *skipGoTests,
 			SkipTeamValidation: *skipTeamValidation,
+			RunLLMBenchmark:    *runLLMBenchmark,
+			LLMScenariosPath:   resolveInputPath(serverConfig, *llmScenarios),
+			LLMCandidatesPath:  resolveInputPath(serverConfig, *llmCandidates),
+			LLMDryRun:          *llmDryRun,
 		})
 		if err != nil {
 			return err

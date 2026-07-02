@@ -3,8 +3,11 @@ package benchmark
 import (
 	"bufio"
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -78,6 +81,69 @@ func TestEvaluateOpsLLMOutputsKeepsDryRunSeparateFromExecutedBenchmark(t *testin
 	}
 	if _, err := os.Stat(summary.SummaryPath); err != nil {
 		t.Fatalf("expected summary file to exist: %v", err)
+	}
+}
+
+func TestRunOpsLLMBenchmarkExecutedModeCallsOpenAICompatibleProvider(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			t.Fatalf("expected POST request, got %s", r.Method)
+		}
+		if !strings.HasSuffix(r.URL.Path, "/v1/chat/completions") {
+			t.Fatalf("expected chat completions path, got %s", r.URL.Path)
+		}
+		w.Header().Set("content-type", "application/json")
+		_, _ = w.Write([]byte(`{"choices":[{"message":{"content":"{\"action\":\"scale_replicas\",\"reason\":\"latency SLO violation\",\"confidence\":0.91}"}}]}`))
+	}))
+	defer server.Close()
+
+	dir := t.TempDir()
+	scenariosPath := filepath.Join(dir, "scenarios.jsonl")
+	candidatesPath := filepath.Join(dir, "candidates.json")
+	writeFile(t, scenariosPath, `{"id":"ops-test","scenario":"Scale the service.","allowed_actions":["scale_replicas","monitor_latency"],"expected_action":"scale_replicas","required_output_fields":["action","reason","confidence"]}`+"\n")
+	writeFile(t, candidatesPath, `{"version":"1","candidates":[{"candidate_id":"local-provider","role_label":"primary-ops-llm","provider":"local-openai-compatible","actual_model":"test-model","endpoint":"`+server.URL+`/v1/chat/completions","enabled":true}]}`)
+
+	result, err := RunOpsLLMBenchmark(RunOptions{
+		ScenariosPath:  scenariosPath,
+		CandidatesPath: candidatesPath,
+		OutputDir:      filepath.Join(dir, "outputs"),
+	})
+	if err != nil {
+		t.Fatalf("RunOpsLLMBenchmark returned error: %v", err)
+	}
+	if result.BenchmarkStatus != "executed" {
+		t.Fatalf("expected executed benchmark, got %q", result.BenchmarkStatus)
+	}
+
+	rows := readJSONL(t, result.OutputsPath)
+	if len(rows) != 1 {
+		t.Fatalf("expected one provider output row, got %d", len(rows))
+	}
+	if rows[0]["benchmark_status"] != "executed" {
+		t.Fatalf("expected executed output row: %#v", rows[0])
+	}
+	if rows[0]["dry_run"] == true {
+		t.Fatalf("executed provider call must not be marked dry_run: %#v", rows[0])
+	}
+}
+
+func TestRunOpsLLMBenchmarkExecutedModeFailsWhenNoCandidateRuns(t *testing.T) {
+	dir := t.TempDir()
+	scenariosPath := filepath.Join(dir, "scenarios.jsonl")
+	candidatesPath := filepath.Join(dir, "candidates.json")
+	writeFile(t, scenariosPath, `{"id":"ops-test","scenario":"Scale the service.","allowed_actions":["scale_replicas"],"expected_action":"scale_replicas","required_output_fields":["action"]}`+"\n")
+	writeFile(t, candidatesPath, `{"version":"1","candidates":[{"candidate_id":"disabled-provider","role_label":"primary-ops-llm","provider":"local-openai-compatible","actual_model":"test-model","endpoint":"http://127.0.0.1:1/v1/chat/completions","enabled":false}]}`)
+
+	_, err := RunOpsLLMBenchmark(RunOptions{
+		ScenariosPath:  scenariosPath,
+		CandidatesPath: candidatesPath,
+		OutputDir:      filepath.Join(dir, "outputs"),
+	})
+	if err == nil {
+		t.Fatal("expected executed benchmark to fail when no candidate actually runs")
+	}
+	if !strings.Contains(err.Error(), "no enabled LLM candidate executed") {
+		t.Fatalf("expected no executed candidate error, got %v", err)
 	}
 }
 

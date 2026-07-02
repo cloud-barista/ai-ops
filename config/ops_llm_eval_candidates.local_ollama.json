@@ -1,0 +1,15 @@
+{
+  "version": "1",
+  "benchmark_status": "executed",
+  "description": "Local OpenAI-compatible Ops LLM benchmark candidates. Start Ollama or another OpenAI-compatible local server before using this file.",
+  "candidates": [
+    {
+      "candidate_id": "local-ollama-ops-llm",
+      "role_label": "primary-ops-llm",
+      "provider": "local-openai-compatible",
+      "actual_model": "llama3.1:8b",
+      "endpoint": "http://127.0.0.1:11434/v1/chat/completions",
+      "enabled": true
+    }
+  ]
+}

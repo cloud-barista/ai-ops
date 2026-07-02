@@ -81,6 +81,30 @@ go run ./cmd/aiops-service-control validate-system \
 
 `--target vm`은 VM 내부에서 실행해야 합니다. 이 모드는 공통 Go 검증에 더해 `nvidia-smi`와 AWS instance metadata를 evidence로 저장합니다.
 
+실제 LLM benchmark까지 포함하는 로컬 실행:
+
+```bash
+cd go/service-control-api
+go run ./cmd/aiops-service-control validate-system \
+  --target local \
+  --run-llm-benchmark \
+  --llm-candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
+  --output-dir ../../runs/full-validation-local-executed
+```
+
+실제 LLM benchmark까지 포함하는 VM 내부 실행:
+
+```bash
+cd go/service-control-api
+go run ./cmd/aiops-service-control validate-system \
+  --target vm \
+  --run-llm-benchmark \
+  --llm-candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
+  --output-dir ../../runs/full-validation-vm-executed
+```
+
+위 명령은 `--llm-dry-run`을 사용하지 않으므로 실제 OpenAI-compatible endpoint를 호출합니다. endpoint가 실행 중이지 않거나 model이 준비되지 않으면 실패하는 것이 정상입니다.
+
 생성되는 주요 증거:
 
 | 파일/디렉터리 | 의미 |
@@ -90,6 +114,8 @@ go run ./cmd/aiops-service-control validate-system \
 | `02_go_test_aiops_guard.txt` | `go/aiops-guard` 테스트 결과 |
 | `03_go_test_service_control_api.txt` | `go/service-control-api` 테스트 결과 |
 | `team-validation/` | 기존 team-validation 상세 JSON |
+| `ops-llm-benchmark/model_outputs.jsonl` | 실제 또는 dry-run LLM benchmark output |
+| `ops-llm-benchmark/evaluation_summary.json` | LLM benchmark evaluator summary |
 | `04_vm_nvidia_smi.txt` | VM target에서만 생성되는 GPU 확인 결과 |
 | `05_vm_aws_metadata.json` | VM target에서만 생성되는 AWS instance metadata |
 
@@ -168,7 +194,41 @@ go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
 
 dry-run 결과는 실제 LLM API benchmark 결과가 아닙니다. 실제 모델 응답이 기록되고 `benchmark_status = executed`인 경우에만 최종 모델 평가 결과로 해석합니다.
 
-## 8. API 서버 실행
+## 8. Ops LLM 실제 실행 Benchmark
+
+로컬 또는 VM 내부에 OpenAI-compatible endpoint가 준비되어 있으면 `--dry-run` 없이 실행합니다. 예시는 Ollama의 OpenAI-compatible API를 사용합니다.
+
+사전 조건:
+
+```bash
+ollama serve
+ollama pull llama3.1:8b
+```
+
+실행:
+
+```bash
+cd go/service-control-api
+go run ./cmd/aiops-service-control run-ops-llm-benchmark \
+  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
+  --candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
+  --output-dir ../../runs/ops-llm-evaluation-executed
+
+go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
+  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
+  --outputs ../../runs/ops-llm-evaluation-executed/model_outputs.jsonl \
+  --summary ../../runs/ops-llm-evaluation-executed/evaluation_summary.json
+```
+
+기대 신호:
+
+```text
+benchmark_status = executed
+dry_run = false
+selected_actual_model = llama3.1:8b
+```
+
+## 9. API 서버 실행
 
 터미널 1:
 
@@ -192,7 +252,7 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/service-operations/run \
   -d '{"llm_policy":"quality_first","workload":"llm-chat-inference","recovery_namespace":"aiops-demo","recovery_deployment":"aiops-service","mode":"mock","guard_backend":"go"}'
 ```
 
-## 9. 기대 결과
+## 10. 기대 결과
 
 기대되는 prototype-level signal:
 
@@ -208,7 +268,7 @@ guard_validation.valid = true
 
 위 값은 prototype의 policy와 control-flow wiring을 검증합니다. 최종 표준 LLM benchmark result가 아닙니다.
 
-## 10. Mock Mode
+## 11. Mock Mode
 
 기본 `mock` mode는 live cluster를 변경하지 않고 service-control readiness structure를 생성하고 검증합니다. mock mode에서는 다음이 수행됩니다.
 
@@ -218,7 +278,7 @@ guard_validation.valid = true
 - 실제 GPU VM provisioning 미수행
 - live Kubernetes mutation 미수행
 
-## 11. DOCX 변환
+## 12. DOCX 변환
 
 DOCX 제출본은 저장소에 포함되어 있습니다. 재생성이 필요한 경우 Bash 변환 script를 사용할 수 있습니다.
 

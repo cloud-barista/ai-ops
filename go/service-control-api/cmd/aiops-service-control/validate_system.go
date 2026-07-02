@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"kyunghee-aiops/service-control-api/internal/api"
+	"kyunghee-aiops/service-control-api/internal/benchmark"
 )
 
 type systemValidationOptions struct {
@@ -20,6 +21,10 @@ type systemValidationOptions struct {
 	OutputDir          string
 	SkipGoTests        bool
 	SkipTeamValidation bool
+	RunLLMBenchmark    bool
+	LLMScenariosPath   string
+	LLMCandidatesPath  string
+	LLMDryRun          bool
 }
 
 type systemValidationStep struct {
@@ -128,6 +133,43 @@ func runSystemValidation(service api.Service, config api.ServerConfig, options s
 		addStep(teamStep)
 	}
 
+	if options.RunLLMBenchmark {
+		benchmarkDir := filepath.Join(outputDirAbs, "ops-llm-benchmark")
+		runResult, err := benchmark.RunOpsLLMBenchmark(benchmark.RunOptions{
+			ScenariosPath:  options.LLMScenariosPath,
+			CandidatesPath: options.LLMCandidatesPath,
+			OutputDir:      benchmarkDir,
+			DryRun:         options.LLMDryRun,
+		})
+		benchmarkStep := systemValidationStep{
+			Name:       "ops-llm-evaluation",
+			Valid:      err == nil && runResult.Valid,
+			OutputPath: runResult.OutputsPath,
+		}
+		if err != nil {
+			benchmarkStep.Error = err.Error()
+		}
+		addStep(benchmarkStep)
+
+		if err == nil {
+			evaluationSummaryPath := filepath.Join(benchmarkDir, "evaluation_summary.json")
+			evaluation, evalErr := benchmark.EvaluateOpsLLMOutputs(benchmark.EvaluateOptions{
+				ScenariosPath: options.LLMScenariosPath,
+				OutputsPath:   runResult.OutputsPath,
+				SummaryPath:   evaluationSummaryPath,
+			})
+			evaluationStep := systemValidationStep{
+				Name:       "ops-llm-evaluator",
+				Valid:      evalErr == nil && evaluation.Valid,
+				OutputPath: evaluationSummaryPath,
+			}
+			if evalErr != nil {
+				evaluationStep.Error = evalErr.Error()
+			}
+			addStep(evaluationStep)
+		}
+	}
+
 	if target == "vm" {
 		addStep(runCommandStep(
 			"vm-gpu-nvidia-smi",
@@ -154,6 +196,7 @@ func runSystemValidation(service api.Service, config api.ServerConfig, options s
 		"scope": []string{
 			"go_module_tests",
 			"team_validation",
+			"ops_llm_benchmark",
 			"service_operations_readiness",
 			"target_environment_evidence",
 		},

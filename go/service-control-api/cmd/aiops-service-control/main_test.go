@@ -2,8 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -102,5 +105,59 @@ func TestValidateSystemRejectsUnknownTarget(t *testing.T) {
 	})
 	if err == nil {
 		t.Fatal("expected invalid target error")
+	}
+}
+
+func TestValidateSystemCanRunExecutedLLMBenchmark(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("content-type", "application/json")
+		_, _ = w.Write([]byte(`{"choices":[{"message":{"content":"{\"action\":\"scale_replicas\",\"reason\":\"latency SLO violation\",\"confidence\":0.91}"}}]}`))
+	}))
+	defer server.Close()
+
+	dir := t.TempDir()
+	scenariosPath := filepath.Join(dir, "scenarios.jsonl")
+	candidatesPath := filepath.Join(dir, "candidates.json")
+	writeMainTestFile(t, scenariosPath, `{"id":"ops-test","scenario":"Scale the service.","allowed_actions":["scale_replicas","monitor_latency"],"expected_action":"scale_replicas","required_output_fields":["action","reason","confidence"]}`+"\n")
+	writeMainTestFile(t, candidatesPath, `{"version":"1","candidates":[{"candidate_id":"local-provider","role_label":"primary-ops-llm","provider":"local-openai-compatible","actual_model":"test-model","endpoint":"`+server.URL+`/v1/chat/completions","enabled":true}]}`)
+
+	outputDir := filepath.Join(dir, "validation")
+	err := run([]string{
+		"validate-system",
+		"--target", "local",
+		"--output-dir", outputDir,
+		"--skip-go-tests",
+		"--skip-team-validation",
+		"--run-llm-benchmark",
+		"--llm-scenarios", scenariosPath,
+		"--llm-candidates", candidatesPath,
+	})
+	if err != nil {
+		t.Fatalf("validate-system returned error: %v", err)
+	}
+
+	summaryBytes, err := os.ReadFile(filepath.Join(outputDir, "00_system_validation_summary.json"))
+	if err != nil {
+		t.Fatalf("failed to read system validation summary: %v", err)
+	}
+	summary := string(summaryBytes)
+	if !strings.Contains(summary, "ops-llm-evaluation") {
+		t.Fatalf("expected LLM benchmark step in summary: %s", summary)
+	}
+
+	benchmarkSummaryPath := filepath.Join(outputDir, "ops-llm-benchmark", "evaluation_summary.json")
+	benchmarkSummaryBytes, err := os.ReadFile(benchmarkSummaryPath)
+	if err != nil {
+		t.Fatalf("expected executed LLM benchmark summary: %v", err)
+	}
+	if !strings.Contains(string(benchmarkSummaryBytes), `"benchmark_status": "executed"`) {
+		t.Fatalf("expected executed benchmark summary: %s", string(benchmarkSummaryBytes))
+	}
+}
+
+func writeMainTestFile(t *testing.T, path string, value string) {
+	t.Helper()
+	if err := os.WriteFile(path, []byte(value), 0o644); err != nil {
+		t.Fatalf("failed to write %s: %v", path, err)
 	}
 }

@@ -10,10 +10,10 @@
 | `go/service-control-api/internal/api/service.go` | LLM selection, agent registry, CPU/GPU placement, readiness pipeline |
 | `go/service-control-api/internal/api/server.go` | HTTP route |
 | `go/service-control-api/internal/api/models.go` | request/response model |
-| `go/service-control-api/internal/benchmark/` | Ops LLM dry-run runner와 evaluator |
+| `go/service-control-api/internal/benchmark/` | Ops LLM benchmark runner와 evaluator |
 | `go/aiops-guard/` | standalone bounded-action guard |
 
-## 검증 명령
+## 기본 검증 명령
 
 ```bash
 cd go/aiops-guard
@@ -23,6 +23,10 @@ go test ./...
 ```bash
 cd go/service-control-api
 go test ./...
+```
+
+```bash
+go run ./cmd/aiops-service-control team-validation
 ```
 
 ```bash
@@ -37,9 +41,9 @@ go run ./cmd/aiops-service-control run-service-operations \
   --guard-backend go
 ```
 
-```bash
-go run ./cmd/aiops-service-control team-validation
-```
+## Local/VM System Validation
+
+로컬:
 
 ```bash
 go run ./cmd/aiops-service-control validate-system \
@@ -47,7 +51,7 @@ go run ./cmd/aiops-service-control validate-system \
   --output-dir ../../runs/full-validation-local
 ```
 
-AWS GPU VM 내부에서는 다음과 같이 실행합니다.
+AWS GPU VM 내부:
 
 ```bash
 go run ./cmd/aiops-service-control validate-system \
@@ -55,36 +59,68 @@ go run ./cmd/aiops-service-control validate-system \
   --output-dir ../../runs/full-validation-vm
 ```
 
+실제 LLM benchmark 포함:
+
+```bash
+go run ./cmd/aiops-service-control validate-system \
+  --target local \
+  --run-llm-benchmark \
+  --llm-candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
+  --output-dir ../../runs/full-validation-local-executed
+```
+
+VM 내부에서는 `--target vm`으로 변경합니다.
+
+## Ops LLM Dry-Run
+
 ```bash
 go run ./cmd/aiops-service-control run-ops-llm-benchmark \
   --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
   --candidates ../../config/ops_llm_eval_candidates.json \
   --output-dir ../../runs/ops-llm-evaluation-dry-run \
   --dry-run
-```
 
-```bash
 go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
   --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
   --outputs ../../runs/ops-llm-evaluation-dry-run/model_outputs.jsonl \
   --summary ../../runs/ops-llm-evaluation-dry-run/evaluation_summary.json
 ```
 
-## 출력 증거
+## Ops LLM 실제 실행
 
-Go `team-validation` 명령은 JSON 출력을 다음 위치에 저장할 수 있습니다.
+OpenAI-compatible endpoint가 준비된 경우:
+
+```bash
+go run ./cmd/aiops-service-control run-ops-llm-benchmark \
+  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
+  --candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
+  --output-dir ../../runs/ops-llm-evaluation-executed
+
+go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
+  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
+  --outputs ../../runs/ops-llm-evaluation-executed/model_outputs.jsonl \
+  --summary ../../runs/ops-llm-evaluation-executed/evaluation_summary.json
+```
+
+기대 신호:
 
 ```text
-runs/team-validation/<timestamp>/
+benchmark_status = executed
+dry_run = false
+selected_actual_model = llama3.1:8b
 ```
+
+## 출력 증거
 
 `runs/` directory는 local evidence이며 committed source package에는 포함하지 않습니다.
 
-Ops LLM dry-run/evaluator 명령은 다음 파일을 생성할 수 있습니다.
+주요 evidence:
 
 ```text
-runs/ops-llm-evaluation-dry-run/model_outputs.jsonl
-runs/ops-llm-evaluation-dry-run/evaluation_summary.json
+runs/full-validation-local/
+runs/full-validation-vm/
+runs/ops-llm-evaluation-dry-run/
+runs/ops-llm-evaluation-executed/
 ```
 
-위 파일은 local evidence이며, 실제 provider API가 실행된 benchmark evidence가 아닌 경우 `benchmark_status = dry_run`으로 해석합니다.
+`benchmark_status = dry_run`은 평가 파이프라인 검증이고, `benchmark_status = executed`만 실제 provider 응답 기반 평가입니다.

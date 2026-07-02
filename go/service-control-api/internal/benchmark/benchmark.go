@@ -206,9 +206,9 @@ func RunOpsLLMBenchmark(options RunOptions) (RunResult, error) {
 		}
 	}
 
-	return RunResult{
+	result := RunResult{
 		Command:         "run-ops-llm-benchmark",
-		Valid:           true,
+		Valid:           options.DryRun || status == "executed",
 		BenchmarkStatus: status,
 		ScenariosPath:   options.ScenariosPath,
 		CandidatesPath:  options.CandidatesPath,
@@ -223,7 +223,18 @@ func RunOpsLLMBenchmark(options RunOptions) (RunResult, error) {
 			"Dry-run output is not an executed LLM benchmark.",
 			"No external Python runner is used.",
 		},
-	}, nil
+	}
+	if !options.DryRun && status != "executed" {
+		result.Notes = append(result.Notes, "Executed benchmark mode requires at least one enabled candidate and one successful provider response.")
+		return result, fmt.Errorf("no enabled LLM candidate executed successfully")
+	}
+	if status == "executed" {
+		result.Notes = []string{
+			"Provider API responses were collected by the Go benchmark runner.",
+			"No external Python runner is used.",
+		}
+	}
+	return result, nil
 }
 
 func EvaluateOpsLLMOutputs(options EvaluateOptions) (EvaluationSummary, error) {
