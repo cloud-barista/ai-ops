@@ -57,7 +57,43 @@ valid = true
 | `runs/my-first-validation/05_plan_inference_deployment.json` | Deployment/control plan |
 | `runs/my-first-validation/06_run_service_operations.json` | Integrated service-operations readiness |
 
-## 5. CLI 명령 실행
+## 5. Local/VM 공통 System Validation
+
+로컬과 VM 환경에서 같은 검증 흐름을 실행하려면 `validate-system`을 사용합니다.
+
+로컬 WSL 또는 개발 PC에서 실행:
+
+```bash
+cd go/service-control-api
+go run ./cmd/aiops-service-control validate-system \
+  --target local \
+  --output-dir ../../runs/full-validation-local
+```
+
+AWS GPU VM 내부에서 실행:
+
+```bash
+cd go/service-control-api
+go run ./cmd/aiops-service-control validate-system \
+  --target vm \
+  --output-dir ../../runs/full-validation-vm
+```
+
+`--target vm`은 VM 내부에서 실행해야 합니다. 이 모드는 공통 Go 검증에 더해 `nvidia-smi`와 AWS instance metadata를 evidence로 저장합니다.
+
+생성되는 주요 증거:
+
+| 파일/디렉터리 | 의미 |
+| --- | --- |
+| `00_system_validation_summary.json` | 전체 system validation 요약 |
+| `01_environment.json` | hostname, user, OS, Go version, Git branch/commit |
+| `02_go_test_aiops_guard.txt` | `go/aiops-guard` 테스트 결과 |
+| `03_go_test_service_control_api.txt` | `go/service-control-api` 테스트 결과 |
+| `team-validation/` | 기존 team-validation 상세 JSON |
+| `04_vm_nvidia_smi.txt` | VM target에서만 생성되는 GPU 확인 결과 |
+| `05_vm_aws_metadata.json` | VM target에서만 생성되는 AWS instance metadata |
+
+## 6. CLI 명령 실행
 
 Ops LLM policy selection:
 
@@ -105,7 +141,7 @@ go run ./cmd/aiops-service-control run-service-operations \
   --guard-backend go
 ```
 
-## 6. Ops LLM 평가 Dry-Run
+## 7. Ops LLM 평가 Dry-Run
 
 실제 provider API를 호출하지 않고, Go 기반 scenario/candidate 연결과 평가 요약 생성을 검증합니다.
 
@@ -132,7 +168,7 @@ go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
 
 dry-run 결과는 실제 LLM API benchmark 결과가 아닙니다. 실제 모델 응답이 기록되고 `benchmark_status = executed`인 경우에만 최종 모델 평가 결과로 해석합니다.
 
-## 7. API 서버 실행
+## 8. API 서버 실행
 
 터미널 1:
 
@@ -156,7 +192,7 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/service-operations/run \
   -d '{"llm_policy":"quality_first","workload":"llm-chat-inference","recovery_namespace":"aiops-demo","recovery_deployment":"aiops-service","mode":"mock","guard_backend":"go"}'
 ```
 
-## 8. 기대 결과
+## 9. 기대 결과
 
 기대되는 prototype-level signal:
 
@@ -172,7 +208,7 @@ guard_validation.valid = true
 
 위 값은 prototype의 policy와 control-flow wiring을 검증합니다. 최종 표준 LLM benchmark result가 아닙니다.
 
-## 9. Mock Mode
+## 10. Mock Mode
 
 기본 `mock` mode는 live cluster를 변경하지 않고 service-control readiness structure를 생성하고 검증합니다. mock mode에서는 다음이 수행됩니다.
 
@@ -182,7 +218,7 @@ guard_validation.valid = true
 - 실제 GPU VM provisioning 미수행
 - live Kubernetes mutation 미수행
 
-## 10. DOCX 변환
+## 11. DOCX 변환
 
 DOCX 제출본은 저장소에 포함되어 있습니다. 재생성이 필요한 경우 Bash 변환 script를 사용할 수 있습니다.
 

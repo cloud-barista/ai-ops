@@ -6,6 +6,7 @@
 | --- | --- |
 | `go/service-control-api/cmd/service-control-api/main.go` | HTTP API server entrypoint |
 | `go/service-control-api/cmd/aiops-service-control/main.go` | CLI entrypoint |
+| `go/service-control-api/cmd/aiops-service-control/validate_system.go` | local/vm 공통 system validation runner |
 | `go/service-control-api/internal/api/service.go` | LLM selection, agent registry, CPU/GPU placement, readiness pipeline |
 | `go/service-control-api/internal/api/server.go` | HTTP route |
 | `go/service-control-api/internal/api/models.go` | request/response model |
@@ -38,6 +39,20 @@ go run ./cmd/aiops-service-control run-service-operations \
 
 ```bash
 go run ./cmd/aiops-service-control team-validation
+```
+
+```bash
+go run ./cmd/aiops-service-control validate-system \
+  --target local \
+  --output-dir ../../runs/full-validation-local
+```
+
+AWS GPU VM 내부에서는 다음과 같이 실행합니다.
+
+```bash
+go run ./cmd/aiops-service-control validate-system \
+  --target vm \
+  --output-dir ../../runs/full-validation-vm
 ```
 
 ```bash

@@ -48,7 +48,45 @@ go run ./cmd/aiops-service-control team-validation
 - Mock 배포 dry-run 및 guard-readiness 검증
 - 통합 service-operations readiness
 
-## 5. 기대 신호
+## 5. System Validation
+
+`validate-system`은 로컬과 VM에서 동일한 검증 command를 사용하기 위한 통합 검증 명령입니다.
+
+로컬 검증:
+
+```bash
+cd go/service-control-api
+go run ./cmd/aiops-service-control validate-system \
+  --target local \
+  --output-dir ../../runs/full-validation-local
+```
+
+VM 내부 검증:
+
+```bash
+cd go/service-control-api
+go run ./cmd/aiops-service-control validate-system \
+  --target vm \
+  --output-dir ../../runs/full-validation-vm
+```
+
+공통 검증 항목:
+
+- Go version, Git branch, Git commit, hostname 기록
+- `go/aiops-guard` 테스트
+- `go/service-control-api` 테스트
+- `team-validation`
+- service-operations readiness
+
+VM 추가 검증 항목:
+
+- `nvidia-smi`
+- GPU driver/CUDA visibility
+- AWS instance metadata
+
+주의: `--target vm`은 AWS GPU VM 내부에서 실행해야 합니다. 로컬 WSL에서 실행하면 GPU/metadata 검증이 실패하는 것이 정상입니다.
+
+## 6. 기대 신호
 
 기대되는 prototype-level output signal:
 
@@ -64,7 +102,7 @@ guard_validation.valid = true
 
 이 신호는 Go API/CLI validation flow가 올바르게 연결되었음을 확인합니다. standardized LLM evaluation quality, production performance, live GPU scheduling, actual cloud provisioning을 증명하지 않습니다.
 
-## 6. Ops LLM 평가 Dry-Run
+## 7. Ops LLM 평가 Dry-Run
 
 ```bash
 cd go/service-control-api
@@ -89,9 +127,9 @@ selected_actual_model = ""
 
 dry-run은 실제 LLM API를 호출하지 않으므로 최종 LLM 품질 benchmark 결과가 아닙니다.
 
-## 7. 검증 증거 파일
+## 8. 검증 증거 파일
 
-`team-validation`을 `--output-dir`와 함께 실행하면 다음 JSON 파일을 validation evidence로 보존할 수 있습니다.
+`team-validation` 또는 `validate-system`을 `--output-dir`와 함께 실행하면 validation evidence를 보존할 수 있습니다.
 
 | 파일 | 검증 의미 |
 | --- | --- |
@@ -103,7 +141,9 @@ dry-run은 실제 LLM API를 호출하지 않으므로 최종 LLM 품질 benchma
 | `05_plan_inference_deployment.json` | AI 응용 배포·제어 계획 생성 |
 | `06_run_service_operations.json` | Integrated service-operations readiness |
 
-## 8. 실패 로그와 오류 메시지 보존
+`validate-system`은 추가로 `00_system_validation_summary.json`, `01_environment.json`, Go test output, VM target의 GPU/metadata evidence를 저장합니다.
+
+## 9. 실패 로그와 오류 메시지 보존
 
 검증 실패 시 전체 terminal output과 생성 JSON 파일을 날짜가 포함된 directory에 보존합니다.
 
@@ -123,7 +163,7 @@ go run ./cmd/aiops-service-control team-validation \
 | JSON evidence | 생성 JSON 파일 |
 | Human note | 관찰된 실패와 다음 조치에 대한 짧은 설명 |
 
-## 9. 사람 검토 항목
+## 10. 사람 검토 항목
 
 사람 검토자는 다음을 확인해야 합니다.
 
@@ -134,3 +174,4 @@ go run ./cmd/aiops-service-control team-validation \
 - repository가 production readiness를 주장하지 않는지
 - repository가 final standardized LLM benchmark result를 주장하지 않는지
 - dry-run 결과를 actual LLM benchmark로 표현하지 않았는지
+- VM 검증이라고 주장하는 결과가 실제 VM 내부에서 `--target vm`으로 실행되었는지

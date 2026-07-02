@@ -250,6 +250,25 @@ func run(args []string) error {
 			return err
 		}
 		return emitReport("evaluate-ops-llm-outputs", result, *saveResultDir)
+	case "validate-system":
+		flags := flag.NewFlagSet("validate-system", flag.ContinueOnError)
+		target := flags.String("target", "local", "Validation target: local or vm")
+		outputDir := flags.String("output-dir", "", "Directory where validation evidence is saved")
+		skipGoTests := flags.Bool("skip-go-tests", false, "Skip module go test steps")
+		skipTeamValidation := flags.Bool("skip-team-validation", false, "Skip team-validation step")
+		if err := flags.Parse(args[1:]); err != nil {
+			return err
+		}
+		result, err := runSystemValidation(service, serverConfig, systemValidationOptions{
+			Target:             *target,
+			OutputDir:          *outputDir,
+			SkipGoTests:        *skipGoTests,
+			SkipTeamValidation: *skipTeamValidation,
+		})
+		if err != nil {
+			return err
+		}
+		return emit(result)
 	case "team-validation":
 		flags := flag.NewFlagSet("team-validation", flag.ContinueOnError)
 		outputDir := flags.String("output-dir", "", "Directory where validation JSON reports are saved")

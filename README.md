@@ -111,6 +111,8 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/service-operations/run \
 
 Ops LLM 평가 dry-run과 evaluator 실행 절차는 [`docs/submission/ops_llm_benchmark_method.md`](docs/submission/ops_llm_benchmark_method.md)에 정리되어 있습니다. dry-run 결과의 `benchmark_status`는 `dry_run`이며, 실제 모델 응답을 수집한 `executed` 결과가 아니면 최종 LLM 품질 평가로 해석하지 않습니다.
 
+로컬/VM 공통 검증은 `validate-system` 명령으로 실행합니다. VM 검증은 반드시 AWS GPU VM 내부에서 실행해야 하며, `--target vm`은 Go 테스트, team-validation, `nvidia-smi`, AWS instance metadata를 함께 기록합니다.
+
 ## 📄 DOCX 변환본
 
 DOCX 제출본은 이미 `docs/submission/`과 `docs/deliverables/docx/`에 포함되어 있습니다. 재생성이 필요한 경우 [`docs/submission/install_and_run_guide.md`](docs/submission/install_and_run_guide.md)와 [`scripts/generate_docx_deliverables.sh`](scripts/generate_docx_deliverables.sh)를 참고합니다.
