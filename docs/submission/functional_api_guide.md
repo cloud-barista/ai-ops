@@ -49,6 +49,21 @@ OpenAPI 계약 확인:
 curl http://127.0.0.1:8080/openapi.yaml
 ```
 
+## 4.1 시연용 예제 파일
+
+API 시연에 사용할 request/response 예제는 다음 위치에 있습니다.
+
+| 예제 | 경로 |
+| --- | --- |
+| Ops LLM 선정 요청 | `examples/requests/select-ops-llm.json` |
+| CPU/GPU 배치 추천 요청 | `examples/requests/recommend-inference-placement.json` |
+| 배포·제어 계획 요청 | `examples/requests/plan-inference-deployment.json` |
+| 통합 service-operations 요청 | `examples/requests/run-service-operations.json` |
+| Ops LLM 선정 응답 예시 | `examples/responses/select-ops-llm-success.json` |
+| CPU/GPU 배치 추천 응답 예시 | `examples/responses/recommend-inference-placement-success.json` |
+| 배포·제어 계획 응답 예시 | `examples/responses/plan-inference-deployment-success.json` |
+| 통합 service-operations 응답 예시 | `examples/responses/run-service-operations-success.json` |
+
 ## 5. Agent Registry API
 
 ```bash

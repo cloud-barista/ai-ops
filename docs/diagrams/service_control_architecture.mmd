@@ -1,0 +1,10 @@
+flowchart LR
+  A[Ops scenarios and policies] --> B[Ops LLM selection]
+  B --> C[Agent registry and bounded actions]
+  C --> D[CPU/GPU VM placement]
+  D --> E[AI application deployment/control plan]
+  E --> F[Service operations readiness]
+  F --> G[Local/VM validation evidence]
+
+  B -. actual endpoint optional .-> H[OpenAI-compatible LLM endpoint]
+  F --> I[Go guard]

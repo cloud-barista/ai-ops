@@ -1,0 +1,11 @@
+flowchart LR
+  A[validate-system command] --> B{target}
+  B -->|local| C[Go version and Git evidence]
+  B -->|vm| D[Go version, Git, GPU, metadata evidence]
+  C --> E[Go tests]
+  D --> E
+  E --> F[team-validation]
+  F --> G{run LLM benchmark}
+  G -->|no| H[System summary]
+  G -->|yes| I[LLM benchmark and evaluator]
+  I --> H

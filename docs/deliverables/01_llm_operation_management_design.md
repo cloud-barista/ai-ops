@@ -8,6 +8,8 @@
 
 ## 2. 한눈에 보는 구조
 
+![LLM 운영 관리 흐름도](../images/llm_operation_flow.png)
+
 | 항목 | 내용 |
 | --- | --- |
 | 입력 | LLM candidate, metric, policy weight |

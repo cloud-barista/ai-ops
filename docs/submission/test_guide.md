@@ -4,6 +4,8 @@
 
 이 가이드는 1차년도 Go 기반 service-control prototype의 기능 test와 validation 절차를 정의합니다. 테스트는 prototype behavior를 검증하며, production performance 또는 standardized LLM benchmark quality를 증명하지 않습니다.
 
+검증 결과를 제출 증적으로 정리할 때는 `docs/evidence/증적_패키지_가이드.md`를 기준으로 command, environment, JSON/log output을 함께 보존합니다.
+
 ## 2. Go Guard 테스트
 
 ```bash

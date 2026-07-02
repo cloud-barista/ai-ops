@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="390" viewBox="0 0 1120 390" role="img" aria-label="에이전트 등록 관리 흐름도">
+  <defs>
+    <style>
+      .bg{fill:#fbfcfe}.title{font:700 26px Arial,sans-serif;fill:#12345b}.box{fill:#fff;stroke:#1d63b7;stroke-width:2.4;rx:10}.gate{fill:#eef7ff;stroke:#1d63b7;stroke-width:2.4;rx:10}.ok{fill:#eefbf3;stroke:#238636;stroke-width:2.4;rx:10}.bad{fill:#fff0f0;stroke:#cf222e;stroke-width:2.4;rx:10}.text{font:700 16px Arial,sans-serif;fill:#172b3a}.small{font:400 13px Arial,sans-serif;fill:#425466}.arrow{stroke:#2c5282;stroke-width:3;fill:none;marker-end:url(#arrow)}
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#2c5282"/></marker>
+  </defs>
+  <rect class="bg" width="1120" height="390"/>
+  <text x="40" y="52" class="title">에이전트 등록 관리 프로토타입</text>
+  <rect class="box" x="40" y="120" width="170" height="100"/>
+  <text x="62" y="154" class="text">Registry JSON</text>
+  <text x="62" y="182" class="small">name/role/enabled</text>
+  <line class="arrow" x1="210" y1="170" x2="260" y2="170"/>
+  <rect class="box" x="260" y="120" width="180" height="100"/>
+  <text x="282" y="154" class="text">Agent Metadata</text>
+  <text x="282" y="182" class="small">책임과 reward signal</text>
+  <line class="arrow" x1="440" y1="170" x2="490" y2="170"/>
+  <rect class="gate" x="490" y="120" width="180" height="100"/>
+  <text x="512" y="154" class="text">Bounded Action</text>
+  <text x="512" y="182" class="small">허용 action 집합</text>
+  <line class="arrow" x1="670" y1="170" x2="720" y2="170"/>
+  <rect class="gate" x="720" y="120" width="150" height="100"/>
+  <text x="742" y="154" class="text">Action Check</text>
+  <text x="742" y="182" class="small">allowed 여부</text>
+  <line class="arrow" x1="870" y1="150" x2="930" y2="115"/>
+  <line class="arrow" x1="870" y1="190" x2="930" y2="240"/>
+  <rect class="ok" x="930" y="72" width="150" height="85"/>
+  <text x="952" y="106" class="text">Valid</text>
+  <text x="952" y="132" class="small">readiness 반영</text>
+  <rect class="bad" x="930" y="220" width="150" height="85"/>
+  <text x="952" y="254" class="text">Rejected</text>
+  <text x="952" y="280" class="small">invalid action</text>
+</svg>

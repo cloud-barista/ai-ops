@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="440" viewBox="0 0 1180 440" role="img" aria-label="Local VM 검증 흐름도">
+  <defs>
+    <style>
+      .bg{fill:#fbfcfe}.title{font:700 26px Arial,sans-serif;fill:#12345b}.box{fill:#fff;stroke:#1d63b7;stroke-width:2.4;rx:10}.local{fill:#eef7ff;stroke:#1d63b7;stroke-width:2.4;rx:10}.vm{fill:#fff8e8;stroke:#bf7b00;stroke-width:2.4;rx:10}.out{fill:#eefbf3;stroke:#238636;stroke-width:2.4;rx:10}.text{font:700 16px Arial,sans-serif;fill:#172b3a}.small{font:400 13px Arial,sans-serif;fill:#425466}.arrow{stroke:#2c5282;stroke-width:3;fill:none;marker-end:url(#arrow)}
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#2c5282"/></marker>
+  </defs>
+  <rect class="bg" width="1180" height="440"/>
+  <text x="40" y="52" class="title">Local/VM 공통 검증 구조</text>
+  <rect class="box" x="40" y="160" width="180" height="100"/>
+  <text x="62" y="194" class="text">validate-system</text>
+  <text x="62" y="222" class="small">target local/vm</text>
+  <line class="arrow" x1="220" y1="185" x2="290" y2="128"/>
+  <line class="arrow" x1="220" y1="235" x2="290" y2="292"/>
+  <rect class="local" x="290" y="80" width="180" height="95"/>
+  <text x="312" y="113" class="text">Local Target</text>
+  <text x="312" y="141" class="small">Go/Git/OS evidence</text>
+  <rect class="vm" x="290" y="260" width="180" height="95"/>
+  <text x="312" y="293" class="text">VM Target</text>
+  <text x="312" y="321" class="small">GPU/metadata evidence</text>
+  <line class="arrow" x1="470" y1="128" x2="540" y2="210"/>
+  <line class="arrow" x1="470" y1="308" x2="540" y2="210"/>
+  <rect class="box" x="540" y="160" width="170" height="100"/>
+  <text x="562" y="194" class="text">Go Tests</text>
+  <text x="562" y="222" class="small">guard + API</text>
+  <line class="arrow" x1="710" y1="210" x2="770" y2="210"/>
+  <rect class="box" x="770" y="160" width="170" height="100"/>
+  <text x="792" y="194" class="text">Team Validation</text>
+  <text x="792" y="222" class="small">산출물 3개 흐름</text>
+  <line class="arrow" x1="940" y1="210" x2="1000" y2="210"/>
+  <rect class="out" x="1000" y="160" width="150" height="100"/>
+  <text x="1022" y="194" class="text">Evidence</text>
+  <text x="1022" y="222" class="small">JSON/log summary</text>
+  <line class="arrow" x1="855" y1="260" x2="855" y2="315"/>
+  <rect class="box" x="740" y="315" width="230" height="80"/>
+  <text x="762" y="348" class="text">Optional LLM Benchmark</text>
+  <text x="762" y="374" class="small">dry_run 또는 executed 구분</text>
+</svg>

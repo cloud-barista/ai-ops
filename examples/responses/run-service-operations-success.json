@@ -1,0 +1,15 @@
+{
+  "valid": true,
+  "selected_llm": "primary-ops-llm",
+  "selected_actual_model": "to-be-evaluated-primary-model",
+  "benchmark_status": "not_executed",
+  "selected_resource": "gpu-vm-l4",
+  "guard_backend": "go",
+  "guard_validation": {
+    "valid": true,
+    "agent": "AIApplicationManagementAgent",
+    "action": "app_scale_deployment"
+  },
+  "recovery_pipeline_ready": true,
+  "message": "Prototype service-control readiness flow completed in mock mode."
+}

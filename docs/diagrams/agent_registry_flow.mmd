@@ -1,0 +1,9 @@
+flowchart LR
+  A[Agent registry JSON] --> B[Agent list/detail]
+  B --> C[Role and responsibility]
+  C --> D[Bounded action set]
+  D --> E{Requested action allowed}
+  E -->|yes| F[Valid readiness signal]
+  E -->|no| G[Invalid action rejection]
+  F --> H[Service operations report]
+  G --> H

@@ -8,6 +8,8 @@
 
 ## 2. 한눈에 보는 구조
 
+![CPU/GPU VM 기반 배포·제어 추론 최적화 흐름도](../images/cpu_gpu_placement_flow.png)
+
 | 항목 | 내용 |
 | --- | --- |
 | 입력 | workload 요구사항, CPU/GPU VM resource profile |

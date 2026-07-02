@@ -4,6 +4,8 @@
 
 이 가이드는 1차년도 Go 기반 service-control 기능 프로토타입의 설치와 실행 방법을 설명합니다. 기본 검증 경로는 로컬 실행이며 `mock` mode를 사용합니다. 기본 검증에는 live Kubernetes cluster나 실제 GPU VM provisioning이 필요하지 않습니다.
 
+문서 전체 지도는 `docs/README.md`, 실행 결과 증적 정리 기준은 `docs/evidence/증적_패키지_가이드.md`, 제출 전 점검표는 `docs/release/1차년도_제출_패키지_체크리스트.md`를 함께 참고합니다.
+
 ## 2. Go 버전 요구사항
 
 - Go 1.25 이상을 권장합니다.

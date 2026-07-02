@@ -1,0 +1,11 @@
+flowchart LR
+  A[Ops evaluation scenarios] --> B[Candidate LLM config]
+  B --> C[Benchmark runner]
+  C --> D{Execution mode}
+  D -->|not_executed| E[Prototype policy baseline]
+  D -->|dry_run| F[Prompt/evaluator wiring]
+  D -->|executed| G[Actual model response]
+  E --> H[Selected role label]
+  F --> H
+  G --> I[Evaluator score]
+  I --> J[Selected actual model]

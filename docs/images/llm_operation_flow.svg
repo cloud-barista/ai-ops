@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="430" viewBox="0 0 1180 430" role="img" aria-label="LLM 운영 관리 흐름도">
+  <defs>
+    <style>
+      .bg{fill:#fbfcfe}.title{font:700 26px Arial,sans-serif;fill:#12345b}.box{fill:#fff;stroke:#1d63b7;stroke-width:2.4;rx:10}.mode{fill:#eef7ff;stroke:#1d63b7;stroke-width:2.4;rx:10}.ok{fill:#eefbf3;stroke:#238636;stroke-width:2.4;rx:10}.warn{fill:#fff8e8;stroke:#bf7b00;stroke-width:2.4;rx:10}.text{font:700 16px Arial,sans-serif;fill:#172b3a}.small{font:400 13px Arial,sans-serif;fill:#425466}.arrow{stroke:#2c5282;stroke-width:3;fill:none;marker-end:url(#arrow)}
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#2c5282"/></marker>
+  </defs>
+  <rect class="bg" width="1180" height="430"/>
+  <text x="40" y="52" class="title">LLM 운영 관리 구조</text>
+  <rect class="box" x="40" y="105" width="170" height="92"/>
+  <text x="62" y="138" class="text">Ops Scenario</text>
+  <text x="62" y="166" class="small">JSONL 평가 문제</text>
+  <line class="arrow" x1="210" y1="151" x2="260" y2="151"/>
+  <rect class="box" x="260" y="105" width="190" height="92"/>
+  <text x="282" y="138" class="text">Candidate Config</text>
+  <text x="282" y="166" class="small">role label / actual model</text>
+  <line class="arrow" x1="450" y1="151" x2="500" y2="151"/>
+  <rect class="mode" x="500" y="105" width="180" height="92"/>
+  <text x="522" y="138" class="text">Benchmark Runner</text>
+  <text x="522" y="166" class="small">Go CLI 실행</text>
+  <line class="arrow" x1="590" y1="197" x2="590" y2="244"/>
+  <rect class="warn" x="260" y="250" width="180" height="95"/>
+  <text x="282" y="283" class="text">not_executed</text>
+  <text x="282" y="312" class="small">정책 baseline</text>
+  <rect class="warn" x="500" y="250" width="180" height="95"/>
+  <text x="522" y="283" class="text">dry_run</text>
+  <text x="522" y="312" class="small">연결 구조 검증</text>
+  <rect class="ok" x="740" y="250" width="180" height="95"/>
+  <text x="762" y="283" class="text">executed</text>
+  <text x="762" y="312" class="small">실제 endpoint 응답</text>
+  <line class="arrow" x1="680" y1="151" x2="740" y2="151"/>
+  <rect class="box" x="740" y="105" width="180" height="92"/>
+  <text x="762" y="138" class="text">Evaluator</text>
+  <text x="762" y="166" class="small">JSON/action/latency 점수</text>
+  <line class="arrow" x1="920" y1="151" x2="970" y2="151"/>
+  <rect class="box" x="970" y="105" width="170" height="92"/>
+  <text x="992" y="138" class="text">Selection Output</text>
+  <text x="992" y="166" class="small">selected model/status</text>
+</svg>

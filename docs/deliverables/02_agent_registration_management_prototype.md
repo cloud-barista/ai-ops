@@ -8,6 +8,8 @@
 
 ## 2. 한눈에 보는 구조
 
+![에이전트 등록 관리 흐름도](../images/agent_registry_flow.png)
+
 | 항목 | 내용 |
 | --- | --- |
 | 입력 | `config/agent_registry.json` |

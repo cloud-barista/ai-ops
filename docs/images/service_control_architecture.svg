@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="520" viewBox="0 0 1320 520" role="img" aria-label="AI 기반 서비스 제어 및 관리 자동화 프레임워크 구조">
+  <defs>
+    <style>
+      .bg{fill:#f7fafc}.title{font:700 28px Arial,sans-serif;fill:#12345b}.sub{font:400 16px Arial,sans-serif;fill:#496274}.box{fill:#fff;stroke:#1d63b7;stroke-width:2.5;rx:12}.box2{fill:#edf6ff;stroke:#1d63b7;stroke-width:2.5;rx:12}.guard{fill:#fff7e8;stroke:#c27900;stroke-width:2.5;rx:12}.text{font:700 17px Arial,sans-serif;fill:#15283b}.small{font:400 13px Arial,sans-serif;fill:#425466}.arrow{stroke:#2c5282;stroke-width:3;fill:none;marker-end:url(#arrow)}
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#2c5282"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1320" height="520"/>
+  <text x="44" y="54" class="title">AI 기반 서비스 제어 및 관리 자동화 프레임워크</text>
+  <text x="44" y="82" class="sub">Go 기반 LLM 운영관리, Agent Registry, CPU/GPU VM 배치 판단, 배포·제어 계획 검증 구조</text>
+  <rect class="box2" x="42" y="130" width="170" height="120"/>
+  <text x="64" y="165" class="text">Ops 입력</text>
+  <text x="64" y="194" class="small">운영 시나리오</text>
+  <text x="64" y="216" class="small">정책/metric</text>
+  <line class="arrow" x1="212" y1="190" x2="270" y2="190"/>
+  <rect class="box" x="270" y="130" width="180" height="120"/>
+  <text x="292" y="165" class="text">LLM 선정</text>
+  <text x="292" y="194" class="small">candidate ranking</text>
+  <text x="292" y="216" class="small">benchmark status</text>
+  <line class="arrow" x1="450" y1="190" x2="508" y2="190"/>
+  <rect class="box" x="508" y="130" width="190" height="120"/>
+  <text x="530" y="165" class="text">Agent Registry</text>
+  <text x="530" y="194" class="small">role/responsibility</text>
+  <text x="530" y="216" class="small">bounded action</text>
+  <line class="arrow" x1="698" y1="190" x2="756" y2="190"/>
+  <rect class="box" x="756" y="130" width="190" height="120"/>
+  <text x="778" y="165" class="text">CPU/GPU 배치</text>
+  <text x="778" y="194" class="small">VRAM/SLO/cost</text>
+  <text x="778" y="216" class="small">resource scoring</text>
+  <line class="arrow" x1="946" y1="190" x2="1004" y2="190"/>
+  <rect class="box" x="1004" y="130" width="230" height="120"/>
+  <text x="1026" y="165" class="text">배포·제어 계획</text>
+  <text x="1026" y="194" class="small">deployment plan</text>
+  <text x="1026" y="216" class="small">scale/monitor/rollback</text>
+  <line class="arrow" x1="1119" y1="250" x2="1119" y2="302"/>
+  <rect class="guard" x="814" y="302" width="250" height="120"/>
+  <text x="836" y="337" class="text">Go Guard</text>
+  <text x="836" y="366" class="small">허용 action 검증</text>
+  <text x="836" y="388" class="small">안전 경계 확인</text>
+  <rect class="box2" x="1096" y="302" width="180" height="120"/>
+  <text x="1118" y="337" class="text">검증 증적</text>
+  <text x="1118" y="366" class="small">local/vm validation</text>
+  <text x="1118" y="388" class="small">JSON/log summary</text>
+  <line class="arrow" x1="1096" y1="362" x2="1064" y2="362"/>
+  <text x="44" y="474" class="sub">핵심 경계: 기본 실행은 Go 기반 prototype 검증이며, 실제 LLM endpoint와 VM 환경 검증은 별도 상태값으로 구분한다.</text>
+</svg>

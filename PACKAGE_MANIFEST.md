@@ -11,17 +11,22 @@
 | `config/agent_registry.json` | 에이전트 registry와 bounded action 메타데이터 |
 | `config/ops_llm_benchmark.json` | 수동 정의된 프로토타입 LLM 정책 기준값과 선정 가중치 |
 | `config/inference_optimization.json` | CPU/GPU VM 자원 프로파일과 워크로드 요구사항 |
+| `data/ops_llm_eval_scenarios.jsonl` | Ops LLM 평가 scenario set |
 
 ## 필수 제출 산출물
 
 | 경로 | 설명 |
 | --- | --- |
+| `docs/README.md` | 제출/시연 문서 지도 |
 | `docs/submission/requirements_definition.md` | 요구사항 정의서 원본 |
 | `docs/submission/requirements_definition.docx` | 요구사항 정의서 제출/검토용 변환본 |
 | `docs/submission/functional_api_guide.md` | 기능/API 가이드 |
 | `docs/submission/openapi_service_control.yaml` | Swagger/OpenAPI 계약 |
 | `docs/submission/install_and_run_guide.md` | 설치 및 실행 가이드 |
 | `docs/submission/test_guide.md` | 테스트 가이드 |
+| `docs/evidence/증적_패키지_가이드.md` | 검증 증적 구성 기준 |
+| `docs/release/1차년도_제출_패키지_체크리스트.md` | 제출 전 점검표 |
+| `docs/ops/로그_에러_가이드.md` | 상태값과 오류 메시지 해석 기준 |
 
 ## 공식 설계 산출물
 
@@ -50,6 +55,10 @@
 | --- | --- |
 | `docs/design/` | 구현 수준의 보조 설계 문서 |
 | `docs/team_setup.md` | 팀 단위 개발 환경 설정 참고 문서 |
+| `docs/diagrams/` | Mermaid 구조도 원본 |
+| `docs/images/` | README와 산출물 문서에 삽입되는 PNG 구조도 및 수정용 SVG 구조도 |
+| `examples/requests/` | API 시연용 request JSON |
+| `examples/responses/` | API 시연용 response JSON |
 
 ## 변환 도구
 

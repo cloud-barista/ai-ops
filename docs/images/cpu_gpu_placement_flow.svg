@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="430" viewBox="0 0 1240 430" role="img" aria-label="CPU/GPU VM 배치 판단 흐름도">
+  <defs>
+    <style>
+      .bg{fill:#fbfcfe}.title{font:700 26px Arial,sans-serif;fill:#12345b}.box{fill:#fff;stroke:#1d63b7;stroke-width:2.4;rx:10}.gpu{fill:#eef7ff;stroke:#1d63b7;stroke-width:2.4;rx:10}.out{fill:#eefbf3;stroke:#238636;stroke-width:2.4;rx:10}.text{font:700 16px Arial,sans-serif;fill:#172b3a}.small{font:400 13px Arial,sans-serif;fill:#425466}.arrow{stroke:#2c5282;stroke-width:3;fill:none;marker-end:url(#arrow)}
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#2c5282"/></marker>
+  </defs>
+  <rect class="bg" width="1240" height="430"/>
+  <text x="40" y="52" class="title">CPU/GPU VM 기반 AI 응용 배포·제어 추론 최적화 전략</text>
+  <rect class="box" x="40" y="125" width="170" height="105"/>
+  <text x="62" y="159" class="text">Workload</text>
+  <text x="62" y="187" class="small">model type / SLO</text>
+  <text x="62" y="209" class="small">VRAM / throughput</text>
+  <line class="arrow" x1="210" y1="177" x2="260" y2="177"/>
+  <rect class="box" x="260" y="125" width="170" height="105"/>
+  <text x="282" y="159" class="text">Filtering</text>
+  <text x="282" y="187" class="small">지원 모델 확인</text>
+  <text x="282" y="209" class="small">제약 후보 제외</text>
+  <line class="arrow" x1="430" y1="177" x2="480" y2="177"/>
+  <rect class="gpu" x="480" y="125" width="170" height="105"/>
+  <text x="502" y="159" class="text">GPU 조건</text>
+  <text x="502" y="187" class="small">accelerator</text>
+  <text x="502" y="209" class="small">VRAM capacity</text>
+  <line class="arrow" x1="650" y1="177" x2="700" y2="177"/>
+  <rect class="box" x="700" y="125" width="170" height="105"/>
+  <text x="722" y="159" class="text">SLO Check</text>
+  <text x="722" y="187" class="small">latency</text>
+  <text x="722" y="209" class="small">throughput</text>
+  <line class="arrow" x1="870" y1="177" x2="920" y2="177"/>
+  <rect class="box" x="920" y="125" width="170" height="105"/>
+  <text x="942" y="159" class="text">Scoring</text>
+  <text x="942" y="187" class="small">latency/cost</text>
+  <text x="942" y="209" class="small">capacity ranking</text>
+  <line class="arrow" x1="1005" y1="230" x2="1005" y2="285"/>
+  <rect class="out" x="780" y="285" width="190" height="90"/>
+  <text x="802" y="319" class="text">Selected Resource</text>
+  <text x="802" y="347" class="small">gpu-vm-l4 등</text>
+  <line class="arrow" x1="970" y1="330" x2="1025" y2="330"/>
+  <rect class="out" x="1025" y="285" width="175" height="90"/>
+  <text x="1047" y="319" class="text">Control Plan</text>
+  <text x="1047" y="347" class="small">deploy/scale/monitor</text>
+</svg>
