@@ -49,7 +49,7 @@ LLM은 운영 판단 후보를 제공하고, Go service-control layer는 선정 
 | Candidate | 역할 | 사용 의도 |
 | --- | --- | --- |
 | `primary-ops-llm` | 기본 운영 판단 후보 | 품질 중심 정책에서 우선 선택 |
-| `low-cost-ops-llm` | 저비용 후보 | smoke-test 또는 비용 중심 검증 |
+| `low-cost-ops-llm` | 저비용 후보 | 기초 검증 또는 비용 중심 검증 |
 | `code-cross-check-agent` | 교차 검토 후보 | 코드/문서 consistency 확인 |
 
 위 candidate 값은 내부 역할 label입니다. 실제 provider model 이름은 `actual_model`, `selected_actual_model`, `selected_provider`, `benchmark_status` 필드로 분리합니다. 현재 기본 benchmark status는 `not_executed`이며, 실제 모델 API 평가가 완료된 상태로 해석하지 않습니다.

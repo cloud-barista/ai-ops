@@ -1,12 +1,12 @@
 {
-  "command": "api-smoke-local",
+  "command": "api-integration-validation-local",
   "target": "local",
   "valid": true,
   "endpoint_count": 5,
   "endpoints": [
     {
       "name": "00-healthz",
-      "response_file": "<repo>/runs/evidence-local-20260703-142217/api-smoke/00-healthz.json",
+      "response_file": "<repo>/runs/evidence-local-20260703-142217/api-integration-validation/00-healthz.json",
       "valid": true,
       "summary_keys": [
         "service",
@@ -15,7 +15,7 @@
     },
     {
       "name": "01-agents",
-      "response_file": "<repo>/runs/evidence-local-20260703-142217/api-smoke/01-agents.json",
+      "response_file": "<repo>/runs/evidence-local-20260703-142217/api-integration-validation/01-agents.json",
       "valid": true,
       "summary_keys": [
         "agents",
@@ -26,7 +26,7 @@
     },
     {
       "name": "02-ops-llm-select",
-      "response_file": "<repo>/runs/evidence-local-20260703-142217/api-smoke/02-ops-llm-select.json",
+      "response_file": "<repo>/runs/evidence-local-20260703-142217/api-integration-validation/02-ops-llm-select.json",
       "valid": true,
       "summary_keys": [
         "benchmark_status",
@@ -44,7 +44,7 @@
     },
     {
       "name": "03-placement",
-      "response_file": "<repo>/runs/evidence-local-20260703-142217/api-smoke/03-placement.json",
+      "response_file": "<repo>/runs/evidence-local-20260703-142217/api-integration-validation/03-placement.json",
       "valid": true,
       "summary_keys": [
         "action",
@@ -63,7 +63,7 @@
     },
     {
       "name": "04-service-operations-run",
-      "response_file": "<repo>/runs/evidence-local-20260703-142217/api-smoke/04-service-operations-run.json",
+      "response_file": "<repo>/runs/evidence-local-20260703-142217/api-integration-validation/04-service-operations-run.json",
       "valid": true,
       "summary_keys": [
         "agent_reviews",
@@ -82,5 +82,5 @@
     }
   ],
   "server_port": 18080,
-  "note": "Raw API smoke responses are kept under runs/ and are not committed."
+  "note": "Raw API integration validation responses are kept under runs/ and are not committed."
 }

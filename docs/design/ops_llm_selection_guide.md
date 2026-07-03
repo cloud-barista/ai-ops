@@ -27,7 +27,7 @@ config/ops_llm_benchmark.json
 | Candidate | 역할 |
 | --- | --- |
 | `primary-ops-llm` | 기본 Ops reasoning candidate |
-| `low-cost-ops-llm` | 저비용 smoke-test 및 fallback candidate |
+| `low-cost-ops-llm` | 저비용 기초 검증 및 fallback candidate |
 | `code-cross-check-agent` | 코드와 문서 교차 검증 candidate |
 
 ## Scoring
