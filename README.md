@@ -59,6 +59,7 @@
 | Ops LLM 평가 방법 |  [`docs/submission/ops_llm_benchmark_method.md`](docs/submission/ops_llm_benchmark_method.md)
 | 문서 지도 |  [`docs/README.md`](docs/README.md)
 | 증적 패키지 가이드 |  [`docs/evidence/증적_패키지_가이드.md`](docs/evidence/증적_패키지_가이드.md)
+| 대표 로컬 검증 결과 |  [`docs/evidence/local_validation_20260703.md`](docs/evidence/local_validation_20260703.md)
 | 제출 체크리스트 |  [`docs/release/1차년도_제출_패키지_체크리스트.md`](docs/release/1차년도_제출_패키지_체크리스트.md)
 
 ## 📝 공식 설계 산출물
@@ -78,6 +79,7 @@ Markdown 파일이 공식 원본이며, DOCX 파일은 제출/검토용 변환�
 | LLM/코딩 에이전트 교차 검증 기록 | [`docs/submission/coding_agent_cross_validation.md`](docs/submission/coding_agent_cross_validation.md) | 2종 이상 LLM/코딩 에이전트 역할과 교차 검증 절차 기록 |
 | 프롬프트 사용 기록 | [`docs/submission/prompt_usage_log.md`](docs/submission/prompt_usage_log.md) | 대표 프레임워크 프롬프트와 공유 정책 기록 |
 | 개발 검증 로그 | [`docs/submission/development_validation_log.md`](docs/submission/development_validation_log.md) | 검증 명령, 기대 출력, 로그 정책, 사람 검토 항목 기록 |
+| 대표 로컬 검증 결과 | [`docs/evidence/local_validation_20260703.md`](docs/evidence/local_validation_20260703.md) | 2026-07-03 로컬 Go test, team-validation, validate-system, API smoke, Ops LLM dry-run 결과 |
 
 ## 🚀 프로토타입 실행
 

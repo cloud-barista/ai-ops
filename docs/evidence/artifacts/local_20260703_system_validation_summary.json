@@ -1,0 +1,37 @@
+{
+  "command": "validate-system",
+  "development_language": "go",
+  "environment_path": "<repo>/runs/evidence-local-20260703-142217/full-validation-local/01_environment.json",
+  "output_dir": "<repo>/runs/evidence-local-20260703-142217/full-validation-local",
+  "scope": [
+    "go_module_tests",
+    "team_validation",
+    "ops_llm_benchmark",
+    "service_operations_readiness",
+    "target_environment_evidence"
+  ],
+  "steps": [
+    {
+      "name": "collect-environment",
+      "valid": true,
+      "output_path": "<repo>/runs/evidence-local-20260703-142217/full-validation-local/01_environment.json"
+    },
+    {
+      "name": "go-test-aiops-guard",
+      "valid": true,
+      "output_path": "<repo>/runs/evidence-local-20260703-142217/full-validation-local/02_go_test_aiops_guard.txt"
+    },
+    {
+      "name": "go-test-service-control-api",
+      "valid": true,
+      "output_path": "<repo>/runs/evidence-local-20260703-142217/full-validation-local/03_go_test_service_control_api.txt"
+    },
+    {
+      "name": "team-validation",
+      "valid": true,
+      "output_path": "<repo>/runs/evidence-local-20260703-142217/full-validation-local/team-validation/00_team_validation_summary.json"
+    }
+  ],
+  "target": "local",
+  "valid": true
+}
