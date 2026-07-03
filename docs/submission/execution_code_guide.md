@@ -6,6 +6,7 @@
 | --- | --- |
 | `go/service-control-api/cmd/service-control-api/main.go` | HTTP API server entrypoint |
 | `go/service-control-api/cmd/aiops-service-control/main.go` | CLI entrypoint |
+| `go/service-control-api/cmd/aiops-service-control/api_integration_validation.go` | Go 기반 local API integration validation runner |
 | `go/service-control-api/cmd/aiops-service-control/validate_system.go` | local/vm 공통 system validation runner |
 | `go/service-control-api/internal/api/service.go` | LLM selection, agent registry, CPU/GPU placement, readiness pipeline |
 | `go/service-control-api/internal/api/server.go` | HTTP route |
@@ -71,6 +72,28 @@ go run ./cmd/aiops-service-control validate-system \
 
 VM 내부에서는 `--target vm`으로 변경합니다.
 
+API 통합 검증 포함:
+
+```bash
+go run ./cmd/aiops-service-control validate-system \
+  --target local \
+  --run-api-integration \
+  --api-port 18080 \
+  --output-dir ../../runs/full-validation-local-with-api
+```
+
+`--run-llm-benchmark` 또는 `--run-api-integration`이 없으면 해당 optional step은 `skipped=true`로 기록됩니다.
+
+## API Integration Validation
+
+```bash
+go run ./cmd/aiops-service-control api-integration-validation \
+  --output-dir ../../runs/api-integration-local \
+  --port 18080
+```
+
+이 명령은 6개 endpoint를 순차 호출하고 response field를 검증합니다. local API integration validation이며 production-level operational validation은 아닙니다.
+
 ## Ops LLM Dry-Run
 
 ```bash
@@ -109,6 +132,17 @@ benchmark_status = executed
 dry_run = false
 selected_actual_model = llama3.1:8b
 ```
+
+여러 Ollama 후보를 비교하려면 다음 config를 사용합니다.
+
+```bash
+go run ./cmd/aiops-service-control run-ops-llm-benchmark \
+  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
+  --candidates ../../config/ops_llm_eval_candidates.local_multi_ollama.json \
+  --output-dir ../../runs/ops-llm-evaluation-local-multi-executed
+```
+
+candidate config는 실행 결과가 아니며, 실제 endpoint 응답과 `evaluation_summary.json`의 `benchmark_status = executed`가 있어야 실제 비교 완료로 해석합니다.
 
 ## 출력 증거
 

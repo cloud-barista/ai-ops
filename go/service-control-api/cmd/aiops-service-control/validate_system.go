@@ -25,12 +25,15 @@ type systemValidationOptions struct {
 	LLMScenariosPath   string
 	LLMCandidatesPath  string
 	LLMDryRun          bool
+	RunAPIIntegration  bool
+	APIPort            int
 }
 
 type systemValidationStep struct {
 	Name       string `json:"name"`
 	Valid      bool   `json:"valid"`
 	Skipped    bool   `json:"skipped,omitempty"`
+	Reason     string `json:"reason,omitempty"`
 	OutputPath string `json:"output_path,omitempty"`
 	Error      string `json:"error,omitempty"`
 }
@@ -94,8 +97,8 @@ func runSystemValidation(service api.Service, config api.ServerConfig, options s
 
 	goBinary := findGoBinary()
 	if options.SkipGoTests {
-		addStep(systemValidationStep{Name: "go-test-aiops-guard", Valid: true, Skipped: true})
-		addStep(systemValidationStep{Name: "go-test-service-control-api", Valid: true, Skipped: true})
+		addStep(systemValidationStep{Name: "go-test-aiops-guard", Valid: true, Skipped: true, Reason: "--skip-go-tests was enabled"})
+		addStep(systemValidationStep{Name: "go-test-service-control-api", Valid: true, Skipped: true, Reason: "--skip-go-tests was enabled"})
 	} else {
 		addStep(runCommandStep(
 			"go-test-aiops-guard",
@@ -116,7 +119,7 @@ func runSystemValidation(service api.Service, config api.ServerConfig, options s
 	}
 
 	if options.SkipTeamValidation {
-		addStep(systemValidationStep{Name: "team-validation", Valid: true, Skipped: true})
+		addStep(systemValidationStep{Name: "team-validation", Valid: true, Skipped: true, Reason: "--skip-team-validation was enabled"})
 	} else {
 		teamValidationDir := filepath.Join(outputDirAbs, "team-validation")
 		teamValidation, err := runTeamValidation(service, config, teamValidationDir)
@@ -168,6 +171,37 @@ func runSystemValidation(service api.Service, config api.ServerConfig, options s
 			}
 			addStep(evaluationStep)
 		}
+	} else {
+		addStep(systemValidationStep{
+			Name:    "ops-llm-evaluation",
+			Valid:   true,
+			Skipped: true,
+			Reason:  "--run-llm-benchmark was not enabled",
+		})
+	}
+
+	if options.RunAPIIntegration {
+		apiOutputDir := filepath.Join(outputDirAbs, "api-integration-validation")
+		apiSummary, err := runAPIIntegrationValidation(config, apiIntegrationValidationOptions{
+			OutputDir: apiOutputDir,
+			Port:      options.APIPort,
+		})
+		apiStep := systemValidationStep{
+			Name:       "api-integration-validation",
+			Valid:      err == nil && apiSummary.Valid,
+			OutputPath: filepath.Join(apiOutputDir, "api-integration-validation-summary.json"),
+		}
+		if err != nil {
+			apiStep.Error = err.Error()
+		}
+		addStep(apiStep)
+	} else {
+		addStep(systemValidationStep{
+			Name:    "api-integration-validation",
+			Valid:   true,
+			Skipped: true,
+			Reason:  "--run-api-integration was not enabled",
+		})
 	}
 
 	if target == "vm" {
@@ -197,6 +231,7 @@ func runSystemValidation(service api.Service, config api.ServerConfig, options s
 			"go_module_tests",
 			"team_validation",
 			"ops_llm_benchmark",
+			"api_integration_validation",
 			"service_operations_readiness",
 			"target_environment_evidence",
 		},

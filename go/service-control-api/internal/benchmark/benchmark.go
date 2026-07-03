@@ -34,6 +34,10 @@ type RunResult struct {
 	ScenarioCount   int      `json:"scenario_count"`
 	CandidateCount  int      `json:"candidate_count"`
 	OutputCount     int      `json:"output_count"`
+	ExecutedCount   int      `json:"executed_count"`
+	DryRunCount     int      `json:"dry_run_count"`
+	SkippedCount    int      `json:"skipped_count"`
+	ErrorCount      int      `json:"error_count"`
 	GeneratedAt     string   `json:"generated_at"`
 	Notes           []string `json:"notes"`
 }
@@ -53,6 +57,10 @@ type EvaluationSummary struct {
 	SummaryPath         string                `json:"summary_path"`
 	ScenarioCount       int                   `json:"scenario_count"`
 	OutputCount         int                   `json:"output_count"`
+	ExecutedCount       int                   `json:"executed_count"`
+	DryRunCount         int                   `json:"dry_run_count"`
+	SkippedCount        int                   `json:"skipped_count"`
+	ErrorCount          int                   `json:"error_count"`
 	SelectedCandidateID string                `json:"selected_candidate_id,omitempty"`
 	SelectedRoleLabel   string                `json:"selected_role_label,omitempty"`
 	SelectedActualModel string                `json:"selected_actual_model,omitempty"`
@@ -70,6 +78,7 @@ type CandidateEvaluation struct {
 	Executed     int     `json:"executed"`
 	DryRun       int     `json:"dry_run"`
 	Skipped      int     `json:"skipped"`
+	ErrorCount   int     `json:"error_count"`
 	AverageScore float64 `json:"average_score"`
 }
 
@@ -86,19 +95,21 @@ type scenario struct {
 
 type candidateConfig struct {
 	Version         string      `json:"version"`
+	BenchmarkMode   string      `json:"benchmark_mode"`
 	BenchmarkStatus string      `json:"benchmark_status"`
 	Description     string      `json:"description"`
 	Candidates      []candidate `json:"candidates"`
 }
 
 type candidate struct {
-	CandidateID string `json:"candidate_id"`
-	RoleLabel   string `json:"role_label"`
-	Provider    string `json:"provider"`
-	ActualModel string `json:"actual_model"`
-	APIKeyEnv   string `json:"api_key_env"`
-	Endpoint    string `json:"endpoint"`
-	Enabled     bool   `json:"enabled"`
+	CandidateID    string `json:"candidate_id"`
+	RoleLabel      string `json:"role_label"`
+	Provider       string `json:"provider"`
+	ActualModel    string `json:"actual_model"`
+	APIKeyEnv      string `json:"api_key_env"`
+	Endpoint       string `json:"endpoint"`
+	Enabled        bool   `json:"enabled"`
+	TimeoutSeconds int    `json:"timeout_seconds"`
 }
 
 type modelOutput struct {
@@ -166,6 +177,10 @@ func RunOpsLLMBenchmark(options RunOptions) (RunResult, error) {
 		status = "dry_run"
 	}
 	outputCount := 0
+	executedCount := 0
+	dryRunCount := 0
+	skippedCount := 0
+	errorCount := 0
 	for _, candidate := range config.Candidates {
 		for _, scenario := range scenarios {
 			prompt := buildPrompt(scenario)
@@ -199,6 +214,18 @@ func RunOpsLLMBenchmark(options RunOptions) (RunResult, error) {
 					status = "executed"
 				}
 			}
+			if output.BenchmarkStatus == "executed" {
+				executedCount++
+			}
+			if output.DryRun || output.BenchmarkStatus == "dry_run" {
+				dryRunCount++
+			}
+			if output.Skipped {
+				skippedCount++
+			}
+			if output.Error != "" {
+				errorCount++
+			}
 			if err := encoder.Encode(output); err != nil {
 				return RunResult{}, err
 			}
@@ -218,6 +245,10 @@ func RunOpsLLMBenchmark(options RunOptions) (RunResult, error) {
 		ScenarioCount:   len(scenarios),
 		CandidateCount:  len(config.Candidates),
 		OutputCount:     outputCount,
+		ExecutedCount:   executedCount,
+		DryRunCount:     dryRunCount,
+		SkippedCount:    skippedCount,
+		ErrorCount:      errorCount,
 		GeneratedAt:     time.Now().UTC().Format(time.RFC3339),
 		Notes: []string{
 			"Dry-run output is not an executed LLM benchmark.",
@@ -269,6 +300,10 @@ func EvaluateOpsLLMOutputs(options EvaluateOptions) (EvaluationSummary, error) {
 	aggregates := map[string]*aggregate{}
 	anyExecuted := false
 	anyDryRun := false
+	executedCount := 0
+	dryRunCount := 0
+	skippedCount := 0
+	errorCount := 0
 	for _, output := range outputs {
 		key := output.CandidateID
 		if key == "" {
@@ -286,18 +321,25 @@ func EvaluateOpsLLMOutputs(options EvaluateOptions) (EvaluationSummary, error) {
 		}
 		agg := aggregates[key]
 		agg.OutputCount++
+		if output.Error != "" {
+			agg.ErrorCount++
+			errorCount++
+		}
 
 		if output.DryRun || output.BenchmarkStatus == "dry_run" {
 			anyDryRun = true
 			agg.DryRun++
+			dryRunCount++
 			continue
 		}
 		if output.Skipped || output.BenchmarkStatus != "executed" {
 			agg.Skipped++
+			skippedCount++
 			continue
 		}
 		anyExecuted = true
 		agg.Executed++
+		executedCount++
 		score := scoreOutput(scenarioByID[output.ScenarioID], output)
 		agg.scoreTotal += score
 	}
@@ -333,6 +375,10 @@ func EvaluateOpsLLMOutputs(options EvaluateOptions) (EvaluationSummary, error) {
 		SummaryPath:     options.SummaryPath,
 		ScenarioCount:   len(scenarios),
 		OutputCount:     len(outputs),
+		ExecutedCount:   executedCount,
+		DryRunCount:     dryRunCount,
+		SkippedCount:    skippedCount,
+		ErrorCount:      errorCount,
 		Candidates:      candidates,
 		Notes: []string{
 			"selected_actual_model is populated only when benchmark_status is executed.",
@@ -411,6 +457,9 @@ func loadCandidateConfig(path string) (candidateConfig, error) {
 		}
 		if candidate.ActualModel == "" {
 			return candidateConfig{}, fmt.Errorf("%s candidate[%d] actual_model is required", path, index)
+		}
+		if candidate.TimeoutSeconds <= 0 {
+			config.Candidates[index].TimeoutSeconds = 60
 		}
 	}
 	return config, nil
@@ -493,7 +542,12 @@ func callOpenAICompatible(candidate candidate, prompt string) (modelOutput, erro
 	}
 
 	start := time.Now()
-	response, err := http.DefaultClient.Do(request)
+	timeout := time.Duration(candidate.TimeoutSeconds) * time.Second
+	if timeout <= 0 {
+		timeout = 60 * time.Second
+	}
+	client := http.Client{Timeout: timeout}
+	response, err := client.Do(request)
 	latency := time.Since(start).Milliseconds()
 	if err != nil {
 		return modelOutput{BenchmarkStatus: "not_executed", Skipped: true, LatencyMS: latency}, err

@@ -11,7 +11,7 @@
 | 산출물 통합 검증 | PASS | `team-validation`, 6개 step |
 | 로컬 시스템 검증 | PASS | `validate-system --target local` |
 | 로컬 API 기본 응답 확인 | PASS | API 서버 실행, 주요 endpoint 응답, JSON 구조 확인 |
-| 로컬 API 통합 검증 | PASS | 6개 endpoint 순차 호출 및 핵심 response field 확인 |
+| 로컬 API 통합 검증 | PASS | Go CLI 기반 6개 endpoint 순차 호출 및 핵심 response field 확인 |
 | Ops LLM dry-run pipeline | PASS | `benchmark_status=dry_run`, `output_count=30` |
 
 ## 실행 명령
@@ -41,9 +41,9 @@ go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
   --outputs ../../runs/evidence-local-20260703-142217/ops-llm-evaluation-dry-run/model_outputs.jsonl \
   --summary ../../runs/evidence-local-20260703-142217/ops-llm-evaluation-dry-run/evaluation_summary.json
 
-cd ../..
-bash scripts/run_local_api_integration_validation.sh \
-  runs/local-api-integration-validation-20260703-150641
+go run ./cmd/aiops-service-control api-integration-validation \
+  --output-dir ../../runs/api-integration-local \
+  --port 18080
 ```
 
 ## 대표 산출 JSON
@@ -61,8 +61,10 @@ bash scripts/run_local_api_integration_validation.sh \
 - `team-validation`은 6개 step 모두 `valid=true`입니다.
 - `validate-system --target local`은 로컬 환경 증적과 Go test, team-validation을 하나의 summary로 묶어 `valid=true`를 반환했습니다.
 - 로컬 API 기본 응답 확인은 endpoint의 응답 가능 여부와 response structure를 확인한 결과이며, production-level operational validation을 의미하지 않습니다.
-- 로컬 API 통합 검증은 `/healthz`, `/api/v1/agents`, `/api/v1/ops-llm/select`, `/api/v1/apps/placement`, `/api/v1/apps/deployment-plan`, `/api/v1/service-operations/run`을 순차 호출하고 핵심 필드를 확인한 결과입니다.
+- 로컬 API 통합 검증은 Go CLI가 `/healthz`, `/api/v1/agents`, `/api/v1/ops-llm/select`, `/api/v1/apps/placement`, `/api/v1/apps/deployment-plan`, `/api/v1/service-operations/run`을 순차 호출하고 핵심 필드를 확인한 결과입니다.
 - Ops LLM dry-run은 `benchmark_status=dry_run`입니다. 이는 scenario, candidate, output, evaluator 연결 구조를 확인한 결과이며, 실제 LLM endpoint를 호출한 품질 평가가 아닙니다.
+- `config/ops_llm_eval_candidates.local_multi_ollama.json`은 실제 multi-LLM benchmark를 위한 후보 설정 파일이며 실행 결과가 아닙니다.
+- 현재 committed evidence에는 실제 multi-LLM 비교 완료 결과가 포함되어 있지 않습니다.
 - dry-run 결과의 평균 점수는 실제 모델 성능 점수로 해석하지 않습니다.
 - 실제 LLM 품질 평가는 `benchmark_status=executed`, `dry_run=false`, `selected_actual_model`이 기록된 결과가 생성된 경우에만 주장할 수 있습니다.
 - VM 검증은 AWS GPU VM 내부에서 `validate-system --target vm`으로 실행했을 때만 GPU visibility와 AWS metadata evidence를 포함합니다.

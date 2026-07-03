@@ -14,7 +14,7 @@
 | CPU/GPU VM placement recommendation | `recommend-inference-placement` | selected resource와 rejected-resource explanation |
 | AI 응용 배포·제어 계획 생성 | `plan-inference-deployment` | namespace, deployment, node selector, resource limit, control action 생성 결과 |
 | Mock dry-run 및 guard validation | `run-service-operations` | manifest dry-run output과 `guard_validation.valid = true` |
-| Local API integration validation | `scripts/run_local_api_integration_validation.sh` | 6개 endpoint 순차 호출과 핵심 response field 검증 |
+| Local API integration validation | `go run ./cmd/aiops-service-control api-integration-validation` | Go CLI 기반 6개 endpoint 순차 호출과 핵심 response field 검증 |
 | Go unit test | 각 Go module의 `go test ./...` | module-level test pass/fail output |
 | Integrated readiness | `team-validation` | `runs/<output-dir>/` 아래 JSON output files |
 

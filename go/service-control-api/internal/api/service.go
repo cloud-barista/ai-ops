@@ -324,6 +324,10 @@ func (service Service) RunServiceOperations(request ServiceOperationsRequest) (S
 	}
 	recoveryNamespace, recoveryDeployment := normalizeRecoveryContext(request)
 	dryRun := validateDeploymentManifest(manifest, request.Mode)
+	deploymentExecutionMode := "dry_run"
+	if request.Mode == "mock" {
+		deploymentExecutionMode = "mock"
+	}
 	reviews := buildAgentReviews(deploymentPlan)
 	recovery := RecoveryReadiness{
 		Valid:      recoveryNamespace != "" && recoveryDeployment != "",
@@ -355,22 +359,26 @@ func (service Service) RunServiceOperations(request ServiceOperationsRequest) (S
 		InferenceDeploymentPlan: deploymentPlan,
 		DeploymentManifest:      manifest,
 		DeploymentDryRun:        dryRun,
+		DeploymentExecutionMode: deploymentExecutionMode,
+		KubernetesLiveApply:     false,
 		AgentReviews:            reviews,
 		Recovery:                recovery,
 		RecoveryPipelineReady:   ready,
 		GuardBackend:            request.GuardBackend,
 		GuardValidation:         guardValidation,
 		Metadata: map[string]string{
-			"llm_policy":            request.LLMPolicy,
-			"workload":              request.Workload,
-			"mode":                  request.Mode,
-			"recovery_namespace":    recoveryNamespace,
-			"recovery_deployment":   recoveryDeployment,
-			"selected_actual_model": llmSelection.SelectedActualModel,
-			"selected_provider":     llmSelection.SelectedProvider,
-			"evaluation_source":     llmSelection.EvaluationSource,
-			"evaluation_type":       llmSelection.EvaluationType,
-			"benchmark_status":      llmSelection.BenchmarkStatus,
+			"llm_policy":                request.LLMPolicy,
+			"workload":                  request.Workload,
+			"mode":                      request.Mode,
+			"recovery_namespace":        recoveryNamespace,
+			"recovery_deployment":       recoveryDeployment,
+			"selected_actual_model":     llmSelection.SelectedActualModel,
+			"selected_provider":         llmSelection.SelectedProvider,
+			"evaluation_source":         llmSelection.EvaluationSource,
+			"evaluation_type":           llmSelection.EvaluationType,
+			"benchmark_status":          llmSelection.BenchmarkStatus,
+			"deployment_execution_mode": deploymentExecutionMode,
+			"kubernetes_live_apply":     "false",
 		},
 	}, nil
 }

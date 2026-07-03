@@ -29,7 +29,8 @@
 | --- | --- |
 | `data/ops_llm_eval_scenarios.jsonl` | Ops LLM 평가 scenario set |
 | `config/ops_llm_eval_candidates.json` | 안전한 기본 candidate 설정. 기본적으로 provider 호출 없음 |
-| `config/ops_llm_eval_candidates.local_ollama.json` | local OpenAI-compatible endpoint 실행용 설정 |
+| `config/ops_llm_eval_candidates.local_ollama.json` | local OpenAI-compatible endpoint 단일 후보 실행용 설정. 실행 결과가 아니라 candidate config |
+| `config/ops_llm_eval_candidates.local_multi_ollama.json` | local Ollama/OpenAI-compatible endpoint에서 여러 모델 후보를 비교하기 위한 candidate config |
 | `config/ops_llm_benchmark.json` | service-control prototype의 정책 기반 LLM selection baseline |
 
 ## 4. Dry-Run 실행
@@ -52,6 +53,8 @@ go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
 
 ```text
 benchmark_status = dry_run
+executed_count = 0
+dry_run_count > 0
 selected_actual_model = ""
 ```
 
@@ -87,7 +90,46 @@ dry_run = false
 selected_actual_model = llama3.1:8b
 ```
 
-## 6. System Validation과 연결
+## 6. 실제 Multi-LLM 실행
+
+여러 local Ollama 모델을 비교하려면 다음과 같이 실행합니다.
+
+```bash
+ollama serve
+ollama pull qwen2.5:3b
+ollama pull llama3.2:3b
+ollama pull gemma2:2b
+```
+
+```bash
+cd go/service-control-api
+go run ./cmd/aiops-service-control run-ops-llm-benchmark \
+  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
+  --candidates ../../config/ops_llm_eval_candidates.local_multi_ollama.json \
+  --output-dir ../../runs/ops-llm-evaluation-local-multi-executed
+
+go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
+  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
+  --outputs ../../runs/ops-llm-evaluation-local-multi-executed/model_outputs.jsonl \
+  --summary ../../runs/ops-llm-evaluation-local-multi-executed/evaluation_summary.json
+```
+
+`config/ops_llm_eval_candidates.local_multi_ollama.json`은 실제 결과가 아니라 실행 후보 설정입니다. 실제 비교 완료는 `runs/.../evaluation_summary.json`에 `benchmark_status = executed`가 기록된 경우에만 주장할 수 있습니다.
+
+실제 multi-LLM 비교가 완료되었다고 말하려면 다음 조건을 모두 만족해야 합니다.
+
+- `--dry-run`을 사용하지 않아야 함
+- candidate가 2개 이상이어야 함
+- 각 candidate endpoint가 실제 응답해야 함
+- `benchmark_status = executed`
+- `dry_run = false`
+- candidate별 `executed > 0`
+- `selected_actual_model`이 존재해야 함
+- candidate별 `average_score`가 계산되어야 함
+
+현재 환경에서 Ollama endpoint가 실행 중이 아니면 `benchmark_status = executed`인 가짜 결과를 만들지 않습니다.
+
+## 7. System Validation과 연결
 
 로컬 또는 VM 검증에 실제 LLM benchmark를 포함하려면 다음과 같이 실행합니다.
 
@@ -110,7 +152,19 @@ go run ./cmd/aiops-service-control validate-system \
   --output-dir ../../runs/full-validation-vm-executed
 ```
 
-## 7. 점수 산정
+API 통합 검증도 `validate-system`에 포함할 수 있습니다.
+
+```bash
+go run ./cmd/aiops-service-control validate-system \
+  --target local \
+  --run-api-integration \
+  --api-port 18080 \
+  --output-dir ../../runs/full-validation-local-with-api
+```
+
+`--run-llm-benchmark` 또는 `--run-api-integration`을 주지 않으면 해당 optional step은 실패가 아니라 `skipped=true`와 reason으로 기록됩니다.
+
+## 8. 점수 산정
 
 `evaluate-ops-llm-outputs`는 실행된 응답만 점수화합니다.
 

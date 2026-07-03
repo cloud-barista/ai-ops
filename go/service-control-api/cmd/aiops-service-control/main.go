@@ -250,6 +250,24 @@ func run(args []string) error {
 			return err
 		}
 		return emitReport("evaluate-ops-llm-outputs", result, *saveResultDir)
+	case "api-integration-validation":
+		flags := flag.NewFlagSet("api-integration-validation", flag.ContinueOnError)
+		outputDir := flags.String("output-dir", "", "Directory where API integration validation evidence is saved")
+		port := flags.Int("port", 18080, "Local API server port; use 0 for an ephemeral port")
+		baseURL := flags.String("base-url", "", "Optional existing service-control API base URL")
+		saveResultDir := addSaveResultDirFlag(flags)
+		if err := flags.Parse(args[1:]); err != nil {
+			return err
+		}
+		result, err := runAPIIntegrationValidation(serverConfig, apiIntegrationValidationOptions{
+			OutputDir: *outputDir,
+			Port:      *port,
+			BaseURL:   *baseURL,
+		})
+		if err != nil {
+			return err
+		}
+		return emitReport("api-integration-validation", result, *saveResultDir)
 	case "validate-system":
 		flags := flag.NewFlagSet("validate-system", flag.ContinueOnError)
 		target := flags.String("target", "local", "Validation target: local or vm")
@@ -260,6 +278,8 @@ func run(args []string) error {
 		llmScenarios := flags.String("llm-scenarios", "data/ops_llm_eval_scenarios.jsonl", "Ops LLM evaluation scenarios JSONL path")
 		llmCandidates := flags.String("llm-candidates", "config/ops_llm_eval_candidates.json", "Ops LLM evaluation candidates JSON path")
 		llmDryRun := flags.Bool("llm-dry-run", false, "Run the Ops LLM benchmark in dry-run mode")
+		runAPIIntegration := flags.Bool("run-api-integration", false, "Run local API integration validation as part of system validation")
+		apiPort := flags.Int("api-port", 18080, "Local API server port for API integration validation; use 0 for an ephemeral port")
 		if err := flags.Parse(args[1:]); err != nil {
 			return err
 		}
@@ -272,6 +292,8 @@ func run(args []string) error {
 			LLMScenariosPath:   resolveInputPath(serverConfig, *llmScenarios),
 			LLMCandidatesPath:  resolveInputPath(serverConfig, *llmCandidates),
 			LLMDryRun:          *llmDryRun,
+			RunAPIIntegration:  *runAPIIntegration,
+			APIPort:            *apiPort,
 		})
 		if err != nil {
 			return err

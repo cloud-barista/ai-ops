@@ -1,5 +1,5 @@
 {
-  "command": "local-api-integration-validation",
+  "command": "api-integration-validation",
   "validation_type": "local_api_integration_validation",
   "target": "local",
   "valid": true,
@@ -8,12 +8,12 @@
   "production_level_validation": false,
   "full_operational_validation": false,
   "description": "Local service-control API endpoints were called sequentially and key response fields were verified. This is not production-level operational validation.",
-  "raw_result_directory": "<repo>/runs/local-api-integration-validation-20260703-150641/",
+  "raw_result_directory": "<repo>/runs/api-integration-local/",
   "endpoints": [
     {
       "endpoint": "/healthz",
       "method": "GET",
-      "response_file": "<repo>/runs/local-api-integration-validation-20260703-150641/api-integration-validation/00-healthz.json",
+      "response_file": "<repo>/runs/api-integration-local/01_healthz_response.json",
       "fields_checked": [
         "status",
         "service"
@@ -23,7 +23,7 @@
     {
       "endpoint": "/api/v1/agents",
       "method": "GET",
-      "response_file": "<repo>/runs/local-api-integration-validation-20260703-150641/api-integration-validation/01-agents.json",
+      "response_file": "<repo>/runs/api-integration-local/02_agents_response.json",
       "fields_checked": [
         "agents",
         "version",
@@ -34,11 +34,12 @@
     {
       "endpoint": "/api/v1/ops-llm/select",
       "method": "POST",
-      "response_file": "<repo>/runs/local-api-integration-validation-20260703-150641/api-integration-validation/02-ops-llm-select.json",
+      "response_file": "<repo>/runs/api-integration-local/03_ops_llm_select_response.json",
       "fields_checked": [
         "valid",
         "selected_model",
         "selected_actual_model",
+        "selected_provider",
         "benchmark_status"
       ],
       "valid": true
@@ -46,7 +47,7 @@
     {
       "endpoint": "/api/v1/apps/placement",
       "method": "POST",
-      "response_file": "<repo>/runs/local-api-integration-validation-20260703-150641/api-integration-validation/03-placement.json",
+      "response_file": "<repo>/runs/api-integration-local/04_apps_placement_response.json",
       "fields_checked": [
         "valid",
         "selected_resource",
@@ -58,7 +59,7 @@
     {
       "endpoint": "/api/v1/apps/deployment-plan",
       "method": "POST",
-      "response_file": "<repo>/runs/local-api-integration-validation-20260703-150641/api-integration-validation/04-deployment-plan.json",
+      "response_file": "<repo>/runs/api-integration-local/05_apps_deployment_plan_response.json",
       "fields_checked": [
         "valid",
         "selected_resource",
@@ -69,7 +70,7 @@
     {
       "endpoint": "/api/v1/service-operations/run",
       "method": "POST",
-      "response_file": "<repo>/runs/local-api-integration-validation-20260703-150641/api-integration-validation/05-service-operations-run.json",
+      "response_file": "<repo>/runs/api-integration-local/06_service_operations_run_response.json",
       "fields_checked": [
         "valid",
         "selected_llm",
@@ -77,6 +78,9 @@
         "selected_resource",
         "deployment_plan",
         "deployment_manifest",
+        "deployment_dry_run",
+        "deployment_execution_mode",
+        "kubernetes_live_apply",
         "guard_backend",
         "guard_validation"
       ],

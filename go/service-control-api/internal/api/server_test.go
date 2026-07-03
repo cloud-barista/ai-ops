@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -62,6 +63,22 @@ func TestSelectOpsLLM(t *testing.T) {
 
 func TestPlacementAndDeploymentPlan(t *testing.T) {
 	server := NewServer(NewServerConfig())
+	placementBody := strings.NewReader(`{"workload":"llm-chat-inference"}`)
+	placementRequest := httptest.NewRequest(http.MethodPost, "/api/v1/apps/placement", placementBody)
+	placementRequest.Header.Set("Content-Type", "application/json")
+	placementResponse := httptest.NewRecorder()
+
+	server.ServeHTTP(placementResponse, placementRequest)
+
+	if placementResponse.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d body=%s", placementResponse.Code, placementResponse.Body.String())
+	}
+	placement := decodeObject(t, placementResponse.Body.Bytes())
+	assertPresent(t, placement, "selected_resource")
+	assertPresent(t, placement, "action")
+	assertPresent(t, placement, "ranked_candidates")
+	assertPresent(t, placement, "rejected_resources")
+
 	body := strings.NewReader(`{"workload":"llm-chat-inference"}`)
 	request := httptest.NewRequest(http.MethodPost, "/api/v1/apps/deployment-plan", body)
 	request.Header.Set("Content-Type", "application/json")
@@ -78,6 +95,9 @@ func TestPlacementAndDeploymentPlan(t *testing.T) {
 	if !strings.Contains(response.Body.String(), `"deployment":"llm-chat-inference"`) {
 		t.Fatalf("expected deployment plan: %s", response.Body.String())
 	}
+	deployment := decodeObject(t, response.Body.Bytes())
+	assertPresent(t, deployment, "selected_resource")
+	assertPresent(t, deployment, "deployment_plan")
 }
 
 func TestRunServiceOperationsEndpoint(t *testing.T) {
@@ -113,5 +133,34 @@ func TestRunServiceOperationsEndpoint(t *testing.T) {
 	}
 	if !strings.Contains(response.Body.String(), `"guard_validation"`) {
 		t.Fatalf("expected guard validation result: %s", response.Body.String())
+	}
+	result := decodeObject(t, response.Body.Bytes())
+	assertPresent(t, result, "deployment_execution_mode")
+	assertPresent(t, result, "kubernetes_live_apply")
+	if result["deployment_execution_mode"] != "mock" {
+		t.Fatalf("expected mock execution mode, got %#v", result["deployment_execution_mode"])
+	}
+	if result["kubernetes_live_apply"] != false {
+		t.Fatalf("prototype must not claim Kubernetes live apply: %#v", result["kubernetes_live_apply"])
+	}
+	guard := result["guard_validation"].(map[string]any)
+	if guard["valid"] != true {
+		t.Fatalf("expected guard validation to be valid: %#v", guard)
+	}
+}
+
+func decodeObject(t *testing.T, data []byte) map[string]any {
+	t.Helper()
+	var result map[string]any
+	if err := json.Unmarshal(data, &result); err != nil {
+		t.Fatalf("failed to decode response: %v body=%s", err, string(data))
+	}
+	return result
+}
+
+func assertPresent(t *testing.T, object map[string]any, key string) {
+	t.Helper()
+	if _, ok := object[key]; !ok {
+		t.Fatalf("expected key %s in %#v", key, object)
 	}
 }

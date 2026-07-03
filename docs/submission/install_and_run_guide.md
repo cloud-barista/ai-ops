@@ -118,6 +118,7 @@ go run ./cmd/aiops-service-control validate-system \
 | `team-validation/` | 기존 team-validation 상세 JSON |
 | `ops-llm-benchmark/model_outputs.jsonl` | `--run-llm-benchmark` 사용 시 생성되는 LLM benchmark output |
 | `ops-llm-benchmark/evaluation_summary.json` | LLM benchmark evaluator summary. `benchmark_status`로 dry-run/executed를 구분 |
+| `api-integration-validation/api-integration-validation-summary.json` | `--run-api-integration` 사용 시 생성되는 6개 API endpoint field-level 검증 summary |
 | `04_vm_nvidia_smi.txt` | VM target에서만 생성되는 GPU 확인 결과 |
 | `05_vm_aws_metadata.json` | VM target에서만 생성되는 AWS instance metadata |
 
@@ -256,14 +257,26 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/service-operations/run \
 
 ## 10. 로컬 API 통합 검증
 
-API 서버의 기본 응답 확인보다 강한 검증이 필요하면 다음 스크립트를 실행합니다.
+API 서버의 기본 응답 확인보다 강한 검증이 필요하면 Go CLI 검증 명령을 실행합니다.
 
 ```bash
-bash scripts/run_local_api_integration_validation.sh \
-  runs/local-api-integration-validation-YYYYMMDD-HHMMSS
+cd go/service-control-api
+go run ./cmd/aiops-service-control api-integration-validation \
+  --output-dir ../../runs/api-integration-local \
+  --port 18080
 ```
 
-이 스크립트는 로컬 API 서버를 실행한 뒤 `/healthz`, `/api/v1/agents`, `/api/v1/ops-llm/select`, `/api/v1/apps/placement`, `/api/v1/apps/deployment-plan`, `/api/v1/service-operations/run`을 순차 호출하고 핵심 response field를 검사합니다.
+이 명령은 Go 코드에서 로컬 API 서버를 실행한 뒤 `/healthz`, `/api/v1/agents`, `/api/v1/ops-llm/select`, `/api/v1/apps/placement`, `/api/v1/apps/deployment-plan`, `/api/v1/service-operations/run`을 순차 호출하고 핵심 response field를 검사합니다.
+
+`validate-system` 안에 포함하려면 다음처럼 실행합니다.
+
+```bash
+go run ./cmd/aiops-service-control validate-system \
+  --target local \
+  --run-api-integration \
+  --api-port 18080 \
+  --output-dir ../../runs/full-validation-local-with-api
+```
 
 검증 결과 원본은 `runs/` 아래에 저장합니다. 이 결과는 로컬 service-control API flow 검증이며 production-level operational validation 또는 실제 cloud deployment 완료를 의미하지 않습니다.
 
@@ -279,6 +292,8 @@ selected_resource = gpu-vm-l4
 valid = true
 guard_backend = go
 guard_validation.valid = true
+deployment_execution_mode = mock
+kubernetes_live_apply = false
 ```
 
 위 값은 prototype의 policy와 control-flow wiring을 검증합니다. 최종 표준 LLM benchmark result가 아닙니다.

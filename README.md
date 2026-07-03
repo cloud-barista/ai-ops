@@ -27,9 +27,9 @@
 
 `config/ops_llm_benchmark.json`의 LLM 정책 값은 1차년도 기능 검증을 위한 수동 정의 기준값입니다. 최종 표준 LLM 벤치마크 결과가 아니며, 정량 보고를 위해서는 고정 프롬프트, 고정 데이터셋, 반복 가능한 지표 수집, 점수 산정 규칙을 포함한 별도 평가가 필요합니다.
 
-`primary-ops-llm`, `low-cost-ops-llm`, `code-cross-check-agent`는 내부 역할 label입니다. 실제 provider model 이름은 `actual_model`, `selected_actual_model`, `selected_provider`, `benchmark_status` 필드로 별도 관리합니다. 기본 config는 안전하게 `not_executed` 또는 `dry_run` 상태를 사용하며, 실제 endpoint 후보 config로 실행한 경우에만 `benchmark_status = executed`를 기록합니다.
+`primary-ops-llm`, `low-cost-ops-llm`, `code-cross-check-agent`는 내부 역할 label입니다. 실제 provider model 이름은 `actual_model`, `selected_actual_model`, `selected_provider`, `benchmark_status` 필드로 별도 관리합니다. 기본 config는 안전하게 `not_executed` 또는 `dry_run` 상태를 사용하며, 실제 endpoint가 응답한 run output 또는 evaluation summary에서만 `benchmark_status = executed`를 기록합니다. Candidate config 파일이 존재하는 것만으로 실제 benchmark 완료를 주장하지 않습니다.
 
-기본 실행 모드는 `mock`입니다. 로컬 환경에서는 Go CLI/API와 Docker Desktop 기반 Kubernetes dry-run으로 기능 흐름을 검증할 수 있습니다. 실제 GPU VM 프로비저닝, 운영 클러스터 변경, CB-Tumblebug 기반 AWS GPU VM 생성은 기본 로컬 검증 범위 밖입니다.
+기본 실행 모드는 `mock`입니다. 로컬 환경에서는 Go CLI/API와 Kubernetes manifest generation 및 dry-run/mock 경계를 검증할 수 있습니다. API 응답에는 `deployment_execution_mode`와 `kubernetes_live_apply=false`가 포함되어 실제 Kubernetes live apply 완료를 주장하지 않도록 구분합니다. 실제 GPU VM 프로비저닝, 운영 클러스터 변경, CB-Tumblebug 기반 AWS GPU VM 생성은 기본 로컬 검증 범위 밖입니다.
 
 ## 🗂️ 저장소 구조
 
@@ -112,6 +112,7 @@ guard_validation.valid = true
 | Ops LLM dry-run | scenario, candidate, output, evaluator 연결 확인 | 실제 LLM API를 호출하지 않으므로 평균 점수는 실제 모델 성능 점수가 아님 |
 | Ops LLM executed benchmark | OpenAI-compatible endpoint가 응답하고 `benchmark_status = executed`, `dry_run = false`가 기록된 결과 | 이 조건을 만족한 결과만 실제 LLM 응답 평가로 해석 |
 | AWS GPU VM 검증 | AWS GPU VM 내부에서 `validate-system --target vm` 실행 시 GPU visibility와 instance metadata 기록 | 로컬 검증 결과만으로 VM 검증 완료를 주장하지 않음 |
+| Kubernetes 배포 검증 | manifest generation, mock 또는 dry-run 검증 | `kubernetes_live_apply=false`이면 live deployment 완료가 아님 |
 
 API 서버 실행:
 
@@ -131,11 +132,13 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/service-operations/run \
 로컬 API 통합 검증:
 
 ```bash
-bash scripts/run_local_api_integration_validation.sh \
-  runs/local-api-integration-validation-YYYYMMDD-HHMMSS
+cd go/service-control-api
+go run ./cmd/aiops-service-control api-integration-validation \
+  --output-dir ../../runs/api-integration-local \
+  --port 18080
 ```
 
-이 스크립트는 `/healthz`, `/api/v1/agents`, `/api/v1/ops-llm/select`, `/api/v1/apps/placement`, `/api/v1/apps/deployment-plan`, `/api/v1/service-operations/run`을 순차 호출하고 핵심 response field를 검사합니다. 원본 응답은 `runs/` 아래에 저장하며, Git에는 절대경로를 제거한 대표 summary만 보존합니다.
+이 Go CLI는 `/healthz`, `/api/v1/agents`, `/api/v1/ops-llm/select`, `/api/v1/apps/placement`, `/api/v1/apps/deployment-plan`, `/api/v1/service-operations/run`을 순차 호출하고 핵심 response field를 검사합니다. 원본 응답은 `runs/` 아래에 저장하며, Git에는 절대경로를 제거한 대표 summary만 보존합니다. 이 검증은 production-level operational validation이 아닙니다.
 
 Ops LLM 평가는 두 모드로 실행합니다. `--dry-run`은 평가 파이프라인 검증용이고, `--dry-run`을 제거한 실행은 enabled candidate의 OpenAI-compatible endpoint를 실제 호출합니다.
 
@@ -163,6 +166,23 @@ go run ./cmd/aiops-service-control validate-system \
 ```
 
 실제 endpoint가 준비되지 않은 경우 이 명령은 실패합니다. dry-run 결과의 `benchmark_status`는 `dry_run`이며, 실제 모델 응답을 수집한 `executed` 결과가 아니면 최종 LLM 품질 평가로 해석하지 않습니다.
+
+여러 local Ollama 후보를 비교하려면 다음 candidate config를 사용합니다.
+
+```bash
+ollama serve
+ollama pull qwen2.5:3b
+ollama pull llama3.2:3b
+ollama pull gemma2:2b
+
+cd go/service-control-api
+go run ./cmd/aiops-service-control run-ops-llm-benchmark \
+  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
+  --candidates ../../config/ops_llm_eval_candidates.local_multi_ollama.json \
+  --output-dir ../../runs/ops-llm-evaluation-local-multi-executed
+```
+
+실제 multi-LLM 비교 완료는 `benchmark_status = executed`, `dry_run = false`, candidate별 `executed > 0`, `selected_actual_model`이 기록된 evaluation summary가 있을 때만 주장할 수 있습니다. Ollama endpoint가 없으면 fake executed result를 만들지 않습니다.
 
 로컬/VM 공통 검증은 `validate-system` 명령으로 실행합니다. VM 검증은 반드시 AWS GPU VM 내부에서 실행해야 하며, `--target vm`은 Go 테스트, team-validation, `nvidia-smi`, AWS instance metadata를 함께 기록합니다.
 

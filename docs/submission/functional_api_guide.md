@@ -66,14 +66,16 @@ API 시연에 사용할 request/response 예제는 다음 위치에 있습니다
 
 ## 4.2 로컬 API 통합 검증
 
-로컬 API flow를 한 번에 확인하려면 저장소 root에서 다음 스크립트를 실행합니다.
+로컬 API flow를 한 번에 확인하려면 Go CLI 검증 명령을 실행합니다.
 
 ```bash
-bash scripts/run_local_api_integration_validation.sh \
-  runs/local-api-integration-validation-YYYYMMDD-HHMMSS
+cd go/service-control-api
+go run ./cmd/aiops-service-control api-integration-validation \
+  --output-dir ../../runs/api-integration-local \
+  --port 18080
 ```
 
-이 스크립트는 API 서버를 실행하고 `/healthz`, `/api/v1/agents`, `/api/v1/ops-llm/select`, `/api/v1/apps/placement`, `/api/v1/apps/deployment-plan`, `/api/v1/service-operations/run`을 순차 호출합니다. 각 응답에서 `valid`, `selected_model`, `benchmark_status`, `selected_resource`, `deployment_plan`, `deployment_manifest`, `guard_backend`, `guard_validation` 등 핵심 필드를 확인합니다.
+이 명령은 Go 코드에서 로컬 API 서버를 실행하고 `/healthz`, `/api/v1/agents`, `/api/v1/ops-llm/select`, `/api/v1/apps/placement`, `/api/v1/apps/deployment-plan`, `/api/v1/service-operations/run`을 순차 호출합니다. 각 응답에서 `valid`, `selected_model`, `selected_actual_model`, `selected_provider`, `benchmark_status`, `selected_resource`, `deployment_plan`, `deployment_manifest`, `deployment_dry_run`, `deployment_execution_mode`, `kubernetes_live_apply`, `guard_backend`, `guard_validation` 등 핵심 필드를 확인합니다.
 
 이 결과는 local endpoint availability와 response structure, 그리고 service-control API flow의 field-level validation을 확인하는 것입니다. production-level operational validation 또는 실제 cloud deployment 완료를 의미하지 않습니다.
 
@@ -161,6 +163,8 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/service-operations/run \
 | `deployment_plan` | AI 응용 배포·제어 계획 |
 | `deployment_manifest` | 생성된 Kubernetes Deployment manifest |
 | `deployment_dry_run` | mock 또는 dry-run 배포 검증 결과 |
+| `deployment_execution_mode` | 현재 배포 실행 경계. 기본값은 `mock`, dry-run 검증은 `dry_run` |
+| `kubernetes_live_apply` | 실제 Kubernetes live apply 수행 여부. 현재 프로토타입 검증에서는 `false` |
 | `agent_reviews` | application, infrastructure, cost 관점 검토 결과 |
 | `recovery_pipeline_ready` | 서비스 운영/recovery context 준비 여부 |
 | `guard_backend` | guard 검증 backend, 기본 기대값은 `go` |

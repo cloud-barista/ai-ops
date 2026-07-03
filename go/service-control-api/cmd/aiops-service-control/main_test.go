@@ -94,6 +94,12 @@ func TestValidateSystemLocalCommandCreatesSummaryAndEnvironmentEvidence(t *testi
 	if summary["target"] != "local" {
 		t.Fatalf("expected local target, got %#v", summary["target"])
 	}
+	steps, ok := summary["steps"].([]any)
+	if !ok {
+		t.Fatalf("expected steps array in summary: %#v", summary["steps"])
+	}
+	assertStepSkipped(t, steps, "ops-llm-evaluation", "--run-llm-benchmark was not enabled")
+	assertStepSkipped(t, steps, "api-integration-validation", "--run-api-integration was not enabled")
 }
 
 func TestValidateSystemRejectsUnknownTarget(t *testing.T) {
@@ -152,6 +158,110 @@ func TestValidateSystemCanRunExecutedLLMBenchmark(t *testing.T) {
 	}
 	if !strings.Contains(string(benchmarkSummaryBytes), `"benchmark_status": "executed"`) {
 		t.Fatalf("expected executed benchmark summary: %s", string(benchmarkSummaryBytes))
+	}
+}
+
+func TestAPIIntegrationValidationCommandCreatesSummary(t *testing.T) {
+	outputDir := t.TempDir()
+
+	err := run([]string{
+		"api-integration-validation",
+		"--output-dir", outputDir,
+		"--port", "0",
+	})
+	if err != nil {
+		t.Fatalf("api-integration-validation returned error: %v", err)
+	}
+
+	summaryPath := filepath.Join(outputDir, "api-integration-validation-summary.json")
+	bytes, err := os.ReadFile(summaryPath)
+	if err != nil {
+		t.Fatalf("expected API integration summary: %v", err)
+	}
+	var summary map[string]any
+	if err := json.Unmarshal(bytes, &summary); err != nil {
+		t.Fatalf("failed to parse API integration summary: %v", err)
+	}
+	if summary["command"] != "api-integration-validation" {
+		t.Fatalf("expected api-integration-validation command, got %#v", summary["command"])
+	}
+	if summary["valid"] != true {
+		t.Fatalf("expected valid API integration validation, got %s", string(bytes))
+	}
+	if int(summary["endpoint_count"].(float64)) != 6 {
+		t.Fatalf("expected six endpoints, got %#v", summary["endpoint_count"])
+	}
+	if int(summary["valid_endpoint_count"].(float64)) != 6 {
+		t.Fatalf("expected six valid endpoints, got %#v", summary["valid_endpoint_count"])
+	}
+	if summary["production_level_validation"] != false {
+		t.Fatalf("local API integration must not claim production validation")
+	}
+}
+
+func TestValidateSystemCanRunAPIIntegrationValidation(t *testing.T) {
+	outputDir := t.TempDir()
+
+	err := run([]string{
+		"validate-system",
+		"--target", "local",
+		"--output-dir", outputDir,
+		"--skip-go-tests",
+		"--skip-team-validation",
+		"--run-api-integration",
+		"--api-port", "0",
+	})
+	if err != nil {
+		t.Fatalf("validate-system returned error: %v", err)
+	}
+
+	summaryBytes, err := os.ReadFile(filepath.Join(outputDir, "00_system_validation_summary.json"))
+	if err != nil {
+		t.Fatalf("failed to read system validation summary: %v", err)
+	}
+	var summary map[string]any
+	if err := json.Unmarshal(summaryBytes, &summary); err != nil {
+		t.Fatalf("failed to parse summary: %v", err)
+	}
+	steps := summary["steps"].([]any)
+	step := findStep(t, steps, "api-integration-validation")
+	if step["skipped"] == true {
+		t.Fatalf("api integration step should have run: %#v", step)
+	}
+	if step["valid"] != true {
+		t.Fatalf("api integration step should be valid: %#v", step)
+	}
+	if step["output_path"] == "" {
+		t.Fatalf("api integration step should record output path: %#v", step)
+	}
+}
+
+func findStep(t *testing.T, steps []any, name string) map[string]any {
+	t.Helper()
+	for _, raw := range steps {
+		step, ok := raw.(map[string]any)
+		if !ok {
+			t.Fatalf("step is not object: %#v", raw)
+		}
+		if step["name"] == name {
+			return step
+		}
+	}
+	t.Fatalf("step %s not found in %#v", name, steps)
+	return nil
+}
+
+func assertStepSkipped(t *testing.T, steps []any, name string, reason string) {
+	t.Helper()
+	step := findStep(t, steps, name)
+	if step["valid"] != true {
+		t.Fatalf("skipped step should be valid: %#v", step)
+	}
+	if step["skipped"] != true {
+		t.Fatalf("expected step %s to be skipped: %#v", name, step)
+	}
+	if step["reason"] != reason {
+		t.Fatalf("expected skip reason %q, got %#v", reason, step["reason"])
 	}
 }
 

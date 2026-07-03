@@ -238,6 +238,8 @@ type ServiceOperationsResponse struct {
 	InferenceDeploymentPlan DeploymentPlanResponse `json:"inference_deployment_plan"`
 	DeploymentManifest      DeploymentManifest     `json:"deployment_manifest"`
 	DeploymentDryRun        DeploymentDryRun       `json:"deployment_dry_run"`
+	DeploymentExecutionMode string                 `json:"deployment_execution_mode"`
+	KubernetesLiveApply     bool                   `json:"kubernetes_live_apply"`
 	AgentReviews            AgentReviews           `json:"agent_reviews"`
 	Recovery                RecoveryReadiness      `json:"recovery"`
 	RecoveryPipelineReady   bool                   `json:"recovery_pipeline_ready"`

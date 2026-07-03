@@ -29,6 +29,18 @@ func TestRunOpsLLMBenchmarkDryRunCreatesNonExecutedOutputs(t *testing.T) {
 	if result.BenchmarkStatus != "dry_run" {
 		t.Fatalf("expected benchmark_status dry_run, got %q", result.BenchmarkStatus)
 	}
+	if result.ExecutedCount != 0 {
+		t.Fatalf("dry-run must not increment executed_count, got %d", result.ExecutedCount)
+	}
+	if result.DryRunCount == 0 {
+		t.Fatalf("dry-run must increment dry_run_count")
+	}
+	if result.SkippedCount != result.OutputCount {
+		t.Fatalf("dry-run rows should be marked skipped, skipped=%d output=%d", result.SkippedCount, result.OutputCount)
+	}
+	if result.ErrorCount != 0 {
+		t.Fatalf("dry-run should not have errors, got %d", result.ErrorCount)
+	}
 	if result.OutputsPath == "" {
 		t.Fatalf("expected outputs path")
 	}
@@ -79,6 +91,20 @@ func TestEvaluateOpsLLMOutputsKeepsDryRunSeparateFromExecutedBenchmark(t *testin
 	if summary.SelectedActualModel != "" {
 		t.Fatalf("dry-run must not select a final actual model, got %q", summary.SelectedActualModel)
 	}
+	if summary.ExecutedCount != 0 {
+		t.Fatalf("dry-run summary must not count executed rows, got %d", summary.ExecutedCount)
+	}
+	if summary.DryRunCount == 0 {
+		t.Fatalf("dry-run summary should count dry-run rows")
+	}
+	if len(summary.Candidates) == 0 {
+		t.Fatalf("expected candidate summaries")
+	}
+	for _, candidate := range summary.Candidates {
+		if candidate.AverageScore != 0 {
+			t.Fatalf("dry-run candidate average score must stay zero, got %#v", candidate)
+		}
+	}
 	if _, err := os.Stat(summary.SummaryPath); err != nil {
 		t.Fatalf("expected summary file to exist: %v", err)
 	}
@@ -114,6 +140,12 @@ func TestRunOpsLLMBenchmarkExecutedModeCallsOpenAICompatibleProvider(t *testing.
 	if result.BenchmarkStatus != "executed" {
 		t.Fatalf("expected executed benchmark, got %q", result.BenchmarkStatus)
 	}
+	if result.ExecutedCount != 1 {
+		t.Fatalf("expected one executed output, got %d", result.ExecutedCount)
+	}
+	if result.ErrorCount != 0 {
+		t.Fatalf("expected no provider errors, got %d", result.ErrorCount)
+	}
 
 	rows := readJSONL(t, result.OutputsPath)
 	if len(rows) != 1 {
@@ -134,7 +166,7 @@ func TestRunOpsLLMBenchmarkExecutedModeFailsWhenNoCandidateRuns(t *testing.T) {
 	writeFile(t, scenariosPath, `{"id":"ops-test","scenario":"Scale the service.","allowed_actions":["scale_replicas"],"expected_action":"scale_replicas","required_output_fields":["action"]}`+"\n")
 	writeFile(t, candidatesPath, `{"version":"1","candidates":[{"candidate_id":"disabled-provider","role_label":"primary-ops-llm","provider":"local-openai-compatible","actual_model":"test-model","endpoint":"http://127.0.0.1:1/v1/chat/completions","enabled":false}]}`)
 
-	_, err := RunOpsLLMBenchmark(RunOptions{
+	result, err := RunOpsLLMBenchmark(RunOptions{
 		ScenariosPath:  scenariosPath,
 		CandidatesPath: candidatesPath,
 		OutputDir:      filepath.Join(dir, "outputs"),
@@ -142,8 +174,40 @@ func TestRunOpsLLMBenchmarkExecutedModeFailsWhenNoCandidateRuns(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected executed benchmark to fail when no candidate actually runs")
 	}
+	if result.BenchmarkStatus == "executed" {
+		t.Fatalf("failed provider path must not be marked executed")
+	}
+	if result.ExecutedCount != 0 {
+		t.Fatalf("failed provider path must not increment executed_count, got %d", result.ExecutedCount)
+	}
 	if !strings.Contains(err.Error(), "no enabled LLM candidate executed") {
 		t.Fatalf("expected no executed candidate error, got %v", err)
+	}
+}
+
+func TestRunOpsLLMBenchmarkExecutedModeCountsProviderErrors(t *testing.T) {
+	dir := t.TempDir()
+	scenariosPath := filepath.Join(dir, "scenarios.jsonl")
+	candidatesPath := filepath.Join(dir, "candidates.json")
+	writeFile(t, scenariosPath, `{"id":"ops-test","scenario":"Scale the service.","allowed_actions":["scale_replicas"],"expected_action":"scale_replicas","required_output_fields":["action"]}`+"\n")
+	writeFile(t, candidatesPath, `{"version":"1","candidates":[{"candidate_id":"bad-provider","role_label":"primary-ops-llm","provider":"local-openai-compatible","actual_model":"test-model","endpoint":"http://127.0.0.1:1/v1/chat/completions","enabled":true,"timeout_seconds":1}]}`)
+
+	result, err := RunOpsLLMBenchmark(RunOptions{
+		ScenariosPath:  scenariosPath,
+		CandidatesPath: candidatesPath,
+		OutputDir:      filepath.Join(dir, "outputs"),
+	})
+	if err == nil {
+		t.Fatal("expected provider connection failure")
+	}
+	if result.BenchmarkStatus == "executed" {
+		t.Fatalf("provider failure must not be marked executed")
+	}
+	if result.ExecutedCount != 0 {
+		t.Fatalf("provider failure must not increment executed_count, got %d", result.ExecutedCount)
+	}
+	if result.ErrorCount == 0 {
+		t.Fatalf("provider failure should increment error_count")
 	}
 }
 
@@ -167,6 +231,12 @@ func TestEvaluateOpsLLMOutputsScoresExecutedJSONResponses(t *testing.T) {
 	if summary.BenchmarkStatus != "executed" {
 		t.Fatalf("expected executed status, got %q", summary.BenchmarkStatus)
 	}
+	if summary.ExecutedCount != 1 {
+		t.Fatalf("expected one executed row, got %d", summary.ExecutedCount)
+	}
+	if summary.DryRunCount != 0 {
+		t.Fatalf("expected no dry-run rows, got %d", summary.DryRunCount)
+	}
 	if summary.SelectedActualModel != "ops-model-a" {
 		t.Fatalf("expected selected actual model ops-model-a, got %q", summary.SelectedActualModel)
 	}
@@ -175,6 +245,27 @@ func TestEvaluateOpsLLMOutputsScoresExecutedJSONResponses(t *testing.T) {
 	}
 	if summary.Candidates[0].AverageScore < 0.99 {
 		t.Fatalf("expected high score for valid response, got %f", summary.Candidates[0].AverageScore)
+	}
+}
+
+func TestLoadLocalMultiOllamaCandidateConfig(t *testing.T) {
+	config, err := loadCandidateConfig(filepath.Join("..", "..", "..", "..", "config", "ops_llm_eval_candidates.local_multi_ollama.json"))
+	if err != nil {
+		t.Fatalf("loadCandidateConfig returned error: %v", err)
+	}
+	if config.BenchmarkMode == "" {
+		t.Fatalf("expected benchmark_mode")
+	}
+	if len(config.Candidates) < 2 {
+		t.Fatalf("expected at least two local Ollama candidates, got %d", len(config.Candidates))
+	}
+	for _, candidate := range config.Candidates {
+		if candidate.Provider != "local-openai-compatible" {
+			t.Fatalf("expected local-openai-compatible provider, got %#v", candidate)
+		}
+		if candidate.TimeoutSeconds <= 0 {
+			t.Fatalf("expected timeout_seconds default or explicit value, got %#v", candidate)
+		}
 	}
 }
 

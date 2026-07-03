@@ -406,6 +406,15 @@ components:
           type: object
         deployment_dry_run:
           type: object
+        deployment_execution_mode:
+          type: string
+          enum:
+            - mock
+            - dry_run
+          example: mock
+        kubernetes_live_apply:
+          type: boolean
+          example: false
         agent_reviews:
           type: object
         recovery:

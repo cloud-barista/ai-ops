@@ -80,6 +80,7 @@ go run ./cmd/aiops-service-control validate-system \
 - `team-validation`
 - service-operations readiness
 - 선택 사항: `--run-llm-benchmark` 사용 시 실제 LLM benchmark와 evaluator 실행
+- 선택 사항: `--run-api-integration` 사용 시 6개 API endpoint field-level 검증 실행
 
 VM 추가 검증 항목:
 
@@ -102,14 +103,28 @@ go run ./cmd/aiops-service-control validate-system \
 
 위 명령은 `--llm-dry-run`을 붙이지 않는 한 실제 endpoint를 호출합니다.
 
-## 6. Local API Integration Validation
-
-로컬 API 통합 검증은 API 서버를 실행한 뒤 여러 endpoint를 순차적으로 호출하고 핵심 response field를 확인합니다.
+로컬 API 통합 검증을 포함하는 로컬 검증:
 
 ```bash
-cd ../../
-bash scripts/run_local_api_integration_validation.sh \
-  runs/local-api-integration-validation-YYYYMMDD-HHMMSS
+cd go/service-control-api
+go run ./cmd/aiops-service-control validate-system \
+  --target local \
+  --run-api-integration \
+  --api-port 18080 \
+  --output-dir ../../runs/full-validation-local-with-api
+```
+
+`--run-llm-benchmark` 또는 `--run-api-integration`을 주지 않은 optional step은 `skipped=true`와 reason으로 기록됩니다. skipped는 실패가 아니라 실행하지 않았음을 남기는 evidence입니다.
+
+## 6. Local API Integration Validation
+
+로컬 API 통합 검증은 Go CLI가 API 서버를 실행한 뒤 여러 endpoint를 순차적으로 호출하고 핵심 response field를 확인합니다.
+
+```bash
+cd go/service-control-api
+go run ./cmd/aiops-service-control api-integration-validation \
+  --output-dir ../../runs/api-integration-local \
+  --port 18080
 ```
 
 검증 endpoint:
@@ -121,7 +136,7 @@ bash scripts/run_local_api_integration_validation.sh \
 | `/api/v1/ops-llm/select` | `valid`, `selected_model`, `selected_actual_model`, `benchmark_status` |
 | `/api/v1/apps/placement` | `valid`, `selected_resource`, `action`, `slo_satisfied` |
 | `/api/v1/apps/deployment-plan` | `valid`, `selected_resource`, `deployment_plan` |
-| `/api/v1/service-operations/run` | `valid`, `selected_llm`, `benchmark_status`, `selected_resource`, `deployment_plan`, `deployment_manifest`, `guard_backend`, `guard_validation` |
+| `/api/v1/service-operations/run` | `valid`, `selected_llm`, `benchmark_status`, `selected_resource`, `deployment_plan`, `deployment_manifest`, `deployment_dry_run`, `deployment_execution_mode`, `kubernetes_live_apply`, `guard_backend`, `guard_validation` |
 
 이 검증은 로컬 service-control API flow의 endpoint 응답과 핵심 JSON field를 확인합니다. production-level operational validation 또는 실제 cloud deployment 완료를 의미하지 않습니다.
 
@@ -137,6 +152,8 @@ selected_resource = gpu-vm-l4
 valid = true
 guard_backend = go
 guard_validation.valid = true
+deployment_execution_mode = mock
+kubernetes_live_apply = false
 ```
 
 이 신호는 Go API/CLI validation flow가 올바르게 연결되었음을 확인합니다. standardized LLM evaluation quality, production performance, live GPU scheduling, actual cloud provisioning을 증명하지 않습니다.
