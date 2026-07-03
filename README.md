@@ -38,7 +38,7 @@
 | [`go/service-control-api/`](go/service-control-api/) | LLM 선정, 에이전트 검증, CPU/GPU 배치 추천, 배포 계획 생성, 서비스 운영 준비도 검증을 수행하는 Go Echo API/CLI |
 | [`go/aiops-guard/`](go/aiops-guard/) | 서비스 제어 action의 허용 범위를 검증하는 독립 Go 안전 게이트 |
 | [`config/`](config/) | LLM 정책 후보, 에이전트 registry, CPU/GPU VM 배치 정책 JSON 설정 |
-| [`data/`](data/) | Ops LLM dry-run/evaluation scenario JSONL |
+| [`data/`](data/) | Ops LLM evaluation scenario JSONL |
 | [`docs/deliverables/`](docs/deliverables/) | 공식 설계 산출물 Markdown 원본과 DOCX 변환본 |
 | [`docs/README.md`](docs/README.md) | 제출/시연 문서 지도 |
 | [`docs/images/`](docs/images/) | README와 산출물 문서에 삽입되는 구조도 |
@@ -79,7 +79,7 @@ Markdown 파일이 공식 원본이며, DOCX 파일은 제출/검토용 변환�
 | LLM/코딩 에이전트 교차 검증 기록 | [`docs/submission/coding_agent_cross_validation.md`](docs/submission/coding_agent_cross_validation.md) | 2종 이상 LLM/코딩 에이전트 역할과 교차 검증 절차 기록 |
 | 프롬프트 사용 기록 | [`docs/submission/prompt_usage_log.md`](docs/submission/prompt_usage_log.md) | 대표 프레임워크 프롬프트와 공유 정책 기록 |
 | 개발 검증 로그 | [`docs/submission/development_validation_log.md`](docs/submission/development_validation_log.md) | 검증 명령, 기대 출력, 로그 정책, 사람 검토 항목 기록 |
-| 대표 로컬 검증 결과 | [`docs/evidence/local_validation_20260703.md`](docs/evidence/local_validation_20260703.md) | 2026-07-03 로컬 Go test, team-validation, validate-system, API 통합 동작 검증, Ops LLM dry-run 결과 |
+| 대표 로컬 검증 결과 | [`docs/evidence/local_validation_20260703.md`](docs/evidence/local_validation_20260703.md) | 2026-07-03 로컬 Go test, team-validation, validate-system, 로컬 API 통합 검증, Ops LLM dry-run pipeline 결과 |
 
 ## 🚀 프로토타입 실행
 
@@ -103,6 +103,16 @@ guard_backend = go
 guard_validation.valid = true
 ```
 
+## 🧾 검증 결과 해석 기준
+
+| 구분 | 확인한 내용 | 해석 경계 |
+| --- | --- | --- |
+| 로컬 API 기본 응답 확인 | API 서버 실행, 주요 endpoint 응답, JSON 구조 확인 | production-level operational validation이 아님 |
+| 로컬 API 통합 검증 | 6개 endpoint를 순차 호출하고 `valid`, `selected_model`, `selected_resource`, `deployment_plan`, `guard_validation` 등 핵심 필드 확인 | 로컬 service-control 흐름 검증이며 실제 운영 배포 검증이 아님 |
+| Ops LLM dry-run | scenario, candidate, output, evaluator 연결 확인 | 실제 LLM API를 호출하지 않으므로 평균 점수는 실제 모델 성능 점수가 아님 |
+| Ops LLM executed benchmark | OpenAI-compatible endpoint가 응답하고 `benchmark_status = executed`, `dry_run = false`가 기록된 결과 | 이 조건을 만족한 결과만 실제 LLM 응답 평가로 해석 |
+| AWS GPU VM 검증 | AWS GPU VM 내부에서 `validate-system --target vm` 실행 시 GPU visibility와 instance metadata 기록 | 로컬 검증 결과만으로 VM 검증 완료를 주장하지 않음 |
+
 API 서버 실행:
 
 ```bash
@@ -117,6 +127,15 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/service-operations/run \
   -H 'content-type: application/json' \
   -d '{"llm_policy":"quality_first","workload":"llm-chat-inference","recovery_namespace":"aiops-demo","recovery_deployment":"aiops-service","mode":"mock","guard_backend":"go"}'
 ```
+
+로컬 API 통합 검증:
+
+```bash
+bash scripts/run_local_api_integration_validation.sh \
+  runs/local-api-integration-validation-YYYYMMDD-HHMMSS
+```
+
+이 스크립트는 `/healthz`, `/api/v1/agents`, `/api/v1/ops-llm/select`, `/api/v1/apps/placement`, `/api/v1/apps/deployment-plan`, `/api/v1/service-operations/run`을 순차 호출하고 핵심 response field를 검사합니다. 원본 응답은 `runs/` 아래에 저장하며, Git에는 절대경로를 제거한 대표 summary만 보존합니다.
 
 Ops LLM 평가는 두 모드로 실행합니다. `--dry-run`은 평가 파이프라인 검증용이고, `--dry-run`을 제거한 실행은 enabled candidate의 OpenAI-compatible endpoint를 실제 호출합니다.
 

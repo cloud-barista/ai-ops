@@ -14,6 +14,7 @@
 | CPU/GPU VM placement recommendation | `recommend-inference-placement` | selected resource와 rejected-resource explanation |
 | AI 응용 배포·제어 계획 생성 | `plan-inference-deployment` | namespace, deployment, node selector, resource limit, control action 생성 결과 |
 | Mock dry-run 및 guard validation | `run-service-operations` | manifest dry-run output과 `guard_validation.valid = true` |
+| Local API integration validation | `scripts/run_local_api_integration_validation.sh` | 6개 endpoint 순차 호출과 핵심 response field 검증 |
 | Go unit test | 각 Go module의 `go test ./...` | module-level test pass/fail output |
 | Integrated readiness | `team-validation` | `runs/<output-dir>/` 아래 JSON output files |
 
@@ -55,13 +56,19 @@ Go 기반 dry-run/evaluator는 다음 파일을 사용합니다.
 | `runs/ops-llm-evaluation-dry-run/model_outputs.jsonl` | dry-run output evidence |
 | `runs/ops-llm-evaluation-dry-run/evaluation_summary.json` | dry-run evaluation summary |
 
-dry-run의 `benchmark_status`는 `dry_run`이며, 실제 LLM API benchmark 결과가 아닙니다. 최종 정량 보고를 위해서는 통제된 per-model Ops evaluation run, 고정 prompt, 고정 dataset, 반복 가능한 metric, 문서화된 scoring rule이 필요합니다.
+dry-run의 `benchmark_status`는 `dry_run`이며, 실제 LLM API benchmark 결과가 아닙니다. dry-run average score는 실제 모델 성능 점수가 아니라 pipeline wiring 확인용 summary입니다. 최종 정량 보고를 위해서는 통제된 per-model Ops evaluation run, 고정 prompt, 고정 dataset, 반복 가능한 metric, 문서화된 scoring rule이 필요합니다.
 
-## 6. Infrastructure 경계
+## 6. API 검증 경계
+
+로컬 API 기본 응답 확인은 API 서버가 실행되고 주요 endpoint가 JSON 응답을 반환하는지 확인합니다. Local API integration validation은 `/healthz`, `/api/v1/agents`, `/api/v1/ops-llm/select`, `/api/v1/apps/placement`, `/api/v1/apps/deployment-plan`, `/api/v1/service-operations/run`을 순차 호출하고 핵심 field를 확인합니다.
+
+이 결과는 로컬 service-control API flow 검증이며 production-level operational validation 또는 실제 cloud deployment 완료를 의미하지 않습니다.
+
+## 7. Infrastructure 경계
 
 기본 service-control path는 mock validation을 사용하며 live cluster를 변경하지 않습니다. 실제 GPU VM provisioning은 AI-Infra 또는 CB-Tumblebug integration boundary입니다. prototype은 placement recommendation과 deployment plan을 생성하지만, 기본 로컬 검증 경로에서 actual GPU VM creation을 주장하지 않습니다.
 
-## 7. 한계
+## 8. 한계
 
 - LLM policy score는 수동 정의된 prototype baseline입니다.
 - 현재 package는 standardized LLM benchmark result를 주장하지 않습니다.

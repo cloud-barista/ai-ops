@@ -116,8 +116,8 @@ go run ./cmd/aiops-service-control validate-system \
 | `02_go_test_aiops_guard.txt` | `go/aiops-guard` 테스트 결과 |
 | `03_go_test_service_control_api.txt` | `go/service-control-api` 테스트 결과 |
 | `team-validation/` | 기존 team-validation 상세 JSON |
-| `ops-llm-benchmark/model_outputs.jsonl` | 실제 또는 dry-run LLM benchmark output |
-| `ops-llm-benchmark/evaluation_summary.json` | LLM benchmark evaluator summary |
+| `ops-llm-benchmark/model_outputs.jsonl` | `--run-llm-benchmark` 사용 시 생성되는 LLM benchmark output |
+| `ops-llm-benchmark/evaluation_summary.json` | LLM benchmark evaluator summary. `benchmark_status`로 dry-run/executed를 구분 |
 | `04_vm_nvidia_smi.txt` | VM target에서만 생성되는 GPU 확인 결과 |
 | `05_vm_aws_metadata.json` | VM target에서만 생성되는 AWS instance metadata |
 
@@ -194,7 +194,7 @@ go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
 | `runs/ops-llm-evaluation-dry-run/model_outputs.jsonl` | scenario별 prompt, role label, actual model placeholder, dry-run status |
 | `runs/ops-llm-evaluation-dry-run/evaluation_summary.json` | dry-run evaluation wiring summary |
 
-dry-run 결과는 실제 LLM API benchmark 결과가 아닙니다. 실제 모델 응답이 기록되고 `benchmark_status = executed`인 경우에만 최종 모델 평가 결과로 해석합니다.
+dry-run 결과는 실제 LLM API benchmark 결과가 아닙니다. scenario, candidate, output, evaluator 연결 구조를 확인하는 용도이며, dry-run summary의 평균 점수는 실제 모델 성능 점수로 해석하지 않습니다. 실제 모델 응답이 기록되고 `benchmark_status = executed`인 경우에만 최종 모델 평가 결과로 해석합니다.
 
 ## 8. Ops LLM 실제 실행 Benchmark
 
@@ -254,7 +254,20 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/service-operations/run \
   -d '{"llm_policy":"quality_first","workload":"llm-chat-inference","recovery_namespace":"aiops-demo","recovery_deployment":"aiops-service","mode":"mock","guard_backend":"go"}'
 ```
 
-## 10. 기대 결과
+## 10. 로컬 API 통합 검증
+
+API 서버의 기본 응답 확인보다 강한 검증이 필요하면 다음 스크립트를 실행합니다.
+
+```bash
+bash scripts/run_local_api_integration_validation.sh \
+  runs/local-api-integration-validation-YYYYMMDD-HHMMSS
+```
+
+이 스크립트는 로컬 API 서버를 실행한 뒤 `/healthz`, `/api/v1/agents`, `/api/v1/ops-llm/select`, `/api/v1/apps/placement`, `/api/v1/apps/deployment-plan`, `/api/v1/service-operations/run`을 순차 호출하고 핵심 response field를 검사합니다.
+
+검증 결과 원본은 `runs/` 아래에 저장합니다. 이 결과는 로컬 service-control API flow 검증이며 production-level operational validation 또는 실제 cloud deployment 완료를 의미하지 않습니다.
+
+## 11. 기대 결과
 
 기대되는 prototype-level signal:
 
@@ -270,7 +283,7 @@ guard_validation.valid = true
 
 위 값은 prototype의 policy와 control-flow wiring을 검증합니다. 최종 표준 LLM benchmark result가 아닙니다.
 
-## 11. Mock Mode
+## 12. Mock Mode
 
 기본 `mock` mode는 live cluster를 변경하지 않고 service-control readiness structure를 생성하고 검증합니다. mock mode에서는 다음이 수행됩니다.
 
@@ -280,7 +293,7 @@ guard_validation.valid = true
 - 실제 GPU VM provisioning 미수행
 - live Kubernetes mutation 미수행
 
-## 12. DOCX 변환
+## 13. DOCX 변환
 
 DOCX 제출본은 저장소에 포함되어 있습니다. 재생성이 필요한 경우 Bash 변환 script를 사용할 수 있습니다.
 

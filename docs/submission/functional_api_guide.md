@@ -64,6 +64,19 @@ API 시연에 사용할 request/response 예제는 다음 위치에 있습니다
 | 배포·제어 계획 응답 예시 | `examples/responses/plan-inference-deployment-success.json` |
 | 통합 service-operations 응답 예시 | `examples/responses/run-service-operations-success.json` |
 
+## 4.2 로컬 API 통합 검증
+
+로컬 API flow를 한 번에 확인하려면 저장소 root에서 다음 스크립트를 실행합니다.
+
+```bash
+bash scripts/run_local_api_integration_validation.sh \
+  runs/local-api-integration-validation-YYYYMMDD-HHMMSS
+```
+
+이 스크립트는 API 서버를 실행하고 `/healthz`, `/api/v1/agents`, `/api/v1/ops-llm/select`, `/api/v1/apps/placement`, `/api/v1/apps/deployment-plan`, `/api/v1/service-operations/run`을 순차 호출합니다. 각 응답에서 `valid`, `selected_model`, `benchmark_status`, `selected_resource`, `deployment_plan`, `deployment_manifest`, `guard_backend`, `guard_validation` 등 핵심 필드를 확인합니다.
+
+이 결과는 local endpoint availability와 response structure, 그리고 service-control API flow의 field-level validation을 확인하는 것입니다. production-level operational validation 또는 실제 cloud deployment 완료를 의미하지 않습니다.
+
 ## 5. Agent Registry API
 
 ```bash
@@ -171,7 +184,7 @@ go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
   --summary ../../runs/ops-llm-evaluation-dry-run/evaluation_summary.json
 ```
 
-dry-run 결과는 실제 LLM API benchmark 결과가 아닙니다.
+dry-run 결과는 실제 LLM API benchmark 결과가 아닙니다. dry-run summary의 평균 점수는 실제 모델 성능 점수가 아니라 scenario/candidate/output/evaluator 연결 구조 확인용 값입니다.
 
 ## 11. Recovery Context 경계
 

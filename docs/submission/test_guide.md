@@ -102,7 +102,30 @@ go run ./cmd/aiops-service-control validate-system \
 
 위 명령은 `--llm-dry-run`을 붙이지 않는 한 실제 endpoint를 호출합니다.
 
-## 6. 기대 신호
+## 6. Local API Integration Validation
+
+로컬 API 통합 검증은 API 서버를 실행한 뒤 여러 endpoint를 순차적으로 호출하고 핵심 response field를 확인합니다.
+
+```bash
+cd ../../
+bash scripts/run_local_api_integration_validation.sh \
+  runs/local-api-integration-validation-YYYYMMDD-HHMMSS
+```
+
+검증 endpoint:
+
+| endpoint | 확인 필드 |
+| --- | --- |
+| `/healthz` | `status`, `service` |
+| `/api/v1/agents` | `agents`, `version`, `command` |
+| `/api/v1/ops-llm/select` | `valid`, `selected_model`, `selected_actual_model`, `benchmark_status` |
+| `/api/v1/apps/placement` | `valid`, `selected_resource`, `action`, `slo_satisfied` |
+| `/api/v1/apps/deployment-plan` | `valid`, `selected_resource`, `deployment_plan` |
+| `/api/v1/service-operations/run` | `valid`, `selected_llm`, `benchmark_status`, `selected_resource`, `deployment_plan`, `deployment_manifest`, `guard_backend`, `guard_validation` |
+
+이 검증은 로컬 service-control API flow의 endpoint 응답과 핵심 JSON field를 확인합니다. production-level operational validation 또는 실제 cloud deployment 완료를 의미하지 않습니다.
+
+## 7. 기대 신호
 
 기대되는 prototype-level output signal:
 
@@ -118,7 +141,7 @@ guard_validation.valid = true
 
 이 신호는 Go API/CLI validation flow가 올바르게 연결되었음을 확인합니다. standardized LLM evaluation quality, production performance, live GPU scheduling, actual cloud provisioning을 증명하지 않습니다.
 
-## 7. Ops LLM 평가 Dry-Run
+## 8. Ops LLM 평가 Dry-Run
 
 ```bash
 cd go/service-control-api
@@ -143,7 +166,9 @@ selected_actual_model = ""
 
 dry-run은 실제 LLM API를 호출하지 않으므로 최종 LLM 품질 benchmark 결과가 아닙니다.
 
-## 8. Ops LLM 실제 실행 Benchmark
+dry-run에서 생성된 average score는 scenario/candidate/output/evaluator wiring 확인을 위한 값이며, 실제 모델 성능 점수로 해석하지 않습니다.
+
+## 9. Ops LLM 실제 실행 Benchmark
 
 OpenAI-compatible endpoint가 실행 중이면 `--dry-run` 없이 실행합니다.
 
@@ -170,7 +195,7 @@ selected_actual_model = llama3.1:8b
 
 endpoint가 없거나 model이 준비되지 않은 경우 benchmark command는 실패합니다. 이 실패는 실제 실행 검증이 수행되지 않았다는 명확한 증거로 보존합니다.
 
-## 9. 검증 증거 파일
+## 10. 검증 증거 파일
 
 `team-validation` 또는 `validate-system`을 `--output-dir`와 함께 실행하면 validation evidence를 보존할 수 있습니다.
 
@@ -186,7 +211,7 @@ endpoint가 없거나 model이 준비되지 않은 경우 benchmark command는 �
 
 `validate-system`은 추가로 `00_system_validation_summary.json`, `01_environment.json`, Go test output, LLM benchmark output, VM target의 GPU/metadata evidence를 저장합니다.
 
-## 10. 실패 로그와 오류 메시지 보존
+## 11. 실패 로그와 오류 메시지 보존
 
 검증 실패 시 전체 terminal output과 생성 JSON 파일을 날짜가 포함된 directory에 보존합니다.
 
@@ -206,7 +231,7 @@ go run ./cmd/aiops-service-control team-validation \
 | JSON evidence | 생성 JSON 파일 |
 | Human note | 관찰된 실패와 다음 조치에 대한 짧은 설명 |
 
-## 11. 사람 검토 항목
+## 12. 사람 검토 항목
 
 사람 검토자는 다음을 확인해야 합니다.
 

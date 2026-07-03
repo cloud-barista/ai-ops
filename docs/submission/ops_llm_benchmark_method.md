@@ -123,3 +123,5 @@ go run ./cmd/aiops-service-control validate-system \
 | latency score | 10 |
 
 dry-run row는 점수화하지 않으며, executed row만 candidate 평균 점수에 반영합니다.
+
+dry-run summary는 scenario, candidate, output, evaluator 연결이 깨지지 않았는지 확인하는 pipeline evidence입니다. dry-run 결과에서 보이는 평균 점수나 candidate summary는 실제 LLM 품질 점수로 해석하지 않습니다.

@@ -40,7 +40,7 @@
       }
     },
     "cost_first": {
-      "description": "Cost and latency are prioritized for inexpensive repeated smoke tests and non-critical prechecks.",
+      "description": "Cost and latency are prioritized for inexpensive repeated basic validation runs and non-critical prechecks.",
       "weights": {
         "accuracy": 0.1,
         "metric_success": 0.1,
@@ -83,7 +83,7 @@
       "evaluation_source": "prototype_policy_config",
       "evaluation_type": "prototype_policy_baseline",
       "benchmark_status": "not_executed",
-      "role": "low-cost smoke-test and fallback model",
+      "role": "low-cost basic-validation and fallback model",
       "correct_detection_runs": 10,
       "total_detection_runs": 12,
       "metric_success_runs": 10,
