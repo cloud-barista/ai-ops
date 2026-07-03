@@ -14,21 +14,24 @@ OUT_DIR = ROOT / "docs" / "images"
 
 
 COLORS = {
-    "bg": "#f8fbff",
+    "bg": "#ffffff",
     "surface": "#ffffff",
-    "surface_blue": "#edf6ff",
-    "surface_green": "#edf9f1",
-    "surface_amber": "#fff7e8",
-    "surface_red": "#fff1f2",
-    "navy": "#123a63",
-    "blue": "#2267b8",
-    "blue_dark": "#174d91",
-    "slate": "#41576f",
-    "muted": "#728399",
-    "line": "#b8c7d8",
-    "green": "#16834a",
-    "amber": "#c97800",
-    "red": "#d93b4a",
+    "surface_blue": "#ffffff",
+    "surface_green": "#ffffff",
+    "surface_amber": "#ffffff",
+    "surface_red": "#ffffff",
+    "navy": "#111827",
+    "blue": "#31445a",
+    "blue_dark": "#27496d",
+    "slate": "#4b5563",
+    "muted": "#687386",
+    "line": "#d6dce4",
+    "green": "#65758b",
+    "amber": "#65758b",
+    "red": "#65758b",
+    "shadow": "#edf0f4",
+    "chip": "#ffffff",
+    "chip_text": "#27496d",
 }
 
 
@@ -71,7 +74,7 @@ class Diagram:
             f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
             "<defs>",
             '<filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">',
-            '<feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#1b3c5d" flood-opacity="0.12"/>',
+            '<feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#111827" flood-opacity="0.08"/>',
             "</filter>",
             "</defs>",
             f'<rect width="{width}" height="{height}" fill="{COLORS["bg"]}"/>',
@@ -84,9 +87,9 @@ class Diagram:
         if self.subtitle:
             self.draw.text((61, 94), self.subtitle, fill=COLORS["slate"], font=font(20))
             self.svg_text(61, 118, self.subtitle, 20, COLORS["slate"])
-        self.draw.rounded_rectangle((self.width - 365, 48, self.width - 58, 92), radius=22, fill="#e9f2ff", outline="#c6d9f2", width=1)
+        self.draw.rounded_rectangle((self.width - 365, 48, self.width - 58, 92), radius=22, fill=COLORS["chip"], outline=COLORS["line"], width=1)
         self.draw.text((self.width - 340, 59), "Kyung Hee OPS · Go Prototype", fill=COLORS["blue_dark"], font=font(17, True))
-        self.svg_round_rect(self.width - 365, 48, 307, 44, 22, "#e9f2ff", "#c6d9f2", 1)
+        self.svg_round_rect(self.width - 365, 48, 307, 44, 22, COLORS["chip"], COLORS["line"], 1)
         self.svg_text(self.width - 340, 76, "Kyung Hee OPS · Go Prototype", 17, COLORS["blue_dark"], bold=True)
 
     def save(self, stem: str) -> None:
@@ -96,19 +99,20 @@ class Diagram:
         self.image.save(OUT_DIR / f"{stem}.png", quality=96)
 
     def panel(self, x: int, y: int, w: int, h: int, title: str, fill: str = "#ffffff") -> None:
-        self.draw.rounded_rectangle((x + 6, y + 8, x + w + 6, y + h + 8), radius=26, fill="#d8e5f3")
-        self.draw.rounded_rectangle((x, y, x + w, y + h), radius=26, fill=fill, outline="#d5e1ee", width=2)
+        self.draw.rounded_rectangle((x + 6, y + 8, x + w + 6, y + h + 8), radius=26, fill=COLORS["shadow"])
+        self.draw.rounded_rectangle((x, y, x + w, y + h), radius=26, fill=fill, outline=COLORS["line"], width=2)
         self.draw.text((x + 28, y + 24), title, fill=COLORS["navy"], font=font(24, True))
-        self.svg_round_rect(x + 6, y + 8, w, h, 26, "#d8e5f3", "#d8e5f3", 0, opacity=0.55)
-        self.svg_round_rect(x, y, w, h, 26, fill, "#d5e1ee", 2)
+        self.svg_round_rect(x + 6, y + 8, w, h, 26, COLORS["shadow"], COLORS["shadow"], 0, opacity=0.78)
+        self.svg_round_rect(x, y, w, h, 26, fill, COLORS["line"], 2)
         self.svg_text(x + 28, y + 55, title, 24, COLORS["navy"], bold=True)
 
     def box(self, b: Box) -> None:
         x, y, w, h = b.x, b.y, b.w, b.h
-        self.draw.rounded_rectangle((x + 5, y + 7, x + w + 5, y + h + 7), radius=20, fill="#dce7f4")
-        self.draw.rounded_rectangle((x, y, x + w, y + h), radius=20, fill=b.fill, outline=b.outline, width=3)
+        outline = b.outline if b.outline != COLORS["line"] else COLORS["blue"]
+        self.draw.rounded_rectangle((x + 5, y + 7, x + w + 5, y + h + 7), radius=20, fill=COLORS["shadow"])
+        self.draw.rounded_rectangle((x, y, x + w, y + h), radius=20, fill=b.fill, outline=outline, width=2)
         if b.badge:
-            self.draw.ellipse((x + 18, y + 20, x + 54, y + 56), fill=b.outline)
+            self.draw.ellipse((x + 18, y + 20, x + 54, y + 56), fill=COLORS["blue"])
             self.draw.text((x + 31, y + 25), b.badge, fill="#ffffff", font=font(18, True), anchor="mm")
         title_x = x + (68 if b.badge else 26)
         self.draw.text((title_x, y + 25), b.title, fill=COLORS["navy"], font=font(b.title_size, True))
@@ -117,10 +121,10 @@ class Diagram:
             self.draw.text((x + 26, yy), line, fill=COLORS["slate"], font=font(b.body_size))
             yy += b.body_size + 6
 
-        self.svg_round_rect(x + 5, y + 7, w, h, 20, "#dce7f4", "#dce7f4", 0, opacity=0.65)
-        self.svg_round_rect(x, y, w, h, 20, b.fill, b.outline, 3)
+        self.svg_round_rect(x + 5, y + 7, w, h, 20, COLORS["shadow"], COLORS["shadow"], 0, opacity=0.78)
+        self.svg_round_rect(x, y, w, h, 20, b.fill, outline, 2)
         if b.badge:
-            self.svg.append(f'<circle cx="{x + 36}" cy="{y + 38}" r="18" fill="{b.outline}"/>')
+            self.svg.append(f'<circle cx="{x + 36}" cy="{y + 38}" r="18" fill="{COLORS["blue"]}"/>')
             self.svg_text(x + 36, y + 45, b.badge, 18, "#ffffff", bold=True, anchor="middle")
         self.svg_text(title_x, y + 55, b.title, b.title_size, COLORS["navy"], bold=True)
         svg_y = y + 88
@@ -130,10 +134,12 @@ class Diagram:
 
     def chip(self, x: int, y: int, text: str, fill: str, outline: str, color: str | None = None) -> None:
         width = self.draw.textlength(text, font=font(18, True)) + 34
-        self.draw.rounded_rectangle((x, y, x + width, y + 36), radius=18, fill=fill, outline=outline, width=2)
-        self.draw.text((x + 17, y + 8), text, fill=color or outline, font=font(18, True))
-        self.svg_round_rect(x, y, int(width), 36, 18, fill, outline, 2)
-        self.svg_text(x + 17, y + 31, text, 18, color or outline, bold=True)
+        chip_outline = outline if outline != COLORS["line"] else COLORS["blue"]
+        chip_text = color or COLORS["chip_text"]
+        self.draw.rounded_rectangle((x, y, x + width, y + 36), radius=18, fill=COLORS["chip"], outline=chip_outline, width=1)
+        self.draw.text((x + 17, y + 8), text, fill=chip_text, font=font(18, True))
+        self.svg_round_rect(x, y, int(width), 36, 18, COLORS["chip"], chip_outline, 1)
+        self.svg_text(x + 17, y + 31, text, 18, chip_text, bold=True)
 
     def small_text(self, x: int, y: int, text: str, size: int = 18, color: str = COLORS["muted"], bold: bool = False) -> None:
         self.draw.text((x, y), text, fill=color, font=font(size, bold))

@@ -1,75 +1,75 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="820" viewBox="0 0 1600 820">
 <defs>
 <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
-<feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#1b3c5d" flood-opacity="0.12"/>
+<feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#111827" flood-opacity="0.08"/>
 </filter>
 </defs>
-<rect width="1600" height="820" fill="#f8fbff"/>
-<text x="58" y="74" fill="#123a63" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="38" font-weight="700" text-anchor="start">에이전트 등록 관리 프로토타입</text>
-<text x="61" y="118" fill="#41576f" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start">AI 에이전트 metadata, 권한, bounded action을 Go API와 검증 로직으로 관리</text>
-<rect x="1235" y="48" width="307" height="44" rx="22" fill="#e9f2ff" stroke="#c6d9f2" stroke-width="1"/>
-<text x="1260" y="76" fill="#174d91" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="17" font-weight="700" text-anchor="start">Kyung Hee OPS · Go Prototype</text>
-<rect x="76" y="178" width="360" height="500" rx="26" fill="#d8e5f3" stroke="#d8e5f3" stroke-width="0" opacity="0.55"/>
-<rect x="70" y="170" width="360" height="500" rx="26" fill="#ffffff" stroke="#d5e1ee" stroke-width="2"/>
-<text x="98" y="225" fill="#123a63" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Registry Source</text>
-<rect x="110" y="267" width="290" height="125" rx="20" fill="#dce7f4" stroke="#dce7f4" stroke-width="0" opacity="0.65"/>
-<rect x="105" y="260" width="290" height="125" rx="20" fill="#ffffff" stroke="#2267b8" stroke-width="3"/>
-<circle cx="141" cy="298" r="18" fill="#2267b8"/>
+<rect width="1600" height="820" fill="#ffffff"/>
+<text x="58" y="74" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="38" font-weight="700" text-anchor="start">에이전트 등록 관리 프로토타입</text>
+<text x="61" y="118" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start">AI 에이전트 metadata, 권한, bounded action을 Go API와 검증 로직으로 관리</text>
+<rect x="1235" y="48" width="307" height="44" rx="22" fill="#ffffff" stroke="#d6dce4" stroke-width="1"/>
+<text x="1260" y="76" fill="#27496d" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="17" font-weight="700" text-anchor="start">Kyung Hee OPS · Go Prototype</text>
+<rect x="76" y="178" width="360" height="500" rx="26" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="70" y="170" width="360" height="500" rx="26" fill="#ffffff" stroke="#d6dce4" stroke-width="2"/>
+<text x="98" y="225" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Registry Source</text>
+<rect x="110" y="267" width="290" height="125" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="105" y="260" width="290" height="125" rx="20" fill="#ffffff" stroke="#31445a" stroke-width="2"/>
+<circle cx="141" cy="298" r="18" fill="#31445a"/>
 <text x="141" y="305" fill="#ffffff" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="700" text-anchor="middle">1</text>
-<text x="173" y="315" fill="#123a63" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Agent JSON</text>
-<text x="131" y="348" fill="#41576f" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">name / role / enabled</text>
-<text x="131" y="373" fill="#41576f" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">responsibility</text>
-<rect x="110" y="452" width="290" height="125" rx="20" fill="#dce7f4" stroke="#dce7f4" stroke-width="0" opacity="0.65"/>
-<rect x="105" y="445" width="290" height="125" rx="20" fill="#ffffff" stroke="#2267b8" stroke-width="3"/>
-<circle cx="141" cy="483" r="18" fill="#2267b8"/>
+<text x="173" y="315" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Agent JSON</text>
+<text x="131" y="348" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">name / role / enabled</text>
+<text x="131" y="373" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">responsibility</text>
+<rect x="110" y="452" width="290" height="125" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="105" y="445" width="290" height="125" rx="20" fill="#ffffff" stroke="#31445a" stroke-width="2"/>
+<circle cx="141" cy="483" r="18" fill="#31445a"/>
 <text x="141" y="490" fill="#ffffff" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="700" text-anchor="middle">2</text>
-<text x="173" y="500" fill="#123a63" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Action Policy</text>
-<text x="131" y="533" fill="#41576f" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">allowed action set</text>
-<text x="131" y="558" fill="#41576f" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">reward signal</text>
-<rect x="506" y="178" width="500" height="500" rx="26" fill="#d8e5f3" stroke="#d8e5f3" stroke-width="0" opacity="0.55"/>
-<rect x="500" y="170" width="500" height="500" rx="26" fill="#ffffff" stroke="#d5e1ee" stroke-width="2"/>
-<text x="528" y="225" fill="#123a63" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Go Registry API</text>
-<rect x="550" y="257" width="185" height="130" rx="20" fill="#dce7f4" stroke="#dce7f4" stroke-width="0" opacity="0.65"/>
-<rect x="545" y="250" width="185" height="130" rx="20" fill="#edf6ff" stroke="#2267b8" stroke-width="3"/>
-<text x="571" y="305" fill="#123a63" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">List</text>
-<text x="571" y="338" fill="#41576f" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">등록 목록</text>
-<text x="571" y="362" fill="#41576f" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">enabled 상태</text>
-<rect x="775" y="257" width="185" height="130" rx="20" fill="#dce7f4" stroke="#dce7f4" stroke-width="0" opacity="0.65"/>
-<rect x="770" y="250" width="185" height="130" rx="20" fill="#edf6ff" stroke="#2267b8" stroke-width="3"/>
-<text x="796" y="305" fill="#123a63" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Detail</text>
-<text x="796" y="338" fill="#41576f" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">역할·책임</text>
-<text x="796" y="362" fill="#41576f" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">입출력 조건</text>
-<rect x="550" y="457" width="410" height="130" rx="20" fill="#dce7f4" stroke="#dce7f4" stroke-width="0" opacity="0.65"/>
-<rect x="545" y="450" width="410" height="130" rx="20" fill="#fff7e8" stroke="#c97800" stroke-width="3"/>
-<text x="571" y="505" fill="#123a63" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Validate Action</text>
-<text x="571" y="538" fill="#41576f" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">요청 action이 agent 권한 안에 있는지 확인</text>
-<text x="571" y="562" fill="#41576f" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">불허 action은 실행 전 차단</text>
-<rect x="1076" y="178" width="455" height="500" rx="26" fill="#d8e5f3" stroke="#d8e5f3" stroke-width="0" opacity="0.55"/>
-<rect x="1070" y="170" width="455" height="500" rx="26" fill="#ffffff" stroke="#d5e1ee" stroke-width="2"/>
-<text x="1098" y="225" fill="#123a63" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">운영 결과</text>
-<rect x="1120" y="257" width="345" height="120" rx="20" fill="#dce7f4" stroke="#dce7f4" stroke-width="0" opacity="0.65"/>
-<rect x="1115" y="250" width="345" height="120" rx="20" fill="#edf9f1" stroke="#16834a" stroke-width="3"/>
-<text x="1141" y="305" fill="#123a63" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Valid Readiness</text>
-<text x="1141" y="338" fill="#41576f" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">허용 action이면 readiness 반영</text>
-<text x="1141" y="363" fill="#41576f" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">service operations report 연결</text>
-<rect x="1120" y="457" width="345" height="120" rx="20" fill="#dce7f4" stroke="#dce7f4" stroke-width="0" opacity="0.65"/>
-<rect x="1115" y="450" width="345" height="120" rx="20" fill="#fff1f2" stroke="#d93b4a" stroke-width="3"/>
-<text x="1141" y="505" fill="#123a63" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Rejected Action</text>
-<text x="1141" y="538" fill="#41576f" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">허용 범위 밖이면 거부</text>
-<text x="1141" y="563" fill="#41576f" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">위험 실행 방지</text>
-<line x1="430" y1="322" x2="545" y2="322" stroke="#174d91" stroke-width="4" stroke-linecap="round"/>
-<polygon points="545,322 532,329 532,315" fill="#174d91"/>
-<line x1="430" y1="507" x2="545" y2="507" stroke="#c97800" stroke-width="4" stroke-linecap="round"/>
-<polygon points="545,507 532,514 532,500" fill="#c97800"/>
-<line x1="730" y1="315" x2="770" y2="315" stroke="#174d91" stroke-width="4" stroke-linecap="round"/>
-<polygon points="770,315 757,322 757,308" fill="#174d91"/>
-<line x1="955" y1="515" x2="1035" y2="515" stroke="#16834a" stroke-width="4" stroke-linecap="round"/>
-<line x1="1035" y1="515" x2="1035" y2="310" stroke="#16834a" stroke-width="4" stroke-linecap="round"/>
-<line x1="1035" y1="310" x2="1115" y2="310" stroke="#16834a" stroke-width="4" stroke-linecap="round"/>
-<polygon points="1115,310 1102,317 1102,303" fill="#16834a"/>
-<line x1="955" y1="515" x2="1035" y2="515" stroke="#d93b4a" stroke-width="4" stroke-linecap="round"/>
-<line x1="1035" y1="515" x2="1035" y2="510" stroke="#d93b4a" stroke-width="4" stroke-linecap="round"/>
-<line x1="1035" y1="510" x2="1115" y2="510" stroke="#d93b4a" stroke-width="4" stroke-linecap="round"/>
-<polygon points="1115,510 1102,517 1102,503" fill="#d93b4a"/>
-<text x="95" y="759" fill="#41576f" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start">핵심: agent가 할 수 있는 작업을 명시적으로 제한하고, 실제 배포·제어 요청은 bounded action 검증을 먼저 통과해야 한다.</text>
+<text x="173" y="500" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Action Policy</text>
+<text x="131" y="533" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">allowed action set</text>
+<text x="131" y="558" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">reward signal</text>
+<rect x="506" y="178" width="500" height="500" rx="26" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="500" y="170" width="500" height="500" rx="26" fill="#ffffff" stroke="#d6dce4" stroke-width="2"/>
+<text x="528" y="225" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Go Registry API</text>
+<rect x="550" y="257" width="185" height="130" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="545" y="250" width="185" height="130" rx="20" fill="#ffffff" stroke="#31445a" stroke-width="2"/>
+<text x="571" y="305" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">List</text>
+<text x="571" y="338" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">등록 목록</text>
+<text x="571" y="362" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">enabled 상태</text>
+<rect x="775" y="257" width="185" height="130" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="770" y="250" width="185" height="130" rx="20" fill="#ffffff" stroke="#31445a" stroke-width="2"/>
+<text x="796" y="305" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Detail</text>
+<text x="796" y="338" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">역할·책임</text>
+<text x="796" y="362" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">입출력 조건</text>
+<rect x="550" y="457" width="410" height="130" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="545" y="450" width="410" height="130" rx="20" fill="#ffffff" stroke="#65758b" stroke-width="2"/>
+<text x="571" y="505" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Validate Action</text>
+<text x="571" y="538" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">요청 action이 agent 권한 안에 있는지 확인</text>
+<text x="571" y="562" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">불허 action은 실행 전 차단</text>
+<rect x="1076" y="178" width="455" height="500" rx="26" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="1070" y="170" width="455" height="500" rx="26" fill="#ffffff" stroke="#d6dce4" stroke-width="2"/>
+<text x="1098" y="225" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">운영 결과</text>
+<rect x="1120" y="257" width="345" height="120" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="1115" y="250" width="345" height="120" rx="20" fill="#ffffff" stroke="#65758b" stroke-width="2"/>
+<text x="1141" y="305" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Valid Readiness</text>
+<text x="1141" y="338" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">허용 action이면 readiness 반영</text>
+<text x="1141" y="363" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">service operations report 연결</text>
+<rect x="1120" y="457" width="345" height="120" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="1115" y="450" width="345" height="120" rx="20" fill="#ffffff" stroke="#65758b" stroke-width="2"/>
+<text x="1141" y="505" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Rejected Action</text>
+<text x="1141" y="538" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">허용 범위 밖이면 거부</text>
+<text x="1141" y="563" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">위험 실행 방지</text>
+<line x1="430" y1="322" x2="545" y2="322" stroke="#27496d" stroke-width="4" stroke-linecap="round"/>
+<polygon points="545,322 532,329 532,315" fill="#27496d"/>
+<line x1="430" y1="507" x2="545" y2="507" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<polygon points="545,507 532,514 532,500" fill="#65758b"/>
+<line x1="730" y1="315" x2="770" y2="315" stroke="#27496d" stroke-width="4" stroke-linecap="round"/>
+<polygon points="770,315 757,322 757,308" fill="#27496d"/>
+<line x1="955" y1="515" x2="1035" y2="515" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<line x1="1035" y1="515" x2="1035" y2="310" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<line x1="1035" y1="310" x2="1115" y2="310" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<polygon points="1115,310 1102,317 1102,303" fill="#65758b"/>
+<line x1="955" y1="515" x2="1035" y2="515" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<line x1="1035" y1="515" x2="1035" y2="510" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<line x1="1035" y1="510" x2="1115" y2="510" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<polygon points="1115,510 1102,517 1102,503" fill="#65758b"/>
+<text x="95" y="759" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start">핵심: agent가 할 수 있는 작업을 명시적으로 제한하고, 실제 배포·제어 요청은 bounded action 검증을 먼저 통과해야 한다.</text>
 </svg>
