@@ -54,8 +54,9 @@
 
 | 경로 | 설명 |
 | --- | --- |
-| [`diagrams/`](diagrams/) | Mermaid diagram 원본 |
-| [`images/`](images/) | Markdown과 DOCX 변환에 사용하는 PNG 구조도 및 수정용 SVG 구조도 |
+| [`diagrams/generate_visual_assets.py`](diagrams/generate_visual_assets.py) | README와 산출물용 SVG/PNG 구조도 생성 스크립트 |
+| [`diagrams/`](diagrams/) | Mermaid 기반 논리 흐름도와 그림 생성 스크립트 |
+| [`images/`](images/) | Markdown과 DOCX 변환에 사용하는 고해상도 PNG 구조도 및 수정용 SVG 구조도 |
 
 ## 문서 유지 규칙
 
