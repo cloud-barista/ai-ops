@@ -1,4 +1,4 @@
-# 🏛️ Kyung Hee AIOps
+# 🏛️ Kyung Hee AIOps 🦁
 
 > AI 기반 서비스 제어 및 관리 자동화 프레임워크
 > 1차년도 Go 기반 service-control prototype
