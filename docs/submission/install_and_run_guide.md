@@ -199,13 +199,13 @@ dry-run 결과는 실제 LLM API benchmark 결과가 아닙니다. scenario, can
 
 ## 8. Ops LLM 실제 실행 Benchmark
 
-로컬 또는 VM 내부에 OpenAI-compatible endpoint가 준비되어 있으면 `--dry-run` 없이 실행합니다. 예시는 Ollama의 OpenAI-compatible API를 사용합니다.
+로컬 또는 VM 내부에 OpenAI-compatible endpoint가 준비되어 있으면 `--dry-run` 없이 실행합니다. Ollama는 local validation용 example provider이며, 통합 환경에서는 vLLM, LM Studio, OpenAI API, Azure OpenAI, 연구용 GPU 서버 endpoint, AI-MCMP 연계 endpoint 등으로 교체할 수 있습니다.
 
 사전 조건:
 
 ```bash
 ollama serve
-ollama pull llama3.1:8b
+ollama pull llama3.2:3b
 ```
 
 실행:
@@ -228,7 +228,7 @@ go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
 ```text
 benchmark_status = executed
 dry_run = false
-selected_actual_model = llama3.1:8b
+selected_actual_model = <configured-actual-model>
 ```
 
 ## 9. API 서버 실행

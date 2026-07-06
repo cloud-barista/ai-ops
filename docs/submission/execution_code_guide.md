@@ -130,10 +130,10 @@ go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
 ```text
 benchmark_status = executed
 dry_run = false
-selected_actual_model = llama3.1:8b
+selected_actual_model = <configured-actual-model>
 ```
 
-여러 Ollama 후보를 비교하려면 다음 config를 사용합니다.
+로컬 example provider 후보를 비교하려면 다음 config를 사용할 수 있습니다. Ollama는 로컬 검증 예시이며 통합 환경의 필수 runtime이 아닙니다.
 
 ```bash
 go run ./cmd/aiops-service-control run-ops-llm-benchmark \
@@ -142,7 +142,7 @@ go run ./cmd/aiops-service-control run-ops-llm-benchmark \
   --output-dir ../../runs/ops-llm-evaluation-local-multi-executed
 ```
 
-candidate config는 실행 결과가 아니며, 실제 endpoint 응답과 `evaluation_summary.json`의 `benchmark_status = executed`가 있어야 실제 비교 완료로 해석합니다.
+candidate config는 실행 결과가 아니며, 실제 endpoint 응답과 `evaluation_summary.json`의 `benchmark_status = executed`가 있어야 비교 결과로 해석합니다.
 
 ## 출력 증거
 

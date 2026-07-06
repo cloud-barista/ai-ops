@@ -29,6 +29,8 @@
 
 `primary-ops-llm`, `low-cost-ops-llm`, `code-cross-check-agent`는 내부 역할 label입니다. 실제 provider model 이름은 `actual_model`, `selected_actual_model`, `selected_provider`, `benchmark_status` 필드로 별도 관리합니다. 기본 config는 안전하게 `not_executed` 또는 `dry_run` 상태를 사용하며, 실제 endpoint가 응답한 run output 또는 evaluation summary에서만 `benchmark_status = executed`를 기록합니다. Candidate config 파일이 존재하는 것만으로 실제 benchmark 완료를 주장하지 않습니다.
 
+The service-control layer is provider-agnostic. Ollama is only a local example provider for executed benchmark. In an integrated AI-MCMP environment, the same benchmark runner can call any OpenAI-compatible LLM endpoint configured by the deployment or platform layer.
+
 기본 실행 모드는 `mock`입니다. 로컬 환경에서는 Go CLI/API와 Kubernetes manifest generation 및 dry-run/mock 경계를 검증할 수 있습니다. API 응답에는 `deployment_execution_mode`와 `kubernetes_live_apply=false`가 포함되어 실제 Kubernetes live apply 완료를 주장하지 않도록 구분합니다. 실제 GPU VM 프로비저닝, 운영 클러스터 변경, CB-Tumblebug 기반 AWS GPU VM 생성은 기본 로컬 검증 범위 밖입니다.
 
 ## 🗂️ 저장소 구조
@@ -37,7 +39,7 @@
 | --- | --- |
 | [`go/service-control-api/`](go/service-control-api/) | LLM 선정, 에이전트 검증, CPU/GPU 배치 추천, 배포 계획 생성, 서비스 운영 준비도 검증을 수행하는 Go Echo API/CLI |
 | [`go/aiops-guard/`](go/aiops-guard/) | 서비스 제어 action의 허용 범위를 검증하는 독립 Go 안전 게이트 |
-| [`config/`](config/) | LLM 정책 후보, 에이전트 registry, CPU/GPU VM 배치 정책 JSON 설정 |
+| [`config/`](config/) | LLM 정책 후보, OpenAI-compatible endpoint 후보 예시, 에이전트 registry, CPU/GPU VM 배치 정책 JSON 설정 |
 | [`data/`](data/) | Ops LLM evaluation scenario JSONL |
 | [`docs/deliverables/`](docs/deliverables/) | 공식 설계 산출물 Markdown 원본과 DOCX 변환본 |
 | [`docs/README.md`](docs/README.md) | 제출/시연 문서 지도 |
@@ -142,6 +144,8 @@ go run ./cmd/aiops-service-control api-integration-validation \
 
 Ops LLM 평가는 두 모드로 실행합니다. `--dry-run`은 평가 파이프라인 검증용이고, `--dry-run`을 제거한 실행은 enabled candidate의 OpenAI-compatible endpoint를 실제 호출합니다.
 
+Ollama는 로컬 검증용 example provider일 뿐입니다. 통합 환경에서는 vLLM, LM Studio, OpenAI API, Azure OpenAI, 연구용 GPU 서버 endpoint, AI-MCMP 또는 배포 계층이 제공하는 OpenAI-compatible endpoint로 `endpoint`, `actual_model`, `provider`, `api_key_env` 값을 교체할 수 있습니다.
+
 ```bash
 cd go/service-control-api
 go run ./cmd/aiops-service-control run-ops-llm-benchmark \
@@ -167,7 +171,7 @@ go run ./cmd/aiops-service-control validate-system \
 
 실제 endpoint가 준비되지 않은 경우 이 명령은 실패합니다. dry-run 결과의 `benchmark_status`는 `dry_run`이며, 실제 모델 응답을 수집한 `executed` 결과가 아니면 최종 LLM 품질 평가로 해석하지 않습니다.
 
-여러 local Ollama 후보를 비교하려면 다음 candidate config를 사용합니다.
+로컬에서 여러 example provider 후보를 비교하려면 다음 candidate config를 사용할 수 있습니다. 아래 Ollama 모델들은 로컬 실행 예시이며, 통합 환경의 필수 런타임이 아닙니다.
 
 ```bash
 ollama serve
@@ -182,7 +186,7 @@ go run ./cmd/aiops-service-control run-ops-llm-benchmark \
   --output-dir ../../runs/ops-llm-evaluation-local-multi-executed
 ```
 
-실제 multi-LLM 비교 완료는 `benchmark_status = executed`, `dry_run = false`, candidate별 `executed > 0`, `selected_actual_model`이 기록된 evaluation summary가 있을 때만 주장할 수 있습니다. Ollama endpoint가 없으면 fake executed result를 만들지 않습니다.
+multi-LLM 비교 결과는 `benchmark_status = executed`, `dry_run = false`, candidate별 `executed > 0`, `selected_actual_model`이 기록된 evaluation summary가 있을 때만 주장할 수 있습니다. Endpoint가 없으면 fake executed result를 만들지 않습니다.
 
 로컬/VM 공통 검증은 `validate-system` 명령으로 실행합니다. VM 검증은 반드시 AWS GPU VM 내부에서 실행해야 하며, `--target vm`은 Go 테스트, team-validation, `nvidia-smi`, AWS instance metadata를 함께 기록합니다.
 
@@ -201,6 +205,8 @@ DOCX 제출본은 이미 `docs/submission/`과 `docs/deliverables/docx/`에 포�
 | [테스트 가이드](docs/submission/test_guide.md) | Go 테스트와 team-validation 절차 |
 | [평가 요약](docs/submission/evaluation_summary.md) | 기능 프로토타입 평가 범위 |
 | [Ops LLM 평가 방법](docs/submission/ops_llm_benchmark_method.md) | Go 기반 LLM evaluation dry-run과 OpenAI-compatible endpoint 실행 절차 |
+| [LLM Provider Abstraction](docs/design/llm_provider_abstraction.md) | provider-agnostic LLM 호출 구조와 candidate config 경계 |
+| [통합 경계 설계](docs/design/integration_boundary.md) | service-control, AppDeployer, AI-MCMP 연계 책임 분리 |
 | [문서 지도](docs/README.md) | 공식 산출물, 실행/검증 문서, 예제, 그림의 진입점 |
 | [증적 패키지 가이드](docs/evidence/증적_패키지_가이드.md) | `runs/` 결과와 검증 로그를 제출 증적으로 정리하는 기준 |
 | [제출 체크리스트](docs/release/1차년도_제출_패키지_체크리스트.md) | 제출 전 코드, 문서, 검증, LLM 상태 점검표 |

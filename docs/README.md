@@ -44,6 +44,13 @@
 | [`submission/development_validation_log.md`](submission/development_validation_log.md) | 개발 검증 명령과 사람 검토 항목 |
 | [`ops/로그_에러_가이드.md`](ops/로그_에러_가이드.md) | 상태값과 오류 메시지 해석 기준 |
 
+## 통합 경계 문서
+
+| 문서 | 설명 |
+| --- | --- |
+| [`design/llm_provider_abstraction.md`](design/llm_provider_abstraction.md) | OpenAI-compatible endpoint 기반 LLM provider 교체 구조 |
+| [`design/integration_boundary.md`](design/integration_boundary.md) | service-control layer와 AppDeployer/AI-MCMP 연계 프레임워크 책임 경계 |
+
 ## 예제 파일
 
 | 경로 | 설명 |

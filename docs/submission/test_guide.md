@@ -207,7 +207,7 @@ go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
 ```text
 benchmark_status = executed
 dry_run = false
-selected_actual_model = llama3.1:8b
+selected_actual_model = <configured-actual-model>
 ```
 
 endpoint가 없거나 model이 준비되지 않은 경우 benchmark command는 실패합니다. 이 실패는 실제 실행 검증이 수행되지 않았다는 명확한 증거로 보존합니다.
@@ -258,6 +258,6 @@ go run ./cmd/aiops-service-control team-validation \
 - prototype boundary statement가 포함되어 있는지
 - repository가 production readiness를 주장하지 않는지
 - repository가 final standardized LLM benchmark result를 주장하지 않는지
-- dry-run 결과를 actual LLM benchmark로 표현하지 않았는지
-- actual LLM benchmark라고 주장하는 결과가 `benchmark_status = executed`인지
+- dry-run 결과를 실제 LLM 응답 평가로 표현하지 않았는지
+- 실제 LLM 응답 평가라고 주장하는 결과가 `benchmark_status = executed`인지
 - VM 검증이라고 주장하는 결과가 실제 VM 내부에서 `--target vm`으로 실행되었는지

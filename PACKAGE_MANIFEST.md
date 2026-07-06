@@ -10,6 +10,8 @@
 | `go/aiops-guard/` | 서비스 제어 action을 허용 범위 안에서 검증하는 독립 Go 안전 게이트 |
 | `config/agent_registry.json` | 에이전트 registry와 bounded action 메타데이터 |
 | `config/ops_llm_benchmark.json` | 수동 정의된 프로토타입 LLM 정책 기준값과 선정 가중치 |
+| `config/ops_llm_eval_candidates.openai_compatible.example.json` | OpenAI-compatible provider 교체 예시 |
+| `config/ops_llm_eval_candidates.integration.example.json` | AppDeployer 또는 AI-MCMP 연계 환경 candidate config 예시 |
 | `config/inference_optimization.json` | CPU/GPU VM 자원 프로파일과 워크로드 요구사항 |
 | `data/ops_llm_eval_scenarios.jsonl` | Ops LLM 평가 scenario set |
 
@@ -54,6 +56,8 @@
 | 경로 | 설명 |
 | --- | --- |
 | `docs/design/` | 구현 수준의 보조 설계 문서 |
+| `docs/design/llm_provider_abstraction.md` | LLM provider abstraction과 candidate config 경계 |
+| `docs/design/integration_boundary.md` | service-control과 연계 프레임워크 책임 경계 |
 | `docs/team_setup.md` | 팀 단위 개발 환경 설정 참고 문서 |
 | `docs/diagrams/` | Mermaid 구조도 원본 |
 | `docs/images/` | README와 산출물 문서에 삽입되는 PNG 구조도 및 수정용 SVG 구조도 |
