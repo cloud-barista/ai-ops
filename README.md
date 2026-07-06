@@ -1,120 +1,66 @@
-# 🏛️ Kyung Hee AIOps 🦁
+# Kyung Hee AIOps
 
-> AI 기반 서비스 제어 및 관리 자동화 프레임워크
->
-> 1차년도 Go 기반 기능 프로토타입
+> AI 기반 서비스 제어 및 관리 자동화 프레임워크  
+> 1차년도 Go 기반 service-control prototype
 
 [![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go&logoColor=white)](go/service-control-api/go.mod)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-## 🧭 개요
+## 개요
 
-이 저장소는 경희대학교 1차년도 연구 범위인 **AI 기반 서비스 제어 및 관리 자동화 프레임워크**의 제출용/시연용 패키지입니다. 핵심 구현은 Go 언어로 구성되어 있으며, AI LLM 운영 관리, 에이전트 등록 관리, CPU/GPU VM 기반 AI 응용 배포·제어 판단을 하나의 기능 프로토타입으로 검증합니다.
+이 저장소는 경희대학교 1차년도 연구 범위 중 **AI 기반 서비스 제어 및 관리 자동화 프레임워크**를 위한 제출용/시연용 패키지입니다.
 
+핵심 구현은 Go 언어로 구성되어 있으며, Ops 분석 기반 LLM 선정, AI 에이전트 등록 관리, CPU/GPU VM 기반 AI 응용 배포·제어 판단을 하나의 service-control prototype으로 검증합니다.
 
-현재 프로토타입은 다음 기능을 제공합니다.
+## 담당 범위
 
 - Ops 분석 시험 및 최적 LLM 선정 흐름
-- AI LLM 운영 관리 구조 검증
-- AI 에이전트 등록 관리 및 bounded action 검증
+- AI LLM 운영 관리 구조 설계 및 검증
+- AI 에이전트 등록 관리와 bounded action 검증
 - CPU/GPU VM 기반 AI 응용 추론 배치 추천
 - AI 응용 배포·제어 계획 생성
-- 서비스 운영 준비도 통합 검증
 
-이 저장소는 운영 환경에 바로 투입하는 완성형 AIOps 플랫폼이 아닙니다. 기본 검증 경로는 로컬 Go 실행과 mock 검증을 중심으로 하며, Ops LLM 평가는 dry-run 또는 실제 OpenAI-compatible endpoint 실행 모드로 분리됩니다. 실제 AWS GPU VM 생성과 CB-Tumblebug 연동은 AI-Infra 환경이 준비된 뒤 확장하는 영역입니다.
+이 저장소는 실제 인프라 생성이나 운영 배포 완료를 직접 주장하지 않습니다. 실제 VM, GPU, Kubernetes 적용 결과는 외부 인프라/배포 계층의 실행 결과와 구분합니다.
 
-## 🧩 프로토타입 범위
-
-`config/ops_llm_benchmark.json`의 LLM 정책 값은 1차년도 기능 검증을 위한 수동 정의 기준값입니다. 최종 표준 LLM 벤치마크 결과가 아니며, 정량 보고를 위해서는 고정 프롬프트, 고정 데이터셋, 반복 가능한 지표 수집, 점수 산정 규칙을 포함한 별도 평가가 필요합니다.
-
-`primary-ops-llm`, `low-cost-ops-llm`, `code-cross-check-agent`는 내부 역할 label입니다. 실제 provider model 이름은 `actual_model`, `selected_actual_model`, `selected_provider`, `benchmark_status` 필드로 별도 관리합니다. 기본 config는 안전하게 `not_executed` 또는 `dry_run` 상태를 사용하며, 실제 endpoint가 응답한 run output 또는 evaluation summary에서만 `benchmark_status = executed`를 기록합니다. Candidate config 파일이 존재하는 것만으로 실제 benchmark 완료를 주장하지 않습니다.
-
-The service-control layer is provider-agnostic. Ollama is only a local example provider for executed benchmark. In an integrated AI-MCMP environment, the same benchmark runner can call any OpenAI-compatible LLM endpoint configured by the deployment or platform layer.
-
-기본 실행 모드는 `mock`입니다. 로컬 환경에서는 Go CLI/API와 Kubernetes manifest generation 및 dry-run/mock 경계를 검증할 수 있습니다. API 응답에는 `deployment_execution_mode`와 `kubernetes_live_apply=false`가 포함되어 실제 Kubernetes live apply 완료를 주장하지 않도록 구분합니다. 실제 GPU VM 프로비저닝, 운영 클러스터 변경, CB-Tumblebug 기반 AWS GPU VM 생성은 기본 로컬 검증 범위 밖입니다.
-
-## 🗂️ 저장소 구조
+## 코드 구조
 
 | 경로 | 설명 |
 | --- | --- |
-| [`go/service-control-api/`](go/service-control-api/) | LLM 선정, 에이전트 검증, CPU/GPU 배치 추천, 배포 계획 생성, 서비스 운영 준비도 검증을 수행하는 Go Echo API/CLI |
-| [`go/aiops-guard/`](go/aiops-guard/) | 서비스 제어 action의 허용 범위를 검증하는 독립 Go 안전 게이트 |
-| [`config/`](config/) | LLM 정책 후보, OpenAI-compatible endpoint 후보 예시, 에이전트 registry, CPU/GPU VM 배치 정책 JSON 설정 |
-| [`data/`](data/) | Ops LLM evaluation scenario JSONL |
-| [`docs/deliverables/`](docs/deliverables/) | 공식 설계 산출물 Markdown 원본과 DOCX 변환본 |
-| [`docs/README.md`](docs/README.md) | 제출/시연 문서 지도 |
-| [`docs/images/`](docs/images/) | README와 산출물 문서에 삽입되는 구조도 |
-| [`docs/design/`](docs/design/) | 구현 수준의 보조 설계 문서 |
-| [`docs/submission/`](docs/submission/) | 요구사항 정의서, 기능/API 가이드, OpenAPI 계약, 설치/실행 가이드, 테스트 가이드, 검증 기록 |
-| [`examples/`](examples/) | API 시연용 request/response JSON 예제 |
+| [`go/service-control-api/`](go/service-control-api/) | LLM 선정, Agent registry, CPU/GPU 배치, 배포·제어 계획을 수행하는 Go API/CLI |
+| [`go/aiops-guard/`](go/aiops-guard/) | 서비스 제어 action의 허용 범위를 검증하는 Go guard |
+| [`config/`](config/) | LLM 후보, 에이전트 registry, CPU/GPU 배치 정책 설정 |
+| [`data/`](data/) | Ops LLM 평가 scenario |
+| [`docs/`](docs/) | 산출물, 실행 가이드, 검증 문서, 구조도 |
+| [`examples/`](examples/) | API 요청/응답 예제 |
 
-## 📦 제출 산출물
+## 공식 산출물
 
-| 산출물 | 저장소 경로 |
-| --- | --- | 
-| 요구사항 정의서 원본 |  [`docs/submission/requirements_definition.md`](docs/submission/requirements_definition.md) 
-| 요구사항 정의서 제출본 |  [`docs/submission/requirements_definition.docx`](docs/submission/requirements_definition.docx) 
-| 기능/API 가이드 |  [`docs/submission/functional_api_guide.md`](docs/submission/functional_api_guide.md) 
-| Swagger/OpenAPI 계약 |  [`docs/submission/openapi_service_control.yaml`](docs/submission/openapi_service_control.yaml) 
-| 설치 및 실행 가이드 |  [`docs/submission/install_and_run_guide.md`](docs/submission/install_and_run_guide.md) 
-| 테스트 가이드 |  [`docs/submission/test_guide.md`](docs/submission/test_guide.md) 
-| Ops LLM 평가 방법 |  [`docs/submission/ops_llm_benchmark_method.md`](docs/submission/ops_llm_benchmark_method.md)
-| 문서 지도 |  [`docs/README.md`](docs/README.md)
-| 증적 패키지 가이드 |  [`docs/evidence/증적_패키지_가이드.md`](docs/evidence/증적_패키지_가이드.md)
-| 대표 로컬 검증 결과 |  [`docs/evidence/local_validation_20260703.md`](docs/evidence/local_validation_20260703.md)
-| 제출 체크리스트 |  [`docs/release/1차년도_제출_패키지_체크리스트.md`](docs/release/1차년도_제출_패키지_체크리스트.md)
-
-## 📝 공식 설계 산출물
-
-| 번호 | 설계 산출물 | Markdown 원본 | DOCX 제출본 |
-| --- | --- | --- | --- |
-| 1 | LLM 운영 관리 구조 설계서 | [원본 보기](docs/deliverables/01_llm_operation_management_design.md) | [DOCX 열기](docs/deliverables/docx/01_LLM_Operation_Management_Design.docx) |
-| 2 | 에이전트 등록 관리 프로토타입 | [원본 보기](docs/deliverables/02_agent_registration_management_prototype.md) | [DOCX 열기](docs/deliverables/docx/02_Agent_Registration_Management_Prototype.docx) |
-| 3 | AI 응용 배포·제어 추론 최적화 전략 설계서 | [원본 보기](docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md) | [DOCX 열기](docs/deliverables/docx/03_AI_Application_Deployment_Control_Optimization_Strategy.docx) |
-
-Markdown 파일이 공식 원본이며, DOCX 파일은 제출/검토용 변환본입니다.
-
-## 🧪 개발 검증 문서
-
-| 문서 | 저장소 경로 | 목적 |
+| 산출물 | 원본 | DOCX |
 | --- | --- | --- |
-| LLM/코딩 에이전트 교차 검증 기록 | [`docs/submission/coding_agent_cross_validation.md`](docs/submission/coding_agent_cross_validation.md) | 2종 이상 LLM/코딩 에이전트 역할과 교차 검증 절차 기록 |
-| 프롬프트 사용 기록 | [`docs/submission/prompt_usage_log.md`](docs/submission/prompt_usage_log.md) | 대표 프레임워크 프롬프트와 공유 정책 기록 |
-| 개발 검증 로그 | [`docs/submission/development_validation_log.md`](docs/submission/development_validation_log.md) | 검증 명령, 기대 출력, 로그 정책, 사람 검토 항목 기록 |
-| 대표 로컬 검증 결과 | [`docs/evidence/local_validation_20260703.md`](docs/evidence/local_validation_20260703.md) | 2026-07-03 로컬 Go test, team-validation, validate-system, 로컬 API 통합 검증, Ops LLM dry-run pipeline 결과 |
+| 요구사항 정의서 | [Markdown](docs/submission/requirements_definition.md) | [DOCX](docs/submission/requirements_definition.docx) |
+| LLM 운영 관리 구조 설계서 | [Markdown](docs/deliverables/01_llm_operation_management_design.md) | [DOCX](docs/deliverables/docx/01_LLM_Operation_Management_Design.docx) |
+| 에이전트 등록 관리 프로토타입 | [Markdown](docs/deliverables/02_agent_registration_management_prototype.md) | [DOCX](docs/deliverables/docx/02_Agent_Registration_Management_Prototype.docx) |
+| AI 응용 배포·제어 추론 최적화 전략 설계서 | [Markdown](docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md) | [DOCX](docs/deliverables/docx/03_AI_Application_Deployment_Control_Optimization_Strategy.docx) |
 
-## 📄 DOCX 변환본
-
-DOCX 제출본은 이미 `docs/submission/`과 `docs/deliverables/docx/`에 포함되어 있습니다. 재생성이 필요한 경우 [`docs/submission/install_and_run_guide.md`](docs/submission/install_and_run_guide.md)와 [`scripts/generate_docx_deliverables.sh`](scripts/generate_docx_deliverables.sh)를 참고합니다.
-
-## 📚 참고 문서
+## 문서 바로가기
 
 | 문서 | 설명 |
 | --- | --- |
-| [핵심 제출 요약](docs/core_submission_summary.md) | 패키지 범위와 산출물 매핑 |
-| [기능/API 가이드](docs/submission/functional_api_guide.md) | HTTP API 실행과 응답 구조 |
+| [문서 지도](docs/README.md) | 전체 문서와 산출물 진입점 |
+| [설치 및 실행 가이드](docs/submission/install_and_run_guide.md) | 로컬/VM 실행 절차 |
+| [테스트 가이드](docs/submission/test_guide.md) | Go 테스트와 검증 명령 |
+| [기능/API 가이드](docs/submission/functional_api_guide.md) | API 기능과 응답 구조 |
 | [OpenAPI 계약](docs/submission/openapi_service_control.yaml) | Swagger/OpenAPI 산출물 |
-| [설치 및 실행 가이드](docs/submission/install_and_run_guide.md) | Go CLI/API 실행 절차 |
-| [테스트 가이드](docs/submission/test_guide.md) | Go 테스트와 team-validation 절차 |
-| [평가 요약](docs/submission/evaluation_summary.md) | 기능 프로토타입 평가 범위 |
-| [Ops LLM 평가 방법](docs/submission/ops_llm_benchmark_method.md) | Go 기반 LLM evaluation dry-run과 OpenAI-compatible endpoint 실행 절차 |
-| [LLM Provider Abstraction](docs/design/llm_provider_abstraction.md) | provider-agnostic LLM 호출 구조와 candidate config 경계 |
-| [통합 경계 설계](docs/design/integration_boundary.md) | service-control, AppDeployer, AI-MCMP 연계 책임 분리 |
-| [문서 지도](docs/README.md) | 공식 산출물, 실행/검증 문서, 예제, 그림의 진입점 |
-| [증적 패키지 가이드](docs/evidence/증적_패키지_가이드.md) | `runs/` 결과와 검증 로그를 제출 증적으로 정리하는 기준 |
-| [제출 체크리스트](docs/release/1차년도_제출_패키지_체크리스트.md) | 제출 전 코드, 문서, 검증, LLM 상태 점검표 |
-| [로그·에러 가이드](docs/ops/로그_에러_가이드.md) | `not_executed`, `dry_run`, `executed`, endpoint/GPU 오류 해석 기준 |
+| [Ops LLM 평가 방법](docs/submission/ops_llm_benchmark_method.md) | dry-run과 실제 endpoint 실행 기준 |
+| [검증 증적 가이드](docs/evidence/증적_패키지_가이드.md) | 실행 결과와 증적 정리 기준 |
 
-## 🛠️ 개발 환경
+## 개발 환경
 
 - 개발 언어: Go
-- Go 기준 버전: Go 1.25
+- Go 기준 버전: Go 1.25+
 - 백엔드 프레임워크: Echo
 - 소스 코드 관리: GitHub
 - 라이선스: Apache 2.0
-
-
-두 Go 모듈은 `go mod tidy` 기준으로 Go 1.25 계열에 맞춰져 있습니다.
 
 ## License
 
