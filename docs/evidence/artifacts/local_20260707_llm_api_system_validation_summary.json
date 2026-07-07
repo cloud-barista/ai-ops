@@ -1,0 +1,53 @@
+{
+  "command": "validate-system",
+  "development_language": "go",
+  "environment_path": "<repo>/runs/full-validation-local-llm-api-executed-20260707/01_environment.json",
+  "output_dir": "<repo>/runs/full-validation-local-llm-api-executed-20260707",
+  "scope": [
+    "go_module_tests",
+    "team_validation",
+    "ops_llm_benchmark",
+    "api_integration_validation",
+    "service_operations_readiness",
+    "target_environment_evidence"
+  ],
+  "steps": [
+    {
+      "name": "collect-environment",
+      "valid": true,
+      "output_path": "<repo>/runs/full-validation-local-llm-api-executed-20260707/01_environment.json"
+    },
+    {
+      "name": "go-test-aiops-guard",
+      "valid": true,
+      "output_path": "<repo>/runs/full-validation-local-llm-api-executed-20260707/02_go_test_aiops_guard.txt"
+    },
+    {
+      "name": "go-test-service-control-api",
+      "valid": true,
+      "output_path": "<repo>/runs/full-validation-local-llm-api-executed-20260707/03_go_test_service_control_api.txt"
+    },
+    {
+      "name": "team-validation",
+      "valid": true,
+      "output_path": "<repo>/runs/full-validation-local-llm-api-executed-20260707/team-validation/00_team_validation_summary.json"
+    },
+    {
+      "name": "ops-llm-evaluation",
+      "valid": true,
+      "output_path": "<repo>/runs/full-validation-local-llm-api-executed-20260707/ops-llm-benchmark/model_outputs.jsonl"
+    },
+    {
+      "name": "ops-llm-evaluator",
+      "valid": true,
+      "output_path": "<repo>/runs/full-validation-local-llm-api-executed-20260707/ops-llm-benchmark/evaluation_summary.json"
+    },
+    {
+      "name": "api-integration-validation",
+      "valid": true,
+      "output_path": "<repo>/runs/full-validation-local-llm-api-executed-20260707/api-integration-validation/api-integration-validation-summary.json"
+    }
+  ],
+  "target": "local",
+  "valid": true
+}

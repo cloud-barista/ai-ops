@@ -1,0 +1,7 @@
+{
+  "command": "kubectl scale deployment aiops-service --replicas=2 -n aiops-demo",
+  "mode": "real",
+  "valid": true,
+  "stdout": "deployment.apps/aiops-service scaled",
+  "stderr": ""
+}
