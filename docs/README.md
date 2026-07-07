@@ -15,7 +15,8 @@
 | 5 | [`submission/test_guide.md`](submission/test_guide.md) | Go test, team-validation, validate-system 검증 절차 |
 | 6 | [`evidence/증적_패키지_가이드.md`](evidence/증적_패키지_가이드.md) | 제출 증적 구성 방식 |
 | 7 | [`evidence/local_validation_20260703.md`](evidence/local_validation_20260703.md) | 2026-07-03 로컬 검증 결과 요약과 대표 JSON 산출물 |
-| 8 | [`release/1차년도_제출_패키지_체크리스트.md`](release/1차년도_제출_패키지_체크리스트.md) | 제출 전 점검표 |
+| 8 | [`evidence/vm_validation_20260707.md`](evidence/vm_validation_20260707.md) | 2026-07-07 AWS GPU VM 검증 결과 |
+| 9 | [`release/1차년도_제출_패키지_체크리스트.md`](release/1차년도_제출_패키지_체크리스트.md) | 제출 전 점검표 |
 
 ## 공식 설계 산출물
 

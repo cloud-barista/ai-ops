@@ -53,6 +53,7 @@
 | [OpenAPI 계약](docs/submission/openapi_service_control.yaml) | Swagger/OpenAPI 산출물 |
 | [Ops LLM 평가 방법](docs/submission/ops_llm_benchmark_method.md) | dry-run과 실제 endpoint 실행 기준 |
 | [검증 증적 가이드](docs/evidence/증적_패키지_가이드.md) | 실행 결과와 증적 정리 기준 |
+| [AWS GPU VM 검증 결과](docs/evidence/vm_validation_20260707.md) | `validate-system --target vm` 실행 결과와 GPU 증적 |
 
 ## 🛠️ 개발 환경
 
