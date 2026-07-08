@@ -141,12 +141,16 @@ components:
           example: service-control-api
     ErrorResponse:
       type: object
+      required:
+        - valid
+        - message
       properties:
         valid:
           type: boolean
           example: false
-        error:
+        message:
           type: string
+          example: "Malformed request body: check JSON syntax"
     AgentListResponse:
       type: object
       properties:

@@ -61,7 +61,7 @@ type awsMetadataEvidence struct {
 	MetadataNote string            `json:"metadata_note,omitempty"`
 }
 
-func runSystemValidation(service api.Service, config api.ServerConfig, options systemValidationOptions) (map[string]any, error) {
+func runSystemValidation(ctx context.Context, service api.Service, config api.ServerConfig, options systemValidationOptions) (map[string]any, error) {
 	target := strings.ToLower(strings.TrimSpace(options.Target))
 	if target == "" {
 		target = "local"
@@ -122,7 +122,7 @@ func runSystemValidation(service api.Service, config api.ServerConfig, options s
 		addStep(systemValidationStep{Name: "team-validation", Valid: true, Skipped: true, Reason: "--skip-team-validation was enabled"})
 	} else {
 		teamValidationDir := filepath.Join(outputDirAbs, "team-validation")
-		teamValidation, err := runTeamValidation(service, config, teamValidationDir)
+		teamValidation, err := runTeamValidation(ctx, service, config, teamValidationDir)
 		teamStep := systemValidationStep{
 			Name:       "team-validation",
 			Valid:      false,

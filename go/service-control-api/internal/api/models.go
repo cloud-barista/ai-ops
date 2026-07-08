@@ -48,7 +48,12 @@ type OpsLLMCandidate struct {
 }
 
 type OpsLLMSelectRequest struct {
-	Policy string `json:"policy"`
+	Policy string `json:"policy" example:"quality_first"`
+}
+
+type ErrorResponse struct {
+	Valid   bool   `json:"valid" example:"false"`
+	Message string `json:"message" example:"Malformed request body: check JSON syntax"`
 }
 
 type OpsLLMSelectionResponse struct {
@@ -115,20 +120,20 @@ type InferenceWorkload struct {
 }
 
 type WorkloadRequest struct {
-	Workload string `json:"workload"`
+	Workload string `json:"workload" validate:"required" example:"llm-chat-inference"`
 }
 
 type ServiceOperationsRequest struct {
-	LLMConfigPath      string `json:"llm_config"`
-	InferenceConfig    string `json:"inference_config"`
-	LLMPolicy          string `json:"llm_policy"`
-	Workload           string `json:"workload"`
-	RecoveryNamespace  string `json:"recovery_namespace"`
-	RecoveryDeployment string `json:"recovery_deployment"`
-	Namespace          string `json:"namespace"`
-	Deployment         string `json:"deployment"`
-	Mode               string `json:"mode"`
-	GuardBackend       string `json:"guard_backend"`
+	LLMConfigPath      string `json:"llm_config" example:"config/ops_llm_benchmark.json"`
+	InferenceConfig    string `json:"inference_config" example:"config/inference_optimization.json"`
+	LLMPolicy          string `json:"llm_policy" example:"quality_first"`
+	Workload           string `json:"workload" validate:"required" example:"llm-chat-inference"`
+	RecoveryNamespace  string `json:"recovery_namespace" example:"aiops-demo"`
+	RecoveryDeployment string `json:"recovery_deployment" example:"aiops-service"`
+	Namespace          string `json:"namespace" example:"aiops-demo"`
+	Deployment         string `json:"deployment" example:"aiops-service"`
+	Mode               string `json:"mode" example:"mock"`
+	GuardBackend       string `json:"guard_backend" example:"go"`
 }
 
 type PlacementResponse struct {

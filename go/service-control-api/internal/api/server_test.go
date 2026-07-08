@@ -61,6 +61,30 @@ func TestSelectOpsLLM(t *testing.T) {
 	}
 }
 
+func TestMalformedRequestUsesUserFacingMessage(t *testing.T) {
+	server := NewServer(NewServerConfig())
+	body := strings.NewReader(`{"policy":`)
+	request := httptest.NewRequest(http.MethodPost, "/api/v1/ops-llm/select", body)
+	request.Header.Set("Content-Type", "application/json")
+	response := httptest.NewRecorder()
+
+	server.ServeHTTP(response, request)
+
+	if response.Code != http.StatusBadRequest {
+		t.Fatalf("expected status 400, got %d body=%s", response.Code, response.Body.String())
+	}
+	result := decodeObject(t, response.Body.Bytes())
+	if result["valid"] != false {
+		t.Fatalf("expected invalid response: %#v", result)
+	}
+	if result["message"] != "Malformed request body: check JSON syntax" {
+		t.Fatalf("expected user-facing message, got %#v", result["message"])
+	}
+	if _, ok := result["error"]; ok {
+		t.Fatalf("API response must not expose raw internal error: %#v", result)
+	}
+}
+
 func TestPlacementAndDeploymentPlan(t *testing.T) {
 	server := NewServer(NewServerConfig())
 	placementBody := strings.NewReader(`{"workload":"llm-chat-inference"}`)

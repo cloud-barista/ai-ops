@@ -1,11 +1,14 @@
 package api
 
-import "testing"
+import (
+	"context"
+	"testing"
+)
 
 func TestSelectOpsLLMMatchesConfiguredBaseline(t *testing.T) {
 	service := NewService(NewServerConfig())
 
-	result, err := service.SelectOpsLLM("quality_first")
+	result, err := service.SelectOpsLLM(context.Background(), "quality_first")
 	if err != nil {
 		t.Fatalf("SelectOpsLLM returned error: %v", err)
 	}
@@ -37,6 +40,7 @@ func TestValidateAgentActionUsesRegistryBounds(t *testing.T) {
 	service := NewService(NewServerConfig())
 
 	valid, err := service.ValidateAgentAction(
+		context.Background(),
 		"AIApplicationManagementAgent",
 		"app_select_inference_vm",
 	)
@@ -48,6 +52,7 @@ func TestValidateAgentActionUsesRegistryBounds(t *testing.T) {
 	}
 
 	valid, err = service.ValidateAgentAction(
+		context.Background(),
 		"AIApplicationManagementAgent",
 		"infra_select_cpu_gpu_vm",
 	)
@@ -62,7 +67,7 @@ func TestValidateAgentActionUsesRegistryBounds(t *testing.T) {
 func TestRecommendPlacementMatchesConfiguredScoreBaseline(t *testing.T) {
 	service := NewService(NewServerConfig())
 
-	result, err := service.RecommendPlacement("llm-chat-inference")
+	result, err := service.RecommendPlacement(context.Background(), "llm-chat-inference")
 	if err != nil {
 		t.Fatalf("RecommendPlacement returned error: %v", err)
 	}
@@ -81,7 +86,7 @@ func TestRecommendPlacementMatchesConfiguredScoreBaseline(t *testing.T) {
 func TestBuildDeploymentPlanUsesBoundedResourceRequests(t *testing.T) {
 	service := NewService(NewServerConfig())
 
-	result, err := service.BuildDeploymentPlan("text-classifier")
+	result, err := service.BuildDeploymentPlan(context.Background(), "text-classifier")
 	if err != nil {
 		t.Fatalf("BuildDeploymentPlan returned error: %v", err)
 	}
@@ -98,7 +103,7 @@ func TestBuildDeploymentPlanUsesBoundedResourceRequests(t *testing.T) {
 func TestRunServiceOperationsCombinesCoreDecisionsInGo(t *testing.T) {
 	service := NewService(NewServerConfig())
 
-	report, err := service.RunServiceOperations(ServiceOperationsRequest{
+	report, err := service.RunServiceOperations(context.Background(), ServiceOperationsRequest{
 		LLMPolicy:          "quality_first",
 		Workload:           "llm-chat-inference",
 		RecoveryNamespace:  "aiops-demo",

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -30,6 +31,7 @@ func run(args []string) error {
 
 	serverConfig := api.NewServerConfig()
 	service := api.NewService(serverConfig)
+	ctx := context.Background()
 	switch args[0] {
 	case "list-agents":
 		flags := flag.NewFlagSet("list-agents", flag.ContinueOnError)
@@ -39,7 +41,7 @@ func run(args []string) error {
 			return err
 		}
 		registryPath := resolveInputPath(serverConfig, *registry)
-		result, err := service.ListAgentsFromPath(registryPath)
+		result, err := service.ListAgentsFromPath(ctx, registryPath)
 		if err != nil {
 			return err
 		}
@@ -56,7 +58,7 @@ func run(args []string) error {
 			return fmt.Errorf("--agent is required")
 		}
 		registryPath := resolveInputPath(serverConfig, *registry)
-		agent, err := service.ShowAgentFromPath(registryPath, *agentName)
+		agent, err := service.ShowAgentFromPath(ctx, registryPath, *agentName)
 		if err != nil {
 			return err
 		}
@@ -82,7 +84,7 @@ func run(args []string) error {
 			return fmt.Errorf("--action is required")
 		}
 		registryPath := resolveInputPath(serverConfig, *registry)
-		valid, err := service.ValidateAgentActionFromPath(registryPath, *agentName, *action)
+		valid, err := service.ValidateAgentActionFromPath(ctx, registryPath, *agentName, *action)
 		if err != nil {
 			return err
 		}
@@ -102,7 +104,7 @@ func run(args []string) error {
 			return err
 		}
 		configPath := resolveInputPath(serverConfig, *config)
-		result, err := service.SelectOpsLLMFromPath(configPath, *policy)
+		result, err := service.SelectOpsLLMFromPath(ctx, configPath, *policy)
 		if err != nil {
 			return err
 		}
@@ -122,7 +124,7 @@ func run(args []string) error {
 			return fmt.Errorf("--workload is required")
 		}
 		configPath := resolveInputPath(serverConfig, *config)
-		result, err := service.RecommendPlacementFromPath(configPath, *workload)
+		result, err := service.RecommendPlacementFromPath(ctx, configPath, *workload)
 		if err != nil {
 			return err
 		}
@@ -142,7 +144,7 @@ func run(args []string) error {
 			return fmt.Errorf("--workload is required")
 		}
 		configPath := resolveInputPath(serverConfig, *config)
-		result, err := service.BuildDeploymentPlanFromPath(configPath, *workload)
+		result, err := service.BuildDeploymentPlanFromPath(ctx, configPath, *workload)
 		if err != nil {
 			return err
 		}
@@ -177,7 +179,7 @@ func run(args []string) error {
 		if normalizedDeployment == "" {
 			return fmt.Errorf("--recovery-deployment is required")
 		}
-		result, err := service.RunServiceOperations(api.ServiceOperationsRequest{
+		result, err := service.RunServiceOperations(ctx, api.ServiceOperationsRequest{
 			LLMConfigPath:      resolveInputPath(serverConfig, *llmConfig),
 			InferenceConfig:    resolveInputPath(serverConfig, *inferenceConfig),
 			LLMPolicy:          *llmPolicy,
@@ -283,7 +285,7 @@ func run(args []string) error {
 		if err := flags.Parse(args[1:]); err != nil {
 			return err
 		}
-		result, err := runSystemValidation(service, serverConfig, systemValidationOptions{
+		result, err := runSystemValidation(ctx, service, serverConfig, systemValidationOptions{
 			Target:             *target,
 			OutputDir:          *outputDir,
 			SkipGoTests:        *skipGoTests,
@@ -305,7 +307,7 @@ func run(args []string) error {
 		if err := flags.Parse(args[1:]); err != nil {
 			return err
 		}
-		result, err := runTeamValidation(service, serverConfig, *outputDir)
+		result, err := runTeamValidation(ctx, service, serverConfig, *outputDir)
 		if err != nil {
 			return err
 		}
@@ -391,7 +393,7 @@ func emitReport(command string, value any, saveResultDir string) error {
 	return os.WriteFile(path, append(bytes, '\n'), 0o644)
 }
 
-func runTeamValidation(service api.Service, config api.ServerConfig, outputDir string) (map[string]any, error) {
+func runTeamValidation(ctx context.Context, service api.Service, config api.ServerConfig, outputDir string) (map[string]any, error) {
 	if outputDir == "" {
 		outputDir = filepath.Join(config.RepoRoot, "runs", "team-validation", time.Now().Format("20060102-150405"))
 	}
@@ -439,13 +441,14 @@ func runTeamValidation(service api.Service, config api.ServerConfig, outputDir s
 		}
 	}
 
-	llmSelection, err := service.SelectOpsLLMFromPath(llmConfig, "quality_first")
+	llmSelection, err := service.SelectOpsLLMFromPath(ctx, llmConfig, "quality_first")
 	addStep("select-ops-llm", llmSelection, err == nil && llmSelection.Valid && llmSelection.SelectedModel != "", err)
 
-	agents, err := service.ListAgentsFromPath(agentRegistry)
+	agents, err := service.ListAgentsFromPath(ctx, agentRegistry)
 	addStep("list-agents", agents, err == nil, err)
 
 	actionValid, err := service.ValidateAgentActionFromPath(
+		ctx,
 		agentRegistry,
 		"AIApplicationManagementAgent",
 		"app_scale_deployment",
@@ -457,13 +460,13 @@ func runTeamValidation(service api.Service, config api.ServerConfig, outputDir s
 		"action":  "app_scale_deployment",
 	}, err == nil && actionValid, err)
 
-	placement, err := service.RecommendPlacementFromPath(inferenceConfig, "llm-chat-inference")
+	placement, err := service.RecommendPlacementFromPath(ctx, inferenceConfig, "llm-chat-inference")
 	addStep("recommend-inference-placement", placement, err == nil && placement.Valid, err)
 
-	deploymentPlan, err := service.BuildDeploymentPlanFromPath(inferenceConfig, "llm-chat-inference")
+	deploymentPlan, err := service.BuildDeploymentPlanFromPath(ctx, inferenceConfig, "llm-chat-inference")
 	addStep("plan-inference-deployment", deploymentPlan, err == nil && deploymentPlan.Valid, err)
 
-	serviceOperations, err := service.RunServiceOperations(api.ServiceOperationsRequest{
+	serviceOperations, err := service.RunServiceOperations(ctx, api.ServiceOperationsRequest{
 		LLMConfigPath:      llmConfig,
 		InferenceConfig:    inferenceConfig,
 		LLMPolicy:          "quality_first",

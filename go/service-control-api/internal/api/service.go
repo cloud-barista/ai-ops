@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -20,11 +21,14 @@ func NewService(config ServerConfig) Service {
 	return Service{config: config}
 }
 
-func (service Service) ListAgents() (map[string]any, error) {
-	return service.ListAgentsFromPath(service.config.path("config", "agent_registry.json"))
+func (service Service) ListAgents(ctx context.Context) (map[string]any, error) {
+	return service.ListAgentsFromPath(ctx, service.config.path("config", "agent_registry.json"))
 }
 
-func (service Service) ListAgentsFromPath(path string) (map[string]any, error) {
+func (service Service) ListAgentsFromPath(ctx context.Context, path string) (map[string]any, error) {
+	if err := ensureContext(ctx); err != nil {
+		return nil, err
+	}
 	registry, err := loadAgentRegistry(path)
 	if err != nil {
 		return nil, err
@@ -37,11 +41,14 @@ func (service Service) ListAgentsFromPath(path string) (map[string]any, error) {
 	}, nil
 }
 
-func (service Service) ShowAgent(agentName string) (AgentProfile, error) {
-	return service.ShowAgentFromPath(service.config.path("config", "agent_registry.json"), agentName)
+func (service Service) ShowAgent(ctx context.Context, agentName string) (AgentProfile, error) {
+	return service.ShowAgentFromPath(ctx, service.config.path("config", "agent_registry.json"), agentName)
 }
 
-func (service Service) ShowAgentFromPath(path string, agentName string) (AgentProfile, error) {
+func (service Service) ShowAgentFromPath(ctx context.Context, path string, agentName string) (AgentProfile, error) {
+	if err := ensureContext(ctx); err != nil {
+		return AgentProfile{}, err
+	}
 	registry, err := loadAgentRegistry(path)
 	if err != nil {
 		return AgentProfile{}, err
@@ -49,11 +56,14 @@ func (service Service) ShowAgentFromPath(path string, agentName string) (AgentPr
 	return findAgent(registry.Agents, agentName)
 }
 
-func (service Service) ValidateAgentAction(agentName string, action string) (bool, error) {
-	return service.ValidateAgentActionFromPath(service.config.path("config", "agent_registry.json"), agentName, action)
+func (service Service) ValidateAgentAction(ctx context.Context, agentName string, action string) (bool, error) {
+	return service.ValidateAgentActionFromPath(ctx, service.config.path("config", "agent_registry.json"), agentName, action)
 }
 
-func (service Service) ValidateAgentActionFromPath(path string, agentName string, action string) (bool, error) {
+func (service Service) ValidateAgentActionFromPath(ctx context.Context, path string, agentName string, action string) (bool, error) {
+	if err := ensureContext(ctx); err != nil {
+		return false, err
+	}
 	registry, err := loadAgentRegistry(path)
 	if err != nil {
 		return false, err
@@ -65,11 +75,14 @@ func (service Service) ValidateAgentActionFromPath(path string, agentName string
 	return agent.Enabled && contains(agent.BoundedActions, action), nil
 }
 
-func (service Service) SelectOpsLLM(policyName string) (OpsLLMSelectionResponse, error) {
-	return service.SelectOpsLLMFromPath(service.config.path("config", "ops_llm_benchmark.json"), policyName)
+func (service Service) SelectOpsLLM(ctx context.Context, policyName string) (OpsLLMSelectionResponse, error) {
+	return service.SelectOpsLLMFromPath(ctx, service.config.path("config", "ops_llm_benchmark.json"), policyName)
 }
 
-func (service Service) SelectOpsLLMFromPath(path string, policyName string) (OpsLLMSelectionResponse, error) {
+func (service Service) SelectOpsLLMFromPath(ctx context.Context, path string, policyName string) (OpsLLMSelectionResponse, error) {
+	if err := ensureContext(ctx); err != nil {
+		return OpsLLMSelectionResponse{}, err
+	}
 	if policyName == "" {
 		policyName = "quality_first"
 	}
@@ -164,12 +177,15 @@ func (service Service) SelectOpsLLMFromPath(path string, policyName string) (Ops
 	}, nil
 }
 
-func (service Service) RecommendPlacement(workloadID string) (PlacementResponse, error) {
-	return service.RecommendPlacementFromPath(service.config.path("config", "inference_optimization.json"), workloadID)
+func (service Service) RecommendPlacement(ctx context.Context, workloadID string) (PlacementResponse, error) {
+	return service.RecommendPlacementFromPath(ctx, service.config.path("config", "inference_optimization.json"), workloadID)
 }
 
-func (service Service) RecommendPlacementFromPath(path string, workloadID string) (PlacementResponse, error) {
-	_, workload, candidates, rejected, err := service.rankPlacementFromPath(path, workloadID)
+func (service Service) RecommendPlacementFromPath(ctx context.Context, path string, workloadID string) (PlacementResponse, error) {
+	if err := ensureContext(ctx); err != nil {
+		return PlacementResponse{}, err
+	}
+	_, workload, candidates, rejected, err := service.rankPlacementFromPath(ctx, path, workloadID)
 	if err != nil {
 		return PlacementResponse{}, err
 	}
@@ -210,12 +226,15 @@ func (service Service) RecommendPlacementFromPath(path string, workloadID string
 	}, nil
 }
 
-func (service Service) BuildDeploymentPlan(workloadID string) (DeploymentPlanResponse, error) {
-	return service.BuildDeploymentPlanFromPath(service.config.path("config", "inference_optimization.json"), workloadID)
+func (service Service) BuildDeploymentPlan(ctx context.Context, workloadID string) (DeploymentPlanResponse, error) {
+	return service.BuildDeploymentPlanFromPath(ctx, service.config.path("config", "inference_optimization.json"), workloadID)
 }
 
-func (service Service) BuildDeploymentPlanFromPath(path string, workloadID string) (DeploymentPlanResponse, error) {
-	placement, err := service.RecommendPlacementFromPath(path, workloadID)
+func (service Service) BuildDeploymentPlanFromPath(ctx context.Context, path string, workloadID string) (DeploymentPlanResponse, error) {
+	if err := ensureContext(ctx); err != nil {
+		return DeploymentPlanResponse{}, err
+	}
+	placement, err := service.RecommendPlacementFromPath(ctx, path, workloadID)
 	if err != nil {
 		return DeploymentPlanResponse{}, err
 	}
@@ -297,7 +316,10 @@ func (service Service) BuildDeploymentPlanFromPath(path string, workloadID strin
 	}, nil
 }
 
-func (service Service) RunServiceOperations(request ServiceOperationsRequest) (ServiceOperationsResponse, error) {
+func (service Service) RunServiceOperations(ctx context.Context, request ServiceOperationsRequest) (ServiceOperationsResponse, error) {
+	if err := ensureContext(ctx); err != nil {
+		return ServiceOperationsResponse{}, err
+	}
 	if request.LLMPolicy == "" {
 		request.LLMPolicy = "quality_first"
 	}
@@ -310,11 +332,11 @@ func (service Service) RunServiceOperations(request ServiceOperationsRequest) (S
 	llmConfigPath := service.resolvePath(request.LLMConfigPath, "config", "ops_llm_benchmark.json")
 	inferenceConfigPath := service.resolvePath(request.InferenceConfig, "config", "inference_optimization.json")
 
-	llmSelection, err := service.SelectOpsLLMFromPath(llmConfigPath, request.LLMPolicy)
+	llmSelection, err := service.SelectOpsLLMFromPath(ctx, llmConfigPath, request.LLMPolicy)
 	if err != nil {
 		return ServiceOperationsResponse{}, err
 	}
-	deploymentPlan, err := service.BuildDeploymentPlanFromPath(inferenceConfigPath, request.Workload)
+	deploymentPlan, err := service.BuildDeploymentPlanFromPath(ctx, inferenceConfigPath, request.Workload)
 	if err != nil {
 		return ServiceOperationsResponse{}, err
 	}
@@ -323,7 +345,7 @@ func (service Service) RunServiceOperations(request ServiceOperationsRequest) (S
 		return ServiceOperationsResponse{}, err
 	}
 	recoveryNamespace, recoveryDeployment := normalizeRecoveryContext(request)
-	dryRun := validateDeploymentManifest(manifest, request.Mode)
+	dryRun := validateDeploymentManifest(ctx, manifest, request.Mode)
 	deploymentExecutionMode := "dry_run"
 	if request.Mode == "mock" {
 		deploymentExecutionMode = "mock"
@@ -435,7 +457,10 @@ func (service Service) resolvePath(path string, defaultParts ...string) string {
 	return filepath.Join(service.config.RepoRoot, path)
 }
 
-func (service Service) rankPlacementFromPath(path string, workloadID string) (InferenceConfig, InferenceWorkload, []PlacementCandidate, map[string]string, error) {
+func (service Service) rankPlacementFromPath(ctx context.Context, path string, workloadID string) (InferenceConfig, InferenceWorkload, []PlacementCandidate, map[string]string, error) {
+	if err := ensureContext(ctx); err != nil {
+		return InferenceConfig{}, InferenceWorkload{}, nil, nil, err
+	}
 	config, err := loadJSON[InferenceConfig](path)
 	if err != nil {
 		return InferenceConfig{}, InferenceWorkload{}, nil, nil, err
@@ -604,7 +629,7 @@ func renderDeploymentManifest(plan DeploymentPlan) (DeploymentManifest, error) {
 	}, nil
 }
 
-func validateDeploymentManifest(manifest DeploymentManifest, mode string) DeploymentDryRun {
+func validateDeploymentManifest(ctx context.Context, manifest DeploymentManifest, mode string) DeploymentDryRun {
 	if mode == "" {
 		mode = "mock"
 	}
@@ -627,7 +652,7 @@ func validateDeploymentManifest(manifest DeploymentManifest, mode string) Deploy
 			Stderr:  err.Error(),
 		}
 	}
-	command := exec.Command("kubectl", "apply", "-f", "-", "--dry-run=server")
+	command := exec.CommandContext(ctx, "kubectl", "apply", "-f", "-", "--dry-run=server")
 	command.Stdin = bytes.NewReader(payload)
 	output, err := command.CombinedOutput()
 	return DeploymentDryRun{
@@ -726,6 +751,16 @@ func errorString(err error) string {
 		return ""
 	}
 	return err.Error()
+}
+
+func ensureContext(ctx context.Context) error {
+	if ctx == nil {
+		return fmt.Errorf("request context is required")
+	}
+	if err := ctx.Err(); err != nil {
+		return fmt.Errorf("request context ended: %w", err)
+	}
+	return nil
 }
 
 func marshalJSON(value any) ([]byte, error) {

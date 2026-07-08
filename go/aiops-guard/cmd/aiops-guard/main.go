@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"fmt"
 	"io"
 	"os"
 
@@ -43,8 +42,8 @@ func readInput(path string) ([]byte, error) {
 func writeResult(result guard.Result) {
 	encoded, err := json.MarshalIndent(result, "", "  ")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to encode result: %v\n", err)
+		_, _ = os.Stderr.WriteString("failed to encode result: " + err.Error() + "\n")
 		return
 	}
-	fmt.Println(string(encoded))
+	_, _ = os.Stdout.Write(append(encoded, '\n'))
 }

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/spf13/viper"
 )
 
 type ServerConfig struct {
@@ -13,13 +15,20 @@ type ServerConfig struct {
 }
 
 func NewServerConfig() ServerConfig {
-	repoRoot := os.Getenv("AIOPS_REPO_ROOT")
+	viper.SetEnvPrefix("AIOPS")
+	viper.AutomaticEnv()
+
+	repoRoot := viper.GetString("REPO_ROOT")
 	if repoRoot == "" {
 		repoRoot = findRepoRoot()
 	}
+	openAPIPath := viper.GetString("OPENAPI_PATH")
+	if openAPIPath == "" {
+		openAPIPath = filepath.Join(repoRoot, "docs", "submission", "openapi_service_control.yaml")
+	}
 	return ServerConfig{
 		RepoRoot:    repoRoot,
-		OpenAPIPath: filepath.Join(repoRoot, "docs", "submission", "openapi_service_control.yaml"),
+		OpenAPIPath: openAPIPath,
 	}
 }
 
