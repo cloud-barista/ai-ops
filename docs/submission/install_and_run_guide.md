@@ -10,6 +10,7 @@
 
 - Go 1.25 이상을 권장합니다.
 - service-control API dependency set이 `go mod tidy` 기준 `go 1.25.0`으로 정리되어 있어 두 Go module 모두 Go 1.25 계열을 기준으로 합니다.
+- `geon` 브랜치의 현재 검증 명령은 Go 1.25 기준으로 검증되었습니다.
 
 Go 버전 확인:
 

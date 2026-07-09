@@ -28,6 +28,16 @@ jobs:
           cd go/service-control-api
           go test ./...
 
+      - name: Vet Go guard
+        run: |
+          cd go/aiops-guard
+          go vet ./...
+
+      - name: Vet Go service-control API
+        run: |
+          cd go/service-control-api
+          go vet ./...
+
       - name: Check Go CLI
         run: |
           cd go/service-control-api

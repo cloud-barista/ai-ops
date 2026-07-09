@@ -4,11 +4,15 @@ GO_BIN_DIR := $(dir $(GO))
 SWAG_VERSION ?= v1.16.6
 SERVICE_CONTROL_DIR := go/service-control-api
 
-.PHONY: test lint swag license-report
+.PHONY: test vet lint swag license-report
 
 test:
 	cd go/aiops-guard && $(GO) test ./...
 	cd $(SERVICE_CONTROL_DIR) && $(GO) test ./...
+
+vet:
+	cd go/aiops-guard && $(GO) vet ./...
+	cd $(SERVICE_CONTROL_DIR) && $(GO) vet ./...
 
 lint:
 	cd go/aiops-guard && PATH="$(GO_BIN_DIR):$$PATH" $(GOLANGCI_LINT) run ./...

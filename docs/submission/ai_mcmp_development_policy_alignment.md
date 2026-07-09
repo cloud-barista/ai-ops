@@ -17,6 +17,7 @@ English title: AI-MCMP Development Policy Alignment
 | 항목 | 반영 내용 | 상태 |
 | --- | --- | --- |
 | 개발 환경 | WSL Ubuntu 22.04, AWS GPU VM Ubuntu 22.04에서 동일 Go 명령 검증 | 반영 |
+| Go 버전 | Go 1.25 기준으로 검증 | 반영 |
 | 개발 언어 | 핵심 구현을 Go로 구성 | 반영 |
 | 백엔드 프레임워크 | Echo 기반 REST API 서버 | 반영 |
 | 설정 관리 | `viper` 기반 환경 변수 로딩, `conf/template-setup.env` 제공 | 반영 |
@@ -42,6 +43,17 @@ English title: AI-MCMP Development Policy Alignment
 | 의존성 보고 | `docs/submission/third_party_license_report.md` | third-party Go package license 검토 |
 | 모듈 inventory | `docs/submission/go_module_inventory.txt` | `go list -m all` 기반 모듈 목록 |
 | 검증 CLI | `go/service-control-api/cmd/aiops-service-control/` | team/system/API/LLM benchmark 검증 명령 |
+
+## API model package 분리 판단
+
+현재 prototype 단계에서는 request/response struct를 `go/service-control-api/internal/api/models.go`에 함께 둔다. 이는 API handler와 service-control prototype 로직이 같은 내부 module 경계 안에 있고, 이번 작업의 목표가 대규모 구조 변경이 아니라 AI-MCMP 개발 규칙에 맞는 코드 품질과 검증 흐름 보완이기 때문이다.
+
+향후 AI-MCMP 본 저장소 통합 또는 production 단계에서는 다음 중 하나의 dedicated model package로 분리한다.
+
+- `go/service-control-api/internal/api/model`
+- `pkg/api/rest/model`
+
+분리 시점에는 handler, service, OpenAPI annotation, test import 범위를 함께 조정하고, 기존 API response schema가 바뀌지 않는지 검증한다.
 
 ## 검증 명령
 
