@@ -404,7 +404,9 @@ func requestIMDSToken(ctx context.Context, client *http.Client) string {
 	if err != nil {
 		return ""
 	}
-	defer response.Body.Close()
+	defer func() {
+		_ = response.Body.Close()
+	}()
 	if response.StatusCode < 200 || response.StatusCode >= 300 {
 		return ""
 	}
@@ -425,7 +427,9 @@ func requestIMDSValue(ctx context.Context, client *http.Client, token string, me
 	if err != nil {
 		return "", err
 	}
-	defer response.Body.Close()
+	defer func() {
+		_ = response.Body.Close()
+	}()
 	if response.StatusCode < 200 || response.StatusCode >= 300 {
 		return "", fmt.Errorf("metadata status %d", response.StatusCode)
 	}

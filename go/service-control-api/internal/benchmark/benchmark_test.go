@@ -276,7 +276,9 @@ func readJSONL(t *testing.T, path string) []map[string]any {
 	if err != nil {
 		t.Fatalf("failed to open %s: %v", path, err)
 	}
-	defer file.Close()
+	defer func() {
+		_ = file.Close()
+	}()
 
 	rows := []map[string]any{}
 	scanner := bufio.NewScanner(file)

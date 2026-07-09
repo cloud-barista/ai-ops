@@ -300,7 +300,9 @@ func callAndValidateEndpoint(client *http.Client, baseURL string, outputDir stri
 		result.Error = err.Error()
 		return result
 	}
-	defer response.Body.Close()
+	defer func() {
+		_ = response.Body.Close()
+	}()
 	result.StatusCode = response.StatusCode
 	responseBytes, err := io.ReadAll(response.Body)
 	if err != nil {

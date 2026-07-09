@@ -169,7 +169,9 @@ func RunOpsLLMBenchmark(options RunOptions) (RunResult, error) {
 	if err != nil {
 		return RunResult{}, err
 	}
-	defer file.Close()
+	defer func() {
+		_ = file.Close()
+	}()
 
 	encoder := json.NewEncoder(file)
 	status := "not_executed"
@@ -410,7 +412,9 @@ func loadScenarios(path string) ([]scenario, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func() {
+		_ = file.Close()
+	}()
 
 	var scenarios []scenario
 	scanner := bufio.NewScanner(file)
@@ -470,7 +474,9 @@ func loadOutputs(path string) ([]modelOutput, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func() {
+		_ = file.Close()
+	}()
 
 	var outputs []modelOutput
 	scanner := bufio.NewScanner(file)
@@ -552,7 +558,9 @@ func callOpenAICompatible(candidate candidate, prompt string) (modelOutput, erro
 	if err != nil {
 		return modelOutput{BenchmarkStatus: "not_executed", Skipped: true, LatencyMS: latency}, err
 	}
-	defer response.Body.Close()
+	defer func() {
+		_ = response.Body.Close()
+	}()
 
 	responseBytes, readErr := io.ReadAll(response.Body)
 	if readErr != nil {
