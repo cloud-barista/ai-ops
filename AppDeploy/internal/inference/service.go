@@ -135,7 +135,7 @@ func (s *Service) callVM(ctx context.Context, target model.TargetProfile, method
 		Args:  args,
 	})
 	if err != nil {
-		return cpuvm.Result{}, apperrors.New(model.ErrRuntimeFailed, err.Error(), http.StatusBadGateway, true)
+		return cpuvm.Result{}, apperrors.New(model.ErrRuntimeFailed, apperrors.PublicMessage(err, "inference proxy call failed"), http.StatusBadGateway, true)
 	}
 	return result, nil
 }

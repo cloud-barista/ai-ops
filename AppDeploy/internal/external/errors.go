@@ -51,7 +51,6 @@ func NormalizeError(provider Provider, err error) error {
 	}
 
 	kind := ErrorKindProviderFailed
-	message := err.Error()
 	retryable := true
 	var externalErr *Error
 	if errors.As(err, &externalErr) {
@@ -59,21 +58,23 @@ func NormalizeError(provider Provider, err error) error {
 			provider = externalErr.Provider
 		}
 		kind = externalErr.Kind
-		message = externalErr.Error()
 		retryable = externalErr.Retryable
 	}
 
 	code := model.ErrAIInfraAPIFailed
 	status := http.StatusBadGateway
+	message := "external API call failed"
 	switch kind {
 	case ErrorKindTimeout:
 		code = model.ErrAIInfraAPITimeout
 		status = http.StatusGatewayTimeout
 		retryable = true
+		message = "external API timeout"
 	case ErrorKindAuthFailed:
 		code = model.ErrGatewayAuthFailed
 		status = http.StatusUnauthorized
 		retryable = false
+		message = "external API authentication failed"
 	case ErrorKindInvalidResponse, ErrorKindProviderFailed:
 		if provider == ProviderBespin {
 			code = model.ErrBespinAPIFailed

@@ -6,7 +6,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 $Root = Split-Path -Parent $PSScriptRoot
-$RequestDir = Join-Path $Root "examples\interface\requests"
+$RequestDir = Join-Path $Root "deliverables\interface\examples\requests"
 $Base = $BaseUrl.TrimEnd("/")
 $RunId = Get-Date -Format "MMddHHmmss"
 

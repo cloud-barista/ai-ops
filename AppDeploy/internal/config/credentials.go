@@ -3,10 +3,11 @@ package config
 import (
 	"context"
 	"fmt"
-	"os"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/spf13/viper"
 )
 
 type SSHCredential struct {
@@ -20,19 +21,26 @@ type SSHCredentialResolver interface {
 	ResolveSSH(ctx context.Context, credentialRef string) (SSHCredential, error)
 }
 
-type EnvCredentialResolver struct{}
+type EnvCredentialResolver struct {
+	values *viper.Viper
+}
 
 func NewEnvCredentialResolver() *EnvCredentialResolver {
-	return &EnvCredentialResolver{}
+	return &EnvCredentialResolver{values: newViper()}
 }
 
 func (r *EnvCredentialResolver) ResolveSSH(ctx context.Context, credentialRef string) (SSHCredential, error) {
+	select {
+	case <-ctx.Done():
+		return SSHCredential{}, ctx.Err()
+	default:
+	}
 	if strings.TrimSpace(credentialRef) == "" {
 		return SSHCredential{}, fmt.Errorf("credential_ref is empty")
 	}
 	prefix := "AIAPP_CREDENTIAL_" + NormalizeCredentialRef(credentialRef)
 	timeout := 30 * time.Second
-	if raw := os.Getenv(prefix + "_SSH_TIMEOUT"); raw != "" {
+	if raw := r.values.GetString(prefix + "_SSH_TIMEOUT"); raw != "" {
 		parsed, err := time.ParseDuration(raw)
 		if err != nil {
 			return SSHCredential{}, fmt.Errorf("invalid ssh timeout for credential_ref")
@@ -40,9 +48,9 @@ func (r *EnvCredentialResolver) ResolveSSH(ctx context.Context, credentialRef st
 		timeout = parsed
 	}
 	credential := SSHCredential{
-		User:           os.Getenv(prefix + "_SSH_USER"),
-		PrivateKeyPath: os.Getenv(prefix + "_SSH_KEY_PATH"),
-		Password:       os.Getenv(prefix + "_SSH_PASSWORD"),
+		User:           r.values.GetString(prefix + "_SSH_USER"),
+		PrivateKeyPath: r.values.GetString(prefix + "_SSH_KEY_PATH"),
+		Password:       r.values.GetString(prefix + "_SSH_PASSWORD"),
 		Timeout:        timeout,
 	}
 	if strings.TrimSpace(credential.User) == "" {

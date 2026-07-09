@@ -8,6 +8,7 @@ OpenAPI와 JSON Schema를 기준으로 API 계약을 정의하고 Go/Echo 구현
 2. `contracts/schemas/*.json`과 OpenAPI Schema의 필드명을 맞춘다.
 3. `artifact.type`에 `container`가 포함되지 않도록 검토한다.
 4. API 테스트 fixture를 작성한다.
+5. Handler godoc, Swagger UI, 예제 JSON이 `contracts/openapi/openapi.yaml`과 충돌하지 않는지 확인한다.
 
 ## 필수 API
 - `GET /api/v1/healthz`
@@ -22,3 +23,10 @@ OpenAPI와 JSON Schema를 기준으로 API 계약을 정의하고 Go/Echo 구현
 - `POST /api/v1/runtime-profiles`
 - `POST /api/v1/target-profiles`
 - `POST /api/v1/resources/check`
+
+## 응답 메시지 기준
+- API caller에게 보이는 message는 호출자 관점으로 짧고 조치 가능하게 작성한다.
+- raw `err.Error()`, stack trace, DB/SSH connection string, 외부 API 원문 오류를 응답에 그대로 넣지 않는다.
+- 불필요한 `Failed to`, `Error:`, `Invalid request:` 접두어를 피한다.
+- 장시간 작업 완료 응답에는 가능하면 elapsed time을 포함한다.
+- 모든 실패 응답은 표준 ErrorResponse 구조와 의미 있는 HTTP status(`400`, `404`, `409`, `500` 등)를 사용한다.

@@ -15,7 +15,7 @@ Before making code changes, read these files in order:
    - Deployment: agent_md/05_deployment_orchestrator_agent.md
    - Runtime/resource: agent_md/06_runtime_resource_adapter_agent.md
    - External integration: agent_md/07_external_integration_agent.md
-   - External interface: agent_md/10_interface_common_contract.md, agent_md/11_openapi_interface_update_agent.md, agent_md/12_interface_examples_contract_test_agent.md, agent_md/13_external_boundary_review_agent.md
+   - External interface: agent_md/10_interface_agent.md
    - Test/release: agent_md/08_test_validation_agent.md, agent_md/09_review_docs_release_agent.md
 
 Hard rules:

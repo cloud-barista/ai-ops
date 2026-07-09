@@ -1,6 +1,7 @@
 # Documentation Map
 
 이 디렉터리는 AI App Deployer 프레임워크를 공유하기 위한 최소 문서만 전면에 둔다.
+제출 산출물, 외부 인터페이스 패키지, 시험 증적 결과는 `../deliverables`에서 관리한다.
 
 운영 방향은 다음과 같다.
 
@@ -16,20 +17,22 @@
 | 2 | `../agent_md/00_scope_common_contract.md` | 담당 범위, 제외 범위, 상태값, 에러 코드 |
 | 3 | `../contracts/openapi/openapi.yaml` | API source of truth |
 | 4 | `ops/로그_에러_가이드.md` | 로그·에러 메시지 작성 기준 |
-| 5 | `evidence/증적_패키지_가이드.md` | 제출 증적 구성 기준 |
-| 6 | `release/1차년도_제출_패키지_체크리스트.md` | 최종 제출 전 점검 |
+| 5 | `../deliverables/README.md` | 제출 산출물 위치 지도 |
+| 6 | `../deliverables/evidence/증적_패키지_가이드.md` | 제출 증적 구성 기준 |
+| 7 | `../deliverables/release/1차년도_제출_패키지_체크리스트.md` | 최종 제출 전 점검 |
 
 ## 최소 산출물
 
 | 문서 | 역할 |
 | --- | --- |
-| 구조 설계서 | `AI_반도체기반_AI응용배포_및_운용구조설계서_최신본.md` |
-| 프로토타입 개발설계서 | `CPU_GPU_VM기반_AI응용등록_배포프로토타입_개발설계서_최신본.md` |
+| 구조 설계서 | `../deliverables/design/AI_반도체기반_AI응용배포_및_운용구조설계서_최신본.md` |
+| 프로토타입 개발설계서 | `../deliverables/design/CPU_GPU_VM기반_AI응용등록_배포프로토타입_개발설계서_최신본.md` |
 | API 계약 | `../contracts/openapi/openapi.yaml`, `api/openapi.html` |
 | 실행/시험 | `install/설치_활용_가이드_초안.md`, `test/시험_가이드_초안.md` |
-| 증적/릴리스 | `evidence/증적_패키지_가이드.md`, `release/1차년도_제출_패키지_체크리스트.md` |
+| 외부 인터페이스 패키지 | `../deliverables/interface/` |
+| 증적/릴리스 | `../deliverables/evidence/`, `../deliverables/release/` |
 
-그 외 문서는 참고용이다. 새 문서를 늘리기보다 위 문서와 로그·에러 증적을 최신 상태로 유지한다.
+상태값과 에러 코드는 `../agent_md/00_scope_common_contract.md`와 `../contracts/openapi/openapi.yaml`을 기준으로 관리한다. 새 문서를 늘리기보다 위 문서와 로그·에러 증적을 최신 상태로 유지한다.
 
 ## 최신 구현 기준
 
@@ -46,5 +49,5 @@
 
 - OpenAPI를 바꾸면 `docs/api/openapi.html`을 다시 생성한다.
 - API 동작이 바뀌면 OpenAPI, 프롬프트, 로그·에러 가이드, 시험 증적 기준만 우선 확인한다.
-- 제출 판단이 바뀌면 `docs/evidence`, `docs/release`를 갱신한다.
+- 제출 판단이 바뀌면 `deliverables/evidence`, `deliverables/release`를 갱신한다.
 - 완료한 작업은 루트의 `log.md`에 간단히 기록한다.

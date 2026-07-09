@@ -1,6 +1,9 @@
 package errors
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type AppError struct {
 	Code       string
@@ -39,4 +42,15 @@ func WithDetails(code, message string, httpStatus int, retryable bool, details m
 
 func Wrap(code string, err error, httpStatus int, retryable bool) *AppError {
 	return New(code, fmt.Sprintf("%s: %v", code, err), httpStatus, retryable)
+}
+
+func PublicMessage(err error, fallback string) string {
+	var appErr *AppError
+	if errors.As(err, &appErr) && appErr.Message != "" {
+		return appErr.Message
+	}
+	if fallback != "" {
+		return fallback
+	}
+	return "internal server error"
 }

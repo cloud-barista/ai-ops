@@ -18,6 +18,7 @@ import (
 	"github.com/khu/ai-app-deployer/internal/requestid"
 	ressvc "github.com/khu/ai-app-deployer/internal/resource"
 	"github.com/labstack/echo/v4"
+	"github.com/rs/zerolog/log"
 )
 
 type API struct {
@@ -315,12 +316,21 @@ func (a *API) monitoringMetrics(c echo.Context) error {
 func (a *API) error(c echo.Context, err error) error {
 	var appErr *apperrors.AppError
 	if !errors.As(err, &appErr) {
-		appErr = apperrors.New("UNKNOWN", err.Error(), http.StatusInternalServerError, false)
+		appErr = apperrors.New("UNKNOWN", "internal server error", http.StatusInternalServerError, false)
 	}
 	status := appErr.HTTPStatus
 	if status == 0 {
 		status = http.StatusInternalServerError
 	}
+	log.Error().
+		Err(err).
+		Str("request_id", requestID(c)).
+		Str("method", c.Request().Method).
+		Str("path", c.Path()).
+		Str("error_code", appErr.Code).
+		Bool("retryable", appErr.Retryable).
+		Int("status", status).
+		Msg("api request failed")
 	return c.JSON(status, model.ErrorResponse{
 		RequestID: requestid.FromContext(c.Request().Context()),
 		Error: model.ErrorObject{

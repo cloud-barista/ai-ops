@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	apperrors "github.com/khu/ai-app-deployer/internal/errors"
 	"github.com/khu/ai-app-deployer/internal/model"
 	"github.com/khu/ai-app-deployer/internal/runtime"
 	"github.com/khu/ai-app-deployer/internal/store"
@@ -31,12 +32,12 @@ func (s *Service) Check(ctx context.Context, targetProfileID string) (model.Reso
 	status := "available"
 	if err := s.adapter.ValidateTarget(ctx, target); err != nil {
 		status = "unavailable"
-		checks["target"] = err.Error()
+		checks["target"] = apperrors.PublicMessage(err, "target validation failed")
 	}
 	if status == "available" {
 		if err := s.adapter.HealthCheck(ctx, runtimeProfileFromTarget(target), target); err != nil {
 			status = "unavailable"
-			checks["runtime"] = err.Error()
+			checks["runtime"] = apperrors.PublicMessage(err, "runtime health check failed")
 		}
 	}
 	inventory := model.ResourceInventory{

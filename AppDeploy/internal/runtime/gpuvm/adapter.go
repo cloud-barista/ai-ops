@@ -13,6 +13,7 @@ import (
 	"github.com/khu/ai-app-deployer/internal/model"
 	"github.com/khu/ai-app-deployer/internal/runtime"
 	"github.com/khu/ai-app-deployer/internal/runtime/cpuvm"
+	"github.com/rs/zerolog/log"
 )
 
 type Adapter struct {
@@ -68,7 +69,7 @@ func (a *Adapter) HealthCheck(ctx context.Context, profile model.RuntimeProfile,
 		Args:  []string{"--query-gpu=name,driver_version", "--format=csv,noheader"},
 	})
 	if err != nil {
-		return apperrors.New(model.ErrNvidiaDriverNotFound, err.Error(), http.StatusBadRequest, false)
+		return apperrors.New(model.ErrNvidiaDriverNotFound, "nvidia-smi not found or NVIDIA driver unavailable", http.StatusBadRequest, false)
 	}
 	return nil
 }
@@ -84,7 +85,7 @@ func (a *Adapter) Prepare(ctx context.Context, app model.AppResponse, target mod
 		Args:  []string{app.AppSpec.Artifact.URI, artifactPath},
 	})
 	if err != nil {
-		return nil, apperrors.New(model.ErrAppArtifactNotFound, err.Error(), http.StatusBadRequest, false)
+		return nil, apperrors.New(model.ErrAppArtifactNotFound, "gpu vm artifact preparation failed", http.StatusBadRequest, false)
 	}
 	return &runtime.PrepareResult{
 		ArtifactPath: artifactPath,
@@ -107,13 +108,13 @@ func (a *Adapter) Deploy(ctx context.Context, plan runtime.DeploymentPlan) (*run
 		WorkingDir: workingDir,
 	})
 	if err != nil {
-		return nil, apperrors.New(model.ErrDeploymentFailed, err.Error(), http.StatusBadRequest, false)
+		return nil, apperrors.New(model.ErrDeploymentFailed, "gpu vm deployment command failed", http.StatusBadRequest, false)
 	}
 
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.status[plan.DeploymentID] = model.StatusRunning
-	a.logs[plan.DeploymentID] = append(a.logs[plan.DeploymentID], model.DeploymentLog{
+	item := model.DeploymentLog{
 		Timestamp:    time.Now().UTC(),
 		Level:        "INFO",
 		RequestID:    plan.RequestID,
@@ -121,7 +122,9 @@ func (a *Adapter) Deploy(ctx context.Context, plan runtime.DeploymentPlan) (*run
 		Component:    "gpu-vm-adapter",
 		Stage:        model.StatusDeploying,
 		Message:      maskSensitive("gpu vm command accepted: " + result.Output),
-	})
+	}
+	a.logs[plan.DeploymentID] = append(a.logs[plan.DeploymentID], item)
+	logAdapterEvent(item)
 	return &runtime.DeployResult{
 		RuntimeID: "gpuvm-" + plan.DeploymentID,
 		Message:   "gpu vm deployment is running",
@@ -162,13 +165,13 @@ func (a *Adapter) Stop(ctx context.Context, plan runtime.StopPlan) error {
 		Args:  []string{workingDir},
 	})
 	if err != nil {
-		return apperrors.New(model.ErrRuntimeFailed, err.Error(), http.StatusBadRequest, true)
+		return apperrors.New(model.ErrRuntimeFailed, "gpu vm stop command failed", http.StatusBadRequest, true)
 	}
 
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.status[plan.DeploymentID] = model.StatusStopped
-	a.logs[plan.DeploymentID] = append(a.logs[plan.DeploymentID], model.DeploymentLog{
+	item := model.DeploymentLog{
 		Timestamp:    time.Now().UTC(),
 		Level:        "INFO",
 		RequestID:    plan.RequestID,
@@ -176,8 +179,19 @@ func (a *Adapter) Stop(ctx context.Context, plan runtime.StopPlan) error {
 		Component:    "gpu-vm-adapter",
 		Stage:        model.StatusStopped,
 		Message:      maskSensitive("gpu vm process stop requested: " + result.Output),
-	})
+	}
+	a.logs[plan.DeploymentID] = append(a.logs[plan.DeploymentID], item)
+	logAdapterEvent(item)
 	return nil
+}
+
+func logAdapterEvent(item model.DeploymentLog) {
+	log.Info().
+		Str("request_id", item.RequestID).
+		Str("deployment_id", item.DeploymentID).
+		Str("component", item.Component).
+		Str("stage", item.Stage).
+		Msg(item.Message)
 }
 
 func maskSensitive(value string) string {

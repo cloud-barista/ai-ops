@@ -1,20 +1,20 @@
 package main
 
 import (
-	"log"
-	"os"
-
 	"github.com/khu/ai-app-deployer/internal/server"
+	"github.com/rs/zerolog/log"
 )
 
 func main() {
-	port := os.Getenv("AIAPP_SERVER_PORT")
-	if port == "" {
-		port = "8080"
+	srv, err := server.New()
+	if err != nil {
+		log.Fatal().Err(err).Msg("server initialization failed")
 	}
-
-	srv := server.New()
-	if err := srv.Start(":" + port); err != nil {
-		log.Fatal(err)
+	port := srv.Server.Addr
+	if port == "" {
+		port = ":8080"
+	}
+	if err := srv.Start(port); err != nil {
+		log.Fatal().Err(err).Msg("server stopped")
 	}
 }

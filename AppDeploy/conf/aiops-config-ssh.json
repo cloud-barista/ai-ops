@@ -1,0 +1,82 @@
+{
+  "_comment": "ai-ops-geon service-control API를 AppDeploy SSH runner로 배포/확인/중지하기 위한 사용자 설정 파일입니다. JSON은 공식 주석 문법이 없어 _comment 필드를 설명용으로 사용합니다.",
+  "ssh_alias": "nhn-cloud",
+  "_comment_ssh_alias": "Windows ~/.ssh/config에 등록된 SSH Host alias입니다. 실제 host/user/key 값은 이 JSON에 쓰지 않습니다.",
+  "aiops_root": "../ai-ops-geon",
+  "_comment_aiops_root": "ai-ops-geon 저장소 루트 경로입니다. 상대 경로는 AppDeploy 루트 기준으로 해석됩니다.",
+  "run_root": "tmp/aiops-geon-ssh-appdeploy-run",
+  "_comment_run_root": "패키지, 상태 파일, stdout/stderr 로그를 저장할 AppDeploy 내부 작업 디렉터리입니다.",
+  "appdeploy_port": 18088,
+  "remote_port": 18089,
+  "tunnel_port": 18189,
+  "_comment_ports": "appdeploy_port는 로컬 AppDeploy 제어 서버, remote_port는 원격 VM의 ai-ops-geon API 포트, tunnel_port는 로컬 SSH 터널 포트입니다.",
+  "skip_tunnel": false,
+  "_comment_skip_tunnel": "true로 바꾸면 deploy 후 로컬 SSH 터널을 만들지 않습니다.",
+  "appdeploy": {
+    "_comment": "AppDeploy 제어 서버 실행 환경입니다. 이미 appdeploy_port에 서버가 떠 있으면 기존 서버를 재사용합니다.",
+    "store_file": "aiapp-store.json",
+    "cpu_vm_runner": "ssh",
+    "gpu_vm_runner": "dry-run",
+    "ssh_default_timeout": "120s"
+  },
+  "package": {
+    "_comment": "ai-ops-geon Go 바이너리를 linux/amd64로 빌드하고 원격 VM에 올릴 tar.gz 패키지 이름을 정합니다.",
+    "archive_name": "aiops-geon-service-control-linux-amd64.tar.gz",
+    "binary_name": "aiops-service-control-api",
+    "remote_run_dir": "run"
+  },
+  "app": {
+    "_comment": "AppDeploy /api/v1/apps에 등록할 AIApp Spec의 metadata/runtime/resources 기본값입니다.",
+    "name": "aiops-geon-service-control",
+    "version_prefix": "ssh",
+    "description": "ai-ops-geon service-control-api deployed by AppDeploy SSH script",
+    "runtime_type": "cpu",
+    "resources": {
+      "_comment": "App Spec resources 필드는 문자열입니다. 예: cpu=1, memory=512Mi.",
+      "cpu": "1",
+      "memory": "512Mi"
+    }
+  },
+  "runtime_profile": {
+    "_comment": "AppDeploy Runtime Profile 설정입니다. CPU VM SSH runner를 사용하므로 cpu/cpu_vm/vm_process 조합을 사용합니다.",
+    "id_prefix": "rt-aiops-geon-cpu-ssh-home",
+    "name": "aiops-geon cpu ssh vm process",
+    "runtime_type": "cpu",
+    "adapter_type": "cpu_vm",
+    "operating_mode": "vm_process",
+    "accelerator": "none"
+  },
+  "target_profile": {
+    "_comment": "AppDeploy Target Profile 설정입니다. host/port/user/key는 ssh_alias에서 읽고, AppDeploy에는 credential_ref만 넘깁니다.",
+    "id_prefix": "target-aiops-geon-cpu-ssh-home",
+    "name": "aiops-geon nhn cloud ssh",
+    "csp": "local",
+    "runtime_type": "cpu",
+    "accelerator": "none",
+    "operating_mode": "vm_process",
+    "credential_ref": "cred://nhn-cloud/cpu-vm-001",
+    "remote_base_dir": "aiapp"
+  },
+  "service_operation": {
+    "_comment": "배포 후 원격 /api/v1/service-operations/run 검증에 사용할 요청 payload입니다.",
+    "llm_config": "config/ops_llm_benchmark.json",
+    "inference_config": "config/inference_optimization.json",
+    "llm_policy": "quality_first",
+    "workload": "llm-chat-inference",
+    "recovery_namespace": "aiops-demo",
+    "recovery_deployment": "aiops-service",
+    "mode": "mock",
+    "guard_backend": "go"
+  },
+  "logging": {
+    "_comment": "터미널 출력 설정입니다. show_json_result=true이면 각 action의 최종 결과 JSON을 출력합니다.",
+    "show_json_result": true,
+    "tail_log_lines": 40
+  },
+  "stop": {
+    "_comment": "stop 동작 정책입니다. 기본값은 관련 RUNNING deployment 전체와 로컬 SSH 터널을 종료하고, AppDeploy 서버는 스크립트가 직접 띄운 경우에만 종료합니다.",
+    "stop_all_matching_deployments": true,
+    "stop_tunnel": true,
+    "stop_appdeploy": "if_started_by_script"
+  }
+}

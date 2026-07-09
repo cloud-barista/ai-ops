@@ -17,7 +17,7 @@ import (
 func TestSwaggerDocsRoutes(t *testing.T) {
 	t.Setenv("AIAPP_CPUVM_RUNNER", "dry-run")
 	t.Setenv("AIAPP_GPUVM_RUNNER", "dry-run")
-	e := server.New()
+	e := newTestServer(t)
 
 	openapi := request(t, e, http.MethodGet, "/openapi.yaml", nil)
 	if openapi.Code != http.StatusOK {
@@ -39,7 +39,7 @@ func TestSwaggerDocsRoutes(t *testing.T) {
 func TestMockRuntimeE2E(t *testing.T) {
 	t.Setenv("AIAPP_CPUVM_RUNNER", "dry-run")
 	t.Setenv("AIAPP_GPUVM_RUNNER", "dry-run")
-	e := server.New()
+	e := newTestServer(t)
 
 	appVersionID := createApp(t, e, validMockApp())
 	createMockRuntimeProfile(t, e)
@@ -82,7 +82,7 @@ func TestMockRuntimeE2E(t *testing.T) {
 func TestCPUVMRuntimeE2E(t *testing.T) {
 	t.Setenv("AIAPP_CPUVM_RUNNER", "dry-run")
 	t.Setenv("AIAPP_GPUVM_RUNNER", "dry-run")
-	e := server.New()
+	e := newTestServer(t)
 
 	appVersionID := createApp(t, e, validCPUApp())
 	createCPURuntimeProfile(t, e)
@@ -126,7 +126,7 @@ func TestCPUVMRuntimeE2E(t *testing.T) {
 func TestGPUVMRuntimeE2E(t *testing.T) {
 	t.Setenv("AIAPP_CPUVM_RUNNER", "dry-run")
 	t.Setenv("AIAPP_GPUVM_RUNNER", "dry-run")
-	e := server.New()
+	e := newTestServer(t)
 
 	appVersionID := createApp(t, e, validGPUApp())
 	createGPURuntimeProfile(t, e)
@@ -170,7 +170,7 @@ func TestGPUVMRuntimeE2E(t *testing.T) {
 func TestAIInfraRuntimeSkeletonE2E(t *testing.T) {
 	t.Setenv("AIAPP_CPUVM_RUNNER", "dry-run")
 	t.Setenv("AIAPP_GPUVM_RUNNER", "dry-run")
-	e := server.New()
+	e := newTestServer(t)
 
 	appVersionID := createApp(t, e, validAIInfraApp())
 	createAIInfraRuntimeProfile(t, e)
@@ -214,7 +214,7 @@ func TestAIInfraRuntimeSkeletonE2E(t *testing.T) {
 func TestMonitoringSummaryE2E(t *testing.T) {
 	t.Setenv("AIAPP_CPUVM_RUNNER", "dry-run")
 	t.Setenv("AIAPP_GPUVM_RUNNER", "dry-run")
-	e := server.New()
+	e := newTestServer(t)
 
 	appVersionID := createApp(t, e, validCPUApp())
 	createCPURuntimeProfile(t, e)
@@ -273,7 +273,7 @@ func TestMonitoringSummaryE2E(t *testing.T) {
 func TestInferenceMetricsE2E(t *testing.T) {
 	t.Setenv("AIAPP_CPUVM_RUNNER", "dry-run")
 	t.Setenv("AIAPP_GPUVM_RUNNER", "dry-run")
-	e := server.New()
+	e := newTestServer(t)
 
 	appVersionID := createApp(t, e, validCPUApp())
 	createCPURuntimeProfile(t, e)
@@ -319,7 +319,7 @@ func TestInferenceMetricsE2E(t *testing.T) {
 func TestExternalInterfaceExamplesE2E(t *testing.T) {
 	t.Setenv("AIAPP_CPUVM_RUNNER", "dry-run")
 	t.Setenv("AIAPP_GPUVM_RUNNER", "dry-run")
-	e := server.New()
+	e := newTestServer(t)
 
 	cpuApp := postRawJSON[model.AppResponse](t, e, http.MethodPost, "/api/v1/apps", readInterfaceRequest(t, "app-create-cpu.json"))
 	if cpuApp.RequestID == "" || cpuApp.AppVersionID == "" {
@@ -394,7 +394,7 @@ func TestExternalInterfaceExamplesE2E(t *testing.T) {
 func TestContainerArtifactRejected(t *testing.T) {
 	t.Setenv("AIAPP_CPUVM_RUNNER", "dry-run")
 	t.Setenv("AIAPP_GPUVM_RUNNER", "dry-run")
-	e := server.New()
+	e := newTestServer(t)
 	body := model.AppCreateRequest{AppSpec: validMockApp()}
 	body.AppSpec.Artifact.Type = "container"
 	rec := request(t, e, http.MethodPost, "/api/v1/apps", body)
@@ -417,6 +417,15 @@ func hasAlarm(items []model.DeploymentAlarmSummary, code string) bool {
 		}
 	}
 	return false
+}
+
+func newTestServer(t *testing.T) http.Handler {
+	t.Helper()
+	e, err := server.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	return e
 }
 
 func createApp(t *testing.T, e http.Handler, spec model.AppSpec) string {
@@ -756,7 +765,7 @@ func request(t *testing.T, e http.Handler, method, path string, body any) *httpt
 
 func readInterfaceRequest(t *testing.T, name string) []byte {
 	t.Helper()
-	raw, err := os.ReadFile(projectTestFile(t, filepath.Join("examples", "interface", "requests", name)))
+	raw, err := os.ReadFile(projectTestFile(t, filepath.Join("deliverables", "interface", "examples", "requests", name)))
 	if err != nil {
 		t.Fatal(err)
 	}

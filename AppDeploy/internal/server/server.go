@@ -1,8 +1,7 @@
 package server
 
 import (
-	"log"
-	"os"
+	"fmt"
 	"strings"
 	"time"
 
@@ -24,18 +23,32 @@ import (
 	"github.com/khu/ai-app-deployer/internal/store"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/rs/zerolog/log"
 )
 
-func New() *echo.Echo {
+func New() (*echo.Echo, error) {
+	settings, err := config.Load()
+	if err != nil {
+		return nil, err
+	}
+	return NewWithConfig(settings)
+}
+
+func NewWithConfig(settings config.Settings) (*echo.Echo, error) {
 	e := echo.New()
 	e.HideBanner = true
+	e.Server.Addr = listenAddress(settings.ServerPort)
 	e.Use(middleware.Recover())
 	e.Use(requestid.Middleware)
+	e.Use(structuredRequestLogger)
 
-	repo := newRepository()
+	repo, err := newRepository(settings.StorePath)
+	if err != nil {
+		return nil, err
+	}
 	mockAdapter := mockruntime.New()
-	cpuAdapter := cpuvm.New(cpuVMRunner())
-	gpuAdapter := gpuvm.New(gpuVMRunner())
+	cpuAdapter := cpuvm.New(cpuVMRunner(settings))
+	gpuAdapter := gpuvm.New(gpuVMRunner(settings))
 	aiInfraAdapter := aiinfra.New(etri.NewMockClient())
 	adapter := runtime.NewRouter(mockAdapter)
 	adapter.RegisterAdapterType("mock", mockAdapter)
@@ -52,10 +65,10 @@ func New() *echo.Echo {
 	deployments := depsvc.NewService(repo, repo, repo, matcher, adapter)
 	resources := ressvc.NewService(repo, repo, adapter)
 	monitoring := monsvc.NewService(repo)
-	inference := infsvc.NewService(repo, repo, repo, cpuvm.NewSSHRunner(config.NewEnvCredentialResolver(), 30*time.Second))
+	inference := infsvc.NewService(repo, repo, repo, cpuvm.NewSSHRunner(config.NewEnvCredentialResolver(), settings.SSHDefaultTimeout))
 
 	handler.New(apps, profiles, deployments, resources, monitoring, inference).Register(e)
-	return e
+	return e, nil
 }
 
 type repository interface {
@@ -65,28 +78,57 @@ type repository interface {
 	store.MetricRepository
 }
 
-func newRepository() repository {
-	path := strings.TrimSpace(os.Getenv("AIAPP_STORE_PATH"))
+func newRepository(path string) (repository, error) {
+	path = strings.TrimSpace(path)
 	if path == "" {
-		return store.NewMemory()
+		return store.NewMemory(), nil
 	}
 	repo, err := store.NewFile(path)
 	if err != nil {
-		log.Fatalf("open AIAPP_STORE_PATH: %v", err)
+		return nil, fmt.Errorf("open %s: %w", config.KeyStorePath, err)
 	}
-	return repo
+	return repo, nil
 }
 
-func cpuVMRunner() cpuvm.Runner {
-	if strings.EqualFold(os.Getenv("AIAPP_CPUVM_RUNNER"), "ssh") {
-		return cpuvm.NewSSHRunner(config.NewEnvCredentialResolver(), 30*time.Second)
+func cpuVMRunner(settings config.Settings) cpuvm.Runner {
+	if strings.EqualFold(settings.CPUVMRunner, "ssh") {
+		return cpuvm.NewSSHRunner(config.NewEnvCredentialResolver(), settings.SSHDefaultTimeout)
 	}
 	return cpuvm.NewDryRunRunner()
 }
 
-func gpuVMRunner() cpuvm.Runner {
-	if strings.EqualFold(os.Getenv("AIAPP_GPUVM_RUNNER"), "ssh") {
-		return cpuvm.NewSSHRunner(config.NewEnvCredentialResolver(), 30*time.Second)
+func gpuVMRunner(settings config.Settings) cpuvm.Runner {
+	if strings.EqualFold(settings.GPUVMRunner, "ssh") {
+		return cpuvm.NewSSHRunner(config.NewEnvCredentialResolver(), settings.SSHDefaultTimeout)
 	}
 	return gpuvm.NewDryRunRunner()
+}
+
+func listenAddress(port string) string {
+	port = strings.TrimSpace(port)
+	if port == "" {
+		return ":8080"
+	}
+	if strings.HasPrefix(port, ":") {
+		return port
+	}
+	return ":" + port
+}
+
+func structuredRequestLogger(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		start := time.Now()
+		err := next(c)
+		if err != nil {
+			return err
+		}
+		log.Info().
+			Str("request_id", requestid.FromContext(c.Request().Context())).
+			Str("method", c.Request().Method).
+			Str("path", c.Path()).
+			Int("status", c.Response().Status).
+			Dur("duration", time.Since(start)).
+			Msg("api request completed")
+		return nil
+	}
 }

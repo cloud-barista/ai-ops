@@ -12,6 +12,7 @@ import (
 	apperrors "github.com/khu/ai-app-deployer/internal/errors"
 	"github.com/khu/ai-app-deployer/internal/model"
 	"github.com/khu/ai-app-deployer/internal/runtime"
+	"github.com/rs/zerolog/log"
 )
 
 type Command struct {
@@ -73,7 +74,7 @@ func (a *Adapter) HealthCheck(ctx context.Context, profile model.RuntimeProfile,
 		Args:  []string{"-s"},
 	})
 	if err != nil {
-		return apperrors.New(model.ErrCSPVMUnreachable, err.Error(), http.StatusBadRequest, true)
+		return apperrors.New(model.ErrCSPVMUnreachable, "cpu vm readiness check failed", http.StatusBadRequest, true)
 	}
 	return nil
 }
@@ -89,7 +90,7 @@ func (a *Adapter) Prepare(ctx context.Context, app model.AppResponse, target mod
 		Args:  []string{app.AppSpec.Artifact.URI, artifactPath},
 	})
 	if err != nil {
-		return nil, apperrors.New(model.ErrAppArtifactNotFound, err.Error(), http.StatusBadRequest, false)
+		return nil, apperrors.New(model.ErrAppArtifactNotFound, "cpu vm artifact preparation failed", http.StatusBadRequest, false)
 	}
 	return &runtime.PrepareResult{
 		ArtifactPath: artifactPath,
@@ -112,13 +113,13 @@ func (a *Adapter) Deploy(ctx context.Context, plan runtime.DeploymentPlan) (*run
 		WorkingDir: workingDir,
 	})
 	if err != nil {
-		return nil, apperrors.New(model.ErrDeploymentFailed, err.Error(), http.StatusBadRequest, false)
+		return nil, apperrors.New(model.ErrDeploymentFailed, "cpu vm deployment command failed", http.StatusBadRequest, false)
 	}
 
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.status[plan.DeploymentID] = model.StatusRunning
-	a.logs[plan.DeploymentID] = append(a.logs[plan.DeploymentID], model.DeploymentLog{
+	item := model.DeploymentLog{
 		Timestamp:    time.Now().UTC(),
 		Level:        "INFO",
 		RequestID:    plan.RequestID,
@@ -126,7 +127,9 @@ func (a *Adapter) Deploy(ctx context.Context, plan runtime.DeploymentPlan) (*run
 		Component:    "cpu-vm-adapter",
 		Stage:        model.StatusDeploying,
 		Message:      maskSensitive("cpu vm command accepted: " + result.Output),
-	})
+	}
+	a.logs[plan.DeploymentID] = append(a.logs[plan.DeploymentID], item)
+	logAdapterEvent(item)
 	return &runtime.DeployResult{
 		RuntimeID: "cpuvm-" + plan.DeploymentID,
 		Message:   "cpu vm deployment is running",
@@ -167,13 +170,13 @@ func (a *Adapter) Stop(ctx context.Context, plan runtime.StopPlan) error {
 		Args:  []string{workingDir},
 	})
 	if err != nil {
-		return apperrors.New(model.ErrRuntimeFailed, err.Error(), http.StatusBadRequest, true)
+		return apperrors.New(model.ErrRuntimeFailed, "cpu vm stop command failed", http.StatusBadRequest, true)
 	}
 
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.status[plan.DeploymentID] = model.StatusStopped
-	a.logs[plan.DeploymentID] = append(a.logs[plan.DeploymentID], model.DeploymentLog{
+	item := model.DeploymentLog{
 		Timestamp:    time.Now().UTC(),
 		Level:        "INFO",
 		RequestID:    plan.RequestID,
@@ -181,7 +184,9 @@ func (a *Adapter) Stop(ctx context.Context, plan runtime.StopPlan) error {
 		Component:    "cpu-vm-adapter",
 		Stage:        model.StatusStopped,
 		Message:      maskSensitive("cpu vm process stop requested: " + result.Output),
-	})
+	}
+	a.logs[plan.DeploymentID] = append(a.logs[plan.DeploymentID], item)
+	logAdapterEvent(item)
 	return nil
 }
 
@@ -196,8 +201,17 @@ func (r *DryRunRunner) Run(ctx context.Context, target model.TargetProfile, comm
 		return Result{}, fmt.Errorf("target vm host is empty")
 	}
 	return Result{
-		Output: fmt.Sprintf("dry-run %s on %s", command.Name, target.VM.Host),
+		Output: fmt.Sprintf("dry-run %s accepted", command.Name),
 	}, nil
+}
+
+func logAdapterEvent(item model.DeploymentLog) {
+	log.Info().
+		Str("request_id", item.RequestID).
+		Str("deployment_id", item.DeploymentID).
+		Str("component", item.Component).
+		Str("stage", item.Stage).
+		Msg(item.Message)
 }
 
 func maskSensitive(value string) string {

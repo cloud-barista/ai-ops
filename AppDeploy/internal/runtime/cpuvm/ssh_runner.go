@@ -40,6 +40,11 @@ func (r *SSHRunner) Run(ctx context.Context, target model.TargetProfile, command
 	if timeout == 0 {
 		timeout = r.defaultTimeout
 	}
+	if _, ok := ctx.Deadline(); !ok {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, timeout)
+		defer cancel()
+	}
 
 	auth, err := authMethods(credential)
 	if err != nil {

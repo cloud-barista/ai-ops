@@ -7,9 +7,9 @@
 - 1차년도 artifact.type: `package`, `git`, `binary`, `script`
 - 컨테이너 기반 배포 API는 포함하지 않는다.
 - 후속 개발 우선순위: `docs/planning/경희대_1차년도_개발_백로그.md`
-- 제출 체크리스트: `docs/release/1차년도_제출_패키지_체크리스트.md`
-- 외부 연동 경계: `docs/external/외부_연동_경계_정리.md`
-- 외부 제공 인터페이스 명세: `docs/interface/KHU_AI_App_Deployer_외부제공인터페이스_명세서.md`
+- 제출 체크리스트: `deliverables/release/1차년도_제출_패키지_체크리스트.md`
+- 외부 연동 경계: `deliverables/interface/external/외부_연동_경계_정리.md`
+- 외부 제공 인터페이스 명세: `deliverables/interface/spec/KHU_AI_App_Deployer_외부제공인터페이스_명세서.md`
 
 ## 핵심 API
 | Method | Endpoint | 설명 |
@@ -71,7 +71,7 @@ curl -X POST http://localhost:8080/api/v1/apps \
   -d @examples/app-create-request.json
 ```
 
-외부 제공 인터페이스 예제는 `examples/interface/requests`와 `examples/interface/responses`에 별도로 둔다. `POST /api/v1/apps`는 기존 `{"app_spec": {...}}` 래퍼와 외부 제공 인터페이스의 직접 App Spec 본문을 모두 허용한다.
+외부 제공 인터페이스 예제는 `deliverables/interface/examples/requests`와 `deliverables/interface/examples/responses`에 별도로 둔다. `POST /api/v1/apps`는 기존 `{"app_spec": {...}}` 래퍼와 외부 제공 인터페이스의 직접 App Spec 본문을 모두 허용한다.
 
 ## Metric API
 
@@ -102,7 +102,7 @@ CPU VM 배포, GPU VM 배포, inference proxy, stop process 종료 흐름은 테
 ```
 
 - `scripts/api-smoke.ps1` checks healthz, readiness, app/profile registration, resource check, deployment, logs, metrics, stop, and monitoring endpoints.
-- `scripts/interface-smoke.ps1` checks the external interface examples under `examples/interface`.
-- `scripts/collect-evidence.ps1` runs `go test`, `go vet`, API smoke, readiness, and monitoring checks, then stores results under `test/results`.
+- `scripts/interface-smoke.ps1` checks the external interface examples under `deliverables/interface/examples`.
+- `scripts/collect-evidence.ps1` runs `go test`, `go vet`, API smoke, readiness, and monitoring checks, then stores results under `deliverables/evidence/results`.
 - `examples/fixtures/etri-aiinfra` stores current ETRI AI-Infra mock success/failure mapping fixtures.
-- 제출 증적 구성 기준은 `docs/evidence/증적_패키지_가이드.md`를 따른다.
+- 제출 증적 구성 기준은 `deliverables/evidence/증적_패키지_가이드.md`를 따른다.

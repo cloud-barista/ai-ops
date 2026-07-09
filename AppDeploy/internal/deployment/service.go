@@ -13,6 +13,7 @@ import (
 	"github.com/khu/ai-app-deployer/internal/resource"
 	"github.com/khu/ai-app-deployer/internal/runtime"
 	"github.com/khu/ai-app-deployer/internal/store"
+	"github.com/rs/zerolog/log"
 )
 
 type Service struct {
@@ -55,25 +56,32 @@ func (s *Service) Create(ctx context.Context, req model.DeploymentCreateRequest)
 
 	app, err := s.apps.GetAppByVersionID(ctx, req.AppVersionID)
 	if err != nil {
-		return s.fail(ctx, deployment, model.StatusValidationFailed, model.ErrAppSpecInvalid, err.Error(), false)
+		return s.fail(ctx, deployment, model.StatusValidationFailed, model.ErrAppSpecInvalid, apperrors.PublicMessage(err, "app version lookup failed"), false)
 	}
 	deployment.AppID = app.AppID
-	_ = s.deployments.UpdateDeployment(ctx, deployment)
+	if err := s.deployments.UpdateDeployment(ctx, deployment); err != nil {
+		log.Error().
+			Err(err).
+			Str("request_id", requestID).
+			Str("deployment_id", deployment.DeploymentID).
+			Str("component", "orchestrator").
+			Msg("deployment update failed")
+	}
 	runtimeProfile, err := s.profiles.GetRuntimeProfile(ctx, req.RuntimeProfileID)
 	if err != nil {
-		return s.fail(ctx, deployment, model.StatusValidationFailed, model.ErrRuntimeProfileInvalid, err.Error(), false)
+		return s.fail(ctx, deployment, model.StatusValidationFailed, model.ErrRuntimeProfileInvalid, apperrors.PublicMessage(err, "runtime profile lookup failed"), false)
 	}
 	target, err := s.profiles.GetTargetProfile(ctx, req.TargetProfileID)
 	if err != nil {
-		return s.fail(ctx, deployment, model.StatusValidationFailed, model.ErrTargetProfileInvalid, err.Error(), false)
+		return s.fail(ctx, deployment, model.StatusValidationFailed, model.ErrTargetProfileInvalid, apperrors.PublicMessage(err, "target profile lookup failed"), false)
 	}
 
 	deployment = s.transition(ctx, deployment, model.StatusValidating, "validator", "app, runtime profile, and target profile validation started")
 	if err := s.adapter.ValidateTarget(ctx, target); err != nil {
-		return s.fail(ctx, deployment, model.StatusValidationFailed, model.ErrTargetProfileInvalid, err.Error(), false)
+		return s.fail(ctx, deployment, model.StatusValidationFailed, model.ErrTargetProfileInvalid, apperrors.PublicMessage(err, "target validation failed"), false)
 	}
 	if err := s.adapter.HealthCheck(ctx, runtimeProfile, target); err != nil {
-		return s.fail(ctx, deployment, model.StatusValidationFailed, model.ErrRuntimeFailed, err.Error(), true)
+		return s.fail(ctx, deployment, model.StatusValidationFailed, model.ErrRuntimeFailed, apperrors.PublicMessage(err, "runtime health check failed"), true)
 	}
 	deployment = s.transition(ctx, deployment, model.StatusValidated, "validator", "app, runtime profile, and target profile validation passed")
 
@@ -83,7 +91,7 @@ func (s *Service) Create(ctx context.Context, req model.DeploymentCreateRequest)
 		if appErr, ok := err.(*apperrors.AppError); ok {
 			code = appErr.Code
 		}
-		return s.fail(ctx, deployment, model.StatusSchedulingFailed, code, err.Error(), false)
+		return s.fail(ctx, deployment, model.StatusSchedulingFailed, code, apperrors.PublicMessage(err, "resource matching failed"), false)
 	}
 
 	deployment = s.transition(ctx, deployment, model.StatusDeploying, "orchestrator", "runtime deploy requested")
@@ -103,7 +111,7 @@ func (s *Service) Create(ctx context.Context, req model.DeploymentCreateRequest)
 	}
 	runtimeStatus, err := s.adapter.GetStatus(ctx, deployment.DeploymentID)
 	if err != nil {
-		return s.fail(ctx, deployment, model.StatusRuntimeFailed, model.ErrRuntimeFailed, err.Error(), true)
+		return s.fail(ctx, deployment, model.StatusRuntimeFailed, model.ErrRuntimeFailed, apperrors.PublicMessage(err, "runtime status check failed"), true)
 	}
 	if runtimeStatus.Status != model.StatusRunning {
 		return s.fail(ctx, deployment, model.StatusRuntimeFailed, model.ErrRuntimeFailed, runtimeStatus.Message, true)
@@ -153,15 +161,15 @@ func (s *Service) Stop(ctx context.Context, deploymentID string) (model.Deployme
 	}
 	app, err := s.apps.GetAppByVersionID(ctx, deployment.AppVersionID)
 	if err != nil {
-		return s.fail(ctx, deployment, model.StatusRuntimeFailed, model.ErrAppSpecInvalid, err.Error(), false)
+		return s.fail(ctx, deployment, model.StatusRuntimeFailed, model.ErrAppSpecInvalid, apperrors.PublicMessage(err, "app version lookup failed"), false)
 	}
 	runtimeProfile, err := s.profiles.GetRuntimeProfile(ctx, deployment.RuntimeProfileID)
 	if err != nil {
-		return s.fail(ctx, deployment, model.StatusRuntimeFailed, model.ErrRuntimeProfileInvalid, err.Error(), false)
+		return s.fail(ctx, deployment, model.StatusRuntimeFailed, model.ErrRuntimeProfileInvalid, apperrors.PublicMessage(err, "runtime profile lookup failed"), false)
 	}
 	target, err := s.profiles.GetTargetProfile(ctx, deployment.TargetProfileID)
 	if err != nil {
-		return s.fail(ctx, deployment, model.StatusRuntimeFailed, model.ErrTargetProfileInvalid, err.Error(), false)
+		return s.fail(ctx, deployment, model.StatusRuntimeFailed, model.ErrTargetProfileInvalid, apperrors.PublicMessage(err, "target profile lookup failed"), false)
 	}
 	deployment = s.transition(ctx, deployment, model.StatusStopping, "orchestrator", "stop requested")
 	if err := s.adapter.Stop(ctx, runtime.StopPlan{
@@ -171,7 +179,7 @@ func (s *Service) Stop(ctx context.Context, deploymentID string) (model.Deployme
 		Runtime:      runtimeProfile,
 		Target:       target,
 	}); err != nil {
-		return s.fail(ctx, deployment, model.StatusRuntimeFailed, model.ErrRuntimeFailed, err.Error(), true)
+		return s.fail(ctx, deployment, model.StatusRuntimeFailed, model.ErrRuntimeFailed, apperrors.PublicMessage(err, "runtime stop failed"), true)
 	}
 	deployment = s.transition(ctx, deployment, model.StatusStopped, "runtime-adapter", "app stopped")
 	return deployment, nil
@@ -180,7 +188,15 @@ func (s *Service) Stop(ctx context.Context, deploymentID string) (model.Deployme
 func (s *Service) transition(ctx context.Context, deployment model.DeploymentResponse, status, component, message string) model.DeploymentResponse {
 	deployment.Status = status
 	deployment.UpdatedAt = time.Now().UTC()
-	_ = s.deployments.UpdateDeployment(ctx, deployment)
+	if err := s.deployments.UpdateDeployment(ctx, deployment); err != nil {
+		log.Error().
+			Err(err).
+			Str("request_id", requestid.FromContext(ctx)).
+			Str("deployment_id", deployment.DeploymentID).
+			Str("component", component).
+			Str("stage", status).
+			Msg("deployment transition update failed")
+	}
 	s.record(ctx, deployment.DeploymentID, status, "INFO", component, message, "", false)
 	return deployment
 }
@@ -192,7 +208,17 @@ func (s *Service) fail(ctx context.Context, deployment model.DeploymentResponse,
 func (s *Service) failWithHTTPStatus(ctx context.Context, deployment model.DeploymentResponse, status, code, message string, httpStatus int, retryable bool) (model.DeploymentResponse, error) {
 	deployment.Status = status
 	deployment.UpdatedAt = time.Now().UTC()
-	_ = s.deployments.UpdateDeployment(ctx, deployment)
+	if err := s.deployments.UpdateDeployment(ctx, deployment); err != nil {
+		log.Error().
+			Err(err).
+			Str("request_id", requestid.FromContext(ctx)).
+			Str("deployment_id", deployment.DeploymentID).
+			Str("component", "orchestrator").
+			Str("stage", status).
+			Str("error_code", code).
+			Bool("retryable", retryable).
+			Msg("deployment failure update failed")
+	}
 	s.record(ctx, deployment.DeploymentID, status, "ERROR", "orchestrator", message, code, retryable)
 	return deployment, apperrors.New(code, message, httpStatus, retryable)
 }
@@ -200,7 +226,7 @@ func (s *Service) failWithHTTPStatus(ctx context.Context, deployment model.Deplo
 func (s *Service) failFromError(ctx context.Context, deployment model.DeploymentResponse, defaultStatus, defaultCode string, err error, retryable bool) (model.DeploymentResponse, error) {
 	status := defaultStatus
 	code := defaultCode
-	message := err.Error()
+	message := apperrors.PublicMessage(err, "deployment operation failed")
 	httpStatus := http.StatusBadRequest
 	var appErr *apperrors.AppError
 	if errors.As(err, &appErr) {
@@ -225,16 +251,39 @@ func isExternalErrorCode(code string) bool {
 }
 
 func (s *Service) record(ctx context.Context, deploymentID, stage, level, component, message, errorCode string, retryable bool) {
-	_ = s.deployments.AddEvent(ctx, model.DeploymentEvent{
+	requestID := requestid.FromContext(ctx)
+	event := model.DeploymentEvent{
 		EventID:      "evt-" + uuid.NewString(),
 		Timestamp:    time.Now().UTC(),
 		Level:        level,
-		RequestID:    requestid.FromContext(ctx),
+		RequestID:    requestID,
 		DeploymentID: deploymentID,
 		Component:    component,
 		Stage:        stage,
 		Message:      message,
 		ErrorCode:    errorCode,
 		Retryable:    retryable,
-	})
+	}
+	if err := s.deployments.AddEvent(ctx, event); err != nil {
+		log.Error().
+			Err(err).
+			Str("request_id", requestID).
+			Str("deployment_id", deploymentID).
+			Str("component", component).
+			Str("stage", stage).
+			Msg("deployment event persistence failed")
+	}
+	logEvent := log.Info()
+	if level == "ERROR" {
+		logEvent = log.Error()
+	}
+	logEvent.
+		Str("request_id", requestID).
+		Str("deployment_id", deploymentID).
+		Str("component", component).
+		Str("stage", stage).
+		Str("status", stage).
+		Str("error_code", errorCode).
+		Bool("retryable", retryable).
+		Msg(message)
 }
