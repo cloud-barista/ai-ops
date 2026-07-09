@@ -1,45 +1,70 @@
-# AI-MCMP 개발 정책 반영 현황
+# AI-MCMP 개발 컨벤션 반영 현황
 
 English title: AI-MCMP Development Policy Alignment
 
 ## 목적
 
-ETRI에서 공유한 `AI-MCMP Project Skills` 문서는 연구 산출물의 주제를 바꾸는 문서가 아니라, AI-MCMP 저장소에 기여할 때 따라야 하는 개발 방식과 코드 품질 기준이다. 본 프로젝트는 기존 연구 범위인 `AI 기반 서비스 제어 및 관리 자동화 프레임워크`를 유지하되, Go 기반 구현과 API 서버 품질을 아래 기준에 맞춰 정리한다.
+이 문서는 ETRI에서 공유한 AI-MCMP 개발 컨벤션을 기준으로, 본 `geon` 브랜치의 Go 기반 service-control prototype이 어떤 항목을 반영했는지 정리한다.
 
-## 반영 기준
+본 저장소의 연구 범위는 다음 산출물에 맞춰져 있다.
 
-| 항목 | 반영 내용 | 현재 상태 |
+- LLM 운영 관리 구조 설계서
+- 에이전트 등록 관리 프로토타입
+- AI 응용 배포·제어 추론 최적화 전략 설계서
+
+## 컨벤션 반영 요약
+
+| 항목 | 반영 내용 | 상태 |
 | --- | --- | --- |
-| 개발 환경 | Ubuntu LTS, WSL, AWS GPU VM에서 동일한 Go 검증 명령 사용 | 반영 |
-| 개발 언어 | Go 중심 구현 유지 | 반영 |
-| Web framework | Echo 기반 REST API 서버 사용 | 반영 |
+| 개발 환경 | WSL Ubuntu 22.04, AWS GPU VM Ubuntu 22.04에서 동일 Go 명령 검증 | 반영 |
+| 개발 언어 | 핵심 구현을 Go로 구성 | 반영 |
+| 백엔드 프레임워크 | Echo 기반 REST API 서버 | 반영 |
 | 설정 관리 | `viper` 기반 환경 변수 로딩, `conf/template-setup.env` 제공 | 반영 |
-| 구조화 로그 | `zerolog` 기반 API request/error 로그 사용 | 반영 |
+| 구조화 로그 | `zerolog` 기반 request/error 로그 | 반영 |
 | context 전달 | Echo request context를 service layer까지 전달 | 반영 |
-| API 응답 | 내부 error string을 그대로 노출하지 않고 사용자 관점 message 반환 | 반영 |
-| Swagger/API 문서 | REST handler에 Swagger godoc 주석 유지, OpenAPI YAML 별도 제공 | 반영 |
-| 의존성 정책 | Apache 2.0 호환 가능한 Go package만 사용 | 반영 |
-| 검증 절차 | `go test`, `team-validation`, `validate-system` 단계 검증 | 반영 |
+| API 응답 메시지 | raw internal error 대신 사용자용 `message` 응답 | 반영 |
+| request validation | `go-playground/validator/v10` 기반 `validate:"required"` 검사 | 반영 |
+| Swagger/OpenAPI | Swagger godoc 주석, `make swag`, 생성된 `swagger.yaml/json`, 제출용 OpenAPI YAML 제공 | 반영 |
+| 의존성 정책 | Apache 2.0 호환 중심의 Go package 사용, third-party license report 제공 | 반영 |
+| 코드 검증 | `gofmt`, `go test`, `go vet`, `golangci-lint`, `team-validation` 수행 | 반영 |
+| 민감정보 관리 | credential, kubeconfig, API key는 저장소에 포함하지 않음 | 반영 |
 
-## 코드 반영 위치
+## 주요 반영 위치
 
 | 영역 | 경로 | 설명 |
 | --- | --- | --- |
-| Echo API 서버 | `go/service-control-api/internal/api/server.go` | REST handler, request logging, 사용자용 error response |
-| Service layer | `go/service-control-api/internal/api/service.go` | `context.Context` 전달 및 `kubectl` command context 적용 |
+| Echo API 서버 | `go/service-control-api/internal/api/server.go` | REST handler, validator, request logging, 사용자용 error response |
+| Service layer | `go/service-control-api/internal/api/service.go` | `context.Context` 전달 및 service-control 판단 로직 |
 | 설정 관리 | `go/service-control-api/internal/api/config.go` | `AIOPS_*` 환경 변수 로딩 |
 | 실행 환경 템플릿 | `conf/template-setup.env` | 로컬/VM 실행 설정 예시 |
+| Swagger 자동 생성 | `Makefile`, `go/service-control-api/docs/swagger/` | `make swag`로 swagger JSON/YAML 생성 |
+| 제출용 OpenAPI | `docs/submission/openapi_service_control.yaml` | 제출 문서용 API 계약 |
+| 의존성 보고 | `docs/submission/third_party_license_report.md` | third-party Go package license 검토 |
+| 모듈 inventory | `docs/submission/go_module_inventory.txt` | `go list -m all` 기반 모듈 목록 |
 | 검증 CLI | `go/service-control-api/cmd/aiops-service-control/` | team/system/API/LLM benchmark 검증 명령 |
 
-## 남은 관리 항목
+## 검증 명령
 
-아래 항목은 기능 미완료라기보다, 프로젝트가 AI-MCMP 본 저장소나 통합 브랜치에 들어갈 때 추가로 점검해야 하는 운영성 항목이다.
+```bash
+cd go/aiops-guard
+go test ./...
+go vet ./...
+golangci-lint run ./...
 
-- `golangci-lint`가 설치된 환경에서는 PR 전 정적 분석을 수행한다.
-- Swagger 산출물을 자동 생성하는 경우 `make swag` 또는 동일한 generation command를 통합한다.
-- 신규 Go package를 추가할 때는 라이선스, 유지보수 상태, 대체 가능성을 기록한다.
-- 실제 cloud credential, kubeconfig, API key는 저장소에 포함하지 않는다.
+cd ../service-control-api
+go test ./...
+go vet ./...
+golangci-lint run ./...
 
-## 보고 문구
+cd ../..
+make swag
 
-본 프로젝트는 AI-MCMP 개발 정책에 맞춰 Ubuntu LTS, Go, Echo 기반으로 개발되며, `zerolog` 구조화 로그, `context.Context` 전파, `viper` 설정 관리, Apache 2.0 호환 의존성, 단계별 Go 검증 절차를 적용한다.
+cd go/service-control-api
+go run ./cmd/aiops-service-control team-validation
+```
+
+## 결론
+
+본 프로젝트는 AI-MCMP 개발 컨벤션에 맞춰 Ubuntu 기반 Go 개발 환경, Echo API, zerolog logging, viper configuration, context propagation, go-playground validator, Swagger/OpenAPI generation, Apache 2.0 호환 의존성 검토, 단계별 Go 검증 절차를 반영하였다.
+
+다만 본 저장소는 1차년도 service-control prototype이므로, 실제 운영 플랫폼 전체 배포 완료나 production-grade AIOps platform 완성을 주장하지 않는다.

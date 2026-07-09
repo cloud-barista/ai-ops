@@ -85,6 +85,27 @@ func TestMalformedRequestUsesUserFacingMessage(t *testing.T) {
 	}
 }
 
+func TestRequiredRequestFieldUsesValidator(t *testing.T) {
+	server := NewServer(NewServerConfig())
+	body := strings.NewReader(`{}`)
+	request := httptest.NewRequest(http.MethodPost, "/api/v1/apps/placement", body)
+	request.Header.Set("Content-Type", "application/json")
+	response := httptest.NewRecorder()
+
+	server.ServeHTTP(response, request)
+
+	if response.Code != http.StatusBadRequest {
+		t.Fatalf("expected status 400, got %d body=%s", response.Code, response.Body.String())
+	}
+	result := decodeObject(t, response.Body.Bytes())
+	if result["valid"] != false {
+		t.Fatalf("expected invalid response: %#v", result)
+	}
+	if result["message"] != "Required request field is missing" {
+		t.Fatalf("expected validator message, got %#v", result["message"])
+	}
+}
+
 func TestPlacementAndDeploymentPlan(t *testing.T) {
 	server := NewServer(NewServerConfig())
 	placementBody := strings.NewReader(`{"workload":"llm-chat-inference"}`)

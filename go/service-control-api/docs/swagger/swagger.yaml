@@ -1,0 +1,563 @@
+basePath: /
+definitions:
+  api.AgentReview:
+    properties:
+      action:
+        type: string
+      agent:
+        type: string
+      approved:
+        type: boolean
+      parameters:
+        additionalProperties:
+          type: string
+        type: object
+      reason:
+        type: string
+      reward:
+        type: number
+    type: object
+  api.AgentReviews:
+    properties:
+      application:
+        $ref: '#/definitions/api.AgentReview'
+      cost:
+        $ref: '#/definitions/api.AgentReview'
+      infrastructure:
+        $ref: '#/definitions/api.AgentReview'
+    type: object
+  api.DeploymentDryRun:
+    properties:
+      command:
+        type: string
+      mode:
+        type: string
+      stderr:
+        type: string
+      stdout:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  api.DeploymentManifest:
+    properties:
+      apiVersion:
+        type: string
+      kind:
+        type: string
+      metadata:
+        additionalProperties: {}
+        type: object
+      spec:
+        additionalProperties: {}
+        type: object
+    type: object
+  api.DeploymentPlan:
+    properties:
+      container_image:
+        type: string
+      control_actions:
+        items:
+          type: string
+        type: array
+      kubernetes:
+        $ref: '#/definitions/api.KubernetesPlan'
+      monitoring_metrics:
+        items:
+          type: string
+        type: array
+      service_name:
+        type: string
+      slo:
+        additionalProperties:
+          format: float64
+          type: number
+        type: object
+      target_accelerator:
+        type: string
+      target_resource:
+        type: string
+    type: object
+  api.DeploymentPlanResponse:
+    properties:
+      action:
+        type: string
+      cost_per_hour:
+        type: number
+      deployment_plan:
+        $ref: '#/definitions/api.DeploymentPlan'
+      latency_ms:
+        type: number
+      ranked_candidates:
+        items:
+          $ref: '#/definitions/api.PlacementCandidate'
+        type: array
+      reason:
+        type: string
+      rejected_resources:
+        additionalProperties:
+          type: string
+        type: object
+      score:
+        type: number
+      selected_resource:
+        type: string
+      slo_satisfied:
+        type: boolean
+      throughput_rps:
+        type: number
+      valid:
+        type: boolean
+      workload:
+        type: string
+    type: object
+  api.ErrorResponse:
+    properties:
+      message:
+        example: 'Malformed request body: check JSON syntax'
+        type: string
+      valid:
+        example: false
+        type: boolean
+    type: object
+  api.GuardValidation:
+    properties:
+      backend:
+        type: string
+      boundary:
+        type: string
+      checked_actions:
+        items:
+          type: string
+        type: array
+      mode:
+        type: string
+      reason:
+        type: string
+      recovery_deployment:
+        type: string
+      recovery_namespace:
+        type: string
+      runtime_wired:
+        type: boolean
+      valid:
+        type: boolean
+    type: object
+  api.KubernetesPlan:
+    properties:
+      deployment:
+        type: string
+      namespace:
+        type: string
+      node_selector:
+        additionalProperties:
+          type: string
+        type: object
+      replicas:
+        type: integer
+      resources:
+        $ref: '#/definitions/api.ResourceSpec'
+    type: object
+  api.OpsLLMRankedItem:
+    properties:
+      actual_model:
+        type: string
+      benchmark_status:
+        type: string
+      evaluation_source:
+        type: string
+      evaluation_type:
+        type: string
+      metrics:
+        additionalProperties:
+          format: float64
+          type: number
+        type: object
+      model:
+        type: string
+      notes:
+        items:
+          type: string
+        type: array
+      provider:
+        type: string
+      role:
+        type: string
+      score:
+        type: number
+    type: object
+  api.OpsLLMSelectRequest:
+    properties:
+      policy:
+        example: quality_first
+        type: string
+    type: object
+  api.OpsLLMSelectionResponse:
+    properties:
+      benchmark_status:
+        type: string
+      evaluation_source:
+        type: string
+      evaluation_type:
+        type: string
+      policy:
+        type: string
+      ranking:
+        items:
+          $ref: '#/definitions/api.OpsLLMRankedItem'
+        type: array
+      rationale:
+        type: string
+      selected_actual_model:
+        type: string
+      selected_model:
+        type: string
+      selected_provider:
+        type: string
+      selected_score:
+        type: number
+      valid:
+        type: boolean
+    type: object
+  api.PlacementCandidate:
+    properties:
+      accelerator:
+        type: string
+      action:
+        type: string
+      available_replicas:
+        type: integer
+      cost_per_hour:
+        type: number
+      latency_ms:
+        type: number
+      resource:
+        type: string
+      score:
+        type: number
+      throughput_rps:
+        type: number
+    type: object
+  api.PlacementResponse:
+    properties:
+      action:
+        type: string
+      cost_per_hour:
+        type: number
+      latency_ms:
+        type: number
+      ranked_candidates:
+        items:
+          $ref: '#/definitions/api.PlacementCandidate'
+        type: array
+      reason:
+        type: string
+      rejected_resources:
+        additionalProperties:
+          type: string
+        type: object
+      score:
+        type: number
+      selected_resource:
+        type: string
+      slo_satisfied:
+        type: boolean
+      throughput_rps:
+        type: number
+      valid:
+        type: boolean
+      workload:
+        type: string
+    type: object
+  api.RecoveryReadiness:
+    properties:
+      deployment:
+        type: string
+      namespace:
+        type: string
+      reason:
+        type: string
+      skipped:
+        type: boolean
+      valid:
+        type: boolean
+    type: object
+  api.ResourceSpec:
+    properties:
+      limits:
+        additionalProperties:
+          type: string
+        type: object
+      requests:
+        additionalProperties:
+          type: string
+        type: object
+    type: object
+  api.ServiceOperationsRequest:
+    properties:
+      deployment:
+        example: aiops-service
+        type: string
+      guard_backend:
+        example: go
+        type: string
+      inference_config:
+        example: config/inference_optimization.json
+        type: string
+      llm_config:
+        example: config/ops_llm_benchmark.json
+        type: string
+      llm_policy:
+        example: quality_first
+        type: string
+      mode:
+        example: mock
+        type: string
+      namespace:
+        example: aiops-demo
+        type: string
+      recovery_deployment:
+        example: aiops-service
+        type: string
+      recovery_namespace:
+        example: aiops-demo
+        type: string
+      workload:
+        example: llm-chat-inference
+        type: string
+    required:
+    - workload
+    type: object
+  api.ServiceOperationsResponse:
+    properties:
+      agent_reviews:
+        $ref: '#/definitions/api.AgentReviews'
+      benchmark_status:
+        type: string
+      command:
+        type: string
+      deployment_dry_run:
+        $ref: '#/definitions/api.DeploymentDryRun'
+      deployment_execution_mode:
+        type: string
+      deployment_manifest:
+        $ref: '#/definitions/api.DeploymentManifest'
+      deployment_plan:
+        $ref: '#/definitions/api.DeploymentPlan'
+      evaluation_source:
+        type: string
+      evaluation_type:
+        type: string
+      guard_backend:
+        type: string
+      guard_validation:
+        $ref: '#/definitions/api.GuardValidation'
+      inference_deployment_plan:
+        $ref: '#/definitions/api.DeploymentPlanResponse'
+      kubernetes_live_apply:
+        type: boolean
+      metadata:
+        additionalProperties:
+          type: string
+        type: object
+      recovery:
+        $ref: '#/definitions/api.RecoveryReadiness'
+      recovery_pipeline_ready:
+        type: boolean
+      runtime_model:
+        type: string
+      selected_actual_model:
+        type: string
+      selected_llm:
+        type: string
+      selected_provider:
+        type: string
+      selected_resource:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  api.WorkloadRequest:
+    properties:
+      workload:
+        example: llm-chat-inference
+        type: string
+    required:
+    - workload
+    type: object
+info:
+  contact: {}
+  description: Go Echo API for AI LLM operation management, agent registry management,
+    CPU/GPU VM placement, and AI application deployment-control planning.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  title: AI-Ops Service Control API
+  version: "0.1"
+paths:
+  /api/v1/agents:
+    get:
+      description: Return the configured bounded-action agent registry.
+      operationId: GetAgents
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: List registered AI operation agents
+      tags:
+      - Agent Registry
+  /api/v1/apps/deployment-plan:
+    post:
+      consumes:
+      - application/json
+      description: Build a Kubernetes-oriented deployment and control plan for the
+        selected workload.
+      operationId: PostDeploymentPlan
+      parameters:
+      - description: Inference workload request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.WorkloadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.DeploymentPlanResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Build an AI application deployment plan
+      tags:
+      - AI Application Deployment
+  /api/v1/apps/placement:
+    post:
+      consumes:
+      - application/json
+      description: Recommend a CPU/GPU VM target for an AI application workload.
+      operationId: PostAppPlacement
+      parameters:
+      - description: Inference workload request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.WorkloadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.PlacementResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Recommend CPU/GPU VM placement
+      tags:
+      - AI Application Deployment
+  /api/v1/ops-llm/select:
+    post:
+      consumes:
+      - application/json
+      description: Rank Ops LLM candidates using the configured service-control benchmark
+        policy.
+      operationId: PostOpsLLMSelect
+      parameters:
+      - description: Ops LLM selection request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.OpsLLMSelectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.OpsLLMSelectionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Select an Ops LLM policy candidate
+      tags:
+      - LLM Operation Management
+  /api/v1/service-operations/run:
+    post:
+      consumes:
+      - application/json
+      description: Execute the Go service-control flow across LLM selection, agent
+        checks, CPU/GPU placement, and deployment-control planning.
+      operationId: PostServiceOperationsRun
+      parameters:
+      - description: Service operation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.ServiceOperationsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.ServiceOperationsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Run service-control operation planning
+      tags:
+      - Service Control
+  /healthz:
+    get:
+      description: Return a lightweight readiness response for the Go service-control
+        API.
+      operationId: GetHealthz
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Check service-control API health
+      tags:
+      - Service Control
+  /openapi.yaml:
+    get:
+      description: Return the submission OpenAPI YAML for the service-control prototype.
+      operationId: GetOpenAPI
+      produces:
+      - text/yaml
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Get OpenAPI specification
+      tags:
+      - Service Control
+swagger: "2.0"

@@ -1,0 +1,839 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Go Echo API for AI LLM operation management, agent registry management, CPU/GPU VM placement, and AI application deployment-control planning.",
+        "title": "AI-Ops Service Control API",
+        "contact": {},
+        "license": {
+            "name": "Apache 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "0.1"
+    },
+    "basePath": "/",
+    "paths": {
+        "/api/v1/agents": {
+            "get": {
+                "description": "Return the configured bounded-action agent registry.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Agent Registry"
+                ],
+                "summary": "List registered AI operation agents",
+                "operationId": "GetAgents",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/apps/deployment-plan": {
+            "post": {
+                "description": "Build a Kubernetes-oriented deployment and control plan for the selected workload.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Deployment"
+                ],
+                "summary": "Build an AI application deployment plan",
+                "operationId": "PostDeploymentPlan",
+                "parameters": [
+                    {
+                        "description": "Inference workload request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.WorkloadRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.DeploymentPlanResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/apps/placement": {
+            "post": {
+                "description": "Recommend a CPU/GPU VM target for an AI application workload.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Deployment"
+                ],
+                "summary": "Recommend CPU/GPU VM placement",
+                "operationId": "PostAppPlacement",
+                "parameters": [
+                    {
+                        "description": "Inference workload request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.WorkloadRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.PlacementResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/ops-llm/select": {
+            "post": {
+                "description": "Rank Ops LLM candidates using the configured service-control benchmark policy.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LLM Operation Management"
+                ],
+                "summary": "Select an Ops LLM policy candidate",
+                "operationId": "PostOpsLLMSelect",
+                "parameters": [
+                    {
+                        "description": "Ops LLM selection request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.OpsLLMSelectRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.OpsLLMSelectionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/service-operations/run": {
+            "post": {
+                "description": "Execute the Go service-control flow across LLM selection, agent checks, CPU/GPU placement, and deployment-control planning.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Service Control"
+                ],
+                "summary": "Run service-control operation planning",
+                "operationId": "PostServiceOperationsRun",
+                "parameters": [
+                    {
+                        "description": "Service operation request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.ServiceOperationsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.ServiceOperationsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/healthz": {
+            "get": {
+                "description": "Return a lightweight readiness response for the Go service-control API.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Service Control"
+                ],
+                "summary": "Check service-control API health",
+                "operationId": "GetHealthz",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/openapi.yaml": {
+            "get": {
+                "description": "Return the submission OpenAPI YAML for the service-control prototype.",
+                "produces": [
+                    "text/yaml"
+                ],
+                "tags": [
+                    "Service Control"
+                ],
+                "summary": "Get OpenAPI specification",
+                "operationId": "GetOpenAPI",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "api.AgentReview": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "agent": {
+                    "type": "string"
+                },
+                "approved": {
+                    "type": "boolean"
+                },
+                "parameters": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "reward": {
+                    "type": "number"
+                }
+            }
+        },
+        "api.AgentReviews": {
+            "type": "object",
+            "properties": {
+                "application": {
+                    "$ref": "#/definitions/api.AgentReview"
+                },
+                "cost": {
+                    "$ref": "#/definitions/api.AgentReview"
+                },
+                "infrastructure": {
+                    "$ref": "#/definitions/api.AgentReview"
+                }
+            }
+        },
+        "api.DeploymentDryRun": {
+            "type": "object",
+            "properties": {
+                "command": {
+                    "type": "string"
+                },
+                "mode": {
+                    "type": "string"
+                },
+                "stderr": {
+                    "type": "string"
+                },
+                "stdout": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "api.DeploymentManifest": {
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "spec": {
+                    "type": "object",
+                    "additionalProperties": {}
+                }
+            }
+        },
+        "api.DeploymentPlan": {
+            "type": "object",
+            "properties": {
+                "container_image": {
+                    "type": "string"
+                },
+                "control_actions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "kubernetes": {
+                    "$ref": "#/definitions/api.KubernetesPlan"
+                },
+                "monitoring_metrics": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "service_name": {
+                    "type": "string"
+                },
+                "slo": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "number",
+                        "format": "float64"
+                    }
+                },
+                "target_accelerator": {
+                    "type": "string"
+                },
+                "target_resource": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.DeploymentPlanResponse": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "cost_per_hour": {
+                    "type": "number"
+                },
+                "deployment_plan": {
+                    "$ref": "#/definitions/api.DeploymentPlan"
+                },
+                "latency_ms": {
+                    "type": "number"
+                },
+                "ranked_candidates": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.PlacementCandidate"
+                    }
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "rejected_resources": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "score": {
+                    "type": "number"
+                },
+                "selected_resource": {
+                    "type": "string"
+                },
+                "slo_satisfied": {
+                    "type": "boolean"
+                },
+                "throughput_rps": {
+                    "type": "number"
+                },
+                "valid": {
+                    "type": "boolean"
+                },
+                "workload": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Malformed request body: check JSON syntax"
+                },
+                "valid": {
+                    "type": "boolean",
+                    "example": false
+                }
+            }
+        },
+        "api.GuardValidation": {
+            "type": "object",
+            "properties": {
+                "backend": {
+                    "type": "string"
+                },
+                "boundary": {
+                    "type": "string"
+                },
+                "checked_actions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "mode": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "recovery_deployment": {
+                    "type": "string"
+                },
+                "recovery_namespace": {
+                    "type": "string"
+                },
+                "runtime_wired": {
+                    "type": "boolean"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "api.KubernetesPlan": {
+            "type": "object",
+            "properties": {
+                "deployment": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                },
+                "node_selector": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "replicas": {
+                    "type": "integer"
+                },
+                "resources": {
+                    "$ref": "#/definitions/api.ResourceSpec"
+                }
+            }
+        },
+        "api.OpsLLMRankedItem": {
+            "type": "object",
+            "properties": {
+                "actual_model": {
+                    "type": "string"
+                },
+                "benchmark_status": {
+                    "type": "string"
+                },
+                "evaluation_source": {
+                    "type": "string"
+                },
+                "evaluation_type": {
+                    "type": "string"
+                },
+                "metrics": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "number",
+                        "format": "float64"
+                    }
+                },
+                "model": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "number"
+                }
+            }
+        },
+        "api.OpsLLMSelectRequest": {
+            "type": "object",
+            "properties": {
+                "policy": {
+                    "type": "string",
+                    "example": "quality_first"
+                }
+            }
+        },
+        "api.OpsLLMSelectionResponse": {
+            "type": "object",
+            "properties": {
+                "benchmark_status": {
+                    "type": "string"
+                },
+                "evaluation_source": {
+                    "type": "string"
+                },
+                "evaluation_type": {
+                    "type": "string"
+                },
+                "policy": {
+                    "type": "string"
+                },
+                "ranking": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.OpsLLMRankedItem"
+                    }
+                },
+                "rationale": {
+                    "type": "string"
+                },
+                "selected_actual_model": {
+                    "type": "string"
+                },
+                "selected_model": {
+                    "type": "string"
+                },
+                "selected_provider": {
+                    "type": "string"
+                },
+                "selected_score": {
+                    "type": "number"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "api.PlacementCandidate": {
+            "type": "object",
+            "properties": {
+                "accelerator": {
+                    "type": "string"
+                },
+                "action": {
+                    "type": "string"
+                },
+                "available_replicas": {
+                    "type": "integer"
+                },
+                "cost_per_hour": {
+                    "type": "number"
+                },
+                "latency_ms": {
+                    "type": "number"
+                },
+                "resource": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "number"
+                },
+                "throughput_rps": {
+                    "type": "number"
+                }
+            }
+        },
+        "api.PlacementResponse": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "cost_per_hour": {
+                    "type": "number"
+                },
+                "latency_ms": {
+                    "type": "number"
+                },
+                "ranked_candidates": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.PlacementCandidate"
+                    }
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "rejected_resources": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "score": {
+                    "type": "number"
+                },
+                "selected_resource": {
+                    "type": "string"
+                },
+                "slo_satisfied": {
+                    "type": "boolean"
+                },
+                "throughput_rps": {
+                    "type": "number"
+                },
+                "valid": {
+                    "type": "boolean"
+                },
+                "workload": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.RecoveryReadiness": {
+            "type": "object",
+            "properties": {
+                "deployment": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "skipped": {
+                    "type": "boolean"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "api.ResourceSpec": {
+            "type": "object",
+            "properties": {
+                "limits": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "requests": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "api.ServiceOperationsRequest": {
+            "type": "object",
+            "required": [
+                "workload"
+            ],
+            "properties": {
+                "deployment": {
+                    "type": "string",
+                    "example": "aiops-service"
+                },
+                "guard_backend": {
+                    "type": "string",
+                    "example": "go"
+                },
+                "inference_config": {
+                    "type": "string",
+                    "example": "config/inference_optimization.json"
+                },
+                "llm_config": {
+                    "type": "string",
+                    "example": "config/ops_llm_benchmark.json"
+                },
+                "llm_policy": {
+                    "type": "string",
+                    "example": "quality_first"
+                },
+                "mode": {
+                    "type": "string",
+                    "example": "mock"
+                },
+                "namespace": {
+                    "type": "string",
+                    "example": "aiops-demo"
+                },
+                "recovery_deployment": {
+                    "type": "string",
+                    "example": "aiops-service"
+                },
+                "recovery_namespace": {
+                    "type": "string",
+                    "example": "aiops-demo"
+                },
+                "workload": {
+                    "type": "string",
+                    "example": "llm-chat-inference"
+                }
+            }
+        },
+        "api.ServiceOperationsResponse": {
+            "type": "object",
+            "properties": {
+                "agent_reviews": {
+                    "$ref": "#/definitions/api.AgentReviews"
+                },
+                "benchmark_status": {
+                    "type": "string"
+                },
+                "command": {
+                    "type": "string"
+                },
+                "deployment_dry_run": {
+                    "$ref": "#/definitions/api.DeploymentDryRun"
+                },
+                "deployment_execution_mode": {
+                    "type": "string"
+                },
+                "deployment_manifest": {
+                    "$ref": "#/definitions/api.DeploymentManifest"
+                },
+                "deployment_plan": {
+                    "$ref": "#/definitions/api.DeploymentPlan"
+                },
+                "evaluation_source": {
+                    "type": "string"
+                },
+                "evaluation_type": {
+                    "type": "string"
+                },
+                "guard_backend": {
+                    "type": "string"
+                },
+                "guard_validation": {
+                    "$ref": "#/definitions/api.GuardValidation"
+                },
+                "inference_deployment_plan": {
+                    "$ref": "#/definitions/api.DeploymentPlanResponse"
+                },
+                "kubernetes_live_apply": {
+                    "type": "boolean"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "recovery": {
+                    "$ref": "#/definitions/api.RecoveryReadiness"
+                },
+                "recovery_pipeline_ready": {
+                    "type": "boolean"
+                },
+                "runtime_model": {
+                    "type": "string"
+                },
+                "selected_actual_model": {
+                    "type": "string"
+                },
+                "selected_llm": {
+                    "type": "string"
+                },
+                "selected_provider": {
+                    "type": "string"
+                },
+                "selected_resource": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "api.WorkloadRequest": {
+            "type": "object",
+            "required": [
+                "workload"
+            ],
+            "properties": {
+                "workload": {
+                    "type": "string",
+                    "example": "llm-chat-inference"
+                }
+            }
+        }
+    }
+}

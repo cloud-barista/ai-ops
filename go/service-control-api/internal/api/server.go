@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 
+	playgroundvalidator "github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/rs/zerolog/log"
@@ -23,6 +24,14 @@ type restHandler struct {
 	service Service
 }
 
+type requestValidator struct {
+	validator *playgroundvalidator.Validate
+}
+
+func (validator requestValidator) Validate(value any) error {
+	return validator.validator.Struct(value)
+}
+
 func NewServer(config ServerConfig) *echo.Echo {
 	handler := restHandler{
 		config:  config,
@@ -32,6 +41,7 @@ func NewServer(config ServerConfig) *echo.Echo {
 	server := echo.New()
 	server.HideBanner = true
 	server.HidePort = true
+	server.Validator = requestValidator{validator: playgroundvalidator.New()}
 	server.Use(middleware.Recover())
 	server.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogMethod:  true,
@@ -123,8 +133,8 @@ func (handler restHandler) RestGetAgents(context echo.Context) error {
 // @Router /api/v1/ops-llm/select [post]
 func (handler restHandler) RestPostOpsLLMSelect(context echo.Context) error {
 	var request OpsLLMSelectRequest
-	if err := context.Bind(&request); err != nil {
-		return jsonError(context, http.StatusBadRequest, "Malformed request body: check JSON syntax", err)
+	if message, err := bindAndValidate(context, &request); err != nil {
+		return jsonError(context, http.StatusBadRequest, message, err)
 	}
 	result, err := handler.service.SelectOpsLLM(context.Request().Context(), request.Policy)
 	if err != nil {
@@ -146,8 +156,8 @@ func (handler restHandler) RestPostOpsLLMSelect(context echo.Context) error {
 // @Router /api/v1/apps/placement [post]
 func (handler restHandler) RestPostAppPlacement(context echo.Context) error {
 	var request WorkloadRequest
-	if err := context.Bind(&request); err != nil {
-		return jsonError(context, http.StatusBadRequest, "Malformed request body: check JSON syntax", err)
+	if message, err := bindAndValidate(context, &request); err != nil {
+		return jsonError(context, http.StatusBadRequest, message, err)
 	}
 	result, err := handler.service.RecommendPlacement(context.Request().Context(), request.Workload)
 	if err != nil {
@@ -169,8 +179,8 @@ func (handler restHandler) RestPostAppPlacement(context echo.Context) error {
 // @Router /api/v1/apps/deployment-plan [post]
 func (handler restHandler) RestPostDeploymentPlan(context echo.Context) error {
 	var request WorkloadRequest
-	if err := context.Bind(&request); err != nil {
-		return jsonError(context, http.StatusBadRequest, "Malformed request body: check JSON syntax", err)
+	if message, err := bindAndValidate(context, &request); err != nil {
+		return jsonError(context, http.StatusBadRequest, message, err)
 	}
 	result, err := handler.service.BuildDeploymentPlan(context.Request().Context(), request.Workload)
 	if err != nil {
@@ -192,14 +202,24 @@ func (handler restHandler) RestPostDeploymentPlan(context echo.Context) error {
 // @Router /api/v1/service-operations/run [post]
 func (handler restHandler) RestPostServiceOperationsRun(context echo.Context) error {
 	var request ServiceOperationsRequest
-	if err := context.Bind(&request); err != nil {
-		return jsonError(context, http.StatusBadRequest, "Malformed request body: check JSON syntax", err)
+	if message, err := bindAndValidate(context, &request); err != nil {
+		return jsonError(context, http.StatusBadRequest, message, err)
 	}
 	result, err := handler.service.RunServiceOperations(context.Request().Context(), request)
 	if err != nil {
 		return jsonError(context, http.StatusBadRequest, "Service operation request could not be processed", err)
 	}
 	return context.JSON(http.StatusOK, result)
+}
+
+func bindAndValidate(context echo.Context, request any) (string, error) {
+	if err := context.Bind(request); err != nil {
+		return "Malformed request body: check JSON syntax", err
+	}
+	if err := context.Validate(request); err != nil {
+		return "Required request field is missing", err
+	}
+	return "", nil
 }
 
 func jsonError(context echo.Context, status int, message string, err error) error {
