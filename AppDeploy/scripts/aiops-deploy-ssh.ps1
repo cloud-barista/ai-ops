@@ -1,7 +1,7 @@
 # ai-ops-geon service-control API를 AppDeploy SSH runner로 배포/확인/중지하는 실행 스크립트.
 # 사용자가 바꾸는 값은 conf/aiops-config-ssh.json에 두고, 이 파일은 실행 흐름만 담당한다.
 param(
-    [ValidateSet("deploy", "status", "stop", "package", "tunnel")]
+    [ValidateSet("deploy", "status", "stop", "cleanup", "package", "tunnel")]
     [string]$Action = "deploy",
 
     [string]$ConfigPath = "conf\aiops-config-ssh.json"
@@ -231,6 +231,17 @@ function Get-RemoteHome {
 function Convert-ToFileUri {
     param([string]$Path)
     return ([System.Uri]([System.IO.Path]::GetFullPath($Path))).AbsoluteUri
+}
+
+# SSH로 넘길 원격 shell literal을 안전하게 만든다.
+function Quote-RemoteShell {
+    param([string]$Value)
+
+    if ($null -eq $Value) {
+        return "''"
+    }
+
+    return "'" + $Value.Replace("'", "'""'""'") + "'"
 }
 
 # credential_ref를 AppDeploy가 읽는 환경변수 prefix로 바꾼다.
@@ -484,6 +495,7 @@ function Register-AndDeploy {
     $runId = (Get-Date).ToUniversalTime().ToString("yyyyMMddHHmmss")
     $appName = [string](Get-Setting $AppSettings "name" "aiops-geon-service-control")
     $appVersionPrefix = [string](Get-Setting $AppSettings "version_prefix" "ssh")
+    $appVersion = "$appVersionPrefix-$runId"
     $appDescription = [string](Get-Setting $AppSettings "description" "ai-ops-geon service-control-api deployed by AppDeploy SSH script")
     $runtimeProfileId = "$([string](Get-Setting $RuntimeProfileSettings "id_prefix" "rt-aiops-geon-cpu-ssh-home"))-$runId"
     $targetProfileId = "$([string](Get-Setting $TargetProfileSettings "id_prefix" "target-aiops-geon-cpu-ssh-home"))-$runId"
@@ -498,7 +510,7 @@ function Register-AndDeploy {
         kind = "AIApp"
         metadata = @{
             name = $appName
-            version = "$appVersionPrefix-$runId"
+            version = $appVersion
             description = $appDescription
         }
         artifact = @{
@@ -545,6 +557,7 @@ function Register-AndDeploy {
     $modelDir = [string](Get-Setting $TargetProfileSettings "model_dir" "$RemoteHome/$remoteBaseDir/models")
     $logDir = [string](Get-Setting $TargetProfileSettings "log_dir" "$RemoteHome/$remoteBaseDir/logs")
     $credentialRef = [string](Get-Setting $TargetProfileSettings "credential_ref" "cred://nhn-cloud/cpu-vm-001")
+    $remoteArtifactDir = "$artifactDir/$appName/$appVersion"
 
     $targetProfile = @{
         target_profile_id = $targetProfileId
@@ -590,9 +603,13 @@ function Register-AndDeploy {
 
     return [pscustomobject]@{
         AppName          = $appName
+        AppVersion       = $appVersion
         AppVersionId     = $createdApp.app_version_id
         RuntimeProfileId = $runtimeProfileId
         TargetProfileId  = $targetProfileId
+        RemoteBaseDir    = $remoteBaseDir
+        ArtifactBaseDir  = $artifactDir
+        ArtifactDir      = $remoteArtifactDir
         ResourceCheck    = $resourceCheck
         Deployment       = $deployment
     }
@@ -730,6 +747,132 @@ function Stop-LocalTunnel {
     }
 
     return Stop-ProcessIfOwned -ProcessId $owner.OwningPid -StartedByScript $false -Label "SSH tunnel on port $TunnelPort" -ForceWhenNotOwned $true -ExpectedProcessName "ssh"
+}
+
+# state에 저장된 원격 artifact 디렉터리를 찾는다. 예전 state에는 경로가 없을 수 있어 run id로 보강한다.
+function Resolve-RemoteArtifactCleanupTarget {
+    param($State)
+
+    if (-not $State) {
+        return $null
+    }
+
+    $remoteHome = Get-RemoteHome -Alias $SshAlias
+    $remoteBaseDir = [string](Get-Setting $State "remote_base_dir" ([string](Get-Setting $TargetProfileSettings "remote_base_dir" "aiapp")))
+    $artifactBaseDir = [string](Get-Setting $State "remote_artifact_base_dir" ([string](Get-Setting $TargetProfileSettings "artifact_dir" "$remoteHome/$remoteBaseDir/artifacts")))
+    $artifactDir = [string](Get-Setting $State "remote_artifact_dir" $null)
+
+    if ([string]::IsNullOrWhiteSpace($artifactDir)) {
+        $appName = [string](Get-Setting $State "app_name" ([string](Get-Setting $AppSettings "name" "aiops-geon-service-control")))
+        $appVersion = [string](Get-Setting $State "app_version" $null)
+        if ([string]::IsNullOrWhiteSpace($appVersion)) {
+            $runtimeProfileId = [string](Get-Setting $State "runtime_profile_id" "")
+            $targetProfileId = [string](Get-Setting $State "target_profile_id" "")
+            $runId = $null
+            if ($runtimeProfileId -match "(\d{14})$") {
+                $runId = $Matches[1]
+            } elseif ($targetProfileId -match "(\d{14})$") {
+                $runId = $Matches[1]
+            }
+
+            if ($runId) {
+                $appVersionPrefix = [string](Get-Setting $AppSettings "version_prefix" "ssh")
+                $appVersion = "$appVersionPrefix-$runId"
+            }
+        }
+
+        if ([string]::IsNullOrWhiteSpace($appName) -or [string]::IsNullOrWhiteSpace($appVersion)) {
+            Write-RunLog -Stage "cleanup" -Level "WARN" -Message "remote artifact path cannot be resolved from state"
+            return $null
+        }
+
+        $artifactDir = "$artifactBaseDir/$appName/$appVersion"
+    }
+
+    return [pscustomobject]@{
+        BasePath = $artifactBaseDir
+        TargetPath = $artifactDir
+    }
+}
+
+# 원격 artifact 삭제는 base 하위 경로인지 원격 shell에서 다시 확인한 뒤 수행한다.
+function Remove-RemoteArtifactDirectory {
+    param(
+        [string]$BasePath,
+        [string]$TargetPath
+    )
+
+    if ([string]::IsNullOrWhiteSpace($BasePath) -or [string]::IsNullOrWhiteSpace($TargetPath)) {
+        throw "remote artifact cleanup requires base and target paths"
+    }
+
+    $remoteCommand = @(
+        "set -eu",
+        "base=$(Quote-RemoteShell $BasePath)",
+        "target=$(Quote-RemoteShell $TargetPath)",
+        'if [ ! -e "$target" ] && [ ! -L "$target" ]; then echo "not-found:$target"; exit 0; fi',
+        'base_abs=$(cd "$base" 2>/dev/null && pwd -P) || { echo "refuse:base-missing:$base"; exit 2; }',
+        'target_parent=$(dirname -- "$target")',
+        'target_name=$(basename -- "$target")',
+        'case "$target_name" in ""|"."|"..") echo "refuse:bad-target-name:$target"; exit 2;; esac',
+        'parent_abs=$(cd "$target_parent" 2>/dev/null && pwd -P) || { echo "refuse:target-parent-missing:$target_parent"; exit 2; }',
+        'target_abs="$parent_abs/$target_name"',
+        'case "$target_abs" in "$base_abs"/*) ;; *) echo "refuse:outside-base:$target_abs"; exit 2;; esac',
+        'if [ "$target_abs" = "$base_abs" ] || [ "$target_abs" = "/" ]; then echo "refuse:dangerous-target:$target_abs"; exit 2; fi',
+        'rm -rf -- "$target_abs"',
+        'echo "removed:$target_abs"'
+    ) -join "; "
+
+    Write-RunLog -Stage "cleanup" -Message "removing remote artifact directory under verified base"
+    # Windows PowerShell이 SSH command 인자의 중첩 따옴표를 손상하지 않도록 script를 stdin으로 전달한다.
+    $output = ($remoteCommand | & ssh @SshBatchArgs $SshAlias "bash -s" 2>&1) -join "`n"
+    if ($LASTEXITCODE -ne 0) {
+        throw "remote artifact cleanup failed: $output"
+    }
+
+    return $output.Trim()
+}
+
+function Remove-RemoteArtifactsForState {
+    param($State)
+
+    $target = Resolve-RemoteArtifactCleanupTarget -State $State
+    if (-not $target) {
+        return $null
+    }
+
+    $result = Remove-RemoteArtifactDirectory -BasePath $target.BasePath -TargetPath $target.TargetPath
+    Write-RunLog -Stage "cleanup" -Message $result
+    return [pscustomobject]@{
+        base_path = $target.BasePath
+        target_path = $target.TargetPath
+        result = $result
+    }
+}
+
+# cleanup action은 stop과 독립적으로 state에 기록된 원격 artifact 디렉터리만 삭제한다.
+function Cleanup-Run {
+    Write-RunLog -Stage "cleanup" -Message "cleaning remote artifact directory recorded in state"
+    $state = Read-State
+    if (-not $state) {
+        throw "cleanup requires state file: $StatePath"
+    }
+
+    $cleanupResult = Remove-RemoteArtifactsForState -State $state
+    if (-not $cleanupResult) {
+        throw "remote artifact cleanup target could not be resolved from state"
+    }
+
+    $stateTable = ConvertTo-Hashtable $state
+    $stateTable["remote_artifact_cleanup"] = $cleanupResult
+    $stateTable["remote_artifact_cleaned_at"] = (Get-Date).ToUniversalTime().ToString("o")
+    Write-State -State $stateTable
+
+    return [pscustomobject]@{
+        state_path = $StatePath
+        deployment_id = $state.deployment_id
+        remote_artifact_cleanup = $cleanupResult
+    }
 }
 
 # AppDeploy stop API를 호출하고, 바로 deployment log를 터미널에 보여준다.
@@ -952,6 +1095,12 @@ try {
             break
         }
 
+        "cleanup" {
+            $cleanupResult = Cleanup-Run
+            Write-JsonResult $cleanupResult
+            break
+        }
+
         "tunnel" {
             New-Item -ItemType Directory -Path $RunDir -Force | Out-Null
             $tunnel = Start-Tunnel -Alias $SshAlias
@@ -1012,9 +1161,13 @@ try {
                 store_path = $server.StorePath
                 archive_path = $package.ArchivePath
                 app_name = $deployResult.AppName
+                app_version = $deployResult.AppVersion
                 app_version_id = $deployResult.AppVersionId
                 runtime_profile_id = $deployResult.RuntimeProfileId
                 target_profile_id = $deployResult.TargetProfileId
+                remote_base_dir = $deployResult.RemoteBaseDir
+                remote_artifact_base_dir = $deployResult.ArtifactBaseDir
+                remote_artifact_dir = $deployResult.ArtifactDir
                 deployment_id = $deployResult.Deployment.deployment_id
                 deployment_status = $deployResult.Deployment.status
                 local_tunnel_url = if ($SkipTunnel) { $null } else { "http://localhost:$TunnelPort" }

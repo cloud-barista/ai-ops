@@ -74,7 +74,7 @@
     "tail_log_lines": 40
   },
   "stop": {
-    "_comment": "stop 동작 정책입니다. 기본값은 관련 RUNNING deployment 전체와 로컬 SSH 터널을 종료하고, AppDeploy 서버는 스크립트가 직접 띄운 경우에만 종료합니다.",
+    "_comment": "stop 동작 정책입니다. 관련 RUNNING deployment 전체와 로컬 SSH 터널을 종료하고, AppDeploy 서버는 스크립트가 직접 띄운 경우에만 종료합니다. 원격 배포 파일은 별도 cleanup action으로 삭제합니다.",
     "stop_all_matching_deployments": true,
     "stop_tunnel": true,
     "stop_appdeploy": "if_started_by_script"

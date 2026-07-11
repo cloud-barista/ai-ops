@@ -103,6 +103,7 @@ http://localhost:8080/openapi.yaml
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\aiops-deploy-ssh.ps1 -ConfigPath .\conf\aiops-config-ssh.json -Action deploy
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\aiops-deploy-ssh.ps1 -ConfigPath .\conf\aiops-config-ssh.json -Action status
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\aiops-deploy-ssh.ps1 -ConfigPath .\conf\aiops-config-ssh.json -Action stop
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\aiops-deploy-ssh.ps1 -ConfigPath .\conf\aiops-config-ssh.json -Action cleanup
 ```
 
 주요 action은 다음과 같습니다.
@@ -113,7 +114,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\aiops-deploy-ssh.p
 | `deploy` | AppDeploy 서버 준비, App/Runtime/Target 등록, 원격 VM 배포, 원격 API 검증, SSH 터널 생성 |
 | `status` | AppDeploy readiness, 최근 deployment 상태, 원격 `/healthz`, 로컬 터널 상태 확인 |
 | `tunnel` | 기존 deployment에 대한 로컬 SSH 터널만 생성 또는 재사용 |
-| `stop` | 관련 RUNNING deployment와 로컬 SSH 터널 중지 |
+| `stop` | 관련 RUNNING deployment와 로컬 SSH 터널 중지. 원격 배포 파일은 유지 |
+| `cleanup` | state에 기록된 원격 artifact 디렉터리를 안전 검증 후 삭제 |
 
 실행 로그, 상태 파일, 패키지는 `tmp/aiops-geon-ssh-appdeploy-run/` 아래에 저장됩니다. 터널이 켜져 있으면 로컬에서 `http://localhost:18189`로 원격 ai-ops-geon API를 확인할 수 있습니다.
 
