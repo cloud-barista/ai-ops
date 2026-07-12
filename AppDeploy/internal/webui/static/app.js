@@ -15,11 +15,76 @@ const state = {
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
+const fieldHelpDefinitions = [
+  ["#app-form [name='name']", "앱을 구분하는 고유 이름입니다. 소문자·숫자·하이픈만 사용하며 2~63자로 입력하세요. 예: image-classifier"],
+  ["#app-form [name='version']", "같은 앱의 배포 버전입니다. 동일한 이름과 버전 조합은 중복 등록할 수 없습니다. 예: 0.1.0"],
+  ["#app-form [name='description']", "앱의 목적이나 모델 정보를 적는 선택 항목입니다. 배포 동작에는 영향을 주지 않습니다."],
+  ["#app-form [name='artifact_type']", "배포 파일의 전달 방식입니다. script, package, git, binary만 지원하며 컨테이너 이미지는 지원하지 않습니다."],
+  ["#app-form [name='runtime_type']", "앱이 요구하는 실행 환경입니다. mock은 기능 시험, cpu/gpu는 VM 실행, aiinfra는 외부 AI Infra 연동용입니다."],
+  ["#app-form [name='artifact_uri']", "배포할 파일 또는 저장소 위치입니다. 로컬 스크립트 업로드는 file:///절대/경로/run.sh 형식을 사용합니다."],
+  ["#app-form [name='command']", "대상 환경에서 앱을 시작할 실행 명령입니다. 예: bash, python3, ./server"],
+  ["#app-form [name='args']", "실행 명령 뒤에 전달할 인자입니다. 공백으로 구분하고 공백이 포함된 값은 따옴표로 묶습니다."],
+  ["#app-form [name='cpu']", "앱이 요구하는 논리 CPU 수입니다. 현재는 배포 요구사항과 증적 정보로 저장됩니다. 예: 2"],
+  ["#app-form [name='memory']", "앱이 요구하는 메모리입니다. Ki, Mi, Gi 단위를 사용할 수 있습니다. 예: 4Gi"],
+  ["#app-form [name='gpu']", "필요한 GPU 개수입니다. Runtime이 gpu이면 반드시 1 이상이어야 합니다."],
+  ["#app-form [name='storage']", "Artifact와 모델 실행에 필요한 저장 공간입니다. 예: 10Gi"],
+  ["#app-form [name='port']", "앱이 HTTP 요청을 받는 포트입니다. 입력하면 추론 프록시의 기본 포트로 사용됩니다. 예: 18080"],
+
+  ["#runtime-form [name='runtime_type']", "이 Profile이 담당할 실행 환경입니다. 배포할 App의 Runtime과 호환되어야 합니다."],
+  ["#runtime-form [name='runtime_profile_id']", "배포 요청에서 참조하는 Runtime Profile 식별자입니다. 예: rt-cpu-001"],
+  ["#runtime-form [name='name']", "화면에서 Profile을 쉽게 찾기 위한 표시 이름입니다."],
+  ["#runtime-form [name='adapter_type']", "실제 실행 담당 모듈입니다. mock, cpu_vm, gpu_vm, etri_aiinfra 중 Runtime과 맞는 값을 선택하세요."],
+  ["#runtime-form [name='operating_mode']", "local_mock은 로컬 시험, dry_run은 실행 모의, vm_process는 VM 프로세스 실행, remote_api는 외부 API 호출을 뜻합니다."],
+
+  ["#target-form [name='runtime_type']", "대상 시스템이 제공하는 Runtime입니다. App과 Runtime Profile의 종류와 호환되어야 합니다."],
+  ["#target-form [name='csp']", "대상을 제공하는 환경입니다. 로컬/일반 VM은 local, 기능 시험은 mock, ETRI 연동은 etri를 선택합니다."],
+  ["#target-form [name='target_profile_id']", "배포 대상을 참조할 고유 식별자입니다. 예: target-gpu-001"],
+  ["#target-form [name='name']", "화면에서 배포 대상을 구분하기 위한 표시 이름입니다."],
+  ["#target-form [name='host']", "대상 VM의 hostname 또는 IP입니다. mock을 제외한 대상에서는 필수입니다."],
+  ["#target-form [name='ssh_port']", "CPU/GPU VM에 접속할 SSH 포트입니다. 일반적으로 22를 사용합니다."],
+  ["#target-form [name='credential_ref']", "비밀번호나 키 자체가 아닌 자격증명 참조값입니다. 실제 SSH 정보는 AIAPP_CREDENTIAL_* 환경변수로 설정하세요."],
+  ["#target-form [name='artifact_dir']", "업로드된 App Artifact가 저장될 대상 VM 내부 디렉터리입니다. 예: /tmp/aiapp/artifacts"],
+  ["#target-form [name='log_dir']", "실행 로그를 저장할 대상 VM 내부 디렉터리입니다. 예: /tmp/aiapp/logs"],
+
+  ["#deployment-form [name='app_version_id']", "등록된 App의 특정 버전을 선택합니다. App 등록 시 app_version_id가 자동 발급됩니다."],
+  ["#deployment-form [name='runtime_profile_id']", "App Runtime과 같은 종류의 실행 Profile을 선택합니다."],
+  ["#deployment-form [name='target_profile_id']", "App을 실행할 VM 또는 AI Infra 대상을 선택합니다. Runtime 종류가 서로 호환되어야 합니다."],
+
+  ["#resource-target", "준비 상태를 검사할 배포 대상입니다. 연결성, Runtime, GPU와 저장 경로를 Adapter 기준으로 확인합니다."],
+  ["#resource-runtime", "결과에 함께 표시할 Runtime Profile입니다. 실제 준비 상태 검사는 Target Profile을 기준으로 수행합니다."],
+
+  ["#metric-form [name='deployment_id']", "메트릭을 연결할 배포를 선택합니다."],
+  ["#metric-form [name='latency_ms']", "요청부터 응답까지 걸린 시간입니다. 밀리초(ms) 단위로 입력합니다."],
+  ["#metric-form [name='throughput_rps']", "초당 처리한 요청 수(Requests Per Second)입니다."],
+  ["#metric-form [name='quality_score']", "정확도 등 품질을 0에서 1 사이 값으로 정규화한 선택 지표입니다."],
+  ["#metric-form [name='request_count']", "해당 측정 구간에서 처리한 전체 요청 수입니다."],
+  ["#metric-form [name='error_count']", "해당 측정 구간에서 실패한 요청 수입니다."],
+
+  ["#inference-deployment", "HTTP 서비스가 실행 중인 RUNNING 배포를 선택합니다."],
+  ["#inference-method", "배포된 앱에 전달할 HTTP 방식입니다. 조회는 GET, JSON 요청은 POST를 사용합니다."],
+  ["#inference-path", "배포된 앱의 상대 경로입니다. 반드시 /로 시작해야 합니다. 예: /generate, /predict"],
+  ["#inference-port", "App Spec 포트 대신 사용할 포트입니다. 비워두면 App 등록 시 설정한 첫 번째 서비스 포트를 사용합니다."],
+  ["#inference-timeout", "응답을 기다릴 최대 시간입니다. 1~300초 사이로 입력하세요."],
+  ["#inference-body", "앱에 전달할 JSON 본문입니다. GET이거나 본문이 필요 없으면 비워둘 수 있습니다."],
+];
+
 function element(tag, className, text) {
   const item = document.createElement(tag);
   if (className) item.className = className;
   if (text !== undefined) item.textContent = text;
   return item;
+}
+
+function installFieldHelp() {
+  fieldHelpDefinitions.forEach(([selector, description], index) => {
+    const control = $(selector);
+    const label = control?.closest("label");
+    if (!control || !label || label.querySelector(".field-help")) return;
+    const help = element("small", "field-help", description);
+    help.id = `field-help-${index + 1}`;
+    control.setAttribute("aria-describedby", help.id);
+    label.append(help);
+  });
 }
 
 function cell(text, className) {
@@ -557,7 +622,7 @@ function bindInference() {
 }
 
 function initialize() {
-  bindNavigation(); bindForms(); bindTypeDefaults(); bindInference(); refreshAll();
+  installFieldHelp(); bindNavigation(); bindForms(); bindTypeDefaults(); bindInference(); refreshAll();
   window.setInterval(() => refreshAll(false), 30000);
 }
 

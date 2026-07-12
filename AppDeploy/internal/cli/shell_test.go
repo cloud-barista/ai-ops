@@ -40,10 +40,39 @@ func TestInteractiveShellStatusAndExit(t *testing.T) {
 		t.Fatal(err)
 	}
 	text := output.String()
-	for _, expected := range []string{"AI App Deployer CLI", `"status": "ready"`, "종료합니다."} {
+	for _, expected := range []string{"AI APP DEPLOYER", "현재 상태", "READY", "CLI를 종료합니다."} {
 		if !strings.Contains(text, expected) {
 			t.Fatalf("output does not contain %q:\n%s", expected, text)
 		}
+	}
+}
+
+func TestBufferedOutputDoesNotContainANSISequences(t *testing.T) {
+	api := newCLIAPI(t)
+	var output bytes.Buffer
+	shell := New(api, strings.NewReader("exit\n"), &output)
+	if err := shell.Run(context.Background(), nil); err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(output.String(), "\033[") {
+		t.Fatalf("buffered output contains ANSI escape sequences:\n%s", output.String())
+	}
+}
+
+func TestColorizedInteractiveOutputWhenEnabled(t *testing.T) {
+	api := newCLIAPI(t)
+	var output bytes.Buffer
+	shell := New(api, strings.NewReader("help\nexit\n"), &output)
+	shell.color = true
+	if err := shell.Run(context.Background(), nil); err != nil {
+		t.Fatal(err)
+	}
+	text := output.String()
+	if !strings.Contains(text, "\033[") {
+		t.Fatal("interactive color output does not contain ANSI sequences")
+	}
+	if !strings.Contains(text, "현재 상태") || !strings.Contains(text, "등록 및 실행 환경") {
+		t.Fatalf("interactive overview or grouped help is missing:\n%s", text)
 	}
 }
 

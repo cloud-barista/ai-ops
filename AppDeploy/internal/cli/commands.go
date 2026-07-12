@@ -21,10 +21,10 @@ func (s *Shell) apps(ctx context.Context, args []string) error {
 	switch strings.ToLower(args[0]) {
 	case "list", "ls":
 		return s.showList(ctx, "/api/v1/apps", []column{
-			{title: "APP ID", path: "app_id"},
-			{title: "VERSION ID", path: "app_version_id"},
-			{title: "NAME", path: "name"},
-			{title: "VERSION", path: "version"},
+			{title: "앱 ID", path: "app_id"},
+			{title: "버전 ID", path: "app_version_id"},
+			{title: "이름", path: "name"},
+			{title: "버전", path: "version"},
 		})
 	case "get", "show":
 		if len(args) != 2 {
@@ -49,10 +49,10 @@ func (s *Shell) runtimes(ctx context.Context, args []string) error {
 	switch strings.ToLower(args[0]) {
 	case "list", "ls":
 		return s.showList(ctx, "/api/v1/runtime-profiles", []column{
-			{title: "RUNTIME ID", path: "runtime_profile_id"},
-			{title: "TYPE", path: "runtime_type"},
-			{title: "ADAPTER", path: "adapter_type"},
-			{title: "MODE", path: "operating_mode"},
+			{title: "Runtime ID", path: "runtime_profile_id"},
+			{title: "종류", path: "runtime_type"},
+			{title: "Adapter", path: "adapter_type"},
+			{title: "운영 모드", path: "operating_mode"},
 		})
 	case "add", "create":
 		payload, err := s.fileOrRuntimeWizard(args[1:])
@@ -72,10 +72,10 @@ func (s *Shell) targets(ctx context.Context, args []string) error {
 	switch strings.ToLower(args[0]) {
 	case "list", "ls":
 		return s.showList(ctx, "/api/v1/target-profiles", []column{
-			{title: "TARGET ID", path: "target_profile_id"},
+			{title: "Target ID", path: "target_profile_id"},
 			{title: "CSP", path: "csp"},
-			{title: "RUNTIME", path: "runtime.runtime_type"},
-			{title: "HOST", path: "vm.host"},
+			{title: "Runtime", path: "runtime.runtime_type"},
+			{title: "Host", path: "vm.host"},
 		})
 	case "add", "create":
 		payload, err := s.fileOrTargetWizard(args[1:])
@@ -95,11 +95,11 @@ func (s *Shell) resources(ctx context.Context, args []string) error {
 	switch strings.ToLower(args[0]) {
 	case "list", "ls", "inventory":
 		return s.showList(ctx, "/api/v1/resources/inventory", []column{
-			{title: "TARGET ID", path: "target_profile_id"},
-			{title: "RUNTIME", path: "runtime_health"},
+			{title: "Target ID", path: "target_profile_id"},
+			{title: "Runtime", path: "runtime_health"},
 			{title: "CPU", path: "cpu_available"},
 			{title: "GPU", path: "gpu_available"},
-			{title: "STORAGE", path: "storage_available"},
+			{title: "저장소", path: "storage_available"},
 		})
 	case "check":
 		if len(args) < 2 || len(args) > 3 {
@@ -142,11 +142,11 @@ func (s *Shell) deployments(ctx context.Context, args []string) error {
 			path += "?stage=" + url.QueryEscape(strings.ToUpper(args[2]))
 		}
 		return s.showList(ctx, path, []column{
-			{title: "TIME", path: "timestamp"},
-			{title: "LEVEL", path: "level"},
-			{title: "STAGE", path: "stage"},
-			{title: "COMPONENT", path: "component"},
-			{title: "MESSAGE", path: "message"},
+			{title: "시각", path: "timestamp"},
+			{title: "레벨", path: "level"},
+			{title: "단계", path: "stage"},
+			{title: "컴포넌트", path: "component"},
+			{title: "메시지", path: "message"},
 		})
 	case "stop":
 		if len(args) != 2 {
@@ -167,19 +167,19 @@ func (s *Shell) monitoring(ctx context.Context, args []string) error {
 		return s.showJSON(ctx, http.MethodGet, "/api/v1/monitoring/summary", nil)
 	case "health", "runtime-health":
 		return s.showList(ctx, "/api/v1/monitoring/runtime-health", []column{
-			{title: "TARGET ID", path: "target_profile_id"},
-			{title: "STATUS", path: "status"},
-			{title: "RUNTIME", path: "runtime_health"},
+			{title: "Target ID", path: "target_profile_id"},
+			{title: "상태", path: "status"},
+			{title: "Runtime", path: "runtime_health"},
 			{title: "GPU", path: "gpu_available"},
-			{title: "CHECKED AT", path: "last_checked_at"},
+			{title: "점검 시각", path: "last_checked_at"},
 		})
 	case "alarms":
 		return s.showList(ctx, "/api/v1/monitoring/alarms", []column{
-			{title: "SEVERITY", path: "severity"},
-			{title: "CODE", path: "error_code"},
-			{title: "COUNT", path: "count"},
-			{title: "DEPLOYMENT", path: "latest_deployment_id"},
-			{title: "MESSAGE", path: "latest_message"},
+			{title: "심각도", path: "severity"},
+			{title: "오류 코드", path: "error_code"},
+			{title: "횟수", path: "count"},
+			{title: "배포", path: "latest_deployment_id"},
+			{title: "메시지", path: "latest_message"},
 		})
 	case "metrics":
 		return s.showMetricList(ctx, "/api/v1/monitoring/metrics")
@@ -327,22 +327,22 @@ func (s *Shell) deploymentRequest(ctx context.Context, args []string) (model.Dep
 
 func (s *Shell) showMetricList(ctx context.Context, path string) error {
 	return s.showList(ctx, path, []column{
-		{title: "METRIC ID", path: "metric_id"},
-		{title: "DEPLOYMENT", path: "deployment_id"},
-		{title: "LATENCY MS", path: "latency_ms"},
+		{title: "Metric ID", path: "metric_id"},
+		{title: "배포", path: "deployment_id"},
+		{title: "Latency(ms)", path: "latency_ms"},
 		{title: "RPS", path: "throughput_rps"},
-		{title: "ERRORS", path: "error_count"},
-		{title: "TIMESTAMP", path: "timestamp"},
+		{title: "오류", path: "error_count"},
+		{title: "기록 시각", path: "timestamp"},
 	})
 }
 
 func deploymentColumns() []column {
 	return []column{
-		{title: "DEPLOYMENT ID", path: "deployment_id"},
-		{title: "STATUS", path: "status"},
-		{title: "APP VERSION", path: "app_version_id"},
-		{title: "RUNTIME", path: "runtime_profile_id"},
-		{title: "TARGET", path: "target_profile_id"},
+		{title: "배포 ID", path: "deployment_id"},
+		{title: "상태", path: "status"},
+		{title: "앱 버전", path: "app_version_id"},
+		{title: "Runtime", path: "runtime_profile_id"},
+		{title: "Target", path: "target_profile_id"},
 	}
 }
 

@@ -64,3 +64,46 @@ func TestWebFormRetainsCurrentTargetBeforeAsyncRequest(t *testing.T) {
 		t.Fatal("post-create refresh should not block successful form completion")
 	}
 }
+
+func TestWebFormsIncludeInlineFieldGuidance(t *testing.T) {
+	raw, err := assets.ReadFile("static/app.js")
+	if err != nil {
+		t.Fatal(err)
+	}
+	script := string(raw)
+	for _, expected := range []string{
+		"fieldHelpDefinitions",
+		"installFieldHelp()",
+		"비밀번호나 키 자체가 아닌 자격증명 참조값",
+		"Runtime이 gpu이면 반드시 1 이상",
+		"반드시 /로 시작",
+	} {
+		if !strings.Contains(script, expected) {
+			t.Fatalf("web field guidance does not contain %q", expected)
+		}
+	}
+}
+
+func TestWebConsoleIncludesOperationalScenarios(t *testing.T) {
+	raw, err := assets.ReadFile("static/index.html")
+	if err != nil {
+		t.Fatal(err)
+	}
+	page := string(raw)
+	for _, expected := range []string{
+		`data-view="guide"`,
+		`id="view-guide"`,
+		"Mock으로 전체 기능 빠르게 시험",
+		"CPU VM에 애플리케이션 배포",
+		"GPU VM에 모델 서버 배포 및 추론",
+		"AIAPP_CREDENTIAL_CRED_LOCAL_CPU_VM_001_SSH_KEY_PATH",
+		"AIAPP_CREDENTIAL_CRED_LOCAL_GPU_VM_001_SSH_KEY_PATH",
+		"실패했을 때 확인할 곳",
+		"RESOURCE_INSUFFICIENT",
+		"정상 배포 상태 흐름",
+	} {
+		if !strings.Contains(page, expected) {
+			t.Fatalf("web operation guide does not contain %q", expected)
+		}
+	}
+}

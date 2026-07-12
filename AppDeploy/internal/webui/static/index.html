@@ -53,6 +53,10 @@
           <svg viewBox="0 0 24 24"><path d="M8 9h8M8 13h5"/><path d="M5 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-6l-4 3v-3H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg>
           <span>추론</span>
         </button>
+        <button class="nav-item" data-view="guide">
+          <svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v17H6.5A2.5 2.5 0 0 0 4 22z"/><path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H13v17h4.5A2.5 2.5 0 0 1 20 22z"/></svg>
+          <span>사용 가이드</span>
+        </button>
       </nav>
 
       <div class="sidebar-footer">
@@ -157,6 +161,97 @@
   "prompt": "AI application deployment를 한 문장으로 설명해줘.",
   "max_new_tokens": 64
 }</textarea></label><div class="form-actions full"><button class="button button-secondary" type="button" id="inference-health-button">Health 확인</button><button class="button button-primary" type="submit">추론 실행</button></div></form></article><article class="panel response-panel"><div class="panel-header"><div><span class="section-label">RESPONSE</span><h3>호출 결과</h3></div><button class="icon-button" id="copy-response" aria-label="응답 복사"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></button></div><pre id="inference-response">아직 호출 결과가 없습니다.</pre></article></div>
+        </section>
+
+        <section class="view" id="view-guide" data-title="사용 가이드">
+          <div class="page-heading"><div><span class="section-label">OPERATION PLAYBOOK</span><h2>동작 시나리오</h2><p>처음 시험할 때부터 실제 CPU/GPU VM 배포까지 순서대로 따라 하세요.</p></div></div>
+
+          <article class="guide-intro">
+            <div><span class="guide-intro-icon">i</span><div><strong>항상 이 순서로 진행합니다.</strong><p>App, Runtime, Target의 Runtime 종류가 서로 같아야 하며 실제 VM 배포는 서버를 실행하기 전에 Credential 환경변수를 등록해야 합니다.</p></div></div>
+            <button class="button button-primary" data-navigate="apps">첫 App 등록하기</button>
+          </article>
+
+          <div class="workflow-strip" aria-label="배포 작업 순서">
+            <div><span>01</span><strong>App 등록</strong><small>무엇을 실행할지</small></div><b>→</b>
+            <div><span>02</span><strong>Runtime 등록</strong><small>어떻게 실행할지</small></div><b>→</b>
+            <div><span>03</span><strong>Target 등록</strong><small>어디서 실행할지</small></div><b>→</b>
+            <div><span>04</span><strong>자원 점검</strong><small>실행 가능한지</small></div><b>→</b>
+            <div><span>05</span><strong>배포·검증</strong><small>실행하고 확인</small></div>
+          </div>
+
+          <div class="scenario-list">
+            <details class="scenario-card" open>
+              <summary><span class="scenario-number">01</span><div><span class="scenario-kicker">10분 · Credential 불필요</span><h3>Mock으로 전체 기능 빠르게 시험</h3><p>실제 VM에 접속하지 않고 등록 → 점검 → 배포 → 로그 → 중지 흐름을 확인합니다.</p></div><span class="scenario-toggle">⌄</span></summary>
+              <div class="scenario-body">
+                <ol class="guide-steps">
+                  <li><div><h4>App 등록</h4><p><button class="inline-link" data-navigate="apps">애플리케이션</button>에서 <b>앱 등록</b>을 누르고 아래 값을 입력합니다.</p>
+                    <div class="value-grid"><span>앱 이름</span><code>mock-test-app</code><span>버전</span><code>0.1.0</code><span>Artifact 종류</span><code>script</code><span>Runtime</span><code>mock</code><span>Artifact URI</span><code>file:///tmp/mock-test/run.sh</code><span>실행 명령 / 인자</span><code>bash / run.sh</code><span>CPU / Memory / GPU / Storage</span><code>1 / 1Gi / 0 / 1Gi</code></div>
+                    <p class="step-result">예상 결과: 앱 목록에 <b>mock-test-app 0.1.0</b>이 나타납니다.</p></div></li>
+                  <li><div><h4>Runtime Profile 등록</h4><p><button class="inline-link" data-navigate="profiles">실행 환경</button>에서 Runtime Profiles의 <b>추가</b>를 누릅니다.</p>
+                    <div class="value-grid"><span>Runtime 종류</span><code>mock</code><span>Profile ID</span><code>rt-mock-001</code><span>Adapter</span><code>mock</code><span>운영 모드</span><code>local_mock</code></div></div></li>
+                  <li><div><h4>Target Profile 등록</h4><p>같은 화면의 Target Profiles에서 <b>추가</b>를 누릅니다.</p>
+                    <div class="value-grid"><span>Target 종류 / CSP</span><code>mock / mock</code><span>Profile ID</span><code>target-mock-001</code><span>VM host</span><code>비워두기</code></div></div></li>
+                  <li><div><h4>점검하고 배포</h4><p><button class="inline-link" data-navigate="resources">자원 점검</button>에서 <code>target-mock-001</code>을 점검합니다. 결과가 <b>available</b>이면 <button class="inline-link" data-navigate="deployments">배포</button>에서 등록한 세 항목을 선택해 배포합니다.</p><p class="step-result">예상 결과: 상태 <b>RUNNING</b>, 로그에 REQUESTED → VALIDATING → SCHEDULING → DEPLOYING → RUNNING이 표시됩니다.</p></div></li>
+                  <li><div><h4>메트릭과 중지 확인</h4><p><button class="inline-link" data-navigate="monitoring">모니터링</button>에서 메트릭을 하나 기록한 뒤 배포 화면에서 <b>중지</b>합니다.</p><p class="step-result">예상 결과: 배포 상태가 <b>STOPPED</b>로 바뀝니다. Mock에서는 실제 추론 HTTP 호출은 시험하지 않습니다.</p></div></li>
+                </ol>
+              </div>
+            </details>
+
+            <details class="scenario-card">
+              <summary><span class="scenario-number cpu">02</span><div><span class="scenario-kicker">실제 VM · SSH Credential 필요</span><h3>CPU VM에 애플리케이션 배포</h3><p>로컬 script Artifact를 SSH로 업로드하고 대상 VM에서 프로세스로 실행합니다.</p></div><span class="scenario-toggle">⌄</span></summary>
+              <div class="scenario-body">
+                <ol class="guide-steps">
+                  <li><div><h4>서버 실행 전에 Credential 등록</h4><p>웹 Target의 <code>credential_ref=cred://local/cpu-vm-001</code>과 아래 환경변수 접두사가 일치해야 합니다. 실제 키 경로로 바꾼 후 <b>같은 PowerShell</b>에서 서버를 실행합니다.</p>
+                    <pre class="guide-code">$env:AIAPP_CPUVM_RUNNER = "ssh"
+$env:AIAPP_CREDENTIAL_CRED_LOCAL_CPU_VM_001_SSH_USER = "ubuntu"
+$env:AIAPP_CREDENTIAL_CRED_LOCAL_CPU_VM_001_SSH_KEY_PATH = "C:\secure\cpu-vm.pem"
+$env:AIAPP_CREDENTIAL_CRED_LOCAL_CPU_VM_001_SSH_TIMEOUT = "30s"
+go run ./cmd/web</pre>
+                    <p class="guide-warning">키나 비밀번호 원문은 웹 폼, JSON, Git에 입력하지 마세요.</p></div></li>
+                  <li><div><h4>CPU App 등록</h4><div class="value-grid"><span>Runtime</span><code>cpu</code><span>Artifact 종류</span><code>script</code><span>Artifact URI</span><code>file:///C:/work/my-app/run.sh</code><span>실행 명령 / 인자</span><code>bash / run.sh --port=18080</code><span>GPU / 서비스 포트</span><code>0 / 18080</code></div><p>URI는 웹 서버가 실행되는 컴퓨터에 실제로 존재하는 파일이어야 합니다.</p></div></li>
+                  <li><div><h4>CPU Runtime과 Target 등록</h4><div class="value-grid"><span>Runtime ID / 종류</span><code>rt-cpu-001 / cpu</code><span>Adapter / 모드</span><code>cpu_vm / vm_process</code><span>Target ID / 종류</span><code>target-cpu-001 / cpu</code><span>CSP / Host / SSH</span><code>local / VM 주소 / 22</code><span>Credential ref</span><code>cred://local/cpu-vm-001</code><span>Artifact / Log 경로</span><code>/tmp/aiapp/artifacts / /tmp/aiapp/logs</code></div></div></li>
+                  <li><div><h4>자원 점검</h4><p>Target을 점검해 <b>available</b>인지 확인합니다. 실패하면 먼저 VM 주소, SSH 사용자·키, 방화벽, 디렉터리 권한을 확인합니다.</p></div></li>
+                  <li><div><h4>배포·Health·추론·중지</h4><p>배포가 <b>RUNNING</b>이 되면 <button class="inline-link" data-navigate="inference">추론</button>에서 Health를 확인합니다. 앱이 제공하는 경로(예: <code>/predict</code>)와 JSON Body로 호출하고, 완료 후 배포 화면에서 중지합니다.</p><p class="step-result">예상 결과: Health HTTP 200, 추론 응답 표시, 중지 후 STOPPED.</p></div></li>
+                </ol>
+              </div>
+            </details>
+
+            <details class="scenario-card">
+              <summary><span class="scenario-number gpu">03</span><div><span class="scenario-kicker">NVIDIA GPU · 드라이버 필요</span><h3>GPU VM에 모델 서버 배포 및 추론</h3><p>GPU readiness를 확인하고 모델 서버를 실행한 뒤 추론 결과와 성능 메트릭을 기록합니다.</p></div><span class="scenario-toggle">⌄</span></summary>
+              <div class="scenario-body">
+                <ol class="guide-steps">
+                  <li><div><h4>GPU와 Credential 사전 확인</h4><p>대상 VM에서 <code>nvidia-smi</code>가 성공해야 합니다. 서버 실행 전 GPU Runner와 Credential을 설정합니다.</p>
+                    <pre class="guide-code">$env:AIAPP_GPUVM_RUNNER = "ssh"
+$env:AIAPP_CREDENTIAL_CRED_LOCAL_GPU_VM_001_SSH_USER = "ubuntu"
+$env:AIAPP_CREDENTIAL_CRED_LOCAL_GPU_VM_001_SSH_KEY_PATH = "C:\secure\gpu-vm.pem"
+$env:AIAPP_CREDENTIAL_CRED_LOCAL_GPU_VM_001_SSH_TIMEOUT = "60s"
+go run ./cmd/web</pre></div></li>
+                  <li><div><h4>GPU App 등록</h4><div class="value-grid"><span>Runtime / GPU</span><code>gpu / 1</code><span>Artifact URI</span><code>file:///C:/work/model-server/run.sh</code><span>실행 명령</span><code>bash</code><span>실행 인자</span><code>run.sh --port=18081</code><span>서비스 포트</span><code>18081</code><span>권장 요구량 예시</span><code>CPU 4 / Memory 16Gi / Storage 20Gi</code></div></div></li>
+                  <li><div><h4>GPU Runtime과 Target 등록</h4><div class="value-grid"><span>Runtime</span><code>gpu / gpu_vm / vm_process</code><span>Target 종류</span><code>gpu</code><span>Credential ref</span><code>cred://local/gpu-vm-001</code><span>GPU 설정</span><code>NVIDIA / count 1 / driver required</code></div><p>웹 화면에서 Target 종류를 gpu로 선택하면 NVIDIA GPU 설정이 자동으로 포함됩니다.</p></div></li>
+                  <li><div><h4>Readiness 후 배포</h4><p>자원 점검 결과의 GPU와 Runtime이 모두 available인지 확인한 후 배포합니다. 모델 다운로드나 초기 로딩 때문에 CPU App보다 오래 걸릴 수 있습니다.</p><p class="step-result">예상 결과: 로그에 gpu-vm-adapter가 기록되고 최종 상태가 RUNNING.</p></div></li>
+                  <li><div><h4>추론 및 메트릭 기록</h4><p>Health를 먼저 확인하고 모델 서버 경로(예: <code>/generate</code>)를 POST로 호출합니다. 호출 시간은 Monitoring의 <b>메트릭 기록</b>에 latency_ms, throughput_rps로 남깁니다.</p></div></li>
+                  <li><div><h4>중지 및 GPU 확인</h4><p>배포를 중지해 STOPPED를 확인하고, 필요하면 VM에서 해당 프로세스와 GPU 메모리가 해제됐는지 확인합니다.</p></div></li>
+                </ol>
+              </div>
+            </details>
+          </div>
+
+          <article class="panel troubleshooting-panel">
+            <div class="panel-header"><div><span class="section-label">TROUBLESHOOTING</span><h3>실패했을 때 확인할 곳</h3></div><button class="text-button" data-navigate="deployments">배포 로그 열기 →</button></div>
+            <div class="table-wrap"><table><thead><tr><th>화면의 오류 코드</th><th>주요 원인</th><th>다음 조치</th></tr></thead><tbody>
+              <tr><td><code>APP_SPEC_INVALID</code></td><td>이름, Artifact 종류·URI, Runtime 또는 GPU 수 오류</td><td>앱 상세와 각 입력칸 설명을 확인하고 새 버전으로 다시 등록</td></tr>
+              <tr><td><code>RESOURCE_INSUFFICIENT</code></td><td>App, Runtime, Target 종류가 서로 다름</td><td>세 곳의 Runtime을 모두 cpu, gpu 또는 mock 중 하나로 통일</td></tr>
+              <tr><td><code>CSP_VM_UNREACHABLE</code></td><td>VM 주소, SSH 포트, 사용자·키 또는 방화벽 문제</td><td>로컬 ssh 접속 확인 후 Credential 환경변수와 credential_ref 비교</td></tr>
+              <tr><td><code>NVIDIA_DRIVER_NOT_FOUND</code></td><td>GPU VM에서 nvidia-smi 실행 실패</td><td>VM 드라이버와 PATH 확인 후 자원 점검 다시 실행</td></tr>
+              <tr><td><code>STORAGE_PATH_UNAVAILABLE</code></td><td>Artifact 또는 Log 디렉터리 생성·쓰기 불가</td><td>Target 경로와 SSH 사용자의 디렉터리 권한 확인</td></tr>
+              <tr><td><code>RUNTIME_FAILED</code></td><td>실행 명령, 앱 포트 또는 Health 경로 오류</td><td>배포 로그에서 마지막 Runtime 메시지 확인 후 command/args/port 수정</td></tr>
+            </tbody></table></div>
+          </article>
+
+          <article class="status-flow-panel">
+            <div><span class="section-label">STATUS FLOW</span><h3>정상 배포 상태 흐름</h3></div>
+            <div class="status-flow"><span>REQUESTED</span><b>→</b><span>VALIDATING</span><b>→</b><span>SCHEDULING</span><b>→</b><span>DEPLOYING</span><b>→</b><span class="success">RUNNING</span><b>→</b><span>STOPPING</span><b>→</b><span>STOPPED</span></div>
+          </article>
         </section>
       </div>
     </main>

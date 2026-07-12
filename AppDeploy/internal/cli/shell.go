@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"text/tabwriter"
 
 	"github.com/khu/ai-app-deployer/internal/model"
 )
@@ -21,6 +22,7 @@ type Shell struct {
 	api    http.Handler
 	reader *bufio.Reader
 	out    io.Writer
+	color  bool
 }
 
 type response struct {
@@ -43,7 +45,7 @@ func (e *apiError) Error() string {
 }
 
 func New(api http.Handler, input io.Reader, output io.Writer) *Shell {
-	return &Shell{api: api, reader: bufio.NewReader(input), out: output}
+	return &Shell{api: api, reader: bufio.NewReader(input), out: output, color: supportsColor(output)}
 }
 
 // Run starts the interactive shell when args is empty, or executes one command
@@ -58,8 +60,11 @@ func (s *Shell) Run(ctx context.Context, args []string) error {
 	}
 
 	s.printBanner()
+	if err := s.overview(ctx); err != nil {
+		s.warning("현재 상태를 불러오지 못했습니다: " + err.Error())
+	}
 	for {
-		fmt.Fprint(s.out, "appdeployer> ")
+		fmt.Fprintf(s.out, "\n%s ", s.paint(ansiBold+ansiBlue, "appdeployer ❯"))
 		line, err := s.reader.ReadString('\n')
 		if err != nil && !errors.Is(err, io.EOF) {
 			return fmt.Errorf("read command: %w", err)
@@ -68,13 +73,13 @@ func (s *Shell) Run(ctx context.Context, args []string) error {
 		if line != "" {
 			args, parseErr := tokenize(line)
 			if parseErr != nil {
-				fmt.Fprintf(s.out, "오류: %v\n", parseErr)
+				s.printError(parseErr)
 			} else if commandErr := s.execute(ctx, args); commandErr != nil {
 				if errors.Is(commandErr, errExit) {
-					fmt.Fprintln(s.out, "종료합니다.")
+					s.success("CLI를 종료합니다.")
 					return nil
 				}
-				fmt.Fprintf(s.out, "오류: %v\n", commandErr)
+				s.printError(commandErr)
 			}
 		}
 		if errors.Is(err, io.EOF) {
@@ -85,10 +90,11 @@ func (s *Shell) Run(ctx context.Context, args []string) error {
 }
 
 func (s *Shell) printBanner() {
-	fmt.Fprintln(s.out, "AI App Deployer CLI")
-	fmt.Fprintln(s.out, "앱 등록부터 배포·모니터링·추론까지 이 터미널에서 실행할 수 있습니다.")
-	fmt.Fprintln(s.out, "명령 목록은 help, 종료는 exit를 입력하세요.")
-	fmt.Fprintln(s.out)
+	fmt.Fprintln(s.out, s.paint(ansiBlue, "╭──────────────────────────────────────────────────────────╮"))
+	fmt.Fprintf(s.out, "%s  %s\n", s.paint(ansiBlue, "│"), s.paint(ansiBold, "AI APP DEPLOYER"))
+	fmt.Fprintf(s.out, "%s  %s\n", s.paint(ansiBlue, "│"), s.paint(ansiDim, "Register · Validate · Deploy · Observe"))
+	fmt.Fprintln(s.out, s.paint(ansiBlue, "╰──────────────────────────────────────────────────────────╯"))
+	fmt.Fprintf(s.out, "%s  %s  %s\n", s.paint(ansiGray, "빠른 명령"), s.paint(ansiCyan, "help"), s.paint(ansiDim, "전체 명령 · home 현재 상태 · exit 종료"))
 }
 
 func (s *Shell) execute(ctx context.Context, args []string) error {
@@ -102,10 +108,14 @@ func (s *Shell) execute(ctx context.Context, args []string) error {
 	case "exit", "quit", "q":
 		return errExit
 	case "clear", "cls":
-		fmt.Fprint(s.out, "\033[H\033[2J")
+		if s.color {
+			fmt.Fprint(s.out, "\033[H\033[2J")
+		} else {
+			fmt.Fprintln(s.out, strings.Repeat("\n", 3))
+		}
 		return nil
-	case "status":
-		return s.showJSON(ctx, http.MethodGet, "/api/v1/readiness", nil)
+	case "status", "home", "overview":
+		return s.overview(ctx)
 	case "apps", "app":
 		return s.apps(ctx, args[1:])
 	case "runtimes", "runtime":
@@ -184,30 +194,108 @@ func (s *Shell) printJSON(raw []byte) error {
 	if err != nil {
 		return fmt.Errorf("format response: %w", err)
 	}
-	fmt.Fprintln(s.out, string(formatted))
+	fmt.Fprintln(s.out, s.colorizeJSON(string(formatted)))
 	return nil
 }
 
 func (s *Shell) printHelp() {
-	fmt.Fprintln(s.out, `사용법:
-  status                                      서버 준비 상태
-  apps list | get <app-id> | add [json-file]  앱 조회/등록
-  runtimes list | add [json-file]              런타임 프로필 조회/등록
-  targets list | add [json-file]               대상 프로필 조회/등록
-  resources list | check <target-id> [runtime-id]
-  deployments list | get <id> | create [app-version-id runtime-id target-id]
-  deployments logs <id> [stage] | stop <id>
-  monitoring summary | health | alarms | metrics
-  inference health <deployment-id> | invoke <deployment-id> [json-file]
-  metrics list [deployment-id] | add <deployment-id> [json-file]
-  raw <GET|POST> </api/v1/path> [@json-file|inline-json]
-  clear | help | exit
+	s.section("기본")
+	s.helpLine("home · status", "등록 수와 실행 중인 배포 요약")
+	s.helpLine("help", "이 도움말 표시")
+	s.helpLine("clear", "화면 정리")
+	s.helpLine("exit", "CLI 종료")
 
-등록 명령에서 JSON 파일을 생략하면 안내형 입력이 시작됩니다.
-실행 예:
-  apps add examples/requests/app-cpu-script.json
-  deployments create appver-... rt-cpu-001 target-cpu-001
-  deployments logs dep-... RUNNING`)
+	s.section("등록 및 실행 환경")
+	s.helpLine("apps list | get <app-id> | add [json]", "App 조회·등록")
+	s.helpLine("runtimes list | add [json]", "Runtime Profile 조회·등록")
+	s.helpLine("targets list | add [json]", "Target Profile 조회·등록")
+	s.helpLine("resources list | check <target-id> [runtime-id]", "자원 준비 상태 확인")
+
+	s.section("배포")
+	s.helpLine("deployments list | get <id> | create [...]", "배포 생성·상태 조회")
+	s.helpLine("deployments logs <id> [stage]", "배포 이벤트 로그")
+	s.helpLine("deployments stop <id>", "실행 중인 배포 중지")
+
+	s.section("관측 및 추론")
+	s.helpLine("monitoring summary | health | alarms | metrics", "운영 상태 조회")
+	s.helpLine("inference health <id> | invoke <id> [json]", "배포 앱 호출")
+	s.helpLine("metrics list [id] | add <id> [json]", "추론 메트릭 조회·기록")
+	s.helpLine("raw <GET|POST> </api/v1/path> [...]", "API 직접 호출")
+
+	fmt.Fprintf(s.out, "\n%s\n", s.paint(ansiDim, "JSON 파일을 생략하면 안내형 입력이 시작됩니다."))
+	fmt.Fprintf(s.out, "%s %s\n", s.paint(ansiGray, "예시"), s.paint(ansiCyan, "apps add examples/requests/app-cpu-script.json"))
+	fmt.Fprintf(s.out, "     %s\n", s.paint(ansiCyan, "deployments create appver-... rt-cpu-001 target-cpu-001"))
+}
+
+func (s *Shell) helpLine(command, description string) {
+	fmt.Fprintf(s.out, "  %s\n", s.paint(ansiCyan, command))
+	fmt.Fprintf(s.out, "    %s\n", s.paint(ansiDim, description))
+}
+
+func (s *Shell) printError(err error) {
+	var apiErr *apiError
+	if errors.As(err, &apiErr) {
+		fmt.Fprintf(s.out, "\n%s %s\n", s.paint(ansiRed, "✕"), s.paint(ansiBold+ansiRed, apiErr.code))
+		fmt.Fprintf(s.out, "  %s\n", apiErr.message)
+		if apiErr.requestID != "" {
+			fmt.Fprintf(s.out, "  %s %s\n", s.paint(ansiGray, "request_id"), s.paint(ansiDim, apiErr.requestID))
+		}
+		return
+	}
+	fmt.Fprintf(s.out, "\n%s %s\n", s.paint(ansiRed, "✕"), err.Error())
+}
+
+func (s *Shell) overview(ctx context.Context) error {
+	type listEnvelope struct {
+		Items []json.RawMessage `json:"items"`
+	}
+	var readiness model.ReadinessResponse
+	var apps, runtimes, targets listEnvelope
+	var deployments struct {
+		Items []model.DeploymentResponse `json:"items"`
+	}
+	requests := []struct {
+		path string
+		out  any
+	}{
+		{path: "/api/v1/readiness", out: &readiness},
+		{path: "/api/v1/apps", out: &apps},
+		{path: "/api/v1/runtime-profiles", out: &runtimes},
+		{path: "/api/v1/target-profiles", out: &targets},
+		{path: "/api/v1/deployments", out: &deployments},
+	}
+	for _, request := range requests {
+		resp, err := s.call(ctx, http.MethodGet, request.path, nil)
+		if err != nil {
+			return err
+		}
+		if err := json.Unmarshal(resp.body, request.out); err != nil {
+			return fmt.Errorf("decode overview response: %w", err)
+		}
+	}
+	var running, failed int
+	for _, deployment := range deployments.Items {
+		if deployment.Status == model.StatusRunning {
+			running++
+		}
+		if strings.Contains(deployment.Status, "FAILED") {
+			failed++
+		}
+	}
+	s.section("현재 상태")
+	var output bytes.Buffer
+	w := tabwriter.NewWriter(&output, 0, 4, 2, ' ', 0)
+	fmt.Fprintf(w, "  API\t%s\t  등록 앱\t%d\t  실행 중\t%d\n", strings.ToUpper(readiness.Status), len(apps.Items), running)
+	fmt.Fprintf(w, "  Runtime\t%d\t  Target\t%d\t  실패\t%d\n", len(runtimes.Items), len(targets.Items), failed)
+	if err := w.Flush(); err != nil {
+		return fmt.Errorf("write overview: %w", err)
+	}
+	formatted := output.String()
+	if s.color {
+		formatted = strings.Replace(formatted, strings.ToUpper(readiness.Status), s.paint(ansiGreen, strings.ToUpper(readiness.Status)), 1)
+	}
+	fmt.Fprint(s.out, formatted)
+	return nil
 }
 
 func tokenize(line string) ([]string, error) {

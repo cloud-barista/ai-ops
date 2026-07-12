@@ -17,7 +17,8 @@ func (s *Shell) fileOrAppWizard(args []string) (any, error) {
 	if len(args) == 1 {
 		return readJSONFile(args[0])
 	}
-	fmt.Fprintln(s.out, "AI App 등록 안내 (필수 항목은 빈 값으로 둘 수 없습니다)")
+	s.section("AI App 등록")
+	fmt.Fprintln(s.out, s.paint(ansiDim, "필수 항목은 빈 값으로 둘 수 없습니다."))
 	name, err := s.prompt("앱 이름 (소문자/숫자/하이픈)", "", true)
 	if err != nil {
 		return nil, err
@@ -117,7 +118,7 @@ func (s *Shell) fileOrRuntimeWizard(args []string) (any, error) {
 	if len(args) == 1 {
 		return readJSONFile(args[0])
 	}
-	fmt.Fprintln(s.out, "Runtime Profile 등록 안내")
+	s.section("Runtime Profile 등록")
 	runtimeType, err := s.promptChoice("Runtime", "cpu", "mock", "cpu", "gpu", "aiinfra")
 	if err != nil {
 		return nil, err
@@ -156,7 +157,7 @@ func (s *Shell) fileOrTargetWizard(args []string) (any, error) {
 	if len(args) == 1 {
 		return readJSONFile(args[0])
 	}
-	fmt.Fprintln(s.out, "Target Profile 등록 안내")
+	s.section("Target Profile 등록")
 	runtimeType, err := s.promptChoice("Target Runtime", "cpu", "mock", "cpu", "gpu", "aiinfra")
 	if err != nil {
 		return nil, err
@@ -232,7 +233,7 @@ func (s *Shell) fileOrTargetWizard(args []string) (any, error) {
 }
 
 func (s *Shell) inferenceWizard() (any, error) {
-	fmt.Fprintln(s.out, "Inference 요청 안내")
+	s.section("Inference 요청")
 	method, err := s.promptChoice("HTTP method", "POST", "GET", "POST")
 	if err != nil {
 		return nil, err
@@ -264,7 +265,7 @@ func (s *Shell) inferenceWizard() (any, error) {
 }
 
 func (s *Shell) metricWizard() (any, error) {
-	fmt.Fprintln(s.out, "Metric 기록 안내")
+	s.section("Metric 기록")
 	latencyText, err := s.prompt("Latency ms", "0", true)
 	if err != nil {
 		return nil, err
@@ -307,9 +308,9 @@ func (s *Shell) metricWizard() (any, error) {
 func (s *Shell) prompt(label, defaultValue string, required bool) (string, error) {
 	for {
 		if defaultValue == "" {
-			fmt.Fprintf(s.out, "%s: ", label)
+			fmt.Fprintf(s.out, "%s: ", s.paint(ansiCyan, label))
 		} else {
-			fmt.Fprintf(s.out, "%s [%s]: ", label, defaultValue)
+			fmt.Fprintf(s.out, "%s %s: ", s.paint(ansiCyan, label), s.paint(ansiDim, "["+defaultValue+"]"))
 		}
 		line, err := s.reader.ReadString('\n')
 		if err != nil && !errors.Is(err, io.EOF) {
@@ -325,7 +326,7 @@ func (s *Shell) prompt(label, defaultValue string, required bool) (string, error
 		if errors.Is(err, io.EOF) {
 			return "", io.EOF
 		}
-		fmt.Fprintln(s.out, "값을 입력하세요.")
+		s.warning("값을 입력하세요.")
 	}
 }
 
@@ -340,7 +341,7 @@ func (s *Shell) promptChoice(label, defaultValue string, allowed ...string) (str
 				return candidate, nil
 			}
 		}
-		fmt.Fprintf(s.out, "허용 값: %s\n", strings.Join(allowed, ", "))
+		s.warning("허용 값: " + strings.Join(allowed, ", "))
 	}
 }
 
