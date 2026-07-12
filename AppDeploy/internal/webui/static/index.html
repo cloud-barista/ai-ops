@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AI App Deployer web console">
+  <title>AI App Deployer</title>
+  <link rel="stylesheet" href="/web/app.css">
+  <script defer src="/web/app.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="M8 8.5 16 4l8 4.5v9L16 22l-8-4.5z"/><path d="M8 17.5V24l8 4 8-4v-6.5M16 13v9"/></svg>
+        </div>
+        <div>
+          <strong>App Deployer</strong>
+          <span>AI Control Plane</span>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="주 메뉴">
+        <p class="nav-label">Workspace</p>
+        <button class="nav-item active" data-view="dashboard">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>
+          <span>대시보드</span>
+        </button>
+        <button class="nav-item" data-view="apps">
+          <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg>
+          <span>애플리케이션</span>
+        </button>
+        <button class="nav-item" data-view="profiles">
+          <svg viewBox="0 0 24 24"><path d="M12 3 4 7v10l8 4 8-4V7z"/><path d="m4 7 8 4 8-4M12 11v10"/></svg>
+          <span>실행 환경</span>
+        </button>
+        <button class="nav-item" data-view="resources">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="2"/><rect x="3" y="14" width="18" height="6" rx="2"/><path d="M7 7h.01M7 17h.01M11 7h6M11 17h6"/></svg>
+          <span>자원 점검</span>
+        </button>
+        <button class="nav-item" data-view="deployments">
+          <svg viewBox="0 0 24 24"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z"/><path d="m8 12 3 3 5-6"/></svg>
+          <span>배포</span>
+        </button>
+
+        <p class="nav-label">Operations</p>
+        <button class="nav-item" data-view="monitoring">
+          <svg viewBox="0 0 24 24"><path d="M3 12h4l2-7 4 14 2-7h6"/></svg>
+          <span>모니터링</span>
+        </button>
+        <button class="nav-item" data-view="inference">
+          <svg viewBox="0 0 24 24"><path d="M8 9h8M8 13h5"/><path d="M5 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-6l-4 3v-3H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg>
+          <span>추론</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="server-state">
+          <span class="status-dot" id="sidebar-status-dot"></span>
+          <div><strong id="sidebar-status">연결 확인 중</strong><span>Local API</span></div>
+        </div>
+        <a href="/swagger" target="_blank" rel="noreferrer">API 문서 <span>↗</span></a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="icon-button menu-button" id="menu-toggle" aria-label="메뉴 열기">
+          <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+        <div class="topbar-title">
+          <span class="eyebrow">AI APPLICATION OPERATIONS</span>
+          <h1 id="page-title">대시보드</h1>
+        </div>
+        <div class="topbar-actions">
+          <span class="last-updated" id="last-updated">아직 동기화되지 않음</span>
+          <button class="button button-secondary" id="refresh-button">
+            <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>
+            새로고침
+          </button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="view active" id="view-dashboard" data-title="대시보드">
+          <div class="hero-card">
+            <div>
+              <span class="hero-kicker"><span class="live-dot"></span> Control plane online</span>
+              <h2>AI 애플리케이션을<br>한 곳에서 배포하세요.</h2>
+              <p>등록, 자원 검증, 배포, 모니터링과 추론 호출까지 하나의 흐름으로 관리합니다.</p>
+              <div class="hero-actions">
+                <button class="button button-primary" data-open-dialog="deployment-dialog">새 배포 만들기</button>
+                <button class="button button-ghost" data-navigate="apps">앱 등록하기</button>
+              </div>
+            </div>
+            <div class="hero-visual" aria-hidden="true">
+              <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+              <div class="core-node"><span>AI</span></div>
+              <div class="mini-node node-one">APP</div><div class="mini-node node-two">VM</div><div class="mini-node node-three">GPU</div>
+            </div>
+          </div>
+
+          <div class="metric-grid">
+            <article class="metric-card"><div class="metric-icon blue"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg></div><div><span>등록 앱</span><strong id="metric-apps">—</strong></div></article>
+            <article class="metric-card"><div class="metric-icon green"><svg viewBox="0 0 24 24"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z"/><path d="m8 12 3 3 5-6"/></svg></div><div><span>실행 중</span><strong id="metric-running">—</strong></div></article>
+            <article class="metric-card"><div class="metric-icon amber"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="2"/><rect x="3" y="14" width="18" height="6" rx="2"/></svg></div><div><span>등록 대상</span><strong id="metric-targets">—</strong></div></article>
+            <article class="metric-card"><div class="metric-icon red"><svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.8 2.2 18a2 2 0 0 0 1.8 3h16a2 2 0 0 0 1.8-3L13.7 3.8a2 2 0 0 0-3.4 0Z"/></svg></div><div><span>활성 알람</span><strong id="metric-alarms">—</strong></div></article>
+          </div>
+
+          <div class="dashboard-grid">
+            <article class="panel span-two">
+              <div class="panel-header"><div><span class="section-label">LATEST ACTIVITY</span><h3>최근 배포</h3></div><button class="text-button" data-navigate="deployments">전체 보기 →</button></div>
+              <div class="table-wrap"><table><thead><tr><th>배포</th><th>앱 버전</th><th>대상</th><th>상태</th><th>업데이트</th></tr></thead><tbody id="dashboard-deployments"></tbody></table></div>
+            </article>
+            <article class="panel health-panel">
+              <div class="panel-header"><div><span class="section-label">SYSTEM HEALTH</span><h3>서비스 준비 상태</h3></div></div>
+              <div id="readiness-checks" class="check-list"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="view" id="view-apps" data-title="애플리케이션">
+          <div class="page-heading"><div><span class="section-label">APPLICATION REGISTRY</span><h2>애플리케이션</h2><p>배포 가능한 AI App Spec과 버전을 관리합니다.</p></div><button class="button button-primary" data-open-dialog="app-dialog">+ 앱 등록</button></div>
+          <article class="panel"><div class="table-toolbar"><div class="search-box"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input type="search" placeholder="이름 또는 ID 검색" data-table-search="apps-table-body"></div><span class="count-label" id="apps-count">0 apps</span></div><div class="table-wrap"><table><thead><tr><th>애플리케이션</th><th>버전</th><th>Runtime</th><th>Artifact</th><th>등록 일시</th><th></th></tr></thead><tbody id="apps-table-body"></tbody></table></div></article>
+        </section>
+
+        <section class="view" id="view-profiles" data-title="실행 환경">
+          <div class="page-heading"><div><span class="section-label">RUNTIME & TARGET</span><h2>실행 환경</h2><p>Runtime Adapter와 배포 대상 VM 프로필을 구성합니다.</p></div></div>
+          <div class="split-grid">
+            <article class="panel"><div class="panel-header"><div><h3>Runtime Profiles</h3><p class="muted">실행 방식과 Adapter</p></div><button class="button button-small" data-open-dialog="runtime-dialog">+ 추가</button></div><div id="runtime-card-list" class="profile-list"></div></article>
+            <article class="panel"><div class="panel-header"><div><h3>Target Profiles</h3><p class="muted">배포 대상 VM과 인프라</p></div><button class="button button-small" data-open-dialog="target-dialog">+ 추가</button></div><div id="target-card-list" class="profile-list"></div></article>
+          </div>
+        </section>
+
+        <section class="view" id="view-resources" data-title="자원 점검">
+          <div class="page-heading"><div><span class="section-label">RESOURCE READINESS</span><h2>자원 점검</h2><p>배포 전 대상 VM과 Runtime의 준비 상태를 확인합니다.</p></div></div>
+          <article class="panel action-panel"><form id="resource-check-form" class="inline-form"><label>Target Profile<select id="resource-target" required></select></label><label>Runtime Profile <span>선택</span><select id="resource-runtime"><option value="">지정하지 않음</option></select></label><button class="button button-primary" type="submit">준비 상태 점검</button></form><div id="resource-result" class="inline-result empty">점검할 Target Profile을 선택하세요.</div></article>
+          <article class="panel"><div class="panel-header"><div><h3>최근 자원 인벤토리</h3><p class="muted">Target별 마지막 점검 결과</p></div></div><div class="table-wrap"><table><thead><tr><th>Target</th><th>Runtime</th><th>CPU</th><th>Memory</th><th>GPU</th><th>Storage</th><th>마지막 점검</th></tr></thead><tbody id="inventory-table-body"></tbody></table></div></article>
+        </section>
+
+        <section class="view" id="view-deployments" data-title="배포">
+          <div class="page-heading"><div><span class="section-label">DEPLOYMENT CONTROL</span><h2>배포</h2><p>AI 애플리케이션의 상태, 이벤트 로그와 중지 작업을 관리합니다.</p></div><button class="button button-primary" data-open-dialog="deployment-dialog">+ 새 배포</button></div>
+          <article class="panel"><div class="table-toolbar"><div class="filter-row"><button class="filter-chip active" data-status-filter="ALL">전체</button><button class="filter-chip" data-status-filter="RUNNING">실행 중</button><button class="filter-chip" data-status-filter="FAILED">실패</button><button class="filter-chip" data-status-filter="STOPPED">중지</button></div><span class="count-label" id="deployments-count">0 deployments</span></div><div class="table-wrap"><table><thead><tr><th>배포 ID</th><th>앱 버전</th><th>Runtime / Target</th><th>상태</th><th>업데이트</th><th></th></tr></thead><tbody id="deployments-table-body"></tbody></table></div></article>
+        </section>
+
+        <section class="view" id="view-monitoring" data-title="모니터링">
+          <div class="page-heading"><div><span class="section-label">OBSERVABILITY</span><h2>모니터링</h2><p>배포 상태, Runtime health, 알람과 추론 메트릭을 확인합니다.</p></div><button class="button button-secondary" data-open-dialog="metric-dialog">+ 메트릭 기록</button></div>
+          <div class="metric-grid compact"><article class="metric-card"><div><span>전체 배포</span><strong id="monitor-total">—</strong></div></article><article class="metric-card"><div><span>활성</span><strong id="monitor-active">—</strong></div></article><article class="metric-card"><div><span>실패</span><strong id="monitor-failed">—</strong></div></article><article class="metric-card"><div><span>중지</span><strong id="monitor-stopped">—</strong></div></article></div>
+          <div class="split-grid monitoring-grid"><article class="panel"><div class="panel-header"><div><h3>Runtime Health</h3></div></div><div id="runtime-health-list" class="health-list"></div></article><article class="panel"><div class="panel-header"><div><h3>활성 알람</h3></div></div><div id="alarm-list" class="alarm-list"></div></article></div>
+          <article class="panel"><div class="panel-header"><div><h3>추론 메트릭</h3><p class="muted">최근 기록 순서</p></div></div><div class="table-wrap"><table><thead><tr><th>배포</th><th>Latency</th><th>Throughput</th><th>Quality</th><th>요청 / 오류</th><th>기록 시각</th></tr></thead><tbody id="metrics-table-body"></tbody></table></div></article>
+        </section>
+
+        <section class="view" id="view-inference" data-title="추론">
+          <div class="page-heading"><div><span class="section-label">INFERENCE PROXY</span><h2>추론 호출</h2><p>실행 중인 배포의 HTTP 엔드포인트를 안전하게 호출합니다.</p></div></div>
+          <div class="inference-grid"><article class="panel"><form id="inference-form" class="form-grid"><label class="full">실행 중인 Deployment<select id="inference-deployment" required></select></label><label>Method<select id="inference-method"><option>POST</option><option>GET</option></select></label><label>Path<input id="inference-path" value="/generate" required></label><label>Port <span>선택</span><input id="inference-port" type="number" min="1" max="65535" placeholder="App Spec 기본 포트"></label><label>Timeout (seconds)<input id="inference-timeout" type="number" min="1" max="300" value="30"></label><label class="full">JSON Body<textarea id="inference-body" rows="9" spellcheck="false">{
+  "prompt": "AI application deployment를 한 문장으로 설명해줘.",
+  "max_new_tokens": 64
+}</textarea></label><div class="form-actions full"><button class="button button-secondary" type="button" id="inference-health-button">Health 확인</button><button class="button button-primary" type="submit">추론 실행</button></div></form></article><article class="panel response-panel"><div class="panel-header"><div><span class="section-label">RESPONSE</span><h3>호출 결과</h3></div><button class="icon-button" id="copy-response" aria-label="응답 복사"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></button></div><pre id="inference-response">아직 호출 결과가 없습니다.</pre></article></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="mobile-overlay" id="mobile-overlay"></div>
+  <div class="toast-region" id="toast-region" aria-live="polite"></div>
+
+  <dialog id="app-dialog" class="modal">
+    <form id="app-form" class="modal-card"><div class="modal-header"><div><span class="section-label">REGISTER</span><h2>AI App 등록</h2><p>배포할 애플리케이션 사양을 입력하세요.</p></div><button type="button" class="icon-button dialog-close" aria-label="닫기">×</button></div><div class="modal-body form-grid"><label>앱 이름<input name="name" pattern="[a-z0-9][a-z0-9-]{1,62}" placeholder="my-ai-app" required></label><label>버전<input name="version" value="0.1.0" required></label><label class="full">설명<input name="description" placeholder="애플리케이션 설명"></label><label>Artifact 종류<select name="artifact_type"><option>script</option><option>package</option><option>git</option><option>binary</option></select></label><label>Runtime<select name="runtime_type" id="app-runtime-type"><option>cpu</option><option>gpu</option><option>mock</option><option>aiinfra</option></select></label><label class="full">Artifact URI<input name="artifact_uri" placeholder="file:///opt/apps/my-ai-app/run.sh" required></label><label>실행 명령<input name="command" value="bash" required></label><label>실행 인자<input name="args" placeholder="run.sh --port=18080"></label><label>CPU<input name="cpu" value="1"></label><label>Memory<input name="memory" value="1Gi"></label><label>GPU<input name="gpu" value="0"></label><label>Storage<input name="storage" value="1Gi"></label><label>서비스 포트 <span>선택</span><input name="port" type="number" min="1" max="65535" placeholder="18080"></label></div><div class="modal-footer"><button type="button" class="button button-secondary dialog-close">취소</button><button type="submit" class="button button-primary">앱 등록</button></div></form>
+  </dialog>
+
+  <dialog id="runtime-dialog" class="modal">
+    <form id="runtime-form" class="modal-card modal-small"><div class="modal-header"><div><span class="section-label">RUNTIME</span><h2>Runtime Profile 추가</h2></div><button type="button" class="icon-button dialog-close" aria-label="닫기">×</button></div><div class="modal-body form-grid"><label class="full">Runtime 종류<select name="runtime_type" id="runtime-type"><option>cpu</option><option>gpu</option><option>mock</option><option>aiinfra</option></select></label><label>Profile ID<input name="runtime_profile_id" value="rt-cpu-001" required></label><label>표시 이름<input name="name" value="cpu-runtime"></label><label>Adapter<select name="adapter_type"><option>cpu_vm</option><option>gpu_vm</option><option>mock</option><option>etri_aiinfra</option></select></label><label>운영 모드<select name="operating_mode"><option>vm_process</option><option>dry_run</option><option>local_mock</option><option>remote_api</option></select></label></div><div class="modal-footer"><button type="button" class="button button-secondary dialog-close">취소</button><button type="submit" class="button button-primary">Profile 추가</button></div></form>
+  </dialog>
+
+  <dialog id="target-dialog" class="modal">
+    <form id="target-form" class="modal-card"><div class="modal-header"><div><span class="section-label">TARGET</span><h2>Target Profile 추가</h2><p>배포 대상 VM 또는 AI Infra를 등록합니다.</p></div><button type="button" class="icon-button dialog-close" aria-label="닫기">×</button></div><div class="modal-body form-grid"><label>Target 종류<select name="runtime_type" id="target-runtime-type"><option>cpu</option><option>gpu</option><option>mock</option><option>aiinfra</option></select></label><label>CSP<select name="csp"><option>local</option><option>mock</option><option>etri</option><option>aws</option><option>azure</option><option>gcp</option></select></label><label>Profile ID<input name="target_profile_id" value="target-cpu-001" required></label><label>표시 이름<input name="name" value="cpu-target"></label><label class="full">VM / Gateway host<input name="host" placeholder="vm.example.internal"></label><label>SSH Port<input name="ssh_port" type="number" value="22"></label><label>Credential ref<input name="credential_ref" value="cred://local/cpu-vm-001"></label><label>Artifact 경로<input name="artifact_dir" value="/tmp/aiapp/artifacts"></label><label>Log 경로<input name="log_dir" value="/tmp/aiapp/logs"></label></div><div class="modal-footer"><button type="button" class="button button-secondary dialog-close">취소</button><button type="submit" class="button button-primary">Target 추가</button></div></form>
+  </dialog>
+
+  <dialog id="deployment-dialog" class="modal">
+    <form id="deployment-form" class="modal-card modal-small"><div class="modal-header"><div><span class="section-label">DEPLOY</span><h2>새 배포 만들기</h2><p>호환되는 App과 실행 환경을 선택하세요.</p></div><button type="button" class="icon-button dialog-close" aria-label="닫기">×</button></div><div class="modal-body form-stack"><label>App Version<select name="app_version_id" id="deployment-app" required></select></label><label>Runtime Profile<select name="runtime_profile_id" id="deployment-runtime" required></select></label><label>Target Profile<select name="target_profile_id" id="deployment-target" required></select></label></div><div class="modal-footer"><button type="button" class="button button-secondary dialog-close">취소</button><button type="submit" class="button button-primary">배포 시작</button></div></form>
+  </dialog>
+
+  <dialog id="metric-dialog" class="modal">
+    <form id="metric-form" class="modal-card modal-small"><div class="modal-header"><div><span class="section-label">METRIC</span><h2>추론 메트릭 기록</h2></div><button type="button" class="icon-button dialog-close" aria-label="닫기">×</button></div><div class="modal-body form-grid"><label class="full">Deployment<select name="deployment_id" id="metric-deployment" required></select></label><label>Latency (ms)<input name="latency_ms" type="number" min="0" step="0.01" value="0"></label><label>Throughput (rps)<input name="throughput_rps" type="number" min="0" step="0.01" value="0"></label><label>Quality (0–1)<input name="quality_score" type="number" min="0" max="1" step="0.01" value="0"></label><label>Request count<input name="request_count" type="number" min="0" value="0"></label><label>Error count<input name="error_count" type="number" min="0" value="0"></label></div><div class="modal-footer"><button type="button" class="button button-secondary dialog-close">취소</button><button type="submit" class="button button-primary">메트릭 기록</button></div></form>
+  </dialog>
+
+  <dialog id="detail-dialog" class="modal">
+    <div class="modal-card detail-modal"><div class="modal-header"><div><span class="section-label" id="detail-kicker">DETAIL</span><h2 id="detail-title">상세 정보</h2></div><button type="button" class="icon-button dialog-close" aria-label="닫기">×</button></div><div class="modal-body"><pre id="detail-content"></pre></div><div class="modal-footer"><button type="button" class="button button-secondary dialog-close">닫기</button></div></div>
+  </dialog>
+</body>
+</html>

@@ -24,7 +24,10 @@
 
 | 경로 | 설명 |
 | --- | --- |
+| [`cmd/web/`](AppDeploy/cmd/web/) | 영속 저장소를 기본 사용하는 AI App Deployer 웹 콘솔 진입점 |
+| [`cmd/appdeployer/`](AppDeploy/cmd/appdeployer/) | 서버를 별도로 실행하지 않고 전체 기능을 사용하는 대화형 CLI 진입점 |
 | [`cmd/server/`](cmd/server/) | Go/Echo 기반 AI App Deployer API 서버 진입점 |
+| [`internal/webui/`](AppDeploy/internal/webui/) | 서버 바이너리에 내장되는 반응형 웹 콘솔과 정적 자산 |
 | [`internal/`](internal/) | App registry, deployment, runtime adapter, resource, monitoring, inference 구현 |
 | [`contracts/openapi/openapi.yaml`](contracts/openapi/openapi.yaml) | `/api/v1` API source of truth |
 | [`contracts/schemas/`](contracts/schemas/) | App Spec, Profile, Deployment, Inference JSON Schema |
@@ -66,10 +69,145 @@
 
 ## 🚀 실행 방법
 
-### 1. 로컬 API 서버 실행
+먼저 Go 모듈 디렉터리로 이동합니다.
 
 ```powershell
+Set-Location .\AppDeploy
 go mod tidy
+```
+
+### 1. 웹 콘솔 실행 (권장)
+
+```powershell
+go run ./cmd/web
+```
+
+브라우저에서 아래 주소를 엽니다.
+
+```text
+http://localhost:8080/
+```
+
+웹 콘솔은 별도의 Node 설치나 프런트엔드 빌드 없이 Go 서버에 내장되어 실행됩니다. 다음 기능을 화면에서 사용할 수 있습니다.
+
+- 전체 배포·알람·Runtime 준비 상태 대시보드
+- AI App, Runtime Profile, Target Profile 등록
+- Target 자원 준비 상태 점검
+- 배포 생성, 상태·이벤트 로그 조회, 중지
+- Runtime health, 알람, 추론 메트릭 모니터링
+- 실행 중인 배포의 health 확인과 추론 호출
+
+웹 콘솔 데이터는 기본적으로 `data/appdeployer-store.json`에 저장됩니다. 포트를 변경할 때는 다음처럼 실행합니다.
+
+```powershell
+$env:AIAPP_SERVER_PORT = "18090"
+go run ./cmd/web
+```
+
+이 경우 접속 주소는 `http://localhost:18090/`입니다. 실제 CPU/GPU VM에 배포하려면 기존 SSH Runner 환경변수도 함께 설정합니다.
+
+### 2. 대화형 CLI 실행
+
+```powershell
+go run ./cmd/appdeployer
+```
+
+실행 후 `help`를 입력하면 앱·런타임·대상 등록, 자원 점검, 배포, 로그, 모니터링, 추론, 메트릭, 중지 명령을 확인할 수 있습니다.
+
+#### CPU VM dry-run 배포 예시
+
+예제 JSON으로 App, Runtime Profile, Target Profile을 등록합니다.
+
+```text
+appdeployer> help
+appdeployer> status
+appdeployer> apps add examples/requests/app-cpu-script.json
+appdeployer> runtimes add examples/requests/runtime-cpu-vm.json
+appdeployer> targets add examples/requests/target-cpu-vm.json
+```
+
+등록된 항목을 확인합니다.
+
+```text
+appdeployer> apps list
+appdeployer> runtimes list
+appdeployer> targets list
+```
+
+`apps add` 결과에 출력된 `app_version_id`를 사용해 자원을 점검하고 배포를 생성합니다.
+
+```text
+appdeployer> resources check target-cpu-001 rt-cpu-001
+appdeployer> deployments create appver-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx rt-cpu-001 target-cpu-001
+```
+
+`deployments create` 결과의 `deployment_id`로 상태와 로그를 확인합니다.
+
+```text
+appdeployer> deployments list
+appdeployer> deployments get dep-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+appdeployer> deployments logs dep-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+appdeployer> monitoring summary
+appdeployer> deployments stop dep-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+appdeployer> exit
+```
+
+#### 안내형 입력
+
+등록 명령에서 JSON 파일을 생략하면 필요한 값을 차례로 입력할 수 있습니다.
+
+```text
+appdeployer> apps add
+AI App 등록 안내 (필수 항목은 빈 값으로 둘 수 없습니다)
+앱 이름 (소문자/숫자/하이픈): my-ai-app
+버전 [0.1.0]:
+Artifact 종류 (package/git/binary/script) [script]:
+Artifact URI: file:///opt/apps/my-ai-app/run.sh
+실행 명령 [bash]:
+
+appdeployer> runtimes add
+appdeployer> targets add
+appdeployer> deployments create
+```
+
+#### 추론과 메트릭
+
+HTTP 서비스를 제공하는 `RUNNING` 배포는 추론 상태 확인과 호출이 가능합니다.
+
+```text
+appdeployer> inference health dep-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+appdeployer> inference invoke dep-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx examples/requests/inference-qwen-generate.json
+appdeployer> metrics add dep-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx examples/requests/metric-cpu-sample.json
+appdeployer> metrics list dep-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+appdeployer> monitoring metrics
+```
+
+명령 하나만 실행하는 방식도 지원합니다.
+
+```powershell
+go run ./cmd/appdeployer apps list
+go run ./cmd/appdeployer deployments get <deployment-id>
+```
+
+CLI 데이터는 기본적으로 `data/appdeployer-store.json`에 유지됩니다. 다른 경로를 사용하려면 `AIAPP_STORE_PATH` 환경변수를 설정합니다.
+
+같은 이름과 버전의 App을 다시 등록하면 `app name/version already exists` 오류가 발생합니다. 독립된 시험 데이터가 필요할 때는 새 저장 경로를 지정합니다.
+
+```powershell
+$env:AIAPP_STORE_PATH = ".\data\my-test-store.json"
+go run ./cmd/appdeployer
+```
+
+실행 파일이 필요하면 다음처럼 빌드합니다.
+
+```powershell
+go build -o .\bin\appdeployer.exe ./cmd/appdeployer
+.\bin\appdeployer.exe
+```
+
+### 3. 로컬 API 서버 실행
+
+```powershell
 go run ./cmd/server
 ```
 
@@ -80,7 +218,9 @@ http://localhost:8080/swagger
 http://localhost:8080/openapi.yaml
 ```
 
-### 2. 기본 API 검증
+`cmd/server`에도 동일한 웹 콘솔이 포함되지만 저장소 기본값은 기존과 같이 메모리입니다. 영속 웹 실행에는 `cmd/web`을 권장합니다.
+
+### 4. 기본 API 검증
 
 ```powershell
 .\scripts\api-smoke.ps1 -BaseUrl http://localhost:8080
@@ -95,7 +235,7 @@ http://localhost:8080/openapi.yaml
 
 결과는 `deliverables/evidence/results/{timestamp}` 아래에 저장됩니다.
 
-### 3. ai-ops-geon SSH 배포 검증
+### 5. ai-ops-geon SSH 배포 검증
 
 `ai-ops-geon` service-control API를 AppDeploy SSH runner로 원격 VM에 배포해 확인할 때는 `conf/aiops-config-ssh.json`을 먼저 조정합니다. 기본 설정은 SSH alias `nhn-cloud`, 로컬 AppDeploy 포트 `18088`, 원격 서비스 포트 `18089`, 로컬 터널 포트 `18189`를 사용합니다.
 

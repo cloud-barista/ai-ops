@@ -21,6 +21,7 @@ import (
 	"github.com/khu/ai-app-deployer/internal/runtime/gpuvm"
 	mockruntime "github.com/khu/ai-app-deployer/internal/runtime/mock"
 	"github.com/khu/ai-app-deployer/internal/store"
+	"github.com/khu/ai-app-deployer/internal/webui"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/rs/zerolog/log"
@@ -35,12 +36,25 @@ func New() (*echo.Echo, error) {
 }
 
 func NewWithConfig(settings config.Settings) (*echo.Echo, error) {
+	return newWithConfig(settings, true)
+}
+
+// NewCLIWithConfig builds the same API handler used by the HTTP server without
+// the per-request access logger. CLI commands still produce deployment and
+// runtime event logs, while terminal output remains readable.
+func NewCLIWithConfig(settings config.Settings) (*echo.Echo, error) {
+	return newWithConfig(settings, false)
+}
+
+func newWithConfig(settings config.Settings, requestLogging bool) (*echo.Echo, error) {
 	e := echo.New()
 	e.HideBanner = true
 	e.Server.Addr = listenAddress(settings.ServerPort)
 	e.Use(middleware.Recover())
 	e.Use(requestid.Middleware)
-	e.Use(structuredRequestLogger)
+	if requestLogging {
+		e.Use(structuredRequestLogger)
+	}
 
 	repo, err := newRepository(settings.StorePath)
 	if err != nil {
@@ -68,6 +82,7 @@ func NewWithConfig(settings config.Settings) (*echo.Echo, error) {
 	inference := infsvc.NewService(repo, repo, repo, cpuvm.NewSSHRunner(config.NewEnvCredentialResolver(), settings.SSHDefaultTimeout))
 
 	handler.New(apps, profiles, deployments, resources, monitoring, inference).Register(e)
+	webui.Register(e)
 	return e, nil
 }
 
