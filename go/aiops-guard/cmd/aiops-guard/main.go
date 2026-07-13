@@ -15,17 +15,17 @@ func main() {
 
 	reqBytes, err := readInput(*inputPath)
 	if err != nil {
-		writeResult(guard.Result{Valid: false, Stderr: err.Error()})
+		writeResult(guard.Result{Valid: false, Reason: err.Error()})
 		os.Exit(1)
 	}
 
 	var req guard.Request
 	if err := json.Unmarshal(reqBytes, &req); err != nil {
-		writeResult(guard.Result{Mode: req.Mode, Valid: false, Stderr: "invalid JSON request: " + err.Error()})
+		writeResult(guard.Result{Mode: req.Mode, Valid: false, Reason: "invalid JSON request: " + err.Error()})
 		os.Exit(1)
 	}
 
-	result := guard.Execute(req, nil)
+	result := guard.Execute(req)
 	writeResult(result)
 	if !result.Valid {
 		os.Exit(1)

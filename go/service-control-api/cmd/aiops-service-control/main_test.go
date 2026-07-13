@@ -117,14 +117,14 @@ func TestValidateSystemRejectsUnknownTarget(t *testing.T) {
 func TestValidateSystemCanRunExecutedLLMBenchmark(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("content-type", "application/json")
-		_, _ = w.Write([]byte(`{"choices":[{"message":{"content":"{\"action\":\"scale_replicas\",\"reason\":\"latency SLO violation\",\"confidence\":0.91}"}}]}`))
+		_, _ = w.Write([]byte(`{"choices":[{"message":{"content":"{\"action\":\"scale_instances\",\"reason\":\"latency SLO violation\",\"confidence\":0.91}"}}]}`))
 	}))
 	defer server.Close()
 
 	dir := t.TempDir()
 	scenariosPath := filepath.Join(dir, "scenarios.jsonl")
 	candidatesPath := filepath.Join(dir, "candidates.json")
-	writeMainTestFile(t, scenariosPath, `{"id":"ops-test","scenario":"Scale the service.","allowed_actions":["scale_replicas","monitor_latency"],"expected_action":"scale_replicas","required_output_fields":["action","reason","confidence"]}`+"\n")
+	writeMainTestFile(t, scenariosPath, `{"id":"ops-test","scenario":"Scale the service.","allowed_actions":["scale_instances","monitor_latency"],"expected_action":"scale_instances","required_output_fields":["action","reason","confidence"]}`+"\n")
 	writeMainTestFile(t, candidatesPath, `{"version":"1","candidates":[{"candidate_id":"local-provider","role_label":"primary-ops-llm","provider":"local-openai-compatible","actual_model":"test-model","endpoint":"`+server.URL+`/v1/chat/completions","enabled":true}]}`)
 
 	outputDir := filepath.Join(dir, "validation")

@@ -20,7 +20,7 @@
 - CPU/GPU VM 기반 AI 응용 추론 배치 추천
 - AI 응용 배포·제어 계획 생성
 
-이 저장소는 실제 인프라 생성이나 운영 배포 완료를 직접 주장하지 않습니다. 실제 VM, GPU, Kubernetes 적용 결과는 외부 인프라/배포 계층의 실행 결과와 구분합니다.
+이 저장소는 실제 인프라 생성이나 운영 배포 완료를 직접 주장하지 않습니다. 실제 VM과 GPU 적용 결과는 외부 인프라 계층의 실행 결과와 구분합니다.
 
 ## 🗂️ 코드 구조
 
@@ -54,7 +54,6 @@
 | [Ops LLM 평가 방법](docs/submission/ops_llm_benchmark_method.md) | dry-run과 실제 endpoint 실행 기준 |
 | [검증 증적 가이드](docs/evidence/증적_패키지_가이드.md) | 실행 결과와 증적 정리 기준 |
 | [AWS GPU VM 검증 결과](docs/evidence/vm_validation_20260707.md) | `validate-system --target vm` 실행 결과와 GPU 증적 |
-| [실제 LLM 및 Kubernetes 검증 결과](docs/evidence/local_llm_k8s_validation_20260707.md) | 실제 LLM endpoint, API integration, Kubernetes live deployment 증적 |
 
 ## 🛠️ 개발 환경
 

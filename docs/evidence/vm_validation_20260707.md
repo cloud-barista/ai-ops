@@ -54,5 +54,4 @@ go run ./cmd/aiops-service-control validate-system \
 다음 항목은 이번 검증에서 수행하지 않았습니다.
 
 - 실제 LLM benchmark 실행
-- Kubernetes live deployment
 - 실제 운영 서비스 배포 완료

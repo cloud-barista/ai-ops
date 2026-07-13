@@ -26,8 +26,8 @@ go run ./cmd/aiops-service-control run-service-operations \
   --llm-policy quality_first \
   --inference-config ../../config/inference_optimization.json \
   --workload llm-chat-inference \
-  --recovery-namespace aiops-demo \
-  --recovery-deployment aiops-service \
+  --operation-service llm-chat-inference \
+  --operation-resource gpu-vm-l4 \
   --mode mock \
   --guard-backend go
 ```
@@ -53,10 +53,9 @@ selected_llm
 runtime_model
 selected_resource
 deployment_plan
-deployment_manifest
-deployment_dry_run
+deployment_validation
 agent_reviews
-recovery_pipeline_ready
+operation_pipeline_ready
 guard_backend
 guard_validation
 ```

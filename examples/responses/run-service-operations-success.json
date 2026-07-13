@@ -7,25 +7,33 @@
   "deployment_plan": {
     "service_name": "llm-chat-inference",
     "target_resource": "gpu-vm-l4",
-    "target_accelerator": "gpu"
+    "target_accelerator": "gpu",
+    "vm_deployment": {
+      "service": "llm-chat-inference",
+      "instances": 1,
+      "placement_constraints": {
+        "aiops.resource/gpu-class": "l4"
+      }
+    }
   },
-  "deployment_manifest": {
-    "apiVersion": "apps/v1",
-    "kind": "Deployment"
-  },
-  "deployment_dry_run": {
-    "command": "kubectl apply -f - --dry-run=server",
+  "deployment_validation": {
     "mode": "mock",
-    "valid": true
+    "valid": true,
+    "checks": [
+      "service_name_present",
+      "container_image_present",
+      "target_resource_present",
+      "instance_count_positive",
+      "resource_request_present"
+    ]
   },
   "deployment_execution_mode": "mock",
-  "kubernetes_live_apply": false,
   "guard_backend": "go",
   "guard_validation": {
     "valid": true,
     "agent": "AIApplicationManagementAgent",
-    "action": "app_scale_deployment"
+    "action": "app_scale_service_instances"
   },
-  "recovery_pipeline_ready": true,
+  "operation_pipeline_ready": true,
   "message": "Prototype service-control readiness flow completed in mock mode."
 }

@@ -158,10 +158,8 @@ func run(args []string) error {
 		llmPolicy := flags.String("llm-policy", "quality_first", "Ops LLM selection policy")
 		inferenceConfig := flags.String("inference-config", "config/inference_optimization.json", "Inference optimization JSON path")
 		workload := flags.String("workload", "", "Inference workload ID")
-		recoveryNamespace := flags.String("recovery-namespace", "", "Kubernetes namespace for recovery/operation context")
-		recoveryDeployment := flags.String("recovery-deployment", "", "Kubernetes deployment for recovery/operation context")
-		namespace := flags.String("namespace", "", "Deprecated alias for --recovery-namespace")
-		deployment := flags.String("deployment", "", "Deprecated alias for --recovery-deployment")
+		operationService := flags.String("operation-service", "", "AI service for bounded operation validation")
+		operationResource := flags.String("operation-resource", "", "CPU/GPU VM resource for bounded operation validation")
 		mode := flags.String("mode", "mock", "Execution mode")
 		guardBackend := flags.String("guard-backend", "go", "Guard backend")
 		saveResultDir := addSaveResultDirFlag(flags)
@@ -171,25 +169,15 @@ func run(args []string) error {
 		if *workload == "" {
 			return fmt.Errorf("--workload is required")
 		}
-		normalizedNamespace := firstNonEmpty(*recoveryNamespace, *namespace)
-		normalizedDeployment := firstNonEmpty(*recoveryDeployment, *deployment)
-		if normalizedNamespace == "" {
-			return fmt.Errorf("--recovery-namespace is required")
-		}
-		if normalizedDeployment == "" {
-			return fmt.Errorf("--recovery-deployment is required")
-		}
 		result, err := service.RunServiceOperations(ctx, api.ServiceOperationsRequest{
-			LLMConfigPath:      resolveInputPath(serverConfig, *llmConfig),
-			InferenceConfig:    resolveInputPath(serverConfig, *inferenceConfig),
-			LLMPolicy:          *llmPolicy,
-			Workload:           *workload,
-			RecoveryNamespace:  normalizedNamespace,
-			RecoveryDeployment: normalizedDeployment,
-			Namespace:          *namespace,
-			Deployment:         *deployment,
-			Mode:               *mode,
-			GuardBackend:       *guardBackend,
+			LLMConfigPath:     resolveInputPath(serverConfig, *llmConfig),
+			InferenceConfig:   resolveInputPath(serverConfig, *inferenceConfig),
+			LLMPolicy:         *llmPolicy,
+			Workload:          *workload,
+			OperationService:  *operationService,
+			OperationResource: *operationResource,
+			Mode:              *mode,
+			GuardBackend:      *guardBackend,
 		})
 		if err != nil {
 			return err
@@ -451,13 +439,13 @@ func runTeamValidation(ctx context.Context, service api.Service, config api.Serv
 		ctx,
 		agentRegistry,
 		"AIApplicationManagementAgent",
-		"app_scale_deployment",
+		"app_scale_service_instances",
 	)
 	addStep("validate-agent-action", map[string]any{
 		"command": "validate-agent-action",
 		"valid":   actionValid,
 		"agent":   "AIApplicationManagementAgent",
-		"action":  "app_scale_deployment",
+		"action":  "app_scale_service_instances",
 	}, err == nil && actionValid, err)
 
 	placement, err := service.RecommendPlacementFromPath(ctx, inferenceConfig, "llm-chat-inference")
@@ -467,14 +455,14 @@ func runTeamValidation(ctx context.Context, service api.Service, config api.Serv
 	addStep("plan-inference-deployment", deploymentPlan, err == nil && deploymentPlan.Valid, err)
 
 	serviceOperations, err := service.RunServiceOperations(ctx, api.ServiceOperationsRequest{
-		LLMConfigPath:      llmConfig,
-		InferenceConfig:    inferenceConfig,
-		LLMPolicy:          "quality_first",
-		Workload:           "llm-chat-inference",
-		RecoveryNamespace:  "aiops-demo",
-		RecoveryDeployment: "aiops-service",
-		Mode:               "mock",
-		GuardBackend:       "go",
+		LLMConfigPath:     llmConfig,
+		InferenceConfig:   inferenceConfig,
+		LLMPolicy:         "quality_first",
+		Workload:          "llm-chat-inference",
+		OperationService:  "llm-chat-inference",
+		OperationResource: "gpu-vm-l4",
+		Mode:              "mock",
+		GuardBackend:      "go",
 	})
 	addStep("run-service-operations", serviceOperations, err == nil && serviceOperations.Valid, err)
 

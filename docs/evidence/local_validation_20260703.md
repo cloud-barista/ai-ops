@@ -53,7 +53,6 @@ go run ./cmd/aiops-service-control api-integration-validation \
 | [`artifacts/local_20260703_team_validation_summary.json`](artifacts/local_20260703_team_validation_summary.json) | LLM 선정, Agent registry, action 검증, CPU/GPU 배치, 배포·제어 계획 통합 검증 |
 | [`artifacts/local_20260703_system_validation_summary.json`](artifacts/local_20260703_system_validation_summary.json) | 로컬 환경, Go test, team-validation을 묶은 시스템 검증 요약 |
 | [`artifacts/local_20260703_ops_llm_evaluation_summary.json`](artifacts/local_20260703_ops_llm_evaluation_summary.json) | Ops LLM 평가 파이프라인 dry-run evaluator 결과 |
-| [`artifacts/local_20260703_api_integration_validation_manifest.json`](artifacts/local_20260703_api_integration_validation_manifest.json) | 로컬 API 6개 endpoint 통합 호출 및 핵심 필드 검증 summary |
 
 ## 해석
 

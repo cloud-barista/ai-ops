@@ -23,13 +23,13 @@ LLM/model policy
 | LLM selection | 설정된 prototype policy 아래 candidate label ranking |
 | Agent registry | agent list 조회 및 bounded action 검증 |
 | 배치 | SLO, 비용, capacity 기준 CPU/GPU VM candidate scoring |
-| Deployment plan | Kubernetes 배포·제어 계획 생성 |
-| 준비도 | LLM, placement, manifest, agent review, guard-readiness 결과 결합 |
+| Deployment plan | CPU/GPU VM 배포·제어 계획 생성 |
+| 준비도 | LLM, placement, VM 배포 사양, agent review, guard-readiness 결과 결합 |
 | Guard boundary | `go/aiops-guard`에 standalone bounded-action validator 유지 |
 
 ## Guard 관계
 
-`service-control-api`는 LLM selection, agent registry validation, placement, deployment-plan generation, manifest dry-run, readiness reporting을 수행합니다.
+`service-control-api`는 LLM selection, agent registry validation, placement, VM deployment-plan generation, readiness reporting을 수행합니다.
 
 `aiops-guard`는 standalone bounded-action validator입니다. service-control readiness response는 Go guard backend와 recovery context가 준비되었음을 보여주기 위해 `guard_validation`을 포함합니다. `service-control-api`에서 standalone guard CLI를 full runtime으로 호출하는 wiring은 다음 단계이며 완료된 production integration이 아닙니다.
 

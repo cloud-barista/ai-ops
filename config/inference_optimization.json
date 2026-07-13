@@ -16,11 +16,11 @@
       "expected_latency_ms": 120,
       "expected_throughput_rps": 60,
       "cost_per_hour": 0.45,
-      "available_replicas": 4,
-      "node_selector": {
+      "available_instances": 4,
+      "placement_labels": {
         "aiops.resource/accelerator": "cpu"
       },
-      "resource_limits": {},
+      "resource_capacity": {},
       "supported_model_types": [
         "text-classification",
         "embedding"
@@ -35,13 +35,13 @@
       "expected_latency_ms": 55,
       "expected_throughput_rps": 140,
       "cost_per_hour": 1.2,
-      "available_replicas": 2,
-      "node_selector": {
+      "available_instances": 2,
+      "placement_labels": {
         "aiops.resource/accelerator": "gpu",
         "aiops.resource/gpu-class": "l4"
       },
-      "resource_limits": {
-        "nvidia.com/gpu": "1"
+      "resource_capacity": {
+        "accelerator_count": "1"
       },
       "supported_model_types": [
         "llm",
@@ -58,13 +58,13 @@
       "expected_latency_ms": 28,
       "expected_throughput_rps": 260,
       "cost_per_hour": 4.0,
-      "available_replicas": 1,
-      "node_selector": {
+      "available_instances": 1,
+      "placement_labels": {
         "aiops.resource/accelerator": "gpu",
         "aiops.resource/gpu-class": "a100"
       },
-      "resource_limits": {
-        "nvidia.com/gpu": "1"
+      "resource_capacity": {
+        "accelerator_count": "1"
       },
       "supported_model_types": [
         "llm",
@@ -82,9 +82,8 @@
       "min_throughput_rps": 100,
       "batch_size": 8,
       "service_name": "llm-chat-inference",
-      "namespace": "ai-inference",
       "container_image": "ghcr.io/cloud-barista/ai-ops/llm-chat:prototype",
-      "replicas": 1
+      "instances": 1
     },
     {
       "id": "text-classifier",
@@ -95,9 +94,8 @@
       "min_throughput_rps": 30,
       "batch_size": 16,
       "service_name": "text-classifier",
-      "namespace": "ai-inference",
       "container_image": "ghcr.io/cloud-barista/ai-ops/text-classifier:prototype",
-      "replicas": 1
+      "instances": 1
     }
   ]
 }

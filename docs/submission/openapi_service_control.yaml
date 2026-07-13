@@ -86,7 +86,7 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
   /api/v1/apps/deployment-plan:
     post:
-      summary: Build a Kubernetes deployment/control plan for an AI workload
+      summary: Build a CPU/GPU VM deployment/control plan for an AI workload
       requestBody:
         required: true
         content:
@@ -240,8 +240,6 @@ components:
       type: object
       required:
         - workload
-        - recovery_namespace
-        - recovery_deployment
       properties:
         llm_config:
           type: string
@@ -256,24 +254,14 @@ components:
           type: string
           description: AI workload ID used for placement and deployment-plan generation.
           example: llm-chat-inference
-        recovery_namespace:
+        operation_service:
           type: string
-          description: Service operation or recovery target namespace.
-          example: aiops-demo
-        recovery_deployment:
+          description: AI service used for bounded operation validation.
+          example: llm-chat-inference
+        operation_resource:
           type: string
-          description: Service operation or recovery target Deployment.
-          example: aiops-service
-        namespace:
-          type: string
-          deprecated: true
-          description: Deprecated alias for recovery_namespace.
-          example: aiops-demo
-        deployment:
-          type: string
-          deprecated: true
-          description: Deprecated alias for recovery_deployment.
-          example: aiops-service
+          description: CPU/GPU VM resource used for bounded operation validation.
+          example: gpu-vm-l4
         mode:
           type: string
           example: mock
@@ -321,18 +309,15 @@ components:
           type: string
         target_accelerator:
           type: string
-        kubernetes:
+        vm_deployment:
           type: object
           properties:
-            namespace:
+            service:
               type: string
-              description: AI application workload namespace from inference config.
-            deployment:
-              type: string
-              description: AI application workload Deployment generated from inference config.
-            replicas:
+              description: AI application service name.
+            instances:
               type: integer
-            node_selector:
+            placement_constraints:
               type: object
             resources:
               type: object
@@ -360,9 +345,9 @@ components:
           example: mock
         boundary:
           type: string
-        recovery_namespace:
+        operation_service:
           type: string
-        recovery_deployment:
+        operation_resource:
           type: string
         checked_actions:
           type: array
@@ -406,24 +391,18 @@ components:
           $ref: "#/components/schemas/DeploymentPlan"
         inference_deployment_plan:
           $ref: "#/components/schemas/DeploymentPlanResponse"
-        deployment_manifest:
-          type: object
-        deployment_dry_run:
+        deployment_validation:
           type: object
         deployment_execution_mode:
           type: string
           enum:
             - mock
-            - dry_run
           example: mock
-        kubernetes_live_apply:
-          type: boolean
-          example: false
         agent_reviews:
           type: object
-        recovery:
+        operation:
           type: object
-        recovery_pipeline_ready:
+        operation_pipeline_ready:
           type: boolean
         guard_backend:
           type: string

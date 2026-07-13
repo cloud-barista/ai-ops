@@ -99,9 +99,9 @@ type InferenceResource struct {
 	ExpectedLatencyMS     float64           `json:"expected_latency_ms"`
 	ExpectedThroughputRPS float64           `json:"expected_throughput_rps"`
 	CostPerHour           float64           `json:"cost_per_hour"`
-	AvailableReplicas     int               `json:"available_replicas"`
-	NodeSelector          map[string]string `json:"node_selector"`
-	ResourceLimits        map[string]string `json:"resource_limits"`
+	AvailableInstances    int               `json:"available_instances"`
+	PlacementLabels       map[string]string `json:"placement_labels"`
+	ResourceCapacity      map[string]string `json:"resource_capacity"`
 	SupportedModelTypes   []string          `json:"supported_model_types"`
 }
 
@@ -114,9 +114,8 @@ type InferenceWorkload struct {
 	MinThroughputRPS    float64 `json:"min_throughput_rps"`
 	BatchSize           int     `json:"batch_size"`
 	ServiceName         string  `json:"service_name"`
-	Namespace           string  `json:"namespace"`
 	ContainerImage      string  `json:"container_image"`
-	Replicas            int     `json:"replicas"`
+	Instances           int     `json:"instances"`
 }
 
 type WorkloadRequest struct {
@@ -124,16 +123,14 @@ type WorkloadRequest struct {
 }
 
 type ServiceOperationsRequest struct {
-	LLMConfigPath      string `json:"llm_config" example:"config/ops_llm_benchmark.json"`
-	InferenceConfig    string `json:"inference_config" example:"config/inference_optimization.json"`
-	LLMPolicy          string `json:"llm_policy" example:"quality_first"`
-	Workload           string `json:"workload" validate:"required" example:"llm-chat-inference"`
-	RecoveryNamespace  string `json:"recovery_namespace" example:"aiops-demo"`
-	RecoveryDeployment string `json:"recovery_deployment" example:"aiops-service"`
-	Namespace          string `json:"namespace" example:"aiops-demo"`
-	Deployment         string `json:"deployment" example:"aiops-service"`
-	Mode               string `json:"mode" example:"mock"`
-	GuardBackend       string `json:"guard_backend" example:"go"`
+	LLMConfigPath     string `json:"llm_config" example:"config/ops_llm_benchmark.json"`
+	InferenceConfig   string `json:"inference_config" example:"config/inference_optimization.json"`
+	LLMPolicy         string `json:"llm_policy" example:"quality_first"`
+	Workload          string `json:"workload" validate:"required" example:"llm-chat-inference"`
+	OperationService  string `json:"operation_service" example:"llm-chat-inference"`
+	OperationResource string `json:"operation_resource" example:"gpu-vm-l4"`
+	Mode              string `json:"mode" example:"mock"`
+	GuardBackend      string `json:"guard_backend" example:"go"`
 }
 
 type PlacementResponse struct {
@@ -152,14 +149,14 @@ type PlacementResponse struct {
 }
 
 type PlacementCandidate struct {
-	Resource          string  `json:"resource"`
-	Accelerator       string  `json:"accelerator"`
-	Score             float64 `json:"score"`
-	LatencyMS         float64 `json:"latency_ms"`
-	ThroughputRPS     float64 `json:"throughput_rps"`
-	CostPerHour       float64 `json:"cost_per_hour"`
-	AvailableReplicas int     `json:"available_replicas"`
-	Action            string  `json:"action"`
+	Resource           string  `json:"resource"`
+	Accelerator        string  `json:"accelerator"`
+	Score              float64 `json:"score"`
+	LatencyMS          float64 `json:"latency_ms"`
+	ThroughputRPS      float64 `json:"throughput_rps"`
+	CostPerHour        float64 `json:"cost_per_hour"`
+	AvailableInstances int     `json:"available_instances"`
+	Action             string  `json:"action"`
 }
 
 type DeploymentPlanResponse struct {
@@ -172,25 +169,17 @@ type DeploymentPlan struct {
 	ContainerImage    string             `json:"container_image"`
 	TargetResource    string             `json:"target_resource"`
 	TargetAccelerator string             `json:"target_accelerator"`
-	Kubernetes        KubernetesPlan     `json:"kubernetes"`
+	VM                VMDeploymentPlan   `json:"vm_deployment"`
 	ControlActions    []string           `json:"control_actions"`
 	MonitoringMetrics []string           `json:"monitoring_metrics"`
 	SLO               map[string]float64 `json:"slo"`
 }
 
-type DeploymentManifest struct {
-	APIVersion string         `json:"apiVersion"`
-	Kind       string         `json:"kind"`
-	Metadata   map[string]any `json:"metadata"`
-	Spec       map[string]any `json:"spec"`
-}
-
-type DeploymentDryRun struct {
-	Command string `json:"command"`
-	Mode    string `json:"mode"`
-	Valid   bool   `json:"valid"`
-	Stdout  string `json:"stdout"`
-	Stderr  string `json:"stderr"`
+type DeploymentValidation struct {
+	Mode   string   `json:"mode"`
+	Valid  bool     `json:"valid"`
+	Checks []string `json:"checks"`
+	Reason string   `json:"reason"`
 }
 
 type AgentReviews struct {
@@ -208,24 +197,24 @@ type AgentReview struct {
 	Parameters map[string]string `json:"parameters"`
 }
 
-type RecoveryReadiness struct {
-	Valid      bool   `json:"valid"`
-	Skipped    bool   `json:"skipped"`
-	Namespace  string `json:"namespace"`
-	Deployment string `json:"deployment"`
-	Reason     string `json:"reason"`
+type OperationReadiness struct {
+	Valid          bool   `json:"valid"`
+	Skipped        bool   `json:"skipped"`
+	Service        string `json:"service"`
+	TargetResource string `json:"target_resource"`
+	Reason         string `json:"reason"`
 }
 
 type GuardValidation struct {
-	Backend            string   `json:"backend"`
-	Valid              bool     `json:"valid"`
-	RuntimeWired       bool     `json:"runtime_wired"`
-	Mode               string   `json:"mode"`
-	Boundary           string   `json:"boundary"`
-	RecoveryNamespace  string   `json:"recovery_namespace"`
-	RecoveryDeployment string   `json:"recovery_deployment"`
-	CheckedActions     []string `json:"checked_actions"`
-	Reason             string   `json:"reason"`
+	Backend           string   `json:"backend"`
+	Valid             bool     `json:"valid"`
+	RuntimeWired      bool     `json:"runtime_wired"`
+	Mode              string   `json:"mode"`
+	Boundary          string   `json:"boundary"`
+	OperationService  string   `json:"operation_service"`
+	OperationResource string   `json:"operation_resource"`
+	CheckedActions    []string `json:"checked_actions"`
+	Reason            string   `json:"reason"`
 }
 
 type ServiceOperationsResponse struct {
@@ -241,24 +230,21 @@ type ServiceOperationsResponse struct {
 	SelectedResource        string                 `json:"selected_resource"`
 	DeploymentPlan          DeploymentPlan         `json:"deployment_plan"`
 	InferenceDeploymentPlan DeploymentPlanResponse `json:"inference_deployment_plan"`
-	DeploymentManifest      DeploymentManifest     `json:"deployment_manifest"`
-	DeploymentDryRun        DeploymentDryRun       `json:"deployment_dry_run"`
+	DeploymentValidation    DeploymentValidation   `json:"deployment_validation"`
 	DeploymentExecutionMode string                 `json:"deployment_execution_mode"`
-	KubernetesLiveApply     bool                   `json:"kubernetes_live_apply"`
 	AgentReviews            AgentReviews           `json:"agent_reviews"`
-	Recovery                RecoveryReadiness      `json:"recovery"`
-	RecoveryPipelineReady   bool                   `json:"recovery_pipeline_ready"`
+	Operation               OperationReadiness     `json:"operation"`
+	OperationPipelineReady  bool                   `json:"operation_pipeline_ready"`
 	GuardBackend            string                 `json:"guard_backend"`
 	GuardValidation         GuardValidation        `json:"guard_validation"`
 	Metadata                map[string]string      `json:"metadata"`
 }
 
-type KubernetesPlan struct {
-	Namespace    string            `json:"namespace"`
-	Deployment   string            `json:"deployment"`
-	Replicas     int               `json:"replicas"`
-	NodeSelector map[string]string `json:"node_selector"`
-	Resources    ResourceSpec      `json:"resources"`
+type VMDeploymentPlan struct {
+	Service              string            `json:"service"`
+	Instances            int               `json:"instances"`
+	PlacementConstraints map[string]string `json:"placement_constraints"`
+	Resources            ResourceSpec      `json:"resources"`
 }
 
 type ResourceSpec struct {

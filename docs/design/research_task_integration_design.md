@@ -9,7 +9,7 @@
 | Ops 분석 및 최적 LLM 선정 | `go/service-control-api` LLM selection logic |
 | AI LLM 운영 관리 구조 | service-operations readiness pipeline |
 | AI agent registration management | `config/agent_registry.json`과 Go API/CLI validation |
-| CPU/GPU VM 기반 AI 응용 배포·제어 | CPU/GPU 배치 및 Kubernetes 배포 계획 생성 |
+| CPU/GPU VM 기반 AI 응용 배포·제어 | CPU/GPU 배치 및 VM 배포 계획 생성 |
 | 안전 경계 | `go/aiops-guard` standalone bounded-action validator |
 
 ## System Flow
@@ -19,8 +19,8 @@ Ops policy/config
 -> Go LLM selection
 -> Agent registry and bounded-action validation
 -> CPU/GPU VM placement recommendation
--> Kubernetes deployment/control plan
--> manifest dry-run and guard-readiness check
+-> VM deployment/control plan
+-> VM specification and guard-readiness check
 -> service-operations readiness report
 ```
 

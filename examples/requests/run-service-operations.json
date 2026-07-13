@@ -1,8 +1,8 @@
 {
   "llm_policy": "quality_first",
   "workload": "llm-chat-inference",
-  "recovery_namespace": "aiops-demo",
-  "recovery_deployment": "aiops-service",
+  "operation_service": "llm-chat-inference",
+  "operation_resource": "gpu-vm-l4",
   "mode": "mock",
   "guard_backend": "go"
 }

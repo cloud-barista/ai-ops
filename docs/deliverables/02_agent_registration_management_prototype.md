@@ -35,7 +35,7 @@
 | Agent | 역할 | 대표 action |
 | --- | --- | --- |
 | `AIServiceHASupportAgent` | 서비스 가용성과 recovery 필요성 검토 | `ha_scale_out_required`, `ha_no_action` |
-| `AIApplicationManagementAgent` | AI 응용 배포·제어 검토 | `app_select_inference_vm`, `app_scale_deployment` |
+| `AIApplicationManagementAgent` | AI 응용 배포·제어 검토 | `app_select_inference_vm`, `app_scale_service_instances` |
 | `AISemiconductorInfraOpsAgent` | CPU/GPU VM 제약 검증 | `infra_select_cpu_gpu_vm`, `infra_capacity_approved` |
 | `CostOptimizationAgent` | 비용과 resource efficiency 검토 | `cost_budget_approved`, `cost_budget_rejected` |
 
@@ -66,7 +66,7 @@ go run ./cmd/aiops-service-control list-agents \
 go run ./cmd/aiops-service-control validate-agent-action \
   --registry ../../config/agent_registry.json \
   --agent AIApplicationManagementAgent \
-  --action app_scale_deployment
+  --action app_scale_service_instances
 ```
 
 기대 신호:

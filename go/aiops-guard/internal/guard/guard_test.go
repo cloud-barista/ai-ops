@@ -11,161 +11,129 @@ func ptr(v int) *int {
 
 func validScaleRequest() Request {
 	return Request{
-		Mode:               "mock",
-		Namespace:          "aiops-demo",
-		Deployment:         "aiops-service",
-		Action:             "scale_out",
-		Replicas:           ptr(3),
-		AllowedNamespaces:  []string{"aiops-demo"},
-		AllowedDeployments: []string{"aiops-service", "aiops-worker"},
-		MinReplicas:        1,
-		MaxReplicas:        5,
+		Mode:             ModeMock,
+		Service:          "aiops-service",
+		TargetResource:   "gpu-vm-l4",
+		Action:           ActionScaleOut,
+		Instances:        ptr(3),
+		AllowedServices:  []string{"aiops-service", "aiops-worker"},
+		AllowedResources: []string{"cpu-vm-standard", "gpu-vm-l4"},
+		MinInstances:     1,
+		MaxInstances:     5,
 	}
 }
 
-func TestScaleOutRendersStableKubectlCommand(t *testing.T) {
-	result := Execute(validScaleRequest(), nil)
+func TestScaleOutBuildsStableVMActionPlan(t *testing.T) {
+	result := Execute(validScaleRequest())
 
 	if !result.Valid {
-		t.Fatalf("expected valid result, got stderr=%q", result.Stderr)
+		t.Fatalf("expected valid result, got reason=%q", result.Reason)
 	}
 
-	want := "kubectl scale deployment aiops-service --replicas=3 -n aiops-demo"
-	if result.Command != want {
-		t.Fatalf("command mismatch\nwant: %s\n got: %s", want, result.Command)
-	}
-}
-
-func TestRejectsNamespaceOutsideAllowlist(t *testing.T) {
-	req := validScaleRequest()
-	req.Namespace = "kube-system"
-
-	result := Execute(req, nil)
-
-	if result.Valid {
-		t.Fatalf("expected invalid result for namespace outside policy")
-	}
-	if !strings.Contains(result.Stderr, "namespace is not allowed") {
-		t.Fatalf("unexpected stderr: %q", result.Stderr)
+	want := "scale service=aiops-service target_resource=gpu-vm-l4 instances=3"
+	if result.ActionPlan != want {
+		t.Fatalf("action plan mismatch\nwant: %s\n got: %s", want, result.ActionPlan)
 	}
 }
 
-func TestRejectsReplicaAboveMax(t *testing.T) {
+func TestRejectsServiceOutsideAllowlist(t *testing.T) {
 	req := validScaleRequest()
-	req.Replicas = ptr(9)
+	req.Service = "unknown-service"
 
-	result := Execute(req, nil)
+	result := Execute(req)
 
 	if result.Valid {
-		t.Fatalf("expected invalid result for replica above max")
+		t.Fatal("expected invalid result for service outside policy")
 	}
-	if !strings.Contains(result.Stderr, "replicas must be between") {
-		t.Fatalf("unexpected stderr: %q", result.Stderr)
+	if !strings.Contains(result.Reason, "service is not allowed") {
+		t.Fatalf("unexpected reason: %q", result.Reason)
+	}
+}
+
+func TestRejectsResourceOutsideAllowlist(t *testing.T) {
+	req := validScaleRequest()
+	req.TargetResource = "gpu-vm-unknown"
+
+	result := Execute(req)
+
+	if result.Valid {
+		t.Fatal("expected invalid result for resource outside policy")
+	}
+	if !strings.Contains(result.Reason, "target resource is not allowed") {
+		t.Fatalf("unexpected reason: %q", result.Reason)
+	}
+}
+
+func TestRejectsInstancesAboveMax(t *testing.T) {
+	req := validScaleRequest()
+	req.Instances = ptr(9)
+
+	result := Execute(req)
+
+	if result.Valid {
+		t.Fatal("expected invalid result for instance count above max")
+	}
+	if !strings.Contains(result.Reason, "instances must be between") {
+		t.Fatalf("unexpected reason: %q", result.Reason)
 	}
 }
 
 func TestRejectsUnsupportedAction(t *testing.T) {
 	req := validScaleRequest()
-	req.Action = "delete_namespace"
+	req.Action = "delete_vm"
 
-	result := Execute(req, nil)
+	result := Execute(req)
 
 	if result.Valid {
-		t.Fatalf("expected invalid result for unsupported action")
+		t.Fatal("expected invalid result for unsupported action")
 	}
-	if !strings.Contains(result.Stderr, "unsupported action") {
-		t.Fatalf("unexpected stderr: %q", result.Stderr)
+	if !strings.Contains(result.Reason, "unsupported action") {
+		t.Fatalf("unexpected reason: %q", result.Reason)
 	}
 }
 
-func TestDryRunAddsServerDryRunToMutatingCommand(t *testing.T) {
+func TestValidateModeBuildsActionPlanWithoutInfrastructureExecution(t *testing.T) {
 	req := validScaleRequest()
-	req.Mode = "dry-run"
+	req.Mode = ModeValidate
 
-	result := Execute(req, func(name string, args ...string) (string, string, int) {
-		got := name + " " + strings.Join(args, " ")
-		want := "kubectl scale deployment aiops-service --replicas=3 -n aiops-demo --dry-run=server"
-		if got != want {
-			t.Fatalf("command mismatch\nwant: %s\n got: %s", want, got)
-		}
-		return "deployment.apps/aiops-service scaled (server dry run)", "", 0
-	})
+	result := Execute(req)
 
 	if !result.Valid {
-		t.Fatalf("expected dry-run success, got stderr=%q", result.Stderr)
+		t.Fatalf("expected validation success, got reason=%q", result.Reason)
+	}
+	if result.ActionPlan == "" {
+		t.Fatal("expected deterministic action plan")
 	}
 }
 
-func TestMockDoesNotCallRunner(t *testing.T) {
+func TestObserveOnlyBuildsReadOnlyPlan(t *testing.T) {
 	req := validScaleRequest()
-	called := false
+	req.Action = ActionObserveOnly
+	req.Instances = nil
 
-	result := Execute(req, func(name string, args ...string) (string, string, int) {
-		called = true
-		return "", "", 0
-	})
-
-	if called {
-		t.Fatalf("mock mode must not call kubectl runner")
-	}
-	if !result.Valid {
-		t.Fatalf("expected mock validation success, got stderr=%q", result.Stderr)
-	}
-}
-
-func TestObserveOnlyRendersReadOnlyKubectlCommand(t *testing.T) {
-	req := validScaleRequest()
-	req.Action = "observe_only"
-	req.Replicas = nil
-	req.Mode = "dry-run"
-
-	result := Execute(req, func(name string, args ...string) (string, string, int) {
-		got := name + " " + strings.Join(args, " ")
-		want := "kubectl get deployment aiops-service -n aiops-demo -o json"
-		if got != want {
-			t.Fatalf("command mismatch\nwant: %s\n got: %s", want, got)
-		}
-		return "aiops-service 3/3", "", 0
-	})
+	result := Execute(req)
 
 	if !result.Valid {
-		t.Fatalf("expected observe success, got stderr=%q", result.Stderr)
+		t.Fatalf("expected observe validation success, got reason=%q", result.Reason)
+	}
+	want := "observe service=aiops-service target_resource=gpu-vm-l4"
+	if result.ActionPlan != want {
+		t.Fatalf("action plan mismatch\nwant: %s\n got: %s", want, result.ActionPlan)
 	}
 }
 
-func TestRejectsReplicasOnNonScaleActions(t *testing.T) {
-	for _, action := range []string{"observe_only", "rollout_restart"} {
+func TestRejectsInstancesOnNonScaleActions(t *testing.T) {
+	for _, action := range []string{ActionObserveOnly, ActionRestartService} {
 		req := validScaleRequest()
 		req.Action = action
-		req.Replicas = ptr(3)
 
-		result := Execute(req, nil)
+		result := Execute(req)
 
 		if result.Valid {
-			t.Fatalf("expected invalid result for replicas on %s", action)
+			t.Fatalf("expected invalid result for instances on %s", action)
 		}
-		if !strings.Contains(result.Stderr, "only scale_out accepts replicas") {
-			t.Fatalf("unexpected stderr for %s: %q", action, result.Stderr)
+		if !strings.Contains(result.Reason, "only scale_out accepts instances") {
+			t.Fatalf("unexpected reason for %s: %q", action, result.Reason)
 		}
-	}
-}
-
-func TestRolloutRestartDryRunCommand(t *testing.T) {
-	req := validScaleRequest()
-	req.Mode = "dry-run"
-	req.Action = "rollout_restart"
-	req.Replicas = nil
-
-	result := Execute(req, func(name string, args ...string) (string, string, int) {
-		got := name + " " + strings.Join(args, " ")
-		want := "kubectl rollout restart deployment aiops-service -n aiops-demo --dry-run=server"
-		if got != want {
-			t.Fatalf("command mismatch\nwant: %s\n got: %s", want, got)
-		}
-		return "deployment.apps/aiops-service restarted (server dry run)", "", 0
-	})
-
-	if !result.Valid {
-		t.Fatalf("expected rollout restart dry-run success, got stderr=%q", result.Stderr)
 	}
 }

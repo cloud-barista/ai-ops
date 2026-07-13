@@ -119,14 +119,14 @@ func TestRunOpsLLMBenchmarkExecutedModeCallsOpenAICompatibleProvider(t *testing.
 			t.Fatalf("expected chat completions path, got %s", r.URL.Path)
 		}
 		w.Header().Set("content-type", "application/json")
-		_, _ = w.Write([]byte(`{"choices":[{"message":{"content":"{\"action\":\"scale_replicas\",\"reason\":\"latency SLO violation\",\"confidence\":0.91}"}}]}`))
+		_, _ = w.Write([]byte(`{"choices":[{"message":{"content":"{\"action\":\"scale_instances\",\"reason\":\"latency SLO violation\",\"confidence\":0.91}"}}]}`))
 	}))
 	defer server.Close()
 
 	dir := t.TempDir()
 	scenariosPath := filepath.Join(dir, "scenarios.jsonl")
 	candidatesPath := filepath.Join(dir, "candidates.json")
-	writeFile(t, scenariosPath, `{"id":"ops-test","scenario":"Scale the service.","allowed_actions":["scale_replicas","monitor_latency"],"expected_action":"scale_replicas","required_output_fields":["action","reason","confidence"]}`+"\n")
+	writeFile(t, scenariosPath, `{"id":"ops-test","scenario":"Scale the service.","allowed_actions":["scale_instances","monitor_latency"],"expected_action":"scale_instances","required_output_fields":["action","reason","confidence"]}`+"\n")
 	writeFile(t, candidatesPath, `{"version":"1","candidates":[{"candidate_id":"local-provider","role_label":"primary-ops-llm","provider":"local-openai-compatible","actual_model":"test-model","endpoint":"`+server.URL+`/v1/chat/completions","enabled":true}]}`)
 
 	result, err := RunOpsLLMBenchmark(RunOptions{
@@ -163,7 +163,7 @@ func TestRunOpsLLMBenchmarkExecutedModeFailsWhenNoCandidateRuns(t *testing.T) {
 	dir := t.TempDir()
 	scenariosPath := filepath.Join(dir, "scenarios.jsonl")
 	candidatesPath := filepath.Join(dir, "candidates.json")
-	writeFile(t, scenariosPath, `{"id":"ops-test","scenario":"Scale the service.","allowed_actions":["scale_replicas"],"expected_action":"scale_replicas","required_output_fields":["action"]}`+"\n")
+	writeFile(t, scenariosPath, `{"id":"ops-test","scenario":"Scale the service.","allowed_actions":["scale_instances"],"expected_action":"scale_instances","required_output_fields":["action"]}`+"\n")
 	writeFile(t, candidatesPath, `{"version":"1","candidates":[{"candidate_id":"disabled-provider","role_label":"primary-ops-llm","provider":"local-openai-compatible","actual_model":"test-model","endpoint":"http://127.0.0.1:1/v1/chat/completions","enabled":false}]}`)
 
 	result, err := RunOpsLLMBenchmark(RunOptions{
@@ -189,7 +189,7 @@ func TestRunOpsLLMBenchmarkExecutedModeCountsProviderErrors(t *testing.T) {
 	dir := t.TempDir()
 	scenariosPath := filepath.Join(dir, "scenarios.jsonl")
 	candidatesPath := filepath.Join(dir, "candidates.json")
-	writeFile(t, scenariosPath, `{"id":"ops-test","scenario":"Scale the service.","allowed_actions":["scale_replicas"],"expected_action":"scale_replicas","required_output_fields":["action"]}`+"\n")
+	writeFile(t, scenariosPath, `{"id":"ops-test","scenario":"Scale the service.","allowed_actions":["scale_instances"],"expected_action":"scale_instances","required_output_fields":["action"]}`+"\n")
 	writeFile(t, candidatesPath, `{"version":"1","candidates":[{"candidate_id":"bad-provider","role_label":"primary-ops-llm","provider":"local-openai-compatible","actual_model":"test-model","endpoint":"http://127.0.0.1:1/v1/chat/completions","enabled":true,"timeout_seconds":1}]}`)
 
 	result, err := RunOpsLLMBenchmark(RunOptions{
@@ -217,8 +217,8 @@ func TestEvaluateOpsLLMOutputsScoresExecutedJSONResponses(t *testing.T) {
 	outputsPath := filepath.Join(dir, "model_outputs.jsonl")
 	summaryPath := filepath.Join(dir, "evaluation_summary.json")
 
-	writeFile(t, scenariosPath, `{"id":"ops-test","scenario":"Scale the service.","allowed_actions":["scale_replicas","monitor_latency"],"expected_action":"scale_replicas","required_output_fields":["action","reason","confidence"]}`+"\n")
-	writeFile(t, outputsPath, `{"scenario_id":"ops-test","candidate_id":"candidate-a","role_label":"primary-ops-llm","actual_model":"ops-model-a","provider":"test-provider","benchmark_status":"executed","latency_ms":100,"raw_response":"{\"action\":\"scale_replicas\",\"reason\":\"latency SLO violation\",\"confidence\":0.91}"}`+"\n")
+	writeFile(t, scenariosPath, `{"id":"ops-test","scenario":"Scale the service.","allowed_actions":["scale_instances","monitor_latency"],"expected_action":"scale_instances","required_output_fields":["action","reason","confidence"]}`+"\n")
+	writeFile(t, outputsPath, `{"scenario_id":"ops-test","candidate_id":"candidate-a","role_label":"primary-ops-llm","actual_model":"ops-model-a","provider":"test-provider","benchmark_status":"executed","latency_ms":100,"raw_response":"{\"action\":\"scale_instances\",\"reason\":\"latency SLO violation\",\"confidence\":0.91}"}`+"\n")
 
 	summary, err := EvaluateOpsLLMOutputs(EvaluateOptions{
 		ScenariosPath: scenariosPath,

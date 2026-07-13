@@ -75,7 +75,7 @@ go run ./cmd/aiops-service-control api-integration-validation \
   --port 18080
 ```
 
-이 명령은 Go 코드에서 로컬 API 서버를 실행하고 `/healthz`, `/api/v1/agents`, `/api/v1/ops-llm/select`, `/api/v1/apps/placement`, `/api/v1/apps/deployment-plan`, `/api/v1/service-operations/run`을 순차 호출합니다. 각 응답에서 `valid`, `selected_model`, `selected_actual_model`, `selected_provider`, `benchmark_status`, `selected_resource`, `deployment_plan`, `deployment_manifest`, `deployment_dry_run`, `deployment_execution_mode`, `kubernetes_live_apply`, `guard_backend`, `guard_validation` 등 핵심 필드를 확인합니다.
+이 명령은 Go 코드에서 로컬 API 서버를 실행하고 `/healthz`, `/api/v1/agents`, `/api/v1/ops-llm/select`, `/api/v1/apps/placement`, `/api/v1/apps/deployment-plan`, `/api/v1/service-operations/run`을 순차 호출합니다. 각 응답에서 `valid`, `selected_model`, `selected_actual_model`, `selected_provider`, `benchmark_status`, `selected_resource`, `deployment_plan`, `deployment_validation`, `deployment_execution_mode`, `guard_backend`, `guard_validation` 등 핵심 필드를 확인합니다.
 
 이 결과는 local endpoint availability와 response structure, 그리고 service-control API flow의 field-level validation을 확인하는 것입니다. production-level operational validation 또는 실제 cloud deployment 완료를 의미하지 않습니다.
 
@@ -139,14 +139,14 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/apps/deployment-plan \
   -d '{"workload":"llm-chat-inference"}'
 ```
 
-배포 계획 응답에는 service name, container image, target resource, target accelerator, namespace, deployment name, replicas, node selector, resource requests, resource limits, control actions, monitoring metrics, SLO values가 포함됩니다.
+배포 계획 응답에는 service name, container image, target resource, target accelerator, VM instance 수, placement constraints, resource requests, resource capacity, control actions, monitoring metrics, SLO values가 포함됩니다.
 
 ## 9. Service Operations API
 
 ```bash
 curl -s -X POST http://127.0.0.1:8080/api/v1/service-operations/run \
   -H 'content-type: application/json' \
-  -d '{"llm_policy":"quality_first","workload":"llm-chat-inference","recovery_namespace":"aiops-demo","recovery_deployment":"aiops-service","mode":"mock","guard_backend":"go"}'
+  -d '{"llm_policy":"quality_first","workload":"llm-chat-inference","operation_service":"llm-chat-inference","operation_resource":"gpu-vm-l4","mode":"mock","guard_backend":"go"}'
 ```
 
 주요 응답 필드:
@@ -161,12 +161,10 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/service-operations/run \
 | `benchmark_status` | LLM benchmark 실행 상태 |
 | `selected_resource` | 선택된 CPU/GPU VM candidate |
 | `deployment_plan` | AI 응용 배포·제어 계획 |
-| `deployment_manifest` | 생성된 Kubernetes Deployment manifest |
-| `deployment_dry_run` | mock 또는 dry-run 배포 검증 결과 |
-| `deployment_execution_mode` | 현재 배포 실행 경계. 기본값은 `mock`, dry-run 검증은 `dry_run` |
-| `kubernetes_live_apply` | 실제 Kubernetes live apply 수행 여부. 현재 프로토타입 검증에서는 `false` |
+| `deployment_validation` | VM 배포 사양의 필수 필드와 자원 요구량 사전검증 결과 |
+| `deployment_execution_mode` | 현재 배포 실행 경계. 기본값은 `mock` |
 | `agent_reviews` | application, infrastructure, cost 관점 검토 결과 |
-| `recovery_pipeline_ready` | 서비스 운영/recovery context 준비 여부 |
+| `operation_pipeline_ready` | VM 기반 서비스 운영 context 준비 여부 |
 | `guard_backend` | guard 검증 backend, 기본 기대값은 `go` |
 | `guard_validation` | bounded-action readiness validation 결과 |
 
@@ -190,15 +188,9 @@ go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
 
 dry-run 결과는 실제 LLM API benchmark 결과가 아닙니다. dry-run summary의 평균 점수는 실제 모델 성능 점수가 아니라 scenario/candidate/output/evaluator 연결 구조 확인용 값입니다.
 
-## 11. Recovery Context 경계
+## 11. Operation Context 경계
 
-`recovery_namespace`와 `recovery_deployment`는 service operation/recovery context field입니다. readiness와 guard validation에 사용하는 service-control target을 식별합니다. 이는 `deployment_plan.kubernetes.namespace` 안에서 생성되는 AI application deployment namespace와 다릅니다.
-
-예:
-
-- `recovery_namespace = aiops-demo`
-- `recovery_deployment = aiops-service`
-- `deployment_plan.kubernetes.namespace = ai-inference`
+`operation_service`와 `operation_resource`는 readiness와 guard validation에 사용하는 VM 기반 service-control target을 식별합니다. 값을 생략하면 선택된 workload service와 CPU/GPU VM resource를 사용합니다.
 
 ## 12. OpenAPI 산출물
 

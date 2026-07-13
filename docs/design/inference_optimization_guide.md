@@ -88,7 +88,6 @@ go run ./cmd/aiops-service-control plan-inference-deployment \
 
 ## 향후 확장
 
-- live Kubernetes node label과 device-plugin 상태 통합
 - 실제 AI-Infra 환경의 GPU memory telemetry 수집
 - 공유 infrastructure가 준비되면 CB-Tumblebug-managed VM inventory 연결
 - NPU 또는 AI 반도체 accelerator profile 추가

@@ -25,9 +25,9 @@ AppDeployer 또는 AI-MCMP 연계 프레임워크는 다음 실행 계층을 담
 | 영역 | 책임 |
 | --- | --- |
 | 실제 배포 실행 | application deployment, update, rollback apply |
-| Infra 연계 | GPU VM, Kubernetes cluster, provider credential, runtime endpoint 제공 |
+| Infra 연계 | GPU VM, provider credential, runtime endpoint 제공 |
 | 상태 반영 | 실제 배포 결과, runtime 상태, endpoint health 제공 |
-| Credential 관리 | provider API key, kubeconfig, cloud credential 관리 |
+| Credential 관리 | provider API key와 cloud credential 관리 |
 
 service-control layer는 이 실행 계층에서 제공하는 endpoint, infra 상태, credential reference를 config 또는 API 입력으로 소비합니다.
 
@@ -46,7 +46,7 @@ service-control layer는 OpenAI-compatible endpoint 계약만 사용하므로, p
 
 ## Deployment 경계
 
-geon prototype은 Kubernetes manifest generation, mock mode, dry-run boundary를 통해 배포 계획을 검증합니다. 실제 Kubernetes live deployment, update 완료, rollback 완료는 AppDeployer 또는 연계 프레임워크의 실행 결과가 있을 때만 주장할 수 있습니다.
+geon prototype은 VM 배포 사양, mock mode, bounded action validation을 통해 배포·제어 계획을 검증합니다. 실제 VM 배포, update 완료, rollback 완료는 외부 AI-Infra 연계 결과가 있을 때만 주장할 수 있습니다.
 
 ## 주장 가능한 결과
 

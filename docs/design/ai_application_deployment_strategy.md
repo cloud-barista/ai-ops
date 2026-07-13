@@ -8,7 +8,7 @@
 CPU/GPU VM 환경을 위한 AI 응용 배포·제어 추론 최적화 전략
 ```
 
-현재 구현은 AI workload를 어디에 배치할지 결정하고, 선택 결과를 Kubernetes deployment/control plan으로 표현하는 Go prototype입니다. cloud VM을 직접 생성하지 않습니다.
+현재 구현은 AI workload를 어느 CPU/GPU VM profile에 배치할지 결정하고, 선택 결과를 VM deployment/control plan으로 표현하는 Go prototype입니다. cloud VM을 직접 생성하지 않습니다.
 
 ## 입력 데이터
 
@@ -18,8 +18,8 @@ config/inference_optimization.json
 
 | Section | 의미 |
 | --- | --- |
-| `resources` | CPU/GPU VM candidate performance, cost, capacity, node selector, resource limit |
-| `workloads` | AI workload type, VRAM requirement, latency SLO, throughput SLO, service name, namespace, container image |
+| `resources` | CPU/GPU VM candidate performance, cost, capacity, placement label, resource capacity |
+| `workloads` | AI workload type, VRAM requirement, latency SLO, throughput SLO, service name, container image |
 
 ## 전략
 
@@ -29,8 +29,8 @@ config/inference_optimization.json
 4. latency와 throughput SLO를 검증합니다.
 5. eligible candidate를 latency, throughput, cost, capacity 기준으로 scoring합니다.
 6. score가 가장 높은 VM resource를 선택합니다.
-7. 결과를 Kubernetes deployment/control plan으로 변환합니다.
-8. manifest를 생성하고 mock/server dry-run validation을 수행합니다.
+7. 결과를 CPU/GPU VM deployment/control plan으로 변환합니다.
+8. service, instance 수, 자원 요구량과 bounded action을 사전검증합니다.
 
 ## Go CLI
 
@@ -52,10 +52,10 @@ go run ./cmd/aiops-service-control plan-inference-deployment \
 | Field | 의미 |
 | --- | --- |
 | `selected_resource` | 선택된 CPU/GPU VM resource candidate |
-| `deployment_plan.kubernetes.namespace` | AI application workload용 namespace |
-| `deployment_plan.kubernetes.deployment` | AI application workload용 deployment name |
-| `deployment_plan.kubernetes.node_selector` | CPU/GPU VM placement condition |
-| `deployment_plan.kubernetes.resources` | CPU, memory, GPU, VRAM request/limit hint |
+| `deployment_plan.vm_deployment.service` | AI application service name |
+| `deployment_plan.vm_deployment.instances` | 필요한 VM instance 수 |
+| `deployment_plan.vm_deployment.placement_constraints` | CPU/GPU VM placement condition |
+| `deployment_plan.vm_deployment.resources` | CPU, memory, accelerator, VRAM requirement |
 | `deployment_plan.control_actions` | deploy, scale, monitor, rollback control action |
 
 ## Agent와의 관계

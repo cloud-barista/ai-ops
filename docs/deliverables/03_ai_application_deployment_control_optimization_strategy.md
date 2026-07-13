@@ -35,7 +35,7 @@ workload requirements
 | --- | --- | --- |
 | Workload | model type, accelerator 필요 여부, VRAM, latency SLO, throughput | AI 응용 실행 요구사항 |
 | Resource | accelerator type, latency, throughput, cost, capacity | CPU/GPU VM 후보 특성 |
-| 배포 실행 정보 | namespace, deployment, node selector, resource limit | 배포 계획 생성에 필요한 정보 |
+| VM 배포 정보 | service, instance 수, placement constraint, resource capacity | 배포 계획 생성에 필요한 정보 |
 
 설정 파일:
 
@@ -84,10 +84,10 @@ score =
 | 출력 항목 | 설명 |
 | --- | --- |
 | `selected_resource` | 선택된 CPU/GPU VM profile |
-| `deployment_plan.kubernetes.namespace` | AI 응용 배포 namespace |
-| `deployment_plan.kubernetes.deployment` | deployment 이름 |
-| `deployment_plan.kubernetes.node_selector` | CPU/GPU VM 배치 조건 |
-| `deployment_plan.kubernetes.resources` | CPU, memory, GPU request/limit |
+| `deployment_plan.vm_deployment.service` | AI 응용 서비스 이름 |
+| `deployment_plan.vm_deployment.instances` | 필요한 VM 실행 instance 수 |
+| `deployment_plan.vm_deployment.placement_constraints` | CPU/GPU VM 배치 조건 |
+| `deployment_plan.vm_deployment.resources` | CPU, memory, accelerator, VRAM 요구량 |
 | `deployment_plan.control_actions` | deploy, scale, monitor, rollback action |
 
 ## 9. 검증 방법
@@ -114,6 +114,5 @@ selected_resource = gpu-vm-l4
 | 경계 | 설명 |
 | --- | --- |
 | VM 생성 경계 | 실제 AWS GPU VM을 생성하지 않는다. |
-| Scheduler 경계 | Kubernetes scheduler나 GPU device plugin을 대체하지 않는다. |
 | CB-Tumblebug 경계 | CB-Tumblebug은 향후 연동 대상이며 대체 대상이 아니다. |
-| 검증 경계 | 기본 검증은 mock/dry-run이며 live cluster 변경을 전제로 하지 않는다. |
+| 검증 경계 | 기본 검증은 VM 배포 사양과 bounded action의 사전검증이며 실제 인프라 변경을 수행하지 않는다. |

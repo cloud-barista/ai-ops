@@ -74,7 +74,7 @@ go test ./... exits with status 0
 
 - 기본 검증 경로는 mock mode를 사용합니다.
 - actual GPU VM provisioning은 local default validation path 밖입니다.
-- live Kubernetes mutation은 기본적으로 수행하지 않습니다.
+- 실제 VM 또는 서비스 mutation은 기본적으로 수행하지 않습니다.
 - LLM policy value는 수동 정의된 prototype policy baseline입니다.
 - final quantitative model reporting에는 fixed prompt, dataset, metric, scoring rule을 갖춘 controlled per-model evaluation run이 필요합니다.
 

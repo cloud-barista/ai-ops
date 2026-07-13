@@ -47,7 +47,7 @@ Agent action 검증:
 go run ./cmd/aiops-service-control validate-agent-action \
   --registry ../../config/agent_registry.json \
   --agent AIApplicationManagementAgent \
-  --action app_scale_deployment
+  --action app_scale_service_instances
 ```
 
 ## API Path

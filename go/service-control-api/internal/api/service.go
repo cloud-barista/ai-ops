@@ -1,17 +1,12 @@
 package api
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"math"
-	"os/exec"
 	"path/filepath"
 	"sort"
 )
-
-const deploymentDryRunCommand = "kubectl apply -f - --dry-run=server"
 
 type Service struct {
 	config ServerConfig
@@ -255,23 +250,23 @@ func (service Service) BuildDeploymentPlanFromPath(ctx context.Context, path str
 		return DeploymentPlanResponse{}, fmt.Errorf("selected resource is not defined: %s", placement.SelectedResource)
 	}
 
-	limits := copyStringMap(resource.ResourceLimits)
+	capacity := copyStringMap(resource.ResourceCapacity)
 	if resource.Accelerator == "gpu" {
-		if _, ok := limits["nvidia.com/gpu"]; !ok {
-			limits["nvidia.com/gpu"] = "1"
+		if _, ok := capacity["accelerator_count"]; !ok {
+			capacity["accelerator_count"] = "1"
 		}
 	}
 	if resource.Accelerator == "npu" {
-		if _, ok := limits["aiops.dev/npu"]; !ok {
-			limits["aiops.dev/npu"] = "1"
+		if _, ok := capacity["accelerator_count"]; !ok {
+			capacity["accelerator_count"] = "1"
 		}
 	}
 	if workload.EstimatedVRAMGB > 0 && resource.Accelerator != "cpu" {
-		limits["aiops.dev/vram-gb"] = trimFloat(workload.EstimatedVRAMGB)
+		capacity["vram_gb"] = trimFloat(workload.EstimatedVRAMGB)
 	}
-	nodeSelector := copyStringMap(resource.NodeSelector)
-	if len(nodeSelector) == 0 {
-		nodeSelector["aiops.resource/accelerator"] = resource.Accelerator
+	placementLabels := copyStringMap(resource.PlacementLabels)
+	if len(placementLabels) == 0 {
+		placementLabels["aiops.resource/accelerator"] = resource.Accelerator
 	}
 
 	plan := DeploymentPlan{
@@ -279,22 +274,21 @@ func (service Service) BuildDeploymentPlanFromPath(ctx context.Context, path str
 		ContainerImage:    workload.ContainerImage,
 		TargetResource:    resource.ID,
 		TargetAccelerator: resource.Accelerator,
-		Kubernetes: KubernetesPlan{
-			Namespace:    workload.Namespace,
-			Deployment:   workload.ServiceName,
-			Replicas:     workload.Replicas,
-			NodeSelector: nodeSelector,
+		VM: VMDeploymentPlan{
+			Service:              workload.ServiceName,
+			Instances:            workload.Instances,
+			PlacementConstraints: placementLabels,
 			Resources: ResourceSpec{
 				Requests: map[string]string{
-					"cpu":    fmt.Sprintf("%d", maxInt(1, minInt(resource.CPUCores, 8))),
-					"memory": fmt.Sprintf("%dGi", maxInt(1, minInt(resource.MemoryGB, 32))),
+					"cpu_cores": fmt.Sprintf("%d", maxInt(1, minInt(resource.CPUCores, 8))),
+					"memory_gb": fmt.Sprintf("%d", maxInt(1, minInt(resource.MemoryGB, 32))),
 				},
-				Limits: limits,
+				Limits: capacity,
 			},
 		},
 		ControlActions: []string{
 			placement.Action,
-			"scale_replicas",
+			"scale_instances",
 			"monitor_latency",
 			"rollback_on_slo_violation",
 		},
@@ -340,30 +334,22 @@ func (service Service) RunServiceOperations(ctx context.Context, request Service
 	if err != nil {
 		return ServiceOperationsResponse{}, err
 	}
-	manifest, err := renderDeploymentManifest(deploymentPlan.DeploymentPlan)
-	if err != nil {
-		return ServiceOperationsResponse{}, err
-	}
-	recoveryNamespace, recoveryDeployment := normalizeRecoveryContext(request)
-	dryRun := validateDeploymentManifest(ctx, manifest, request.Mode)
-	deploymentExecutionMode := "dry_run"
-	if request.Mode == "mock" {
-		deploymentExecutionMode = "mock"
-	}
+	operationService, operationResource := normalizeOperationContext(request, deploymentPlan)
+	deploymentValidation := validateVMDeploymentPlan(deploymentPlan.DeploymentPlan, request.Mode)
 	reviews := buildAgentReviews(deploymentPlan)
-	recovery := RecoveryReadiness{
-		Valid:      recoveryNamespace != "" && recoveryDeployment != "",
-		Skipped:    true,
-		Namespace:  recoveryNamespace,
-		Deployment: recoveryDeployment,
-		Reason:     "no alert supplied; recovery context is validated for readiness only",
+	operation := OperationReadiness{
+		Valid:          operationService != "" && operationResource != "",
+		Skipped:        true,
+		Service:        operationService,
+		TargetResource: operationResource,
+		Reason:         "operation target is validated for VM deployment and control readiness",
 	}
-	guardValidation := buildGuardValidation(request, recoveryNamespace, recoveryDeployment)
-	ready := dryRun.Valid &&
+	guardValidation := buildGuardValidation(request, operationService, operationResource)
+	ready := deploymentValidation.Valid &&
 		reviews.Application.Approved &&
 		reviews.Infrastructure.Approved &&
 		reviews.Cost.Approved &&
-		recovery.Valid &&
+		operation.Valid &&
 		guardValidation.Valid
 
 	return ServiceOperationsResponse{
@@ -379,55 +365,52 @@ func (service Service) RunServiceOperations(ctx context.Context, request Service
 		SelectedResource:        deploymentPlan.SelectedResource,
 		DeploymentPlan:          deploymentPlan.DeploymentPlan,
 		InferenceDeploymentPlan: deploymentPlan,
-		DeploymentManifest:      manifest,
-		DeploymentDryRun:        dryRun,
-		DeploymentExecutionMode: deploymentExecutionMode,
-		KubernetesLiveApply:     false,
+		DeploymentValidation:    deploymentValidation,
+		DeploymentExecutionMode: request.Mode,
 		AgentReviews:            reviews,
-		Recovery:                recovery,
-		RecoveryPipelineReady:   ready,
+		Operation:               operation,
+		OperationPipelineReady:  ready,
 		GuardBackend:            request.GuardBackend,
 		GuardValidation:         guardValidation,
 		Metadata: map[string]string{
 			"llm_policy":                request.LLMPolicy,
 			"workload":                  request.Workload,
 			"mode":                      request.Mode,
-			"recovery_namespace":        recoveryNamespace,
-			"recovery_deployment":       recoveryDeployment,
+			"operation_service":         operationService,
+			"operation_resource":        operationResource,
 			"selected_actual_model":     llmSelection.SelectedActualModel,
 			"selected_provider":         llmSelection.SelectedProvider,
 			"evaluation_source":         llmSelection.EvaluationSource,
 			"evaluation_type":           llmSelection.EvaluationType,
 			"benchmark_status":          llmSelection.BenchmarkStatus,
-			"deployment_execution_mode": deploymentExecutionMode,
-			"kubernetes_live_apply":     "false",
+			"deployment_execution_mode": request.Mode,
 		},
 	}, nil
 }
 
-func normalizeRecoveryContext(request ServiceOperationsRequest) (string, string) {
-	namespace := request.RecoveryNamespace
-	if namespace == "" {
-		namespace = request.Namespace
+func normalizeOperationContext(request ServiceOperationsRequest, plan DeploymentPlanResponse) (string, string) {
+	serviceName := request.OperationService
+	if serviceName == "" {
+		serviceName = plan.DeploymentPlan.ServiceName
 	}
-	deployment := request.RecoveryDeployment
-	if deployment == "" {
-		deployment = request.Deployment
+	targetResource := request.OperationResource
+	if targetResource == "" {
+		targetResource = plan.SelectedResource
 	}
-	return namespace, deployment
+	return serviceName, targetResource
 }
 
-func buildGuardValidation(request ServiceOperationsRequest, namespace string, deployment string) GuardValidation {
+func buildGuardValidation(request ServiceOperationsRequest, serviceName string, targetResource string) GuardValidation {
 	result := GuardValidation{
-		Backend:            request.GuardBackend,
-		RuntimeWired:       false,
-		Mode:               request.Mode,
-		Boundary:           "standalone aiops-guard bounded-action contract",
-		RecoveryNamespace:  namespace,
-		RecoveryDeployment: deployment,
+		Backend:           request.GuardBackend,
+		RuntimeWired:      false,
+		Mode:              request.Mode,
+		Boundary:          "standalone aiops-guard bounded VM action contract",
+		OperationService:  serviceName,
+		OperationResource: targetResource,
 		CheckedActions: []string{
-			"get_status",
-			"restart_deployment",
+			"observe_only",
+			"restart_service",
 			"scale_out",
 			"scale_in",
 		},
@@ -437,13 +420,13 @@ func buildGuardValidation(request ServiceOperationsRequest, namespace string, de
 		result.Reason = "only the Go guard backend is supported in the prototype validation path"
 		return result
 	}
-	if namespace == "" || deployment == "" {
+	if serviceName == "" || targetResource == "" {
 		result.Valid = false
-		result.Reason = "recovery_namespace and recovery_deployment are required to prepare bounded guard validation"
+		result.Reason = "operation_service and operation_resource are required to prepare bounded guard validation"
 		return result
 	}
 	result.Valid = true
-	result.Reason = "service-control-api prepared the bounded recovery context; full runtime invocation of aiops-guard remains a planned integration step"
+	result.Reason = "service-control-api prepared the bounded VM operation context; infrastructure execution remains outside this prototype"
 	return result
 }
 
@@ -489,8 +472,8 @@ func (service Service) rankPlacementFromPath(ctx context.Context, path string, w
 		if resource.CostPerHour > 0 && resource.CostPerHour < minCost {
 			minCost = resource.CostPerHour
 		}
-		if resource.AvailableReplicas > maxCapacity {
-			maxCapacity = resource.AvailableReplicas
+		if resource.AvailableInstances > maxCapacity {
+			maxCapacity = resource.AvailableInstances
 		}
 	}
 	if minCost == math.MaxFloat64 {
@@ -502,20 +485,20 @@ func (service Service) rankPlacementFromPath(ctx context.Context, path string, w
 		latencyScore := cappedRatio(workload.LatencySLOMS, resource.ExpectedLatencyMS)
 		throughputScore := cappedRatio(resource.ExpectedThroughputRPS, workload.MinThroughputRPS)
 		costScore := inverseScore(minCost, resource.CostPerHour)
-		capacityScore := float64(resource.AvailableReplicas) / float64(maxCapacity)
+		capacityScore := float64(resource.AvailableInstances) / float64(maxCapacity)
 		score := config.Weights["latency"]*latencyScore +
 			config.Weights["throughput"]*throughputScore +
 			config.Weights["cost"]*costScore +
 			config.Weights["capacity"]*capacityScore
 		candidates = append(candidates, PlacementCandidate{
-			Resource:          resource.ID,
-			Accelerator:       resource.Accelerator,
-			Score:             round6(score),
-			LatencyMS:         resource.ExpectedLatencyMS,
-			ThroughputRPS:     resource.ExpectedThroughputRPS,
-			CostPerHour:       resource.CostPerHour,
-			AvailableReplicas: resource.AvailableReplicas,
-			Action:            actionForResource(resource),
+			Resource:           resource.ID,
+			Accelerator:        resource.Accelerator,
+			Score:              round6(score),
+			LatencyMS:          resource.ExpectedLatencyMS,
+			ThroughputRPS:      resource.ExpectedThroughputRPS,
+			CostPerHour:        resource.CostPerHour,
+			AvailableInstances: resource.AvailableInstances,
+			Action:             actionForResource(resource),
 		})
 	}
 	return config, workload, candidates, rejected, nil
@@ -537,7 +520,7 @@ func rejectPlacement(workload InferenceWorkload, resource InferenceResource) str
 	if resource.ExpectedThroughputRPS < workload.MinThroughputRPS {
 		return fmt.Sprintf("throughput %grps is below required %grps", resource.ExpectedThroughputRPS, workload.MinThroughputRPS)
 	}
-	if resource.AvailableReplicas <= 0 {
+	if resource.AvailableInstances <= 0 {
 		return "no available VM capacity"
 	}
 	return ""
@@ -589,78 +572,32 @@ func actionForResource(resource InferenceResource) string {
 	return "deploy_on_cpu_vm"
 }
 
-func renderDeploymentManifest(plan DeploymentPlan) (DeploymentManifest, error) {
-	deployment := plan.Kubernetes.Deployment
-	namespace := plan.Kubernetes.Namespace
-	image := plan.ContainerImage
-	if deployment == "" || namespace == "" || image == "" {
-		return DeploymentManifest{}, fmt.Errorf("deployment plan must include deployment, namespace, and image")
-	}
-	labels := map[string]string{"app": deployment}
-	return DeploymentManifest{
-		APIVersion: "apps/v1",
-		Kind:       "Deployment",
-		Metadata: map[string]any{
-			"name":      deployment,
-			"namespace": namespace,
-			"labels":    labels,
-		},
-		Spec: map[string]any{
-			"replicas": plan.Kubernetes.Replicas,
-			"selector": map[string]any{
-				"matchLabels": labels,
-			},
-			"template": map[string]any{
-				"metadata": map[string]any{
-					"labels": labels,
-				},
-				"spec": map[string]any{
-					"nodeSelector": plan.Kubernetes.NodeSelector,
-					"containers": []map[string]any{
-						{
-							"name":      deployment,
-							"image":     image,
-							"resources": plan.Kubernetes.Resources,
-						},
-					},
-				},
-			},
-		},
-	}, nil
-}
-
-func validateDeploymentManifest(ctx context.Context, manifest DeploymentManifest, mode string) DeploymentDryRun {
+func validateVMDeploymentPlan(plan DeploymentPlan, mode string) DeploymentValidation {
 	if mode == "" {
 		mode = "mock"
 	}
-	if mode == "mock" {
-		return DeploymentDryRun{
-			Command: deploymentDryRunCommand,
-			Mode:    mode,
-			Valid:   true,
-			Stdout:  "mock: deployment manifest generated and not applied",
-			Stderr:  "",
-		}
+	checks := []string{
+		"service_name_present",
+		"container_image_present",
+		"target_resource_present",
+		"instance_count_positive",
+		"resource_request_present",
 	}
-	payload, err := marshalJSON(manifest)
-	if err != nil {
-		return DeploymentDryRun{
-			Command: deploymentDryRunCommand,
-			Mode:    mode,
-			Valid:   false,
-			Stdout:  "",
-			Stderr:  err.Error(),
-		}
+	valid := plan.ServiceName != "" &&
+		plan.ContainerImage != "" &&
+		plan.TargetResource != "" &&
+		plan.VM.Service != "" &&
+		plan.VM.Instances > 0 &&
+		len(plan.VM.Resources.Requests) > 0
+	reason := "VM deployment specification passed the prototype readiness checks"
+	if !valid {
+		reason = "VM deployment specification is missing a required field"
 	}
-	command := exec.CommandContext(ctx, "kubectl", "apply", "-f", "-", "--dry-run=server")
-	command.Stdin = bytes.NewReader(payload)
-	output, err := command.CombinedOutput()
-	return DeploymentDryRun{
-		Command: deploymentDryRunCommand,
-		Mode:    mode,
-		Valid:   err == nil,
-		Stdout:  string(bytes.TrimSpace(output)),
-		Stderr:  errorString(err),
+	return DeploymentValidation{
+		Mode:   mode,
+		Valid:  valid,
+		Checks: checks,
+		Reason: reason,
 	}
 }
 
@@ -671,11 +608,11 @@ func buildAgentReviews(plan DeploymentPlanResponse) AgentReviews {
 			Action:   "app_plan_deployment",
 			Reward:   0.8,
 			Approved: plan.Valid,
-			Reason:   "AI application deployment plan is ready for Kubernetes manifest generation and dry-run validation.",
+			Reason:   "AI application deployment plan is ready for CPU/GPU VM deployment validation.",
 			Parameters: map[string]string{
 				"workload":          plan.Workload,
-				"namespace":         plan.DeploymentPlan.Kubernetes.Namespace,
-				"deployment":        plan.DeploymentPlan.Kubernetes.Deployment,
+				"service":           plan.DeploymentPlan.VM.Service,
+				"instances":         fmt.Sprintf("%d", plan.DeploymentPlan.VM.Instances),
 				"selected_resource": plan.SelectedResource,
 			},
 		},
@@ -746,13 +683,6 @@ func runtimeModelFromSelection(selection OpsLLMSelectionResponse) string {
 	return selection.SelectedModel
 }
 
-func errorString(err error) string {
-	if err == nil {
-		return ""
-	}
-	return err.Error()
-}
-
 func ensureContext(ctx context.Context) error {
 	if ctx == nil {
 		return fmt.Errorf("request context is required")
@@ -761,10 +691,6 @@ func ensureContext(ctx context.Context) error {
 		return fmt.Errorf("request context ended: %w", err)
 	}
 	return nil
-}
-
-func marshalJSON(value any) ([]byte, error) {
-	return json.Marshal(value)
 }
 
 func findWorkload(workloads []InferenceWorkload, id string) (InferenceWorkload, bool) {

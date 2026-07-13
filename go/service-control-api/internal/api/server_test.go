@@ -137,8 +137,8 @@ func TestPlacementAndDeploymentPlan(t *testing.T) {
 	if !strings.Contains(response.Body.String(), `"selected_resource":"gpu-vm-l4"`) {
 		t.Fatalf("expected gpu-vm-l4 placement: %s", response.Body.String())
 	}
-	if !strings.Contains(response.Body.String(), `"deployment":"llm-chat-inference"`) {
-		t.Fatalf("expected deployment plan: %s", response.Body.String())
+	if !strings.Contains(response.Body.String(), `"service":"llm-chat-inference"`) {
+		t.Fatalf("expected VM deployment plan: %s", response.Body.String())
 	}
 	deployment := decodeObject(t, response.Body.Bytes())
 	assertPresent(t, deployment, "selected_resource")
@@ -150,8 +150,8 @@ func TestRunServiceOperationsEndpoint(t *testing.T) {
 	body := strings.NewReader(`{
 		"llm_policy":"quality_first",
 		"workload":"llm-chat-inference",
-		"recovery_namespace":"aiops-demo",
-		"recovery_deployment":"aiops-service",
+		"operation_service":"llm-chat-inference",
+		"operation_resource":"gpu-vm-l4",
 		"mode":"mock",
 		"guard_backend":"go"
 	}`)
@@ -181,12 +181,13 @@ func TestRunServiceOperationsEndpoint(t *testing.T) {
 	}
 	result := decodeObject(t, response.Body.Bytes())
 	assertPresent(t, result, "deployment_execution_mode")
-	assertPresent(t, result, "kubernetes_live_apply")
+	assertPresent(t, result, "deployment_validation")
 	if result["deployment_execution_mode"] != "mock" {
 		t.Fatalf("expected mock execution mode, got %#v", result["deployment_execution_mode"])
 	}
-	if result["kubernetes_live_apply"] != false {
-		t.Fatalf("prototype must not claim Kubernetes live apply: %#v", result["kubernetes_live_apply"])
+	validation := result["deployment_validation"].(map[string]any)
+	if validation["valid"] != true {
+		t.Fatalf("expected VM deployment validation to pass: %#v", validation)
 	}
 	guard := result["guard_validation"].(map[string]any)
 	if guard["valid"] != true {

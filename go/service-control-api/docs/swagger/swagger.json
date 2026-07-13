@@ -42,7 +42,7 @@
         },
         "/api/v1/apps/deployment-plan": {
             "post": {
-                "description": "Build a Kubernetes-oriented deployment and control plan for the selected workload.",
+                "description": "Build a CPU/GPU VM-oriented deployment and control plan for the selected workload.",
                 "consumes": [
                     "application/json"
                 ],
@@ -297,45 +297,6 @@
                 }
             }
         },
-        "api.DeploymentDryRun": {
-            "type": "object",
-            "properties": {
-                "command": {
-                    "type": "string"
-                },
-                "mode": {
-                    "type": "string"
-                },
-                "stderr": {
-                    "type": "string"
-                },
-                "stdout": {
-                    "type": "string"
-                },
-                "valid": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "api.DeploymentManifest": {
-            "type": "object",
-            "properties": {
-                "apiVersion": {
-                    "type": "string"
-                },
-                "kind": {
-                    "type": "string"
-                },
-                "metadata": {
-                    "type": "object",
-                    "additionalProperties": {}
-                },
-                "spec": {
-                    "type": "object",
-                    "additionalProperties": {}
-                }
-            }
-        },
         "api.DeploymentPlan": {
             "type": "object",
             "properties": {
@@ -347,9 +308,6 @@
                     "items": {
                         "type": "string"
                     }
-                },
-                "kubernetes": {
-                    "$ref": "#/definitions/api.KubernetesPlan"
                 },
                 "monitoring_metrics": {
                     "type": "array",
@@ -372,6 +330,9 @@
                 },
                 "target_resource": {
                     "type": "string"
+                },
+                "vm_deployment": {
+                    "$ref": "#/definitions/api.VMDeploymentPlan"
                 }
             }
         },
@@ -425,6 +386,26 @@
                 }
             }
         },
+        "api.DeploymentValidation": {
+            "type": "object",
+            "properties": {
+                "checks": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "mode": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
         "api.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -456,13 +437,13 @@
                 "mode": {
                     "type": "string"
                 },
+                "operation_resource": {
+                    "type": "string"
+                },
+                "operation_service": {
+                    "type": "string"
+                },
                 "reason": {
-                    "type": "string"
-                },
-                "recovery_deployment": {
-                    "type": "string"
-                },
-                "recovery_namespace": {
                     "type": "string"
                 },
                 "runtime_wired": {
@@ -473,26 +454,23 @@
                 }
             }
         },
-        "api.KubernetesPlan": {
+        "api.OperationReadiness": {
             "type": "object",
             "properties": {
-                "deployment": {
+                "reason": {
                     "type": "string"
                 },
-                "namespace": {
+                "service": {
                     "type": "string"
                 },
-                "node_selector": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
+                "skipped": {
+                    "type": "boolean"
                 },
-                "replicas": {
-                    "type": "integer"
+                "target_resource": {
+                    "type": "string"
                 },
-                "resources": {
-                    "$ref": "#/definitions/api.ResourceSpec"
+                "valid": {
+                    "type": "boolean"
                 }
             }
         },
@@ -597,7 +575,7 @@
                 "action": {
                     "type": "string"
                 },
-                "available_replicas": {
+                "available_instances": {
                     "type": "integer"
                 },
                 "cost_per_hour": {
@@ -664,26 +642,6 @@
                 }
             }
         },
-        "api.RecoveryReadiness": {
-            "type": "object",
-            "properties": {
-                "deployment": {
-                    "type": "string"
-                },
-                "namespace": {
-                    "type": "string"
-                },
-                "reason": {
-                    "type": "string"
-                },
-                "skipped": {
-                    "type": "boolean"
-                },
-                "valid": {
-                    "type": "boolean"
-                }
-            }
-        },
         "api.ResourceSpec": {
             "type": "object",
             "properties": {
@@ -707,10 +665,6 @@
                 "workload"
             ],
             "properties": {
-                "deployment": {
-                    "type": "string",
-                    "example": "aiops-service"
-                },
                 "guard_backend": {
                     "type": "string",
                     "example": "go"
@@ -731,17 +685,13 @@
                     "type": "string",
                     "example": "mock"
                 },
-                "namespace": {
+                "operation_resource": {
                     "type": "string",
-                    "example": "aiops-demo"
+                    "example": "gpu-vm-l4"
                 },
-                "recovery_deployment": {
+                "operation_service": {
                     "type": "string",
-                    "example": "aiops-service"
-                },
-                "recovery_namespace": {
-                    "type": "string",
-                    "example": "aiops-demo"
+                    "example": "llm-chat-inference"
                 },
                 "workload": {
                     "type": "string",
@@ -761,17 +711,14 @@
                 "command": {
                     "type": "string"
                 },
-                "deployment_dry_run": {
-                    "$ref": "#/definitions/api.DeploymentDryRun"
-                },
                 "deployment_execution_mode": {
                     "type": "string"
                 },
-                "deployment_manifest": {
-                    "$ref": "#/definitions/api.DeploymentManifest"
-                },
                 "deployment_plan": {
                     "$ref": "#/definitions/api.DeploymentPlan"
+                },
+                "deployment_validation": {
+                    "$ref": "#/definitions/api.DeploymentValidation"
                 },
                 "evaluation_source": {
                     "type": "string"
@@ -788,19 +735,16 @@
                 "inference_deployment_plan": {
                     "$ref": "#/definitions/api.DeploymentPlanResponse"
                 },
-                "kubernetes_live_apply": {
-                    "type": "boolean"
-                },
                 "metadata": {
                     "type": "object",
                     "additionalProperties": {
                         "type": "string"
                     }
                 },
-                "recovery": {
-                    "$ref": "#/definitions/api.RecoveryReadiness"
+                "operation": {
+                    "$ref": "#/definitions/api.OperationReadiness"
                 },
-                "recovery_pipeline_ready": {
+                "operation_pipeline_ready": {
                     "type": "boolean"
                 },
                 "runtime_model": {
@@ -820,6 +764,26 @@
                 },
                 "valid": {
                     "type": "boolean"
+                }
+            }
+        },
+        "api.VMDeploymentPlan": {
+            "type": "object",
+            "properties": {
+                "instances": {
+                    "type": "integer"
+                },
+                "placement_constraints": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "resources": {
+                    "$ref": "#/definitions/api.ResourceSpec"
+                },
+                "service": {
+                    "type": "string"
                 }
             }
         },

@@ -2,7 +2,7 @@
 
 ## 1. 목적
 
-이 가이드는 1차년도 Go 기반 service-control 기능 프로토타입의 설치와 실행 방법을 설명합니다. 기본 검증 경로는 로컬 실행이며 `mock` mode를 사용합니다. 기본 검증에는 live Kubernetes cluster나 실제 GPU VM provisioning이 필요하지 않습니다.
+이 가이드는 1차년도 Go 기반 service-control 기능 프로토타입의 설치와 실행 방법을 설명합니다. 기본 검증 경로는 로컬 실행이며 `mock` mode를 사용합니다. 기본 검증에는 실제 GPU VM provisioning이 필요하지 않습니다.
 
 문서 전체 지도는 `docs/README.md`, 실행 결과 증적 정리 기준은 `docs/evidence/증적_패키지_가이드.md`, 제출 전 점검표는 `docs/release/1차년도_제출_패키지_체크리스트.md`를 함께 참고합니다.
 
@@ -165,8 +165,8 @@ go run ./cmd/aiops-service-control run-service-operations \
   --llm-policy quality_first \
   --inference-config ../../config/inference_optimization.json \
   --workload llm-chat-inference \
-  --recovery-namespace aiops-demo \
-  --recovery-deployment aiops-service \
+  --operation-service llm-chat-inference \
+  --operation-resource gpu-vm-l4 \
   --mode mock \
   --guard-backend go
 ```
@@ -253,7 +253,7 @@ curl http://127.0.0.1:8080/openapi.yaml
 ```bash
 curl -s -X POST http://127.0.0.1:8080/api/v1/service-operations/run \
   -H 'content-type: application/json' \
-  -d '{"llm_policy":"quality_first","workload":"llm-chat-inference","recovery_namespace":"aiops-demo","recovery_deployment":"aiops-service","mode":"mock","guard_backend":"go"}'
+  -d '{"llm_policy":"quality_first","workload":"llm-chat-inference","operation_service":"llm-chat-inference","operation_resource":"gpu-vm-l4","mode":"mock","guard_backend":"go"}'
 ```
 
 ## 10. 로컬 API 통합 검증
@@ -294,7 +294,7 @@ valid = true
 guard_backend = go
 guard_validation.valid = true
 deployment_execution_mode = mock
-kubernetes_live_apply = false
+deployment_validation.valid = true
 ```
 
 위 값은 prototype의 policy와 control-flow wiring을 검증합니다. 최종 표준 LLM benchmark result가 아닙니다.
@@ -307,7 +307,7 @@ kubernetes_live_apply = false
 - simulated deployment dry-run output 생성
 - agent review와 guard-readiness field 생성
 - 실제 GPU VM provisioning 미수행
-- live Kubernetes mutation 미수행
+- 실제 VM 또는 서비스 mutation 미수행
 
 ## 13. DOCX 변환
 

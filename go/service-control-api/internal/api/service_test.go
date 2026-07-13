@@ -91,12 +91,12 @@ func TestBuildDeploymentPlanUsesBoundedResourceRequests(t *testing.T) {
 		t.Fatalf("BuildDeploymentPlan returned error: %v", err)
 	}
 
-	requests := result.DeploymentPlan.Kubernetes.Resources.Requests
-	if requests["cpu"] != "8" {
-		t.Fatalf("expected 8 CPU request, got %s", requests["cpu"])
+	requests := result.DeploymentPlan.VM.Resources.Requests
+	if requests["cpu_cores"] != "8" {
+		t.Fatalf("expected 8 CPU cores, got %s", requests["cpu_cores"])
 	}
-	if requests["memory"] != "32Gi" {
-		t.Fatalf("expected 32Gi memory request, got %s", requests["memory"])
+	if requests["memory_gb"] != "32" {
+		t.Fatalf("expected 32GB memory request, got %s", requests["memory_gb"])
 	}
 }
 
@@ -104,14 +104,14 @@ func TestRunServiceOperationsCombinesCoreDecisionsInGo(t *testing.T) {
 	service := NewService(NewServerConfig())
 
 	report, err := service.RunServiceOperations(context.Background(), ServiceOperationsRequest{
-		LLMPolicy:          "quality_first",
-		Workload:           "llm-chat-inference",
-		RecoveryNamespace:  "aiops-demo",
-		RecoveryDeployment: "aiops-service",
-		Mode:               "mock",
-		GuardBackend:       "go",
-		LLMConfigPath:      "config/ops_llm_benchmark.json",
-		InferenceConfig:    "config/inference_optimization.json",
+		LLMPolicy:         "quality_first",
+		Workload:          "llm-chat-inference",
+		OperationService:  "llm-chat-inference",
+		OperationResource: "gpu-vm-l4",
+		Mode:              "mock",
+		GuardBackend:      "go",
+		LLMConfigPath:     "config/ops_llm_benchmark.json",
+		InferenceConfig:   "config/inference_optimization.json",
 	})
 	if err != nil {
 		t.Fatalf("RunServiceOperations returned error: %v", err)
@@ -135,8 +135,8 @@ func TestRunServiceOperationsCombinesCoreDecisionsInGo(t *testing.T) {
 	if report.SelectedResource != "gpu-vm-l4" {
 		t.Fatalf("expected gpu-vm-l4, got %s", report.SelectedResource)
 	}
-	if !report.RecoveryPipelineReady {
-		t.Fatal("expected recovery pipeline readiness")
+	if !report.OperationPipelineReady {
+		t.Fatal("expected operation pipeline readiness")
 	}
 	if report.GuardBackend != "go" {
 		t.Fatalf("expected guard backend go, got %s", report.GuardBackend)
@@ -147,8 +147,8 @@ func TestRunServiceOperationsCombinesCoreDecisionsInGo(t *testing.T) {
 	if report.GuardValidation.RuntimeWired {
 		t.Fatal("expected standalone guard runtime wiring to remain false")
 	}
-	if report.DeploymentManifest.Kind != "Deployment" {
-		t.Fatalf("expected Deployment manifest, got %s", report.DeploymentManifest.Kind)
+	if !report.DeploymentValidation.Valid {
+		t.Fatalf("expected VM deployment validation to pass: %#v", report.DeploymentValidation)
 	}
 	if !report.AgentReviews.Application.Approved {
 		t.Fatalf("expected application review approval: %#v", report.AgentReviews.Application)

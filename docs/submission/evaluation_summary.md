@@ -12,8 +12,8 @@
 | Ops LLM evaluation dry-run | `run-ops-llm-benchmark`, `evaluate-ops-llm-outputs` | Go 기반 scenario/candidate 연결 및 dry-run evaluation summary |
 | Agent registry 및 bounded-action validation | `list-agents`, `show-agent`, `validate-agent-action` | registered agents와 allowed action check |
 | CPU/GPU VM placement recommendation | `recommend-inference-placement` | selected resource와 rejected-resource explanation |
-| AI 응용 배포·제어 계획 생성 | `plan-inference-deployment` | namespace, deployment, node selector, resource limit, control action 생성 결과 |
-| Mock dry-run 및 guard validation | `run-service-operations` | manifest dry-run output과 `guard_validation.valid = true` |
+| AI 응용 배포·제어 계획 생성 | `plan-inference-deployment` | service, VM instance, placement constraint, resource capacity, control action 생성 결과 |
+| VM deployment 및 guard validation | `run-service-operations` | VM 배포 사양 사전검증과 `guard_validation.valid = true` |
 | Local API integration validation | `go run ./cmd/aiops-service-control api-integration-validation` | Go CLI 기반 6개 endpoint 순차 호출과 핵심 response field 검증 |
 | Go unit test | 각 Go module의 `go test ./...` | module-level test pass/fail output |
 | Integrated readiness | `team-validation` | `runs/<output-dir>/` 아래 JSON output files |

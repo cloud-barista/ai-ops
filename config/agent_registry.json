@@ -32,14 +32,14 @@
       "role": "Select AI application deployment and service-control actions.",
       "responsibilities": [
         "Recommend deployment and control actions for AI application workloads.",
-        "Structure namespace, deployment, and replica parameters for service control.",
+        "Structure service, target VM, and instance parameters for service control.",
         "Manage the AI application deployment/control flow on CPU/GPU VM resources."
       ],
       "bounded_actions": [
         "app_observe_service_logs",
         "app_collect_metrics",
         "app_submit_detection_result",
-        "app_scale_deployment",
+        "app_scale_service_instances",
         "app_rollout_restart",
         "app_observe_only",
         "app_select_inference_vm",

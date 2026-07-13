@@ -71,7 +71,7 @@ curl -fsS -X POST "$BASE_URL/api/v1/apps/deployment-plan" \
 
 curl -fsS -X POST "$BASE_URL/api/v1/service-operations/run" \
   -H 'content-type: application/json' \
-  -d '{"llm_policy":"quality_first","workload":"llm-chat-inference","recovery_namespace":"aiops-demo","recovery_deployment":"aiops-service","mode":"mock","guard_backend":"go"}' \
+  -d '{"llm_policy":"quality_first","workload":"llm-chat-inference","operation_service":"llm-chat-inference","operation_resource":"gpu-vm-l4","mode":"mock","guard_backend":"go"}' \
   -o "$API_DIR/05-service-operations-run.json"
 
 python3 - "$API_DIR" "$OUTPUT_DIR/api-integration-validation-summary.json" <<'PY'
@@ -164,7 +164,7 @@ add(
         "benchmark_status",
         "selected_resource",
         "deployment_plan",
-        "deployment_manifest",
+        "deployment_validation",
         "guard_backend",
         "guard_validation",
     ],
@@ -173,7 +173,7 @@ add(
     and "benchmark_status" in service_ops
     and bool(service_ops.get("selected_resource"))
     and isinstance(service_ops.get("deployment_plan"), dict)
-    and isinstance(service_ops.get("deployment_manifest"), dict)
+    and isinstance(service_ops.get("deployment_validation"), dict)
     and service_ops.get("guard_backend") == "go"
     and guard_validation.get("valid") is True,
 )

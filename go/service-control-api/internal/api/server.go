@@ -169,7 +169,7 @@ func (handler restHandler) RestPostAppPlacement(context echo.Context) error {
 // RestPostDeploymentPlan godoc
 // @ID PostDeploymentPlan
 // @Summary Build an AI application deployment plan
-// @Description Build a Kubernetes-oriented deployment and control plan for the selected workload.
+// @Description Build a CPU/GPU VM-oriented deployment and control plan for the selected workload.
 // @Tags AI Application Deployment
 // @Accept json
 // @Produce json

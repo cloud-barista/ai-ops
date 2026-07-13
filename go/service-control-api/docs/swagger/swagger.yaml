@@ -26,32 +26,6 @@ definitions:
       infrastructure:
         $ref: '#/definitions/api.AgentReview'
     type: object
-  api.DeploymentDryRun:
-    properties:
-      command:
-        type: string
-      mode:
-        type: string
-      stderr:
-        type: string
-      stdout:
-        type: string
-      valid:
-        type: boolean
-    type: object
-  api.DeploymentManifest:
-    properties:
-      apiVersion:
-        type: string
-      kind:
-        type: string
-      metadata:
-        additionalProperties: {}
-        type: object
-      spec:
-        additionalProperties: {}
-        type: object
-    type: object
   api.DeploymentPlan:
     properties:
       container_image:
@@ -60,8 +34,6 @@ definitions:
         items:
           type: string
         type: array
-      kubernetes:
-        $ref: '#/definitions/api.KubernetesPlan'
       monitoring_metrics:
         items:
           type: string
@@ -77,6 +49,8 @@ definitions:
         type: string
       target_resource:
         type: string
+      vm_deployment:
+        $ref: '#/definitions/api.VMDeploymentPlan'
     type: object
   api.DeploymentPlanResponse:
     properties:
@@ -111,6 +85,19 @@ definitions:
       workload:
         type: string
     type: object
+  api.DeploymentValidation:
+    properties:
+      checks:
+        items:
+          type: string
+        type: array
+      mode:
+        type: string
+      reason:
+        type: string
+      valid:
+        type: boolean
+    type: object
   api.ErrorResponse:
     properties:
       message:
@@ -132,31 +119,29 @@ definitions:
         type: array
       mode:
         type: string
+      operation_resource:
+        type: string
+      operation_service:
+        type: string
       reason:
-        type: string
-      recovery_deployment:
-        type: string
-      recovery_namespace:
         type: string
       runtime_wired:
         type: boolean
       valid:
         type: boolean
     type: object
-  api.KubernetesPlan:
+  api.OperationReadiness:
     properties:
-      deployment:
+      reason:
         type: string
-      namespace:
+      service:
         type: string
-      node_selector:
-        additionalProperties:
-          type: string
-        type: object
-      replicas:
-        type: integer
-      resources:
-        $ref: '#/definitions/api.ResourceSpec'
+      skipped:
+        type: boolean
+      target_resource:
+        type: string
+      valid:
+        type: boolean
     type: object
   api.OpsLLMRankedItem:
     properties:
@@ -225,7 +210,7 @@ definitions:
         type: string
       action:
         type: string
-      available_replicas:
+      available_instances:
         type: integer
       cost_per_hour:
         type: number
@@ -269,19 +254,6 @@ definitions:
       workload:
         type: string
     type: object
-  api.RecoveryReadiness:
-    properties:
-      deployment:
-        type: string
-      namespace:
-        type: string
-      reason:
-        type: string
-      skipped:
-        type: boolean
-      valid:
-        type: boolean
-    type: object
   api.ResourceSpec:
     properties:
       limits:
@@ -295,9 +267,6 @@ definitions:
     type: object
   api.ServiceOperationsRequest:
     properties:
-      deployment:
-        example: aiops-service
-        type: string
       guard_backend:
         example: go
         type: string
@@ -313,14 +282,11 @@ definitions:
       mode:
         example: mock
         type: string
-      namespace:
-        example: aiops-demo
+      operation_resource:
+        example: gpu-vm-l4
         type: string
-      recovery_deployment:
-        example: aiops-service
-        type: string
-      recovery_namespace:
-        example: aiops-demo
+      operation_service:
+        example: llm-chat-inference
         type: string
       workload:
         example: llm-chat-inference
@@ -336,14 +302,12 @@ definitions:
         type: string
       command:
         type: string
-      deployment_dry_run:
-        $ref: '#/definitions/api.DeploymentDryRun'
       deployment_execution_mode:
         type: string
-      deployment_manifest:
-        $ref: '#/definitions/api.DeploymentManifest'
       deployment_plan:
         $ref: '#/definitions/api.DeploymentPlan'
+      deployment_validation:
+        $ref: '#/definitions/api.DeploymentValidation'
       evaluation_source:
         type: string
       evaluation_type:
@@ -354,15 +318,13 @@ definitions:
         $ref: '#/definitions/api.GuardValidation'
       inference_deployment_plan:
         $ref: '#/definitions/api.DeploymentPlanResponse'
-      kubernetes_live_apply:
-        type: boolean
       metadata:
         additionalProperties:
           type: string
         type: object
-      recovery:
-        $ref: '#/definitions/api.RecoveryReadiness'
-      recovery_pipeline_ready:
+      operation:
+        $ref: '#/definitions/api.OperationReadiness'
+      operation_pipeline_ready:
         type: boolean
       runtime_model:
         type: string
@@ -376,6 +338,19 @@ definitions:
         type: string
       valid:
         type: boolean
+    type: object
+  api.VMDeploymentPlan:
+    properties:
+      instances:
+        type: integer
+      placement_constraints:
+        additionalProperties:
+          type: string
+        type: object
+      resources:
+        $ref: '#/definitions/api.ResourceSpec'
+      service:
+        type: string
     type: object
   api.WorkloadRequest:
     properties:
@@ -418,7 +393,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Build a Kubernetes-oriented deployment and control plan for the
+      description: Build a CPU/GPU VM-oriented deployment and control plan for the
         selected workload.
       operationId: PostDeploymentPlan
       parameters:

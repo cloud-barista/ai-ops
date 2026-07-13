@@ -33,7 +33,7 @@
 | FR-03 | AI agent registry를 제공해야 한다. | agent 목록과 단일 agent 상세 정보를 조회할 수 있어야 한다. |
 | FR-04 | Agent action boundary를 검증해야 한다. | 허용 action만 valid 처리하고, 거부 사유를 제공해야 한다. |
 | FR-05 | CPU/GPU VM 배치 판단 기준을 제공해야 한다. | accelerator, VRAM, latency SLO, throughput, cost, capacity를 고려해야 한다. |
-| FR-06 | AI 응용 배포·제어 계획을 생성해야 한다. | deployment name, namespace, node selector, resource limit, monitoring metric을 포함해야 한다. |
+| FR-06 | AI 응용 배포·제어 계획을 생성해야 한다. | service name, VM instance 수, placement constraint, resource capacity, monitoring metric을 포함해야 한다. |
 | FR-07 | 서비스 운영 준비도를 통합 보고해야 한다. | LLM 선정, agent 검증, 배치 판단, 배포 계획, guard 검증 결과를 함께 제공해야 한다. |
 | FR-08 | CLI와 HTTP API를 모두 제공해야 한다. | 동일 기능을 command와 API endpoint로 실행할 수 있어야 한다. |
 | FR-09 | API 계약을 표준 형식으로 제공해야 한다. | OpenAPI 또는 Swagger 문서로 request/response 구조를 확인할 수 있어야 한다. |
@@ -96,5 +96,5 @@ guard_validation.valid = true
 | --- | --- |
 | 최종 LLM benchmark | 현재 LLM score는 prototype baseline이며 최종 정량 benchmark가 아니다. |
 | 실제 GPU VM 생성 | 기본 로컬 검증은 실제 AWS GPU VM을 생성하지 않는다. |
-| Live cluster 변경 | 기본 `mock` mode는 live Kubernetes cluster를 변경하지 않는다. |
+| 실제 인프라 변경 | 기본 `mock` mode는 실제 VM이나 서비스를 변경하지 않는다. |
 | CB-Tumblebug 대체 | CB-Tumblebug은 대체 대상이 아니라 향후 AI-Infra 연동 대상이다. |
