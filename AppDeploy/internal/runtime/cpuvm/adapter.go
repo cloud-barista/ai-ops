@@ -4,44 +4,34 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"path"
 	"strings"
-	"sync"
-	"time"
 
 	apperrors "github.com/khu/ai-app-deployer/internal/errors"
 	"github.com/khu/ai-app-deployer/internal/model"
 	"github.com/khu/ai-app-deployer/internal/runtime"
-	"github.com/rs/zerolog/log"
+	"github.com/khu/ai-app-deployer/internal/runtime/vmprocess"
 )
 
-type Command struct {
-	Stage      string
-	Name       string
-	Args       []string
-	WorkingDir string
-}
+type Command = vmprocess.Command
 
-type Result struct {
-	Output string
-}
+type Result = vmprocess.Result
 
-type Runner interface {
-	Run(ctx context.Context, target model.TargetProfile, command Command) (Result, error)
-}
+type Runner = vmprocess.Runner
 
 type Adapter struct {
-	mu     sync.RWMutex
-	runner Runner
-	status map[string]string
-	logs   map[string][]model.DeploymentLog
+	runner  Runner
+	process *vmprocess.Process
 }
 
 func New(runner Runner) *Adapter {
 	return &Adapter{
 		runner: runner,
-		status: map[string]string{},
-		logs:   map[string][]model.DeploymentLog{},
+		process: vmprocess.New(runner, vmprocess.Config{
+			RuntimeType:     "cpu",
+			DisplayName:     "cpu vm",
+			Component:       "cpu-vm-adapter",
+			RuntimeIDPrefix: "cpuvm-",
+		}),
 	}
 }
 
@@ -74,7 +64,7 @@ func (a *Adapter) HealthCheck(ctx context.Context, profile model.RuntimeProfile,
 		Args:  []string{"-s"},
 	})
 	if err != nil {
-		return apperrors.New(model.ErrCSPVMUnreachable, "cpu vm readiness check failed", http.StatusBadRequest, true)
+		return apperrors.New(model.ErrCSPVMUnreachable, fmt.Sprintf("cpu vm readiness check failed: %v", err), http.StatusBadRequest, true)
 	}
 	return nil
 }
@@ -83,111 +73,23 @@ func (a *Adapter) Prepare(ctx context.Context, app model.AppResponse, target mod
 	if err := a.ValidateTarget(ctx, target); err != nil {
 		return nil, err
 	}
-	artifactPath := path.Join(target.Storage.ArtifactDir, app.Name, app.Version)
-	_, err := a.runner.Run(ctx, target, Command{
-		Stage: model.StatusDeploying,
-		Name:  "prepare-artifact",
-		Args:  []string{app.AppSpec.Artifact.URI, artifactPath},
-	})
-	if err != nil {
-		return nil, apperrors.New(model.ErrAppArtifactNotFound, "cpu vm artifact preparation failed", http.StatusBadRequest, false)
-	}
-	return &runtime.PrepareResult{
-		ArtifactPath: artifactPath,
-		Message:      "cpu vm artifact preparation completed",
-	}, nil
+	return a.process.Prepare(ctx, app, target)
 }
 
 func (a *Adapter) Deploy(ctx context.Context, plan runtime.DeploymentPlan) (*runtime.DeployResult, error) {
-	if plan.App.AppSpec.Runtime.Type != "cpu" {
-		return nil, apperrors.New(model.ErrRuntimeProfileInvalid, "cpu vm adapter can deploy only cpu apps", http.StatusBadRequest, false)
-	}
-	workingDir := plan.App.AppSpec.Entrypoint.WorkingDir
-	if workingDir == "" {
-		workingDir = path.Join(plan.Target.Storage.ArtifactDir, plan.App.Name, plan.App.Version)
-	}
-	result, err := a.runner.Run(ctx, plan.Target, Command{
-		Stage:      model.StatusDeploying,
-		Name:       plan.App.AppSpec.Entrypoint.Command,
-		Args:       plan.App.AppSpec.Entrypoint.Args,
-		WorkingDir: workingDir,
-	})
-	if err != nil {
-		return nil, apperrors.New(model.ErrDeploymentFailed, "cpu vm deployment command failed", http.StatusBadRequest, false)
-	}
-
-	a.mu.Lock()
-	defer a.mu.Unlock()
-	a.status[plan.DeploymentID] = model.StatusRunning
-	item := model.DeploymentLog{
-		Timestamp:    time.Now().UTC(),
-		Level:        "INFO",
-		RequestID:    plan.RequestID,
-		DeploymentID: plan.DeploymentID,
-		Component:    "cpu-vm-adapter",
-		Stage:        model.StatusDeploying,
-		Message:      maskSensitive("cpu vm command accepted: " + result.Output),
-	}
-	a.logs[plan.DeploymentID] = append(a.logs[plan.DeploymentID], item)
-	logAdapterEvent(item)
-	return &runtime.DeployResult{
-		RuntimeID: "cpuvm-" + plan.DeploymentID,
-		Message:   "cpu vm deployment is running",
-	}, nil
+	return a.process.Deploy(ctx, plan)
 }
 
 func (a *Adapter) GetStatus(ctx context.Context, deploymentID string) (*runtime.RuntimeStatus, error) {
-	a.mu.RLock()
-	defer a.mu.RUnlock()
-	status := a.status[deploymentID]
-	if status == "" {
-		status = model.StatusUnknown
-	}
-	return &runtime.RuntimeStatus{Status: status, Message: "cpu vm status checked"}, nil
+	return a.process.GetStatus(ctx, deploymentID)
 }
 
 func (a *Adapter) GetLogs(ctx context.Context, deploymentID string, opt runtime.LogQuery) ([]model.DeploymentLog, error) {
-	a.mu.RLock()
-	defer a.mu.RUnlock()
-	source := a.logs[deploymentID]
-	items := make([]model.DeploymentLog, 0, len(source))
-	for _, item := range source {
-		if opt.Stage == "" || item.Stage == opt.Stage {
-			items = append(items, item)
-		}
-	}
-	return items, nil
+	return a.process.GetLogs(ctx, deploymentID, opt)
 }
 
 func (a *Adapter) Stop(ctx context.Context, plan runtime.StopPlan) error {
-	workingDir := plan.App.AppSpec.Entrypoint.WorkingDir
-	if workingDir == "" {
-		workingDir = path.Join(plan.Target.Storage.ArtifactDir, plan.App.Name, plan.App.Version)
-	}
-	result, err := a.runner.Run(ctx, plan.Target, Command{
-		Stage: model.StatusStopping,
-		Name:  "stop-process",
-		Args:  []string{workingDir},
-	})
-	if err != nil {
-		return apperrors.New(model.ErrRuntimeFailed, "cpu vm stop command failed", http.StatusBadRequest, true)
-	}
-
-	a.mu.Lock()
-	defer a.mu.Unlock()
-	a.status[plan.DeploymentID] = model.StatusStopped
-	item := model.DeploymentLog{
-		Timestamp:    time.Now().UTC(),
-		Level:        "INFO",
-		RequestID:    plan.RequestID,
-		DeploymentID: plan.DeploymentID,
-		Component:    "cpu-vm-adapter",
-		Stage:        model.StatusStopped,
-		Message:      maskSensitive("cpu vm process stop requested: " + result.Output),
-	}
-	a.logs[plan.DeploymentID] = append(a.logs[plan.DeploymentID], item)
-	logAdapterEvent(item)
-	return nil
+	return a.process.Stop(ctx, plan)
 }
 
 type DryRunRunner struct{}
@@ -203,20 +105,4 @@ func (r *DryRunRunner) Run(ctx context.Context, target model.TargetProfile, comm
 	return Result{
 		Output: fmt.Sprintf("dry-run %s accepted", command.Name),
 	}, nil
-}
-
-func logAdapterEvent(item model.DeploymentLog) {
-	log.Info().
-		Str("request_id", item.RequestID).
-		Str("deployment_id", item.DeploymentID).
-		Str("component", item.Component).
-		Str("stage", item.Stage).
-		Msg(item.Message)
-}
-
-func maskSensitive(value string) string {
-	value = strings.ReplaceAll(value, "password", "[masked]")
-	value = strings.ReplaceAll(value, "token", "[masked]")
-	value = strings.ReplaceAll(value, "secret", "[masked]")
-	return value
 }

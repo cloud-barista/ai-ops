@@ -18,11 +18,20 @@ import (
 
 var errExit = errors.New("exit requested")
 
+const (
+	defaultCLIMaxPackageUpload = int64(50 << 20)
+	maximumCLIMaxPackageUpload = int64(1 << 30)
+)
+
 type Shell struct {
-	api    http.Handler
-	reader *bufio.Reader
-	out    io.Writer
-	color  bool
+	api              http.Handler
+	input            io.Reader
+	reader           *bufio.Reader
+	out              io.Writer
+	color            bool
+	maxPackageUpload int64
+	interactive      bool
+	readSecret       func(string) ([]byte, error)
 }
 
 type response struct {
@@ -45,12 +54,32 @@ func (e *apiError) Error() string {
 }
 
 func New(api http.Handler, input io.Reader, output io.Writer) *Shell {
-	return &Shell{api: api, reader: bufio.NewReader(input), out: output, color: supportsColor(output)}
+	return NewWithPackageLimit(api, input, output, defaultCLIMaxPackageUpload)
+}
+
+func NewWithPackageLimit(api http.Handler, input io.Reader, output io.Writer, maxPackageUpload int64) *Shell {
+	if maxPackageUpload <= 0 {
+		maxPackageUpload = defaultCLIMaxPackageUpload
+	}
+	if maxPackageUpload > maximumCLIMaxPackageUpload {
+		maxPackageUpload = maximumCLIMaxPackageUpload
+	}
+	shell := &Shell{
+		api:              api,
+		input:            input,
+		reader:           bufio.NewReader(input),
+		out:              output,
+		color:            supportsColor(output),
+		maxPackageUpload: maxPackageUpload,
+	}
+	shell.readSecret = shell.readTerminalSecret
+	return shell
 }
 
 // Run starts the interactive shell when args is empty, or executes one command
 // when args is supplied.
 func (s *Shell) Run(ctx context.Context, args []string) error {
+	s.interactive = len(args) == 0
 	if len(args) > 0 {
 		if err := s.execute(ctx, args); errors.Is(err, errExit) {
 			return nil
@@ -118,10 +147,14 @@ func (s *Shell) execute(ctx context.Context, args []string) error {
 		return s.overview(ctx)
 	case "apps", "app":
 		return s.apps(ctx, args[1:])
+	case "packages", "package", "pkg":
+		return s.packages(ctx, args[1:])
 	case "runtimes", "runtime":
 		return s.runtimes(ctx, args[1:])
 	case "targets", "target":
 		return s.targets(ctx, args[1:])
+	case "credentials", "credential", "creds", "cred":
+		return s.credentials(ctx, args[1:])
 	case "resources", "resource":
 		return s.resources(ctx, args[1:])
 	case "deployments", "deployment", "deploy":
@@ -157,8 +190,19 @@ func (s *Shell) call(ctx context.Context, method, path string, payload any) (res
 		}
 		body = bytes.NewReader(raw)
 	}
+	return s.callBody(ctx, method, path, body, "application/json")
+}
+
+func (s *Shell) callBody(ctx context.Context, method, path string, body io.Reader, contentType string) (response, error) {
 	req := httptest.NewRequest(method, path, body).WithContext(ctx)
-	req.Header.Set("Content-Type", "application/json")
+	// Credential APIs are loopback-only by default. CLI requests are in-process,
+	// so make their trusted local origin explicit instead of relying on httptest's
+	// synthetic example.com address.
+	req.RemoteAddr = "127.0.0.1:0"
+	req.Host = "127.0.0.1"
+	if contentType != "" {
+		req.Header.Set("Content-Type", contentType)
+	}
 	rec := httptest.NewRecorder()
 	s.api.ServeHTTP(rec, req)
 	result := response{status: rec.Code, body: rec.Body.Bytes()}
@@ -206,13 +250,21 @@ func (s *Shell) printHelp() {
 	s.helpLine("exit", "CLI 종료")
 
 	s.section("등록 및 실행 환경")
+	s.helpLine("packages build [options]", "유형을 선택해 배포 package 생성")
+	s.helpLine("packages deploy [options]", "package 생성·App 등록·자원 점검·배포")
 	s.helpLine("apps list | get <app-id> | add [json]", "App 조회·등록")
+	s.helpLine("apps delete <app-id> --yes", "참조 배포가 없거나 모두 STOPPED인 App 등록 삭제")
 	s.helpLine("runtimes list | add [json]", "Runtime Profile 조회·등록")
+	s.helpLine("runtimes delete <runtime-id> --yes", "참조 배포가 없거나 모두 STOPPED인 Runtime Profile 삭제")
 	s.helpLine("targets list | add [json]", "Target Profile 조회·등록")
+	s.helpLine("targets delete <target-id> --yes", "참조 배포가 없거나 모두 STOPPED인 Target Profile과 readiness inventory 삭제")
+	s.helpLine("credentials list | add [options]", "host key fingerprint를 고정한 메모리 전용 SSH Credential 조회·등록")
+	s.helpLine("credentials delete <id> --yes", "메모리 전용 SSH Credential 삭제")
 	s.helpLine("resources list | check <target-id> [runtime-id]", "자원 준비 상태 확인")
 
 	s.section("배포")
 	s.helpLine("deployments list | get <id> | create [...]", "배포 생성·상태 조회")
+	s.helpLine("deploy package [options]", "packages deploy와 동일한 안내형 배포")
 	s.helpLine("deployments logs <id> [stage]", "배포 이벤트 로그")
 	s.helpLine("deployments stop <id>", "실행 중인 배포 중지")
 
@@ -223,7 +275,10 @@ func (s *Shell) printHelp() {
 	s.helpLine("raw <GET|POST> </api/v1/path> [...]", "API 직접 호출")
 
 	fmt.Fprintf(s.out, "\n%s\n", s.paint(ansiDim, "JSON 파일을 생략하면 안내형 입력이 시작됩니다."))
+	fmt.Fprintf(s.out, "%s\n", s.paint(ansiDim, "Credential은 프로세스 메모리에만 존재합니다. 단발 add는 명령 종료와 함께 사라지며, 후속 배포에는 대화형 CLI를 사용하세요."))
 	fmt.Fprintf(s.out, "%s %s\n", s.paint(ansiGray, "예시"), s.paint(ansiCyan, "apps add examples/requests/app-cpu-script.json"))
+	fmt.Fprintf(s.out, "     %s\n", s.paint(ansiCyan, "credentials add --id cpu-vm-001 --user ubuntu --host-key-fingerprint SHA256:<base64> --auth private_key --private-key-file ./cpu-vm.pem"))
+	fmt.Fprintf(s.out, "     %s\n", s.paint(ansiCyan, "packages deploy --type script --source ./run.sh --runtime-id rt-cpu-001 --target-id target-cpu-001"))
 	fmt.Fprintf(s.out, "     %s\n", s.paint(ansiCyan, "deployments create appver-... rt-cpu-001 target-cpu-001"))
 }
 
@@ -236,6 +291,11 @@ func (s *Shell) printError(err error) {
 	var apiErr *apiError
 	if errors.As(err, &apiErr) {
 		fmt.Fprintf(s.out, "\n%s %s\n", s.paint(ansiRed, "✕"), s.paint(ansiBold+ansiRed, apiErr.code))
+		if full, leaf := err.Error(), apiErr.Error(); strings.HasSuffix(full, ": "+leaf) {
+			if context := strings.TrimSpace(strings.TrimSuffix(full, ": "+leaf)); context != "" {
+				fmt.Fprintf(s.out, "  %s\n", context)
+			}
+		}
 		fmt.Fprintf(s.out, "  %s\n", apiErr.message)
 		if apiErr.requestID != "" {
 			fmt.Fprintf(s.out, "  %s %s\n", s.paint(ansiGray, "request_id"), s.paint(ansiDim, apiErr.requestID))

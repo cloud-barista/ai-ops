@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KHU Package Build Request",
+  "oneOf": [
+    {
+      "title": "Configured preset request",
+      "type": "object",
+      "required": [
+        "preset"
+      ],
+      "properties": {
+        "preset": {
+          "const": "aiops-geon-service-control"
+        },
+        "app_version": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+        },
+        "service_port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535,
+          "default": 18089
+        }
+      }
+    },
+    {
+      "title": "Uploaded source multipart fields",
+      "type": "object",
+      "required": [
+        "package_type",
+        "source",
+        "app_name",
+        "entrypoint"
+      ],
+      "properties": {
+        "package_type": {
+          "enum": [
+            "go",
+            "python",
+            "node",
+            "binary",
+            "script"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "contentMediaType": "application/octet-stream"
+        },
+        "app_name": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{1,62}$"
+        },
+        "app_version": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+        },
+        "entrypoint": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "runtime_type": {
+          "enum": [
+            "cpu",
+            "gpu"
+          ],
+          "default": "cpu"
+        },
+        "service_port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "healthcheck_path": {
+          "type": "string",
+          "pattern": "^/[^\\r\\n\\t ]*$",
+          "default": "/health"
+        }
+      }
+    }
+  ]
+}

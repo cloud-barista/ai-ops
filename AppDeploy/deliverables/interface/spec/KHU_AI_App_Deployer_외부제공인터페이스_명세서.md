@@ -10,11 +10,15 @@
 
 ## 0. 인터페이스 제공 범위 요약
 
-본 명세서는 경희대학교가 제공하는 **AI App Deployer 외부 호출 인터페이스**를 정의한다. 1차년도 구현은 CPU/GPU VM 기반 AI 응용 등록·배포 프로토타입이며, 외부 시스템은 본 인터페이스를 통해 AI App 등록, Runtime/Target Profile 등록, 자원 점검, 배포 요청, 상태 조회, 로그 조회, 중지 요청, 모니터링 조회를 수행한다.
+본 명세서는 경희대학교가 제공하는 **AI App Deployer 외부 호출 인터페이스**를 정의한다. 1차년도 구현은 CPU/GPU VM 기반 AI 응용 등록·배포 프로토타입이며, 외부 시스템은 본 인터페이스를 통해 AI App 등록·삭제, Runtime Credential과 Runtime/Target Profile 관리, 자원 점검, 배포 요청, 상태 조회, 로그 조회, 중지 요청, 모니터링 조회를 수행한다.
 
 | 구분 | 포함 여부 | 설명 |
 | --- | --- | --- |
+| 선택형 Package 생성 API | 포함 | 프리셋 또는 Go/Python/Node.js/Linux binary/Shell source를 Linux amd64 package와 App Spec으로 생성한다. |
 | AI App 등록 API | 포함 | AI App Spec을 등록하고 App ID, Version ID를 발급한다. |
+| AI App 등록 삭제 API | 포함 | 참조가 없거나 모든 참조 Deployment가 STOPPED인 App Registry record를 삭제하고 이력과 artifact 원본은 유지한다. |
+| Runtime Credential API | 포함 | SSH Credential을 프로세스 메모리에 등록하고 비밀값을 제외한 메타데이터 조회와 삭제를 제공한다. |
+| Runtime/Target Profile 삭제 API | 포함 | 미참조 또는 STOPPED 참조 Profile을 삭제하며, STOPPED 이력과 Credential은 유지하고 Target의 현재 Inventory snapshot만 함께 정리한다. |
 | CPU/GPU VM 배포 API | 포함 | Runtime Profile과 Target Profile을 기준으로 배포 요청을 생성한다. |
 | Resource Check API | 포함 | CPU/GPU VM, Storage, Runtime readiness를 점검하고 snapshot을 저장한다. |
 | Monitoring API | 포함 | Deployment 상태, Runtime health, Alarm, Metric placeholder를 조회한다. |
@@ -26,9 +30,11 @@
 ### 0.1 본 인터페이스가 제공하는 것
 
 ```text
-- AI App 등록/조회
-- Runtime Profile 등록/조회
-- Target Profile 등록/조회
+- AI App 등록/조회/등록 삭제
+- 유형 선택형 Package 생성과 App Spec 반환
+- Runtime Credential 등록/메타데이터 조회/삭제
+- Runtime Profile 등록/조회/삭제
+- Target Profile 등록/조회/삭제
 - CPU/GPU VM 자원 readiness 점검
 - AI App 배포 요청 생성
 - Deployment 상태 조회
@@ -61,8 +67,8 @@
 
 | 분류 | 방향 | 사용 주체 | 설명 |
 | --- | --- | --- | --- |
-| Northbound Public Integration API | 외부 시스템 → AI App Deployer | Innogrid, Bespin Web Console, Bespin MCP-like 호출, 운영자 | AI App 등록, 배포 요청, 상태·로그·모니터링 조회를 제공한다. |
-| Admin/Infra API | 운영자/통합시험 관리자 → AI App Deployer | 경희대, ETRI 통합시험 관리자 | Runtime Profile, Target Profile, Resource Check, Resource Inventory를 관리한다. |
+| Northbound Public Integration API | 외부 시스템 → AI App Deployer | Innogrid, Bespin Web Console, Bespin MCP-like 호출, 운영자 | AI App 등록·삭제, 배포 요청, 상태·로그·모니터링 조회를 제공한다. |
+| Admin/Infra API | 운영자/통합시험 관리자 → AI App Deployer | 경희대, ETRI 통합시험 관리자 | Runtime Credential, Runtime Profile, Target Profile, Resource Check, Resource Inventory를 관리한다. |
 | Southbound Adapter Contract | AI App Deployer → 외부 실행/연계 시스템 | ETRI AI-Infra, API Gateway, 향후 외부 Runtime | 실제 외부 API 계약이 확정되기 전까지 Adapter Interface, Mock/Fixture, 에러 매핑으로 관리한다. |
 
 ### 1.1 Northbound Public Integration API
@@ -75,9 +81,11 @@
 | Swagger UI | `GET /swagger` | 전체 연동 주체 |
 | 서버 상태 | `GET /api/v1/healthz` | Gateway, 운영자, 통합시험 |
 | 준비 상태 | `GET /api/v1/readiness` | Gateway, 운영자, 통합시험 |
+| Package 생성 | `POST /api/v1/artifacts/packages` | Innogrid, Bespin Web/CLI/Shell, 운영자 |
 | AI App 등록 | `POST /api/v1/apps` | Innogrid, Bespin, 운영자 |
 | AI App 목록 | `GET /api/v1/apps` | Innogrid, Bespin, 운영자 |
 | AI App 상세 | `GET /api/v1/apps/{app_id}` | Innogrid, Bespin, 운영자 |
+| AI App 등록 삭제 | `DELETE /api/v1/apps/{app_id}` | Innogrid, Bespin Web Console/CLI, 운영자 |
 | 배포 요청 | `POST /api/v1/deployments` | Innogrid, Bespin, MCP-like 호출, 운영자 |
 | 배포 목록 | `GET /api/v1/deployments` | Bespin Web Console, 운영자 |
 | 배포 상태 | `GET /api/v1/deployments/{deployment_id}` | 전체 연동 주체 |
@@ -94,10 +102,15 @@ Runtime, Target, 자원 점검은 일반 사용자가 아니라 시험 관리자
 
 | 기능 | Endpoint | 사용 기준 |
 | --- | --- | --- |
+| Runtime Credential 등록 | `POST /api/v1/credentials` | SSH private key 또는 password와 신뢰된 host key fingerprint를 프로세스 메모리에 일시 등록 |
+| Runtime Credential 목록 | `GET /api/v1/credentials` | 비밀값과 ENV Credential을 제외하고 host key fingerprint를 포함한 Runtime 메타데이터 조회 |
+| Runtime Credential 삭제 | `DELETE /api/v1/credentials/{credential_id}` | Target 참조 여부와 무관하게 Runtime Credential 삭제 |
 | Runtime Profile 등록 | `POST /api/v1/runtime-profiles` | mock, cpu_vm, gpu_vm, etri_aiinfra skeleton 등록 |
 | Runtime Profile 목록 | `GET /api/v1/runtime-profiles` | 등록된 Runtime 능력 조회 |
+| Runtime Profile 삭제 | `DELETE /api/v1/runtime-profiles/{runtime_profile_id}` | 미참조 또는 모든 참조 Deployment가 STOPPED일 때 등록 삭제 |
 | Target Profile 등록 | `POST /api/v1/target-profiles` | AWS/Azure/GCP/ETRI 제공 VM 대상 등록 |
 | Target Profile 목록 | `GET /api/v1/target-profiles` | 배포 가능한 VM/AI-Infra 대상 조회 |
+| Target Profile 삭제 | `DELETE /api/v1/target-profiles/{target_profile_id}` | 미참조 또는 모든 참조 Deployment가 STOPPED일 때 등록과 현재 Inventory snapshot 삭제 |
 | 자원 점검 | `POST /api/v1/resources/check` | VM 접속성, storage, nvidia-smi, Runtime readiness 확인 |
 | 자원 Inventory | `GET /api/v1/resources/inventory` | 최근 Resource Check 결과 조회 |
 
@@ -120,12 +133,12 @@ AI App Deployer가 외부 실행 환경 또는 기관 플랫폼을 호출하기 
 | 원칙 | 기준 |
 | --- | --- |
 | API Prefix | 모든 업무 API는 `/api/v1` 하위에 둔다. 단, `/openapi.yaml`, `/swagger`는 문서 제공 경로로 별도 제공한다. |
-| 데이터 형식 | 요청과 응답은 JSON을 기본으로 한다. App Spec은 JSON 또는 YAML 원본을 받을 수 있더라도 API 계약에서는 JSON 구조를 우선한다. |
+| 데이터 형식 | 요청과 응답은 JSON을 기본으로 한다. Package source upload만 `multipart/form-data`를 사용하고 ai-ops-geon preset은 JSON을 사용한다. |
 | 문자 인코딩 | UTF-8을 사용한다. |
 | OpenAPI 우선 | `contracts/openapi/openapi.yaml`을 단일 기준 계약으로 관리한다. |
 | 공통 추적 | 모든 응답에는 `request_id`를 포함한다. 요청 Header `X-Request-Id`가 있으면 이를 사용하고, 없으면 서버가 생성한다. |
 | 에러 응답 | 모든 실패는 표준 `ErrorResponse` 구조와 `error.code`를 사용한다. |
-| 보안 | Secret은 요청/응답 예시에 포함하지 않는다. VM 접속 정보는 `credential_ref`로만 표현한다. |
+| 보안 | Credential 생성 요청만 SSH secret을 입력받지만 정적 요청 예시는 제공하지 않는다. 응답·목록·로그·증적에는 Secret을 포함하지 않는다. SSH host key fingerprint는 신뢰 가능한 별도 채널에서 확인하는 필수 공개 메타데이터이며 응답·목록에 포함한다. Target Profile은 최대 256자의 제한된 `cred://namespace/id` 참조만 사용한다. |
 | 로그 | 배포 관련 응답과 로그에는 `deployment_id`, `stage`, `component`, `error_code`를 포함한다. |
 | 1차년도 범위 | VM 기반 배포만 제공한다. Container/Kubernetes API와 enum은 활성화하지 않는다. |
 | 외부 API | 실제 ETRI/Innogrid/Bespin API는 계약 확정 후 Adapter 교체로 연동한다. |
@@ -135,9 +148,10 @@ AI App Deployer가 외부 실행 환경 또는 기관 플랫폼을 호출하기 
 | Header | 필수 | 설명 |
 | --- | --- | --- |
 | `Content-Type: application/json` | 요청 body가 있을 때 필수 | JSON 요청 본문 사용 |
+| `Content-Type: multipart/form-data` | Package source 업로드 시 필수 | boundary는 HTTP client가 생성하며 source를 binary part로 전송 |
 | `Accept: application/json` | 권장 | JSON 응답 요청 |
 | `X-Request-Id` | 선택 | 외부 시스템이 생성한 추적 ID. 없으면 서버가 생성한다. |
-| `Authorization` | 환경별 선택 | API Gateway 또는 통합시험 인증 정책 확정 후 사용한다. 1차년도 로컬 smoke에서는 생략 가능하다. |
+| `Authorization` | 환경별 선택 | API Gateway 또는 통합시험 인증 정책 확정 후 사용한다. 1차년도 로컬 smoke에서는 생략 가능하나, Credential API 기본 정책은 loopback peer·loopback Host·same-origin이고 원격 허용 운영 환경은 TLS와 인증을 적용한 reverse proxy를 전제로 한다. |
 
 ### 2.2 공통 성공 응답 원칙
 
@@ -238,7 +252,7 @@ k8s_manifest
 | `os.type` | 1차년도 기준 `ubuntu` |
 | `vm.host` | 대상 VM host 또는 alias |
 | `vm.ssh_port` | SSH 사용 시 port |
-| `vm.credential_ref` | Secret 값을 직접 쓰지 않는 credential 참조 |
+| `vm.credential_ref` | 최대 256자의 제한된 `cred://namespace/id` credential 참조. Secret 직접 입력은 거부 |
 | `runtime.runtime_type` | 대상의 실행 유형 |
 | `gpu.vendor` | GPU 사용 시 `nvidia` |
 | `gpu.count` | GPU 개수 |
@@ -246,9 +260,89 @@ k8s_manifest
 | `storage.model_dir` | 모델 참조 경로 |
 | `storage.log_dir` | 로그 경로 |
 
+`vm.credential_ref`는 소문자 영숫자와 단일 하이픈으로 구성된 `cred://namespace/id` 형식만 허용한다. `cred://runtime/{credential_id}`는 Runtime Credential registry를 조회하고, 그 밖의 유효한 ref는 기존 ENV resolver fallback을 사용한다. 실제 key/password/token을 Target Profile에 기록하려는 요청은 거부한다.
+
+### 3.4 Runtime Credential 핵심 필드
+
+| 필드 | 필수 | 설명 |
+| --- | --- | --- |
+| `credential_id` | Y | `^[a-z0-9]+(?:-[a-z0-9]+)*$`, 2~63자 |
+| `credential_type` | Y | 현재 `ssh`만 허용 |
+| `auth_type` | Y | `private_key` 또는 `password` |
+| `ssh_user` | Y | SSH 사용자 |
+| `host_key_fingerprint` | Y | 신뢰 가능한 별도 채널에서 확인한 canonical OpenSSH SHA256 fingerprint. 필수 공개 메타데이터 |
+| `private_key` | 조건부 | private_key 방식에서 필수, writeOnly, 최대 65536자 |
+| `private_key_passphrase` | N | private_key 방식에서만 선택, writeOnly, 최대 4096자 |
+| `password` | 조건부 | password 방식에서 필수, writeOnly, 최대 4096자 |
+| `ssh_timeout_seconds` | N | 1~300초, 기본 30초 |
+
+등록 응답과 목록 item은 `request_id`(등록 응답만), `credential_id`, `credential_ref`, `credential_type`, `auth_type`, `ssh_user`, `host_key_fingerprint`, `ssh_timeout_seconds`, `persistent=false`, `created_at`만 반환한다. 삭제 응답은 `request_id`, `credential_id`, `credential_ref`, `deleted=true`, `deleted_at`만 반환한다. 비밀값은 프로세스 메모리에만 보관하고 재시작 시 소실되며, ENV resolver가 제공하는 Credential은 목록에 나타나지 않는다. Web/API는 `host_key_fingerprint`, CLI는 `--host-key-fingerprint`, ENV는 참조 prefix 뒤의 `_SSH_HOST_KEY_FINGERPRINT`로 같은 값을 받는다.
+
+### 3.5 Runtime/Target Profile 삭제 응답
+
+Runtime/Target Profile 삭제는 참조 Deployment가 없거나 모든 참조가 `STOPPED`일 때만 허용한다. `STOPPED` 외 참조가 하나라도 있으면 Runtime은 `RUNTIME_PROFILE_INVALID`/409, Target은 `TARGET_PROFILE_INVALID`/409이며, 없는 Profile은 `NOT_FOUND`/404이다. 성공 응답은 다음 공통 필드를 사용한다.
+
+| 필드 | 설명 |
+| --- | --- |
+| `request_id` | 요청 추적 식별자 |
+| `profile_type` | `runtime` 또는 `target` |
+| `profile_id` | 삭제한 Profile 식별자 |
+| `name` | 저장된 이름. 이름이 없더라도 빈 문자열로 항상 반환 |
+| `deleted` | 성공 시 `true` |
+| `inventory_deleted` | Runtime은 항상 `false`. Target은 현재 Resource Inventory snapshot을 실제로 제거한 경우만 `true` |
+| `deleted_at` | RFC 3339 삭제 시각 |
+
+삭제 후에도 STOPPED Deployment/Event/Metric 이력은 유지한다. Target Profile이 참조하던 Runtime Credential은 cascade 삭제하지 않으며 Credential DELETE도 Target 참조와 독립적으로 처리한다.
+
 ---
 
 ## 4. 주요 연동 시나리오
+
+### 4.0 시나리오 P: 유형 선택형 Package 생성과 배포 연결
+
+**호출 주체:** Innogrid, Bespin Web/CLI/Shell, 운영자
+
+**Endpoint:** `POST /api/v1/artifacts/packages`
+
+**목적:** 허용 유형의 소스를 Linux amd64 tar.gz와 등록 가능한 App Spec으로 만든다.
+
+ai-ops-geon 프리셋은 JSON으로 호출한다.
+
+```json
+{
+  "preset": "aiops-geon-service-control",
+  "app_version": "0.1.0",
+  "service_port": 18089
+}
+```
+
+일반 소스는 multipart로 호출한다.
+
+```bash
+curl -X POST http://localhost:8080/api/v1/artifacts/packages \
+  -F package_type=script \
+  -F source=@run.sh \
+  -F app_name=sample-shell-app \
+  -F app_version=0.1.0 \
+  -F entrypoint=run.sh \
+  -F runtime_type=cpu
+```
+
+지원 유형은 `aiops-geon-service-control`, `go`, `python`, `node`, `binary`, `script`이다. 임의 서버 source path나 build command는 받지 않는다. 응답에는 `artifact_uri`, `archive_name`, `checksum`, `app_spec`이 포함된다.
+
+Package 기반 배포 client는 다음 기존 API를 순서대로 조합한다.
+
+```text
+POST /api/v1/artifacts/packages
+  -> response.app_spec
+POST /api/v1/apps {"app_spec": response.app_spec}
+  -> response.app_version_id
+POST /api/v1/resources/check
+  -> status=available인 경우에만 계속
+POST /api/v1/deployments {app_version_id, runtime_profile_id, target_profile_id}
+```
+
+각 단계는 독립 요청이므로 후속 단계가 실패해도 이미 생성한 archive와 등록된 App은 자동 삭제되지 않는다. 따라서 client는 실패 시 `archive_name`, `artifact_uri`, `app_version_id`를 남겨 정리 또는 재시도에 사용해야 한다. Resource Check는 Target readiness를 반환하며 Runtime Profile 존재·호환성은 Deployment API에서 검증한다. `file://` artifact는 Package 생성 서버와 Deployment 처리 서버가 같은 파일시스템을 사용할 때만 유효하다.
 
 ### 4.1 시나리오 A: AI App 등록
 
@@ -326,6 +420,27 @@ k8s_manifest
 }
 ```
 
+#### App 등록 삭제
+
+**Endpoint:** `DELETE /api/v1/apps/{app_id}`
+
+웹 콘솔은 App 목록의 `등록 삭제`, CLI는 `apps delete <app-id> --yes`로 같은 API를 호출한다. 삭제 성공 응답은 다음과 같다.
+
+```json
+{
+  "request_id": "req-20260715-000003",
+  "app_id": "app-001",
+  "app_version_id": "appver-001",
+  "name": "sample-gpu-inference",
+  "version": "0.1.0",
+  "deleted": true,
+  "artifact_deleted": false,
+  "deleted_at": "2026-07-15T10:10:00Z"
+}
+```
+
+삭제 대상의 `app_id` 또는 `app_version_id`를 참조하는 Deployment가 없거나 모두 `STOPPED`이면 등록을 삭제한다. STOPPED Deployment 이력은 보존하며, `STOPPED` 외 상태가 하나라도 있으면 `APP_SPEC_INVALID`/409로 거부하고 App 등록을 유지한다. 이 API는 Registry record만 삭제하며 App Spec의 package, git, binary, script 원본과 대상 VM에 배포된 파일은 삭제하지 않는다.
+
 ### 4.2 시나리오 B: Runtime Profile 등록
 
 **호출 주체:** 경희대/ETRI 시험 관리자  
@@ -385,6 +500,40 @@ k8s_manifest
   }
 }
 ```
+
+### 4.3.1 시나리오 C-1: Runtime Credential 등록·조회·삭제
+
+**호출 주체:** 운영자, 통합시험 관리자
+
+**Endpoint:** `POST/GET /api/v1/credentials`, `DELETE /api/v1/credentials/{credential_id}`
+
+**목적:** CPU/GPU VM SSH Credential을 현재 AppDeploy 프로세스 수명 동안만 제공한다.
+
+Credential 생성 요청은 인증 방식에 맞는 secret을 포함하므로 정적 JSON 예제 파일이나 본문 예시를 제공하지 않는다. 시험 client는 실행 중에 임시 값을 생성하고 응답·로그·증적에 남기지 않아야 한다. 호출자는 SSH 접속 경로와 분리된 VM 운영자 또는 CSP 콘솔 같은 신뢰 가능한 채널에서 OpenSSH SHA256 host key fingerprint를 확인해 Web/API, CLI `--host-key-fingerprint` 또는 ENV `_SSH_HOST_KEY_FINGERPRINT`로 제공한다. 등록 후 Target Profile에는 응답의 `cred://runtime/{credential_id}`를 지정한다.
+
+GET은 `{request_id, items}` 구조로 `host_key_fingerprint`를 포함한 Runtime registry 공개 메타데이터만 반환하며 ENV Credential은 제외한다. DELETE는 Target Profile 참조가 있어도 성공하고 `deleted=true`, `deleted_at`을 반환한다. 삭제된 참조는 SSH runner의 다음 실제 VM 연결에서 Credential 누락으로 실패하지만 dry-run은 Credential을 해석하지 않는다. API는 기본적으로 loopback peer와 loopback `Host`, `Origin`이 있을 때 same-origin을 모두 요구하며, 원격 요청은 `AIAPP_CREDENTIAL_API_ALLOW_REMOTE=true`와 TLS·인증 reverse proxy가 함께 준비된 경우에만 허용한다.
+
+### 4.3.2 시나리오 C-2: Runtime/Target Profile 등록 삭제
+
+**호출 주체:** 운영자, 이노그리드, 베스핀 Web/CLI/Shell
+
+**Endpoint:** `DELETE /api/v1/runtime-profiles/{runtime_profile_id}`, `DELETE /api/v1/target-profiles/{target_profile_id}`
+
+**목적:** 사용하지 않거나 STOPPED Deployment 이력만 참조하는 Profile 등록을 안전하게 삭제한다.
+
+```json
+{
+  "request_id": "req-20260715-000003",
+  "profile_type": "target",
+  "profile_id": "target-aws-gpu-001",
+  "name": "AWS GPU VM",
+  "deleted": true,
+  "inventory_deleted": true,
+  "deleted_at": "2026-07-15T10:10:00Z"
+}
+```
+
+`name`은 저장값이 없을 때도 빈 문자열로 포함한다. Runtime 삭제는 `inventory_deleted=false`이며, Target 삭제는 현재 snapshot을 실제로 제거한 경우에만 `true`이다. STOPPED Deployment/Event/Metric 이력과 Runtime Credential은 유지한다. STOPPED 외 참조 충돌은 Profile 종류에 맞는 `*_PROFILE_INVALID`/409, 미존재는 `NOT_FOUND`/404로 반환한다.
 
 ### 4.4 시나리오 D: Resource Check
 
@@ -565,11 +714,11 @@ ANY_ACTIVE_STATE -> UNKNOWN
 
 | 에러 코드 | HTTP 예시 | 설명 | 재시도 가능성 |
 | --- | --- | --- | --- |
-| `APP_SPEC_INVALID` | 400 | App Spec 필수 필드 또는 형식 오류 | 아니오 |
+| `APP_SPEC_INVALID` | 400/409 | App Spec 필수 필드·형식 오류 또는 STOPPED 외 Deployment가 참조하는 App 등록 삭제 충돌 | 아니오 |
 | `APP_ARTIFACT_NOT_FOUND` | 400/404 | 실행 패키지 또는 스크립트 위치 확인 실패 | 조건부 |
 | `ENTRYPOINT_INVALID` | 400 | VM에서 실행할 명령 또는 작업 디렉터리 오류 | 아니오 |
-| `RUNTIME_PROFILE_INVALID` | 400 | Runtime Profile 형식 또는 필수 필드 오류 | 아니오 |
-| `TARGET_PROFILE_INVALID` | 400 | Target Profile 형식 또는 접속 정보 오류 | 아니오 |
+| `RUNTIME_PROFILE_INVALID` | 400/409 | Runtime Profile 형식·필수 필드 오류(400) 또는 STOPPED 외 Deployment 참조가 있는 삭제 충돌(409) | 아니오 |
+| `TARGET_PROFILE_INVALID` | 400/409/413 | Target Profile·credential_ref 오류, Credential 입력·host key fingerprint·개별 secret 최대 길이 오류(400), ID 중복 또는 STOPPED 외 Deployment 참조가 있는 삭제 충돌(409), 전체 JSON 본문 128 KiB 초과(413) | 아니오 |
 | `RESOURCE_INSUFFICIENT` | 409 | CPU/Memory/GPU/Storage 요구량 충족 실패 | 조건부 |
 | `GPU_RUNTIME_NOT_FOUND` | 409 | NVIDIA GPU 또는 GPU Runtime 확인 실패 | 조건부 |
 | `NVIDIA_DRIVER_NOT_FOUND` | 409 | NVIDIA Driver 확인 실패 | 조건부 |
@@ -577,7 +726,8 @@ ANY_ACTIVE_STATE -> UNKNOWN
 | `STORAGE_PATH_UNAVAILABLE` | 409 | Artifact/Model/Log 경로 접근 실패 | 조건부 |
 | `AI_INFRA_API_TIMEOUT` | 504 | ETRI AI-Infra API 응답 지연 | 예 |
 | `AI_INFRA_API_FAILED` | 502 | ETRI AI-Infra API 호출 실패 | 조건부 |
-| `GATEWAY_AUTH_FAILED` | 401/403 | API Gateway 인증 실패 | 아니오 |
+| `GATEWAY_AUTH_FAILED` | 401/403 | API Gateway 인증 실패 또는 Credential API peer/Host/Origin 접근 정책 위반 | 아니오 |
+| `NOT_FOUND` | 404 | 요청한 Runtime Credential, Runtime/Target Profile 등 리소스가 없음 | 아니오 |
 | `BESPIN_API_FAILED` | 502 | 베스핀 API 호출 실패 | 조건부 |
 | `DEPLOYMENT_FAILED` | 500 | 배포 실행 실패 | 조건부 |
 | `RUNTIME_FAILED` | 500 | 실행 중 Runtime 장애 | 조건부 |
@@ -589,8 +739,8 @@ ANY_ACTIVE_STATE -> UNKNOWN
 | 기관/시스템 | 우리 제공 인터페이스 | 상대방 제공 또는 확정 필요사항 | 1차년도 처리 |
 | --- | --- | --- | --- |
 | ETRI | Target Profile, Resource Check, ETRI AI-Infra Adapter skeleton, 표준 에러 매핑 | AWS GPU VM 접속 정보, 3종 CSP VM 정보, AI-Infra API 명세, API Gateway 정책 | Mock/Fixture 및 Contract Test 우선. 실 API 확정 후 client 교체 |
-| 이노그리드 | App 등록 API, 배포 요청 API, 상태·로그 조회 API | App 등록/배포 흐름에서 호출 주체, 필드 매핑, 실패 처리 정책 | REST API 계약과 요청/응답 예시 제공 |
-| 베스핀글로벌 Web Console | App/Deployment/Monitoring 조회 API, 배포 요청 API | Console 화면에서 호출할 API, 인증 방식, 사용자 action mapping | OpenAPI와 예제 JSON 제공 |
+| 이노그리드 | Credential 관리, App 및 Runtime/Target Profile 등록·삭제 API, 배포 요청 API, 상태·로그 조회 API | Credential/App/Profile 등록·삭제/배포 흐름에서 호출 주체, 신뢰된 host key fingerprint 제공 경로, 필드 매핑, 실패 처리 정책 | REST API 계약과 비밀값 없는 요청/응답 예시 제공 |
+| 베스핀글로벌 Web Console | Credential 관리, App 및 Runtime/Target Profile 등록 삭제, App/Deployment/Monitoring 조회 API, 배포 요청 API | Console 화면에서 호출할 API, fingerprint 신뢰 채널, 인증 방식, 사용자 action mapping | OpenAPI와 비밀값 없는 예제 JSON 제공 |
 | Bespin MCP-like API | 배포 요청, 상태 조회, 로그 조회, 중지 API | Tool 입력 schema와 REST API mapping | API 호출 시나리오와 에러 매핑 제공 |
 | API Gateway | `/api/v1` 라우팅 대상 API, healthz/readiness | 인증, 라우팅, timeout, retry, path rewrite 정책 | Gateway 설정 항목 문서화 |
 
@@ -629,6 +779,8 @@ ETRI AI-Infra, Innogrid, Bespin의 실제 내부 API는 각 기관 계약 확정
 - 외부제공인터페이스 명세서
 ```
 
+Credential secret을 담은 요청 예제 파일은 동기화 대상에서 제외한다. Contract test는 실행 시 임시 canary를 생성하고 비밀값을 응답·로그·증적에 저장하지 않는다.
+
 ---
 
 ## 9. 인터페이스 수용 기준
@@ -639,7 +791,15 @@ ETRI AI-Infra, Innogrid, Bespin의 실제 내부 API는 각 기관 계약 확정
 | TC-IF-002 | Swagger 조회 | `GET /swagger`가 정상 표시된다. |
 | TC-IF-003 | App 등록 예제 | 제공한 CPU/GPU App JSON으로 등록이 성공한다. |
 | TC-IF-004 | Container artifact 거부 | `container` artifact 예제가 `APP_SPEC_INVALID`를 반환한다. |
+| TC-IF-APP-001 | App 등록 삭제 | 미참조 App 삭제가 `deleted=true`, `artifact_deleted=false`, `deleted_at`을 반환하고 조회 목록에서 제외된다. |
+| TC-IF-APP-002 | STOPPED 이력 App 삭제 | 모든 참조 Deployment가 STOPPED이면 App 등록은 삭제되고 Deployment 이력과 artifact 원본은 유지된다. |
+| TC-IF-APP-003 | App 삭제 참조 보호 | STOPPED 외 참조 Deployment가 하나라도 있으면 `APP_SPEC_INVALID`/409이고 App 등록과 artifact 원본이 유지된다. |
 | TC-IF-005 | Runtime/Target 등록 | 제공한 Profile 예제 등록이 성공한다. |
+| TC-IF-PROFILE-001 | 미참조 Profile 삭제 | Runtime/Target 삭제가 공통 응답 필드를 반환하고 목록에서 제외되며, 저장된 이름이 없으면 `name=""`이다. |
+| TC-IF-PROFILE-002 | STOPPED 이력 Profile 삭제 | 모든 참조 Deployment가 STOPPED이면 삭제되고 Deployment/Event/Metric 이력은 유지된다. |
+| TC-IF-PROFILE-003 | Profile 삭제 참조 보호 | STOPPED 외 참조가 있으면 Runtime은 `RUNTIME_PROFILE_INVALID`/409, Target은 `TARGET_PROFILE_INVALID`/409이며 Profile과 Inventory가 유지된다. |
+| TC-IF-PROFILE-004 | Target Inventory·Credential 경계 | Target의 현재 snapshot이 실제 제거될 때만 `inventory_deleted=true`이고 Credential은 유지되며, Runtime은 항상 `false`이다. |
+| TC-IF-PROFILE-005 | 없는 Profile 삭제 | Runtime/Target 미존재 삭제가 `NOT_FOUND`/404를 반환한다. |
 | TC-IF-006 | Resource Check | CPU/GPU Target readiness 응답이 반환된다. |
 | TC-IF-007 | Deployment 생성 | 배포 요청이 `deployment_id`와 표준 Deployment 상태를 반환한다. 현재 프로토타입은 동기 처리 후 `RUNNING`까지 전이될 수 있다. |
 | TC-IF-008 | 상태 조회 | Deployment 상태가 표준 Enum으로 반환된다. |
@@ -648,6 +808,18 @@ ETRI AI-Infra, Innogrid, Bespin의 실제 내부 API는 각 기관 계약 확정
 | TC-IF-011 | Monitoring 조회 | summary/runtime-health/alarms/metrics 응답이 반환된다. |
 | TC-IF-012 | 외부 API 실패 매핑 | ETRI mock timeout/auth/failure가 표준 에러 코드로 매핑된다. |
 | TC-IF-013 | 범위 검수 | Docker/Kubernetes/Container 관련 API와 enum이 1차년도 활성 계약에 포함되지 않는다. |
+| TC-IF-PKG-001 | 프리셋 Package 생성 | preset JSON 요청이 checksum과 app_spec을 반환한다. |
+| TC-IF-PKG-002 | 업로드 Package 생성 | script multipart 요청이 checksum과 app_spec을 반환한다. |
+| TC-IF-PKG-003 | Package 연속 배포 | app_spec 등록, Resource Check, available일 때만 Deployment 생성이 기존 계약으로 연결된다. |
+| TC-IF-PKG-004 | Package 입력 보호 | 미지원 유형, 빈 source, unsafe ZIP, 크기 초과 요청이 표준 에러로 거부된다. |
+| TC-IF-CRED-001 | Credential 등록 | 두 인증 분기가 필수 host key fingerprint와 함께 등록되고 응답에는 fingerprint 등 공개 메타데이터와 `persistent=false`만 반환된다. |
+| TC-IF-CRED-002 | Credential 목록/ENV | Runtime 목록은 fingerprint를 포함하고 ENV Credential과 secret은 제외하며, ENV fingerprint 누락은 해석 실패한다. |
+| TC-IF-CRED-003 | Credential 삭제 | Target 참조 중 삭제가 성공하고, SSH runner의 다음 실제 연결은 Credential 누락으로 실패하지만 dry-run은 해석하지 않으며 재삭제는 `NOT_FOUND`/404이다. |
+| TC-IF-CRED-004 | Credential 입력·접근 보호 | 잘못된 fingerprint·입력·Content-Type·개별 secret 길이·크기 제한은 표준 400/409/413으로, 비허용 peer/Host/Origin은 `GATEWAY_AUTH_FAILED`/403으로 거부된다. |
+| TC-IF-CRED-005 | Credential 수명·비노출 | 재시작 후 Runtime 목록이 비고 실행 중 생성한 canary가 응답·store·로그·Web/CLI 출력·증적에 남지 않는다. |
+| TC-IF-CRED-006 | SSH 서버 신원 고정 | Web/API/CLI/ENV에 제공한 fingerprint와 서버 host key가 일치할 때만 연결되고 불일치하면 SSH 인증 전에 거부된다. |
+| TC-IF-CRED-007 | Target Credential 참조 보호 | 최대 256자의 `cred://namespace/id` 형식만 저장되고 Secret canary 직접 입력은 응답·store·목록에 남기지 않고 거부된다. |
+| TC-IF-CRED-008 | Credential 원격 opt-in | TLS·인증 reverse proxy가 인증 없는 원격 요청을 거부하고 인증된 요청만 `AIAPP_CREDENTIAL_API_ALLOW_REMOTE=true` 서버로 전달한다. |
 
 ---
 
@@ -663,6 +835,7 @@ deliverables/interface/
 │   └── 외부_연동_경계_정리.md
 ├── examples/
 │   ├── requests/
+│   │   ├── package-build-aiops-geon.json
 │   │   ├── app-create-cpu.json
 │   │   ├── app-create-gpu.json
 │   │   ├── app-create-invalid-container.json
@@ -671,7 +844,9 @@ deliverables/interface/
 │   │   ├── resource-check-gpu.json
 │   │   └── deployment-create-gpu.json
 │   └── responses/
+│       ├── package-build-success.json
 │       ├── app-create-success.json
+│       ├── app-delete-success.json
 │       ├── deployment-create-success.json
 │       ├── deployment-status-running.json
 │       ├── deployment-logs-success.json

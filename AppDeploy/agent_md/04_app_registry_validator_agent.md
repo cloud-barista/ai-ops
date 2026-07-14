@@ -1,14 +1,18 @@
 # 04. App Registry 및 Validator 에이전트
 
 ## 역할
-AI App 등록, 버전 관리, App Spec 검증 기능을 구현한다.
+AI App 등록, 등록 삭제, 버전 관리, App Spec 검증 기능을 구현한다.
 
 ## 구현 대상
 - App 등록 API
 - App 목록/상세 조회 API
+- 참조 Deployment가 없거나 모두 STOPPED인 App 등록 삭제 API
 - App Spec JSON Schema 검증
 - Go 기반 의미 검증
 - 중복 name/version 검증
+- 삭제는 App Registry 레코드만 대상으로 하며 artifact 원본과 VM 배포 파일은 유지
+- STOPPED 이외 상태의 Deployment가 app_id 또는 app_version_id를 참조하면 `APP_SPEC_INVALID`/409로 삭제 거부
+- App 삭제 후에도 STOPPED Deployment 이력은 보존
 
 ## 검증 규칙
 - `schema_version`은 `appspec.khu.ai/v1alpha1`이어야 한다.
@@ -27,3 +31,6 @@ AI App 등록, 버전 관리, App Spec 검증 기능을 구현한다.
 - 필수 필드 누락
 - container artifact 거부
 - 중복 버전 등록 거부
+- 미참조 또는 STOPPED 참조 App 삭제 후 동일 name/version 재등록
+- STOPPED 이외 Deployment 참조가 있는 App 삭제 거부와 등록 보존
+- STOPPED와 비-STOPPED 참조가 섞인 App 삭제 거부

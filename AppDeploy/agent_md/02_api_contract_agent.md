@@ -16,12 +16,17 @@ OpenAPI와 JSON Schema를 기준으로 API 계약을 정의하고 Go/Echo 구현
 - `POST /api/v1/apps`
 - `GET /api/v1/apps`
 - `GET /api/v1/apps/{app_id}`
+- `DELETE /api/v1/apps/{app_id}`
 - `POST /api/v1/deployments`
 - `GET /api/v1/deployments/{deployment_id}`
 - `GET /api/v1/deployments/{deployment_id}/logs`
 - `POST /api/v1/deployments/{deployment_id}/stop`
 - `POST /api/v1/runtime-profiles`
+- `GET /api/v1/runtime-profiles`
+- `DELETE /api/v1/runtime-profiles/{runtime_profile_id}`
 - `POST /api/v1/target-profiles`
+- `GET /api/v1/target-profiles`
+- `DELETE /api/v1/target-profiles/{target_profile_id}`
 - `POST /api/v1/resources/check`
 
 ## 응답 메시지 기준

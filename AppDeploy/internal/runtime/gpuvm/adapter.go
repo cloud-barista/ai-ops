@@ -4,30 +4,28 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"path"
 	"strings"
-	"sync"
-	"time"
 
 	apperrors "github.com/khu/ai-app-deployer/internal/errors"
 	"github.com/khu/ai-app-deployer/internal/model"
 	"github.com/khu/ai-app-deployer/internal/runtime"
-	"github.com/khu/ai-app-deployer/internal/runtime/cpuvm"
-	"github.com/rs/zerolog/log"
+	"github.com/khu/ai-app-deployer/internal/runtime/vmprocess"
 )
 
 type Adapter struct {
-	mu     sync.RWMutex
-	runner cpuvm.Runner
-	status map[string]string
-	logs   map[string][]model.DeploymentLog
+	runner  vmprocess.Runner
+	process *vmprocess.Process
 }
 
-func New(runner cpuvm.Runner) *Adapter {
+func New(runner vmprocess.Runner) *Adapter {
 	return &Adapter{
 		runner: runner,
-		status: map[string]string{},
-		logs:   map[string][]model.DeploymentLog{},
+		process: vmprocess.New(runner, vmprocess.Config{
+			RuntimeType:     "gpu",
+			DisplayName:     "gpu vm",
+			Component:       "gpu-vm-adapter",
+			RuntimeIDPrefix: "gpuvm-",
+		}),
 	}
 }
 
@@ -63,13 +61,13 @@ func (a *Adapter) HealthCheck(ctx context.Context, profile model.RuntimeProfile,
 	if err := a.ValidateTarget(ctx, target); err != nil {
 		return err
 	}
-	_, err := a.runner.Run(ctx, target, cpuvm.Command{
+	_, err := a.runner.Run(ctx, target, vmprocess.Command{
 		Stage: model.StatusValidating,
 		Name:  "nvidia-smi",
 		Args:  []string{"--query-gpu=name,driver_version", "--format=csv,noheader"},
 	})
 	if err != nil {
-		return apperrors.New(model.ErrNvidiaDriverNotFound, "nvidia-smi not found or NVIDIA driver unavailable", http.StatusBadRequest, false)
+		return apperrors.New(model.ErrNvidiaDriverNotFound, fmt.Sprintf("nvidia-smi check failed: %v", err), http.StatusBadRequest, false)
 	}
 	return nil
 }
@@ -78,141 +76,37 @@ func (a *Adapter) Prepare(ctx context.Context, app model.AppResponse, target mod
 	if err := a.ValidateTarget(ctx, target); err != nil {
 		return nil, err
 	}
-	artifactPath := path.Join(target.Storage.ArtifactDir, app.Name, app.Version)
-	_, err := a.runner.Run(ctx, target, cpuvm.Command{
-		Stage: model.StatusDeploying,
-		Name:  "prepare-artifact",
-		Args:  []string{app.AppSpec.Artifact.URI, artifactPath},
-	})
-	if err != nil {
-		return nil, apperrors.New(model.ErrAppArtifactNotFound, "gpu vm artifact preparation failed", http.StatusBadRequest, false)
-	}
-	return &runtime.PrepareResult{
-		ArtifactPath: artifactPath,
-		Message:      "gpu vm artifact preparation completed",
-	}, nil
+	return a.process.Prepare(ctx, app, target)
 }
 
 func (a *Adapter) Deploy(ctx context.Context, plan runtime.DeploymentPlan) (*runtime.DeployResult, error) {
-	if plan.App.AppSpec.Runtime.Type != "gpu" {
-		return nil, apperrors.New(model.ErrRuntimeProfileInvalid, "gpu vm adapter can deploy only gpu apps", http.StatusBadRequest, false)
-	}
-	workingDir := plan.App.AppSpec.Entrypoint.WorkingDir
-	if workingDir == "" {
-		workingDir = path.Join(plan.Target.Storage.ArtifactDir, plan.App.Name, plan.App.Version)
-	}
-	result, err := a.runner.Run(ctx, plan.Target, cpuvm.Command{
-		Stage:      model.StatusDeploying,
-		Name:       plan.App.AppSpec.Entrypoint.Command,
-		Args:       plan.App.AppSpec.Entrypoint.Args,
-		WorkingDir: workingDir,
-	})
-	if err != nil {
-		return nil, apperrors.New(model.ErrDeploymentFailed, "gpu vm deployment command failed", http.StatusBadRequest, false)
-	}
-
-	a.mu.Lock()
-	defer a.mu.Unlock()
-	a.status[plan.DeploymentID] = model.StatusRunning
-	item := model.DeploymentLog{
-		Timestamp:    time.Now().UTC(),
-		Level:        "INFO",
-		RequestID:    plan.RequestID,
-		DeploymentID: plan.DeploymentID,
-		Component:    "gpu-vm-adapter",
-		Stage:        model.StatusDeploying,
-		Message:      maskSensitive("gpu vm command accepted: " + result.Output),
-	}
-	a.logs[plan.DeploymentID] = append(a.logs[plan.DeploymentID], item)
-	logAdapterEvent(item)
-	return &runtime.DeployResult{
-		RuntimeID: "gpuvm-" + plan.DeploymentID,
-		Message:   "gpu vm deployment is running",
-	}, nil
+	return a.process.Deploy(ctx, plan)
 }
 
 func (a *Adapter) GetStatus(ctx context.Context, deploymentID string) (*runtime.RuntimeStatus, error) {
-	a.mu.RLock()
-	defer a.mu.RUnlock()
-	status := a.status[deploymentID]
-	if status == "" {
-		status = model.StatusUnknown
-	}
-	return &runtime.RuntimeStatus{Status: status, Message: "gpu vm status checked"}, nil
+	return a.process.GetStatus(ctx, deploymentID)
 }
 
 func (a *Adapter) GetLogs(ctx context.Context, deploymentID string, opt runtime.LogQuery) ([]model.DeploymentLog, error) {
-	a.mu.RLock()
-	defer a.mu.RUnlock()
-	source := a.logs[deploymentID]
-	items := make([]model.DeploymentLog, 0, len(source))
-	for _, item := range source {
-		if opt.Stage == "" || item.Stage == opt.Stage {
-			items = append(items, item)
-		}
-	}
-	return items, nil
+	return a.process.GetLogs(ctx, deploymentID, opt)
 }
 
 func (a *Adapter) Stop(ctx context.Context, plan runtime.StopPlan) error {
-	workingDir := plan.App.AppSpec.Entrypoint.WorkingDir
-	if workingDir == "" {
-		workingDir = path.Join(plan.Target.Storage.ArtifactDir, plan.App.Name, plan.App.Version)
-	}
-	result, err := a.runner.Run(ctx, plan.Target, cpuvm.Command{
-		Stage: model.StatusStopping,
-		Name:  "stop-process",
-		Args:  []string{workingDir},
-	})
-	if err != nil {
-		return apperrors.New(model.ErrRuntimeFailed, "gpu vm stop command failed", http.StatusBadRequest, true)
-	}
-
-	a.mu.Lock()
-	defer a.mu.Unlock()
-	a.status[plan.DeploymentID] = model.StatusStopped
-	item := model.DeploymentLog{
-		Timestamp:    time.Now().UTC(),
-		Level:        "INFO",
-		RequestID:    plan.RequestID,
-		DeploymentID: plan.DeploymentID,
-		Component:    "gpu-vm-adapter",
-		Stage:        model.StatusStopped,
-		Message:      maskSensitive("gpu vm process stop requested: " + result.Output),
-	}
-	a.logs[plan.DeploymentID] = append(a.logs[plan.DeploymentID], item)
-	logAdapterEvent(item)
-	return nil
+	return a.process.Stop(ctx, plan)
 }
 
-func logAdapterEvent(item model.DeploymentLog) {
-	log.Info().
-		Str("request_id", item.RequestID).
-		Str("deployment_id", item.DeploymentID).
-		Str("component", item.Component).
-		Str("stage", item.Stage).
-		Msg(item.Message)
-}
-
-func maskSensitive(value string) string {
-	value = strings.ReplaceAll(value, "password", "[masked]")
-	value = strings.ReplaceAll(value, "token", "[masked]")
-	value = strings.ReplaceAll(value, "secret", "[masked]")
-	return value
-}
-
-func NewDryRunRunner() cpuvm.Runner {
+func NewDryRunRunner() vmprocess.Runner {
 	return &gpuDryRunRunner{}
 }
 
 type gpuDryRunRunner struct{}
 
-func (r *gpuDryRunRunner) Run(ctx context.Context, target model.TargetProfile, command cpuvm.Command) (cpuvm.Result, error) {
+func (r *gpuDryRunRunner) Run(ctx context.Context, target model.TargetProfile, command vmprocess.Command) (vmprocess.Result, error) {
 	if strings.TrimSpace(target.VM.Host) == "" {
-		return cpuvm.Result{}, fmt.Errorf("target vm host is empty")
+		return vmprocess.Result{}, fmt.Errorf("target vm host is empty")
 	}
 	if command.Name == "nvidia-smi" {
-		return cpuvm.Result{Output: "NVIDIA Mock GPU, 535.00"}, nil
+		return vmprocess.Result{Output: "NVIDIA Mock GPU, 535.00"}, nil
 	}
-	return cpuvm.NewDryRunRunner().Run(ctx, target, command)
+	return vmprocess.Result{Output: fmt.Sprintf("dry-run %s accepted", command.Name)}, nil
 }

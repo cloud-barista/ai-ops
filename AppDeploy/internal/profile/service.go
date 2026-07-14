@@ -4,7 +4,9 @@ import (
 	"context"
 	"net/http"
 	"strings"
+	"time"
 
+	"github.com/khu/ai-app-deployer/internal/credentialref"
 	apperrors "github.com/khu/ai-app-deployer/internal/errors"
 	"github.com/khu/ai-app-deployer/internal/model"
 	"github.com/khu/ai-app-deployer/internal/store"
@@ -54,6 +56,36 @@ func (s *Service) GetTarget(ctx context.Context, id string) (model.TargetProfile
 	return s.repo.GetTargetProfile(ctx, id)
 }
 
+func (s *Service) DeleteRuntime(ctx context.Context, id string) (model.ProfileDeleteResponse, error) {
+	profile, err := s.repo.DeleteRuntimeProfile(ctx, id)
+	if err != nil {
+		return model.ProfileDeleteResponse{}, err
+	}
+	return model.ProfileDeleteResponse{
+		ProfileType:      model.ProfileTypeRuntime,
+		ProfileID:        profile.RuntimeProfileID,
+		Name:             profile.Name,
+		Deleted:          true,
+		InventoryDeleted: false,
+		DeletedAt:        time.Now().UTC(),
+	}, nil
+}
+
+func (s *Service) DeleteTarget(ctx context.Context, id string) (model.ProfileDeleteResponse, error) {
+	profile, inventoryDeleted, err := s.repo.DeleteTargetProfile(ctx, id)
+	if err != nil {
+		return model.ProfileDeleteResponse{}, err
+	}
+	return model.ProfileDeleteResponse{
+		ProfileType:      model.ProfileTypeTarget,
+		ProfileID:        profile.TargetProfileID,
+		Name:             profile.Name,
+		Deleted:          true,
+		InventoryDeleted: inventoryDeleted,
+		DeletedAt:        time.Now().UTC(),
+	}, nil
+}
+
 func ValidateRuntimeProfile(profile model.RuntimeProfile) error {
 	if strings.TrimSpace(profile.RuntimeProfileID) == "" {
 		return runtimeInvalid("runtime_profile_id is required")
@@ -83,6 +115,9 @@ func ValidateTargetProfile(profile model.TargetProfile) error {
 	if profile.CSP != "mock" && strings.TrimSpace(profile.VM.Host) == "" {
 		return targetInvalid("vm.host is required for non-mock targets")
 	}
+	if err := validateCredentialRef(profile.VM.CredentialRef); err != nil {
+		return err
+	}
 	if !allowed(profile.Runtime.RuntimeType, "mock", "cpu", "gpu", "aiinfra") {
 		return targetInvalid("runtime.runtime_type must be one of mock, cpu, gpu, aiinfra")
 	}
@@ -94,6 +129,13 @@ func ValidateTargetProfile(profile model.TargetProfile) error {
 	}
 	if profile.GPU != nil && profile.GPU.Count < 0 {
 		return targetInvalid("gpu.count cannot be negative")
+	}
+	return nil
+}
+
+func validateCredentialRef(credentialRef string) error {
+	if !credentialref.Valid(credentialRef) {
+		return targetInvalid("vm.credential_ref must be a credential reference such as cred://runtime/credential-id")
 	}
 	return nil
 }

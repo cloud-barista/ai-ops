@@ -4,9 +4,9 @@
 AI App Deployer의 외부 제공 인터페이스, OpenAPI 계약, 예제, smoke/contract test, 외부 책임 경계를 함께 검토한다.
 
 ## 담당 범위
-- AI App 등록/조회 API
-- Runtime Profile 등록/조회 API
-- Target Profile 등록/조회 API
+- AI App 등록/조회/등록 삭제 API
+- Runtime Profile 등록/조회/삭제 API
+- Target Profile 등록/조회/삭제 API
 - Resource Check / Resource Inventory API
 - Deployment 생성/목록/상태/로그/중지 API
 - Monitoring summary/runtime-health/alarms/metrics API
@@ -31,6 +31,8 @@ AI App Deployer의 외부 제공 인터페이스, OpenAPI 계약, 예제, smoke/
 - OpenAPI, Go handler, examples, smoke script, docs는 함께 갱신한다.
 - 활성 enum은 `agent_md/00_scope_common_contract.md`의 상태값과 에러 코드를 따른다.
 - `artifact.type`은 `package`, `git`, `binary`, `script`만 허용한다.
+- App 삭제 API는 Registry 레코드만 삭제하고 STOPPED Deployment 이력, artifact, VM 배포 파일을 유지한다. STOPPED 이외 상태의 참조가 있으면 409를 반환한다.
+- Runtime/Target Profile 삭제 API는 미참조 또는 모든 참조 Deployment가 STOPPED일 때만 등록을 삭제한다. STOPPED Deployment/Event/Metric 이력과 Credential은 유지하고, Target의 현재 Inventory snapshot만 함께 제거한다. STOPPED 외 참조가 있으면 Profile 종류에 맞는 409를 반환한다.
 
 ## ErrorResponse 기준
 ```json
@@ -62,8 +64,8 @@ AI App Deployer의 외부 제공 인터페이스, OpenAPI 계약, 예제, smoke/
 | 대상 | 경희대학교 제공 | 외부 기관 확정 필요 |
 | --- | --- | --- |
 | ETRI | Target Profile, Resource Check, ETRI AI-Infra Adapter skeleton | VM 접속 정보, AI-Infra API, API Gateway 정책 |
-| Innogrid | App 등록/배포 API | 호출 주체, field mapping |
-| Bespin Web Console | OpenAPI 기반 조회/배포/모니터링 API | 화면 action과 인증 정책 |
+| Innogrid | App 및 Runtime/Target Profile 등록/등록 삭제/배포 API | 호출 주체, field mapping, artifact·이력 보존 정책 |
+| Bespin Web Console | OpenAPI 기반 App/Profile 조회/등록 삭제/배포/모니터링 API | 화면 action과 인증 정책 |
 | Bespin MCP-like API | REST API 호출 시나리오 | MCP tool schema |
 | API Gateway | healthz/readiness 및 `/api/v1` 라우팅 대상 | 인증/라우팅/timeout/retry |
 

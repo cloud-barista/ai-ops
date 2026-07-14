@@ -52,6 +52,29 @@ type ReadinessResponse struct {
 	Checks    map[string]string `json:"checks"`
 }
 
+type PackageBuildRequest struct {
+	Preset          string `json:"preset,omitempty"`
+	PackageType     string `json:"package_type,omitempty"`
+	AppName         string `json:"app_name,omitempty"`
+	AppVersion      string `json:"app_version,omitempty"`
+	Entrypoint      string `json:"entrypoint,omitempty"`
+	RuntimeType     string `json:"runtime_type,omitempty"`
+	ServicePort     int    `json:"service_port,omitempty"`
+	HealthcheckPath string `json:"healthcheck_path,omitempty"`
+}
+
+type PackageBuildResponse struct {
+	RequestID   string    `json:"request_id,omitempty"`
+	PackageType string    `json:"package_type"`
+	ArtifactURI string    `json:"artifact_uri"`
+	ArchiveName string    `json:"archive_name"`
+	SizeBytes   int64     `json:"size_bytes"`
+	Checksum    string    `json:"checksum"`
+	CreatedAt   time.Time `json:"created_at"`
+	ElapsedMS   int64     `json:"elapsed_ms"`
+	AppSpec     AppSpec   `json:"app_spec"`
+}
+
 type AppCreateRequest struct {
 	AppSpec AppSpec `json:"app_spec"`
 }
@@ -64,6 +87,32 @@ type AppResponse struct {
 	Version      string    `json:"version"`
 	AppSpec      AppSpec   `json:"app_spec"`
 	CreatedAt    time.Time `json:"created_at"`
+}
+
+type AppDeleteResponse struct {
+	RequestID       string    `json:"request_id,omitempty"`
+	AppID           string    `json:"app_id"`
+	AppVersionID    string    `json:"app_version_id"`
+	Name            string    `json:"name"`
+	Version         string    `json:"version"`
+	Deleted         bool      `json:"deleted"`
+	ArtifactDeleted bool      `json:"artifact_deleted"`
+	DeletedAt       time.Time `json:"deleted_at"`
+}
+
+const (
+	ProfileTypeRuntime = "runtime"
+	ProfileTypeTarget  = "target"
+)
+
+type ProfileDeleteResponse struct {
+	RequestID        string    `json:"request_id,omitempty"`
+	ProfileType      string    `json:"profile_type"`
+	ProfileID        string    `json:"profile_id"`
+	Name             string    `json:"name"`
+	Deleted          bool      `json:"deleted"`
+	InventoryDeleted bool      `json:"inventory_deleted"`
+	DeletedAt        time.Time `json:"deleted_at"`
 }
 
 type AppSpec struct {

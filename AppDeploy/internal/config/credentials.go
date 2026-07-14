@@ -2,6 +2,8 @@ package config
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/base64"
 	"fmt"
 	"regexp"
 	"strings"
@@ -11,10 +13,13 @@ import (
 )
 
 type SSHCredential struct {
-	User           string
-	PrivateKeyPath string
-	Password       string
-	Timeout        time.Duration
+	User                 string        `json:"-"`
+	PrivateKeyPath       string        `json:"-"`
+	PrivateKey           []byte        `json:"-"`
+	PrivateKeyPassphrase []byte        `json:"-"`
+	Password             string        `json:"-"`
+	HostKeyFingerprint   string        `json:"-"`
+	Timeout              time.Duration `json:"-"`
 }
 
 type SSHCredentialResolver interface {
@@ -48,10 +53,12 @@ func (r *EnvCredentialResolver) ResolveSSH(ctx context.Context, credentialRef st
 		timeout = parsed
 	}
 	credential := SSHCredential{
-		User:           r.values.GetString(prefix + "_SSH_USER"),
-		PrivateKeyPath: r.values.GetString(prefix + "_SSH_KEY_PATH"),
-		Password:       r.values.GetString(prefix + "_SSH_PASSWORD"),
-		Timeout:        timeout,
+		User:                 r.values.GetString(prefix + "_SSH_USER"),
+		PrivateKeyPath:       r.values.GetString(prefix + "_SSH_KEY_PATH"),
+		PrivateKeyPassphrase: []byte(r.values.GetString(prefix + "_SSH_KEY_PASSPHRASE")),
+		Password:             r.values.GetString(prefix + "_SSH_PASSWORD"),
+		HostKeyFingerprint:   strings.TrimSpace(r.values.GetString(prefix + "_SSH_HOST_KEY_FINGERPRINT")),
+		Timeout:              timeout,
 	}
 	if strings.TrimSpace(credential.User) == "" {
 		return SSHCredential{}, fmt.Errorf("ssh user is not configured for credential_ref")
@@ -59,7 +66,31 @@ func (r *EnvCredentialResolver) ResolveSSH(ctx context.Context, credentialRef st
 	if strings.TrimSpace(credential.PrivateKeyPath) == "" && strings.TrimSpace(credential.Password) == "" {
 		return SSHCredential{}, fmt.Errorf("ssh auth method is not configured for credential_ref")
 	}
+	if len(credential.PrivateKeyPassphrase) > 0 && strings.TrimSpace(credential.PrivateKeyPath) == "" {
+		return SSHCredential{}, fmt.Errorf("ssh private key passphrase requires a key path")
+	}
+	if credential.HostKeyFingerprint == "" {
+		return SSHCredential{}, fmt.Errorf("ssh host key fingerprint is not configured for credential_ref")
+	}
+	if !IsValidSSHHostKeyFingerprint(credential.HostKeyFingerprint) {
+		return SSHCredential{}, fmt.Errorf("ssh host key fingerprint is invalid for credential_ref")
+	}
 	return credential, nil
+}
+
+// IsValidSSHHostKeyFingerprint reports whether value is a canonical OpenSSH
+// SHA256 public host key fingerprint.
+func IsValidSSHHostKeyFingerprint(value string) bool {
+	const prefix = "SHA256:"
+	if !strings.HasPrefix(value, prefix) {
+		return false
+	}
+	encoded := strings.TrimPrefix(value, prefix)
+	decoded, err := base64.RawStdEncoding.Strict().DecodeString(encoded)
+	if err != nil || len(decoded) != sha256.Size {
+		return false
+	}
+	return base64.RawStdEncoding.EncodeToString(decoded) == encoded
 }
 
 var credentialRefPattern = regexp.MustCompile(`[^A-Za-z0-9]+`)

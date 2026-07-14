@@ -31,7 +31,7 @@ func run() int {
 		log.Error().Err(err).Str("component", "cli").Msg("cli initialization failed")
 		return 1
 	}
-	shell := cli.New(api, os.Stdin, os.Stdout)
+	shell := cli.NewWithPackageLimit(api, os.Stdin, os.Stdout, settings.PackageMaxUpload)
 	if err := shell.Run(context.Background(), os.Args[1:]); err != nil {
 		fmt.Fprintf(os.Stderr, "오류: %v\n", err)
 		return 1

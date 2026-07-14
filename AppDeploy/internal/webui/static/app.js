@@ -5,6 +5,8 @@ const state = {
   apps: [],
   runtimes: [],
   targets: [],
+  credentials: [],
+  credentialsError: "",
   deployments: [],
   inventory: [],
   summary: null,
@@ -14,6 +16,7 @@ const state = {
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+let refreshInFlight = null;
 
 const fieldHelpDefinitions = [
   ["#app-form [name='name']", "앱을 구분하는 고유 이름입니다. 소문자·숫자·하이픈만 사용하며 2~63자로 입력하세요. 예: image-classifier"],
@@ -29,6 +32,10 @@ const fieldHelpDefinitions = [
   ["#app-form [name='gpu']", "필요한 GPU 개수입니다. Runtime이 gpu이면 반드시 1 이상이어야 합니다."],
   ["#app-form [name='storage']", "Artifact와 모델 실행에 필요한 저장 공간입니다. 예: 10Gi"],
   ["#app-form [name='port']", "앱이 HTTP 요청을 받는 포트입니다. 입력하면 추론 프록시의 기본 포트로 사용됩니다. 예: 18080"],
+  ["#app-form [name='healthcheck_path']", "앱의 HTTP 상태 확인 경로입니다. 반드시 /로 시작해야 합니다. 예: /health, /healthz"],
+  ["#package-type", "서버 프리셋 또는 업로드 소스의 실행 환경을 선택합니다. 임의 build 명령은 실행하지 않습니다."],
+  ["#package-source", "Go는 ZIP이 필수입니다. Python, Node.js, Linux binary, Shell script는 ZIP 또는 단일 파일을 사용할 수 있습니다."],
+  ["#package-entrypoint", "Go는 go.mod 기준 package 경로, 그 외 유형은 ZIP 또는 업로드 파일 안의 시작 파일 경로입니다."],
 
   ["#runtime-form [name='runtime_type']", "이 Profile이 담당할 실행 환경입니다. 배포할 App의 Runtime과 호환되어야 합니다."],
   ["#runtime-form [name='runtime_profile_id']", "배포 요청에서 참조하는 Runtime Profile 식별자입니다. 예: rt-cpu-001"],
@@ -36,13 +43,22 @@ const fieldHelpDefinitions = [
   ["#runtime-form [name='adapter_type']", "실제 실행 담당 모듈입니다. mock, cpu_vm, gpu_vm, etri_aiinfra 중 Runtime과 맞는 값을 선택하세요."],
   ["#runtime-form [name='operating_mode']", "local_mock은 로컬 시험, dry_run은 실행 모의, vm_process는 VM 프로세스 실행, remote_api는 외부 API 호출을 뜻합니다."],
 
+  ["#credential-form [name='credential_id']", "현재 서버 프로세스 안에서 Credential을 구분하는 ID입니다. 등록 후 cred://runtime/{ID} 참조가 발급됩니다."],
+  ["#credential-form [name='ssh_user']", "대상 VM에 SSH로 로그인할 사용자 이름입니다. 예: ubuntu"],
+  ["#credential-auth-type", "PEM private key 파일 또는 password 중 한 가지 인증 방식만 선택합니다."],
+  ["#credential-form [name='host_key_fingerprint']", "신뢰된 별도 경로에서 확인한 SSH 서버 host key의 SHA256 fingerprint입니다. 서버가 제시한 키와 다르면 연결을 거부합니다."],
+  ["#credential-form [name='ssh_timeout_seconds']", "SSH 연결을 기다릴 시간입니다. 1~300초 사이로 입력하세요."],
+  ["#credential-private-key-file", "PEM private key 원문을 읽어 등록하며 파일 경로 자체는 서버로 보내지 않습니다."],
+  ["#credential-private-key-passphrase", "암호화된 private key를 사용할 때만 입력합니다. 화면과 응답에 다시 표시되지 않습니다."],
+  ["#credential-password", "SSH password는 등록 요청에만 사용되며 화면과 응답에 다시 표시되지 않습니다."],
+
   ["#target-form [name='runtime_type']", "대상 시스템이 제공하는 Runtime입니다. App과 Runtime Profile의 종류와 호환되어야 합니다."],
   ["#target-form [name='csp']", "대상을 제공하는 환경입니다. 로컬/일반 VM은 local, 기능 시험은 mock, ETRI 연동은 etri를 선택합니다."],
   ["#target-form [name='target_profile_id']", "배포 대상을 참조할 고유 식별자입니다. 예: target-gpu-001"],
   ["#target-form [name='name']", "화면에서 배포 대상을 구분하기 위한 표시 이름입니다."],
   ["#target-form [name='host']", "대상 VM의 hostname 또는 IP입니다. mock을 제외한 대상에서는 필수입니다."],
   ["#target-form [name='ssh_port']", "CPU/GPU VM에 접속할 SSH 포트입니다. 일반적으로 22를 사용합니다."],
-  ["#target-form [name='credential_ref']", "비밀번호나 키 자체가 아닌 자격증명 참조값입니다. 실제 SSH 정보는 AIAPP_CREDENTIAL_* 환경변수로 설정하세요."],
+  ["#target-form [name='credential_ref']", "비밀번호나 키 자체가 아닌 자격증명 참조값입니다. 위 SSH Credentials에서 발급된 cred://runtime/... 값을 선택하거나 기존 ENV 참조를 직접 입력하세요."],
   ["#target-form [name='artifact_dir']", "업로드된 App Artifact가 저장될 대상 VM 내부 디렉터리입니다. 예: /tmp/aiapp/artifacts"],
   ["#target-form [name='log_dir']", "실행 로그를 저장할 대상 VM 내부 디렉터리입니다. 예: /tmp/aiapp/logs"],
 
@@ -122,6 +138,17 @@ function humanize(value) {
   return String(value || "unknown").toLowerCase().replaceAll("_", " ");
 }
 
+function isValidHostKeyFingerprint(value) {
+  if (!/^SHA256:[A-Za-z0-9+/]{43}$/.test(value)) return false;
+  try {
+    const encoded = value.slice("SHA256:".length);
+    const decoded = atob(`${encoded}=`);
+    return decoded.length === 32 && btoa(decoded).replace(/=+$/, "") === encoded;
+  } catch {
+    return false;
+  }
+}
+
 function statusClass(status) {
   const value = String(status || "").toUpperCase();
   if (["RUNNING", "AVAILABLE", "READY", "OK"].includes(value)) return "status-running";
@@ -136,7 +163,7 @@ function statusBadge(status) {
 
 async function api(path, options = {}) {
   const config = { ...options, headers: { Accept: "application/json", ...(options.headers || {}) } };
-  if (config.body !== undefined && typeof config.body !== "string") {
+  if (config.body !== undefined && typeof config.body !== "string" && !(config.body instanceof FormData)) {
     config.headers["Content-Type"] = "application/json";
     config.body = JSON.stringify(config.body);
   }
@@ -181,11 +208,30 @@ function setBusy(button, busy, label) {
   }
 }
 
-async function refreshAll(showToast = false) {
+function yieldForPaint() {
+  return new Promise(resolve => window.requestAnimationFrame(resolve));
+}
+
+async function loadCredentials() {
+  try {
+    const response = await api("/api/v1/credentials");
+    return { credentials: (response.items || []).map(safeCredentialRecord), credentialsError: "" };
+  } catch (error) {
+    return { credentials: [], credentialsError: error.message };
+  }
+}
+
+async function refreshCredentials() {
+  Object.assign(state, await loadCredentials());
+  renderCredentials();
+  populateCredentialRefs();
+}
+
+async function runFullRefresh(showToast) {
   const button = $("#refresh-button");
   setBusy(button, true, "동기화 중…");
   try {
-    const [readiness, apps, runtimes, targets, deployments, inventory, summary, metrics] = await Promise.all([
+    const [readiness, apps, runtimes, targets, deployments, inventory, summary, metrics, credentials] = await Promise.all([
       api("/api/v1/readiness"),
       api("/api/v1/apps"),
       api("/api/v1/runtime-profiles"),
@@ -194,6 +240,7 @@ async function refreshAll(showToast = false) {
       api("/api/v1/resources/inventory"),
       api("/api/v1/monitoring/summary"),
       api("/api/v1/monitoring/metrics"),
+      loadCredentials(),
     ]);
     Object.assign(state, {
       readiness,
@@ -204,6 +251,7 @@ async function refreshAll(showToast = false) {
       inventory: inventory.items || [],
       summary,
       metrics: metrics.items || [],
+      ...credentials,
     });
     renderAll();
     setServerStatus(true);
@@ -217,10 +265,17 @@ async function refreshAll(showToast = false) {
   }
 }
 
+function refreshAll(showToast = false) {
+  if (refreshInFlight) return refreshInFlight;
+  refreshInFlight = runFullRefresh(showToast).finally(() => { refreshInFlight = null; });
+  return refreshInFlight;
+}
+
 function renderAll() {
   renderDashboard();
   renderApps();
   renderProfiles();
+  renderCredentials();
   renderInventory();
   renderDeployments();
   renderMonitoring();
@@ -273,8 +328,23 @@ function renderApps() {
     row.append(cell(item.app_spec?.artifact?.type), cell(formatDate(item.created_at)));
     const actions = element("td", "table-actions");
     const detail = element("button", "row-button", "상세"); detail.type = "button"; detail.dataset.action = "app-detail"; detail.dataset.id = item.app_id;
-    actions.append(detail); row.append(actions); body.append(row);
+    const remove = element("button", "row-button danger", "등록 삭제");
+    remove.type = "button";
+    remove.dataset.action = "app-delete";
+    remove.dataset.id = item.app_id;
+    remove.dataset.name = item.name;
+    remove.dataset.version = item.version;
+    actions.append(detail, remove); row.append(actions); body.append(row);
   });
+}
+
+function profileDeleteButton(action, id, name) {
+  const remove = element("button", "row-button danger", "삭제");
+  remove.type = "button";
+  remove.dataset.action = action;
+  remove.dataset.id = id;
+  remove.dataset.name = name || id;
+  return remove;
 }
 
 function renderProfiles() {
@@ -285,7 +355,7 @@ function renderProfiles() {
     card.append(element("div", "profile-icon", item.runtime_type));
     const copy = element("div"); copy.append(element("strong", "", item.name || item.runtime_profile_id), element("span", "", item.runtime_profile_id));
     const meta = element("div", "profile-meta"); meta.append(element("strong", "", item.adapter_type), element("span", "", item.operating_mode));
-    card.append(copy, meta); runtimes.append(card);
+    card.append(copy, meta, profileDeleteButton("runtime-delete", item.runtime_profile_id, item.name)); runtimes.append(card);
   });
   if (!state.runtimes.length) runtimes.append(element("p", "muted", "등록된 Runtime Profile이 없습니다."));
 
@@ -296,9 +366,57 @@ function renderProfiles() {
     card.append(element("div", "profile-icon", item.runtime?.runtime_type || "—"));
     const copy = element("div"); copy.append(element("strong", "", item.name || item.target_profile_id), element("span", "", item.target_profile_id));
     const meta = element("div", "profile-meta"); meta.append(element("strong", "", item.csp), element("span", "", item.vm?.host || "local mock"));
-    card.append(copy, meta); targets.append(card);
+    card.append(copy, meta, profileDeleteButton("target-delete", item.target_profile_id, item.name)); targets.append(card);
   });
   if (!state.targets.length) targets.append(element("p", "muted", "등록된 Target Profile이 없습니다."));
+}
+
+function safeCredentialRecord(item = {}) {
+  return {
+    credential_id: typeof item.credential_id === "string" ? item.credential_id : "",
+    credential_ref: typeof item.credential_ref === "string" ? item.credential_ref : "",
+    credential_type: typeof item.credential_type === "string" ? item.credential_type : "",
+    auth_type: typeof item.auth_type === "string" ? item.auth_type : "",
+    ssh_user: typeof item.ssh_user === "string" ? item.ssh_user : "",
+    host_key_fingerprint: typeof item.host_key_fingerprint === "string" ? item.host_key_fingerprint : "",
+    ssh_timeout_seconds: Number.isFinite(Number(item.ssh_timeout_seconds)) ? Number(item.ssh_timeout_seconds) : null,
+    persistent: item.persistent === true,
+    created_at: typeof item.created_at === "string" ? item.created_at : "",
+  };
+}
+
+function renderCredentials() {
+  const body = $("#credentials-table-body");
+  const status = $("#credential-list-status");
+  if (!body || !status) return;
+  body.replaceChildren();
+  status.hidden = !state.credentialsError;
+  status.textContent = state.credentialsError ? `Credential 목록만 불러오지 못했습니다: ${state.credentialsError}` : "";
+  if (state.credentialsError) {
+    appendEmptyRow(body, 9, "Credential API 접근 권한 또는 서버 설정을 확인하세요.");
+    return;
+  }
+  if (!state.credentials.length) appendEmptyRow(body, 9, "현재 프로세스에 등록된 SSH Credential이 없습니다.");
+  state.credentials.forEach(item => {
+    const row = element("tr");
+    const identity = element("td", "primary-cell");
+    identity.append(element("strong", "", item.credential_id || "—"), element("span", "", item.credential_ref || "—"));
+    const type = cell(""); type.append(element("span", "badge", item.credential_type || "—"));
+    const auth = cell(""); auth.append(element("span", "badge", item.auth_type || "—"));
+    const fingerprint = cell(item.host_key_fingerprint || "—"); fingerprint.classList.add("fingerprint-cell");
+    row.append(identity, type, auth, cell(item.ssh_user || "—"), fingerprint);
+    row.append(cell(item.ssh_timeout_seconds === null ? "—" : `${item.ssh_timeout_seconds} s`));
+    row.append(cell(item.persistent ? "yes" : "no"), cell(formatDate(item.created_at)));
+    const actions = element("td", "table-actions");
+    const remove = element("button", "row-button danger", "삭제");
+    remove.type = "button";
+    remove.dataset.action = "credential-delete";
+    remove.dataset.id = item.credential_id;
+    remove.dataset.ref = item.credential_ref;
+    actions.append(remove);
+    row.append(actions);
+    body.append(row);
+  });
 }
 
 function availability(value) {
@@ -400,6 +518,21 @@ function fillSelect(selector, items, valueKey, label) {
   if ([...select.options].some(option => option.value === current)) select.value = current;
 }
 
+function populateCredentialRefs() {
+  const list = $("#credential-ref-options");
+  if (!list) return;
+  list.replaceChildren();
+  const refs = new Set();
+  state.credentials.forEach(item => {
+    if (!item.credential_ref || refs.has(item.credential_ref)) return;
+    refs.add(item.credential_ref);
+    const option = element("option");
+    option.value = item.credential_ref;
+    option.label = `${item.ssh_user || "SSH"} · ${item.auth_type || "credential"}`;
+    list.append(option);
+  });
+}
+
 function populateSelects() {
   fillSelect("#deployment-app", state.apps, "app_version_id", item => `${item.name} ${item.version} · ${shortID(item.app_version_id)}`);
   fillSelect("#deployment-runtime", state.runtimes, "runtime_profile_id", item => `${item.name || item.runtime_profile_id} · ${item.runtime_type}`);
@@ -413,6 +546,7 @@ function populateSelects() {
   runtimeSelect.value = [...runtimeSelect.options].some(option => option.value === current) ? current : "";
   fillSelect("#inference-deployment", state.deployments.filter(item => item.status === "RUNNING"), "deployment_id", item => `${shortID(item.deployment_id)} · ${item.target_profile_id}`);
   fillSelect("#metric-deployment", state.deployments, "deployment_id", item => `${shortID(item.deployment_id)} · ${item.status}`);
+  populateCredentialRefs();
 }
 
 function navigate(viewName) {
@@ -430,10 +564,15 @@ function openDialog(id) {
     return;
   }
   const dialog = document.getElementById(id);
+  if (id === "credential-dialog") {
+    clearCredentialSecrets();
+    updateCredentialAuthFields();
+  }
   if (dialog) dialog.showModal();
 }
 
 function closeDialog(dialog) {
+  if (dialog?.id === "credential-dialog") clearCredentialSecrets();
   if (dialog?.open) dialog.close();
 }
 
@@ -452,16 +591,150 @@ function parseArguments(value) {
   return output;
 }
 
+function formatArgument(value) {
+  if (/^[A-Za-z0-9_./:=+-]+$/.test(value)) return value;
+  if (!value.includes("'")) return `'${value}'`;
+  return `"${value.replaceAll('"', '\\"')}"`;
+}
+
+function populateAppForm(spec) {
+  const form = $("#app-form");
+  const fields = {
+    name: spec.metadata?.name,
+    version: spec.metadata?.version,
+    description: spec.metadata?.description,
+    artifact_type: spec.artifact?.type,
+    artifact_uri: spec.artifact?.uri,
+    checksum: spec.artifact?.checksum,
+    runtime_type: spec.runtime?.type,
+    command: spec.entrypoint?.command,
+    args: (spec.entrypoint?.args || []).map(formatArgument).join(" "),
+    cpu: spec.resources?.cpu,
+    memory: spec.resources?.memory,
+    gpu: spec.resources?.gpu,
+    storage: spec.resources?.storage,
+    port: spec.network?.ports?.[0]?.app_port,
+    healthcheck_path: spec.healthcheck?.path,
+  };
+  Object.entries(fields).forEach(([name, value]) => {
+    if (value !== undefined && value !== null && form.elements[name]) form.elements[name].value = value;
+  });
+}
+
+const packageTypeDefinitions = {
+  "aiops-geon-service-control": { accept: "", entrypoint: "", label: "빌드/시작 경로", message: "ai-ops-geon 프리셋은 서버에 설정된 소스를 사용하므로 파일 업로드가 필요 없습니다." },
+  go: { accept: ".zip,application/zip", entrypoint: ".", label: "Go build 경로", message: "go.mod가 ZIP 최상위에 있어야 합니다. 예: . 또는 ./cmd/server" },
+  python: { accept: ".zip,.py,application/zip,text/x-python", entrypoint: "main.py", label: "Python 시작 파일", message: "의존성은 대상 VM에 준비되어 있어야 하며 시작 파일은 .py 형식이어야 합니다." },
+  node: { accept: ".zip,.js,.mjs,.cjs,application/zip,text/javascript", entrypoint: "index.js", label: "Node.js 시작 파일", message: "필요한 node_modules가 있다면 ZIP에 포함하고 시작 파일을 지정하세요." },
+  binary: { accept: ".zip,application/zip,application/octet-stream", entrypoint: "", label: "바이너리 시작 파일", message: "Linux amd64 ELF 실행 파일 또는 해당 파일을 포함한 ZIP만 허용합니다." },
+  script: { accept: ".zip,.sh,.bash,application/zip,text/x-shellscript", entrypoint: "run.sh", label: "Shell 시작 파일", message: "시작 파일은 .sh 또는 .bash 형식이며 대상 VM에서 bash로 실행됩니다." },
+};
+
+function updatePackageBuilder() {
+  const packageType = $("#package-type").value;
+  const definition = packageTypeDefinitions[packageType];
+  const usesUpload = packageType !== "aiops-geon-service-control";
+  const sourceField = $("#package-source-field");
+  const entrypointField = $("#package-entrypoint-field");
+  const source = $("#package-source");
+  const entrypoint = $("#package-entrypoint");
+  sourceField.hidden = !usesUpload;
+  entrypointField.hidden = !usesUpload;
+  source.required = usesUpload;
+  entrypoint.required = usesUpload;
+  if (!usesUpload) source.setCustomValidity("");
+  source.accept = definition.accept;
+  $("#package-entrypoint-label").textContent = definition.label;
+  if (!entrypoint.value || entrypoint.value === entrypoint.dataset.autoValue) entrypoint.value = definition.entrypoint;
+  entrypoint.dataset.autoValue = definition.entrypoint;
+  $("#package-build-result").textContent = definition.message;
+}
+
+function packageSourceChanged() {
+  const sourceInput = $("#package-source");
+  const file = sourceInput.files[0];
+  if (!file) {
+    sourceInput.setCustomValidity("");
+    return;
+  }
+  const form = $("#app-form");
+  const isZip = file.name.toLowerCase().endsWith(".zip");
+  sourceInput.setCustomValidity(!isZip && !/^[A-Za-z0-9._-]{1,128}$/.test(file.name) ? "단일 파일 이름은 영문, 숫자, 점, 밑줄, 하이픈만 사용할 수 있습니다." : "");
+  if (!isZip && $("#package-type").value !== "go") {
+    $("#package-entrypoint").value = file.name;
+  }
+  if (!form.elements.name.value) {
+    let name = file.name.replace(/\.[^.]+$/, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    if (name.length < 2) name = `app-${name || "upload"}`;
+    form.elements.name.value = name.slice(0, 63).replace(/-+$/, "");
+  }
+}
+
+async function buildPackage() {
+  const form = $("#app-form");
+  const button = $("#package-build-button");
+  const status = $("#package-build-result");
+  const packageType = $("#package-type").value;
+  let request;
+  if (packageType === "aiops-geon-service-control") {
+    request = { preset: packageType, service_port: Number(form.elements.port.value) || 18089 };
+    const currentVersion = form.elements.version.value.trim();
+    if (currentVersion && currentVersion !== "0.1.0") request.app_version = currentVersion;
+  } else {
+    const source = $("#package-source").files[0];
+    if (!source) {
+      $("#package-source").reportValidity();
+      return;
+    }
+    if (!$("#package-source").reportValidity()) return;
+    if (!form.elements.name.reportValidity() || !form.elements.version.reportValidity() || !$("#package-entrypoint").reportValidity()) return;
+    request = new FormData();
+    request.append("package_type", packageType);
+    request.append("source", source);
+    request.append("app_name", form.elements.name.value.trim());
+    request.append("app_version", form.elements.version.value.trim());
+    request.append("entrypoint", $("#package-entrypoint").value.trim());
+    request.append("runtime_type", form.elements.runtime_type.value);
+    const servicePort = Number(form.elements.port.value);
+    if (servicePort) {
+      request.append("service_port", String(servicePort));
+      request.append("healthcheck_path", form.elements.healthcheck_path.value.trim() || "/health");
+    }
+  }
+  setBusy(button, true, "패키지 생성 중…");
+  status.textContent = packageType === "go" || packageType === "aiops-geon-service-control"
+    ? "Go Linux/amd64 빌드 중입니다. 첫 빌드는 의존성 확인 때문에 오래 걸릴 수 있습니다."
+    : "업로드 소스를 검사하고 package archive를 생성하고 있습니다.";
+  try {
+    await yieldForPaint();
+    const result = await api("/api/v1/artifacts/packages", { method: "POST", body: request });
+    populateAppForm(result.app_spec);
+    status.textContent = `${result.archive_name} · ${Math.ceil(result.size_bytes / 1024 / 1024)} MiB · ${result.elapsed_ms} ms`;
+    toast("패키지 생성 완료", "App 등록값을 자동 입력했습니다.");
+  } catch (error) {
+    status.textContent = error.message;
+    toast("패키지 생성 실패", error.message, "error");
+  } finally {
+    setBusy(button, false);
+  }
+}
+
 async function submitForm(event, action, successTitle) {
   event.preventDefault();
   const formElement = event.currentTarget;
-  const formData = new FormData(formElement);
   const button = formElement.querySelector('[type="submit"]');
   setBusy(button, true);
   try {
+    await yieldForPaint();
+    const formData = new FormData(formElement);
     const result = await action(formData);
     closeDialog(formElement.closest("dialog"));
     formElement.reset();
+    if (formElement.id === "app-form") {
+      $("#package-build-form").reset();
+      updatePackageBuilder();
+    }
+    if (formElement.id === "target-form") updateTargetFormForType();
     toast(successTitle, result?.deployment_id || result?.app_version_id || result?.profile_id || "서버에 반영되었습니다.");
     void refreshAll();
   } catch (error) {
@@ -471,7 +744,99 @@ async function submitForm(event, action, successTitle) {
   }
 }
 
+function clearCredentialSecrets() {
+  const privateKey = $("#credential-private-key-file");
+  const passphrase = $("#credential-private-key-passphrase");
+  const password = $("#credential-password");
+  if (privateKey) privateKey.value = "";
+  if (passphrase) passphrase.value = "";
+  if (password) password.value = "";
+}
+
+function clearCredentialPayload(payload) {
+  if (!payload) return;
+  payload.private_key = "";
+  payload.private_key_passphrase = "";
+  payload.password = "";
+}
+
+function updateCredentialAuthFields() {
+  const authType = $("#credential-auth-type")?.value || "private_key";
+  const usesPrivateKey = authType === "private_key";
+  const privateKeyField = $("#credential-private-key-field");
+  const passphraseField = $("#credential-passphrase-field");
+  const passwordField = $("#credential-password-field");
+  const privateKey = $("#credential-private-key-file");
+  const password = $("#credential-password");
+  clearCredentialSecrets();
+  if (privateKeyField) privateKeyField.hidden = !usesPrivateKey;
+  if (passphraseField) passphraseField.hidden = !usesPrivateKey;
+  if (passwordField) passwordField.hidden = usesPrivateKey;
+  if (privateKey) privateKey.required = usesPrivateKey;
+  if (password) password.required = !usesPrivateKey;
+}
+
+async function submitCredential(event) {
+  event.preventDefault();
+  const formElement = event.currentTarget;
+  const button = formElement.querySelector('[type="submit"]');
+  let payload = null;
+  setBusy(button, true, "등록 중…");
+  try {
+    await yieldForPaint();
+    const form = new FormData(formElement);
+    const authType = form.get("auth_type");
+    const hostKeyFingerprint = String(form.get("host_key_fingerprint") || "").trim();
+    if (!isValidHostKeyFingerprint(hostKeyFingerprint)) {
+      throw new Error("Host key fingerprint를 SHA256:base64 형식으로 입력하세요.");
+    }
+    payload = {
+      credential_id: form.get("credential_id"),
+      credential_type: "ssh",
+      auth_type: authType,
+      ssh_user: form.get("ssh_user"),
+      host_key_fingerprint: hostKeyFingerprint,
+      ssh_timeout_seconds: Number(form.get("ssh_timeout_seconds")) || 30,
+    };
+    if (authType === "private_key") {
+      const file = $("#credential-private-key-file").files[0];
+      if (!file) throw new Error("PEM private key 파일을 선택하세요.");
+      if (file.size > 65536) throw new Error("PEM private key 파일은 65536 bytes 이하여야 합니다.");
+      payload.private_key = await file.text();
+      if (!payload.private_key.trim()) throw new Error("PEM private key 파일이 비어 있습니다.");
+      const passphrase = $("#credential-private-key-passphrase").value;
+      if (passphrase) payload.private_key_passphrase = passphrase;
+    } else {
+      payload.password = $("#credential-password").value;
+      if (!payload.password) throw new Error("SSH password를 입력하세요.");
+    }
+
+    // The request payload now owns the values; remove every Secret-bearing DOM
+    // value before starting network I/O so success and failure follow the same path.
+    clearCredentialSecrets();
+    const request = api("/api/v1/credentials", { method: "POST", body: payload });
+    clearCredentialPayload(payload);
+    const result = await request;
+    const targetCredentialRef = $("#target-form [name='credential_ref']");
+    if (targetCredentialRef && result.credential_ref) targetCredentialRef.value = result.credential_ref;
+    closeDialog(formElement.closest("dialog"));
+    formElement.reset();
+    updateCredentialAuthFields();
+    toast("Credential 등록 완료", result.credential_ref || result.credential_id || "서버 메모리에 등록되었습니다.");
+    void refreshCredentials();
+  } catch (error) {
+    clearCredentialSecrets();
+    toast("Credential 등록 실패", error.message, "error");
+  } finally {
+    clearCredentialPayload(payload);
+    clearCredentialSecrets();
+    setBusy(button, false);
+  }
+}
+
 function bindForms() {
+  $("#credential-form").addEventListener("submit", submitCredential);
+
   $("#app-form").addEventListener("submit", event => submitForm(event, async form => {
     const runtimeType = form.get("runtime_type");
     const port = Number(form.get("port")) || 0;
@@ -479,7 +844,7 @@ function bindForms() {
       app_spec: {
         schema_version: "appspec.khu.ai/v1alpha1", kind: "AIApp",
         metadata: { name: form.get("name"), version: form.get("version"), description: form.get("description") },
-        artifact: { type: form.get("artifact_type"), uri: form.get("artifact_uri") },
+        artifact: { type: form.get("artifact_type"), uri: form.get("artifact_uri"), checksum: form.get("checksum") || undefined },
         entrypoint: { command: form.get("command"), args: parseArguments(form.get("args")) },
         runtime: { type: runtimeType, accelerator: runtimeType === "gpu" ? "nvidia" : "none" },
         resources: { cpu: form.get("cpu"), memory: form.get("memory"), gpu: form.get("gpu"), storage: form.get("storage") },
@@ -487,7 +852,7 @@ function bindForms() {
     };
     if (port) {
       payload.app_spec.network = { ports: [{ name: "http", app_port: port, protocol: "TCP" }] };
-      payload.app_spec.healthcheck = { type: "http", path: "/health" };
+      payload.app_spec.healthcheck = { type: "http", path: form.get("healthcheck_path") || "/health" };
     }
     return api("/api/v1/apps", { method: "POST", body: payload });
   }, "앱 등록 완료"));
@@ -551,21 +916,57 @@ function bindForms() {
 }
 
 function bindTypeDefaults() {
-	$("#target-form [name='host']").required = true;
+	const targetForm = $("#target-form");
+	const targetCredentialRef = targetForm.elements.credential_ref;
+	targetCredentialRef.maxLength = 256;
+	targetCredentialRef.pattern = "cred://[a-z0-9]+(?:-[a-z0-9]+)*/[a-z0-9]+(?:-[a-z0-9]+)*(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*";
+	targetCredentialRef.title = "cred://runtime/credential-id 또는 cred://namespace/credential-id 형식으로 입력하세요.";
+	let targetValidationNoticeShown = false;
+	targetForm.addEventListener("invalid", event => {
+		if (targetValidationNoticeShown) return;
+		targetValidationNoticeShown = true;
+		const label = event.target.closest("label")?.firstChild?.textContent?.trim();
+		const message = event.target.validationMessage || "필수 값과 입력 형식을 확인하세요.";
+		toast("Target 입력 확인", label ? `${label}: ${message}` : message, "error");
+		window.setTimeout(() => { targetValidationNoticeShown = false; }, 0);
+	}, true);
+	updateTargetFormForType();
+	$("#credential-auth-type").addEventListener("change", updateCredentialAuthFields);
+	updateCredentialAuthFields();
+	$("#package-build-button").addEventListener("click", buildPackage);
+	$("#package-type").addEventListener("change", updatePackageBuilder);
+	$("#package-source").addEventListener("change", packageSourceChanged);
+	updatePackageBuilder();
+	$("#app-form [name='artifact_uri']").addEventListener("input", () => { $("#app-form [name='checksum']").value = ""; });
 	$("#app-runtime-type").addEventListener("change", event => { const gpu = event.target.value === "gpu"; $("#app-form [name='gpu']").value = gpu ? "1" : "0"; });
   $("#runtime-type").addEventListener("change", event => {
     const type = event.target.value;
     const values = { cpu: ["rt-cpu-001", "cpu-runtime", "cpu_vm", "vm_process"], gpu: ["rt-gpu-001", "gpu-runtime", "gpu_vm", "vm_process"], mock: ["rt-mock-001", "mock-runtime", "mock", "local_mock"], aiinfra: ["rt-aiinfra-001", "aiinfra-runtime", "etri_aiinfra", "remote_api"] }[type];
     const form = $("#runtime-form"); ["runtime_profile_id", "name", "adapter_type", "operating_mode"].forEach((name, index) => { form.elements[name].value = values[index]; });
   });
-  $("#target-runtime-type").addEventListener("change", event => {
-    const type = event.target.value;
-    const form = $("#target-form");
-    form.elements.target_profile_id.value = `target-${type}-001`; form.elements.name.value = `${type}-target`;
-    form.elements.csp.value = type === "mock" ? "mock" : type === "aiinfra" ? "etri" : "local";
-    form.elements.host.required = type !== "mock";
-    form.elements.host.value = type === "mock" ? "" : form.elements.host.value;
-  });
+  $("#target-runtime-type").addEventListener("change", updateTargetFormForType);
+}
+
+function updateTargetFormForType() {
+  const form = $("#target-form");
+  const type = form.elements.runtime_type.value;
+  const credentialRef = form.elements.credential_ref;
+  const wasCredentialDisabled = credentialRef.disabled;
+  form.elements.target_profile_id.value = `target-${type}-001`; form.elements.name.value = `${type}-target`;
+  form.elements.csp.value = type === "mock" ? "mock" : type === "aiinfra" ? "etri" : "local";
+  form.elements.host.required = type !== "mock";
+  form.elements.host.value = type === "mock" ? "" : form.elements.host.value;
+  if (["cpu", "gpu"].includes(type)) {
+    credentialRef.disabled = false;
+    credentialRef.required = true;
+    if (wasCredentialDisabled || !credentialRef.value) {
+      credentialRef.value = state.credentials[0]?.credential_ref || `cred://local/${type}-vm-001`;
+    }
+    return;
+  }
+  credentialRef.disabled = true;
+  credentialRef.required = false;
+  credentialRef.value = "";
 }
 
 async function handleTableAction(event) {
@@ -575,6 +976,33 @@ async function handleTableAction(event) {
   try {
     if (button.dataset.action === "app-detail") {
       const result = await api(`/api/v1/apps/${encodeURIComponent(id)}`); showDetail(result.name, result, "APP SPEC");
+    } else if (button.dataset.action === "app-delete") {
+      const name = button.dataset.name || id;
+      const version = button.dataset.version || "—";
+      const confirmed = window.confirm(`${name} ${version} (${id}) App 등록을 삭제할까요?\n\n등록 정보만 삭제됩니다. STOPPED 배포 이력과 Artifact·배포 파일은 유지되며, 그 외 상태의 배포가 참조하면 삭제가 거부됩니다.`);
+      if (!confirmed) return;
+      setBusy(button, true, "삭제 중…");
+      await api(`/api/v1/apps/${encodeURIComponent(id)}`, { method: "DELETE" });
+      toast("App 등록 삭제 완료", `${name} ${version}`);
+      void refreshAll();
+    } else if (button.dataset.action === "runtime-delete" || button.dataset.action === "target-delete") {
+      const runtime = button.dataset.action === "runtime-delete";
+      const profileType = runtime ? "Runtime" : "Target";
+      const name = button.dataset.name || id;
+      const inventoryNotice = runtime ? "" : " 관련 readiness inventory도 함께 삭제됩니다.";
+      if (!window.confirm(`${name} (${id}) ${profileType} Profile을 삭제할까요?\n\nSTOPPED가 아닌 Deployment가 참조하면 삭제가 거부됩니다.${inventoryNotice}`)) return;
+      setBusy(button, true, "삭제 중…");
+      const collection = runtime ? "runtime-profiles" : "target-profiles";
+      await api(`/api/v1/${collection}/${encodeURIComponent(id)}`, { method: "DELETE" });
+      toast(`${profileType} Profile 삭제 완료`, `${name} (${id})`);
+      await refreshAll();
+    } else if (button.dataset.action === "credential-delete") {
+      const ref = button.dataset.ref || id;
+      if (!window.confirm(`${ref} Credential을 현재 서버 메모리에서 삭제할까요?\n\n이 참조를 사용하는 다음 VM 연결은 실패하며 삭제한 Secret은 복구할 수 없습니다.`)) return;
+      setBusy(button, true, "삭제 중…");
+      await api(`/api/v1/credentials/${encodeURIComponent(id)}`, { method: "DELETE" });
+      toast("Credential 삭제 완료", ref);
+      void refreshCredentials();
     } else if (button.dataset.action === "deployment-detail") {
       const result = await api(`/api/v1/deployments/${encodeURIComponent(id)}`); showDetail(shortID(id), result, "DEPLOYMENT");
     } else if (button.dataset.action === "deployment-logs") {
@@ -605,7 +1033,13 @@ function bindNavigation() {
   $$('[data-navigate]').forEach(item => item.addEventListener("click", () => navigate(item.dataset.navigate)));
   $$('[data-open-dialog]').forEach(item => item.addEventListener("click", () => openDialog(item.dataset.openDialog)));
   $$(".dialog-close").forEach(item => item.addEventListener("click", () => closeDialog(item.closest("dialog"))));
-  $$("dialog").forEach(dialog => dialog.addEventListener("click", event => { if (event.target === dialog) closeDialog(dialog); }));
+  $$("dialog").forEach(dialog => {
+    dialog.addEventListener("click", event => { if (event.target === dialog) closeDialog(dialog); });
+    if (dialog.id === "credential-dialog") {
+      dialog.addEventListener("cancel", clearCredentialSecrets);
+      dialog.addEventListener("close", clearCredentialSecrets);
+    }
+  });
   $("#menu-toggle").addEventListener("click", openMobileMenu); $("#mobile-overlay").addEventListener("click", closeMobileMenu);
   $("#refresh-button").addEventListener("click", () => refreshAll(true));
   $$("[data-status-filter]").forEach(item => item.addEventListener("click", () => { $$("[data-status-filter]").forEach(button => button.classList.remove("active")); item.classList.add("active"); state.deploymentFilter = item.dataset.statusFilter; renderDeployments(); }));
@@ -621,9 +1055,20 @@ function bindInference() {
   });
 }
 
+function shouldAutoRefresh() {
+  const active = document.activeElement;
+  const editing = active?.matches?.("input, select, textarea");
+  return !document.hidden && !$("dialog[open]") && !editing;
+}
+
+function autoRefresh() {
+  if (shouldAutoRefresh()) void refreshAll(false);
+}
+
 function initialize() {
   installFieldHelp(); bindNavigation(); bindForms(); bindTypeDefaults(); bindInference(); refreshAll();
-  window.setInterval(() => refreshAll(false), 30000);
+  window.setInterval(autoRefresh, 30000);
+  document.addEventListener("visibilitychange", autoRefresh);
 }
 
 document.addEventListener("DOMContentLoaded", initialize);

@@ -40,6 +40,9 @@
 - 공식 API 계약은 `contracts/openapi/openapi.yaml`이다.
 - 1차년도 artifact type은 `package`, `git`, `binary`, `script`만 허용한다.
 - CPU/GPU VM 배포는 SSH runner와 `file://` script upload 흐름을 지원한다.
+- 웹 콘솔, `appdeployer` CLI와 HTTP 셸 스크립트는 같은 `/api/v1/artifacts/packages` 계약으로 `ai-ops-geon` 프리셋 또는 Go, Python, Node.js, Linux binary, Shell script 소스를 Linux amd64 package로 생성한다. CLI/셸은 생성된 App Spec 등록과 Target 자원 점검을 연결하고, 점검 결과가 `available`일 때만 배포를 생성한다.
+- 웹의 `등록 삭제`와 CLI `apps delete <app-id> --yes`는 `DELETE /api/v1/apps/{app_id}`로 App 등록을 삭제한다. 참조가 없거나 모든 참조 Deployment가 `STOPPED`이면 삭제하며 STOPPED 이력은 보존한다. `STOPPED` 외 상태가 하나라도 있으면 `APP_SPEC_INVALID`/409로 거부하고 package, git, binary, script 원본과 VM 배포 파일은 항상 유지한다.
+- Runtime/Target Profile 삭제 API는 참조가 없거나 모두 STOPPED일 때 등록만 삭제하고 STOPPED Deployment/Event/Metric 이력을 유지한다. Target의 현재 Inventory만 함께 제거하며 Runtime Credential은 연쇄 삭제하지 않는다.
 - CPU/GPU VM 기반 AI Application 배포 방식은 테스트 완료했다.
 - 배포 stop 요청은 원격 VM의 배포 프로세스를 종료하고 `STOPPING` -> `STOPPED` 전이를 기록한다.
 - Running deployment는 inference proxy API를 통해 `/health`, `/generate` 같은 앱 내부 HTTP endpoint를 호출할 수 있다.

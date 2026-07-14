@@ -16,7 +16,7 @@ import (
 
 func (s *Shell) apps(ctx context.Context, args []string) error {
 	if len(args) == 0 {
-		return errors.New("사용법: apps list | get <app-id> | add [json-file]")
+		return errors.New("사용법: apps list | get <app-id> | add [json-file] | delete <app-id> --yes")
 	}
 	switch strings.ToLower(args[0]) {
 	case "list", "ls":
@@ -37,6 +37,11 @@ func (s *Shell) apps(ctx context.Context, args []string) error {
 			return err
 		}
 		return s.showJSON(ctx, http.MethodPost, "/api/v1/apps", payload)
+	case "delete", "remove", "rm":
+		if len(args) != 3 || (args[2] != "--yes" && args[2] != "-y") {
+			return errors.New("사용법: apps delete <app-id> --yes")
+		}
+		return s.showJSON(ctx, http.MethodDelete, "/api/v1/apps/"+url.PathEscape(args[1]), nil)
 	default:
 		return fmt.Errorf("알 수 없는 apps 작업 %q입니다", args[0])
 	}
@@ -44,7 +49,7 @@ func (s *Shell) apps(ctx context.Context, args []string) error {
 
 func (s *Shell) runtimes(ctx context.Context, args []string) error {
 	if len(args) == 0 {
-		return errors.New("사용법: runtimes list | add [json-file]")
+		return errors.New("사용법: runtimes list | add [json-file] | delete <runtime-id> --yes")
 	}
 	switch strings.ToLower(args[0]) {
 	case "list", "ls":
@@ -60,6 +65,11 @@ func (s *Shell) runtimes(ctx context.Context, args []string) error {
 			return err
 		}
 		return s.showJSON(ctx, http.MethodPost, "/api/v1/runtime-profiles", payload)
+	case "delete", "remove", "rm":
+		if len(args) != 3 || (args[2] != "--yes" && args[2] != "-y") {
+			return errors.New("사용법: runtimes delete <runtime-id> --yes")
+		}
+		return s.showJSON(ctx, http.MethodDelete, "/api/v1/runtime-profiles/"+url.PathEscape(args[1]), nil)
 	default:
 		return fmt.Errorf("알 수 없는 runtimes 작업 %q입니다", args[0])
 	}
@@ -67,7 +77,7 @@ func (s *Shell) runtimes(ctx context.Context, args []string) error {
 
 func (s *Shell) targets(ctx context.Context, args []string) error {
 	if len(args) == 0 {
-		return errors.New("사용법: targets list | add [json-file]")
+		return errors.New("사용법: targets list | add [json-file] | delete <target-id> --yes")
 	}
 	switch strings.ToLower(args[0]) {
 	case "list", "ls":
@@ -83,6 +93,11 @@ func (s *Shell) targets(ctx context.Context, args []string) error {
 			return err
 		}
 		return s.showJSON(ctx, http.MethodPost, "/api/v1/target-profiles", payload)
+	case "delete", "remove", "rm":
+		if len(args) != 3 || (args[2] != "--yes" && args[2] != "-y") {
+			return errors.New("사용법: targets delete <target-id> --yes")
+		}
+		return s.showJSON(ctx, http.MethodDelete, "/api/v1/target-profiles/"+url.PathEscape(args[1]), nil)
 	default:
 		return fmt.Errorf("알 수 없는 targets 작업 %q입니다", args[0])
 	}
@@ -117,7 +132,7 @@ func (s *Shell) resources(ctx context.Context, args []string) error {
 
 func (s *Shell) deployments(ctx context.Context, args []string) error {
 	if len(args) == 0 {
-		return errors.New("사용법: deployments list | get | create | logs | stop")
+		return errors.New("사용법: deployments list | get | create | package | logs | stop")
 	}
 	switch strings.ToLower(args[0]) {
 	case "list", "ls":
@@ -133,6 +148,8 @@ func (s *Shell) deployments(ctx context.Context, args []string) error {
 			return err
 		}
 		return s.showJSON(ctx, http.MethodPost, "/api/v1/deployments", req)
+	case "package", "guided":
+		return s.packageDeploy(ctx, args[1:])
 	case "logs", "log":
 		if len(args) < 2 || len(args) > 3 {
 			return errors.New("사용법: deployments logs <deployment-id> [stage]")
@@ -263,6 +280,10 @@ func (s *Shell) raw(ctx context.Context, args []string) error {
 	path := args[1]
 	if !strings.HasPrefix(path, "/api/v1/") && path != "/api/v1" {
 		return errors.New("path는 /api/v1로 시작해야 합니다")
+	}
+	credentialPath := strings.SplitN(path, "?", 2)[0]
+	if credentialPath == "/api/v1/credentials" || strings.HasPrefix(credentialPath, "/api/v1/credentials/") {
+		return errors.New("Credential API는 Secret argv 입력과 원문 응답 출력을 막기 위해 credentials list/add/delete 전용 명령으로만 사용할 수 있습니다")
 	}
 	var payload any
 	if len(args) == 3 {

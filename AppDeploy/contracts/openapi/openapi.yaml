@@ -5,8 +5,8 @@ info:
   description: |
     CPU/GPU VM 기반 AI 응용 등록·배포 프로토타입 API.
 
-    이 API는 AI App Spec 등록, Runtime/Target Profile 등록, 자원 readiness 점검,
-    배포 요청, 상태 조회, 로그 조회, 중지 요청을 제공한다.
+    이 API는 AI App Spec 등록·조회·등록 삭제, Runtime Credential과 Runtime/Target Profile 등록·조회·삭제,
+    자원 readiness 점검, 배포 요청, 상태 조회, 로그 조회, 중지 요청을 제공한다.
 
     1차년도 범위는 CPU VM, NVIDIA GPU VM, AI-Infra 연동 준비(Mock/Fixture)이며
     Docker, Kubernetes, OCI Image, Container Registry 기반 배포는 포함하지 않는다.
@@ -19,10 +19,14 @@ security: []
 tags:
   - name: System
     description: 서버 생존 상태와 준비 상태를 확인한다.
+  - name: Credentials
+    description: 프로세스 메모리 전용 SSH Credential을 등록·조회·삭제한다. Secret은 응답, 로그, 영속 저장소에 노출하지 않는다.
   - name: App Registry
-    description: AI App Spec을 등록하고 조회한다.
+    description: AI App Spec을 등록·조회하고, 참조 Deployment가 없거나 모두 STOPPED인 등록 정보를 삭제한다.
+  - name: Artifacts
+    description: 서버 프리셋 또는 업로드한 소스를 배포 가능한 package artifact로 생성한다.
   - name: Profiles
-    description: Runtime Profile과 Target Profile을 등록하고 조회한다.
+    description: Runtime Profile과 Target Profile을 등록·조회·삭제한다. 삭제 시 STOPPED가 아닌 Deployment 참조를 보호하고 보존 이력은 유지한다.
   - name: Resources
     description: Target 자원 readiness와 최근 inventory를 확인한다.
   - name: Deployments
@@ -62,6 +66,181 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ReadinessResponse'
+  /credentials:
+    post:
+      tags: [Credentials]
+      operationId: createCredential
+      summary: Register an in-memory SSH credential
+      description: |
+        SSH Credential과 신뢰 가능한 경로에서 확인한 OpenSSH SHA256 host key fingerprint를 프로세스 메모리에 등록하고
+        `cred://runtime/{credential_id}` 참조를 반환한다. SSH 연결은 이 fingerprint와 일치하는 서버만 허용한다.
+        Secret은 응답, 로그, 일반 파일 저장소에 기록하지 않으며 서버 재시작 시 등록 정보가 소멸한다.
+        기본적으로 TCP peer와 HTTP Host가 모두 loopback인 요청만 허용하고, Origin이 있으면 Host와 같은 origin이어야 한다.
+        `AIAPP_CREDENTIAL_API_ALLOW_REMOTE=true`를 명시한 경우에만 원격 peer/Host를 허용하며, 운영 환경의 원격 사용은
+        TLS와 인증을 적용한 reverse proxy를 전제로 한다. POST 본문은 application/json만 허용한다.
+      requestBody:
+        required: true
+        description: SSH private key 또는 password 중 auth_type에 맞는 Secret을 포함한다. Secret 값은 문서 예제에 포함하지 않는다.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CredentialCreateRequest'
+      responses:
+        "201":
+          description: 메모리 전용 Credential이 등록되었다. 응답에는 Secret이 포함되지 않는다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CredentialResponse'
+        "400":
+          description: Content-Type, 필수 필드, credential_id, auth_type, host key fingerprint, SSH 인증 입력 또는 개별 Secret 필드의 최대 길이가 올바르지 않다. 오류 코드는 TARGET_PROFILE_INVALID이다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "403":
+          description: 허용되지 않은 peer/Host/Origin의 요청이다. 오류 코드는 GATEWAY_AUTH_FAILED이다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "409":
+          description: 같은 credential_id가 이미 등록되어 있다. 오류 코드는 TARGET_PROFILE_INVALID이다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "413":
+          description: 전체 Credential JSON 요청 본문이 128 KiB 제한을 초과했다. 오류 코드는 TARGET_PROFILE_INVALID이다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags: [Credentials]
+      operationId: listCredentials
+      summary: List in-memory SSH credential metadata
+      description: |
+        현재 프로세스 메모리에 등록된 `cred://runtime/` Credential 메타데이터만 반환한다.
+        Secret은 반환하지 않으며 환경변수 기반 Credential은 목록에 포함하지 않는다.
+        기본 loopback peer/Host, same-origin 제한과 원격 opt-in 조건은 등록 API와 동일하다.
+      responses:
+        "200":
+          description: 메모리 전용 Credential 메타데이터 목록.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CredentialListResponse'
+        "403":
+          description: 허용되지 않은 peer/Host/Origin의 요청이다. 오류 코드는 GATEWAY_AUTH_FAILED이다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /credentials/{credential_id}:
+    delete:
+      tags: [Credentials]
+      operationId: deleteCredential
+      summary: Delete an in-memory SSH credential
+      description: |
+        지정한 `cred://runtime/{credential_id}` Credential을 프로세스 메모리에서 삭제한다.
+        Target Profile의 참조 여부와 관계없이 Profile과 독립적으로 삭제할 수 있다. Target Profile 삭제도
+        Runtime Credential을 연쇄 삭제하지 않는다. 삭제 후 SSH Runner를 사용하는 다음 실제 VM 연결은
+        Credential 누락으로 실패한다. dry-run은 원격 연결이나
+        Credential 해석을 수행하지 않는다. 환경변수 기반 Credential에는 영향을 주지 않는다.
+      parameters:
+        - name: credential_id
+          in: path
+          required: true
+          description: 삭제할 메모리 전용 Credential ID.
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 63
+            pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$'
+      responses:
+        "200":
+          description: Credential이 메모리에서 삭제되었다. 삭제 결과만 반환하고 Secret은 반환하지 않는다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CredentialDeleteResponse'
+        "400":
+          description: credential_id 형식이 올바르지 않다. 오류 코드는 TARGET_PROFILE_INVALID이다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "403":
+          description: 허용되지 않은 peer/Host/Origin의 요청이다. 오류 코드는 GATEWAY_AUTH_FAILED이다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "404":
+          description: 지정한 credential_id가 현재 프로세스 메모리에 없다. 오류 코드는 NOT_FOUND이다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /artifacts/packages:
+    post:
+      tags: [Artifacts]
+      operationId: buildArtifactPackage
+      summary: Build a package artifact from a preset or uploaded source
+      description: |
+        JSON 요청은 서버에 설정된 ai-ops-geon 프리셋을 Linux amd64 tar.gz package로 생성한다.
+        multipart 요청은 Go, Python, Node.js, Linux binary, Shell script 유형의 소스 ZIP 또는 단일 파일을 업로드해 package로 생성한다.
+        임의의 서버 소스 경로나 build command는 받지 않고 유형별 고정 build/entrypoint 규칙만 사용한다.
+        응답의 artifact_uri와 app_spec은 Web, CLI, Shell client에서 App 등록 또는 `POST /apps`에 바로 사용할 수 있다.
+        Package 기반 배포 client는 응답의 app_spec 등록과 Target resource check를 조합하고, check status가 available일 때만 deployment를 생성한다.
+      requestBody:
+        description: 서버 프리셋 또는 업로드 소스와 App 등록 기본값.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PackageBuildRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UploadedPackageBuildRequest'
+      responses:
+        "201":
+          description: Package 생성이 완료되었다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PackageBuildResponse'
+        "400":
+          description: 지원하지 않는 유형이거나 App 이름, version, entrypoint 또는 service port가 올바르지 않다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "404":
+          description: 서버 프리셋 소스, 업로드 소스 또는 지정한 entrypoint가 없다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "413":
+          description: 업로드한 source 파일이 서버의 크기 제한을 초과했다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: 유형별 build 또는 package archive 생성이 완료되지 않았다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "504":
+          description: 설정된 시간 안에 package build가 완료되지 않았다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /apps:
     post:
       tags: [App Registry]
@@ -138,6 +317,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags: [App Registry]
+      operationId: deleteApp
+      summary: Delete AI App registration
+      description: |
+        app_id가 가리키는 단일 AI App 버전 등록 정보를 App Registry에서 삭제한다.
+        해당 app_id 또는 app_version_id를 참조하는 Deployment가 없거나 모두 STOPPED이면 삭제할 수 있다.
+        STOPPED Deployment 이력은 유지하며, STOPPED 이외 상태의 참조가 하나라도 있으면 삭제하지 않는다.
+        artifact URI가 가리키는 package, git, binary, script 원본과 VM에 배포된 파일은 삭제하지 않는다.
+      parameters:
+        - name: app_id
+          in: path
+          description: 등록 삭제할 AI App ID.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: App Registry 등록 정보가 삭제되었다. STOPPED Deployment 이력과 artifact는 유지된다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppDeleteResponse'
+        "404":
+          description: 지정한 app_id가 존재하지 않는다. 오류 코드는 NOT_FOUND이다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "409":
+          description: STOPPED 이외 상태의 Deployment가 App 또는 App Version을 참조한다. 오류 코드는 APP_SPEC_INVALID이다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: App Registry 저장 중 예기치 않은 오류가 발생했다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /runtime-profiles:
     post:
       tags: [Profiles]
@@ -179,6 +399,42 @@ paths:
                     description: 등록된 Runtime Profile 배열.
                     items:
                       $ref: '#/components/schemas/RuntimeProfile'
+  /runtime-profiles/{runtime_profile_id}:
+    delete:
+      tags: [Profiles]
+      operationId: deleteRuntimeProfile
+      summary: Delete Runtime Profile registration
+      description: |
+        지정한 Runtime Profile 등록 정보를 삭제한다. 해당 Profile을 참조하는 Deployment가 없거나
+        모두 STOPPED인 경우에만 삭제하며 STOPPED Deployment, Event, Metric 이력은 유지한다.
+        Target Profile과 Runtime Credential은 연쇄 삭제하지 않는다.
+      parameters:
+        - name: runtime_profile_id
+          in: path
+          required: true
+          description: 삭제할 Runtime Profile ID.
+          schema:
+            type: string
+            minLength: 1
+      responses:
+        "200":
+          description: Runtime Profile 등록 정보가 삭제되었다. 보존 이력과 Target/Credential은 유지된다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileDeleteResponse'
+        "404":
+          description: 지정한 Runtime Profile이 없다. 오류 코드는 NOT_FOUND이다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "409":
+          description: STOPPED가 아닌 Deployment가 Runtime Profile을 참조한다. 오류 코드는 RUNTIME_PROFILE_INVALID이다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /target-profiles:
     post:
       tags: [Profiles]
@@ -220,6 +476,42 @@ paths:
                     description: 등록된 Target Profile 배열.
                     items:
                       $ref: '#/components/schemas/TargetProfile'
+  /target-profiles/{target_profile_id}:
+    delete:
+      tags: [Profiles]
+      operationId: deleteTargetProfile
+      summary: Delete Target Profile registration
+      description: |
+        지정한 Target Profile 등록 정보를 삭제한다. 해당 Profile을 참조하는 Deployment가 없거나
+        모두 STOPPED인 경우에만 삭제하며 STOPPED Deployment, Event, Metric 이력은 유지한다.
+        Target의 현재 Resource Inventory snapshot이 있으면 함께 제거하지만 Runtime Credential은 연쇄 삭제하지 않는다.
+      parameters:
+        - name: target_profile_id
+          in: path
+          required: true
+          description: 삭제할 Target Profile ID.
+          schema:
+            type: string
+            minLength: 1
+      responses:
+        "200":
+          description: Target Profile 등록 정보가 삭제되고 현재 Inventory snapshot이 있으면 함께 제거되었다. 보존 이력과 Credential은 유지된다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileDeleteResponse'
+        "404":
+          description: 지정한 Target Profile이 없다. 오류 코드는 NOT_FOUND이다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "409":
+          description: STOPPED가 아닌 Deployment가 Target Profile을 참조한다. 오류 코드는 TARGET_PROFILE_INVALID이다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /resources/check:
     post:
       tags: [Resources]
@@ -448,7 +740,9 @@ paths:
       tags: [Deployments]
       operationId: stopDeployment
       summary: Stop deployment
-      description: 실행 중인 Deployment에 중지 요청을 보내고 CPU/GPU VM Adapter가 원격 VM의 배포 프로세스를 종료한 뒤 STOPPING, STOPPED 상태 전이를 기록한다.
+      description: |
+        실행 중인 Deployment에 중지 요청을 보내고 CPU/GPU VM Adapter가 원격 VM의 배포 프로세스를 종료한 뒤 STOPPING, STOPPED 상태 전이를 기록한다.
+        이미 STOPPED인 Deployment는 Runtime Adapter를 다시 호출하지 않고 현재 상태를 그대로 반환한다.
       parameters:
         - name: deployment_id
           in: path
@@ -458,7 +752,7 @@ paths:
             type: string
       responses:
         "202":
-          description: 원격 프로세스 종료 요청이 완료되었고 갱신된 Deployment 상태를 반환한다.
+          description: 원격 프로세스 종료 요청이 완료되었거나 이미 STOPPED이며, 현재 Deployment 상태를 반환한다.
           content:
             application/json:
               schema:
@@ -633,6 +927,346 @@ components:
             repository: ready
             runtime_adapter: mock,cpu_vm,gpu_vm,etri_aiinfra
             external_api: etri_mock
+    CredentialCreateRequest:
+      type: object
+      additionalProperties: false
+      description: |
+        프로세스 메모리에 등록할 SSH Credential. auth_type에 따라 private_key 또는 password 중 하나만 전달한다.
+        host_key_fingerprint는 신뢰 가능한 채널로 확인한 대상 SSH 서버 공개키의 canonical OpenSSH SHA256 fingerprint이다.
+        Secret 필드는 writeOnly이며 응답, 로그, 일반 파일 저장소에 기록하지 않는다.
+      required: [credential_id, credential_type, auth_type, ssh_user, host_key_fingerprint]
+      oneOf:
+        - required: [private_key]
+          properties:
+            auth_type:
+              enum: [private_key]
+          not:
+            properties:
+              password: {}
+            required: [password]
+        - required: [password]
+          properties:
+            auth_type:
+              enum: [password]
+          not:
+            anyOf:
+              - properties:
+                  private_key: {}
+                required: [private_key]
+              - properties:
+                  private_key_passphrase: {}
+                required: [private_key_passphrase]
+      properties:
+        credential_id:
+          type: string
+          minLength: 2
+          maxLength: 63
+          pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$'
+          description: 소문자 영숫자와 단일 하이픈 구분자로 구성된 프로세스 내 Credential ID.
+          example: cpu-vm-001
+        credential_type:
+          type: string
+          enum: [ssh]
+          description: 현재 지원하는 Credential 종류.
+        auth_type:
+          type: string
+          enum: [private_key, password]
+          description: SSH 인증 방식. 선택한 방식에 해당하는 Secret만 전달한다.
+        ssh_user:
+          type: string
+          minLength: 1
+          maxLength: 128
+          description: SSH 사용자 이름.
+          example: ubuntu
+        host_key_fingerprint:
+          type: string
+          minLength: 50
+          maxLength: 50
+          pattern: '^SHA256:[A-Za-z0-9+/]{43}$'
+          description: 신뢰 가능한 채널에서 확인한 대상 SSH host public key의 canonical OpenSSH SHA256 fingerprint. Secret이 아니며 응답과 목록에도 반환된다.
+          example: SHA256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        private_key:
+          type: string
+          minLength: 1
+          maxLength: 65536
+          writeOnly: true
+          description: auth_type=private_key일 때 전달하는 PEM private key 원문. 응답과 로그에 포함하지 않는다.
+        private_key_passphrase:
+          type: string
+          minLength: 1
+          maxLength: 4096
+          writeOnly: true
+          description: 암호화된 private key의 선택적 passphrase. 응답과 로그에 포함하지 않는다.
+        password:
+          type: string
+          format: password
+          minLength: 1
+          maxLength: 4096
+          writeOnly: true
+          description: auth_type=password일 때 전달하는 SSH password. 응답과 로그에 포함하지 않는다.
+        ssh_timeout_seconds:
+          type: integer
+          minimum: 1
+          maximum: 300
+          default: 30
+          description: SSH 연결 timeout 초.
+    CredentialRecord:
+      type: object
+      additionalProperties: false
+      description: Secret을 제외한 프로세스 메모리 Credential 메타데이터.
+      required: [credential_id, credential_ref, credential_type, auth_type, ssh_user, host_key_fingerprint, ssh_timeout_seconds, persistent, created_at]
+      properties:
+        credential_id:
+          type: string
+          minLength: 2
+          maxLength: 63
+          pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$'
+          example: cpu-vm-001
+        credential_ref:
+          type: string
+          pattern: '^cred://runtime/[a-z0-9]+(?:-[a-z0-9]+)*$'
+          readOnly: true
+          description: Target Profile에서 사용할 메모리 전용 Credential 참조.
+          example: cred://runtime/cpu-vm-001
+        credential_type:
+          type: string
+          enum: [ssh]
+        auth_type:
+          type: string
+          enum: [private_key, password]
+        ssh_user:
+          type: string
+          minLength: 1
+          maxLength: 128
+          example: ubuntu
+        host_key_fingerprint:
+          type: string
+          minLength: 50
+          maxLength: 50
+          pattern: '^SHA256:[A-Za-z0-9+/]{43}$'
+          description: SSH 서버 인증에 사용하는 공개 host key fingerprint.
+          example: SHA256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        ssh_timeout_seconds:
+          type: integer
+          minimum: 1
+          maximum: 300
+          example: 30
+        persistent:
+          type: boolean
+          enum: [false]
+          readOnly: true
+          description: 프로세스 메모리 전용이므로 항상 false이며 서버 재시작 시 소멸한다.
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: 현재 프로세스에서 Credential을 등록한 시각(UTC).
+    CredentialResponse:
+      type: object
+      additionalProperties: false
+      description: 단일 Credential 작업 응답. Secret은 포함하지 않는다.
+      required: [request_id, credential_id, credential_ref, credential_type, auth_type, ssh_user, host_key_fingerprint, ssh_timeout_seconds, persistent, created_at]
+      properties:
+        request_id:
+          type: string
+          description: 요청 추적 ID.
+          example: req-test-001
+        credential_id:
+          type: string
+          minLength: 2
+          maxLength: 63
+          pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$'
+          example: cpu-vm-001
+        credential_ref:
+          type: string
+          pattern: '^cred://runtime/[a-z0-9]+(?:-[a-z0-9]+)*$'
+          readOnly: true
+          example: cred://runtime/cpu-vm-001
+        credential_type:
+          type: string
+          enum: [ssh]
+        auth_type:
+          type: string
+          enum: [private_key, password]
+        ssh_user:
+          type: string
+          minLength: 1
+          maxLength: 128
+          example: ubuntu
+        host_key_fingerprint:
+          type: string
+          minLength: 50
+          maxLength: 50
+          pattern: '^SHA256:[A-Za-z0-9+/]{43}$'
+          description: SSH 서버 인증에 사용하는 공개 host key fingerprint.
+          example: SHA256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        ssh_timeout_seconds:
+          type: integer
+          minimum: 1
+          maximum: 300
+          example: 30
+        persistent:
+          type: boolean
+          enum: [false]
+          readOnly: true
+          description: 프로세스 메모리 전용이므로 항상 false이다.
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    CredentialListResponse:
+      type: object
+      additionalProperties: false
+      description: 현재 프로세스 메모리에 등록된 Credential 메타데이터 목록. 환경변수 기반 Credential은 포함하지 않는다.
+      required: [request_id, items]
+      properties:
+        request_id:
+          type: string
+          description: 요청 추적 ID.
+          example: req-test-001
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CredentialRecord'
+    CredentialDeleteResponse:
+      type: object
+      additionalProperties: false
+      description: Runtime Credential 삭제 결과. Secret은 포함하지 않는다.
+      required: [request_id, credential_id, credential_ref, deleted, deleted_at]
+      properties:
+        request_id:
+          type: string
+          description: 요청 추적 ID.
+          example: req-test-001
+        credential_id:
+          type: string
+          minLength: 2
+          maxLength: 63
+          pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$'
+          example: cpu-vm-001
+        credential_ref:
+          type: string
+          pattern: '^cred://runtime/[a-z0-9]+(?:-[a-z0-9]+)*$'
+          readOnly: true
+          example: cred://runtime/cpu-vm-001
+        deleted:
+          type: boolean
+          enum: [true]
+          readOnly: true
+        deleted_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PackageBuildRequest:
+      type: object
+      description: 서버에 등록된 package build preset 실행 요청. 업로드 패키지는 multipart/form-data를 사용한다.
+      required: [preset]
+      properties:
+        preset:
+          type: string
+          enum: [aiops-geon-service-control]
+          description: 서버 설정으로 소스와 build target이 제한된 package preset.
+          example: aiops-geon-service-control
+        app_version:
+          type: string
+          pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$'
+          description: 생성된 App Spec의 version. 생략하면 web-YYYYMMDD-HHMMSS-mmm 형식으로 생성한다.
+          example: web-20260713-01
+        service_port:
+          type: integer
+          minimum: 1
+          maximum: 65535
+          default: 18089
+          description: 생성된 App Spec과 원격 service-control API가 사용할 포트.
+          example: 18089
+    UploadedPackageBuildRequest:
+      type: object
+      description: 업로드한 소스 ZIP 또는 단일 파일을 유형별 고정 규칙으로 package화하는 요청.
+      required: [package_type, source, app_name, entrypoint]
+      properties:
+        package_type:
+          type: string
+          enum: [go, python, node, binary, script]
+          description: Go는 Linux amd64로 build하고 나머지 유형은 실행에 필요한 소스를 안전하게 묶는다.
+          example: go
+        source:
+          type: string
+          format: binary
+          description: Go는 ZIP이 필수이며 Python, Node.js, binary, script는 ZIP 또는 단일 파일을 허용한다. 최대 크기는 서버 설정을 따른다.
+        app_name:
+          type: string
+          pattern: '^[a-z0-9][a-z0-9-]{1,62}$'
+          description: 생성된 App Spec의 metadata.name.
+          example: my-go-api
+        app_version:
+          type: string
+          pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$'
+          description: 생성된 App Spec의 version. 생략하면 web-YYYYMMDD-HHMMSS-mmm 형식으로 생성한다.
+          example: 0.1.0
+        entrypoint:
+          type: string
+          description: "Go는 go.mod 기준 build package 경로(예: ./cmd/server), 그 외 유형은 업로드 루트 기준 시작 파일 경로이다."
+          example: ./cmd/server
+        runtime_type:
+          type: string
+          enum: [cpu, gpu]
+          default: cpu
+          description: 생성된 App Spec의 Runtime 종류.
+        service_port:
+          type: integer
+          minimum: 1
+          maximum: 65535
+          description: HTTP 서비스를 제공할 때 App Spec에 넣을 포트. 생략하면 network와 healthcheck를 만들지 않는다.
+          example: 18080
+        healthcheck_path:
+          type: string
+          pattern: '^/[A-Za-z0-9._~!$&''()*+,;=:@%/-]*$'
+          default: /health
+          description: service_port가 있을 때 사용할 HTTP health 경로.
+          example: /health
+    PackageBuildResponse:
+      type: object
+      description: 생성된 package artifact와 App 등록용 App Spec.
+      properties:
+        request_id:
+          type: string
+          description: 요청 추적 ID.
+          example: req-test-001
+        package_type:
+          type: string
+          enum: [aiops-geon-service-control, go, python, node, binary, script]
+          description: 실제 적용된 package 생성 유형.
+          example: go
+        artifact_uri:
+          type: string
+          description: CPU/GPU VM SSH Runner가 업로드할 로컬 file URI.
+          example: file:///workspace/tmp/appdeploy-web/packages/aiops-geon-service-control-linux-amd64-123.tar.gz
+        archive_name:
+          type: string
+          description: 생성된 tar.gz 파일명.
+          example: aiops-geon-service-control-linux-amd64-123.tar.gz
+        size_bytes:
+          type: integer
+          format: int64
+          minimum: 1
+          description: package archive 크기.
+          example: 9045131
+        checksum:
+          type: string
+          description: package archive SHA-256 checksum.
+          example: sha256:0123456789abcdef
+        created_at:
+          type: string
+          format: date-time
+          description: package 생성 완료 시각(UTC).
+        elapsed_ms:
+          type: integer
+          format: int64
+          minimum: 0
+          description: build와 archive 생성에 걸린 시간.
+          example: 3200
+        app_spec:
+          $ref: '#/components/schemas/AppSpec'
     AppCreateRequest:
       type: object
       description: AI App 등록 요청.
@@ -671,6 +1305,83 @@ components:
           format: date-time
           description: 등록 시각(UTC).
           example: "2026-06-24T09:00:00Z"
+    AppDeleteResponse:
+      type: object
+      description: AI App 버전 등록 삭제 결과. STOPPED Deployment 이력은 유지되며, artifact_deleted=false는 실제 artifact가 유지되었음을 뜻한다.
+      required: [request_id, app_id, app_version_id, name, version, deleted, artifact_deleted, deleted_at]
+      properties:
+        request_id:
+          type: string
+          description: 요청 추적 ID.
+          example: req-test-001
+        app_id:
+          type: string
+          description: 삭제된 App 등록 식별자.
+          example: app-1f4b9d8c-0a7a-4a5f-9f2c-123456789abc
+        app_version_id:
+          type: string
+          description: 삭제된 App Version 식별자.
+          example: appver-1f4b9d8c-0a7a-4a5f-9f2c-123456789abc
+        name:
+          type: string
+          description: 삭제된 App Spec metadata.name.
+          example: sample-cpu-app
+        version:
+          type: string
+          description: 삭제된 App Spec metadata.version.
+          example: 0.1.0
+        deleted:
+          type: boolean
+          enum: [true]
+          description: App Registry 등록 정보 삭제 여부.
+        artifact_deleted:
+          type: boolean
+          enum: [false]
+          description: 실제 artifact 삭제 여부. 이 API는 항상 artifact를 유지한다.
+        deleted_at:
+          type: string
+          format: date-time
+          description: App Registry 등록 삭제 시각(UTC).
+          example: "2026-07-13T09:00:00Z"
+    ProfileDeleteResponse:
+      type: object
+      additionalProperties: false
+      description: |
+        Runtime 또는 Target Profile 등록 삭제 결과. STOPPED Deployment, Event, Metric 이력은 유지한다.
+        Target 삭제 시 존재하는 현재 Resource Inventory snapshot만 함께 제거하며 Runtime Credential은 연쇄 삭제하지 않는다.
+      required: [request_id, profile_type, profile_id, name, deleted, inventory_deleted, deleted_at]
+      properties:
+        request_id:
+          type: string
+          description: 요청 추적 ID.
+          example: req-test-001
+        profile_type:
+          type: string
+          enum: [runtime, target]
+          description: 삭제한 Profile 종류.
+          example: target
+        profile_id:
+          type: string
+          minLength: 1
+          description: 삭제한 Runtime 또는 Target Profile ID.
+          example: target-cpu-001
+        name:
+          type: string
+          description: 삭제한 Profile 이름. 등록된 이름이 없으면 빈 문자열을 반환한다.
+          example: cpu-vm-target
+        deleted:
+          type: boolean
+          enum: [true]
+          description: Profile 등록 정보 삭제 여부. 성공 응답에서는 항상 true이다.
+        inventory_deleted:
+          type: boolean
+          description: Target의 현재 Resource Inventory snapshot이 실제로 제거되었는지 여부. Runtime 삭제에서는 항상 false이다.
+          example: true
+        deleted_at:
+          type: string
+          format: date-time
+          description: Profile 등록 삭제 시각(UTC).
+          example: "2026-07-13T10:00:00Z"
     AppSpec:
       type: object
       description: |
@@ -951,7 +1662,13 @@ components:
               example: 22
             credential_ref:
               type: string
-              description: Secret 참조. 실제 키/비밀번호는 환경변수 또는 Secret Store에서 주입한다.
+              minLength: 9
+              maxLength: 256
+              pattern: '^cred://[a-z0-9]+(?:-[a-z0-9]+)*/[a-z0-9]+(?:-[a-z0-9]+)*(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*$'
+              description: |
+                Secret 참조. `cred://runtime/{credential_id}`는 Credential API로 현재 프로세스 메모리에 등록하며 서버 재시작 시 소멸한다.
+                그 밖의 참조는 기존 환경변수 Credential resolver로 fallback한다. 허용된 `cred://namespace/id` 형식만 저장할 수 있으며,
+                Target Profile에는 실제 키나 비밀번호를 저장하지 않는다.
               example: cred://local/cpu-vm-001
         runtime:
           type: object

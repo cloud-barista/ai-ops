@@ -18,6 +18,7 @@
 
 | 구분 | 포함 여부 | 기준 |
 | --- | --- | --- |
+| 유형 선택형 Package 생성 | 포함 | ai-ops-geon 프리셋 또는 Go/Python/Node.js/Linux binary/Shell source를 Linux amd64 package와 App Spec으로 생성 |
 | AI App 등록 | 포함 | App Spec 저장, 버전 관리, 실행 패키지·명령·모델 참조·자원 요구사항 검증 |
 | AI App 배포 요청 | 포함 | App Version과 Runtime/Target Profile을 기반으로 Deployment 생성 |
 | CPU VM 실행 | 포함 | Ubuntu VM에서 패키지, 스크립트, 바이너리 기반 실행 흐름 검증 |
@@ -36,6 +37,7 @@
 | 구현 항목 | 현재 상태 | 대표 증적/문서 |
 | --- | --- | --- |
 | API server와 Swagger | 구현 완료 | `/openapi.yaml`, `/swagger`, `docs/api/openapi.html` |
+| Web/CLI/Shell Package 생성·배포 | 구현 완료 | `/api/v1/artifacts/packages`, `packages deploy`, `scripts/package-deploy.ps1/.sh` |
 | App 등록 및 artifact 검증 | 구현 완료 | `api-smoke/02-app-cpu.json`, container 거부 테스트 |
 | Runtime/Target Profile | 구현 완료 | `examples/requests/runtime-*.json`, `target-*.json` |
 | CPU VM Adapter | 구현 완료 | dry-run, SSH runner, script upload 경로 |
@@ -54,6 +56,7 @@
 
 | 사용자 시나리오 | 설명 | 완료 기준 |
 | --- | --- | --- |
+| Package 생성 | 운영자가 6개 지원 유형 중 하나와 source/entrypoint를 선택한다. | tar.gz, checksum, 등록 가능한 App Spec이 반환된다. |
 | App 등록 | 운영자 또는 외부 시스템이 AI App Spec을 등록한다. | App ID와 App Version이 생성된다. |
 | Target 등록 | ETRI 제공 VM 또는 기관별 독립 VM을 Target Profile로 등록한다. | Target ID가 생성되고 readiness 점검이 가능하다. |
 | GPU 자원 확인 | NVIDIA GPU VM에서 GPU Runtime 사용 가능 여부를 확인한다. | nvidia-smi 또는 Runtime Check 로그가 남는다. |
@@ -69,7 +72,7 @@
 | 계층 | 구성요소 | 구현 기준 |
 | --- | --- | --- |
 | API Layer | Echo Handler, Middleware, Swagger UI | /api/v1 prefix, request_id, 공통 에러 응답 |
-| Service Layer | App Service, Deployment Service, Resource Service | 비즈니스 규칙, 상태 전이, Resource Matching |
+| Service Layer | Artifact Package Service, App Service, Deployment Service, Resource Service | 고정 규칙 Package 생성, 비즈니스 규칙, 상태 전이, Resource Matching |
 | Repository Layer | App Repository, Deployment Repository, Profile Repository | 1차년도는 파일 기반 또는 SQLite 등 경량 저장소 허용 |
 | Runtime Layer | Mock, CPU VM, GPU VM, ETRI AI-Infra Adapter | Runtime Adapter Interface를 공통 계약으로 사용 |
 | External Layer | Innogrid, Bespin, Gateway Adapter | 외부 명세 변화는 Adapter와 Contract Test로 흡수 |
@@ -236,6 +239,7 @@ API는 Swagger/OpenAPI를 기준 계약으로 관리한다. Handler 구현, API 
 | --- | --- | --- | --- |
 | GET | /api/v1/healthz | 서버 생존 확인 | 필수 |
 | GET | /api/v1/readiness | 저장소, Runtime, 외부 API 준비 상태 확인 | 필수 |
+| POST | /api/v1/artifacts/packages | 프리셋 또는 업로드 source를 Linux amd64 package와 App Spec으로 생성 | 필수 |
 | POST | /api/v1/apps | AI App 등록 | 필수 |
 | GET | /api/v1/apps | AI App 목록 조회 | 필수 |
 | GET | /api/v1/apps/{app_id} | AI App 상세 조회 | 필수 |
@@ -299,6 +303,17 @@ ANY_ACTIVE_STATE -> UNKNOWN
 | EXTERNAL_API_FAILED | ETRI/Bespin/Gateway API 실패 | external api failed |
 
 ## 8. 모듈별 개발 설계
+
+### 8.0 Artifact Package Builder
+
+| 항목 | 설계 기준 |
+| --- | --- |
+| 입력 | JSON ai-ops-geon preset 또는 multipart `go/python/node/binary/script` source, App 기본값 |
+| 처리 | 유형별 고정 build/entrypoint 규칙, ZIP 안전성·크기 검증, Linux amd64 tar.gz와 SHA-256 생성 |
+| 출력 | artifact URI, archive name, checksum, App Spec |
+| 호출 흐름 | Web/CLI/Shell이 Package 응답의 `app_spec` 등록 → Target Resource Check → `available`일 때만 Deployment 생성 |
+| 제한 | 임의 서버 source path/build command, Container/OCI/Registry 기능 금지 |
+| 실패 처리 | 표준 ErrorResponse를 반환하며 후속 API 실패 시 생성 archive/App을 자동 rollback하지 않음 |
 
 ### 8.1 App Registry
 
@@ -466,6 +481,7 @@ GPU VM Adapter는 최소 다음 점검을 수행한다.
 | --- | --- | --- |
 | Unit Test | Validator, State Machine, Resource Matcher 단위 검증 | internal/app, internal/deployment, internal/resource |
 | API Test | OpenAPI 기준 요청/응답 검증 | /api/v1/apps, /api/v1/deployments |
+| Package API Test | preset JSON, multipart upload, 안전성·크기 제한 검증 | /api/v1/artifacts/packages |
 | Contract Test | 외부 API Mock/Fixture 검증 | ETRI, Innogrid, Bespin Adapter |
 | Integration Test | VM/Runtime/Storage 연동 검증 | CPU VM, GPU VM, Resource Check |
 | E2E Test | 등록→배포→상태→로그 전체 흐름 | Mock Runtime, GPU VM PoC |
@@ -483,6 +499,8 @@ GPU VM Adapter는 최소 다음 점검을 수행한다.
 | TC-PROT-008 | 중지 요청 | RUNNING→STOPPING→STOPPED 전이 |
 | TC-PROT-009 | ETRI Contract | 요청/응답 매핑과 에러 정규화 검증 |
 | TC-PROT-010 | Bespin/MCP Contract | 외부 호출 경로와 표준 응답 검증 |
+| TC-PROT-011 | 유형별 Package 생성 | preset과 script upload가 checksum과 App Spec을 반환 |
+| TC-PROT-012 | CLI/Shell Package 배포 | Package→App→Resource→Deployment 연속 흐름과 unavailable 배포 중단이 동작 |
 
 ## 15. 기능/API·설치·시험 가이드 연계
 
@@ -501,7 +519,7 @@ GPU VM Adapter는 최소 다음 점검을 수행한다.
 
 | 구분 | 완료 기준 |
 | --- | --- |
-| 기능 | App 등록, App 조회, Target 등록, 배포 요청, 상태 조회, 로그 조회, 중지 API가 동작한다. |
+| 기능 | 유형 선택형 Package 생성, App 등록·조회, Target 등록, 배포 요청, 상태·로그 조회, 중지 API가 동작한다. |
 | Runtime | Mock Runtime과 최소 1개 VM Runtime Adapter가 동작한다. GPU VM은 제공 환경 기준으로 readiness 또는 PoC 로그를 확보한다. |
 | 자원 | CPU/GPU/VM/Storage 조건을 Runtime Profile, Target Profile, Resource Inventory 기준으로 검증한다. |
 | 외부 연동 | ETRI/Bespin/Innogrid 연동 Adapter와 Contract Test가 준비된다. 실 API 제공 시 설정 기반으로 연결 가능해야 한다. |
@@ -517,6 +535,6 @@ GPU VM Adapter는 최소 다음 점검을 수행한다.
 | --- | --- |
 | OpenAPI | `contracts/openapi/openapi.yaml`에 외부 제공 인터페이스 호환 필드를 반영한다. |
 | 예제 | `deliverables/interface/examples/requests`와 `deliverables/interface/examples/responses`에 외부 제공용 JSON을 둔다. |
-| Smoke | `scripts/interface-smoke.ps1`로 직접 App Spec, `dry_run` Runtime Profile, GPU Target, Resource Check, Deployment, Logs, Metric, Monitoring, Stop 흐름을 검증한다. |
+| Smoke | `scripts/interface-smoke.ps1`의 직접 App Spec 흐름과 `scripts/package-deploy.ps1/.sh`의 Package→App→Resource→Deployment 흐름을 검증한다. |
 | Contract Test | `deliverables/interface/tests/interface-contract-test-checklist.md`와 `internal/server/e2e_test.go`의 외부 인터페이스 E2E를 기준으로 한다. |
 | 책임 경계 | 실제 외부 API 호출은 구현하지 않고 `internal/external`과 `internal/runtime/aiinfra`를 교체 지점으로 유지한다. |

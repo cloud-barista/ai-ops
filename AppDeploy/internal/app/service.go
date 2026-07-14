@@ -63,6 +63,22 @@ func (s *Service) GetByVersion(ctx context.Context, appVersionID string) (model.
 	return s.repo.GetAppByVersionID(ctx, appVersionID)
 }
 
+func (s *Service) Delete(ctx context.Context, appID string) (model.AppDeleteResponse, error) {
+	deleted, err := s.repo.DeleteApp(ctx, appID)
+	if err != nil {
+		return model.AppDeleteResponse{}, err
+	}
+	return model.AppDeleteResponse{
+		AppID:           deleted.AppID,
+		AppVersionID:    deleted.AppVersionID,
+		Name:            deleted.Name,
+		Version:         deleted.Version,
+		Deleted:         true,
+		ArtifactDeleted: false,
+		DeletedAt:       time.Now().UTC(),
+	}, nil
+}
+
 var appNamePattern = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{1,62}$`)
 
 func ValidateSpec(spec model.AppSpec) error {

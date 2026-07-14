@@ -8,40 +8,6 @@ import (
 	"github.com/khu/ai-app-deployer/internal/model"
 )
 
-type AppRepository interface {
-	CreateApp(ctx context.Context, app model.AppResponse) error
-	ListApps(ctx context.Context) ([]model.AppResponse, error)
-	GetApp(ctx context.Context, appID string) (model.AppResponse, error)
-	GetAppByVersionID(ctx context.Context, appVersionID string) (model.AppResponse, error)
-	ExistsNameVersion(ctx context.Context, name, version string) (bool, error)
-}
-
-type ProfileRepository interface {
-	CreateRuntimeProfile(ctx context.Context, profile model.RuntimeProfile) error
-	ListRuntimeProfiles(ctx context.Context) ([]model.RuntimeProfile, error)
-	GetRuntimeProfile(ctx context.Context, id string) (model.RuntimeProfile, error)
-	CreateTargetProfile(ctx context.Context, profile model.TargetProfile) error
-	ListTargetProfiles(ctx context.Context) ([]model.TargetProfile, error)
-	GetTargetProfile(ctx context.Context, id string) (model.TargetProfile, error)
-}
-
-type DeploymentRepository interface {
-	CreateDeployment(ctx context.Context, deployment model.DeploymentResponse) error
-	UpdateDeployment(ctx context.Context, deployment model.DeploymentResponse) error
-	ListDeployments(ctx context.Context) ([]model.DeploymentResponse, error)
-	GetDeployment(ctx context.Context, id string) (model.DeploymentResponse, error)
-	AddEvent(ctx context.Context, event model.DeploymentEvent) error
-	ListEvents(ctx context.Context, deploymentID, stage string) ([]model.DeploymentEvent, error)
-	SaveInventory(ctx context.Context, inventory model.ResourceInventory) error
-	ListInventory(ctx context.Context) ([]model.ResourceInventory, error)
-}
-
-type MetricRepository interface {
-	AddMetric(ctx context.Context, metric model.InferenceMetricRecord) error
-	ListMetrics(ctx context.Context, deploymentID string) ([]model.InferenceMetricRecord, error)
-	ListAllMetrics(ctx context.Context) ([]model.InferenceMetricRecord, error)
-}
-
 type Memory struct {
 	mu              sync.RWMutex
 	appsByID        map[string]model.AppResponse
@@ -72,7 +38,7 @@ func NewMemory() *Memory {
 func (m *Memory) CreateApp(ctx context.Context, app model.AppResponse) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	key := app.Name + ":" + app.Version
+	key := appNameVersionKey(app.Name, app.Version)
 	if _, ok := m.appNameVersion[key]; ok {
 		return apperrors.New(model.ErrAppSpecInvalid, "app name/version already exists", 400, false)
 	}
@@ -85,38 +51,45 @@ func (m *Memory) CreateApp(ctx context.Context, app model.AppResponse) error {
 func (m *Memory) ListApps(ctx context.Context) ([]model.AppResponse, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	items := make([]model.AppResponse, 0, len(m.appsByVersionID))
-	for _, app := range m.appsByVersionID {
-		items = append(items, app)
-	}
-	return items, nil
+	return mapValues(m.appsByVersionID), nil
 }
 
 func (m *Memory) GetApp(ctx context.Context, appID string) (model.AppResponse, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	app, ok := m.appsByID[appID]
-	if !ok {
-		return model.AppResponse{}, apperrors.New("NOT_FOUND", "app not found", 404, false)
-	}
-	return app, nil
+	return mapValue(m.appsByID, appID, "app not found")
 }
 
 func (m *Memory) GetAppByVersionID(ctx context.Context, appVersionID string) (model.AppResponse, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	app, ok := m.appsByVersionID[appVersionID]
-	if !ok {
-		return model.AppResponse{}, apperrors.New("NOT_FOUND", "app version not found", 404, false)
-	}
-	return app, nil
+	return mapValue(m.appsByVersionID, appVersionID, "app version not found")
 }
 
 func (m *Memory) ExistsNameVersion(ctx context.Context, name, version string) (bool, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	_, ok := m.appNameVersion[name+":"+version]
+	_, ok := m.appNameVersion[appNameVersionKey(name, version)]
 	return ok, nil
+}
+
+func (m *Memory) DeleteApp(ctx context.Context, appID string) (model.AppResponse, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	app, err := mapValue(m.appsByID, appID, "app not found")
+	if err != nil {
+		return model.AppResponse{}, err
+	}
+
+	if err := validateAppDeletion(m.deployments, app); err != nil {
+		return model.AppResponse{}, err
+	}
+
+	delete(m.appsByID, app.AppID)
+	delete(m.appsByVersionID, app.AppVersionID)
+	delete(m.appNameVersion, appNameVersionKey(app.Name, app.Version))
+	return app, nil
 }
 
 func (m *Memory) CreateRuntimeProfile(ctx context.Context, profile model.RuntimeProfile) error {
@@ -129,20 +102,37 @@ func (m *Memory) CreateRuntimeProfile(ctx context.Context, profile model.Runtime
 func (m *Memory) ListRuntimeProfiles(ctx context.Context) ([]model.RuntimeProfile, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	items := make([]model.RuntimeProfile, 0, len(m.runtimes))
-	for _, item := range m.runtimes {
-		items = append(items, item)
-	}
-	return items, nil
+	return mapValues(m.runtimes), nil
 }
 
 func (m *Memory) GetRuntimeProfile(ctx context.Context, id string) (model.RuntimeProfile, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	profile, ok := m.runtimes[id]
-	if !ok {
-		return model.RuntimeProfile{}, apperrors.New("NOT_FOUND", "runtime profile not found", 404, false)
+	return mapValue(m.runtimes, id, "runtime profile not found")
+}
+
+func (m *Memory) DeleteRuntimeProfile(ctx context.Context, id string) (model.RuntimeProfile, error) {
+	if err := contextError(ctx); err != nil {
+		return model.RuntimeProfile{}, err
 	}
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if err := contextError(ctx); err != nil {
+		return model.RuntimeProfile{}, err
+	}
+
+	profile, err := mapValue(m.runtimes, id, "runtime profile not found")
+	if err != nil {
+		return model.RuntimeProfile{}, err
+	}
+	if err := validateRuntimeProfileDeletion(m.deployments, id); err != nil {
+		return model.RuntimeProfile{}, err
+	}
+	if err := contextError(ctx); err != nil {
+		return model.RuntimeProfile{}, err
+	}
+
+	delete(m.runtimes, id)
 	return profile, nil
 }
 
@@ -156,21 +146,40 @@ func (m *Memory) CreateTargetProfile(ctx context.Context, profile model.TargetPr
 func (m *Memory) ListTargetProfiles(ctx context.Context) ([]model.TargetProfile, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	items := make([]model.TargetProfile, 0, len(m.targets))
-	for _, item := range m.targets {
-		items = append(items, item)
-	}
-	return items, nil
+	return mapValues(m.targets), nil
 }
 
 func (m *Memory) GetTargetProfile(ctx context.Context, id string) (model.TargetProfile, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	profile, ok := m.targets[id]
-	if !ok {
-		return model.TargetProfile{}, apperrors.New("NOT_FOUND", "target profile not found", 404, false)
+	return mapValue(m.targets, id, "target profile not found")
+}
+
+func (m *Memory) DeleteTargetProfile(ctx context.Context, id string) (model.TargetProfile, bool, error) {
+	if err := contextError(ctx); err != nil {
+		return model.TargetProfile{}, false, err
 	}
-	return profile, nil
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if err := contextError(ctx); err != nil {
+		return model.TargetProfile{}, false, err
+	}
+
+	profile, err := mapValue(m.targets, id, "target profile not found")
+	if err != nil {
+		return model.TargetProfile{}, false, err
+	}
+	if err := validateTargetProfileDeletion(m.deployments, id); err != nil {
+		return model.TargetProfile{}, false, err
+	}
+	if err := contextError(ctx); err != nil {
+		return model.TargetProfile{}, false, err
+	}
+
+	_, inventoryDeleted := m.inventory[id]
+	delete(m.targets, id)
+	delete(m.inventory, id)
+	return profile, inventoryDeleted, nil
 }
 
 func (m *Memory) CreateDeployment(ctx context.Context, deployment model.DeploymentResponse) error {
@@ -193,21 +202,13 @@ func (m *Memory) UpdateDeployment(ctx context.Context, deployment model.Deployme
 func (m *Memory) ListDeployments(ctx context.Context) ([]model.DeploymentResponse, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	items := make([]model.DeploymentResponse, 0, len(m.deployments))
-	for _, item := range m.deployments {
-		items = append(items, item)
-	}
-	return items, nil
+	return mapValues(m.deployments), nil
 }
 
 func (m *Memory) GetDeployment(ctx context.Context, id string) (model.DeploymentResponse, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	deployment, ok := m.deployments[id]
-	if !ok {
-		return model.DeploymentResponse{}, apperrors.New("NOT_FOUND", "deployment not found", 404, false)
-	}
-	return deployment, nil
+	return mapValue(m.deployments, id, "deployment not found")
 }
 
 func (m *Memory) AddEvent(ctx context.Context, event model.DeploymentEvent) error {
@@ -220,14 +221,7 @@ func (m *Memory) AddEvent(ctx context.Context, event model.DeploymentEvent) erro
 func (m *Memory) ListEvents(ctx context.Context, deploymentID, stage string) ([]model.DeploymentEvent, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	events := m.events[deploymentID]
-	items := make([]model.DeploymentEvent, 0, len(events))
-	for _, event := range events {
-		if stage == "" || event.Stage == stage {
-			items = append(items, event)
-		}
-	}
-	return items, nil
+	return filterEvents(m.events[deploymentID], stage), nil
 }
 
 func (m *Memory) SaveInventory(ctx context.Context, inventory model.ResourceInventory) error {
@@ -240,11 +234,7 @@ func (m *Memory) SaveInventory(ctx context.Context, inventory model.ResourceInve
 func (m *Memory) ListInventory(ctx context.Context) ([]model.ResourceInventory, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	items := make([]model.ResourceInventory, 0, len(m.inventory))
-	for _, item := range m.inventory {
-		items = append(items, item)
-	}
-	return items, nil
+	return mapValues(m.inventory), nil
 }
 
 func (m *Memory) AddMetric(ctx context.Context, metric model.InferenceMetricRecord) error {
@@ -257,22 +247,11 @@ func (m *Memory) AddMetric(ctx context.Context, metric model.InferenceMetricReco
 func (m *Memory) ListMetrics(ctx context.Context, deploymentID string) ([]model.InferenceMetricRecord, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	source := m.metrics[deploymentID]
-	items := make([]model.InferenceMetricRecord, len(source))
-	copy(items, source)
-	return items, nil
+	return cloneSlice(m.metrics[deploymentID]), nil
 }
 
 func (m *Memory) ListAllMetrics(ctx context.Context) ([]model.InferenceMetricRecord, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	var count int
-	for _, source := range m.metrics {
-		count += len(source)
-	}
-	items := make([]model.InferenceMetricRecord, 0, count)
-	for _, source := range m.metrics {
-		items = append(items, source...)
-	}
-	return items, nil
+	return flattenSlices(m.metrics), nil
 }

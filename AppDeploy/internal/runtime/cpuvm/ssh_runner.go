@@ -3,6 +3,7 @@ package cpuvm
 import (
 	"bytes"
 	"context"
+	"crypto/subtle"
 	"fmt"
 	"io"
 	"net"
@@ -16,6 +17,7 @@ import (
 
 	"github.com/khu/ai-app-deployer/internal/config"
 	"github.com/khu/ai-app-deployer/internal/model"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -46,7 +48,13 @@ func (r *SSHRunner) Run(ctx context.Context, target model.TargetProfile, command
 		defer cancel()
 	}
 
+	hostKeyCallback, err := pinnedHostKeyCallback(credential.HostKeyFingerprint)
+	if err != nil {
+		clearCredentialSecrets(&credential)
+		return Result{}, err
+	}
 	auth, err := authMethods(credential)
+	clearCredentialSecrets(&credential)
 	if err != nil {
 		return Result{}, err
 	}
@@ -58,7 +66,7 @@ func (r *SSHRunner) Run(ctx context.Context, target model.TargetProfile, command
 	clientConfig := &ssh.ClientConfig{
 		User:            credential.User,
 		Auth:            auth,
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		HostKeyCallback: hostKeyCallback,
 		Timeout:         timeout,
 	}
 	address := net.JoinHostPort(target.VM.Host, strconv.Itoa(port))
@@ -171,7 +179,9 @@ func uploadLocalFile(ctx context.Context, client *ssh.Client, target model.Targe
 
 	select {
 	case <-ctx.Done():
-		_ = stdin.Close()
+		if err := stdin.Close(); err != nil {
+			return "", fmt.Errorf("ssh upload cancellation cleanup failed: %v: %w", err, ctx.Err())
+		}
 		return "", ctx.Err()
 	case err := <-copyCh:
 		if err != nil {
@@ -189,16 +199,28 @@ func uploadLocalFile(ctx context.Context, client *ssh.Client, target model.Targe
 
 func authMethods(credential config.SSHCredential) ([]ssh.AuthMethod, error) {
 	var methods []ssh.AuthMethod
-	if credential.PrivateKeyPath != "" {
-		key, err := os.ReadFile(credential.PrivateKeyPath)
-		if err != nil {
-			return nil, fmt.Errorf("ssh private key could not be read")
+	hasRawKey := len(credential.PrivateKey) > 0
+	hasKeyPath := credential.PrivateKeyPath != ""
+	if hasRawKey && hasKeyPath {
+		return nil, fmt.Errorf("ssh private key source is ambiguous")
+	}
+	if hasRawKey || hasKeyPath {
+		key := credential.PrivateKey
+		if hasKeyPath {
+			var err error
+			key, err = os.ReadFile(credential.PrivateKeyPath)
+			if err != nil {
+				return nil, fmt.Errorf("ssh private key could not be read")
+			}
+			defer zeroBytes(key)
 		}
-		signer, err := ssh.ParsePrivateKey(key)
+		signer, err := parsePrivateKey(key, credential.PrivateKeyPassphrase)
 		if err != nil {
 			return nil, fmt.Errorf("ssh private key could not be parsed")
 		}
 		methods = append(methods, ssh.PublicKeys(signer))
+	} else if len(credential.PrivateKeyPassphrase) > 0 {
+		return nil, fmt.Errorf("ssh private key passphrase requires a private key")
 	}
 	if credential.Password != "" {
 		methods = append(methods, ssh.Password(credential.Password))
@@ -207,6 +229,48 @@ func authMethods(credential config.SSHCredential) ([]ssh.AuthMethod, error) {
 		return nil, fmt.Errorf("ssh auth method is not configured")
 	}
 	return methods, nil
+}
+
+func pinnedHostKeyCallback(expectedFingerprint string) (ssh.HostKeyCallback, error) {
+	if !config.IsValidSSHHostKeyFingerprint(expectedFingerprint) {
+		return nil, fmt.Errorf("ssh host key fingerprint is not configured or invalid")
+	}
+	expected := []byte(expectedFingerprint)
+	return func(_ string, _ net.Addr, key ssh.PublicKey) error {
+		if key == nil {
+			return fmt.Errorf("ssh host key fingerprint mismatch")
+		}
+		actual := []byte(ssh.FingerprintSHA256(key))
+		if subtle.ConstantTimeCompare(actual, expected) != 1 {
+			log.Warn().Str("expected_fingerprint", expectedFingerprint).Str("actual_fingerprint", string(actual)).Msg("ssh host key fingerprint mismatch")
+			return fmt.Errorf("ssh host key fingerprint mismatch")
+		}
+		return nil
+	}, nil
+}
+
+func parsePrivateKey(privateKey, passphrase []byte) (ssh.Signer, error) {
+	if len(passphrase) > 0 {
+		return ssh.ParsePrivateKeyWithPassphrase(privateKey, passphrase)
+	}
+	return ssh.ParsePrivateKey(privateKey)
+}
+
+func clearCredentialSecrets(credential *config.SSHCredential) {
+	if credential == nil {
+		return
+	}
+	zeroBytes(credential.PrivateKey)
+	zeroBytes(credential.PrivateKeyPassphrase)
+	credential.PrivateKey = nil
+	credential.PrivateKeyPassphrase = nil
+	credential.Password = ""
+}
+
+func zeroBytes(value []byte) {
+	for i := range value {
+		value[i] = 0
+	}
 }
 
 func dialSSH(ctx context.Context, network, address string, config *ssh.ClientConfig) (*ssh.Client, error) {

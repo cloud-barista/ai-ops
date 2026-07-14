@@ -6,7 +6,9 @@ import (
 	"time"
 
 	appsvc "github.com/khu/ai-app-deployer/internal/app"
+	artifactsvc "github.com/khu/ai-app-deployer/internal/artifact"
 	"github.com/khu/ai-app-deployer/internal/config"
+	credentialsvc "github.com/khu/ai-app-deployer/internal/credential"
 	depsvc "github.com/khu/ai-app-deployer/internal/deployment"
 	"github.com/khu/ai-app-deployer/internal/external/etri"
 	"github.com/khu/ai-app-deployer/internal/handler"
@@ -60,9 +62,10 @@ func newWithConfig(settings config.Settings, requestLogging bool) (*echo.Echo, e
 	if err != nil {
 		return nil, err
 	}
+	credentials := credentialsvc.NewService(config.NewEnvCredentialResolver(), settings.SSHDefaultTimeout)
 	mockAdapter := mockruntime.New()
-	cpuAdapter := cpuvm.New(cpuVMRunner(settings))
-	gpuAdapter := gpuvm.New(gpuVMRunner(settings))
+	cpuAdapter := cpuvm.New(cpuVMRunner(settings, credentials))
+	gpuAdapter := gpuvm.New(gpuVMRunner(settings, credentials))
 	aiInfraAdapter := aiinfra.New(etri.NewMockClient())
 	adapter := runtime.NewRouter(mockAdapter)
 	adapter.RegisterAdapterType("mock", mockAdapter)
@@ -74,14 +77,20 @@ func newWithConfig(settings config.Settings, requestLogging bool) (*echo.Echo, e
 	adapter.RegisterAdapterType("etri_aiinfra", aiInfraAdapter)
 	adapter.RegisterRuntimeType("aiinfra", aiInfraAdapter)
 	apps := appsvc.NewService(repo)
+	packages := artifactsvc.New(artifactsvc.Config{
+		AIOpsRoot:      settings.AIOpsRoot,
+		OutputDir:      settings.PackageOutputDir,
+		BuildTimeout:   settings.PackageTimeout,
+		MaxUploadBytes: settings.PackageMaxUpload,
+	})
 	profiles := profilesvc.NewService(repo)
 	matcher := ressvc.NewMatcher()
 	deployments := depsvc.NewService(repo, repo, repo, matcher, adapter)
 	resources := ressvc.NewService(repo, repo, adapter)
 	monitoring := monsvc.NewService(repo)
-	inference := infsvc.NewService(repo, repo, repo, cpuvm.NewSSHRunner(config.NewEnvCredentialResolver(), settings.SSHDefaultTimeout))
+	inference := infsvc.NewService(repo, repo, repo, cpuvm.NewSSHRunner(credentials, settings.SSHDefaultTimeout))
 
-	handler.New(apps, profiles, deployments, resources, monitoring, inference).Register(e)
+	handler.New(apps, packages, profiles, deployments, resources, monitoring, inference, credentials, settings.CredentialRemote).Register(e)
 	webui.Register(e)
 	return e, nil
 }
@@ -105,16 +114,16 @@ func newRepository(path string) (repository, error) {
 	return repo, nil
 }
 
-func cpuVMRunner(settings config.Settings) cpuvm.Runner {
+func cpuVMRunner(settings config.Settings, credentials config.SSHCredentialResolver) cpuvm.Runner {
 	if strings.EqualFold(settings.CPUVMRunner, "ssh") {
-		return cpuvm.NewSSHRunner(config.NewEnvCredentialResolver(), settings.SSHDefaultTimeout)
+		return cpuvm.NewSSHRunner(credentials, settings.SSHDefaultTimeout)
 	}
 	return cpuvm.NewDryRunRunner()
 }
 
-func gpuVMRunner(settings config.Settings) cpuvm.Runner {
+func gpuVMRunner(settings config.Settings, credentials config.SSHCredentialResolver) cpuvm.Runner {
 	if strings.EqualFold(settings.GPUVMRunner, "ssh") {
-		return cpuvm.NewSSHRunner(config.NewEnvCredentialResolver(), settings.SSHDefaultTimeout)
+		return cpuvm.NewSSHRunner(credentials, settings.SSHDefaultTimeout)
 	}
 	return gpuvm.NewDryRunRunner()
 }

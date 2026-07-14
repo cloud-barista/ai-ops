@@ -106,13 +106,14 @@ AI 응용 배포 구조는 접근/연계 계층, Control Plane, Execution/Resour
 
 | 계층 | 구성요소 | 책임 |
 | --- | --- | --- |
-| 접근/연계 계층 | Swagger UI, API Client, 이노그리드 연동, 베스핀 Web Console/MCP | AI App 등록, 배포 요청, 상태 조회, 로그 조회 API를 호출한다. |
-| Control Plane | Go/Echo API, App Registry, Spec Validator, Deployment Orchestrator, Resource Matcher, State/Event Manager, Log/Error Manager | AI 응용 배포·운용의 핵심 제어 기능을 담당한다. |
+| 접근/연계 계층 | Web Console, `appdeployer` CLI, HTTP Shell client, Swagger UI, 이노그리드, 베스핀 Web/MCP | Package 생성, AI App 등록, 자원 점검, 배포 요청, 상태·로그 조회 API를 호출한다. |
+| Control Plane | Go/Echo API, Artifact Package Service, App Registry, Spec Validator, Deployment Orchestrator, Resource Matcher, State/Event Manager, Log/Error Manager | AI 응용 배포·운용의 핵심 제어 기능을 담당한다. |
 | Execution/Resource Plane | Mock Runtime, CPU VM, NVIDIA GPU VM, ETRI AI-Infra, 향후 AI 반도체 Runtime | 실제 AI App 실행, GPU Runtime 활용, 외부 AI-Infra API 수행을 담당한다. |
 | 외부기관 연동 계층 | ETRI, 이노그리드, 베스핀글로벌 | VM 제공, AI-Infra, API Gateway, App 등록/배포 연동, Web Console/MCP 연계를 제공한다. |
 
 | 구성요소 | 책임 | 1차년도 구현 기준 |
 | --- | --- | --- |
+| Artifact Package Service | 지원 유형 source를 Linux amd64 package와 App Spec으로 변환 | 프리셋/고정 규칙만 허용하고 임의 build command·서버 path를 거부한다. |
 | App Registry | AI App Spec, 버전, 모델 참조, 등록 이력 저장 | 파일 기반 또는 경량 DB 허용. Repository Interface를 유지한다. |
 | Spec Validator | 실행 패키지, 실행 명령, Runtime 요구사항, 자원 요구사항, 모델 참조 검증 | JSON Schema와 Go Validator를 병행한다. |
 | Deployment Orchestrator | 배포 요청 생성, 배포 계획 수립, 상태 전이, Adapter 호출 | Mock Runtime과 VM Runtime을 우선 구현한다. |
@@ -129,6 +130,7 @@ AI 응용 배포 구조는 접근/연계 계층, Control Plane, Execution/Resour
 
 | 절차 | 설명 | 정책 |
 | --- | --- | --- |
+| Package 생성(선택) | 프리셋 또는 업로드 source에서 tar.gz와 App Spec을 생성한다. | `go/python/node/binary/script` 고정 규칙, checksum, 업로드/ZIP 안전 제한 적용 |
 | 등록 | AI App Spec을 등록한다. 모델은 App 실행에 필요한 참조 정보로 표현한다. | App 이름·버전 중복 검증, 실행 패키지 타입 검증, credential_ref 방식 적용 |
 | 검증 | App Spec, Runtime Profile, Target Profile의 호환성을 확인한다. | GPU App은 GPU Target 또는 AI-Infra Target에서만 배포 가능하다. |
 | 배포 요청 | App Version과 Target을 지정해 Deployment를 생성한다. | request_id와 deployment_id를 생성하고 REQUESTED 이벤트를 남긴다. |
@@ -193,6 +195,7 @@ CPU/GPU VM 기반 AI 응용 등록·배포 프로토타입은 본 구조 설계�
 
 | 프로토타입 기능 | 본 설계서 요구사항 | 개발 문서 상세화 항목 |
 | --- | --- | --- |
+| Package 생성 | Web/CLI/Shell에서 유형 선택 후 배포 가능한 artifact와 App Spec 생성 | Artifact Service, multipart Handler, CLI wizard, HTTP shell script |
 | App 등록 | App Spec 등록, 버전 관리, 모델 참조 저장 | Handler, Service, Repository, Schema Validation |
 | App 검증 | 실행 패키지, EntryPoint, Runtime, 자원 요구사항 검증 | Validator Rule, Error Code, Unit Test |
 | Target 등록 | AWS/Azure/GCP 또는 ETRI 제공 VM 정보를 Target Profile로 관리 | Target Profile Schema, Readiness Check |
@@ -206,13 +209,14 @@ CPU/GPU VM 기반 AI 응용 등록·배포 프로토타입은 본 구조 설계�
 | 우선순위 | 구현 항목 | 설명 |
 | --- | --- | --- |
 | 1 | Go/Echo API 서버 | /api/v1 기반 REST API, request_id, 공통 에러 응답 |
-| 2 | App Registry/Spec Validator | App Spec 저장, 버전 관리, JSON Schema 검증 |
-| 3 | Deployment Orchestrator | 배포 요청, 상태 전이, Event Log 기록 |
-| 4 | Resource Matcher | Runtime Profile과 Target Profile 기반 CPU/GPU 자원 매칭 |
-| 5 | Mock Runtime Adapter | 외부 VM/API 미제공 시 API 계약과 상태 흐름 검증 |
-| 6 | CPU/GPU VM Runtime Adapter | Ubuntu VM 패키지/스크립트 실행, GPU readiness 확인 |
-| 7 | External Adapter | ETRI AI-Infra, API Gateway, 이노그리드, 베스핀 API/Web/MCP 연동 준비 |
-| 8 | 시험 및 가이드 | API/설치/시험 가이드, TC ID, 시험 로그, 프롬프트 기록 |
+| 2 | Artifact Package Service | 프리셋/업로드 유형별 Linux amd64 package와 App Spec 생성 |
+| 3 | App Registry/Spec Validator | App Spec 저장, 버전 관리, JSON Schema 검증 |
+| 4 | Deployment Orchestrator | 배포 요청, 상태 전이, Event Log 기록 |
+| 5 | Resource Matcher | Runtime Profile과 Target Profile 기반 CPU/GPU 자원 매칭 |
+| 6 | Mock Runtime Adapter | 외부 VM/API 미제공 시 API 계약과 상태 흐름 검증 |
+| 7 | CPU/GPU VM Runtime Adapter | Ubuntu VM 패키지/스크립트 실행, GPU readiness 확인 |
+| 8 | External Adapter | ETRI AI-Infra, API Gateway, 이노그리드, 베스핀 API/Web/MCP 연동 준비 |
+| 9 | 시험 및 가이드 | API/설치/시험 가이드, TC ID, 시험 로그, 프롬프트 기록 |
 
 ## 8. App Spec, API 및 데이터 모델 설계
 
@@ -272,6 +276,7 @@ healthcheck:
 | --- | --- | --- |
 | GET | /api/v1/healthz | 프로세스 생존 상태 확인 |
 | GET | /api/v1/readiness | 저장소, Runtime, Target, 외부 API 준비 상태 확인 |
+| POST | /api/v1/artifacts/packages | 프리셋 또는 업로드 source로 Linux amd64 package와 App Spec 생성 |
 | POST | /api/v1/apps | AI App 등록 |
 | GET | /api/v1/apps | AI App 목록 조회 |
 | GET | /api/v1/apps/{app_id} | AI App 상세 조회 |
@@ -351,6 +356,8 @@ Deployment Orchestrator는 구체 실행 환경을 직접 호출하지 않고 Ru
 
 | TC ID | 시험 항목 | 수용 기준 |
 | --- | --- | --- |
+| TC-PKG-001 | 선택형 Package 생성 | preset JSON과 script multipart가 checksum과 App Spec 반환 |
+| TC-PKG-002 | Package 기반 배포 | Web/CLI/Shell 공통 순서로 App 등록, Target 자원 점검, available일 때만 Deployment 생성 |
 | TC-APP-001 | CPU App 등록 | App Spec 등록 성공 및 App ID 반환 |
 | TC-APP-002 | GPU App 등록 | GPU 요구사항 포함 App Spec 등록 성공 |
 | TC-VALID-001 | 잘못된 App Spec 검증 | APP_SPEC_INVALID 반환 |
@@ -416,7 +423,7 @@ Deployment Orchestrator는 구체 실행 환경을 직접 호출하지 않고 Ru
 
 ## 14. 외부 제공 인터페이스 설계
 
-외부 제공 인터페이스는 이노그리드, 베스핀글로벌 Web Console/MCP-like 호출, ETRI 통합시험 환경, 운영자가 AI App Deployer를 호출하기 위한 REST/OpenAPI 계약이다. 본 인터페이스는 실제 외부 플랫폼 내부 API 구현이 아니라, 경희대학교가 제공하는 `/api/v1` 기반 등록·배포·상태·로그·모니터링 API의 공개 계약을 의미한다.
+외부 제공 인터페이스는 이노그리드, 베스핀글로벌 Web Console/CLI/Shell/MCP-like 호출, ETRI 통합시험 환경, 운영자가 AI App Deployer를 호출하기 위한 REST/OpenAPI 계약이다. 본 인터페이스는 실제 외부 플랫폼 내부 API 구현이 아니라, 경희대학교가 제공하는 `/api/v1` 기반 Package 생성·등록·배포·상태·로그·모니터링 API의 공개 계약을 의미한다.
 
 | 산출물 | 위치 | 역할 |
 | --- | --- | --- |

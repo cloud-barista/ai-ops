@@ -92,10 +92,13 @@ http://localhost:8080/
 
 - 전체 배포·알람·Runtime 준비 상태 대시보드
 - AI App, Runtime Profile, Target Profile 등록
+- 각 입력 변수의 의미, 허용값, 형식과 예시를 보여주는 인라인 도움말
 - Target 자원 준비 상태 점검
 - 배포 생성, 상태·이벤트 로그 조회, 중지
 - Runtime health, 알람, 추론 메트릭 모니터링
 - 실행 중인 배포의 health 확인과 추론 호출
+
+처음 사용하는 경우 왼쪽 메뉴의 **사용 가이드**를 엽니다. Credential이 필요 없는 Mock 시험, 실제 CPU VM SSH 배포, NVIDIA GPU VM 배포·추론 시나리오를 실제 입력값과 예상 결과에 따라 순서대로 진행할 수 있습니다. 같은 화면 하단에는 오류 코드별 원인과 다음 조치가 정리되어 있습니다.
 
 웹 콘솔 데이터는 기본적으로 `data/appdeployer-store.json`에 저장됩니다. 포트를 변경할 때는 다음처럼 실행합니다.
 
@@ -113,6 +116,18 @@ go run ./cmd/appdeployer
 ```
 
 실행 후 `help`를 입력하면 앱·런타임·대상 등록, 자원 점검, 배포, 로그, 모니터링, 추론, 메트릭, 중지 명령을 확인할 수 있습니다.
+
+CLI는 시작할 때 API 준비 상태, 등록된 App/Runtime/Target 수, 실행 중·실패 배포 수를 요약합니다. `home` 또는 `status`로 이 요약을 다시 볼 수 있으며, 대화형 터미널에서는 표·상태·오류·JSON에 색상을 적용합니다. 파일 리다이렉트나 `NO_COLOR=1` 환경에서는 색상 코드가 자동으로 비활성화됩니다.
+
+웹의 유형 선택형 Package 생성은 CLI와 HTTP 셸에서도 사용할 수 있습니다. `packages build`는 `aiops-geon-service-control`, `go`, `python`, `node`, `binary`, `script` 중 하나로 Package를 만들고, `packages deploy`는 App 등록과 Target 자원 점검을 거쳐 `available`일 때만 배포를 생성합니다.
+
+```powershell
+go run ./cmd/appdeployer packages deploy --type script `
+  --source .\examples\cpu-smoke-run.sh --entrypoint cpu-smoke-run.sh `
+  --runtime-id rt-cpu-001 --target-id target-cpu-001
+```
+
+실행 중인 웹 서버와 같은 저장 상태를 사용하려면 `scripts/package-deploy.ps1` 또는 Bash 3.2+용 `scripts/package-deploy.sh`를 사용합니다.
 
 #### CPU VM dry-run 배포 예시
 
@@ -186,8 +201,11 @@ appdeployer> monitoring metrics
 
 ```powershell
 go run ./cmd/appdeployer apps list
+go run ./cmd/appdeployer apps delete <app-id> --yes
 go run ./cmd/appdeployer deployments get <deployment-id>
 ```
+
+`apps delete`는 App Registry 등록 정보만 삭제합니다. 해당 App 또는 App Version을 참조하는 Deployment가 없거나 모두 `STOPPED`이면 삭제할 수 있습니다. `STOPPED` Deployment 이력, Package/Git/Binary/Script 원본과 VM에 배포된 파일은 유지되며, 그 외 상태의 참조가 하나라도 있으면 409 오류로 삭제가 거부됩니다. 웹 콘솔에서는 Applications 표의 `등록 삭제` 버튼을 사용할 수 있습니다.
 
 CLI 데이터는 기본적으로 `data/appdeployer-store.json`에 유지됩니다. 다른 경로를 사용하려면 `AIAPP_STORE_PATH` 환경변수를 설정합니다.
 

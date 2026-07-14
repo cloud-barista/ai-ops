@@ -131,6 +131,11 @@
 
         <section class="view" id="view-profiles" data-title="실행 환경">
           <div class="page-heading"><div><span class="section-label">RUNTIME & TARGET</span><h2>실행 환경</h2><p>Runtime Adapter와 배포 대상 VM 프로필을 구성합니다.</p></div></div>
+          <article class="panel credentials-panel" aria-labelledby="credentials-panel-title">
+            <div class="panel-header"><div><h3 id="credentials-panel-title">SSH Credentials</h3><p class="muted">현재 서버 프로세스 메모리에만 보관되며 재시작하면 사라집니다.</p></div><button class="button button-small" data-open-dialog="credential-dialog">+ Credential 등록</button></div>
+            <div id="credential-list-status" class="credential-list-status" role="status" hidden></div>
+            <div class="table-wrap"><table><thead><tr><th>Credential</th><th>종류</th><th>인증</th><th>SSH 사용자</th><th>Host key fingerprint</th><th>Timeout</th><th>영속</th><th>등록 일시</th><th></th></tr></thead><tbody id="credentials-table-body"></tbody></table></div>
+          </article>
           <div class="split-grid">
             <article class="panel"><div class="panel-header"><div><h3>Runtime Profiles</h3><p class="muted">실행 방식과 Adapter</p></div><button class="button button-small" data-open-dialog="runtime-dialog">+ 추가</button></div><div id="runtime-card-list" class="profile-list"></div></article>
             <article class="panel"><div class="panel-header"><div><h3>Target Profiles</h3><p class="muted">배포 대상 VM과 인프라</p></div><button class="button button-small" data-open-dialog="target-dialog">+ 추가</button></div><div id="target-card-list" class="profile-list"></div></article>
@@ -167,7 +172,7 @@
           <div class="page-heading"><div><span class="section-label">OPERATION PLAYBOOK</span><h2>동작 시나리오</h2><p>처음 시험할 때부터 실제 CPU/GPU VM 배포까지 순서대로 따라 하세요.</p></div></div>
 
           <article class="guide-intro">
-            <div><span class="guide-intro-icon">i</span><div><strong>항상 이 순서로 진행합니다.</strong><p>App, Runtime, Target의 Runtime 종류가 서로 같아야 하며 실제 VM 배포는 서버를 실행하기 전에 Credential 환경변수를 등록해야 합니다.</p></div></div>
+            <div><span class="guide-intro-icon">i</span><div><strong>항상 이 순서로 진행합니다.</strong><p>App, Runtime, Target의 Runtime 종류를 맞추고 실제 VM은 실행 환경에서 SSH Credential을 등록한 뒤 발급된 ref를 Target에 선택하세요. 환경변수 방식은 재시작 후 재사용할 fallback입니다.</p></div></div>
             <button class="button button-primary" data-navigate="apps">첫 App 등록하기</button>
           </article>
 
@@ -201,15 +206,16 @@
               <summary><span class="scenario-number cpu">02</span><div><span class="scenario-kicker">실제 VM · SSH Credential 필요</span><h3>CPU VM에 애플리케이션 배포</h3><p>로컬 script Artifact를 SSH로 업로드하고 대상 VM에서 프로세스로 실행합니다.</p></div><span class="scenario-toggle">⌄</span></summary>
               <div class="scenario-body">
                 <ol class="guide-steps">
-                  <li><div><h4>서버 실행 전에 Credential 등록</h4><p>웹 Target의 <code>credential_ref=cred://local/cpu-vm-001</code>과 아래 환경변수 접두사가 일치해야 합니다. 실제 키 경로로 바꾼 후 <b>같은 PowerShell</b>에서 서버를 실행합니다.</p>
+                  <li><div><h4>웹에서 Credential 등록</h4><p><button class="inline-link" data-navigate="profiles">실행 환경</button>의 <b>SSH Credentials</b>에서 <code>cpu-vm-001</code>, SSH 사용자, 신뢰된 경로에서 확인한 host key fingerprint와 private key 파일을 등록한 뒤 발급된 <code>cred://runtime/cpu-vm-001</code>을 Target에서 선택합니다. 이 Secret은 프로세스 메모리 전용이므로 서버를 재시작하면 사라집니다.</p><p>재시작 후에도 같은 설정을 다시 쓰려면 아래 환경변수 방식을 fallback으로 사용할 수 있습니다. 실제 키 경로로 바꾼 후 <b>같은 PowerShell</b>에서 서버를 실행하고 Target에는 <code>cred://local/cpu-vm-001</code>을 입력합니다.</p>
                     <pre class="guide-code">$env:AIAPP_CPUVM_RUNNER = "ssh"
 $env:AIAPP_CREDENTIAL_CRED_LOCAL_CPU_VM_001_SSH_USER = "ubuntu"
 $env:AIAPP_CREDENTIAL_CRED_LOCAL_CPU_VM_001_SSH_KEY_PATH = "C:\secure\cpu-vm.pem"
+$env:AIAPP_CREDENTIAL_CRED_LOCAL_CPU_VM_001_SSH_HOST_KEY_FINGERPRINT = "SHA256:&lt;신뢰된-base64-fingerprint&gt;"
 $env:AIAPP_CREDENTIAL_CRED_LOCAL_CPU_VM_001_SSH_TIMEOUT = "30s"
 go run ./cmd/web</pre>
-                    <p class="guide-warning">키나 비밀번호 원문은 웹 폼, JSON, Git에 입력하지 마세요.</p></div></li>
+                    <p class="guide-warning">Secret은 전용 Credential 등록 폼 또는 로컬 환경변수로만 전달하고 Target, 일반 JSON, 로그, Git에는 넣지 마세요.</p></div></li>
                   <li><div><h4>CPU App 등록</h4><div class="value-grid"><span>Runtime</span><code>cpu</code><span>Artifact 종류</span><code>script</code><span>Artifact URI</span><code>file:///C:/work/my-app/run.sh</code><span>실행 명령 / 인자</span><code>bash / run.sh --port=18080</code><span>GPU / 서비스 포트</span><code>0 / 18080</code></div><p>URI는 웹 서버가 실행되는 컴퓨터에 실제로 존재하는 파일이어야 합니다.</p></div></li>
-                  <li><div><h4>CPU Runtime과 Target 등록</h4><div class="value-grid"><span>Runtime ID / 종류</span><code>rt-cpu-001 / cpu</code><span>Adapter / 모드</span><code>cpu_vm / vm_process</code><span>Target ID / 종류</span><code>target-cpu-001 / cpu</code><span>CSP / Host / SSH</span><code>local / VM 주소 / 22</code><span>Credential ref</span><code>cred://local/cpu-vm-001</code><span>Artifact / Log 경로</span><code>/tmp/aiapp/artifacts / /tmp/aiapp/logs</code></div></div></li>
+                  <li><div><h4>CPU Runtime과 Target 등록</h4><div class="value-grid"><span>Runtime ID / 종류</span><code>rt-cpu-001 / cpu</code><span>Adapter / 모드</span><code>cpu_vm / vm_process</code><span>Target ID / 종류</span><code>target-cpu-001 / cpu</code><span>CSP / Host / SSH</span><code>local / VM 주소 / 22</code><span>Credential ref</span><code>cred://runtime/cpu-vm-001 (ENV fallback: cred://local/cpu-vm-001)</code><span>Artifact / Log 경로</span><code>/tmp/aiapp/artifacts / /tmp/aiapp/logs</code></div></div></li>
                   <li><div><h4>자원 점검</h4><p>Target을 점검해 <b>available</b>인지 확인합니다. 실패하면 먼저 VM 주소, SSH 사용자·키, 방화벽, 디렉터리 권한을 확인합니다.</p></div></li>
                   <li><div><h4>배포·Health·추론·중지</h4><p>배포가 <b>RUNNING</b>이 되면 <button class="inline-link" data-navigate="inference">추론</button>에서 Health를 확인합니다. 앱이 제공하는 경로(예: <code>/predict</code>)와 JSON Body로 호출하고, 완료 후 배포 화면에서 중지합니다.</p><p class="step-result">예상 결과: Health HTTP 200, 추론 응답 표시, 중지 후 STOPPED.</p></div></li>
                 </ol>
@@ -220,14 +226,15 @@ go run ./cmd/web</pre>
               <summary><span class="scenario-number gpu">03</span><div><span class="scenario-kicker">NVIDIA GPU · 드라이버 필요</span><h3>GPU VM에 모델 서버 배포 및 추론</h3><p>GPU readiness를 확인하고 모델 서버를 실행한 뒤 추론 결과와 성능 메트릭을 기록합니다.</p></div><span class="scenario-toggle">⌄</span></summary>
               <div class="scenario-body">
                 <ol class="guide-steps">
-                  <li><div><h4>GPU와 Credential 사전 확인</h4><p>대상 VM에서 <code>nvidia-smi</code>가 성공해야 합니다. 서버 실행 전 GPU Runner와 Credential을 설정합니다.</p>
+                  <li><div><h4>GPU와 Credential 사전 확인</h4><p>대상 VM에서 <code>nvidia-smi</code>가 성공해야 합니다. <button class="inline-link" data-navigate="profiles">실행 환경</button>의 <b>SSH Credentials</b>에서 <code>gpu-vm-001</code>, 신뢰된 경로에서 확인한 host key fingerprint를 함께 등록하고 Target에는 발급된 <code>cred://runtime/gpu-vm-001</code>을 선택합니다. 메모리 전용 Secret은 서버 재시작 시 사라집니다.</p><p>재시작 후에도 재사용할 fallback이 필요하면 아래 환경변수를 설정한 같은 PowerShell에서 서버를 실행하고 <code>cred://local/gpu-vm-001</code>을 사용합니다.</p>
                     <pre class="guide-code">$env:AIAPP_GPUVM_RUNNER = "ssh"
 $env:AIAPP_CREDENTIAL_CRED_LOCAL_GPU_VM_001_SSH_USER = "ubuntu"
 $env:AIAPP_CREDENTIAL_CRED_LOCAL_GPU_VM_001_SSH_KEY_PATH = "C:\secure\gpu-vm.pem"
+$env:AIAPP_CREDENTIAL_CRED_LOCAL_GPU_VM_001_SSH_HOST_KEY_FINGERPRINT = "SHA256:&lt;신뢰된-base64-fingerprint&gt;"
 $env:AIAPP_CREDENTIAL_CRED_LOCAL_GPU_VM_001_SSH_TIMEOUT = "60s"
 go run ./cmd/web</pre></div></li>
                   <li><div><h4>GPU App 등록</h4><div class="value-grid"><span>Runtime / GPU</span><code>gpu / 1</code><span>Artifact URI</span><code>file:///C:/work/model-server/run.sh</code><span>실행 명령</span><code>bash</code><span>실행 인자</span><code>run.sh --port=18081</code><span>서비스 포트</span><code>18081</code><span>권장 요구량 예시</span><code>CPU 4 / Memory 16Gi / Storage 20Gi</code></div></div></li>
-                  <li><div><h4>GPU Runtime과 Target 등록</h4><div class="value-grid"><span>Runtime</span><code>gpu / gpu_vm / vm_process</code><span>Target 종류</span><code>gpu</code><span>Credential ref</span><code>cred://local/gpu-vm-001</code><span>GPU 설정</span><code>NVIDIA / count 1 / driver required</code></div><p>웹 화면에서 Target 종류를 gpu로 선택하면 NVIDIA GPU 설정이 자동으로 포함됩니다.</p></div></li>
+                  <li><div><h4>GPU Runtime과 Target 등록</h4><div class="value-grid"><span>Runtime</span><code>gpu / gpu_vm / vm_process</code><span>Target 종류</span><code>gpu</code><span>Credential ref</span><code>cred://runtime/gpu-vm-001 (ENV fallback: cred://local/gpu-vm-001)</code><span>GPU 설정</span><code>NVIDIA / count 1 / driver required</code></div><p>웹 화면에서 Target 종류를 gpu로 선택하면 NVIDIA GPU 설정이 자동으로 포함됩니다.</p></div></li>
                   <li><div><h4>Readiness 후 배포</h4><p>자원 점검 결과의 GPU와 Runtime이 모두 available인지 확인한 후 배포합니다. 모델 다운로드나 초기 로딩 때문에 CPU App보다 오래 걸릴 수 있습니다.</p><p class="step-result">예상 결과: 로그에 gpu-vm-adapter가 기록되고 최종 상태가 RUNNING.</p></div></li>
                   <li><div><h4>추론 및 메트릭 기록</h4><p>Health를 먼저 확인하고 모델 서버 경로(예: <code>/generate</code>)를 POST로 호출합니다. 호출 시간은 Monitoring의 <b>메트릭 기록</b>에 latency_ms, throughput_rps로 남깁니다.</p></div></li>
                   <li><div><h4>중지 및 GPU 확인</h4><p>배포를 중지해 STOPPED를 확인하고, 필요하면 VM에서 해당 프로세스와 GPU 메모리가 해제됐는지 확인합니다.</p></div></li>
@@ -261,15 +268,64 @@ go run ./cmd/web</pre></div></li>
   <div class="toast-region" id="toast-region" aria-live="polite"></div>
 
   <dialog id="app-dialog" class="modal">
-    <form id="app-form" class="modal-card"><div class="modal-header"><div><span class="section-label">REGISTER</span><h2>AI App 등록</h2><p>배포할 애플리케이션 사양을 입력하세요.</p></div><button type="button" class="icon-button dialog-close" aria-label="닫기">×</button></div><div class="modal-body form-grid"><label>앱 이름<input name="name" pattern="[a-z0-9][a-z0-9-]{1,62}" placeholder="my-ai-app" required></label><label>버전<input name="version" value="0.1.0" required></label><label class="full">설명<input name="description" placeholder="애플리케이션 설명"></label><label>Artifact 종류<select name="artifact_type"><option>script</option><option>package</option><option>git</option><option>binary</option></select></label><label>Runtime<select name="runtime_type" id="app-runtime-type"><option>cpu</option><option>gpu</option><option>mock</option><option>aiinfra</option></select></label><label class="full">Artifact URI<input name="artifact_uri" placeholder="file:///opt/apps/my-ai-app/run.sh" required></label><label>실행 명령<input name="command" value="bash" required></label><label>실행 인자<input name="args" placeholder="run.sh --port=18080"></label><label>CPU<input name="cpu" value="1"></label><label>Memory<input name="memory" value="1Gi"></label><label>GPU<input name="gpu" value="0"></label><label>Storage<input name="storage" value="1Gi"></label><label>서비스 포트 <span>선택</span><input name="port" type="number" min="1" max="65535" placeholder="18080"></label></div><div class="modal-footer"><button type="button" class="button button-secondary dialog-close">취소</button><button type="submit" class="button button-primary">앱 등록</button></div></form>
+    <form id="app-form" class="modal-card">
+      <div class="modal-header"><div><span class="section-label">REGISTER</span><h2>AI App 등록</h2><p>배포할 애플리케이션 사양을 입력하세요.</p></div><button type="button" class="icon-button dialog-close" aria-label="닫기">×</button></div>
+      <div class="modal-body form-grid">
+        <section class="package-builder full" aria-labelledby="package-builder-title">
+          <div class="package-builder-heading"><strong id="package-builder-title">패키지 생성기 · 선택 사항</strong><span>필요할 때만 package를 만들어 App 등록값을 자동 완성합니다. Mock 등은 아래 등록값을 직접 입력할 수 있습니다.</span></div>
+          <div class="package-builder-controls">
+            <label>패키지 유형<select name="package_type" id="package-type" form="package-build-form"><option value="aiops-geon-service-control">ai-ops-geon 프리셋</option><option value="go">Go 소스 ZIP</option><option value="python">Python 소스</option><option value="node">Node.js 소스</option><option value="binary">Linux amd64 바이너리</option><option value="script">Shell 스크립트</option></select></label>
+            <label id="package-source-field" hidden>소스 파일<input name="package_source" id="package-source" type="file" form="package-build-form"></label>
+            <label id="package-entrypoint-field" hidden><span id="package-entrypoint-label">빌드/시작 경로</span><input name="package_entrypoint" id="package-entrypoint" form="package-build-form" pattern="[A-Za-z0-9._/-]{1,256}" placeholder="./cmd/server"></label>
+            <button type="button" class="button button-secondary" id="package-build-button">패키지 생성 및 입력</button>
+          </div>
+          <span class="package-builder-result" id="package-build-result" aria-live="polite">ai-ops-geon 프리셋은 서버에 설정된 소스를 사용하므로 파일 업로드가 필요 없습니다.</span>
+        </section>
+        <label>앱 이름<input name="name" pattern="[a-z0-9][a-z0-9-]{1,62}" placeholder="my-ai-app" required></label>
+        <label>버전<input name="version" value="0.1.0" required></label>
+        <label class="full">설명<input name="description" placeholder="애플리케이션 설명"></label>
+        <label>Artifact 종류<select name="artifact_type"><option>script</option><option>package</option><option>git</option><option>binary</option></select></label>
+        <label>Runtime<select name="runtime_type" id="app-runtime-type"><option>cpu</option><option>gpu</option><option>mock</option><option>aiinfra</option></select></label>
+        <label class="full">Artifact URI<input name="artifact_uri" placeholder="file:///opt/apps/my-ai-app/run.sh" required><input name="checksum" type="hidden"></label>
+        <label>실행 명령<input name="command" value="bash" required></label>
+        <label>실행 인자<input name="args" placeholder="run.sh --port=18080"></label>
+        <label>CPU<input name="cpu" value="1"></label>
+        <label>Memory<input name="memory" value="1Gi"></label>
+        <label>GPU<input name="gpu" value="0"></label>
+        <label>Storage<input name="storage" value="1Gi"></label>
+        <label>서비스 포트 <span>선택</span><input name="port" type="number" min="1" max="65535" placeholder="18080"></label>
+        <label>Health 경로 <span>선택</span><input name="healthcheck_path" placeholder="/health" value="/health"></label>
+      </div>
+      <div class="modal-footer"><button type="button" class="button button-secondary dialog-close">취소</button><button type="submit" class="button button-primary">앱 등록</button></div>
+    </form>
   </dialog>
+  <form id="package-build-form" hidden></form>
 
   <dialog id="runtime-dialog" class="modal">
     <form id="runtime-form" class="modal-card modal-small"><div class="modal-header"><div><span class="section-label">RUNTIME</span><h2>Runtime Profile 추가</h2></div><button type="button" class="icon-button dialog-close" aria-label="닫기">×</button></div><div class="modal-body form-grid"><label class="full">Runtime 종류<select name="runtime_type" id="runtime-type"><option>cpu</option><option>gpu</option><option>mock</option><option>aiinfra</option></select></label><label>Profile ID<input name="runtime_profile_id" value="rt-cpu-001" required></label><label>표시 이름<input name="name" value="cpu-runtime"></label><label>Adapter<select name="adapter_type"><option>cpu_vm</option><option>gpu_vm</option><option>mock</option><option>etri_aiinfra</option></select></label><label>운영 모드<select name="operating_mode"><option>vm_process</option><option>dry_run</option><option>local_mock</option><option>remote_api</option></select></label></div><div class="modal-footer"><button type="button" class="button button-secondary dialog-close">취소</button><button type="submit" class="button button-primary">Profile 추가</button></div></form>
   </dialog>
 
+  <dialog id="credential-dialog" class="modal">
+    <form id="credential-form" class="modal-card modal-small" autocomplete="off">
+      <div class="modal-header"><div><span class="section-label">CREDENTIAL</span><h2>SSH Credential 등록</h2><p>Secret은 응답·목록에 표시되지 않으며 현재 서버 프로세스 메모리에만 저장됩니다.</p></div><button type="button" class="icon-button dialog-close" aria-label="닫기">×</button></div>
+      <div class="modal-body form-grid">
+        <label>Credential ID<input name="credential_id" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" minlength="2" maxlength="63" placeholder="cpu-vm-001" required></label>
+        <label>Credential 종류<select name="credential_type"><option value="ssh">ssh</option></select></label>
+        <label>SSH 사용자<input name="ssh_user" maxlength="128" placeholder="ubuntu" required></label>
+        <label>인증 방식<select name="auth_type" id="credential-auth-type"><option value="private_key">private_key</option><option value="password">password</option></select></label>
+        <label class="full">Host key fingerprint<input name="host_key_fingerprint" minlength="50" maxlength="50" pattern="SHA256:[A-Za-z0-9+/]{43}" placeholder="SHA256:신뢰된 경로에서 확인한 base64 fingerprint" spellcheck="false" autocapitalize="none" required></label>
+        <label>SSH Timeout (초)<input name="ssh_timeout_seconds" type="number" min="1" max="300" value="30" required></label>
+        <label class="full credential-secret-field" id="credential-private-key-field">Private key PEM 파일<input id="credential-private-key-file" type="file" accept=".pem,.key,text/plain,application/x-pem-file" required></label>
+        <label class="full credential-secret-field" id="credential-passphrase-field">Private key passphrase <span>암호화된 키만 선택 입력</span><input id="credential-private-key-passphrase" type="password" maxlength="4096" autocomplete="new-password" spellcheck="false" autocapitalize="none"></label>
+        <label class="full credential-secret-field" id="credential-password-field" hidden>SSH password<input id="credential-password" type="password" maxlength="4096" autocomplete="new-password" spellcheck="false" autocapitalize="none"></label>
+        <p class="credential-secret-note full">Private key 원문과 password/passphrase는 Target Profile에 넣지 않습니다. 등록 후 발급된 <code>cred://runtime/...</code> 참조만 선택하세요.</p>
+      </div>
+      <div class="modal-footer"><button type="button" class="button button-secondary dialog-close">취소</button><button type="submit" class="button button-primary">Credential 등록</button></div>
+    </form>
+  </dialog>
+
   <dialog id="target-dialog" class="modal">
-    <form id="target-form" class="modal-card"><div class="modal-header"><div><span class="section-label">TARGET</span><h2>Target Profile 추가</h2><p>배포 대상 VM 또는 AI Infra를 등록합니다.</p></div><button type="button" class="icon-button dialog-close" aria-label="닫기">×</button></div><div class="modal-body form-grid"><label>Target 종류<select name="runtime_type" id="target-runtime-type"><option>cpu</option><option>gpu</option><option>mock</option><option>aiinfra</option></select></label><label>CSP<select name="csp"><option>local</option><option>mock</option><option>etri</option><option>aws</option><option>azure</option><option>gcp</option></select></label><label>Profile ID<input name="target_profile_id" value="target-cpu-001" required></label><label>표시 이름<input name="name" value="cpu-target"></label><label class="full">VM / Gateway host<input name="host" placeholder="vm.example.internal"></label><label>SSH Port<input name="ssh_port" type="number" value="22"></label><label>Credential ref<input name="credential_ref" value="cred://local/cpu-vm-001"></label><label>Artifact 경로<input name="artifact_dir" value="/tmp/aiapp/artifacts"></label><label>Log 경로<input name="log_dir" value="/tmp/aiapp/logs"></label></div><div class="modal-footer"><button type="button" class="button button-secondary dialog-close">취소</button><button type="submit" class="button button-primary">Target 추가</button></div></form>
+    <form id="target-form" class="modal-card"><div class="modal-header"><div><span class="section-label">TARGET</span><h2>Target Profile 추가</h2><p>배포 대상 VM 또는 AI Infra를 등록합니다.</p></div><button type="button" class="icon-button dialog-close" aria-label="닫기">×</button></div><div class="modal-body form-grid"><label>Target 종류<select name="runtime_type" id="target-runtime-type"><option>cpu</option><option>gpu</option><option>mock</option><option>aiinfra</option></select></label><label>CSP<select name="csp"><option>local</option><option>mock</option><option>etri</option><option>aws</option><option>azure</option><option>gcp</option></select></label><label>Profile ID<input name="target_profile_id" value="target-cpu-001" required></label><label>표시 이름<input name="name" value="cpu-target"></label><label class="full">VM / Gateway host<input name="host" placeholder="vm.example.internal"></label><label>SSH Port<input name="ssh_port" type="number" value="22"></label><label>Credential ref<input name="credential_ref" list="credential-ref-options" value="cred://local/cpu-vm-001"><datalist id="credential-ref-options"></datalist></label><label>Artifact 경로<input name="artifact_dir" value="/tmp/aiapp/artifacts"></label><label>Log 경로<input name="log_dir" value="/tmp/aiapp/logs"></label></div><div class="modal-footer"><button type="button" class="button button-secondary dialog-close">취소</button><button type="submit" class="button button-primary">Target 추가</button></div></form>
   </dialog>
 
   <dialog id="deployment-dialog" class="modal">

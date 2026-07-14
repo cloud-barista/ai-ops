@@ -159,6 +159,19 @@ func (s *Service) Stop(ctx context.Context, deploymentID string) (model.Deployme
 	if err != nil {
 		return model.DeploymentResponse{}, err
 	}
+	if deployment.Status == model.StatusStopped {
+		return deployment, nil
+	}
+	// Validation and scheduling failures never start a VM process. Do not issue
+	// a remote stop command for those records: the target may be unreachable or
+	// have no GPU driver, while the deployment still needs a terminal status.
+	events, err := s.deployments.ListEvents(ctx, deploymentID, "")
+	if err != nil {
+		return model.DeploymentResponse{}, err
+	}
+	if !runtimeProcessStarted(events) {
+		return s.transition(ctx, deployment, model.StatusStopped, "orchestrator", "no runtime process was started; deployment marked stopped"), nil
+	}
 	app, err := s.apps.GetAppByVersionID(ctx, deployment.AppVersionID)
 	if err != nil {
 		return s.fail(ctx, deployment, model.StatusRuntimeFailed, model.ErrAppSpecInvalid, apperrors.PublicMessage(err, "app version lookup failed"), false)
@@ -183,6 +196,15 @@ func (s *Service) Stop(ctx context.Context, deploymentID string) (model.Deployme
 	}
 	deployment = s.transition(ctx, deployment, model.StatusStopped, "runtime-adapter", "app stopped")
 	return deployment, nil
+}
+
+func runtimeProcessStarted(events []model.DeploymentEvent) bool {
+	for _, event := range events {
+		if event.Stage == model.StatusDeploying || event.Stage == model.StatusRunning {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *Service) transition(ctx context.Context, deployment model.DeploymentResponse, status, component, message string) model.DeploymentResponse {

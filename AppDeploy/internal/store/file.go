@@ -4,10 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"sync"
 
+	"github.com/khu/ai-app-deployer/internal/credentialref"
 	apperrors "github.com/khu/ai-app-deployer/internal/errors"
 	"github.com/khu/ai-app-deployer/internal/model"
 )
@@ -73,37 +75,24 @@ func (f *File) load() error {
 		return err
 	}
 	f.ensureMaps()
+	for _, target := range f.data.Targets {
+		if !credentialref.Valid(target.VM.CredentialRef) {
+			return errors.New("stored target profile contains an invalid credential_ref")
+		}
+	}
 	return nil
 }
 
 func (f *File) ensureMaps() {
-	if f.data.AppsByID == nil {
-		f.data.AppsByID = map[string]model.AppResponse{}
-	}
-	if f.data.AppsByVersionID == nil {
-		f.data.AppsByVersionID = map[string]model.AppResponse{}
-	}
-	if f.data.AppNameVersion == nil {
-		f.data.AppNameVersion = map[string]string{}
-	}
-	if f.data.Runtimes == nil {
-		f.data.Runtimes = map[string]model.RuntimeProfile{}
-	}
-	if f.data.Targets == nil {
-		f.data.Targets = map[string]model.TargetProfile{}
-	}
-	if f.data.Deployments == nil {
-		f.data.Deployments = map[string]model.DeploymentResponse{}
-	}
-	if f.data.Events == nil {
-		f.data.Events = map[string][]model.DeploymentEvent{}
-	}
-	if f.data.Inventory == nil {
-		f.data.Inventory = map[string]model.ResourceInventory{}
-	}
-	if f.data.Metrics == nil {
-		f.data.Metrics = map[string][]model.InferenceMetricRecord{}
-	}
+	ensureMap(&f.data.AppsByID)
+	ensureMap(&f.data.AppsByVersionID)
+	ensureMap(&f.data.AppNameVersion)
+	ensureMap(&f.data.Runtimes)
+	ensureMap(&f.data.Targets)
+	ensureMap(&f.data.Deployments)
+	ensureMap(&f.data.Events)
+	ensureMap(&f.data.Inventory)
+	ensureMap(&f.data.Metrics)
 }
 
 func (f *File) saveLocked() error {
@@ -125,7 +114,7 @@ func (f *File) saveLocked() error {
 func (f *File) CreateApp(ctx context.Context, app model.AppResponse) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	key := app.Name + ":" + app.Version
+	key := appNameVersionKey(app.Name, app.Version)
 	if _, ok := f.data.AppNameVersion[key]; ok {
 		return apperrors.New(model.ErrAppSpecInvalid, "app name/version already exists", 400, false)
 	}
@@ -138,38 +127,55 @@ func (f *File) CreateApp(ctx context.Context, app model.AppResponse) error {
 func (f *File) ListApps(ctx context.Context) ([]model.AppResponse, error) {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
-	items := make([]model.AppResponse, 0, len(f.data.AppsByVersionID))
-	for _, app := range f.data.AppsByVersionID {
-		items = append(items, app)
-	}
-	return items, nil
+	return mapValues(f.data.AppsByVersionID), nil
 }
 
 func (f *File) GetApp(ctx context.Context, appID string) (model.AppResponse, error) {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
-	app, ok := f.data.AppsByID[appID]
-	if !ok {
-		return model.AppResponse{}, apperrors.New("NOT_FOUND", "app not found", 404, false)
-	}
-	return app, nil
+	return mapValue(f.data.AppsByID, appID, "app not found")
 }
 
 func (f *File) GetAppByVersionID(ctx context.Context, appVersionID string) (model.AppResponse, error) {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
-	app, ok := f.data.AppsByVersionID[appVersionID]
-	if !ok {
-		return model.AppResponse{}, apperrors.New("NOT_FOUND", "app version not found", 404, false)
-	}
-	return app, nil
+	return mapValue(f.data.AppsByVersionID, appVersionID, "app version not found")
 }
 
 func (f *File) ExistsNameVersion(ctx context.Context, name, version string) (bool, error) {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
-	_, ok := f.data.AppNameVersion[name+":"+version]
+	_, ok := f.data.AppNameVersion[appNameVersionKey(name, version)]
 	return ok, nil
+}
+
+func (f *File) DeleteApp(ctx context.Context, appID string) (model.AppResponse, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	app, err := mapValue(f.data.AppsByID, appID, "app not found")
+	if err != nil {
+		return model.AppResponse{}, err
+	}
+
+	if err := validateAppDeletion(f.data.Deployments, app); err != nil {
+		return model.AppResponse{}, err
+	}
+
+	key := appNameVersionKey(app.Name, app.Version)
+	nameVersionID, hadNameVersion := f.data.AppNameVersion[key]
+	delete(f.data.AppsByID, app.AppID)
+	delete(f.data.AppsByVersionID, app.AppVersionID)
+	delete(f.data.AppNameVersion, key)
+	if err := f.saveLocked(); err != nil {
+		f.data.AppsByID[app.AppID] = app
+		f.data.AppsByVersionID[app.AppVersionID] = app
+		if hadNameVersion {
+			f.data.AppNameVersion[key] = nameVersionID
+		}
+		return model.AppResponse{}, fmt.Errorf("persist app deletion: %w", err)
+	}
+	return app, nil
 }
 
 func (f *File) CreateRuntimeProfile(ctx context.Context, profile model.RuntimeProfile) error {
@@ -182,19 +188,40 @@ func (f *File) CreateRuntimeProfile(ctx context.Context, profile model.RuntimePr
 func (f *File) ListRuntimeProfiles(ctx context.Context) ([]model.RuntimeProfile, error) {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
-	items := make([]model.RuntimeProfile, 0, len(f.data.Runtimes))
-	for _, item := range f.data.Runtimes {
-		items = append(items, item)
-	}
-	return items, nil
+	return mapValues(f.data.Runtimes), nil
 }
 
 func (f *File) GetRuntimeProfile(ctx context.Context, id string) (model.RuntimeProfile, error) {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
-	profile, ok := f.data.Runtimes[id]
-	if !ok {
-		return model.RuntimeProfile{}, apperrors.New("NOT_FOUND", "runtime profile not found", 404, false)
+	return mapValue(f.data.Runtimes, id, "runtime profile not found")
+}
+
+func (f *File) DeleteRuntimeProfile(ctx context.Context, id string) (model.RuntimeProfile, error) {
+	if err := contextError(ctx); err != nil {
+		return model.RuntimeProfile{}, err
+	}
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if err := contextError(ctx); err != nil {
+		return model.RuntimeProfile{}, err
+	}
+
+	profile, err := mapValue(f.data.Runtimes, id, "runtime profile not found")
+	if err != nil {
+		return model.RuntimeProfile{}, err
+	}
+	if err := validateRuntimeProfileDeletion(f.data.Deployments, id); err != nil {
+		return model.RuntimeProfile{}, err
+	}
+	if err := contextError(ctx); err != nil {
+		return model.RuntimeProfile{}, err
+	}
+
+	delete(f.data.Runtimes, id)
+	if err := f.saveLocked(); err != nil {
+		f.data.Runtimes[id] = profile
+		return model.RuntimeProfile{}, fmt.Errorf("persist runtime profile deletion: %w", err)
 	}
 	return profile, nil
 }
@@ -209,21 +236,47 @@ func (f *File) CreateTargetProfile(ctx context.Context, profile model.TargetProf
 func (f *File) ListTargetProfiles(ctx context.Context) ([]model.TargetProfile, error) {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
-	items := make([]model.TargetProfile, 0, len(f.data.Targets))
-	for _, item := range f.data.Targets {
-		items = append(items, item)
-	}
-	return items, nil
+	return mapValues(f.data.Targets), nil
 }
 
 func (f *File) GetTargetProfile(ctx context.Context, id string) (model.TargetProfile, error) {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
-	profile, ok := f.data.Targets[id]
-	if !ok {
-		return model.TargetProfile{}, apperrors.New("NOT_FOUND", "target profile not found", 404, false)
+	return mapValue(f.data.Targets, id, "target profile not found")
+}
+
+func (f *File) DeleteTargetProfile(ctx context.Context, id string) (model.TargetProfile, bool, error) {
+	if err := contextError(ctx); err != nil {
+		return model.TargetProfile{}, false, err
 	}
-	return profile, nil
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if err := contextError(ctx); err != nil {
+		return model.TargetProfile{}, false, err
+	}
+
+	profile, err := mapValue(f.data.Targets, id, "target profile not found")
+	if err != nil {
+		return model.TargetProfile{}, false, err
+	}
+	if err := validateTargetProfileDeletion(f.data.Deployments, id); err != nil {
+		return model.TargetProfile{}, false, err
+	}
+	if err := contextError(ctx); err != nil {
+		return model.TargetProfile{}, false, err
+	}
+
+	inventory, inventoryDeleted := f.data.Inventory[id]
+	delete(f.data.Targets, id)
+	delete(f.data.Inventory, id)
+	if err := f.saveLocked(); err != nil {
+		f.data.Targets[id] = profile
+		if inventoryDeleted {
+			f.data.Inventory[id] = inventory
+		}
+		return model.TargetProfile{}, false, fmt.Errorf("persist target profile deletion: %w", err)
+	}
+	return profile, inventoryDeleted, nil
 }
 
 func (f *File) CreateDeployment(ctx context.Context, deployment model.DeploymentResponse) error {
@@ -246,21 +299,13 @@ func (f *File) UpdateDeployment(ctx context.Context, deployment model.Deployment
 func (f *File) ListDeployments(ctx context.Context) ([]model.DeploymentResponse, error) {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
-	items := make([]model.DeploymentResponse, 0, len(f.data.Deployments))
-	for _, item := range f.data.Deployments {
-		items = append(items, item)
-	}
-	return items, nil
+	return mapValues(f.data.Deployments), nil
 }
 
 func (f *File) GetDeployment(ctx context.Context, id string) (model.DeploymentResponse, error) {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
-	deployment, ok := f.data.Deployments[id]
-	if !ok {
-		return model.DeploymentResponse{}, apperrors.New("NOT_FOUND", "deployment not found", 404, false)
-	}
-	return deployment, nil
+	return mapValue(f.data.Deployments, id, "deployment not found")
 }
 
 func (f *File) AddEvent(ctx context.Context, event model.DeploymentEvent) error {
@@ -273,14 +318,7 @@ func (f *File) AddEvent(ctx context.Context, event model.DeploymentEvent) error 
 func (f *File) ListEvents(ctx context.Context, deploymentID, stage string) ([]model.DeploymentEvent, error) {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
-	events := f.data.Events[deploymentID]
-	items := make([]model.DeploymentEvent, 0, len(events))
-	for _, event := range events {
-		if stage == "" || event.Stage == stage {
-			items = append(items, event)
-		}
-	}
-	return items, nil
+	return filterEvents(f.data.Events[deploymentID], stage), nil
 }
 
 func (f *File) SaveInventory(ctx context.Context, inventory model.ResourceInventory) error {
@@ -293,11 +331,7 @@ func (f *File) SaveInventory(ctx context.Context, inventory model.ResourceInvent
 func (f *File) ListInventory(ctx context.Context) ([]model.ResourceInventory, error) {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
-	items := make([]model.ResourceInventory, 0, len(f.data.Inventory))
-	for _, item := range f.data.Inventory {
-		items = append(items, item)
-	}
-	return items, nil
+	return mapValues(f.data.Inventory), nil
 }
 
 func (f *File) AddMetric(ctx context.Context, metric model.InferenceMetricRecord) error {
@@ -310,22 +344,11 @@ func (f *File) AddMetric(ctx context.Context, metric model.InferenceMetricRecord
 func (f *File) ListMetrics(ctx context.Context, deploymentID string) ([]model.InferenceMetricRecord, error) {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
-	source := f.data.Metrics[deploymentID]
-	items := make([]model.InferenceMetricRecord, len(source))
-	copy(items, source)
-	return items, nil
+	return cloneSlice(f.data.Metrics[deploymentID]), nil
 }
 
 func (f *File) ListAllMetrics(ctx context.Context) ([]model.InferenceMetricRecord, error) {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
-	var count int
-	for _, source := range f.data.Metrics {
-		count += len(source)
-	}
-	items := make([]model.InferenceMetricRecord, 0, count)
-	for _, source := range f.data.Metrics {
-		items = append(items, source...)
-	}
-	return items, nil
+	return flattenSlices(f.data.Metrics), nil
 }

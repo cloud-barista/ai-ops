@@ -3,6 +3,7 @@ package server_test
 import (
 	"bytes"
 	"encoding/json"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -33,6 +34,72 @@ func TestSwaggerDocsRoutes(t *testing.T) {
 	}
 	if !strings.Contains(strings.ToLower(swagger.Body.String()), "<html") {
 		t.Fatal("swagger response is not html")
+	}
+}
+
+func TestPackageBuildRejectsUnsupportedPreset(t *testing.T) {
+	t.Setenv("AIAPP_CPUVM_RUNNER", "dry-run")
+	t.Setenv("AIAPP_GPUVM_RUNNER", "dry-run")
+	e := newTestServer(t)
+
+	rec := request(t, e, http.MethodPost, "/api/v1/artifacts/packages", model.PackageBuildRequest{Preset: "custom-command"})
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want %d body=%s", rec.Code, http.StatusBadRequest, rec.Body.String())
+	}
+	var response model.ErrorResponse
+	if err := json.Unmarshal(rec.Body.Bytes(), &response); err != nil {
+		t.Fatal(err)
+	}
+	if response.Error.Code != model.ErrAppSpecInvalid || response.RequestID == "" {
+		t.Fatalf("unexpected error response: %+v", response)
+	}
+}
+
+func TestPackageBuildAcceptsUploadedScript(t *testing.T) {
+	t.Setenv("AIAPP_CPUVM_RUNNER", "dry-run")
+	t.Setenv("AIAPP_GPUVM_RUNNER", "dry-run")
+	t.Setenv("AIAPP_PACKAGE_OUTPUT_DIR", filepath.Join(t.TempDir(), "packages"))
+	e := newTestServer(t)
+
+	var body bytes.Buffer
+	writer := multipart.NewWriter(&body)
+	fields := map[string]string{
+		"package_type": "script",
+		"app_name":     "uploaded-script",
+		"app_version":  "0.1.0",
+		"entrypoint":   "run.sh",
+		"runtime_type": "cpu",
+	}
+	for name, value := range fields {
+		if err := writer.WriteField(name, value); err != nil {
+			t.Fatal(err)
+		}
+	}
+	file, err := writer.CreateFormFile("source", "run.sh")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := file.Write([]byte("#!/usr/bin/env bash\necho package-ok\n")); err != nil {
+		t.Fatal(err)
+	}
+	if err := writer.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/artifacts/packages", &body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.Header.Set("X-Request-ID", "req-upload-test")
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+	if rec.Code != http.StatusCreated {
+		t.Fatalf("status = %d body = %s", rec.Code, rec.Body.String())
+	}
+	var response model.PackageBuildResponse
+	if err := json.Unmarshal(rec.Body.Bytes(), &response); err != nil {
+		t.Fatal(err)
+	}
+	if response.RequestID == "" || response.PackageType != "script" || response.AppSpec.Metadata.Name != "uploaded-script" {
+		t.Fatalf("unexpected response: %+v", response)
 	}
 }
 
