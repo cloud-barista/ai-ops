@@ -193,6 +193,45 @@ func apiIntegrationEndpointSpecs() []apiEndpointSpec {
 			},
 		},
 		{
+			Name:   "external-agent-register",
+			Method: http.MethodPost,
+			Path:   "/api/v1/agents",
+			Body: map[string]any{
+				"name":            "ValidationDeploymentAdvisor",
+				"version":         "0.1.0",
+				"role":            "Review AI application deployment plans.",
+				"endpoint":        "https://agent.example.com",
+				"invocation_path": "/v1/actions",
+				"capabilities":    []string{"deployment_review"},
+				"bounded_actions": []string{"review_deployment_plan"},
+			},
+			Check: func(response map[string]any) []string {
+				return requireValues(response, map[string]any{
+					"name":    "ValidationDeploymentAdvisor",
+					"source":  "runtime",
+					"enabled": true,
+				})
+			},
+		},
+		{
+			Name:   "external-agent-invocation-plan",
+			Method: http.MethodPost,
+			Path:   "/api/v1/agents/ValidationDeploymentAdvisor/invocations/plan",
+			Body: map[string]any{
+				"capability": "deployment_review",
+				"action":     "review_deployment_plan",
+				"parameters": map[string]any{"workload": "llm-chat-inference"},
+			},
+			Check: func(response map[string]any) []string {
+				return requireValues(response, map[string]any{
+					"valid":            true,
+					"agent":            "ValidationDeploymentAdvisor",
+					"execution_status": "not_executed",
+					"target_url":       "https://agent.example.com/v1/actions",
+				})
+			},
+		},
+		{
 			Name:   "ops-llm-select",
 			Method: http.MethodPost,
 			Path:   "/api/v1/ops-llm/select",

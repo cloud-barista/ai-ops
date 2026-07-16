@@ -40,6 +40,94 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AgentListResponse"
+    post:
+      summary: Register an external AIOps agent
+      description: Registers an external agent endpoint, capabilities, and bounded actions in process memory.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExternalAgentRegistrationRequest"
+      responses:
+        "201":
+          description: Runtime agent registration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentProfile"
+        "400":
+          description: Invalid or duplicate registration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/agents/{name}:
+    get:
+      summary: Get a registered AIOps agent
+      parameters:
+        - $ref: "#/components/parameters/AgentName"
+      responses:
+        "200":
+          description: Registered agent profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentProfile"
+        "404":
+          description: Agent not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/agents/{name}/actions/{action}/validate:
+    post:
+      summary: Validate an action against an agent boundary
+      parameters:
+        - $ref: "#/components/parameters/AgentName"
+        - name: action
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Action validation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentActionValidationResponse"
+        "404":
+          description: Agent not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/agents/{name}/invocations/plan:
+    post:
+      summary: Build a validated external-agent invocation plan
+      description: Validates capability and bounded action, then returns a plan without executing an external HTTP request.
+      parameters:
+        - $ref: "#/components/parameters/AgentName"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentInvocationPlanRequest"
+      responses:
+        "200":
+          description: Non-executing invocation plan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentInvocationPlan"
+        "400":
+          description: Capability or action boundary validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /api/v1/ops-llm/select:
     post:
       summary: Select the prototype Ops LLM candidate for an operation policy
@@ -129,6 +217,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 components:
+  parameters:
+    AgentName:
+      name: name
+      in: path
+      required: true
+      schema:
+        type: string
   schemas:
     HealthResponse:
       type: object
@@ -160,6 +255,11 @@ components:
         version:
           type: string
           example: "1"
+        persistence:
+          type: string
+          example: configuration_and_process_memory
+        runtime_agent_count:
+          type: integer
         agents:
           type: array
           items:
@@ -173,9 +273,15 @@ components:
         korean_name:
           type: string
           example: AI application management agent
+        version:
+          type: string
         role:
           type: string
         responsibilities:
+          type: array
+          items:
+            type: string
+        capabilities:
           type: array
           items:
             type: string
@@ -189,6 +295,99 @@ components:
             type: string
         enabled:
           type: boolean
+        endpoint:
+          type: string
+          format: uri
+        invocation_path:
+          type: string
+        source:
+          type: string
+          enum: [configuration, runtime]
+        registered_at:
+          type: string
+          format: date-time
+    ExternalAgentRegistrationRequest:
+      type: object
+      required: [name, version, role, endpoint, invocation_path, capabilities, bounded_actions]
+      properties:
+        name:
+          type: string
+          pattern: "^[A-Za-z][A-Za-z0-9_-]{2,63}$"
+        korean_name:
+          type: string
+        version:
+          type: string
+        role:
+          type: string
+        responsibilities:
+          type: array
+          items:
+            type: string
+        endpoint:
+          type: string
+          format: uri
+        invocation_path:
+          type: string
+          example: /v1/actions
+        capabilities:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        bounded_actions:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        reward_signals:
+          type: array
+          items:
+            type: string
+        enabled:
+          type: boolean
+          default: true
+    AgentActionValidationResponse:
+      type: object
+      properties:
+        agent:
+          type: string
+        action:
+          type: string
+        valid:
+          type: boolean
+    AgentInvocationPlanRequest:
+      type: object
+      required: [capability, action]
+      properties:
+        capability:
+          type: string
+        action:
+          type: string
+        parameters:
+          type: object
+          additionalProperties: true
+    AgentInvocationPlan:
+      type: object
+      properties:
+        valid:
+          type: boolean
+        agent:
+          type: string
+        capability:
+          type: string
+        action:
+          type: string
+        target_url:
+          type: string
+          format: uri
+        parameters:
+          type: object
+          additionalProperties: true
+        execution_status:
+          type: string
+          enum: [not_executed]
+        reason:
+          type: string
     OpsLLMSelectRequest:
       type: object
       properties:

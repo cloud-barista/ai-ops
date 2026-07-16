@@ -2,7 +2,7 @@
 
 ## 1. 목적
 
-이 가이드는 1차년도 service-control 기능 프로토타입의 Go Echo HTTP API를 설명합니다. API는 Go CLI와 동일한 핵심 기능인 Ops LLM 정책 선정, 에이전트 registry 조회, CPU/GPU VM 배치 추천, 배포 계획 생성, 통합 서비스 운영 준비도 검증을 제공합니다.
+이 가이드는 1차년도 service-control 기능 프로토타입의 Go Echo HTTP API를 설명합니다. API는 Go CLI와 동일한 핵심 기능인 Ops LLM 정책 선정, 에이전트 registry 등록·조회, CPU/GPU VM 배치 추천, 배포 계획 생성, 통합 서비스 운영 준비도 검증을 제공합니다.
 
 Swagger/OpenAPI 산출물은 `docs/submission/openapi_service_control.yaml`에 있습니다.
 
@@ -26,6 +26,10 @@ http server started on [::]:8080
 | `GET` | `/healthz` | 상태 확인 |
 | `GET` | `/openapi.yaml` | OpenAPI YAML 계약 반환 |
 | `GET` | `/api/v1/agents` | 등록된 AI agent 목록 조회 |
+| `POST` | `/api/v1/agents` | 외부 AI agent 런타임 등록 |
+| `GET` | `/api/v1/agents/{name}` | agent 상세 조회 |
+| `POST` | `/api/v1/agents/{name}/actions/{action}/validate` | bounded action 검증 |
+| `POST` | `/api/v1/agents/{name}/invocations/plan` | capability/action 검증 후 호출 계획 생성 |
 | `POST` | `/api/v1/ops-llm/select` | Ops LLM policy 기반 candidate selection 실행 |
 | `POST` | `/api/v1/apps/placement` | AI workload의 CPU/GPU VM 배치 추천 |
 | `POST` | `/api/v1/apps/deployment-plan` | AI 응용 배포·제어 계획 생성 |
@@ -75,7 +79,7 @@ go run ./cmd/aiops-service-control api-integration-validation \
   --port 18080
 ```
 
-이 명령은 Go 코드에서 로컬 API 서버를 실행하고 `/healthz`, `/api/v1/agents`, `/api/v1/ops-llm/select`, `/api/v1/apps/placement`, `/api/v1/apps/deployment-plan`, `/api/v1/service-operations/run`을 순차 호출합니다. 각 응답에서 `valid`, `selected_model`, `selected_actual_model`, `selected_provider`, `benchmark_status`, `selected_resource`, `deployment_plan`, `deployment_validation`, `deployment_execution_mode`, `guard_backend`, `guard_validation` 등 핵심 필드를 확인합니다.
+이 명령은 Go 코드에서 로컬 API 서버를 실행하고 상태 확인, agent 목록, 외부 agent 등록, 호출 계획, LLM 선정, CPU/GPU 배치, 배포 계획, service-operations endpoint를 순차 호출합니다. 각 응답에서 `source`, `execution_status`, `selected_model`, `benchmark_status`, `selected_resource`, `deployment_plan`, `guard_validation` 등 핵심 필드를 확인합니다.
 
 이 결과는 local endpoint availability와 response structure, 그리고 service-control API flow의 field-level validation을 확인하는 것입니다. production-level operational validation 또는 실제 cloud deployment 완료를 의미하지 않습니다.
 
@@ -85,7 +89,31 @@ go run ./cmd/aiops-service-control api-integration-validation \
 curl http://127.0.0.1:8080/api/v1/agents
 ```
 
-응답에는 등록된 agent name, role, responsibility, bounded action, reward-signal description, enabled status가 포함됩니다. 이 endpoint는 `config/agent_registry.json`의 API-facing view입니다.
+응답에는 설정 파일의 기본 agent와 API로 등록한 외부 agent가 함께 표시됩니다. 외부 agent 등록 정보는 서버 프로세스 메모리에만 유지됩니다.
+
+```bash
+curl -s -X POST http://127.0.0.1:8080/api/v1/agents \
+  -H 'content-type: application/json' \
+  -d '{
+    "name":"ExternalDeploymentAdvisor",
+    "version":"0.1.0",
+    "role":"Review AI application deployment plans.",
+    "endpoint":"https://agent.example.com",
+    "invocation_path":"/v1/actions",
+    "capabilities":["deployment_review"],
+    "bounded_actions":["review_deployment_plan"]
+  }'
+```
+
+등록된 agent의 capability와 action을 검증하여 호출 계획을 생성합니다.
+
+```bash
+curl -s -X POST http://127.0.0.1:8080/api/v1/agents/ExternalDeploymentAdvisor/invocations/plan \
+  -H 'content-type: application/json' \
+  -d '{"capability":"deployment_review","action":"review_deployment_plan"}'
+```
+
+이 API는 외부 HTTP 요청을 실행하지 않습니다. 응답의 `execution_status`는 `not_executed`이며, 실제 dispatcher와 인증·재시도·감사는 후속 연계 범위입니다.
 
 ## 6. Ops LLM 선정 API
 

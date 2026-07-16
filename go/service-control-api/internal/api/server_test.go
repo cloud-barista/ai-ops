@@ -38,6 +38,61 @@ func TestListAgents(t *testing.T) {
 	}
 }
 
+func TestExternalAgentRegistrationAPIFlow(t *testing.T) {
+	server := NewServer(NewServerConfig())
+	registrationBody := strings.NewReader(`{
+		"name":"ExternalDeploymentAdvisor",
+		"korean_name":"외부 배포 검토 에이전트",
+		"version":"0.1.0",
+		"role":"Review AI application deployment plans.",
+		"endpoint":"https://agent.example.com",
+		"invocation_path":"/v1/actions",
+		"capabilities":["deployment_review"],
+		"bounded_actions":["review_deployment_plan"]
+	}`)
+	registrationRequest := httptest.NewRequest(http.MethodPost, "/api/v1/agents", registrationBody)
+	registrationRequest.Header.Set("Content-Type", "application/json")
+	registrationResponse := httptest.NewRecorder()
+
+	server.ServeHTTP(registrationResponse, registrationRequest)
+
+	if registrationResponse.Code != http.StatusCreated {
+		t.Fatalf("expected status 201, got %d body=%s", registrationResponse.Code, registrationResponse.Body.String())
+	}
+	if !strings.Contains(registrationResponse.Body.String(), `"source":"runtime"`) {
+		t.Fatalf("expected runtime registration source: %s", registrationResponse.Body.String())
+	}
+
+	planBody := strings.NewReader(`{
+		"capability":"deployment_review",
+		"action":"review_deployment_plan",
+		"parameters":{"workload":"llm-chat-inference"}
+	}`)
+	planRequest := httptest.NewRequest(http.MethodPost, "/api/v1/agents/ExternalDeploymentAdvisor/invocations/plan", planBody)
+	planRequest.Header.Set("Content-Type", "application/json")
+	planResponse := httptest.NewRecorder()
+
+	server.ServeHTTP(planResponse, planRequest)
+
+	if planResponse.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d body=%s", planResponse.Code, planResponse.Body.String())
+	}
+	if !strings.Contains(planResponse.Body.String(), `"execution_status":"not_executed"`) {
+		t.Fatalf("expected non-executing invocation plan: %s", planResponse.Body.String())
+	}
+
+	actionRequest := httptest.NewRequest(http.MethodPost, "/api/v1/agents/ExternalDeploymentAdvisor/actions/restart_vm/validate", nil)
+	actionResponse := httptest.NewRecorder()
+	server.ServeHTTP(actionResponse, actionRequest)
+
+	if actionResponse.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d body=%s", actionResponse.Code, actionResponse.Body.String())
+	}
+	if !strings.Contains(actionResponse.Body.String(), `"valid":false`) {
+		t.Fatalf("expected unbounded action rejection: %s", actionResponse.Body.String())
+	}
+}
+
 func TestSelectOpsLLM(t *testing.T) {
 	server := NewServer(NewServerConfig())
 	body := strings.NewReader(`{"policy":"quality_first"}`)

@@ -8,11 +8,48 @@ type AgentRegistry struct {
 type AgentProfile struct {
 	Name             string   `json:"name"`
 	KoreanName       string   `json:"korean_name"`
+	Version          string   `json:"version,omitempty"`
 	Role             string   `json:"role"`
 	Responsibilities []string `json:"responsibilities"`
+	Capabilities     []string `json:"capabilities,omitempty"`
 	BoundedActions   []string `json:"bounded_actions"`
 	RewardSignals    []string `json:"reward_signals"`
 	Enabled          bool     `json:"enabled"`
+	Endpoint         string   `json:"endpoint,omitempty"`
+	InvocationPath   string   `json:"invocation_path,omitempty"`
+	Source           string   `json:"source,omitempty"`
+	RegisteredAt     string   `json:"registered_at,omitempty"`
+}
+
+type ExternalAgentRegistrationRequest struct {
+	Name             string   `json:"name" validate:"required"`
+	KoreanName       string   `json:"korean_name"`
+	Version          string   `json:"version" validate:"required"`
+	Role             string   `json:"role" validate:"required"`
+	Responsibilities []string `json:"responsibilities"`
+	Endpoint         string   `json:"endpoint" validate:"required"`
+	InvocationPath   string   `json:"invocation_path" validate:"required"`
+	Capabilities     []string `json:"capabilities" validate:"required,min=1,dive,required"`
+	BoundedActions   []string `json:"bounded_actions" validate:"required,min=1,dive,required"`
+	RewardSignals    []string `json:"reward_signals"`
+	Enabled          *bool    `json:"enabled,omitempty"`
+}
+
+type AgentInvocationPlanRequest struct {
+	Capability string         `json:"capability" validate:"required"`
+	Action     string         `json:"action" validate:"required"`
+	Parameters map[string]any `json:"parameters,omitempty"`
+}
+
+type AgentInvocationPlan struct {
+	Valid           bool           `json:"valid"`
+	Agent           string         `json:"agent"`
+	Capability      string         `json:"capability"`
+	Action          string         `json:"action"`
+	TargetURL       string         `json:"target_url"`
+	Parameters      map[string]any `json:"parameters,omitempty"`
+	ExecutionStatus string         `json:"execution_status"`
+	Reason          string         `json:"reason"`
 }
 
 type OpsLLMBenchmark struct {

@@ -188,11 +188,11 @@ func TestAPIIntegrationValidationCommandCreatesSummary(t *testing.T) {
 	if summary["valid"] != true {
 		t.Fatalf("expected valid API integration validation, got %s", string(bytes))
 	}
-	if int(summary["endpoint_count"].(float64)) != 6 {
-		t.Fatalf("expected six endpoints, got %#v", summary["endpoint_count"])
+	if int(summary["endpoint_count"].(float64)) != 8 {
+		t.Fatalf("expected eight endpoints including external agent registration, got %#v", summary["endpoint_count"])
 	}
-	if int(summary["valid_endpoint_count"].(float64)) != 6 {
-		t.Fatalf("expected six valid endpoints, got %#v", summary["valid_endpoint_count"])
+	if int(summary["valid_endpoint_count"].(float64)) != 8 {
+		t.Fatalf("expected eight valid endpoints, got %#v", summary["valid_endpoint_count"])
 	}
 	if summary["production_level_validation"] != false {
 		t.Fatalf("local API integration must not claim production validation")

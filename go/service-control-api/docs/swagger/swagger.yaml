@@ -1,5 +1,75 @@
 basePath: /
 definitions:
+  api.AgentInvocationPlan:
+    properties:
+      action:
+        type: string
+      agent:
+        type: string
+      capability:
+        type: string
+      execution_status:
+        type: string
+      parameters:
+        additionalProperties: {}
+        type: object
+      reason:
+        type: string
+      target_url:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  api.AgentInvocationPlanRequest:
+    properties:
+      action:
+        type: string
+      capability:
+        type: string
+      parameters:
+        additionalProperties: {}
+        type: object
+    required:
+    - action
+    - capability
+    type: object
+  api.AgentProfile:
+    properties:
+      bounded_actions:
+        items:
+          type: string
+        type: array
+      capabilities:
+        items:
+          type: string
+        type: array
+      enabled:
+        type: boolean
+      endpoint:
+        type: string
+      invocation_path:
+        type: string
+      korean_name:
+        type: string
+      name:
+        type: string
+      registered_at:
+        type: string
+      responsibilities:
+        items:
+          type: string
+        type: array
+      reward_signals:
+        items:
+          type: string
+        type: array
+      role:
+        type: string
+      source:
+        type: string
+      version:
+        type: string
+    type: object
   api.AgentReview:
     properties:
       action:
@@ -106,6 +176,49 @@ definitions:
       valid:
         example: false
         type: boolean
+    type: object
+  api.ExternalAgentRegistrationRequest:
+    properties:
+      bounded_actions:
+        items:
+          type: string
+        minItems: 1
+        type: array
+      capabilities:
+        items:
+          type: string
+        minItems: 1
+        type: array
+      enabled:
+        type: boolean
+      endpoint:
+        type: string
+      invocation_path:
+        type: string
+      korean_name:
+        type: string
+      name:
+        type: string
+      responsibilities:
+        items:
+          type: string
+        type: array
+      reward_signals:
+        items:
+          type: string
+        type: array
+      role:
+        type: string
+      version:
+        type: string
+    required:
+    - bounded_actions
+    - capabilities
+    - endpoint
+    - invocation_path
+    - name
+    - role
+    - version
     type: object
   api.GuardValidation:
     properties:
@@ -387,6 +500,118 @@ paths:
           schema:
             $ref: '#/definitions/api.ErrorResponse'
       summary: List registered AI operation agents
+      tags:
+      - Agent Registry
+    post:
+      consumes:
+      - application/json
+      description: Register an external agent endpoint, capabilities, and bounded
+        actions in process memory.
+      operationId: PostAgent
+      parameters:
+      - description: External agent registration
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.ExternalAgentRegistrationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/api.AgentProfile'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Register an external AI operation agent
+      tags:
+      - Agent Registry
+  /api/v1/agents/{name}:
+    get:
+      operationId: GetAgent
+      parameters:
+      - description: Agent name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.AgentProfile'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Get a registered AI operation agent
+      tags:
+      - Agent Registry
+  /api/v1/agents/{name}/actions/{action}/validate:
+    post:
+      operationId: PostAgentActionValidate
+      parameters:
+      - description: Agent name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Action identifier
+        in: path
+        name: action
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Validate an action against an agent boundary
+      tags:
+      - Agent Registry
+  /api/v1/agents/{name}/invocations/plan:
+    post:
+      consumes:
+      - application/json
+      description: Validate the registered capability and bounded action, then return
+        a non-executing invocation plan.
+      operationId: PostAgentInvocationPlan
+      parameters:
+      - description: Agent name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Invocation plan request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.AgentInvocationPlanRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.AgentInvocationPlan'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Build a validated external-agent invocation plan
       tags:
       - Agent Registry
   /api/v1/apps/deployment-plan:

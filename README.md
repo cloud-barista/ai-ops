@@ -16,7 +16,7 @@
 
 - Ops 분석 시험 및 최적 LLM 선정 흐름
 - AI LLM 운영 관리 구조 설계 및 검증
-- AI 에이전트 등록 관리와 bounded action 검증
+- 정적·외부 AI 에이전트 등록 관리와 bounded action 검증
 - CPU/GPU VM 기반 AI 응용 추론 배치 추천
 - AI 응용 배포·제어 계획 생성
 
@@ -26,7 +26,7 @@
 
 | 경로 | 설명 |
 | --- | --- |
-| [`go/service-control-api/`](go/service-control-api/) | LLM 선정, Agent registry, CPU/GPU 배치, 배포·제어 계획을 수행하는 Go API/CLI |
+| [`go/service-control-api/`](go/service-control-api/) | LLM 선정, 외부 Agent registry, CPU/GPU 배치, 배포·제어 계획을 수행하는 Go API/CLI |
 | [`go/aiops-guard/`](go/aiops-guard/) | 서비스 제어 action의 허용 범위를 검증하는 Go guard |
 | [`config/`](config/) | LLM 후보, 에이전트 registry, CPU/GPU 배치 정책 설정 |
 | [`data/`](data/) | Ops LLM 평가 scenario |
@@ -52,6 +52,7 @@
 | [기능/API 가이드](docs/submission/functional_api_guide.md) | API 기능과 응답 구조 |
 | [OpenAPI 계약](docs/submission/openapi_service_control.yaml) | Swagger/OpenAPI 산출물 |
 | [Ops LLM 평가 방법](docs/submission/ops_llm_benchmark_method.md) | dry-run과 실제 endpoint 실행 기준 |
+| [1차년도 VM 통합·개별 동작 시나리오](docs/design/year1_vm_operation_scenarios.md) | 컨테이너를 제외한 VM-only 통합 흐름과 개별 시험 초안 |
 | [검증 증적 가이드](docs/evidence/증적_패키지_가이드.md) | 실행 결과와 증적 정리 기준 |
 | [AWS GPU VM 검증 결과](docs/evidence/vm_validation_20260707.md) | `validate-system --target vm` 실행 결과와 GPU 증적 |
 

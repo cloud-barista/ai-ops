@@ -67,6 +67,10 @@ func NewServer(config ServerConfig) *echo.Echo {
 	server.GET(pathHealthz, handler.RestGetHealthz)
 	server.GET(pathOpenAPI, handler.RestGetOpenAPI)
 	server.GET(pathAgents, handler.RestGetAgents)
+	server.POST(pathAgents, handler.RestPostAgent)
+	server.GET(pathAgents+"/:name", handler.RestGetAgent)
+	server.POST(pathAgents+"/:name/actions/:action/validate", handler.RestPostAgentActionValidate)
+	server.POST(pathAgents+"/:name/invocations/plan", handler.RestPostAgentInvocationPlan)
 	server.POST(pathOpsLLMSelect, handler.RestPostOpsLLMSelect)
 	server.POST(pathAppPlacement, handler.RestPostAppPlacement)
 	server.POST(pathDeploymentPlan, handler.RestPostDeploymentPlan)
@@ -116,6 +120,94 @@ func (handler restHandler) RestGetAgents(context echo.Context) error {
 	result, err := handler.service.ListAgents(context.Request().Context())
 	if err != nil {
 		return jsonError(context, http.StatusInternalServerError, "Agent registry is unavailable", err)
+	}
+	return context.JSON(http.StatusOK, result)
+}
+
+// RestPostAgent godoc
+// @ID PostAgent
+// @Summary Register an external AI operation agent
+// @Description Register an external agent endpoint, capabilities, and bounded actions in process memory.
+// @Tags Agent Registry
+// @Accept json
+// @Produce json
+// @Param request body ExternalAgentRegistrationRequest true "External agent registration"
+// @Success 201 {object} AgentProfile
+// @Failure 400 {object} ErrorResponse
+// @Router /api/v1/agents [post]
+func (handler restHandler) RestPostAgent(context echo.Context) error {
+	var request ExternalAgentRegistrationRequest
+	if message, err := bindAndValidate(context, &request); err != nil {
+		return jsonError(context, http.StatusBadRequest, message, err)
+	}
+	result, err := handler.service.RegisterExternalAgent(context.Request().Context(), request)
+	if err != nil {
+		return jsonError(context, http.StatusBadRequest, "Agent registration could not be processed", err)
+	}
+	return context.JSON(http.StatusCreated, result)
+}
+
+// RestGetAgent godoc
+// @ID GetAgent
+// @Summary Get a registered AI operation agent
+// @Tags Agent Registry
+// @Produce json
+// @Param name path string true "Agent name"
+// @Success 200 {object} AgentProfile
+// @Failure 404 {object} ErrorResponse
+// @Router /api/v1/agents/{name} [get]
+func (handler restHandler) RestGetAgent(context echo.Context) error {
+	result, err := handler.service.ShowAgent(context.Request().Context(), context.Param("name"))
+	if err != nil {
+		return jsonError(context, http.StatusNotFound, "Agent was not found", err)
+	}
+	return context.JSON(http.StatusOK, result)
+}
+
+// RestPostAgentActionValidate godoc
+// @ID PostAgentActionValidate
+// @Summary Validate an action against an agent boundary
+// @Tags Agent Registry
+// @Produce json
+// @Param name path string true "Agent name"
+// @Param action path string true "Action identifier"
+// @Success 200 {object} map[string]interface{}
+// @Failure 404 {object} ErrorResponse
+// @Router /api/v1/agents/{name}/actions/{action}/validate [post]
+func (handler restHandler) RestPostAgentActionValidate(context echo.Context) error {
+	name := context.Param("name")
+	action := context.Param("action")
+	valid, err := handler.service.ValidateAgentAction(context.Request().Context(), name, action)
+	if err != nil {
+		return jsonError(context, http.StatusNotFound, "Agent was not found", err)
+	}
+	return context.JSON(http.StatusOK, map[string]any{
+		"agent":  name,
+		"action": action,
+		"valid":  valid,
+	})
+}
+
+// RestPostAgentInvocationPlan godoc
+// @ID PostAgentInvocationPlan
+// @Summary Build a validated external-agent invocation plan
+// @Description Validate the registered capability and bounded action, then return a non-executing invocation plan.
+// @Tags Agent Registry
+// @Accept json
+// @Produce json
+// @Param name path string true "Agent name"
+// @Param request body AgentInvocationPlanRequest true "Invocation plan request"
+// @Success 200 {object} AgentInvocationPlan
+// @Failure 400 {object} ErrorResponse
+// @Router /api/v1/agents/{name}/invocations/plan [post]
+func (handler restHandler) RestPostAgentInvocationPlan(context echo.Context) error {
+	var request AgentInvocationPlanRequest
+	if message, err := bindAndValidate(context, &request); err != nil {
+		return jsonError(context, http.StatusBadRequest, message, err)
+	}
+	result, err := handler.service.BuildAgentInvocationPlan(context.Request().Context(), context.Param("name"), request)
+	if err != nil {
+		return jsonError(context, http.StatusBadRequest, "Agent invocation plan could not be processed", err)
 	}
 	return context.JSON(http.StatusOK, result)
 }

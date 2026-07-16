@@ -9,15 +9,41 @@ import (
 )
 
 type Service struct {
-	config ServerConfig
+	config        ServerConfig
+	runtimeAgents *runtimeAgentStore
 }
 
 func NewService(config ServerConfig) Service {
-	return Service{config: config}
+	return Service{
+		config:        config,
+		runtimeAgents: newRuntimeAgentStore(),
+	}
 }
 
 func (service Service) ListAgents(ctx context.Context) (map[string]any, error) {
-	return service.ListAgentsFromPath(ctx, service.config.path("config", "agent_registry.json"))
+	if err := ensureContext(ctx); err != nil {
+		return nil, err
+	}
+	path := service.config.path("config", "agent_registry.json")
+	registry, err := loadAgentRegistry(path)
+	if err != nil {
+		return nil, err
+	}
+	for index := range registry.Agents {
+		registry.Agents[index].Source = agentSourceConfiguration
+	}
+	registry.Agents = append(registry.Agents, service.runtimeAgents.list()...)
+	sort.SliceStable(registry.Agents, func(i, j int) bool {
+		return registry.Agents[i].Name < registry.Agents[j].Name
+	})
+	return map[string]any{
+		"command":             "list-agents",
+		"registry":            path,
+		"version":             registry.Version,
+		"persistence":         "configuration_and_process_memory",
+		"runtime_agent_count": service.runtimeAgents.count(),
+		"agents":              registry.Agents,
+	}, nil
 }
 
 func (service Service) ListAgentsFromPath(ctx context.Context, path string) (map[string]any, error) {
@@ -37,7 +63,18 @@ func (service Service) ListAgentsFromPath(ctx context.Context, path string) (map
 }
 
 func (service Service) ShowAgent(ctx context.Context, agentName string) (AgentProfile, error) {
-	return service.ShowAgentFromPath(ctx, service.config.path("config", "agent_registry.json"), agentName)
+	if err := ensureContext(ctx); err != nil {
+		return AgentProfile{}, err
+	}
+	if agent, ok := service.runtimeAgents.get(agentName); ok {
+		return agent, nil
+	}
+	agent, err := service.ShowAgentFromPath(ctx, service.config.path("config", "agent_registry.json"), agentName)
+	if err != nil {
+		return AgentProfile{}, err
+	}
+	agent.Source = agentSourceConfiguration
+	return agent, nil
 }
 
 func (service Service) ShowAgentFromPath(ctx context.Context, path string, agentName string) (AgentProfile, error) {
@@ -52,7 +89,11 @@ func (service Service) ShowAgentFromPath(ctx context.Context, path string, agent
 }
 
 func (service Service) ValidateAgentAction(ctx context.Context, agentName string, action string) (bool, error) {
-	return service.ValidateAgentActionFromPath(ctx, service.config.path("config", "agent_registry.json"), agentName, action)
+	agent, err := service.ShowAgent(ctx, agentName)
+	if err != nil {
+		return false, err
+	}
+	return agent.Enabled && contains(agent.BoundedActions, action), nil
 }
 
 func (service Service) ValidateAgentActionFromPath(ctx context.Context, path string, agentName string, action string) (bool, error) {

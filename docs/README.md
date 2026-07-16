@@ -50,6 +50,7 @@
 
 | 문서 | 설명 |
 | --- | --- |
+| [`design/year1_vm_operation_scenarios.md`](design/year1_vm_operation_scenarios.md) | 1차년도 VM-only 통합 시나리오와 개별 동작 시나리오 초안 |
 | [`design/llm_provider_abstraction.md`](design/llm_provider_abstraction.md) | OpenAI-compatible endpoint 기반 LLM provider 교체 구조 |
 | [`design/integration_boundary.md`](design/integration_boundary.md) | service-control layer와 AppDeployer/AI-MCMP 연계 프레임워크 책임 경계 |
 
