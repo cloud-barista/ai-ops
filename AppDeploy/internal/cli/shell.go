@@ -254,8 +254,6 @@ func (s *Shell) printHelp() {
 	s.helpLine("packages deploy [options]", "package 생성·App 등록·자원 점검·배포")
 	s.helpLine("apps list | get <app-id> | add [json]", "App 조회·등록")
 	s.helpLine("apps delete <app-id> --yes", "참조 배포가 없거나 모두 STOPPED인 App 등록 삭제")
-	s.helpLine("runtimes list | add [json]", "Runtime Profile 조회·등록")
-	s.helpLine("runtimes delete <runtime-id> --yes", "참조 배포가 없거나 모두 STOPPED인 Runtime Profile 삭제")
 	s.helpLine("targets list | add [json]", "Target Profile 조회·등록")
 	s.helpLine("targets delete <target-id> --yes", "참조 배포가 없거나 모두 STOPPED인 Target Profile과 readiness inventory 삭제")
 	s.helpLine("credentials list | add [options]", "host key fingerprint를 고정한 메모리 전용 SSH Credential 조회·등록")
@@ -278,8 +276,8 @@ func (s *Shell) printHelp() {
 	fmt.Fprintf(s.out, "%s\n", s.paint(ansiDim, "Credential은 프로세스 메모리에만 존재합니다. 단발 add는 명령 종료와 함께 사라지며, 후속 배포에는 대화형 CLI를 사용하세요."))
 	fmt.Fprintf(s.out, "%s %s\n", s.paint(ansiGray, "예시"), s.paint(ansiCyan, "apps add examples/requests/app-cpu-script.json"))
 	fmt.Fprintf(s.out, "     %s\n", s.paint(ansiCyan, "credentials add --id cpu-vm-001 --user ubuntu --host-key-fingerprint SHA256:<base64> --auth private_key --private-key-file ./cpu-vm.pem"))
-	fmt.Fprintf(s.out, "     %s\n", s.paint(ansiCyan, "packages deploy --type script --source ./run.sh --runtime-id rt-cpu-001 --target-id target-cpu-001"))
-	fmt.Fprintf(s.out, "     %s\n", s.paint(ansiCyan, "deployments create appver-... rt-cpu-001 target-cpu-001"))
+	fmt.Fprintf(s.out, "     %s\n", s.paint(ansiCyan, "packages deploy --type script --source ./run.sh --target-id target-cpu-001"))
+	fmt.Fprintf(s.out, "     %s\n", s.paint(ansiCyan, "deployments create appver-... target-cpu-001"))
 }
 
 func (s *Shell) helpLine(command, description string) {
@@ -310,7 +308,7 @@ func (s *Shell) overview(ctx context.Context) error {
 		Items []json.RawMessage `json:"items"`
 	}
 	var readiness model.ReadinessResponse
-	var apps, runtimes, targets listEnvelope
+	var apps, targets listEnvelope
 	var deployments struct {
 		Items []model.DeploymentResponse `json:"items"`
 	}
@@ -320,7 +318,6 @@ func (s *Shell) overview(ctx context.Context) error {
 	}{
 		{path: "/api/v1/readiness", out: &readiness},
 		{path: "/api/v1/apps", out: &apps},
-		{path: "/api/v1/runtime-profiles", out: &runtimes},
 		{path: "/api/v1/target-profiles", out: &targets},
 		{path: "/api/v1/deployments", out: &deployments},
 	}
@@ -346,7 +343,7 @@ func (s *Shell) overview(ctx context.Context) error {
 	var output bytes.Buffer
 	w := tabwriter.NewWriter(&output, 0, 4, 2, ' ', 0)
 	fmt.Fprintf(w, "  API\t%s\t  등록 앱\t%d\t  실행 중\t%d\n", strings.ToUpper(readiness.Status), len(apps.Items), running)
-	fmt.Fprintf(w, "  Runtime\t%d\t  Target\t%d\t  실패\t%d\n", len(runtimes.Items), len(targets.Items), failed)
+	fmt.Fprintf(w, "  Target\t%d\t  실패\t%d\n", len(targets.Items), failed)
 	if err := w.Flush(); err != nil {
 		return fmt.Errorf("write overview: %w", err)
 	}

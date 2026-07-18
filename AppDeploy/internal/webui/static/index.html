@@ -33,7 +33,7 @@
         </button>
         <button class="nav-item" data-view="profiles">
           <svg viewBox="0 0 24 24"><path d="M12 3 4 7v10l8 4 8-4V7z"/><path d="m4 7 8 4 8-4M12 11v10"/></svg>
-          <span>실행 환경</span>
+          <span>배포 대상</span>
         </button>
         <button class="nav-item" data-view="resources">
           <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="2"/><rect x="3" y="14" width="18" height="6" rx="2"/><path d="M7 7h.01M7 17h.01M11 7h6M11 17h6"/></svg>
@@ -129,28 +129,27 @@
           <article class="panel"><div class="table-toolbar"><div class="search-box"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input type="search" placeholder="이름 또는 ID 검색" data-table-search="apps-table-body"></div><span class="count-label" id="apps-count">0 apps</span></div><div class="table-wrap"><table><thead><tr><th>애플리케이션</th><th>버전</th><th>Runtime</th><th>Artifact</th><th>등록 일시</th><th></th></tr></thead><tbody id="apps-table-body"></tbody></table></div></article>
         </section>
 
-        <section class="view" id="view-profiles" data-title="실행 환경">
-          <div class="page-heading"><div><span class="section-label">RUNTIME & TARGET</span><h2>실행 환경</h2><p>Runtime Adapter와 배포 대상 VM 프로필을 구성합니다.</p></div></div>
+        <section class="view" id="view-profiles" data-title="배포 대상">
+          <div class="page-heading"><div><span class="section-label">TARGET & CREDENTIAL</span><h2>배포 대상</h2><p>Target Profile에 실행 방식과 배포 대상 VM 설정을 함께 구성합니다.</p></div></div>
           <article class="panel credentials-panel" aria-labelledby="credentials-panel-title">
             <div class="panel-header"><div><h3 id="credentials-panel-title">SSH Credentials</h3><p class="muted">현재 서버 프로세스 메모리에만 보관되며 재시작하면 사라집니다.</p></div><button class="button button-small" data-open-dialog="credential-dialog">+ Credential 등록</button></div>
             <div id="credential-list-status" class="credential-list-status" role="status" hidden></div>
             <div class="table-wrap"><table><thead><tr><th>Credential</th><th>종류</th><th>인증</th><th>SSH 사용자</th><th>Host key fingerprint</th><th>Timeout</th><th>영속</th><th>등록 일시</th><th></th></tr></thead><tbody id="credentials-table-body"></tbody></table></div>
           </article>
           <div class="split-grid">
-            <article class="panel"><div class="panel-header"><div><h3>Runtime Profiles</h3><p class="muted">실행 방식과 Adapter</p></div><button class="button button-small" data-open-dialog="runtime-dialog">+ 추가</button></div><div id="runtime-card-list" class="profile-list"></div></article>
-            <article class="panel"><div class="panel-header"><div><h3>Target Profiles</h3><p class="muted">배포 대상 VM과 인프라</p></div><button class="button button-small" data-open-dialog="target-dialog">+ 추가</button></div><div id="target-card-list" class="profile-list"></div></article>
+            <article class="panel"><div class="panel-header"><div><h3>Target Profiles</h3><p class="muted">배포 대상 VM과 인프라, 실행 설정을 함께 관리합니다.</p></div><button class="button button-small" data-open-dialog="target-dialog">+ 추가</button></div><div id="target-card-list" class="profile-list"></div></article>
           </div>
         </section>
 
         <section class="view" id="view-resources" data-title="자원 점검">
           <div class="page-heading"><div><span class="section-label">RESOURCE READINESS</span><h2>자원 점검</h2><p>배포 전 대상 VM과 Runtime의 준비 상태를 확인합니다.</p></div></div>
-          <article class="panel action-panel"><form id="resource-check-form" class="inline-form"><label>Target Profile<select id="resource-target" required></select></label><label>Runtime Profile <span>선택</span><select id="resource-runtime"><option value="">지정하지 않음</option></select></label><button class="button button-primary" type="submit">준비 상태 점검</button></form><div id="resource-result" class="inline-result empty">점검할 Target Profile을 선택하세요.</div></article>
+          <article class="panel action-panel"><form id="resource-check-form" class="inline-form"><label>Target Profile<select id="resource-target" required></select></label><button class="button button-primary" type="submit">준비 상태 점검</button></form><div id="resource-result" class="inline-result empty">점검할 Target Profile을 선택하세요.</div></article>
           <article class="panel"><div class="panel-header"><div><h3>최근 자원 인벤토리</h3><p class="muted">Target별 마지막 점검 결과</p></div></div><div class="table-wrap"><table><thead><tr><th>Target</th><th>Runtime</th><th>CPU</th><th>Memory</th><th>GPU</th><th>Storage</th><th>마지막 점검</th></tr></thead><tbody id="inventory-table-body"></tbody></table></div></article>
         </section>
 
         <section class="view" id="view-deployments" data-title="배포">
           <div class="page-heading"><div><span class="section-label">DEPLOYMENT CONTROL</span><h2>배포</h2><p>AI 애플리케이션의 상태, 이벤트 로그와 중지 작업을 관리합니다.</p></div><button class="button button-primary" data-open-dialog="deployment-dialog">+ 새 배포</button></div>
-          <article class="panel"><div class="table-toolbar"><div class="filter-row"><button class="filter-chip active" data-status-filter="ALL">전체</button><button class="filter-chip" data-status-filter="RUNNING">실행 중</button><button class="filter-chip" data-status-filter="FAILED">실패</button><button class="filter-chip" data-status-filter="STOPPED">중지</button></div><span class="count-label" id="deployments-count">0 deployments</span></div><div class="table-wrap"><table><thead><tr><th>배포 ID</th><th>앱 버전</th><th>Runtime / Target</th><th>상태</th><th>업데이트</th><th></th></tr></thead><tbody id="deployments-table-body"></tbody></table></div></article>
+          <article class="panel"><div class="table-toolbar"><div class="filter-row"><button class="filter-chip active" data-status-filter="ALL">전체</button><button class="filter-chip" data-status-filter="RUNNING">실행 중</button><button class="filter-chip" data-status-filter="FAILED">실패</button><button class="filter-chip" data-status-filter="STOPPED">중지</button></div><span class="count-label" id="deployments-count">0 deployments</span></div><div class="table-wrap"><table><thead><tr><th>배포 ID</th><th>앱 버전</th><th>Target Profile</th><th>상태</th><th>업데이트</th><th></th></tr></thead><tbody id="deployments-table-body"></tbody></table></div></article>
         </section>
 
         <section class="view" id="view-monitoring" data-title="모니터링">
@@ -192,9 +191,7 @@
                   <li><div><h4>App 등록</h4><p><button class="inline-link" data-navigate="apps">애플리케이션</button>에서 <b>앱 등록</b>을 누르고 아래 값을 입력합니다.</p>
                     <div class="value-grid"><span>앱 이름</span><code>mock-test-app</code><span>버전</span><code>0.1.0</code><span>Artifact 종류</span><code>script</code><span>Runtime</span><code>mock</code><span>Artifact URI</span><code>file:///tmp/mock-test/run.sh</code><span>실행 명령 / 인자</span><code>bash / run.sh</code><span>CPU / Memory / GPU / Storage</span><code>1 / 1Gi / 0 / 1Gi</code></div>
                     <p class="step-result">예상 결과: 앱 목록에 <b>mock-test-app 0.1.0</b>이 나타납니다.</p></div></li>
-                  <li><div><h4>Runtime Profile 등록</h4><p><button class="inline-link" data-navigate="profiles">실행 환경</button>에서 Runtime Profiles의 <b>추가</b>를 누릅니다.</p>
-                    <div class="value-grid"><span>Runtime 종류</span><code>mock</code><span>Profile ID</span><code>rt-mock-001</code><span>Adapter</span><code>mock</code><span>운영 모드</span><code>local_mock</code></div></div></li>
-                  <li><div><h4>Target Profile 등록</h4><p>같은 화면의 Target Profiles에서 <b>추가</b>를 누릅니다.</p>
+                  <li><div><h4>Target Profile 등록</h4><p><button class="inline-link" data-navigate="profiles">실행 환경</button>에서 Target Profiles의 <b>추가</b>를 누릅니다. Target Profile의 runtime 설정이 실행 방식과 Adapter를 결정합니다.</p>
                     <div class="value-grid"><span>Target 종류 / CSP</span><code>mock / mock</code><span>Profile ID</span><code>target-mock-001</code><span>VM host</span><code>비워두기</code></div></div></li>
                   <li><div><h4>점검하고 배포</h4><p><button class="inline-link" data-navigate="resources">자원 점검</button>에서 <code>target-mock-001</code>을 점검합니다. 결과가 <b>available</b>이면 <button class="inline-link" data-navigate="deployments">배포</button>에서 등록한 세 항목을 선택해 배포합니다.</p><p class="step-result">예상 결과: 상태 <b>RUNNING</b>, 로그에 REQUESTED → VALIDATING → SCHEDULING → DEPLOYING → RUNNING이 표시됩니다.</p></div></li>
                   <li><div><h4>메트릭과 중지 확인</h4><p><button class="inline-link" data-navigate="monitoring">모니터링</button>에서 메트릭을 하나 기록한 뒤 배포 화면에서 <b>중지</b>합니다.</p><p class="step-result">예상 결과: 배포 상태가 <b>STOPPED</b>로 바뀝니다. Mock에서는 실제 추론 HTTP 호출은 시험하지 않습니다.</p></div></li>
@@ -301,10 +298,6 @@ go run ./cmd/web</pre></div></li>
   </dialog>
   <form id="package-build-form" hidden></form>
 
-  <dialog id="runtime-dialog" class="modal">
-    <form id="runtime-form" class="modal-card modal-small"><div class="modal-header"><div><span class="section-label">RUNTIME</span><h2>Runtime Profile 추가</h2></div><button type="button" class="icon-button dialog-close" aria-label="닫기">×</button></div><div class="modal-body form-grid"><label class="full">Runtime 종류<select name="runtime_type" id="runtime-type"><option>cpu</option><option>gpu</option><option>mock</option><option>aiinfra</option></select></label><label>Profile ID<input name="runtime_profile_id" value="rt-cpu-001" required></label><label>표시 이름<input name="name" value="cpu-runtime"></label><label>Adapter<select name="adapter_type"><option>cpu_vm</option><option>gpu_vm</option><option>mock</option><option>etri_aiinfra</option></select></label><label>운영 모드<select name="operating_mode"><option>vm_process</option><option>dry_run</option><option>local_mock</option><option>remote_api</option></select></label></div><div class="modal-footer"><button type="button" class="button button-secondary dialog-close">취소</button><button type="submit" class="button button-primary">Profile 추가</button></div></form>
-  </dialog>
-
   <dialog id="credential-dialog" class="modal">
     <form id="credential-form" class="modal-card modal-small" autocomplete="off">
       <div class="modal-header"><div><span class="section-label">CREDENTIAL</span><h2>SSH Credential 등록</h2><p>Secret은 응답·목록에 표시되지 않으며 현재 서버 프로세스 메모리에만 저장됩니다.</p></div><button type="button" class="icon-button dialog-close" aria-label="닫기">×</button></div>
@@ -329,7 +322,7 @@ go run ./cmd/web</pre></div></li>
   </dialog>
 
   <dialog id="deployment-dialog" class="modal">
-    <form id="deployment-form" class="modal-card modal-small"><div class="modal-header"><div><span class="section-label">DEPLOY</span><h2>새 배포 만들기</h2><p>호환되는 App과 실행 환경을 선택하세요.</p></div><button type="button" class="icon-button dialog-close" aria-label="닫기">×</button></div><div class="modal-body form-stack"><label>App Version<select name="app_version_id" id="deployment-app" required></select></label><label>Runtime Profile<select name="runtime_profile_id" id="deployment-runtime" required></select></label><label>Target Profile<select name="target_profile_id" id="deployment-target" required></select></label></div><div class="modal-footer"><button type="button" class="button button-secondary dialog-close">취소</button><button type="submit" class="button button-primary">배포 시작</button></div></form>
+    <form id="deployment-form" class="modal-card modal-small"><div class="modal-header"><div><span class="section-label">DEPLOY</span><h2>새 배포 만들기</h2><p>App과 Target Profile을 선택하세요. 실행 방식은 Target Profile에서 결정됩니다.</p></div><button type="button" class="icon-button dialog-close" aria-label="닫기">×</button></div><div class="modal-body form-stack"><label>App Version<select name="app_version_id" id="deployment-app" required></select></label><label>Target Profile<select name="target_profile_id" id="deployment-target" required></select></label></div><div class="modal-footer"><button type="button" class="button button-secondary dialog-close">취소</button><button type="submit" class="button button-primary">배포 시작</button></div></form>
   </dialog>
 
   <dialog id="metric-dialog" class="modal">

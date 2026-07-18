@@ -38,6 +38,7 @@ type LogQuery struct {
 type DeploymentPlan struct {
 	DeploymentID string
 	RequestID    string
+	Manifest     *model.DeploymentManifest
 	App          model.AppResponse
 	Runtime      model.RuntimeProfile
 	Target       model.TargetProfile
@@ -47,6 +48,7 @@ type DeploymentPlan struct {
 type StopPlan struct {
 	DeploymentID string
 	RequestID    string
+	Manifest     *model.DeploymentManifest
 	App          model.AppResponse
 	Runtime      model.RuntimeProfile
 	Target       model.TargetProfile

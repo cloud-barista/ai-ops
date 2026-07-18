@@ -19,6 +19,8 @@
 | TC-IF-PROFILE-005 | 없는 Profile 삭제 | 없는 Runtime/Target ID 또는 삭제 완료 ID에 DELETE | `NOT_FOUND`/404 |
 | TC-IF-008 | Resource Check | `deliverables/interface/examples/requests/resource-check-gpu.json` | available 또는 표준 failure 반환 |
 | TC-IF-009 | Deployment 생성 | `deliverables/interface/examples/requests/deployment-create-gpu.json` | deployment_id, 표준 status 반환 |
+| TC-IF-009-M | Manifest-only Deployment 생성 | `deliverables/interface/examples/requests/deployment-create-manifest.json` | 등록된 Profile 참조로 Manifest 정규화·배포, 응답에 manifest 반환 |
+| TC-IF-009-T | Target-only Deployment 생성 | `POST /api/v1/deployments`에 `app_version_id`, `target_profile_id`만 전송 | Target Profile runtime 설정으로 실행 프로파일을 파생해 배포 |
 | TC-IF-010 | Deployment 상태 조회 | `GET /api/v1/deployments/{deployment_id}` | 표준 status enum 반환 |
 | TC-IF-011 | Deployment 로그 조회 | `GET /api/v1/deployments/{deployment_id}/logs` | request_id, deployment_id, stage 포함 |
 | TC-IF-012 | Deployment 중지 | `deliverables/interface/examples/requests/deployment-stop.json` | STOPPING 또는 STOPPED 반환 |

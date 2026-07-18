@@ -120,6 +120,14 @@ func (r *Router) adapterForProfile(profile model.RuntimeProfile, target model.Ta
 func (r *Router) adapterForTarget(target model.TargetProfile) (Adapter, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
+	if target.CSP == "mock" || target.Runtime.RuntimeType == "mock" {
+		if adapter := r.byAdapterType["mock"]; adapter != nil {
+			return adapter, nil
+		}
+		if adapter := r.byRuntimeType["mock"]; adapter != nil {
+			return adapter, nil
+		}
+	}
 	if adapter := r.byRuntimeType[target.Runtime.RuntimeType]; adapter != nil {
 		return adapter, nil
 	}

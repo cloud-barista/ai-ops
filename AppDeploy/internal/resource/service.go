@@ -35,7 +35,7 @@ func (s *Service) Check(ctx context.Context, targetProfileID string) (model.Reso
 		checks["target"] = apperrors.PublicMessage(err, "target validation failed")
 	}
 	if status == "available" {
-		if err := s.adapter.HealthCheck(ctx, runtimeProfileFromTarget(target), target); err != nil {
+		if err := s.adapter.HealthCheck(ctx, runtime.ProfileFromTarget(target), target); err != nil {
 			status = "unavailable"
 			checks["runtime"] = apperrors.PublicMessage(err, "runtime health check failed")
 		}
@@ -77,25 +77,4 @@ func gpuCount(target model.TargetProfile) int {
 		return 0
 	}
 	return target.GPU.Count
-}
-
-func runtimeProfileFromTarget(target model.TargetProfile) model.RuntimeProfile {
-	adapterType := target.Runtime.RuntimeType
-	switch target.Runtime.RuntimeType {
-	case "cpu":
-		adapterType = "cpu_vm"
-	case "gpu":
-		adapterType = "gpu_vm"
-	case "aiinfra":
-		adapterType = "etri_aiinfra"
-	case "mock":
-		adapterType = "mock"
-	}
-	return model.RuntimeProfile{
-		RuntimeProfileID: target.TargetProfileID + "-runtime-check",
-		RuntimeType:      target.Runtime.RuntimeType,
-		Accelerator:      target.Runtime.Accelerator,
-		AdapterType:      adapterType,
-		OperatingMode:    target.Runtime.OperatingMode,
-	}
 }

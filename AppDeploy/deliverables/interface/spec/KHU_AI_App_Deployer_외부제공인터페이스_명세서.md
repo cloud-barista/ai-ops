@@ -19,7 +19,7 @@
 | AI App 등록 삭제 API | 포함 | 참조가 없거나 모든 참조 Deployment가 STOPPED인 App Registry record를 삭제하고 이력과 artifact 원본은 유지한다. |
 | Runtime Credential API | 포함 | SSH Credential을 프로세스 메모리에 등록하고 비밀값을 제외한 메타데이터 조회와 삭제를 제공한다. |
 | Runtime/Target Profile 삭제 API | 포함 | 미참조 또는 STOPPED 참조 Profile을 삭제하며, STOPPED 이력과 Credential은 유지하고 Target의 현재 Inventory snapshot만 함께 정리한다. |
-| CPU/GPU VM 배포 API | 포함 | Runtime Profile과 Target Profile을 기준으로 배포 요청을 생성한다. |
+| CPU/GPU VM 배포 API | 포함 | Target Profile의 runtime 설정을 기준으로 배포 요청을 생성한다. |
 | Resource Check API | 포함 | CPU/GPU VM, Storage, Runtime readiness를 점검하고 snapshot을 저장한다. |
 | Monitoring API | 포함 | Deployment 상태, Runtime health, Alarm, Metric placeholder를 조회한다. |
 | ETRI AI-Infra 연동 | 골격 포함 | 실제 API 계약 확정 전까지 Mock/Fixture 및 Adapter 경계로 제공한다. |
@@ -235,7 +235,7 @@ k8s_manifest
 
 | 필드 | 설명 |
 | --- | --- |
-| `runtime_profile_id` | Runtime Profile 식별자 |
+| `runtime_profile_id` | 레거시 필드. 새 요청에서는 사용하지 않으며 Target Profile의 `runtime` 설정으로 실행한다. |
 | `runtime_type` | `mock`, `cpu`, `gpu`, `aiinfra` |
 | `adapter_type` | `mock`, `cpu_vm`, `gpu_vm`, `etri_aiinfra` |
 | `accelerator` | `none`, `nvidia` |
@@ -339,10 +339,10 @@ POST /api/v1/apps {"app_spec": response.app_spec}
   -> response.app_version_id
 POST /api/v1/resources/check
   -> status=available인 경우에만 계속
-POST /api/v1/deployments {app_version_id, runtime_profile_id, target_profile_id}
+POST /api/v1/deployments {app_version_id, target_profile_id}
 ```
 
-각 단계는 독립 요청이므로 후속 단계가 실패해도 이미 생성한 archive와 등록된 App은 자동 삭제되지 않는다. 따라서 client는 실패 시 `archive_name`, `artifact_uri`, `app_version_id`를 남겨 정리 또는 재시도에 사용해야 한다. Resource Check는 Target readiness를 반환하며 Runtime Profile 존재·호환성은 Deployment API에서 검증한다. `file://` artifact는 Package 생성 서버와 Deployment 처리 서버가 같은 파일시스템을 사용할 때만 유효하다.
+각 단계는 독립 요청이므로 후속 단계가 실패해도 이미 생성한 archive와 등록된 App은 자동 삭제되지 않는다. 따라서 client는 실패 시 `archive_name`, `artifact_uri`, `app_version_id`를 남겨 정리 또는 재시도에 사용해야 한다. Resource Check와 Deployment는 Target Profile의 runtime 설정을 사용한다. `file://` artifact는 Package 생성 서버와 Deployment 처리 서버가 같은 파일시스템을 사용할 때만 유효하다.
 
 ### 4.1 시나리오 A: AI App 등록
 
@@ -576,7 +576,8 @@ GET은 `{request_id, items}` 구조로 `host_key_fingerprint`를 포함한 Runti
 
 **호출 주체:** Innogrid, Bespin Web Console/MCP-like 호출, 운영자  
 **Endpoint:** `POST /api/v1/deployments`  
-**목적:** 등록된 AI App Version을 지정 Runtime/Target으로 배포 요청한다.
+**목적:** 등록된 AI App Version을 지정 Target으로 배포 요청한다. 실행 방식은 Target Profile의 `runtime` 설정에서 결정한다. 기존 ID 조합 요청은
+`deployment.khu.ai/v1alpha1` `DeploymentManifest`로 정규화되며, Planner 호출은 같은 Endpoint에 Manifest만 보낼 수 있다.
 
 ```json
 {
@@ -591,11 +592,58 @@ GET은 `{request_id, items}` 구조로 `host_key_fingerprint`를 포함한 Runti
 }
 ```
 
+Planner 또는 Manifest 기반 호출은 다음처럼 `manifest`만 보낸다. Manifest에는 App/Target 등록 레코드를 참조하는 ID와 선택 파라미터만 넣고 Secret/SSH 접속정보는 넣지 않는다.
+
+```json
+{
+  "manifest": {
+    "schema_version": "deployment.khu.ai/v1alpha1",
+    "kind": "DeploymentManifest",
+    "spec": {
+      "app_version_id": "appver-001",
+      "runtime_profile_id": "runtime-gpu-vm-001",
+      "target_profile_id": "target-aws-gpu-001",
+      "accelerator": "nvidia",
+      "resources": {
+        "cpu": "4",
+        "memory": "16Gi",
+        "gpu": "1",
+        "storage": "20Gi"
+      },
+      "requested_by": "ai-ops-geon-planner",
+      "parameters": {
+        "mode": "dry-run"
+      }
+    }
+  }
+}
+```
+
 ```json
 {
   "request_id": "req-20260715-000004",
   "deployment_id": "dep-20260715-000001",
   "status": "RUNNING",
+  "manifest": {
+    "schema_version": "deployment.khu.ai/v1alpha1",
+    "kind": "DeploymentManifest",
+    "spec": {
+      "app_version_id": "appver-001",
+      "runtime_profile_id": "runtime-gpu-vm-001",
+      "target_profile_id": "target-aws-gpu-001",
+      "accelerator": "nvidia",
+      "resources": {
+        "cpu": "4",
+        "memory": "16Gi",
+        "gpu": "1",
+        "storage": "20Gi"
+      },
+      "requested_by": "bespin-console",
+      "parameters": {
+        "mode": "dry-run"
+      }
+    }
+  },
   "message": "Deployment request accepted and processed by the prototype"
 }
 ```

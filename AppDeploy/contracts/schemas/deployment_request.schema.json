@@ -2,10 +2,18 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "KHU Deployment Request",
   "type": "object",
-  "required": [
-    "app_version_id",
-    "runtime_profile_id",
-    "target_profile_id"
+  "anyOf": [
+    {
+      "required": [
+        "app_version_id",
+        "target_profile_id"
+      ]
+    },
+    {
+      "required": [
+        "manifest"
+      ]
+    }
   ],
   "properties": {
     "app_id": {
@@ -15,7 +23,9 @@
       "type": "string"
     },
     "runtime_profile_id": {
-      "type": "string"
+      "type": "string",
+      "deprecated": true,
+      "description": "Legacy field. Runtime Profile registration is no longer used; execution settings always come from the Target Profile runtime block."
     },
     "target_profile_id": {
       "type": "string"
@@ -25,6 +35,9 @@
     },
     "parameters": {
       "type": "object"
+    },
+    "manifest": {
+      "$ref": "deployment_manifest.schema.json"
     }
   }
 }

@@ -80,9 +80,7 @@ func TestHelpListsConfirmedProfileDeletion(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, expected := range []string{
-		"runtimes delete <runtime-id> --yes",
 		"targets delete <target-id> --yes",
-		"참조 배포가 없거나 모두 STOPPED인 Runtime Profile 삭제",
 		"참조 배포가 없거나 모두 STOPPED인 Target Profile과 readiness inventory 삭제",
 	} {
 		if !strings.Contains(output.String(), expected) {

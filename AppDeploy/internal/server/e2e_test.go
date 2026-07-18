@@ -120,6 +120,9 @@ func TestMockRuntimeE2E(t *testing.T) {
 	if deployment.Status != model.StatusRunning {
 		t.Fatalf("deployment status = %s, want %s", deployment.Status, model.StatusRunning)
 	}
+	if deployment.Manifest == nil || deployment.Manifest.Spec.AppVersionID != appVersionID {
+		t.Fatalf("deployment manifest was not returned: %+v", deployment.Manifest)
+	}
 
 	logs := getJSON[struct {
 		Items []model.DeploymentLog `json:"items"`
@@ -143,6 +146,87 @@ func TestMockRuntimeE2E(t *testing.T) {
 	stopped := postJSON[model.DeploymentResponse](t, e, http.MethodPost, "/api/v1/deployments/"+deployment.DeploymentID+"/stop", nil)
 	if stopped.Status != model.StatusStopped {
 		t.Fatalf("stopped status = %s, want %s", stopped.Status, model.StatusStopped)
+	}
+}
+
+func TestDeploymentAcceptsPlannerManifest(t *testing.T) {
+	t.Setenv("AIAPP_CPUVM_RUNNER", "dry-run")
+	t.Setenv("AIAPP_GPUVM_RUNNER", "dry-run")
+	e := newTestServer(t)
+
+	appVersionID := createApp(t, e, validMockApp())
+	createMockTargetProfile(t, e)
+
+	deployment := postJSON[model.DeploymentResponse](t, e, http.MethodPost, "/api/v1/deployments", model.DeploymentCreateRequest{
+		Manifest: &model.DeploymentManifest{
+			SchemaVersion: model.DeploymentManifestSchemaVersion,
+			Kind:          model.DeploymentManifestKind,
+			Spec: model.DeploymentManifestSpec{
+				AppVersionID:    appVersionID,
+				TargetProfileID: "target-mock-001",
+				Accelerator:     "none",
+				Resources:       model.Resources{CPU: "1", Memory: "1Gi", GPU: "0", Storage: "1Gi"},
+				RequestedBy:     "ai-ops-geon-planner",
+			},
+		},
+	})
+	if deployment.Status != model.StatusRunning {
+		t.Fatalf("deployment status = %s, want %s", deployment.Status, model.StatusRunning)
+	}
+	if deployment.Manifest == nil || deployment.Manifest.Kind != model.DeploymentManifestKind || deployment.Manifest.Spec.RuntimeProfileID != "" || deployment.Manifest.Spec.RequestedBy != "ai-ops-geon-planner" || deployment.Manifest.Spec.Resources.Memory != "1Gi" {
+		t.Fatalf("unexpected planner manifest: %+v", deployment.Manifest)
+	}
+
+	stopped := postJSON[model.DeploymentResponse](t, e, http.MethodPost, "/api/v1/deployments/"+deployment.DeploymentID+"/stop", nil)
+	if stopped.Status != model.StatusStopped {
+		t.Fatalf("stopped status = %s, want %s", stopped.Status, model.StatusStopped)
+	}
+}
+
+func TestMockTargetAcceptsAnyAppRuntimeWithoutRuntimeProfile(t *testing.T) {
+	t.Setenv("AIAPP_CPUVM_RUNNER", "dry-run")
+	t.Setenv("AIAPP_GPUVM_RUNNER", "dry-run")
+	e := newTestServer(t)
+
+	// The mock Target is used to exercise the deployment flow itself. It must
+	// not require a separately registered Runtime Profile or force the App Spec
+	// to claim runtime_type=mock.
+	appVersionID := createApp(t, e, validCPUApp())
+	createMockTargetProfile(t, e)
+
+	deployment := postJSON[model.DeploymentResponse](t, e, http.MethodPost, "/api/v1/deployments", model.DeploymentCreateRequest{
+		AppVersionID:     appVersionID,
+		RuntimeProfileID: "legacy-runtime-not-registered",
+		TargetProfileID:  "target-mock-001",
+	})
+	if deployment.Status != model.StatusRunning {
+		t.Fatalf("deployment status = %s, want %s", deployment.Status, model.StatusRunning)
+	}
+}
+
+func TestMockCSPUsesMockAdapterEvenWhenTargetRuntimeIsCPU(t *testing.T) {
+	t.Setenv("AIAPP_CPUVM_RUNNER", "dry-run")
+	t.Setenv("AIAPP_GPUVM_RUNNER", "dry-run")
+	e := newTestServer(t)
+
+	appVersionID := createApp(t, e, validCPUApp())
+	postJSON[model.TargetProfile](t, e, http.MethodPost, "/api/v1/target-profiles", model.TargetProfile{
+		TargetProfileID: "target-mock-cpu-001",
+		Name:            "mock-cpu-target",
+		CSP:             "mock",
+		Runtime: model.TargetRuntime{
+			RuntimeType:   "cpu",
+			Accelerator:   "none",
+			OperatingMode: "local_mock",
+		},
+	})
+
+	deployment := postJSON[model.DeploymentResponse](t, e, http.MethodPost, "/api/v1/deployments", model.DeploymentCreateRequest{
+		AppVersionID:    appVersionID,
+		TargetProfileID: "target-mock-cpu-001",
+	})
+	if deployment.Status != model.StatusRunning {
+		t.Fatalf("deployment status = %s, want %s", deployment.Status, model.StatusRunning)
 	}
 }
 

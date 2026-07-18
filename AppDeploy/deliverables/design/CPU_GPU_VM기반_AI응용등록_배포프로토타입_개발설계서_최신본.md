@@ -159,7 +159,7 @@ ai-app-deployer/
 | AppVersion | 실제 배포 가능한 App 명세 버전 | app_version_id, app_id, version, app_spec |
 | RuntimeProfile | Runtime 능력과 Adapter 유형 | runtime_type, accelerator, adapter_type, operating_mode |
 | TargetProfile | 배포 대상 VM/외부 API 정보 | csp, vm, gpu, storage, network, credential_ref |
-| Deployment | 배포 작업 단위 | deployment_id, app_version_id, runtime_profile_id, target_profile_id, status |
+| Deployment | 배포 작업 단위 | deployment_id, app_version_id, target_profile_id, status (실행 설정은 Target Profile에서 결정) |
 | DeploymentEvent | 상태 전이와 상세 로그 | event_id, deployment_id, stage, message, error_code |
 | ResourceInventory | 최근 자원 점검 결과 | target_profile_id, gpu_available, storage_available, last_checked_at |
 
@@ -344,7 +344,7 @@ Orchestrator는 Deployment 생성 후 상태 머신을 따라 검증, 매칭, �
 
 | 단계 | 처리 |
 | --- | --- |
-| CreateDeployment | app_version_id, runtime_profile_id, target_profile_id 검증 |
+| CreateDeployment | app_version_id, target_profile_id 검증 및 Target Profile runtime 기반 실행 프로파일 구성 |
 | Validate | App Spec과 Target 호환성 검증 |
 | Schedule | Resource Matcher로 배포 가능 여부 판단 |
 | Prepare | Artifact와 model_refs를 Target 경로로 준비 |
@@ -521,7 +521,7 @@ GPU VM Adapter는 최소 다음 점검을 수행한다.
 | --- | --- |
 | 기능 | 유형 선택형 Package 생성, App 등록·조회, Target 등록, 배포 요청, 상태·로그 조회, 중지 API가 동작한다. |
 | Runtime | Mock Runtime과 최소 1개 VM Runtime Adapter가 동작한다. GPU VM은 제공 환경 기준으로 readiness 또는 PoC 로그를 확보한다. |
-| 자원 | CPU/GPU/VM/Storage 조건을 Runtime Profile, Target Profile, Resource Inventory 기준으로 검증한다. |
+| 자원 | CPU/GPU/VM/Storage 조건을 App 요구사항과 Target Profile, Resource Inventory 기준으로 검증한다. |
 | 외부 연동 | ETRI/Bespin/Innogrid 연동 Adapter와 Contract Test가 준비된다. 실 API 제공 시 설정 기반으로 연결 가능해야 한다. |
 | 문서 | 설계서, 프로토타입 개발설계서, OpenAPI, Schema, 기능/API 가이드, 설치 가이드, 시험 가이드, agent_md가 동일한 용어를 사용한다. |
 | 컨테이너 | Docker/Kubernetes/Container Registry 기반 기능은 포함하지 않는다. |

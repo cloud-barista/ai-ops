@@ -190,8 +190,8 @@ if ($PackageType -ne "aiops-geon-service-control") {
     }
 }
 
-if ($Action -eq "deploy" -and ([string]::IsNullOrWhiteSpace($RuntimeProfileId) -or [string]::IsNullOrWhiteSpace($TargetProfileId))) {
-    throw "-RuntimeProfileId and -TargetProfileId are required for deploy"
+if ($Action -eq "deploy" -and [string]::IsNullOrWhiteSpace($TargetProfileId)) {
+    throw "-TargetProfileId is required for deploy"
 }
 
 if ($PackageType -eq "aiops-geon-service-control") {
@@ -219,19 +219,17 @@ $app = $null
 $resourceCheck = $null
 try {
     $app = Invoke-JsonApi -Method "POST" -Path "/api/v1/apps" -Body @{ app_spec = $package.app_spec }
-    $resourceCheck = Invoke-JsonApi -Method "POST" -Path "/api/v1/resources/check" -Body @{
-        runtime_profile_id = $RuntimeProfileId
-        target_profile_id = $TargetProfileId
-    }
+    $resourceBody = @{ target_profile_id = $TargetProfileId }
+    $resourceCheck = Invoke-JsonApi -Method "POST" -Path "/api/v1/resources/check" -Body $resourceBody
     if ([string]$resourceCheck.status -ne "available") {
         throw "Resource Check status is '$($resourceCheck.status)'; Deployment was not created"
     }
-    $deployment = Invoke-JsonApi -Method "POST" -Path "/api/v1/deployments" -Body @{
+    $deploymentBody = @{
         app_version_id = $app.app_version_id
-        runtime_profile_id = $RuntimeProfileId
         target_profile_id = $TargetProfileId
         requested_by = "appdeploy-powershell-package"
     }
+    $deployment = Invoke-JsonApi -Method "POST" -Path "/api/v1/deployments" -Body $deploymentBody
 } catch {
     $partialResult = [ordered]@{
         archive_name = $package.archive_name

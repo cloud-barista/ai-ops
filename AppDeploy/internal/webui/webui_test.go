@@ -147,6 +147,37 @@ func TestWebConsoleIncludesOperationalScenarios(t *testing.T) {
 	}
 }
 
+func TestWebDeploymentAllowsTargetDerivedRuntime(t *testing.T) {
+	t.Skip("legacy Runtime Profile UI assertions superseded by Target-only deployment UI")
+	pageRaw, err := assets.ReadFile("static/index.html")
+	if err != nil {
+		t.Fatal(err)
+	}
+	scriptRaw, err := assets.ReadFile("static/app.js")
+	if err != nil {
+		t.Fatal(err)
+	}
+	page := string(pageRaw)
+	script := string(scriptRaw)
+	for _, expected := range []string{
+		`id="deployment-runtime" data-empty-label="Target에서 자동 파생"`,
+		`id="deployment-target" required`,
+	} {
+		if !strings.Contains(page, expected) {
+			t.Fatalf("target-derived deployment UI does not contain %q", expected)
+		}
+	}
+	for _, expected := range []string{
+		`(!state.apps.length || !state.targets.length)`,
+		`if (runtimeProfileID) body.runtime_profile_id = runtimeProfileID;`,
+		"Runtime Profile은 선택 사항입니다.",
+	} {
+		if !strings.Contains(script, expected) {
+			t.Fatalf("target-derived deployment script does not contain %q", expected)
+		}
+	}
+}
+
 func TestWebConsoleCanSelectAndBuildPackageTypes(t *testing.T) {
 	pageRaw, err := assets.ReadFile("static/index.html")
 	if err != nil {
@@ -251,6 +282,7 @@ func TestWebConsoleCanDeleteAppRegistrationWithConfirmation(t *testing.T) {
 }
 
 func TestWebConsoleCanDeleteRuntimeAndTargetProfilesWithConfirmation(t *testing.T) {
+	t.Skip("legacy Runtime Profile UI assertions superseded by Target-only profile UI")
 	raw, err := assets.ReadFile("static/app.js")
 	if err != nil {
 		t.Fatal(err)
@@ -269,6 +301,24 @@ func TestWebConsoleCanDeleteRuntimeAndTargetProfilesWithConfirmation(t *testing.
 		if !strings.Contains(script, expected) {
 			t.Fatalf("Profile delete UI does not contain %q", expected)
 		}
+	}
+}
+
+func TestWebDeploymentUsesTargetProfileOnly(t *testing.T) {
+	pageRaw, err := assets.ReadFile("static/index.html")
+	if err != nil {
+		t.Fatal(err)
+	}
+	scriptRaw, err := assets.ReadFile("static/app.js")
+	if err != nil {
+		t.Fatal(err)
+	}
+	page, script := string(pageRaw), string(scriptRaw)
+	if strings.Contains(page, `id="deployment-runtime"`) || strings.Contains(page, `id="runtime-dialog"`) {
+		t.Fatal("Runtime Profile controls should not be exposed")
+	}
+	if !strings.Contains(script, `target_profile_id: form.get("target_profile_id")`) || strings.Contains(script, "runtimeProfileID") {
+		t.Fatal("deployment script must submit the Target Profile without Runtime Profile")
 	}
 }
 

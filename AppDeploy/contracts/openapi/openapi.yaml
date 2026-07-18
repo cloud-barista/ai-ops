@@ -575,7 +575,11 @@ paths:
       operationId: createDeployment
       summary: Create deployment
       description: |
-        app_version_id, runtime_profile_id, target_profile_id 조합으로 배포를 요청한다.
+        배포 요청은 app_version_id, target_profile_id 조합으로 보낸다.
+        Runtime Profile은 제거되었으며, 레거시 runtime_profile_id가 포함되어도 실행에는 사용하지 않는다.
+        실행 방식과 Adapter는 Target Profile의 runtime 설정에서 결정한다.
+        서버는 이 요청을 DeploymentManifest로 정규화하고, 이후 검증·매칭·Runtime Adapter 호출은
+        해당 Manifest를 기준으로 처리한다. Planner 연동 호출은 동일한 API에 manifest만 보낼 수 있다.
         상태는 REQUESTED, VALIDATING, VALIDATED, SCHEDULING, DEPLOYING, RUNNING 순서로 전이된다.
         실패 시 표준 상태와 ErrorResponse 코드로 정규화된다.
       requestBody:
@@ -1741,8 +1745,10 @@ components:
           log_dir: /var/log/aiapp
     DeploymentCreateRequest:
       type: object
-      description: 배포 생성 요청.
-      required: [app_version_id, runtime_profile_id, target_profile_id]
+      description: 배포 생성 요청. 기존 ID 조합 또는 Planner 호환 DeploymentManifest 중 하나를 보낸다.
+      anyOf:
+        - required: [app_version_id, target_profile_id]
+        - required: [manifest]
       properties:
         app_id:
           type: string
@@ -1754,7 +1760,8 @@ components:
           example: appver-1f4b9d8c-0a7a-4a5f-9f2c-123456789abc
         runtime_profile_id:
           type: string
-          description: 사용할 Runtime Profile ID.
+          deprecated: true
+          description: 레거시 필드. Runtime Profile은 사용하지 않으며 Target Profile의 runtime 설정으로 실행한다.
           example: rt-cpu-001
         target_profile_id:
           type: string
@@ -1770,12 +1777,78 @@ components:
           additionalProperties: true
           example:
             port: 18080
+        manifest:
+          $ref: '#/components/schemas/DeploymentManifest'
       example:
         app_version_id: appver-1f4b9d8c-0a7a-4a5f-9f2c-123456789abc
-        runtime_profile_id: rt-cpu-001
         target_profile_id: target-cpu-001
         parameters:
           port: 18080
+    DeploymentManifest:
+      type: object
+      description: |
+        배포 의도를 표현하는 Planner 호환 Manifest. App과 Target Profile을 참조한다.
+        실행 방식과 Adapter는 Target Profile의 runtime 설정에서 결정하며 Secret이나 VM 접속정보를 복제하지 않는다.
+      required: [schema_version, kind, spec]
+      properties:
+        schema_version:
+          type: string
+          enum: [deployment.khu.ai/v1alpha1]
+          example: deployment.khu.ai/v1alpha1
+        kind:
+          type: string
+          enum: [DeploymentManifest]
+          example: DeploymentManifest
+        metadata:
+          type: object
+          properties:
+            name:
+              type: string
+              example: dep-1f4b9d8c-0a7a-4a5f-9f2c-123456789abc
+        spec:
+          type: object
+          required: [app_version_id, target_profile_id]
+          properties:
+            app_version_id:
+              type: string
+              example: appver-1f4b9d8c-0a7a-4a5f-9f2c-123456789abc
+            runtime_profile_id:
+              type: string
+              deprecated: true
+              description: 레거시 필드. 값이 있어도 무시하며 Target Profile의 runtime 설정으로 실행한다.
+              example: rt-cpu-001
+            target_profile_id:
+              type: string
+              example: target-cpu-001
+            accelerator:
+              type: string
+              enum: [none, nvidia]
+              description: Planner-selected accelerator requirement.
+              example: nvidia
+            resources:
+              type: object
+              description: Planner-selected CPU, memory, GPU, and disk/storage requirement envelope.
+              properties:
+                cpu:
+                  type: string
+                  example: "4"
+                memory:
+                  type: string
+                  example: 16Gi
+                gpu:
+                  type: string
+                  example: "1"
+                storage:
+                  type: string
+                  example: 20Gi
+            requested_by:
+              type: string
+              example: ai-ops-geon-planner
+            parameters:
+              type: object
+              additionalProperties: true
+              example:
+                port: 18080
     DeploymentResponse:
       type: object
       description: Deployment 상태 응답.
@@ -1798,7 +1871,8 @@ components:
           example: appver-1f4b9d8c-0a7a-4a5f-9f2c-123456789abc
         runtime_profile_id:
           type: string
-          description: 사용한 Runtime Profile ID.
+          deprecated: true
+          description: 레거시 응답 필드. Target Profile의 runtime 설정으로 실행되므로 새 응답에는 사용하지 않는다.
           example: rt-cpu-001
         target_profile_id:
           type: string
@@ -1816,6 +1890,8 @@ components:
           format: date-time
           description: Deployment 최근 갱신 시각(UTC).
           example: "2026-06-24T09:00:01Z"
+        manifest:
+          $ref: '#/components/schemas/DeploymentManifest'
     DeploymentStatus:
       type: string
       description: 표준 Deployment 상태값.
@@ -1981,6 +2057,8 @@ components:
           example: appver-1f4b9d8c-0a7a-4a5f-9f2c-123456789abc
         runtime_profile_id:
           type: string
+          deprecated: true
+          description: 레거시 응답 필드. 실행은 Target Profile의 runtime 설정을 사용한다.
           example: rt-gpu-001
         target_profile_id:
           type: string
@@ -2023,7 +2101,8 @@ components:
           example: req-test-001
         runtime_profile_id:
           type: string
-          description: 요청에 포함된 Runtime Profile ID. 선택 입력이 없으면 생략된다.
+          deprecated: true
+          description: 레거시 응답 필드. Resource Check는 Target Profile만 사용한다.
           example: rt-gpu-001
         target_profile_id:
           type: string

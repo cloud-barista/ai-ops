@@ -36,29 +36,40 @@ func NewService(apps store.AppRepository, profiles store.ProfileRepository, depl
 
 func (s *Service) Create(ctx context.Context, req model.DeploymentCreateRequest) (model.DeploymentResponse, error) {
 	requestID := requestid.FromContext(ctx)
-	if req.AppVersionID == "" || req.RuntimeProfileID == "" || req.TargetProfileID == "" {
-		return model.DeploymentResponse{}, apperrors.New(model.ErrDeploymentFailed, "app_version_id, runtime_profile_id, and target_profile_id are required", http.StatusBadRequest, false)
+	deploymentID := "dep-" + uuid.NewString()
+	manifest, err := normalizeManifest(req, deploymentID)
+	if err != nil {
+		return model.DeploymentResponse{}, err
 	}
 	now := time.Now().UTC()
 	deployment := model.DeploymentResponse{
-		DeploymentID:     "dep-" + uuid.NewString(),
-		AppVersionID:     req.AppVersionID,
-		RuntimeProfileID: req.RuntimeProfileID,
-		TargetProfileID:  req.TargetProfileID,
+		DeploymentID:     deploymentID,
+		AppVersionID:     manifest.Spec.AppVersionID,
+		RuntimeProfileID: manifest.Spec.RuntimeProfileID,
+		TargetProfileID:  manifest.Spec.TargetProfileID,
 		Status:           model.StatusRequested,
 		CreatedAt:        now,
 		UpdatedAt:        now,
+		Manifest:         &manifest,
 	}
 	if err := s.deployments.CreateDeployment(ctx, deployment); err != nil {
 		return model.DeploymentResponse{}, err
 	}
 	s.record(ctx, deployment.DeploymentID, model.StatusRequested, "INFO", "orchestrator", "deployment created", "", false)
+	log.Info().
+		Str("request_id", requestID).
+		Str("deployment_id", deployment.DeploymentID).
+		Str("manifest_schema_version", manifest.SchemaVersion).
+		Str("manifest_kind", manifest.Kind).
+		Msg("deployment manifest created")
 
-	app, err := s.apps.GetAppByVersionID(ctx, req.AppVersionID)
+	app, err := s.apps.GetAppByVersionID(ctx, manifest.Spec.AppVersionID)
 	if err != nil {
 		return s.fail(ctx, deployment, model.StatusValidationFailed, model.ErrAppSpecInvalid, apperrors.PublicMessage(err, "app version lookup failed"), false)
 	}
 	deployment.AppID = app.AppID
+	completeManifestRequirements(&manifest, app.AppSpec)
+	deployment.Manifest = &manifest
 	if err := s.deployments.UpdateDeployment(ctx, deployment); err != nil {
 		log.Error().
 			Err(err).
@@ -67,26 +78,27 @@ func (s *Service) Create(ctx context.Context, req model.DeploymentCreateRequest)
 			Str("component", "orchestrator").
 			Msg("deployment update failed")
 	}
-	runtimeProfile, err := s.profiles.GetRuntimeProfile(ctx, req.RuntimeProfileID)
-	if err != nil {
-		return s.fail(ctx, deployment, model.StatusValidationFailed, model.ErrRuntimeProfileInvalid, apperrors.PublicMessage(err, "runtime profile lookup failed"), false)
-	}
-	target, err := s.profiles.GetTargetProfile(ctx, req.TargetProfileID)
+	target, err := s.profiles.GetTargetProfile(ctx, manifest.Spec.TargetProfileID)
 	if err != nil {
 		return s.fail(ctx, deployment, model.StatusValidationFailed, model.ErrTargetProfileInvalid, apperrors.PublicMessage(err, "target profile lookup failed"), false)
 	}
+	// Runtime Profile registration is deprecated. Target Profile is the single
+	// source of runtime type, adapter, accelerator, and operating mode.
+	// Keep accepting a legacy runtime_profile_id in stored/request payloads for
+	// compatibility, but never let it override Target Profile execution.
+	runtimeProfile := runtime.ProfileFromTarget(target)
 
-	deployment = s.transition(ctx, deployment, model.StatusValidating, "validator", "app, runtime profile, and target profile validation started")
+	deployment = s.transition(ctx, deployment, model.StatusValidating, "validator", "app and target profile validation started")
 	if err := s.adapter.ValidateTarget(ctx, target); err != nil {
 		return s.fail(ctx, deployment, model.StatusValidationFailed, model.ErrTargetProfileInvalid, apperrors.PublicMessage(err, "target validation failed"), false)
 	}
 	if err := s.adapter.HealthCheck(ctx, runtimeProfile, target); err != nil {
 		return s.fail(ctx, deployment, model.StatusValidationFailed, model.ErrRuntimeFailed, apperrors.PublicMessage(err, "runtime health check failed"), true)
 	}
-	deployment = s.transition(ctx, deployment, model.StatusValidated, "validator", "app, runtime profile, and target profile validation passed")
+	deployment = s.transition(ctx, deployment, model.StatusValidated, "validator", "app and target profile validation passed")
 
 	deployment = s.transition(ctx, deployment, model.StatusScheduling, "resource-matcher", "resource matching started")
-	if err := s.matcher.Match(ctx, app, runtimeProfile, target); err != nil {
+	if err := s.matcher.MatchManifest(ctx, manifest, app, runtimeProfile, target); err != nil {
 		code := model.ErrResourceInsufficient
 		if appErr, ok := err.(*apperrors.AppError); ok {
 			code = appErr.Code
@@ -101,10 +113,11 @@ func (s *Service) Create(ctx context.Context, req model.DeploymentCreateRequest)
 	_, err = s.adapter.Deploy(ctx, runtime.DeploymentPlan{
 		DeploymentID: deployment.DeploymentID,
 		RequestID:    requestID,
+		Manifest:     deployment.Manifest,
 		App:          app,
 		Runtime:      runtimeProfile,
 		Target:       target,
-		Parameters:   req.Parameters,
+		Parameters:   manifest.Spec.Parameters,
 	})
 	if err != nil {
 		return s.failFromError(ctx, deployment, model.StatusDeploymentFailed, model.ErrDeploymentFailed, err, false)
@@ -176,18 +189,16 @@ func (s *Service) Stop(ctx context.Context, deploymentID string) (model.Deployme
 	if err != nil {
 		return s.fail(ctx, deployment, model.StatusRuntimeFailed, model.ErrAppSpecInvalid, apperrors.PublicMessage(err, "app version lookup failed"), false)
 	}
-	runtimeProfile, err := s.profiles.GetRuntimeProfile(ctx, deployment.RuntimeProfileID)
-	if err != nil {
-		return s.fail(ctx, deployment, model.StatusRuntimeFailed, model.ErrRuntimeProfileInvalid, apperrors.PublicMessage(err, "runtime profile lookup failed"), false)
-	}
 	target, err := s.profiles.GetTargetProfile(ctx, deployment.TargetProfileID)
 	if err != nil {
 		return s.fail(ctx, deployment, model.StatusRuntimeFailed, model.ErrTargetProfileInvalid, apperrors.PublicMessage(err, "target profile lookup failed"), false)
 	}
+	runtimeProfile := runtime.ProfileFromTarget(target)
 	deployment = s.transition(ctx, deployment, model.StatusStopping, "orchestrator", "stop requested")
 	if err := s.adapter.Stop(ctx, runtime.StopPlan{
 		DeploymentID: deploymentID,
 		RequestID:    requestid.FromContext(ctx),
+		Manifest:     deployment.Manifest,
 		App:          app,
 		Runtime:      runtimeProfile,
 		Target:       target,

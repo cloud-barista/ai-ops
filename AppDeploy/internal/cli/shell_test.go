@@ -202,14 +202,6 @@ func TestPackageBuildRejectsSourceOverConfiguredLimitBeforeAPI(t *testing.T) {
 
 func TestPackageDeployBuildsRegistersChecksAndDeploys(t *testing.T) {
 	api := newCLIAPI(t)
-	runCommand(t, api, "runtimes", "add", writeJSON(t, t.TempDir(), "runtime.json", model.RuntimeProfile{
-		RuntimeProfileID: "rt-cli-package-cpu",
-		Name:             "CLI package CPU",
-		RuntimeType:      "cpu",
-		Accelerator:      "none",
-		AdapterType:      "cpu_vm",
-		OperatingMode:    "vm_process",
-	}))
 	runCommand(t, api, "targets", "add", writeJSON(t, t.TempDir(), "target.json", model.TargetProfile{
 		TargetProfileID: "target-cli-package-cpu",
 		Name:            "CLI package CPU target",
@@ -238,7 +230,6 @@ func TestPackageDeployBuildsRegistersChecksAndDeploys(t *testing.T) {
 		"--version", "0.1.0",
 		"--entrypoint", "run.sh",
 		"--runtime", "cpu",
-		"--runtime-id", "rt-cli-package-cpu",
 		"--target-id", "target-cli-package-cpu",
 	)
 	var result packageDeployOutput

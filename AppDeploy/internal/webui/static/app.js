@@ -3,7 +3,6 @@
 const state = {
   readiness: null,
   apps: [],
-  runtimes: [],
   targets: [],
   credentials: [],
   credentialsError: "",
@@ -37,12 +36,6 @@ const fieldHelpDefinitions = [
   ["#package-source", "Go는 ZIP이 필수입니다. Python, Node.js, Linux binary, Shell script는 ZIP 또는 단일 파일을 사용할 수 있습니다."],
   ["#package-entrypoint", "Go는 go.mod 기준 package 경로, 그 외 유형은 ZIP 또는 업로드 파일 안의 시작 파일 경로입니다."],
 
-  ["#runtime-form [name='runtime_type']", "이 Profile이 담당할 실행 환경입니다. 배포할 App의 Runtime과 호환되어야 합니다."],
-  ["#runtime-form [name='runtime_profile_id']", "배포 요청에서 참조하는 Runtime Profile 식별자입니다. 예: rt-cpu-001"],
-  ["#runtime-form [name='name']", "화면에서 Profile을 쉽게 찾기 위한 표시 이름입니다."],
-  ["#runtime-form [name='adapter_type']", "실제 실행 담당 모듈입니다. mock, cpu_vm, gpu_vm, etri_aiinfra 중 Runtime과 맞는 값을 선택하세요."],
-  ["#runtime-form [name='operating_mode']", "local_mock은 로컬 시험, dry_run은 실행 모의, vm_process는 VM 프로세스 실행, remote_api는 외부 API 호출을 뜻합니다."],
-
   ["#credential-form [name='credential_id']", "현재 서버 프로세스 안에서 Credential을 구분하는 ID입니다. 등록 후 cred://runtime/{ID} 참조가 발급됩니다."],
   ["#credential-form [name='ssh_user']", "대상 VM에 SSH로 로그인할 사용자 이름입니다. 예: ubuntu"],
   ["#credential-auth-type", "PEM private key 파일 또는 password 중 한 가지 인증 방식만 선택합니다."],
@@ -52,7 +45,7 @@ const fieldHelpDefinitions = [
   ["#credential-private-key-passphrase", "암호화된 private key를 사용할 때만 입력합니다. 화면과 응답에 다시 표시되지 않습니다."],
   ["#credential-password", "SSH password는 등록 요청에만 사용되며 화면과 응답에 다시 표시되지 않습니다."],
 
-  ["#target-form [name='runtime_type']", "대상 시스템이 제공하는 Runtime입니다. App과 Runtime Profile의 종류와 호환되어야 합니다."],
+  ["#target-form [name='runtime_type']", "대상 시스템이 제공하는 실행 환경입니다. 배포 시 사용할 Adapter와 운영 모드를 함께 결정합니다."],
   ["#target-form [name='csp']", "대상을 제공하는 환경입니다. 로컬/일반 VM은 local, 기능 시험은 mock, ETRI 연동은 etri를 선택합니다."],
   ["#target-form [name='target_profile_id']", "배포 대상을 참조할 고유 식별자입니다. 예: target-gpu-001"],
   ["#target-form [name='name']", "화면에서 배포 대상을 구분하기 위한 표시 이름입니다."],
@@ -63,12 +56,9 @@ const fieldHelpDefinitions = [
   ["#target-form [name='log_dir']", "실행 로그를 저장할 대상 VM 내부 디렉터리입니다. 예: /tmp/aiapp/logs"],
 
   ["#deployment-form [name='app_version_id']", "등록된 App의 특정 버전을 선택합니다. App 등록 시 app_version_id가 자동 발급됩니다."],
-  ["#deployment-form [name='runtime_profile_id']", "App Runtime과 같은 종류의 실행 Profile을 선택합니다."],
-  ["#deployment-form [name='target_profile_id']", "App을 실행할 VM 또는 AI Infra 대상을 선택합니다. Runtime 종류가 서로 호환되어야 합니다."],
+  ["#deployment-form [name='target_profile_id']", "App을 실행할 VM 또는 AI Infra 대상을 선택합니다. 실행 방식은 Target Profile의 runtime 설정을 사용합니다."],
 
   ["#resource-target", "준비 상태를 검사할 배포 대상입니다. 연결성, Runtime, GPU와 저장 경로를 Adapter 기준으로 확인합니다."],
-  ["#resource-runtime", "결과에 함께 표시할 Runtime Profile입니다. 실제 준비 상태 검사는 Target Profile을 기준으로 수행합니다."],
-
   ["#metric-form [name='deployment_id']", "메트릭을 연결할 배포를 선택합니다."],
   ["#metric-form [name='latency_ms']", "요청부터 응답까지 걸린 시간입니다. 밀리초(ms) 단위로 입력합니다."],
   ["#metric-form [name='throughput_rps']", "초당 처리한 요청 수(Requests Per Second)입니다."],
@@ -231,10 +221,9 @@ async function runFullRefresh(showToast) {
   const button = $("#refresh-button");
   setBusy(button, true, "동기화 중…");
   try {
-    const [readiness, apps, runtimes, targets, deployments, inventory, summary, metrics, credentials] = await Promise.all([
+    const [readiness, apps, targets, deployments, inventory, summary, metrics, credentials] = await Promise.all([
       api("/api/v1/readiness"),
       api("/api/v1/apps"),
-      api("/api/v1/runtime-profiles"),
       api("/api/v1/target-profiles"),
       api("/api/v1/deployments"),
       api("/api/v1/resources/inventory"),
@@ -245,7 +234,6 @@ async function runFullRefresh(showToast) {
     Object.assign(state, {
       readiness,
       apps: apps.items || [],
-      runtimes: runtimes.items || [],
       targets: targets.items || [],
       deployments: deployments.items || [],
       inventory: inventory.items || [],
@@ -348,17 +336,6 @@ function profileDeleteButton(action, id, name) {
 }
 
 function renderProfiles() {
-  const runtimes = $("#runtime-card-list");
-  runtimes.replaceChildren();
-  state.runtimes.forEach(item => {
-    const card = element("div", "profile-card");
-    card.append(element("div", "profile-icon", item.runtime_type));
-    const copy = element("div"); copy.append(element("strong", "", item.name || item.runtime_profile_id), element("span", "", item.runtime_profile_id));
-    const meta = element("div", "profile-meta"); meta.append(element("strong", "", item.adapter_type), element("span", "", item.operating_mode));
-    card.append(copy, meta, profileDeleteButton("runtime-delete", item.runtime_profile_id, item.name)); runtimes.append(card);
-  });
-  if (!state.runtimes.length) runtimes.append(element("p", "muted", "등록된 Runtime Profile이 없습니다."));
-
   const targets = $("#target-card-list");
   targets.replaceChildren();
   state.targets.forEach(item => {
@@ -456,7 +433,7 @@ function renderDeployments() {
     const row = element("tr");
     const idCell = element("td", "primary-cell"); idCell.append(element("strong", "", shortID(item.deployment_id)), element("span", "", item.deployment_id));
     row.append(idCell, cell(shortID(item.app_version_id)));
-    const profileCell = element("td", "primary-cell"); profileCell.append(element("strong", "", item.runtime_profile_id), element("span", "", item.target_profile_id)); row.append(profileCell);
+    const profileCell = element("td", "primary-cell"); profileCell.append(element("strong", "", item.target_profile_id), element("span", "", "Target Profile")); row.append(profileCell);
     const statusCell = cell(""); statusCell.append(statusBadge(item.status)); row.append(statusCell, cell(formatDate(item.updated_at)));
     const actions = element("td", "table-actions");
     const logs = element("button", "row-button", "로그"); logs.type = "button"; logs.dataset.action = "deployment-logs"; logs.dataset.id = item.deployment_id;
@@ -508,9 +485,16 @@ function renderMonitoring() {
 function fillSelect(selector, items, valueKey, label) {
   const select = $(selector);
   const current = select.value;
+  const emptyLabel = select.dataset.emptyLabel;
   select.replaceChildren();
+  if (emptyLabel) {
+    const empty = element("option", "", emptyLabel); empty.value = ""; select.append(empty);
+  }
   if (!items.length) {
-    const option = element("option", "", "등록된 항목 없음"); option.value = ""; select.append(option); return;
+    if (!emptyLabel) {
+      const option = element("option", "", "등록된 항목 없음"); option.value = ""; select.append(option);
+    }
+    return;
   }
   items.forEach(item => {
     const option = element("option", "", label(item)); option.value = item[valueKey]; select.append(option);
@@ -535,15 +519,8 @@ function populateCredentialRefs() {
 
 function populateSelects() {
   fillSelect("#deployment-app", state.apps, "app_version_id", item => `${item.name} ${item.version} · ${shortID(item.app_version_id)}`);
-  fillSelect("#deployment-runtime", state.runtimes, "runtime_profile_id", item => `${item.name || item.runtime_profile_id} · ${item.runtime_type}`);
   fillSelect("#deployment-target", state.targets, "target_profile_id", item => `${item.name || item.target_profile_id} · ${item.runtime?.runtime_type}`);
   fillSelect("#resource-target", state.targets, "target_profile_id", item => `${item.name || item.target_profile_id} · ${item.target_profile_id}`);
-  const runtimeSelect = $("#resource-runtime");
-  const current = runtimeSelect.value;
-  runtimeSelect.replaceChildren();
-  const empty = element("option", "", "지정하지 않음"); empty.value = ""; runtimeSelect.append(empty);
-  state.runtimes.forEach(item => { const option = element("option", "", `${item.name || item.runtime_profile_id} · ${item.runtime_type}`); option.value = item.runtime_profile_id; runtimeSelect.append(option); });
-  runtimeSelect.value = [...runtimeSelect.options].some(option => option.value === current) ? current : "";
   fillSelect("#inference-deployment", state.deployments.filter(item => item.status === "RUNNING"), "deployment_id", item => `${shortID(item.deployment_id)} · ${item.target_profile_id}`);
   fillSelect("#metric-deployment", state.deployments, "deployment_id", item => `${shortID(item.deployment_id)} · ${item.status}`);
   populateCredentialRefs();
@@ -559,8 +536,8 @@ function navigate(viewName) {
 }
 
 function openDialog(id) {
-  if (id === "deployment-dialog" && (!state.apps.length || !state.runtimes.length || !state.targets.length)) {
-    toast("배포 준비 필요", "App, Runtime Profile, Target Profile을 먼저 등록하세요.", "error");
+  if (id === "deployment-dialog" && (!state.apps.length || !state.targets.length)) {
+    toast("배포 준비 필요", "App과 Target Profile을 먼저 등록하세요. Runtime Profile은 선택 사항입니다.", "error");
     return;
   }
   const dialog = document.getElementById(id);
@@ -857,14 +834,6 @@ function bindForms() {
     return api("/api/v1/apps", { method: "POST", body: payload });
   }, "앱 등록 완료"));
 
-  $("#runtime-form").addEventListener("submit", event => submitForm(event, form => {
-    const type = form.get("runtime_type");
-    return api("/api/v1/runtime-profiles", { method: "POST", body: {
-      runtime_profile_id: form.get("runtime_profile_id"), name: form.get("name"), runtime_type: type,
-      accelerator: type === "gpu" ? "nvidia" : "none", adapter_type: form.get("adapter_type"), operating_mode: form.get("operating_mode"),
-    } });
-  }, "Runtime Profile 추가 완료"));
-
   $("#target-form").addEventListener("submit", event => submitForm(event, form => {
     const type = form.get("runtime_type");
     const body = {
@@ -878,7 +847,7 @@ function bindForms() {
   }, "Target Profile 추가 완료"));
 
   $("#deployment-form").addEventListener("submit", event => submitForm(event, form => api("/api/v1/deployments", { method: "POST", body: {
-    app_version_id: form.get("app_version_id"), runtime_profile_id: form.get("runtime_profile_id"), target_profile_id: form.get("target_profile_id"), requested_by: "appdeployer-web",
+    app_version_id: form.get("app_version_id"), target_profile_id: form.get("target_profile_id"), requested_by: "appdeployer-web",
   } }), "배포 생성 완료"));
 
   $("#metric-form").addEventListener("submit", event => submitForm(event, form => api(`/api/v1/deployments/${encodeURIComponent(form.get("deployment_id"))}/metrics`, { method: "POST", body: {
@@ -890,7 +859,7 @@ function bindForms() {
     const button = event.currentTarget.querySelector("button");
     setBusy(button, true, "점검 중…");
     try {
-      const result = await api("/api/v1/resources/check", { method: "POST", body: { target_profile_id: $("#resource-target").value, runtime_profile_id: $("#resource-runtime").value || undefined } });
+      const result = await api("/api/v1/resources/check", { method: "POST", body: { target_profile_id: $("#resource-target").value } });
       const panel = $("#resource-result"); panel.classList.remove("empty"); panel.replaceChildren();
       panel.append(statusBadge(result.status), element("strong", "", humanize(result.status)), element("span", "", Object.entries(result.checks || {}).map(([key, value]) => `${key}: ${value}`).join(" · ")));
       toast("자원 점검 완료", `${result.target_profile_id}: ${result.status}`);
@@ -939,11 +908,6 @@ function bindTypeDefaults() {
 	updatePackageBuilder();
 	$("#app-form [name='artifact_uri']").addEventListener("input", () => { $("#app-form [name='checksum']").value = ""; });
 	$("#app-runtime-type").addEventListener("change", event => { const gpu = event.target.value === "gpu"; $("#app-form [name='gpu']").value = gpu ? "1" : "0"; });
-  $("#runtime-type").addEventListener("change", event => {
-    const type = event.target.value;
-    const values = { cpu: ["rt-cpu-001", "cpu-runtime", "cpu_vm", "vm_process"], gpu: ["rt-gpu-001", "gpu-runtime", "gpu_vm", "vm_process"], mock: ["rt-mock-001", "mock-runtime", "mock", "local_mock"], aiinfra: ["rt-aiinfra-001", "aiinfra-runtime", "etri_aiinfra", "remote_api"] }[type];
-    const form = $("#runtime-form"); ["runtime_profile_id", "name", "adapter_type", "operating_mode"].forEach((name, index) => { form.elements[name].value = values[index]; });
-  });
   $("#target-runtime-type").addEventListener("change", updateTargetFormForType);
 }
 
@@ -985,15 +949,13 @@ async function handleTableAction(event) {
       await api(`/api/v1/apps/${encodeURIComponent(id)}`, { method: "DELETE" });
       toast("App 등록 삭제 완료", `${name} ${version}`);
       void refreshAll();
-    } else if (button.dataset.action === "runtime-delete" || button.dataset.action === "target-delete") {
-      const runtime = button.dataset.action === "runtime-delete";
-      const profileType = runtime ? "Runtime" : "Target";
+    } else if (button.dataset.action === "target-delete") {
+      const profileType = "Target";
       const name = button.dataset.name || id;
-      const inventoryNotice = runtime ? "" : " 관련 readiness inventory도 함께 삭제됩니다.";
+      const inventoryNotice = " 관련 readiness inventory도 함께 삭제됩니다.";
       if (!window.confirm(`${name} (${id}) ${profileType} Profile을 삭제할까요?\n\nSTOPPED가 아닌 Deployment가 참조하면 삭제가 거부됩니다.${inventoryNotice}`)) return;
       setBusy(button, true, "삭제 중…");
-      const collection = runtime ? "runtime-profiles" : "target-profiles";
-      await api(`/api/v1/${collection}/${encodeURIComponent(id)}`, { method: "DELETE" });
+      await api(`/api/v1/target-profiles/${encodeURIComponent(id)}`, { method: "DELETE" });
       toast(`${profileType} Profile 삭제 완료`, `${name} (${id})`);
       await refreshAll();
     } else if (button.dataset.action === "credential-delete") {

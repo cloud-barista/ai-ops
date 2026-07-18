@@ -6,7 +6,7 @@ usage() {
 Usage:
   package-deploy.sh --type TYPE [--source FILE] [--name NAME] [--version VERSION]
     [--entrypoint PATH] [--runtime cpu|gpu] [--port PORT] [--health-path PATH]
-    [--runtime-id ID --target-id ID] [--base-url URL] [--build-only]
+    [--target-id ID] [--base-url URL] [--build-only]
 
 TYPE: aiops-geon-service-control, go, python, node, binary, script
 Requires: Bash 3.2+, curl, jq
@@ -64,8 +64,8 @@ if ! [[ "$service_port" =~ ^[0-9]+$ ]] || (( service_port > 65535 )); then
   echo "--port must be 0 or 1-65535" >&2
   exit 2
 fi
-if [[ "$build_only" != "true" && ( -z "$runtime_id" || -z "$target_id" ) ]]; then
-  echo "--runtime-id and --target-id are required unless --build-only is used" >&2
+if [[ "$build_only" != "true" && -z "$target_id" ]]; then
+  echo "--target-id is required unless --build-only is used" >&2
   exit 2
 fi
 
@@ -211,8 +211,7 @@ if ! app_version_id="$(jq -er '.app_version_id' "$app_file")"; then
   print_partial_state
   exit 1
 fi
-resource_body="$(jq -cn --arg runtime "$runtime_id" --arg target "$target_id" \
-  '{runtime_profile_id:$runtime, target_profile_id:$target}')"
+resource_body="$(jq -cn --arg target "$target_id" '{target_profile_id:$target}')"
 api_call POST /api/v1/resources/check "$resource_file" "$resource_body"
 if ! resource_status="$(jq -er '.status // empty' "$resource_file")"; then
   echo "Resource Check response does not contain status" >&2
@@ -224,8 +223,8 @@ if [[ "$resource_status" != "available" ]]; then
   print_partial_state
   exit 1
 fi
-deployment_body="$(jq -cn --arg app "$app_version_id" --arg runtime "$runtime_id" --arg target "$target_id" \
-  '{app_version_id:$app, runtime_profile_id:$runtime, target_profile_id:$target, requested_by:"appdeploy-bash-package"}')"
+deployment_body="$(jq -cn --arg app "$app_version_id" --arg target "$target_id" \
+  '{app_version_id:$app, target_profile_id:$target, requested_by:"appdeploy-bash-package"}')"
 api_call POST /api/v1/deployments "$deployment_file" "$deployment_body"
 
 jq -n \

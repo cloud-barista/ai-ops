@@ -19,7 +19,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const packageCommandUsage = "사용법: packages build|deploy [--type TYPE --source FILE --name NAME --version VERSION --entrypoint PATH --runtime cpu|gpu --port PORT --health-path PATH --runtime-id ID --target-id ID]"
+const packageCommandUsage = "사용법: packages build|deploy [--type TYPE --source FILE --name NAME --version VERSION --entrypoint PATH --runtime cpu|gpu --port PORT --health-path PATH --target-id ID]"
 
 type packageCommandOptions struct {
 	packageType     string
@@ -87,8 +87,7 @@ func (s *Shell) packageDeploy(ctx context.Context, args []string) error {
 	}
 
 	resourceResponse, err := s.call(ctx, http.MethodPost, "/api/v1/resources/check", model.ResourceCheckRequest{
-		RuntimeProfileID: options.runtimeID,
-		TargetProfileID:  options.targetID,
+		TargetProfileID: options.targetID,
 	})
 	if err != nil {
 		return fmt.Errorf("package %s 및 App %s 생성 후 자원 점검 실패: %w", packageResult.ArchiveName, appResult.AppVersionID, err)
@@ -110,10 +109,9 @@ func (s *Shell) packageDeploy(ctx context.Context, args []string) error {
 	}
 
 	deploymentResponse, err := s.call(ctx, http.MethodPost, "/api/v1/deployments", model.DeploymentCreateRequest{
-		AppVersionID:     appResult.AppVersionID,
-		RuntimeProfileID: options.runtimeID,
-		TargetProfileID:  options.targetID,
-		RequestedBy:      "appdeployer-cli-package",
+		AppVersionID:    appResult.AppVersionID,
+		TargetProfileID: options.targetID,
+		RequestedBy:     "appdeployer-cli-package",
 	})
 	if err != nil {
 		return fmt.Errorf("package %s 및 App %s 생성 후 배포 생성 실패: %w", packageResult.ArchiveName, appResult.AppVersionID, err)
@@ -220,8 +218,8 @@ func normalizePackageOptions(options packageCommandOptions, deploy bool) (packag
 		}
 	}
 
-	if deploy && (options.runtimeID == "" || options.targetID == "") {
-		return packageCommandOptions{}, errors.New("package 배포에는 --runtime-id와 --target-id가 필요합니다")
+	if deploy && options.targetID == "" {
+		return packageCommandOptions{}, errors.New("package 배포에는 --target-id가 필요합니다")
 	}
 	return options, nil
 }
@@ -295,22 +293,15 @@ func (s *Shell) packageWizard(ctx context.Context, deploy bool) (packageCommandO
 }
 
 func (s *Shell) packageDeploymentProfiles(ctx context.Context, runtimeType string) (string, string, error) {
-	fmt.Fprintf(s.out, "\n%s Runtime과 Target의 종류가 %s인지 확인하세요.\n", s.paint(ansiDim, "배포 대상 선택:"), runtimeType)
-	if err := s.showList(ctx, "/api/v1/runtime-profiles", []column{{title: "RUNTIME ID", path: "runtime_profile_id"}, {title: "TYPE", path: "runtime_type"}, {title: "MODE", path: "operating_mode"}}); err != nil {
-		return "", "", err
-	}
+	fmt.Fprintf(s.out, "\n%s Target의 종류가 %s인지 확인하세요.\n", s.paint(ansiDim, "배포 대상 선택:"), runtimeType)
 	if err := s.showList(ctx, "/api/v1/target-profiles", []column{{title: "TARGET ID", path: "target_profile_id"}, {title: "TYPE", path: "runtime.runtime_type"}, {title: "CSP", path: "csp"}}); err != nil {
-		return "", "", err
-	}
-	runtimeID, err := s.prompt("Runtime Profile ID", "", true)
-	if err != nil {
 		return "", "", err
 	}
 	targetID, err := s.prompt("Target Profile ID", "", true)
 	if err != nil {
 		return "", "", err
 	}
-	return runtimeID, targetID, nil
+	return "", targetID, nil
 }
 
 func (s *Shell) buildPackage(ctx context.Context, options packageCommandOptions) (model.PackageBuildResponse, error) {

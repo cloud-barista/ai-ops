@@ -238,24 +238,57 @@ type TargetNetwork struct {
 }
 
 type DeploymentCreateRequest struct {
-	AppID            string         `json:"app_id,omitempty"`
+	AppID            string              `json:"app_id,omitempty"`
+	AppVersionID     string              `json:"app_version_id"`
+	RuntimeProfileID string              `json:"runtime_profile_id,omitempty"`
+	TargetProfileID  string              `json:"target_profile_id"`
+	RequestedBy      string              `json:"requested_by,omitempty"`
+	Parameters       map[string]any      `json:"parameters,omitempty"`
+	Manifest         *DeploymentManifest `json:"manifest,omitempty"`
+}
+
+const (
+	DeploymentManifestSchemaVersion = "deployment.khu.ai/v1alpha1"
+	DeploymentManifestKind          = "DeploymentManifest"
+)
+
+// DeploymentManifest is the normalized deployment intent consumed by the
+// orchestrator. It references a registered App and Target Profile; execution
+// settings always come from the Target Profile runtime block.
+type DeploymentManifest struct {
+	SchemaVersion string                      `json:"schema_version"`
+	Kind          string                      `json:"kind"`
+	Metadata      *DeploymentManifestMetadata `json:"metadata,omitempty"`
+	Spec          DeploymentManifestSpec      `json:"spec"`
+}
+
+type DeploymentManifestMetadata struct {
+	Name string `json:"name,omitempty"`
+}
+
+type DeploymentManifestSpec struct {
 	AppVersionID     string         `json:"app_version_id"`
-	RuntimeProfileID string         `json:"runtime_profile_id"`
+	// RuntimeProfileID is retained only for decoding legacy manifests. The
+	// orchestrator ignores it and never uses it to select an adapter.
+	RuntimeProfileID string         `json:"runtime_profile_id,omitempty"`
 	TargetProfileID  string         `json:"target_profile_id"`
+	Accelerator      string         `json:"accelerator,omitempty"`
+	Resources        Resources      `json:"resources"`
 	RequestedBy      string         `json:"requested_by,omitempty"`
 	Parameters       map[string]any `json:"parameters,omitempty"`
 }
 
 type DeploymentResponse struct {
-	RequestID        string    `json:"request_id,omitempty"`
-	DeploymentID     string    `json:"deployment_id"`
-	AppID            string    `json:"app_id,omitempty"`
-	AppVersionID     string    `json:"app_version_id"`
-	RuntimeProfileID string    `json:"runtime_profile_id"`
-	TargetProfileID  string    `json:"target_profile_id"`
-	Status           string    `json:"status"`
-	CreatedAt        time.Time `json:"created_at"`
-	UpdatedAt        time.Time `json:"updated_at"`
+	RequestID        string              `json:"request_id,omitempty"`
+	DeploymentID     string              `json:"deployment_id"`
+	AppID            string              `json:"app_id,omitempty"`
+	AppVersionID     string              `json:"app_version_id"`
+	RuntimeProfileID string              `json:"runtime_profile_id,omitempty"`
+	TargetProfileID  string              `json:"target_profile_id"`
+	Status           string              `json:"status"`
+	CreatedAt        time.Time           `json:"created_at"`
+	UpdatedAt        time.Time           `json:"updated_at"`
+	Manifest         *DeploymentManifest `json:"manifest,omitempty"`
 }
 
 type DeploymentEvent struct {

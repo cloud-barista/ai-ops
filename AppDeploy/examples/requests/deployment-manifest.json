@@ -1,0 +1,24 @@
+{
+  "manifest": {
+    "schema_version": "deployment.khu.ai/v1alpha1",
+    "kind": "DeploymentManifest",
+    "metadata": {
+      "name": "planner-cpu-deployment"
+    },
+    "spec": {
+      "app_version_id": "appver-example",
+      "target_profile_id": "target-cpu-001",
+      "accelerator": "none",
+      "resources": {
+        "cpu": "2",
+        "memory": "4Gi",
+        "gpu": "0",
+        "storage": "20Gi"
+      },
+      "requested_by": "ai-ops-geon-planner",
+      "parameters": {
+        "port": 18080
+      }
+    }
+  }
+}

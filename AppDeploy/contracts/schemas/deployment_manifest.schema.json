@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://khu.ai/schemas/deployment_manifest.schema.json",
+  "title": "KHU Deployment Manifest",
+  "description": "Planner-compatible deployment intent referencing a registered App and Target Profile. Target Profile runtime settings select execution.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "kind",
+    "spec"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "deployment.khu.ai/v1alpha1"
+    },
+    "kind": {
+      "const": "DeploymentManifest"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "spec": {
+      "type": "object",
+      "required": [
+        "app_version_id",
+        "target_profile_id"
+      ],
+      "properties": {
+        "app_version_id": {
+          "type": "string"
+        },
+        "runtime_profile_id": {
+          "type": "string",
+          "deprecated": true,
+          "description": "Legacy field. Ignored by the orchestrator; execution settings always come from the Target Profile runtime block."
+        },
+        "target_profile_id": {
+          "type": "string"
+        },
+        "accelerator": {
+          "enum": [
+            "none",
+            "nvidia"
+          ]
+        },
+        "resources": {
+          "type": "object",
+          "description": "Planner-selected resource envelope. Target capacity comparison depends on the registered Target Profile inventory.",
+          "properties": {
+            "cpu": {
+              "type": "string"
+            },
+            "memory": {
+              "type": "string"
+            },
+            "gpu": {
+              "type": "string"
+            },
+            "storage": {
+              "type": "string"
+            }
+          }
+        },
+        "requested_by": {
+          "type": "string"
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}

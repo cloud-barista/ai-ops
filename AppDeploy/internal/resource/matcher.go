@@ -17,15 +17,49 @@ func NewMatcher() *Matcher {
 }
 
 func (m *Matcher) Match(ctx context.Context, app model.AppResponse, runtimeProfile model.RuntimeProfile, target model.TargetProfile) error {
+	return m.match(ctx, app, runtimeProfile, target, app.AppSpec.Runtime.Accelerator, app.AppSpec.Resources)
+}
+
+// MatchManifest applies the resource envelope selected by the deployment
+// planner. AppSpec requirements remain the fallback for legacy requests.
+func (m *Matcher) MatchManifest(ctx context.Context, manifest model.DeploymentManifest, app model.AppResponse, runtimeProfile model.RuntimeProfile, target model.TargetProfile) error {
+	return m.match(ctx, app, runtimeProfile, target, manifest.Spec.Accelerator, manifest.Spec.Resources)
+}
+
+func (m *Matcher) match(ctx context.Context, app model.AppResponse, runtimeProfile model.RuntimeProfile, target model.TargetProfile, accelerator string, resources model.Resources) error {
+	_ = ctx
+	_ = runtimeProfile // retained in the adapter boundary for compatibility
 	appRuntime := app.AppSpec.Runtime.Type
+	// A mock Target is an adapter test boundary, not a physical capacity
+	// boundary. It intentionally accepts any App runtime so callers can run
+	// CPU/GPU/AI-Infra App Specs through the in-process mock adapter without
+	// creating a second Runtime Profile. The Target Profile still selects the
+	// adapter and carries the runtime settings used by the orchestrator.
+	if target.CSP == "mock" || target.Runtime.RuntimeType == "mock" {
+		return nil
+	}
+	if accelerator == "nvidia" && appRuntime != "gpu" && appRuntime != "aiinfra" {
+		return apperrors.New(model.ErrResourceInsufficient, "nvidia accelerator requires gpu or aiinfra app runtime", http.StatusBadRequest, false)
+	}
+	if accelerator != "" && accelerator != "none" {
+		if target.Runtime.RuntimeType != "aiinfra" && target.Runtime.Accelerator != accelerator {
+			return apperrors.New(model.ErrResourceInsufficient, "requested accelerator is not available on the selected target", http.StatusBadRequest, false)
+		}
+	}
 	if appRuntime == "gpu" {
-		if runtimeProfile.RuntimeType != "gpu" && runtimeProfile.RuntimeType != "aiinfra" {
-			return apperrors.New(model.ErrResourceInsufficient, "gpu app requires gpu or aiinfra runtime profile", http.StatusBadRequest, false)
+		if accelerator == "none" {
+			return apperrors.New(model.ErrResourceInsufficient, "gpu app requires nvidia accelerator", http.StatusBadRequest, false)
 		}
 		if target.Runtime.RuntimeType != "gpu" && target.Runtime.RuntimeType != "aiinfra" {
 			return apperrors.New(model.ErrGPURuntimeNotFound, "gpu app requires gpu or aiinfra target runtime", http.StatusBadRequest, false)
 		}
-		required := parseGPU(app.AppSpec.Resources.GPU)
+		required := parseGPU(resources.GPU)
+		if accelerator == "nvidia" && required < 1 {
+			return apperrors.New(model.ErrResourceInsufficient, "nvidia accelerator requires at least one GPU", http.StatusBadRequest, false)
+		}
+		if required < 1 {
+			return apperrors.New(model.ErrResourceInsufficient, "gpu app requires resources.gpu >= 1", http.StatusBadRequest, false)
+		}
 		if target.Runtime.RuntimeType == "gpu" {
 			if target.GPU == nil || target.GPU.Count < required {
 				return apperrors.New(model.ErrResourceInsufficient, "target gpu count is insufficient", http.StatusBadRequest, false)
@@ -38,9 +72,6 @@ func (m *Matcher) Match(ctx context.Context, app model.AppResponse, runtimeProfi
 			return apperrors.New(model.ErrResourceInsufficient, "mock app requires mock runtime and target", http.StatusBadRequest, false)
 		}
 		return nil
-	}
-	if runtimeProfile.RuntimeType != appRuntime {
-		return apperrors.New(model.ErrResourceInsufficient, "runtime profile does not match app runtime type", http.StatusBadRequest, false)
 	}
 	if target.Runtime.RuntimeType != appRuntime {
 		return apperrors.New(model.ErrResourceInsufficient, "target runtime does not match app runtime type", http.StatusBadRequest, false)

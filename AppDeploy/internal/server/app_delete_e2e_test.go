@@ -106,7 +106,7 @@ func TestDeleteAppWithFailedDeploymentReturnsConflictE2E(t *testing.T) {
 		RuntimeProfileID: "rt-missing",
 		TargetProfileID:  "target-missing",
 	})
-	assertAPIError(t, failedCreate, http.StatusBadRequest, model.ErrRuntimeProfileInvalid)
+	assertAPIError(t, failedCreate, http.StatusBadRequest, model.ErrTargetProfileInvalid)
 
 	deployments := getJSON[struct {
 		Items []model.DeploymentResponse `json:"items"`

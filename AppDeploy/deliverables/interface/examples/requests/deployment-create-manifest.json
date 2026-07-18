@@ -1,0 +1,24 @@
+{
+  "manifest": {
+    "schema_version": "deployment.khu.ai/v1alpha1",
+    "kind": "DeploymentManifest",
+    "metadata": {
+      "name": "planner-gpu-deployment"
+    },
+    "spec": {
+      "app_version_id": "appver-001",
+      "target_profile_id": "target-aws-gpu-001",
+      "accelerator": "nvidia",
+      "resources": {
+        "cpu": "4",
+        "memory": "16Gi",
+        "gpu": "1",
+        "storage": "20Gi"
+      },
+      "requested_by": "ai-ops-geon-planner",
+      "parameters": {
+        "mode": "dry-run"
+      }
+    }
+  }
+}
