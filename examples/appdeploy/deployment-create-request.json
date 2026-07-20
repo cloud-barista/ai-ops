@@ -1,0 +1,20 @@
+{
+  "manifest": {
+    "schema_version": "deployment.khu.ai/v1alpha1",
+    "kind": "DeploymentManifest",
+    "metadata": {
+      "name": "llm-inference-service"
+    },
+    "spec": {
+      "app_version_id": "appver-llm-inference-v1",
+      "accelerator": "nvidia",
+      "resources": {
+        "cpu": "4",
+        "memory": "16Gi",
+        "gpu": "1",
+        "storage": "20Gi"
+      },
+      "requested_by": "ai-ops-geon-planner"
+    }
+  }
+}

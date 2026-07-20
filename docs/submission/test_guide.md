@@ -108,6 +108,23 @@ LLM Manifest 생성
   -> RUNNING 결과 반환
 ```
 
-이 테스트는 실제 HTTP 요청과 계약 처리를 검증하지만 테스트 프로세스 안의 mock upstream을 사용합니다. 실제 통합 완료를 주장하려면 별도로 실제 LLM endpoint, 실행 중인 AppDeploy, 등록된 App Version과 준비된 Target을 사용해 `run-appdeploy-planner`를 수행해야 합니다.
+계약 테스트는 AppDeploy `bb77e53`의 Target 자동 선택 방식을 기준으로 다음 조건도 확인합니다.
+
+- 요청 본문의 최상위 필드는 `manifest`만 사용
+- 제거된 `runtime_profile_id`를 전송하지 않음
+- `target_profile_id`가 없는 요청을 허용
+- AppDeploy 응답의 `target_profile_id`를 실제 선택 결과로 수신
+
+실제 handoff JSON은 `examples/appdeploy/deployment-create-request.json`, 응답 예시는 `examples/appdeploy/deployment-response.json`에서 확인합니다.
+
+이 테스트는 실제 HTTP 요청과 계약 처리를 검증하지만 테스트 프로세스 안의 mock upstream을 사용합니다. 실제 통합 완료를 주장하려면 별도로 실제 LLM endpoint와 실행 중인 AppDeploy를 준비하고, AppDeploy에서 Credential·Runtime 포함 Target·App/Package를 등록해 `app_version_id`를 확보한 뒤 `run-appdeploy-planner`를 수행해야 합니다.
+
+실제 통합 성공 기준은 다음과 같습니다.
+
+1. Go Request Guard와 Go Manifest Guard가 모두 승인
+2. AppDeploy가 `202 Accepted`와 `deployment_id` 반환
+3. 응답에 AppDeploy가 선택한 `target_profile_id` 포함
+4. 상태가 `REQUESTED -> VALIDATING -> VALIDATED -> SCHEDULING -> DEPLOYING -> RUNNING` 범위로 전이
+5. 상태·로그 조회 결과가 Planner 보고서에 저장
 
 `runs/`는 로컬 증적이며 Git 추적 대상이 아닙니다. 제출할 증적만 검토 후 `docs/evidence/artifacts/`에 redacted copy로 보존합니다.

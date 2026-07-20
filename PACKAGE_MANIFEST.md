@@ -21,6 +21,8 @@
 | `examples/responses/plan-llm-automation-action-success.json` | 보조 bounded Action 검증 응답 예시 |
 | `examples/requests/run-appdeploy-planner.json` | LLM Deployment Planner API 요청 예시 |
 | `examples/responses/run-appdeploy-planner-success.json` | AppDeploy 상태·로그를 포함한 Planner 응답 예시 |
+| `examples/appdeploy/deployment-create-request.json` | Planner가 최신 AppDeploy에 전달하는 Manifest handoff 예시 |
+| `examples/appdeploy/deployment-response.json` | AppDeploy가 선택한 실제 Target과 배포 상태 응답 예시 |
 
 ## 필수 제출 산출물
 

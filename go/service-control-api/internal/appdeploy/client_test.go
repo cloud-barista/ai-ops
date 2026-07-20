@@ -3,6 +3,7 @@ package appdeploy
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -14,12 +15,29 @@ func TestClientUsesAppDeployDeploymentContract(t *testing.T) {
 		writer.Header().Set("content-type", "application/json")
 		switch {
 		case request.Method == http.MethodPost && request.URL.Path == "/api/v1/deployments":
+			content, err := io.ReadAll(request.Body)
+			if err != nil {
+				t.Fatalf("read create request: %v", err)
+			}
+			if strings.Contains(string(content), "runtime_profile_id") {
+				t.Fatalf("removed runtime_profile_id must not be sent: %s", content)
+			}
+			var envelope map[string]json.RawMessage
+			if err := json.Unmarshal(content, &envelope); err != nil {
+				t.Fatalf("decode create request envelope: %v", err)
+			}
+			if len(envelope) != 1 || envelope["manifest"] == nil {
+				t.Fatalf("planner handoff must contain only manifest: %s", content)
+			}
 			var body DeploymentCreateRequest
-			if err := json.NewDecoder(request.Body).Decode(&body); err != nil {
+			if err := json.Unmarshal(content, &body); err != nil {
 				t.Fatalf("decode create request: %v", err)
 			}
 			if body.Manifest.Spec.AppVersionID != "appver-test" {
 				t.Fatalf("unexpected manifest: %#v", body.Manifest)
+			}
+			if body.Manifest.Spec.TargetProfileID != "" {
+				t.Fatalf("target selection must remain with AppDeploy: %#v", body.Manifest.Spec)
 			}
 			writer.WriteHeader(http.StatusAccepted)
 			_, _ = writer.Write([]byte(`{"request_id":"req-1","deployment_id":"dep-1","status":"REQUESTED"}`))
@@ -37,7 +55,9 @@ func TestClientUsesAppDeployDeploymentContract(t *testing.T) {
 	if err != nil {
 		t.Fatalf("new client: %v", err)
 	}
-	created, err := client.CreateDeployment(context.Background(), validManifest())
+	manifest := validManifest()
+	manifest.Spec.TargetProfileID = ""
+	created, err := client.CreateDeployment(context.Background(), manifest)
 	if err != nil || created.DeploymentID != "dep-1" || created.Status != "REQUESTED" {
 		t.Fatalf("unexpected create result: %#v err=%v", created, err)
 	}

@@ -114,7 +114,9 @@ go run ./cmd/aiops-service-control run-appdeploy-planner \
   --appdeploy-base-url http://127.0.0.1:8081/api/v1
 ```
 
-`app_version_id`는 AppDeploy에 미리 등록되어 있어야 합니다. Target Profile과 Runtime Adapter 선택은 AppDeploy가 수행합니다.
+`app_version_id`는 AppDeploy에 미리 등록되어 있어야 합니다. 최신 AppDeploy에서는 Credential, Runtime 정보가 포함된 Target, App/Package를 먼저 등록합니다. Planner 요청에는 별도 `runtime_profile_id`를 넣지 않으며, Target Profile과 Runtime Adapter 선택은 AppDeploy가 수행합니다.
+
+Planner에서 AppDeploy로 전달되는 실제 요청 형식은 `examples/appdeploy/deployment-create-request.json`에서 확인합니다.
 
 ## 6. VM에서 전체 검증
 
