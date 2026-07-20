@@ -1,9 +1,11 @@
 flowchart LR
-  A[Agent registry JSON] --> B[Agent list/detail]
-  B --> C[Role and responsibility]
-  C --> D[Bounded action set]
-  D --> E{Requested action allowed}
-  E -->|yes| F[Valid readiness signal]
-  E -->|no| G[Invalid action rejection]
-  F --> H[Service operations report]
+  A[Agent Registry JSON] --> B[에이전트 역할과 상태 조회]
+  B --> C[Capability와 허용 Action 확인]
+  D[LLM Action 제안] --> E{Action Validator}
+  C --> E
+  E -->|허용| F[Go Guard 승인]
+  E -->|미등록 또는 범위 초과| G[요청 거부]
+  F --> H[검증 결과와 correlation ID]
   G --> H
+
+  I[LLM Deployment Planner] -. 주 배포 경로는 Manifest Guard 사용 .-> F

@@ -5,50 +5,50 @@
 </filter>
 </defs>
 <rect width="1800" height="920" fill="#ffffff"/>
-<text x="58" y="74" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="38" font-weight="700" text-anchor="start">실제 CPU/GPU VM 적합성 및 AI 응용 제어 계획</text>
-<text x="61" y="118" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start">외부 인프라가 제공한 실제 VM snapshot을 검증하고, 등록 실행 에이전트로 handoff 계획 생성</text>
+<text x="58" y="74" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="38" font-weight="700" text-anchor="start">CPU/GPU 자원 요구와 AppDeploy Target 선택</text>
+<text x="61" y="118" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start">LLM이 자원 요구 envelope를 만들고 AppDeploy가 실제 VM Target의 준비 상태와 호환성을 검증</text>
 <rect x="1435" y="48" width="307" height="44" rx="22" fill="#ffffff" stroke="#d6dce4" stroke-width="1"/>
 <text x="1460" y="76" fill="#27496d" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="17" font-weight="700" text-anchor="start">Kyung Hee OPS · Go Prototype</text>
 <rect x="71" y="178" width="360" height="570" rx="26" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
 <rect x="65" y="170" width="360" height="570" rx="26" fill="#ffffff" stroke="#d6dce4" stroke-width="2"/>
-<text x="93" y="225" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">사실 기반 입력</text>
+<text x="93" y="225" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Planner 입력</text>
 <rect x="105" y="267" width="290" height="130" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
 <rect x="100" y="260" width="290" height="130" rx="20" fill="#ffffff" stroke="#31445a" stroke-width="2"/>
 <circle cx="136" cy="298" r="18" fill="#31445a"/>
 <text x="136" y="305" fill="#ffffff" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="700" text-anchor="middle">1</text>
-<text x="168" y="315" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Workload 요구사항</text>
-<text x="126" y="348" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">accelerator</text>
-<text x="126" y="373" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">선언된 최소 조건</text>
+<text x="168" y="315" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">자연어 요구</text>
+<text x="126" y="348" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">App Version</text>
+<text x="126" y="373" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">성능·자원 조건</text>
 <rect x="105" y="462" width="290" height="130" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
 <rect x="100" y="455" width="290" height="130" rx="20" fill="#ffffff" stroke="#31445a" stroke-width="2"/>
 <circle cx="136" cy="493" r="18" fill="#31445a"/>
 <text x="136" y="500" fill="#ffffff" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="700" text-anchor="middle">2</text>
-<text x="168" y="510" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">실제 VM Snapshot</text>
-<text x="126" y="543" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">CPU / memory</text>
-<text x="126" y="568" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">GPU / VRAM / driver</text>
+<text x="168" y="510" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">AppDeploy 계약</text>
+<text x="126" y="543" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">Manifest schema</text>
+<text x="126" y="568" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">신뢰 입력값</text>
 <rect x="491" y="178" width="690" height="570" rx="26" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
 <rect x="485" y="170" width="690" height="570" rx="26" fill="#ffffff" stroke="#d6dce4" stroke-width="2"/>
-<text x="513" y="225" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">VM 적합성 검증</text>
+<text x="513" y="225" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">LLM Planner · Go Guard</text>
 <rect x="530" y="257" width="275" height="125" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
 <rect x="525" y="250" width="275" height="125" rx="20" fill="#ffffff" stroke="#31445a" stroke-width="2"/>
-<text x="551" y="305" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start">Evidence Check</text>
-<text x="551" y="338" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">출처와 수집 상태</text>
-<text x="551" y="362" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">실제값 확인</text>
+<text x="551" y="305" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start">Resource Inference</text>
+<text x="551" y="338" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">CPU · memory · GPU</text>
+<text x="551" y="362" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">storage · accelerator</text>
 <rect x="865" y="257" width="275" height="125" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
 <rect x="860" y="250" width="275" height="125" rx="20" fill="#ffffff" stroke="#31445a" stroke-width="2"/>
-<text x="886" y="305" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start">Resource Check</text>
-<text x="886" y="338" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">accelerator</text>
-<text x="886" y="362" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">CPU / memory / VRAM</text>
+<text x="886" y="305" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start">Manifest Build</text>
+<text x="886" y="338" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">DeploymentManifest</text>
+<text x="886" y="362" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">Target hint 선택</text>
 <rect x="530" y="457" width="275" height="125" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
-<rect x="525" y="450" width="275" height="125" rx="20" fill="#ffffff" stroke="#31445a" stroke-width="2"/>
-<text x="551" y="505" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start">Performance Status</text>
-<text x="551" y="538" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">measured</text>
-<text x="551" y="562" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">not_measured</text>
+<rect x="525" y="450" width="275" height="125" rx="20" fill="#ffffff" stroke="#65758b" stroke-width="2"/>
+<text x="551" y="505" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start">Contract Check</text>
+<text x="551" y="538" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">형식 · 필드</text>
+<text x="551" y="562" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">요청값 보존</text>
 <rect x="865" y="457" width="275" height="125" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
-<rect x="860" y="450" width="275" height="125" rx="20" fill="#ffffff" stroke="#31445a" stroke-width="2"/>
-<text x="886" y="505" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start">Compatibility</text>
-<text x="886" y="538" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">incompatible</text>
-<text x="886" y="562" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">provisional / compatible</text>
+<rect x="860" y="450" width="275" height="125" rx="20" fill="#ffffff" stroke="#65758b" stroke-width="2"/>
+<text x="886" y="505" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start">Policy Check</text>
+<text x="886" y="538" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">자원 값 · 비밀정보</text>
+<text x="886" y="562" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">approved / rejected</text>
 <line x1="800" y1="312" x2="860" y2="312" stroke="#27496d" stroke-width="4" stroke-linecap="round"/>
 <polygon points="860,312 847,319 847,305" fill="#27496d"/>
 <line x1="997" y1="375" x2="997" y2="420" stroke="#27496d" stroke-width="4" stroke-linecap="round"/>
@@ -59,38 +59,32 @@
 <polygon points="860,512 847,519 847,505" fill="#27496d"/>
 <rect x="1241" y="178" width="500" height="570" rx="26" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
 <rect x="1235" y="170" width="500" height="570" rx="26" fill="#ffffff" stroke="#d6dce4" stroke-width="2"/>
-<text x="1263" y="225" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">제어 Handoff</text>
+<text x="1263" y="225" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">AppDeploy 실행 경계</text>
 <rect x="1280" y="257" width="390" height="120" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
 <rect x="1275" y="250" width="390" height="120" rx="20" fill="#ffffff" stroke="#65758b" stroke-width="2"/>
-<text x="1301" y="305" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Agent Registry</text>
-<text x="1301" y="338" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">capability</text>
-<text x="1301" y="363" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">bounded Action</text>
+<text x="1301" y="305" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">App Spec 병합</text>
+<text x="1301" y="338" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">등록 기본 자원</text>
+<text x="1301" y="363" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">Planner 요구 envelope</text>
 <rect x="1280" y="437" width="390" height="120" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
 <rect x="1275" y="430" width="390" height="120" rx="20" fill="#ffffff" stroke="#65758b" stroke-width="2"/>
-<text x="1301" y="485" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Control Handoff Plan</text>
-<text x="1301" y="518" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">selected executor</text>
-<text x="1301" y="543" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">preconditions</text>
+<text x="1301" y="485" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Target 선택</text>
+<text x="1301" y="518" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">readiness · 호환성</text>
+<text x="1301" y="543" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">Runtime Adapter</text>
 <rect x="1280" y="617" width="390" height="92" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
 <rect x="1275" y="610" width="390" height="92" rx="20" fill="#ffffff" stroke="#31445a" stroke-width="2"/>
-<text x="1301" y="665" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Execution Boundary</text>
-<text x="1301" y="698" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">not_executed / feedback required</text>
+<text x="1301" y="665" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">VM 배포와 상태 확인</text>
+<text x="1301" y="698" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">Prepare · Deploy · Status</text>
 <line x1="1175" y1="512" x2="1275" y2="310" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
 <polygon points="1275,310 1275,323 1263,317" fill="#65758b"/>
 <line x1="1470" y1="370" x2="1470" y2="430" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
 <polygon points="1470,430 1463,417 1477,417" fill="#65758b"/>
 <line x1="1470" y1="550" x2="1470" y2="610" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
 <polygon points="1470,610 1463,597 1477,597" fill="#65758b"/>
-<text x="90" y="826" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start">판단 기준</text>
-<rect x="220" y="790" width="110" height="36" rx="18" fill="#ffffff" stroke="#31445a" stroke-width="1"/>
-<text x="237" y="821" fill="#27496d" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="700" text-anchor="start">evidence</text>
-<rect x="350" y="790" width="129" height="36" rx="18" fill="#ffffff" stroke="#31445a" stroke-width="1"/>
-<text x="367" y="821" fill="#27496d" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="700" text-anchor="start">accelerator</text>
-<rect x="515" y="790" width="162" height="36" rx="18" fill="#ffffff" stroke="#31445a" stroke-width="1"/>
-<text x="532" y="821" fill="#27496d" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="700" text-anchor="start">CPU / memory</text>
-<rect x="690" y="790" width="88" height="36" rx="18" fill="#ffffff" stroke="#31445a" stroke-width="1"/>
-<text x="707" y="821" fill="#27496d" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="700" text-anchor="start">VRAM</text>
-<rect x="790" y="790" width="117" height="36" rx="18" fill="#ffffff" stroke="#65758b" stroke-width="1"/>
-<text x="807" y="821" fill="#27496d" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="700" text-anchor="start">capability</text>
-<rect x="935" y="790" width="116" height="36" rx="18" fill="#ffffff" stroke="#65758b" stroke-width="1"/>
-<text x="952" y="821" fill="#27496d" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="700" text-anchor="start">Go Guard</text>
+<text x="90" y="826" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start">책임 구분</text>
+<rect x="235" y="790" width="188" height="36" rx="18" fill="#ffffff" stroke="#31445a" stroke-width="1"/>
+<text x="252" y="821" fill="#27496d" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="700" text-anchor="start">Planner: 요구 추론</text>
+<rect x="485" y="790" width="205" height="36" rx="18" fill="#ffffff" stroke="#65758b" stroke-width="1"/>
+<text x="502" y="821" fill="#27496d" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="700" text-anchor="start">Go Guard: 계약 검증</text>
+<rect x="770" y="790" width="296" height="36" rx="18" fill="#ffffff" stroke="#65758b" stroke-width="1"/>
+<text x="787" y="821" fill="#27496d" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="700" text-anchor="start">AppDeploy: Target 선택과 실행</text>
 </svg>

@@ -12,13 +12,12 @@
 | `config/agent_registry.json` | 에이전트 registry와 bounded action 메타데이터 |
 | `config/ops_llm_benchmark.json` | 수동 정의된 프로토타입 LLM 정책 기준값과 선정 가중치 |
 | `config/ops_llm_eval_candidates.openai_compatible.example.json` | OpenAI-compatible provider 교체 예시 |
-| `config/ops_llm_eval_candidates.integration.example.json` | 외부 LLM endpoint 연계용 범용 candidate config 예시 |
 | `config/vm_workload_requirements.json` | 실제 CPU/GPU VM 적합성 검증을 위한 workload 요구사항 |
 | `docs/evidence/artifacts/vm_20260707_resource_snapshot.json` | redacted 실제 GPU VM resource snapshot 예시 |
-| `docs/evidence/artifacts/local_20260716_llm_automation_action.json` | 실제 로컬 LLM Action 제안과 Go Guard 검증 결과 |
+| `docs/evidence/artifacts/local_20260716_llm_automation_action.json` | 보조 bounded Action API의 실제 로컬 LLM 제안과 Go Guard 검증 결과 |
 | `data/ops_llm_eval_scenarios.jsonl` | Ops LLM 평가 scenario set |
-| `examples/requests/plan-llm-automation-action.json` | 실제 LLM 자동화 Action API 요청 예시 |
-| `examples/responses/plan-llm-automation-action-success.json` | 승인된 LLM Action과 비실행 handoff 응답 예시 |
+| `examples/requests/plan-llm-automation-action.json` | 보조 bounded Action API 요청 예시 |
+| `examples/responses/plan-llm-automation-action-success.json` | 보조 bounded Action 검증 응답 예시 |
 | `examples/requests/run-appdeploy-planner.json` | LLM Deployment Planner API 요청 예시 |
 | `examples/responses/run-appdeploy-planner-success.json` | AppDeploy 상태·로그를 포함한 Planner 응답 예시 |
 

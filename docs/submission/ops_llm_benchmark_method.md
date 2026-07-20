@@ -32,7 +32,6 @@
 | `config/ops_llm_eval_candidates.local_ollama.json` | local validation용 example provider 설정. 실행 결과가 아니라 candidate config |
 | `config/ops_llm_eval_candidates.local_multi_ollama.json` | local OpenAI-compatible endpoint에서 여러 example model 후보를 비교하기 위한 candidate config |
 | `config/ops_llm_eval_candidates.openai_compatible.example.json` | OpenAI-compatible provider 교체 예시 |
-| `config/ops_llm_eval_candidates.integration.example.json` | 외부 플랫폼 또는 연구 환경에서 endpoint를 주입하는 범용 예시 |
 | `config/ops_llm_benchmark.json` | service-control prototype의 정책 기반 LLM selection baseline |
 
 ## 4. Dry-Run 실행
@@ -144,14 +143,7 @@ cp ../../config/ops_llm_eval_candidates.openai_compatible.example.json \
   ../../config/ops_llm_eval_candidates.integration.local.json
 ```
 
-외부 플랫폼 또는 연구 환경에서 LLM endpoint를 제공하는 경우에는 다음 예시를 기준으로 합니다.
-
-```bash
-cp ../../config/ops_llm_eval_candidates.integration.example.json \
-  ../../config/ops_llm_eval_candidates.platform.local.json
-```
-
-두 example config는 모두 실행 결과가 아니며 기본 `enabled=false` 상태입니다. 실제 실행 전에 `endpoint`, `actual_model`, `provider`, `api_key_env`, `enabled`를 대상 환경에 맞게 조정해야 합니다. 구조화 응답을 지원하는 provider에는 `json_mode=true`를 사용할 수 있습니다.
+이 example config는 실행 결과가 아니며 기본 `enabled=false` 상태입니다. 실제 실행 전에 `endpoint`, `actual_model`, `provider`, `api_key_env`, `enabled`를 대상 환경에 맞게 조정해야 합니다. 외부 플랫폼과 연구용 GPU 서버도 같은 파일을 사용하며, 구조화 응답을 지원하는 provider에는 `json_mode=true`를 사용할 수 있습니다.
 
 ## 8. System Validation과 연결
 

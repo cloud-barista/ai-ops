@@ -6,7 +6,7 @@
 </defs>
 <rect width="1600" height="820" fill="#ffffff"/>
 <text x="58" y="74" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="38" font-weight="700" text-anchor="start">LLM 기반 에이전트 등록·Action 검증</text>
-<text x="61" y="118" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start">실제 LLM의 제안을 Agent Registry와 Go Guard로 제한한 뒤 외부 실행 주체에 전달</text>
+<text x="61" y="118" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start">보조 bounded Action API에서 LLM 제안을 Registry와 Go Guard로 검증하는 구조</text>
 <rect x="1235" y="48" width="307" height="44" rx="22" fill="#ffffff" stroke="#d6dce4" stroke-width="1"/>
 <text x="1260" y="76" fill="#27496d" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="17" font-weight="700" text-anchor="start">Kyung Hee OPS · Go Prototype</text>
 <rect x="76" y="178" width="405" height="500" rx="26" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
@@ -55,16 +55,16 @@
 <polygon points="800,415 812,408 812,422" fill="#31445a"/>
 <rect x="1131" y="178" width="405" height="500" rx="26" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
 <rect x="1125" y="170" width="405" height="500" rx="26" fill="#ffffff" stroke="#d6dce4" stroke-width="2"/>
-<text x="1153" y="225" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">외부 실행 연계</text>
+<text x="1153" y="225" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">검증 결과</text>
 <rect x="1165" y="252" width="335" height="125" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
 <rect x="1160" y="245" width="335" height="125" rx="20" fill="#ffffff" stroke="#65758b" stroke-width="2"/>
-<text x="1186" y="300" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Approved Handoff</text>
-<text x="1186" y="333" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">correlation ID</text>
-<text x="1186" y="357" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">execution: not_executed</text>
+<text x="1186" y="300" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">승인 결과</text>
+<text x="1186" y="333" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">approved Action</text>
+<text x="1186" y="357" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">correlation ID</text>
 <rect x="1165" y="452" width="335" height="125" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
 <rect x="1160" y="445" width="335" height="125" rx="20" fill="#ffffff" stroke="#65758b" stroke-width="2"/>
-<text x="1186" y="500" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">대기 또는 거부</text>
-<text x="1186" y="533" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">pending_executor</text>
+<text x="1186" y="500" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">거부 결과</text>
+<text x="1186" y="533" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">미등록 · 권한 초과</text>
 <text x="1186" y="557" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">rejected / llm_failed</text>
 <line x1="475" y1="510" x2="580" y2="510" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
 <polygon points="580,510 567,517 567,503" fill="#65758b"/>
@@ -76,5 +76,5 @@
 <line x1="1090" y1="515" x2="1090" y2="507" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
 <line x1="1090" y1="507" x2="1160" y2="507" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
 <polygon points="1160,507 1147,514 1147,500" fill="#65758b"/>
-<text x="95" y="759" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start">핵심: LLM은 Action을 제안하고, Go가 실제 VM과 허용 범위를 검증한다. 외부 실행 결과는 correlation ID로 다시 기록한다.</text>
+<text x="95" y="759" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start">핵심: LLM은 Action을 제안하고, Go가 등록 상태와 허용 범위를 결정적으로 검증한다. 주 배포 경로는 별도의 Manifest Guard를 사용한다.</text>
 </svg>

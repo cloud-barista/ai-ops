@@ -38,10 +38,9 @@ config/ops_llm_eval_candidates.local_multi_ollama.json
 
 ```text
 config/ops_llm_eval_candidates.openai_compatible.example.json
-config/ops_llm_eval_candidates.integration.example.json
 ```
 
-통합 환경에서는 `endpoint`, `actual_model`, `provider`, `api_key_env`를 대상 provider 값으로 교체하고, 실행 대상 candidate만 `enabled=true`로 설정합니다.
+통합 환경에서는 이 범용 예시를 복사한 뒤 `endpoint`, `actual_model`, `provider`, `api_key_env`를 대상 provider 값으로 교체하고, 실행 대상 candidate만 `enabled=true`로 설정합니다. 별도의 플랫폼별 예시는 두지 않아 같은 계약을 모든 OpenAI-compatible endpoint에 적용합니다.
 
 ## 실행 결과 판정
 

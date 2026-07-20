@@ -24,17 +24,25 @@ Integrated team validation:
 cd go/service-control-api && go run ./cmd/aiops-service-control team-validation
 ```
 
+Repository-level validation:
+
+```bash
+make test
+make vet
+```
+
 ## 3. 기대 출력
 
-기대되는 prototype-level signal:
+현재 주 배포 경로의 기대 signal:
 
 ```text
-selected_model = primary-ops-llm
-selected_resource = gpu-vm-l4
-valid = true
-guard_backend = go
-guard_validation.valid = true
+generation.execution_status = executed
+generation.guard_valid = true
+manifest.kind = DeploymentManifest
+deployment.status = RUNNING 또는 AppDeploy가 반환한 명시적 상태
 ```
+
+위 결과는 실제 LLM endpoint와 AppDeploy 서버가 준비된 통합 환경에서만 기대합니다. 기본 단위 테스트는 mock HTTP server를 사용해 계약, Go Guard, polling과 오류 처리를 검증합니다.
 
 기대되는 Go test behavior:
 
@@ -72,24 +80,22 @@ go test ./... exits with status 0
 
 ## 6. 현재 알려진 한계
 
-- 기본 검증 경로는 mock mode를 사용합니다.
-- actual GPU VM provisioning은 local default validation path 밖입니다.
-- 실제 VM 또는 서비스 mutation은 기본적으로 수행하지 않습니다.
+- 실제 LLM 실행에는 enabled candidate와 OpenAI-compatible endpoint가 필요합니다.
+- 실제 배포에는 AppDeploy 서버, 등록 App Version과 준비된 Target Profile이 필요합니다.
+- Planner는 VM을 직접 생성하거나 Target·Runtime Adapter를 선택하지 않습니다.
 - LLM policy value는 수동 정의된 prototype policy baseline입니다.
 - final quantitative model reporting에는 fixed prompt, dataset, metric, scoring rule을 갖춘 controlled per-model evaluation run이 필요합니다.
 
 ## 7. 최신 검증 기록
 
-검증 날짜: 2026-06-29
+검증 날짜: 2026-07-20
 
 | 항목 | 결과 |
 | --- | --- |
-| Go guard tests | WSL Ubuntu-22.04에서 `/usr/local/go/bin/go test ./...` 실행, pass |
-| Service-control API tests | WSL Ubuntu-22.04에서 `/usr/local/go/bin/go test ./...` 실행, pass |
-| Team validation | WSL Ubuntu-22.04에서 실행, `valid = true` |
-| Team validation output directory | `runs/submission-validation-20260629-131247/` |
-| DOCX conversion | PowerShell `pandoc`으로 실행, DOCX 4개 생성 후 `python-docx`로 구조 재확인 |
-| Link validation | 로컬 Markdown link 확인, pass |
+| `make test` | WSL Ubuntu-22.04에서 전체 Go package test, pass |
+| `make vet` | WSL Ubuntu-22.04에서 두 Go module 정적 검사, pass |
+| Planner/AppDeploy package | `internal/appdeploy`, `internal/deploymentplanner` test, pass |
+| Git 상태 | `geon` branch가 `origin/geon`과 동기화된 상태에서 검증 시작 |
 
 ## 8. 최신 명령 증거
 
@@ -100,33 +106,24 @@ Go guard tests:
 ok   github.com/cloud-barista/ai-ops/go/aiops-guard/internal/guard
 ```
 
-Service-control API tests:
+Service-control API 주요 package:
 
 ```text
-?    kyunghee-aiops/service-control-api/cmd/aiops-service-control [no test files]
+ok   kyunghee-aiops/service-control-api/cmd/aiops-service-control
 ?    kyunghee-aiops/service-control-api/cmd/service-control-api [no test files]
 ok   kyunghee-aiops/service-control-api/internal/api
+ok   kyunghee-aiops/service-control-api/internal/appdeploy
+ok   kyunghee-aiops/service-control-api/internal/automation
+ok   kyunghee-aiops/service-control-api/internal/benchmark
+ok   kyunghee-aiops/service-control-api/internal/deploymentplanner
+ok   kyunghee-aiops/service-control-api/internal/llmclient
 ```
 
-Team validation summary:
+Go vet:
 
 ```text
-valid = true
-select-ops-llm = true
-list-agents = true
-validate-agent-action = true
-recommend-inference-placement = true
-plan-inference-deployment = true
-run-service-operations = true
-```
-
-DOCX structural validation:
-
-```text
-requirements_definition.docx = generated and reopened
-01_LLM_Operation_Management_Design.docx = generated and reopened
-02_Agent_Registration_Management_Prototype.docx = generated and reopened
-03_AI_Application_Deployment_Control_Optimization_Strategy.docx = generated and reopened
+go/aiops-guard: go vet ./... pass
+go/service-control-api: go vet ./... pass
 ```
 
 환경 note:
@@ -134,12 +131,4 @@ requirements_definition.docx = generated and reopened
 ```text
 Windows PowerShell did not have go on PATH, so Go validation was executed
 through WSL Ubuntu-22.04 using /usr/local/go/bin/go.
-```
-
-DOCX visual render note:
-
-```text
-DOCX files were generated and structurally validated. Visual render QA with
-the local document renderer could not be completed because soffice/libreoffice
-was not available in the current environment.
 ```

@@ -1,10 +1,11 @@
 flowchart LR
-  A[Workload requirements] --> C[Actual VM suitability validation]
-  B[Infrastructure-supplied VM snapshot] --> C
-  C --> D{Resource checks}
-  D -->|fail| E[Incompatible]
-  D -->|pass, performance absent| F[Provisionally compatible]
-  D -->|pass, performance measured| G[Compatible]
-  F --> H[Capability-based agent handoff plan]
-  G --> H
-  H --> I[Execution status: not executed]
+  A[자연어 자원 요구] --> B[LLM 자원 요구량 추론]
+  B --> C[CPU Memory GPU Storage Accelerator]
+  C --> D{Manifest Go Guard}
+  D -->|형식 또는 정책 위반| E[Manifest 거부]
+  D -->|승인| F[AppDeploy 전달]
+  G[App Spec] --> H[자원 요구 병합]
+  F --> H
+  H --> I[Target readiness와 자원 호환성 검증]
+  I --> J[AppDeploy Target 선택]
+  J --> K[VM 배포와 상태 확인]

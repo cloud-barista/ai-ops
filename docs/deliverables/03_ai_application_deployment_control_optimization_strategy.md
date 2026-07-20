@@ -7,6 +7,8 @@ English title: AI Application Deployment and Control Optimization Strategy
 
 플래너는 VM을 직접 생성하거나 최종 Target을 선택하지 않습니다. AppDeploy가 App Spec, Target Profile, readiness, Runtime Adapter를 기준으로 실제 배포 대상을 선택하고 실행합니다.
 
+![CPU/GPU 자원 요구와 AppDeploy Target 선택 흐름](../images/cpu_gpu_placement_flow.png)
+
 ## 2. 구성
 
 | 구성 | 역할 |

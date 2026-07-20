@@ -1,10 +1,14 @@
 flowchart LR
-  A[Ops scenarios and policies] --> B[Ops LLM selection]
-  B --> C[Agent registry and bounded actions]
-  C --> D[Actual CPU/GPU VM suitability]
-  D --> E[Capability-based external-agent handoff plan]
-  E --> F[Service operations readiness]
-  F --> G[Local/VM validation evidence]
+  A[자연어 AI 응용 배포 요구] --> B[LLM Deployment Planner]
+  C[AppDeploy Manifest 계약] --> B
+  D[LLM Candidate 설정] --> B
+  B --> E[DeploymentManifest]
+  E --> F{Go Guard 검증}
+  F -->|거부| G[MANIFEST_REJECTED]
+  F -->|승인| H[AppDeploy 배포 요청]
+  H --> I[Target 및 Adapter 선택]
+  I --> J[VM 배포 상태와 로그]
+  J --> K[제한된 polling과 재시도 판단]
+  K --> L[검증 증적과 공식 산출물]
 
-  B -. actual endpoint optional .-> H[OpenAI-compatible LLM endpoint]
-  F --> I[Go guard]
+  M[Agent Registry] -. 역할과 허용 Action .-> F
