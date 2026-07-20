@@ -119,14 +119,13 @@ func createInferenceFixture(t *testing.T, ctx context.Context, repo *store.Memor
 		t.Fatal(err)
 	}
 	if err := repo.CreateDeployment(ctx, model.DeploymentResponse{
-		DeploymentID:     "dep-qwen",
-		AppID:            "app-qwen",
-		AppVersionID:     "appver-qwen",
-		RuntimeProfileID: "rt-gpu",
-		TargetProfileID:  "target-gpu",
-		Status:           status,
-		CreatedAt:        time.Now().UTC(),
-		UpdatedAt:        time.Now().UTC(),
+		DeploymentID:    "dep-qwen",
+		AppID:           "app-qwen",
+		AppVersionID:    "appver-qwen",
+		TargetProfileID: "target-gpu",
+		Status:          status,
+		CreatedAt:       time.Now().UTC(),
+		UpdatedAt:       time.Now().UTC(),
 	}); err != nil {
 		t.Fatal(err)
 	}

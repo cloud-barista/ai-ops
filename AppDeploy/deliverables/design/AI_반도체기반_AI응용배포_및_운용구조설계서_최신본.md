@@ -27,7 +27,7 @@
 
 ## 0.1 현재 구현 기준선 및 제출 패키지 연결
 
-2026-06-25 기준 프로토타입은 기능 추가보다 제출 가능한 산출물 패키지 정리를 우선한다. 현재 기준선은 Go/Echo API 서버, App Registry, Runtime/Target Profile, Deployment Orchestrator, CPU/GPU VM Runtime Adapter, Resource Check, Monitoring, Metric placeholder, ETRI AI-Infra mock/fixture skeleton을 포함한다.
+2026-06-25 기준 프로토타입은 기능 추가보다 제출 가능한 산출물 패키지 정리를 우선한다. 현재 기준선은 Go/Echo API 서버, App Registry, Target Profile, Deployment Orchestrator, CPU/GPU VM Runtime Adapter, Resource Check, Monitoring, Metric placeholder, ETRI AI-Infra mock/fixture skeleton을 포함한다.
 
 | 구분 | 설계 요소 | 현재 구현 상태 | 제출 판단 |
 | --- | --- | --- | --- |
@@ -35,7 +35,6 @@
 | OpenAPI/Swagger | API source of truth, HTML 문서 | 구현 완료 | 제출 가능 |
 | App Registry | App Spec 등록, 조회, 중복 방지 | 구현 완료 | 제출 가능 |
 | Artifact 정책 | package/git/binary/script 허용, container 거부 | 구현 완료 | 제출 가능 |
-| Runtime Profile | mock, cpu_vm, gpu_vm, etri_aiinfra | 구현 완료 | 제출 가능 |
 | Target Profile | CPU/GPU VM 대상 정보 등록 | 구현 완료 | 제출 가능 |
 | Deployment Orchestrator | 상태 전이, 이벤트, 로그 | 구현 완료 | 제출 가능 |
 | CPU VM Adapter | dry-run, SSH runner, file script upload | 구현 완료 | 제출 가능 |
@@ -74,7 +73,7 @@
 | 연차 | 공식 범위 | 본 설계서 반영 방식 |
 | --- | --- | --- |
 | 1차년도 | AI 반도체 기반 AI 응용 배포 및 운용 구조 설계, CPU/GPU VM 기반 AI 응용 등록·배포 프로토타입 | 현재 문서의 상세 범위. Go/Echo, Swagger, VM Runtime Adapter, CPU/GPU 자원 연계, 상태·로그·시험 기준을 정의한다. |
-| 2차년도 | GPU/TPU VM 기반 AI 응용 배포 자동화/업데이트 기술, AI 응용 요구분석/추천 프로토타입 | 1차년도 구조가 자동화·업데이트·추천으로 확장될 수 있도록 Runtime Profile과 Deployment 상태 모델을 확장 가능하게 설계한다. |
+| 2차년도 | GPU/TPU VM 기반 AI 응용 배포 자동화/업데이트 기술, AI 응용 요구분석/추천 프로토타입 | 1차년도 구조가 자동화·업데이트·추천으로 확장될 수 있도록 Target runtime configuration과 Deployment 상태 모델을 확장 가능하게 설계한다. |
 | 3차년도 | GPU/TPU/NPU VM 기반 확장, GPU/TPU/NPU 컨테이너 기반 AI 응용 배포 자동화/업데이트 확장 | 컨테이너 기반 배포가 처음 도입되는 연차이다. 1차년도는 컨테이너를 제외하고 Adapter 확장 포인트만 유지한다. |
 | 4차년도 | GPU/TPU/NPU VM 및 컨테이너 기반 배포 자동화/업데이트 통합시험 및 최적화 | 로그, 상태, 시험 증적 구조를 표준화하여 향후 통합시험과 최적화에 재사용한다. |
 | 5차년도 | AI 반도체 VM/컨테이너 기반 대규모 AI 응용 배포/운용 검증 및 안정화, 50개 이상 AI 반도체 클라우드 검증시험 | Target Profile, Resource Inventory, 표준 로그 필드가 대규모 자원 검증으로 확장될 수 있도록 한다. |
@@ -132,7 +131,7 @@ AI 응용 배포 구조는 접근/연계 계층, Control Plane, Execution/Resour
 | --- | --- | --- |
 | Package 생성(선택) | 프리셋 또는 업로드 source에서 tar.gz와 App Spec을 생성한다. | `go/python/node/binary/script` 고정 규칙, checksum, 업로드/ZIP 안전 제한 적용 |
 | 등록 | AI App Spec을 등록한다. 모델은 App 실행에 필요한 참조 정보로 표현한다. | App 이름·버전 중복 검증, 실행 패키지 타입 검증, credential_ref 방식 적용 |
-| 검증 | App Spec, Runtime Profile, Target Profile의 호환성을 확인한다. | GPU App은 GPU Target 또는 AI-Infra Target에서만 배포 가능하다. |
+| 검증 | App Spec과 Target Profile runtime의 호환성을 확인한다. | GPU App은 GPU Target 또는 AI-Infra Target에서만 배포 가능하다. |
 | 배포 요청 | App Version과 Target을 지정해 Deployment를 생성한다. | request_id와 deployment_id를 생성하고 REQUESTED 이벤트를 남긴다. |
 | 배포 실행 | Runtime Adapter가 실행 패키지 준비와 실행 요청을 수행한다. | 1차년도는 VM 실행 명령 또는 외부 AI-Infra API 호출을 사용한다. |
 | 실행 확인 | Healthcheck, 프로세스 상태, GPU Runtime 상태를 확인한다. | 성공 시 RUNNING, 실패 시 표준 실패 상태와 에러 코드를 기록한다. |
@@ -174,13 +173,12 @@ AI 응용 배포 구조는 접근/연계 계층, Control Plane, Execution/Resour
 | Profile | 주요 목적 | 1차년도 예시 필드 |
 | --- | --- | --- |
 | App Spec | AI App 실행 조건과 자원 요구사항 정의 | artifact.type, entrypoint.command, runtime.type, resources.gpu, model_refs, healthcheck |
-| Runtime Profile | 실행 Runtime의 능력과 Adapter 연결 방식 정의 | runtime_type=cpu/gpu/aiinfra/mock, accelerator=nvidia/none, operating_mode=vm_process/remote_api |
 | Target Profile | 실제 배포 대상 VM/스토리지/네트워크 정의 | csp, vm.host, os, gpu.count, storage paths, credential_ref |
 | Resource Inventory | 현재 자원 상태와 최근 점검 결과 기록 | gpu_available, disk_available, runtime_health, last_checked_at |
 
 | 매칭 규칙 | 설명 |
 | --- | --- |
-| Runtime Type 일치 | App Spec의 runtime.type이 gpu이면 Runtime Profile과 Target Profile도 GPU 실행 가능해야 한다. |
+| Runtime Type 일치 | App Spec의 runtime.type이 gpu이면 Target Profile runtime도 GPU 실행 가능해야 한다. |
 | GPU 요구량 검증 | resources.gpu가 1 이상이면 Target의 gpu.count와 GPU Runtime Healthcheck가 성공해야 한다. |
 | 스토리지 경로 검증 | Artifact, Model, Log 경로는 Target Profile에 정의되어야 하고 읽기/쓰기 권한을 확인해야 한다. |
 | 네트워크 포트 검증 | App Spec의 app_port와 Target Profile의 service_port를 매핑하고 충돌 여부를 확인한다. |
@@ -189,7 +187,11 @@ AI 응용 배포 구조는 접근/연계 계층, Control Plane, Execution/Resour
 
 ## 7. CPU/GPU VM 기반 AI 응용 등록·배포 프로토타입 연계 설계
 
-CPU/GPU VM 기반 AI 응용 등록·배포 프로토타입은 본 구조 설계서의 1차년도 구현 검증 수단이다. 따라서 구조 설계서에 정의된 App Spec, Runtime Profile, Target Profile, Deployment 상태, 로그·에러 코드가 프로토타입 개발 문서와 동일해야 한다.
+### Planner와 App Deployer의 책임 경계
+
+Planner는 App Spec 요구사항과 DeploymentManifest(resource envelope 포함)을 생성하고 Deployment 상태 관찰 및 retry 판단을 수행한다. App Deployer는 artifact 생성, 등록 Target Profile의 VM/runtime readiness 확인, 자원 매칭, 적합한 Target 선택과 Runtime Adapter 배포 실행을 수행한다. Manifest의 `target_profile_id`는 선택적 hint이며 App Deployer의 선택 결과가 응답에 기록된다.
+
+CPU/GPU VM 기반 AI 응용 등록·배포 프로토타입은 본 구조 설계서의 1차년도 구현 검증 수단이다. 따라서 구조 설계서에 정의된 App Spec, Target Profile, Deployment 상태, 로그·에러 코드가 프로토타입 개발 문서와 동일해야 한다.
 
 ![그림 4. 프로토타입 개발 구조](images/prototype_development_structure.png)
 
@@ -212,7 +214,7 @@ CPU/GPU VM 기반 AI 응용 등록·배포 프로토타입은 본 구조 설계�
 | 2 | Artifact Package Service | 프리셋/업로드 유형별 Linux amd64 package와 App Spec 생성 |
 | 3 | App Registry/Spec Validator | App Spec 저장, 버전 관리, JSON Schema 검증 |
 | 4 | Deployment Orchestrator | 배포 요청, 상태 전이, Event Log 기록 |
-| 5 | Resource Matcher | Runtime Profile과 Target Profile 기반 CPU/GPU 자원 매칭 |
+| 5 | Resource Matcher | Target runtime과 Target Profile 기반 CPU/GPU 자원 매칭 |
 | 6 | Mock Runtime Adapter | 외부 VM/API 미제공 시 API 계약과 상태 흐름 검증 |
 | 7 | CPU/GPU VM Runtime Adapter | Ubuntu VM 패키지/스크립트 실행, GPU readiness 확인 |
 | 8 | External Adapter | ETRI AI-Infra, API Gateway, 이노그리드, 베스핀 API/Web/MCP 연동 준비 |
@@ -285,7 +287,6 @@ healthcheck:
 | GET | /api/v1/deployments/{deployment_id} | Deployment 상태 조회 |
 | GET | /api/v1/deployments/{deployment_id}/logs | Deployment 로그 조회 |
 | POST | /api/v1/deployments/{deployment_id}/stop | Deployment 중지 요청 |
-| POST | /api/v1/runtime-profiles | Runtime Profile 등록 |
 | POST | /api/v1/target-profiles | Target Profile 등록 |
 | GET | /api/v1/resources/inventory | 자원 상태 조회 |
 | POST | /api/v1/resources/check | 대상 자원 readiness 점검 |
@@ -325,7 +326,7 @@ Deployment Orchestrator는 구체 실행 환경을 직접 호출하지 않고 Ru
 | app_id / app_version_id | App 및 Version 식별자 |
 | component | api, validator, orchestrator, runtime-adapter, resource-manager 등 |
 | stage | VALIDATING, DEPLOYING, RUNNING 등 |
-| runtime_profile_id | Runtime Profile 식별자 |
+| runtime_config | Target Profile에서 파생한 실행 설정 |
 | target_profile_id | Target Profile 식별자 |
 | external_api | 호출한 외부 API 이름 |
 | elapsed_ms | 처리 시간 |
@@ -336,7 +337,7 @@ Deployment Orchestrator는 구체 실행 환경을 직접 호출하지 않고 Ru
 | APP_SPEC_INVALID | App Spec 필수 필드 또는 형식 오류 |
 | APP_ARTIFACT_NOT_FOUND | 실행 패키지 또는 스크립트 위치 확인 실패 |
 | ENTRYPOINT_INVALID | VM에서 실행할 명령 또는 작업 디렉터리 오류 |
-| RUNTIME_PROFILE_INVALID | Runtime Profile 형식 또는 필수 필드 오류 |
+| RUNTIME_PROFILE_INVALID | Target runtime 설정 형식 또는 필수 필드 오류 |
 | TARGET_PROFILE_INVALID | Target Profile 형식 또는 접속 정보 오류 |
 | RESOURCE_INSUFFICIENT | CPU/Memory/GPU/Storage 요구량 충족 실패 |
 | GPU_RUNTIME_NOT_FOUND | NVIDIA GPU 또는 GPU Runtime 확인 실패 |
@@ -406,7 +407,7 @@ Deployment Orchestrator는 구체 실행 환경을 직접 호출하지 않고 Ru
 | --- | --- | --- |
 | AI 응용 배포 구조 | internal/deployment, internal/runtime, diagrams | E2E Test와 상태 전이 로그 |
 | AI 응용 운영 절차 | state machine, event log, operations guide | 상태 전이 Unit Test와 Failure Test |
-| 자원 연계/관리 | runtime_profile.schema.json, target_profile.schema.json, resource matcher | Resource Check API 및 GPU VM 시험 |
+| 자원 연계/관리 | target_profile.schema.json, resource matcher | Resource Check API 및 GPU VM 시험 |
 | App Spec | app_spec.schema.json, examples | Schema validation과 등록 API Test |
 | API | openapi.yaml, Go handler | OpenAPI lint와 API Test |
 | Runtime Adapter | internal/runtime/* | Mock/VM/Contract Test |

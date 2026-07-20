@@ -10,10 +10,10 @@ import (
 	"github.com/khu/ai-app-deployer/internal/model"
 )
 
-// normalizeManifest turns the legacy ID-based request into the stable
-// DeploymentManifest consumed by the orchestrator. A caller may also provide
-// the manifest directly; legacy fields remain accepted for the web console and
-// are rejected when they disagree with the manifest.
+// normalizeManifest turns the request into the stable DeploymentManifest
+// consumed by the orchestrator. A caller may provide a target hint for
+// compatibility, but the field is optional because App Deployer target
+// selection happens after App requirements are loaded and checked.
 func normalizeManifest(req model.DeploymentCreateRequest, deploymentID string) (model.DeploymentManifest, error) {
 	providedManifest := req.Manifest != nil
 	manifest := model.DeploymentManifest{
@@ -52,11 +52,6 @@ func normalizeManifest(req model.DeploymentCreateRequest, deploymentID string) (
 	if err := mergeManifestReference(&manifest.Spec.AppVersionID, req.AppVersionID, "app_version_id"); err != nil {
 		return model.DeploymentManifest{}, err
 	}
-	// Keep the legacy field on the normalized object so old clients and stored
-	// records remain readable. The orchestrator never uses it for execution.
-	if err := mergeManifestReference(&manifest.Spec.RuntimeProfileID, req.RuntimeProfileID, "runtime_profile_id"); err != nil {
-		return model.DeploymentManifest{}, err
-	}
 	if err := mergeManifestReference(&manifest.Spec.TargetProfileID, req.TargetProfileID, "target_profile_id"); err != nil {
 		return model.DeploymentManifest{}, err
 	}
@@ -73,11 +68,11 @@ func normalizeManifest(req model.DeploymentCreateRequest, deploymentID string) (
 		manifest.Spec.Parameters = req.Parameters
 	}
 
-	if manifest.Spec.AppVersionID == "" || manifest.Spec.TargetProfileID == "" {
+	if manifest.Spec.AppVersionID == "" {
 		if !providedManifest {
-			return model.DeploymentManifest{}, manifestInvalid("app_version_id and target_profile_id are required")
+			return model.DeploymentManifest{}, manifestInvalid("app_version_id is required")
 		}
-		return model.DeploymentManifest{}, manifestInvalid("manifest.spec requires app_version_id and target_profile_id")
+		return model.DeploymentManifest{}, manifestInvalid("manifest.spec requires app_version_id")
 	}
 	return manifest, nil
 }

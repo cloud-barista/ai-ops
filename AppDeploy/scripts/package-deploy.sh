@@ -22,7 +22,6 @@ entrypoint=""
 runtime_type="cpu"
 service_port="0"
 health_path="/health"
-runtime_id=""
 target_id=""
 build_only="false"
 
@@ -37,7 +36,6 @@ while [[ $# -gt 0 ]]; do
     --runtime|--runtime-type) runtime_type="$2"; shift 2 ;;
     --port|--service-port) service_port="$2"; shift 2 ;;
     --health-path) health_path="$2"; shift 2 ;;
-    --runtime-id|--runtime-profile-id) runtime_id="$2"; shift 2 ;;
     --target-id|--target-profile-id) target_id="$2"; shift 2 ;;
     --build-only) build_only="true"; shift ;;
     -h|--help) usage; exit 0 ;;
@@ -64,11 +62,6 @@ if ! [[ "$service_port" =~ ^[0-9]+$ ]] || (( service_port > 65535 )); then
   echo "--port must be 0 or 1-65535" >&2
   exit 2
 fi
-if [[ "$build_only" != "true" && -z "$target_id" ]]; then
-  echo "--target-id is required unless --build-only is used" >&2
-  exit 2
-fi
-
 base_url="${base_url%/}"
 request_id="req-package-shell-$(date -u +%Y%m%d%H%M%S)-$$"
 work_dir="$(mktemp -d)"
@@ -211,20 +204,22 @@ if ! app_version_id="$(jq -er '.app_version_id' "$app_file")"; then
   print_partial_state
   exit 1
 fi
-resource_body="$(jq -cn --arg target "$target_id" '{target_profile_id:$target}')"
-api_call POST /api/v1/resources/check "$resource_file" "$resource_body"
-if ! resource_status="$(jq -er '.status // empty' "$resource_file")"; then
-  echo "Resource Check response does not contain status" >&2
-  print_partial_state
-  exit 1
-fi
-if [[ "$resource_status" != "available" ]]; then
-  echo "Resource Check status is '${resource_status:-missing}'; Deployment was not created" >&2
-  print_partial_state
-  exit 1
+if [[ -n "$target_id" ]]; then
+  resource_body="$(jq -cn --arg target "$target_id" '{target_profile_id:$target}')"
+  api_call POST /api/v1/resources/check "$resource_file" "$resource_body"
+  if ! resource_status="$(jq -er '.status // empty' "$resource_file")"; then
+    echo "Resource Check response does not contain status" >&2
+    print_partial_state
+    exit 1
+  fi
+  if [[ "$resource_status" != "available" ]]; then
+    echo "Resource Check status is '${resource_status:-missing}'; Deployment was not created" >&2
+    print_partial_state
+    exit 1
+  fi
 fi
 deployment_body="$(jq -cn --arg app "$app_version_id" --arg target "$target_id" \
-  '{app_version_id:$app, target_profile_id:$target, requested_by:"appdeploy-bash-package"}')"
+  '{app_version_id:$app, requested_by:"appdeploy-bash-package"} + (if $target == "" then {} else {target_profile_id:$target} end)')"
 api_call POST /api/v1/deployments "$deployment_file" "$deployment_body"
 
 jq -n \

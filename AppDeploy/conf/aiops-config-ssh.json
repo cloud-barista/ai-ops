@@ -37,15 +37,6 @@
       "memory": "512Mi"
     }
   },
-  "runtime_profile": {
-    "_comment": "AppDeploy Runtime Profile 설정입니다. CPU VM SSH runner를 사용하므로 cpu/cpu_vm/vm_process 조합을 사용합니다.",
-    "id_prefix": "rt-aiops-geon-cpu-ssh-home",
-    "name": "aiops-geon cpu ssh vm process",
-    "runtime_type": "cpu",
-    "adapter_type": "cpu_vm",
-    "operating_mode": "vm_process",
-    "accelerator": "none"
-  },
   "target_profile": {
     "_comment": "AppDeploy Target Profile 설정입니다. host/port/user/key는 ssh_alias에서 읽고, AppDeploy에는 credential_ref만 넘깁니다.",
     "id_prefix": "target-aiops-geon-cpu-ssh-home",

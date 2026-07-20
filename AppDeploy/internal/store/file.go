@@ -24,7 +24,6 @@ type fileData struct {
 	AppsByID        map[string]model.AppResponse             `json:"apps_by_id"`
 	AppsByVersionID map[string]model.AppResponse             `json:"apps_by_version_id"`
 	AppNameVersion  map[string]string                        `json:"app_name_version"`
-	Runtimes        map[string]model.RuntimeProfile          `json:"runtimes"`
 	Targets         map[string]model.TargetProfile           `json:"targets"`
 	Deployments     map[string]model.DeploymentResponse      `json:"deployments"`
 	Events          map[string][]model.DeploymentEvent       `json:"events"`
@@ -48,7 +47,6 @@ func newFileData() fileData {
 		AppsByID:        map[string]model.AppResponse{},
 		AppsByVersionID: map[string]model.AppResponse{},
 		AppNameVersion:  map[string]string{},
-		Runtimes:        map[string]model.RuntimeProfile{},
 		Targets:         map[string]model.TargetProfile{},
 		Deployments:     map[string]model.DeploymentResponse{},
 		Events:          map[string][]model.DeploymentEvent{},
@@ -87,7 +85,6 @@ func (f *File) ensureMaps() {
 	ensureMap(&f.data.AppsByID)
 	ensureMap(&f.data.AppsByVersionID)
 	ensureMap(&f.data.AppNameVersion)
-	ensureMap(&f.data.Runtimes)
 	ensureMap(&f.data.Targets)
 	ensureMap(&f.data.Deployments)
 	ensureMap(&f.data.Events)
@@ -176,54 +173,6 @@ func (f *File) DeleteApp(ctx context.Context, appID string) (model.AppResponse, 
 		return model.AppResponse{}, fmt.Errorf("persist app deletion: %w", err)
 	}
 	return app, nil
-}
-
-func (f *File) CreateRuntimeProfile(ctx context.Context, profile model.RuntimeProfile) error {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-	f.data.Runtimes[profile.RuntimeProfileID] = profile
-	return f.saveLocked()
-}
-
-func (f *File) ListRuntimeProfiles(ctx context.Context) ([]model.RuntimeProfile, error) {
-	f.mu.RLock()
-	defer f.mu.RUnlock()
-	return mapValues(f.data.Runtimes), nil
-}
-
-func (f *File) GetRuntimeProfile(ctx context.Context, id string) (model.RuntimeProfile, error) {
-	f.mu.RLock()
-	defer f.mu.RUnlock()
-	return mapValue(f.data.Runtimes, id, "runtime profile not found")
-}
-
-func (f *File) DeleteRuntimeProfile(ctx context.Context, id string) (model.RuntimeProfile, error) {
-	if err := contextError(ctx); err != nil {
-		return model.RuntimeProfile{}, err
-	}
-	f.mu.Lock()
-	defer f.mu.Unlock()
-	if err := contextError(ctx); err != nil {
-		return model.RuntimeProfile{}, err
-	}
-
-	profile, err := mapValue(f.data.Runtimes, id, "runtime profile not found")
-	if err != nil {
-		return model.RuntimeProfile{}, err
-	}
-	if err := validateRuntimeProfileDeletion(f.data.Deployments, id); err != nil {
-		return model.RuntimeProfile{}, err
-	}
-	if err := contextError(ctx); err != nil {
-		return model.RuntimeProfile{}, err
-	}
-
-	delete(f.data.Runtimes, id)
-	if err := f.saveLocked(); err != nil {
-		f.data.Runtimes[id] = profile
-		return model.RuntimeProfile{}, fmt.Errorf("persist runtime profile deletion: %w", err)
-	}
-	return profile, nil
 }
 
 func (f *File) CreateTargetProfile(ctx context.Context, profile model.TargetProfile) error {

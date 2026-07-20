@@ -46,12 +46,12 @@ func (r *Router) ValidateTarget(ctx context.Context, target model.TargetProfile)
 	return adapter.ValidateTarget(ctx, target)
 }
 
-func (r *Router) HealthCheck(ctx context.Context, profile model.RuntimeProfile, target model.TargetProfile) error {
-	adapter, err := r.adapterForProfile(profile, target)
+func (r *Router) HealthCheck(ctx context.Context, config model.RuntimeConfig, target model.TargetProfile) error {
+	adapter, err := r.adapterForConfig(config, target)
 	if err != nil {
 		return err
 	}
-	return adapter.HealthCheck(ctx, profile, target)
+	return adapter.HealthCheck(ctx, config, target)
 }
 
 func (r *Router) Prepare(ctx context.Context, app model.AppResponse, target model.TargetProfile) (*PrepareResult, error) {
@@ -63,7 +63,7 @@ func (r *Router) Prepare(ctx context.Context, app model.AppResponse, target mode
 }
 
 func (r *Router) Deploy(ctx context.Context, plan DeploymentPlan) (*DeployResult, error) {
-	adapter, err := r.adapterForProfile(plan.Runtime, plan.Target)
+	adapter, err := r.adapterForConfig(plan.Runtime, plan.Target)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +86,7 @@ func (r *Router) GetLogs(ctx context.Context, deploymentID string, opt LogQuery)
 }
 
 func (r *Router) Stop(ctx context.Context, plan StopPlan) error {
-	adapter, err := r.adapterForProfile(plan.Runtime, plan.Target)
+	adapter, err := r.adapterForConfig(plan.Runtime, plan.Target)
 	if err != nil {
 		return err
 	}
@@ -99,13 +99,13 @@ func (r *Router) Stop(ctx context.Context, plan StopPlan) error {
 	return nil
 }
 
-func (r *Router) adapterForProfile(profile model.RuntimeProfile, target model.TargetProfile) (Adapter, error) {
+func (r *Router) adapterForConfig(config model.RuntimeConfig, target model.TargetProfile) (Adapter, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
-	if adapter := r.byAdapterType[profile.AdapterType]; adapter != nil {
+	if adapter := r.byAdapterType[config.AdapterType]; adapter != nil {
 		return adapter, nil
 	}
-	if adapter := r.byRuntimeType[profile.RuntimeType]; adapter != nil {
+	if adapter := r.byRuntimeType[config.RuntimeType]; adapter != nil {
 		return adapter, nil
 	}
 	if adapter := r.byRuntimeType[target.Runtime.RuntimeType]; adapter != nil {
@@ -114,7 +114,7 @@ func (r *Router) adapterForProfile(profile model.RuntimeProfile, target model.Ta
 	if r.defaultAdapter != nil {
 		return r.defaultAdapter, nil
 	}
-	return nil, noAdapter(profile.RuntimeType)
+	return nil, noAdapter(config.RuntimeType)
 }
 
 func (r *Router) adapterForTarget(target model.TargetProfile) (Adapter, error) {
@@ -147,7 +147,7 @@ func (r *Router) adapterForDeployment(deploymentID string) Adapter {
 }
 
 func noAdapter(runtimeType string) error {
-	return apperrors.WithDetails(model.ErrRuntimeProfileInvalid, "runtime adapter is not registered", http.StatusBadRequest, false, map[string]any{
+	return apperrors.WithDetails(model.ErrRuntimeConfigInvalid, "runtime adapter is not registered", http.StatusBadRequest, false, map[string]any{
 		"runtime_type": runtimeType,
 	})
 }

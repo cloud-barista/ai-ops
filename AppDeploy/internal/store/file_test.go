@@ -36,23 +36,13 @@ func TestFileStorePersistsData(t *testing.T) {
 	if err := first.CreateApp(ctx, app); err != nil {
 		t.Fatal(err)
 	}
-	if err := first.CreateRuntimeProfile(ctx, model.RuntimeProfile{
-		RuntimeProfileID: "rt-cpu-001",
-		RuntimeType:      "cpu",
-		Accelerator:      "none",
-		AdapterType:      "cpu_vm",
-		OperatingMode:    "vm_process",
-	}); err != nil {
-		t.Fatal(err)
-	}
 	deployment := model.DeploymentResponse{
-		DeploymentID:     "dep-001",
-		AppVersionID:     "appver-001",
-		RuntimeProfileID: "rt-cpu-001",
-		TargetProfileID:  "target-cpu-001",
-		Status:           model.StatusRunning,
-		CreatedAt:        time.Now().UTC(),
-		UpdatedAt:        time.Now().UTC(),
+		DeploymentID:    "dep-001",
+		AppVersionID:    "appver-001",
+		TargetProfileID: "target-cpu-001",
+		Status:          model.StatusRunning,
+		CreatedAt:       time.Now().UTC(),
+		UpdatedAt:       time.Now().UTC(),
 	}
 	if err := first.CreateDeployment(ctx, deployment); err != nil {
 		t.Fatal(err)

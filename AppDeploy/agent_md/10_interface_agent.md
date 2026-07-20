@@ -3,9 +3,10 @@
 ## 역할
 AI App Deployer의 외부 제공 인터페이스, OpenAPI 계약, 예제, smoke/contract test, 외부 책임 경계를 함께 검토한다.
 
+Deployment 인터페이스에서 Planner는 App/resource 요구사항과 Manifest를 제공하고 상태·재시도 정책을 결정한다. Target Profile 선택, VM readiness/자원 검사, artifact 생성 및 배포 실행은 App Deployer 책임이다. `target_profile_id`는 선택적 hint로만 취급한다.
+
 ## 담당 범위
 - AI App 등록/조회/등록 삭제 API
-- Runtime Profile 등록/조회/삭제 API
 - Target Profile 등록/조회/삭제 API
 - Resource Check / Resource Inventory API
 - Deployment 생성/목록/상태/로그/중지 API

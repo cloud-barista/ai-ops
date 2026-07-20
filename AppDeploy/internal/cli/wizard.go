@@ -111,45 +111,6 @@ func (s *Shell) fileOrAppWizard(args []string) (any, error) {
 	return model.AppCreateRequest{AppSpec: spec}, nil
 }
 
-func (s *Shell) fileOrRuntimeWizard(args []string) (any, error) {
-	if len(args) > 1 {
-		return nil, errors.New("사용법: runtimes add [json-file]")
-	}
-	if len(args) == 1 {
-		return readJSONFile(args[0])
-	}
-	s.section("Runtime Profile 등록")
-	runtimeType, err := s.promptChoice("Runtime", "cpu", "mock", "cpu", "gpu", "aiinfra")
-	if err != nil {
-		return nil, err
-	}
-	defaults := runtimeDefaults(runtimeType)
-	id, err := s.prompt("Runtime Profile ID", "rt-"+runtimeType+"-001", true)
-	if err != nil {
-		return nil, err
-	}
-	name, err := s.prompt("표시 이름", runtimeType+"-runtime", false)
-	if err != nil {
-		return nil, err
-	}
-	adapter, err := s.promptChoice("Adapter", defaults.adapter, "mock", "cpu_vm", "gpu_vm", "etri_aiinfra")
-	if err != nil {
-		return nil, err
-	}
-	mode, err := s.promptChoice("운영 모드", defaults.mode, "local_mock", "dry_run", "vm_process", "remote_api")
-	if err != nil {
-		return nil, err
-	}
-	return model.RuntimeProfile{
-		RuntimeProfileID: id,
-		Name:             name,
-		RuntimeType:      runtimeType,
-		Accelerator:      defaults.accelerator,
-		AdapterType:      adapter,
-		OperatingMode:    mode,
-	}, nil
-}
-
 func (s *Shell) fileOrTargetWizard(args []string) (any, error) {
 	if len(args) > 1 {
 		return nil, errors.New("사용법: targets add [json-file]")

@@ -19,7 +19,6 @@ param(
     [int]$ServicePort = 0,
 
     [string]$HealthcheckPath = "/health",
-    [string]$RuntimeProfileId = "",
     [string]$TargetProfileId = "",
     [string]$BaseUrl = "http://localhost:8080"
 )
@@ -190,10 +189,6 @@ if ($PackageType -ne "aiops-geon-service-control") {
     }
 }
 
-if ($Action -eq "deploy" -and [string]::IsNullOrWhiteSpace($TargetProfileId)) {
-    throw "-TargetProfileId is required for deploy"
-}
-
 if ($PackageType -eq "aiops-geon-service-control") {
     if ($ServicePort -eq 0) {
         $ServicePort = 18089
@@ -219,15 +214,19 @@ $app = $null
 $resourceCheck = $null
 try {
     $app = Invoke-JsonApi -Method "POST" -Path "/api/v1/apps" -Body @{ app_spec = $package.app_spec }
-    $resourceBody = @{ target_profile_id = $TargetProfileId }
-    $resourceCheck = Invoke-JsonApi -Method "POST" -Path "/api/v1/resources/check" -Body $resourceBody
-    if ([string]$resourceCheck.status -ne "available") {
-        throw "Resource Check status is '$($resourceCheck.status)'; Deployment was not created"
+    if (-not [string]::IsNullOrWhiteSpace($TargetProfileId)) {
+        $resourceBody = @{ target_profile_id = $TargetProfileId }
+        $resourceCheck = Invoke-JsonApi -Method "POST" -Path "/api/v1/resources/check" -Body $resourceBody
+        if ([string]$resourceCheck.status -ne "available") {
+            throw "Resource Check status is '$($resourceCheck.status)'; Deployment was not created"
+        }
     }
     $deploymentBody = @{
         app_version_id = $app.app_version_id
-        target_profile_id = $TargetProfileId
         requested_by = "appdeploy-powershell-package"
+    }
+    if (-not [string]::IsNullOrWhiteSpace($TargetProfileId)) {
+        $deploymentBody.target_profile_id = $TargetProfileId
     }
     $deployment = Invoke-JsonApi -Method "POST" -Path "/api/v1/deployments" -Body $deploymentBody
 } catch {

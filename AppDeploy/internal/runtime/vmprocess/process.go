@@ -76,7 +76,7 @@ func (p *Process) Prepare(ctx context.Context, app model.AppResponse, target mod
 
 func (p *Process) Deploy(ctx context.Context, plan runtime.DeploymentPlan) (*runtime.DeployResult, error) {
 	if plan.App.AppSpec.Runtime.Type != p.config.RuntimeType {
-		return nil, apperrors.New(model.ErrRuntimeProfileInvalid, p.config.DisplayName+" adapter can deploy only "+p.config.RuntimeType+" apps", http.StatusBadRequest, false)
+		return nil, apperrors.New(model.ErrRuntimeConfigInvalid, p.config.DisplayName+" adapter can deploy only "+p.config.RuntimeType+" apps", http.StatusBadRequest, false)
 	}
 	workingDir := workingDirectory(plan.App, plan.Target)
 	result, err := p.runner.Run(ctx, plan.Target, Command{

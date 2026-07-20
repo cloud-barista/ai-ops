@@ -30,7 +30,6 @@ type packageCommandOptions struct {
 	runtimeType     string
 	servicePort     int
 	healthcheckPath string
-	runtimeID       string
 	targetID        string
 }
 
@@ -86,26 +85,28 @@ func (s *Shell) packageDeploy(ctx context.Context, args []string) error {
 		return fmt.Errorf("package %s (%s) 생성 후 App 등록 응답 해석 실패: %w", packageResult.ArchiveName, packageResult.ArtifactURI, err)
 	}
 
-	resourceResponse, err := s.call(ctx, http.MethodPost, "/api/v1/resources/check", model.ResourceCheckRequest{
-		TargetProfileID: options.targetID,
-	})
-	if err != nil {
-		return fmt.Errorf("package %s 및 App %s 생성 후 자원 점검 실패: %w", packageResult.ArchiveName, appResult.AppVersionID, err)
-	}
 	var resourceResult model.ResourceCheckResponse
-	if err := decodeCLIResponse(resourceResponse.body, &resourceResult); err != nil {
-		return fmt.Errorf("package %s 및 App %s 생성 후 자원 점검 응답 해석 실패: %w", packageResult.ArchiveName, appResult.AppVersionID, err)
-	}
-	if !strings.EqualFold(resourceResult.Status, "available") {
-		checks, _ := json.Marshal(resourceResult.Checks)
-		return fmt.Errorf(
-			"package %s (%s) 및 App %s는 생성되었지만 자원 점검 상태가 %q입니다 (checks=%s). Deployment는 생성하지 않았습니다",
-			packageResult.ArchiveName,
-			packageResult.ArtifactURI,
-			appResult.AppVersionID,
-			resourceResult.Status,
-			checks,
-		)
+	if options.targetID != "" {
+		resourceResponse, err := s.call(ctx, http.MethodPost, "/api/v1/resources/check", model.ResourceCheckRequest{
+			TargetProfileID: options.targetID,
+		})
+		if err != nil {
+			return fmt.Errorf("package %s 및 App %s 생성 후 자원 점검 실패: %w", packageResult.ArchiveName, appResult.AppVersionID, err)
+		}
+		if err := decodeCLIResponse(resourceResponse.body, &resourceResult); err != nil {
+			return fmt.Errorf("package %s 및 App %s 생성 후 자원 점검 응답 해석 실패: %w", packageResult.ArchiveName, appResult.AppVersionID, err)
+		}
+		if !strings.EqualFold(resourceResult.Status, "available") {
+			checks, _ := json.Marshal(resourceResult.Checks)
+			return fmt.Errorf(
+				"package %s (%s) 및 App %s는 생성되었지만 자원 점검 상태가 %q입니다 (checks=%s). Deployment는 생성하지 않았습니다",
+				packageResult.ArchiveName,
+				packageResult.ArtifactURI,
+				appResult.AppVersionID,
+				resourceResult.Status,
+				checks,
+			)
+		}
 	}
 
 	deploymentResponse, err := s.call(ctx, http.MethodPost, "/api/v1/deployments", model.DeploymentCreateRequest{
@@ -155,8 +156,6 @@ func parsePackageFlags(args []string) (packageCommandOptions, error) {
 	flags.IntVar(&options.servicePort, "port", 0, "service port")
 	flags.IntVar(&options.servicePort, "service-port", 0, "service port")
 	flags.StringVar(&options.healthcheckPath, "health-path", "", "HTTP health path")
-	flags.StringVar(&options.runtimeID, "runtime-id", "", "Runtime Profile ID")
-	flags.StringVar(&options.runtimeID, "runtime-profile-id", "", "Runtime Profile ID")
 	flags.StringVar(&options.targetID, "target-id", "", "Target Profile ID")
 	flags.StringVar(&options.targetID, "target-profile-id", "", "Target Profile ID")
 	if err := flags.Parse(args); err != nil {
@@ -176,7 +175,6 @@ func normalizePackageOptions(options packageCommandOptions, deploy bool) (packag
 	options.entrypoint = strings.TrimSpace(options.entrypoint)
 	options.runtimeType = strings.ToLower(strings.TrimSpace(options.runtimeType))
 	options.healthcheckPath = strings.TrimSpace(options.healthcheckPath)
-	options.runtimeID = strings.TrimSpace(options.runtimeID)
 	options.targetID = strings.TrimSpace(options.targetID)
 
 	if !isPackageCommandType(options.packageType) {
@@ -218,9 +216,6 @@ func normalizePackageOptions(options packageCommandOptions, deploy bool) (packag
 		}
 	}
 
-	if deploy && options.targetID == "" {
-		return packageCommandOptions{}, errors.New("package 배포에는 --target-id가 필요합니다")
-	}
 	return options, nil
 }
 
@@ -284,7 +279,7 @@ func (s *Shell) packageWizard(ctx context.Context, deploy bool) (packageCommandO
 	}
 
 	if deploy {
-		options.runtimeID, options.targetID, err = s.packageDeploymentProfiles(ctx, options.runtimeType)
+		options.targetID, err = s.packageDeploymentProfiles(ctx, options.runtimeType)
 		if err != nil {
 			return packageCommandOptions{}, err
 		}
@@ -292,16 +287,16 @@ func (s *Shell) packageWizard(ctx context.Context, deploy bool) (packageCommandO
 	return normalizePackageOptions(options, deploy)
 }
 
-func (s *Shell) packageDeploymentProfiles(ctx context.Context, runtimeType string) (string, string, error) {
+func (s *Shell) packageDeploymentProfiles(ctx context.Context, runtimeType string) (string, error) {
 	fmt.Fprintf(s.out, "\n%s Target의 종류가 %s인지 확인하세요.\n", s.paint(ansiDim, "배포 대상 선택:"), runtimeType)
 	if err := s.showList(ctx, "/api/v1/target-profiles", []column{{title: "TARGET ID", path: "target_profile_id"}, {title: "TYPE", path: "runtime.runtime_type"}, {title: "CSP", path: "csp"}}); err != nil {
-		return "", "", err
+		return "", err
 	}
-	targetID, err := s.prompt("Target Profile ID", "", true)
+	targetID, err := s.prompt("Target Profile hint (Enter=automatic selection)", "", false)
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
-	return "", targetID, nil
+	return targetID, nil
 }
 
 func (s *Shell) buildPackage(ctx context.Context, options packageCommandOptions) (model.PackageBuildResponse, error) {

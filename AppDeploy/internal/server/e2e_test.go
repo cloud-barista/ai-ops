@@ -109,13 +109,11 @@ func TestMockRuntimeE2E(t *testing.T) {
 	e := newTestServer(t)
 
 	appVersionID := createApp(t, e, validMockApp())
-	createMockRuntimeProfile(t, e)
 	createMockTargetProfile(t, e)
 
 	deployment := postJSON[model.DeploymentResponse](t, e, http.MethodPost, "/api/v1/deployments", model.DeploymentCreateRequest{
-		AppVersionID:     appVersionID,
-		RuntimeProfileID: "rt-mock-001",
-		TargetProfileID:  "target-mock-001",
+		AppVersionID:    appVersionID,
+		TargetProfileID: "target-mock-001",
 	})
 	if deployment.Status != model.StatusRunning {
 		t.Fatalf("deployment status = %s, want %s", deployment.Status, model.StatusRunning)
@@ -162,18 +160,17 @@ func TestDeploymentAcceptsPlannerManifest(t *testing.T) {
 			SchemaVersion: model.DeploymentManifestSchemaVersion,
 			Kind:          model.DeploymentManifestKind,
 			Spec: model.DeploymentManifestSpec{
-				AppVersionID:    appVersionID,
-				TargetProfileID: "target-mock-001",
-				Accelerator:     "none",
-				Resources:       model.Resources{CPU: "1", Memory: "1Gi", GPU: "0", Storage: "1Gi"},
-				RequestedBy:     "ai-ops-geon-planner",
+				AppVersionID: appVersionID,
+				Accelerator:  "none",
+				Resources:    model.Resources{CPU: "1", Memory: "1Gi", GPU: "0", Storage: "1Gi"},
+				RequestedBy:  "ai-ops-geon-planner",
 			},
 		},
 	})
 	if deployment.Status != model.StatusRunning {
 		t.Fatalf("deployment status = %s, want %s", deployment.Status, model.StatusRunning)
 	}
-	if deployment.Manifest == nil || deployment.Manifest.Kind != model.DeploymentManifestKind || deployment.Manifest.Spec.RuntimeProfileID != "" || deployment.Manifest.Spec.RequestedBy != "ai-ops-geon-planner" || deployment.Manifest.Spec.Resources.Memory != "1Gi" {
+	if deployment.Manifest == nil || deployment.Manifest.Kind != model.DeploymentManifestKind || deployment.Manifest.Spec.RequestedBy != "ai-ops-geon-planner" || deployment.Manifest.Spec.Resources.Memory != "1Gi" || deployment.Manifest.Spec.TargetProfileID != "target-mock-001" {
 		t.Fatalf("unexpected planner manifest: %+v", deployment.Manifest)
 	}
 
@@ -183,21 +180,49 @@ func TestDeploymentAcceptsPlannerManifest(t *testing.T) {
 	}
 }
 
-func TestMockTargetAcceptsAnyAppRuntimeWithoutRuntimeProfile(t *testing.T) {
+func TestDeploymentSelectsMatchingReadyTarget(t *testing.T) {
+	t.Setenv("AIAPP_CPUVM_RUNNER", "dry-run")
+	t.Setenv("AIAPP_GPUVM_RUNNER", "dry-run")
+	e := newTestServer(t)
+
+	appVersionID := createApp(t, e, validCPUApp())
+	postJSON[model.TargetProfile](t, e, http.MethodPost, "/api/v1/target-profiles", model.TargetProfile{
+		TargetProfileID: "target-aaa-gpu-001",
+		Name:            "gpu-candidate",
+		CSP:             "local",
+		VM:              model.VMProfile{Host: "gpu-vm.example.internal", SSHPort: 22, CredentialRef: "cred://local/gpu-vm-001"},
+		Runtime:         model.TargetRuntime{RuntimeType: "gpu", Accelerator: "nvidia", OperatingMode: "vm_process"},
+		GPU:             &model.GPUProfile{Vendor: "nvidia", Count: 1},
+	})
+	postJSON[model.TargetProfile](t, e, http.MethodPost, "/api/v1/target-profiles", model.TargetProfile{
+		TargetProfileID: "target-zzz-cpu-001",
+		Name:            "cpu-candidate",
+		CSP:             "local",
+		VM:              model.VMProfile{Host: "cpu-vm.example.internal", SSHPort: 22, CredentialRef: "cred://local/cpu-vm-001"},
+		Runtime:         model.TargetRuntime{RuntimeType: "cpu", Accelerator: "none", OperatingMode: "vm_process"},
+		Storage:         &model.Storage{ArtifactDir: "/tmp/aiapp/artifacts", LogDir: "/tmp/aiapp/logs"},
+	})
+
+	deployment := postJSON[model.DeploymentResponse](t, e, http.MethodPost, "/api/v1/deployments", model.DeploymentCreateRequest{AppVersionID: appVersionID})
+	if deployment.Status != model.StatusRunning || deployment.TargetProfileID != "target-zzz-cpu-001" {
+		t.Fatalf("deployment selected target = %q status=%q, want target-zzz-cpu-001/RUNNING", deployment.TargetProfileID, deployment.Status)
+	}
+}
+
+func TestMockTargetAcceptsAnyAppRuntimeUsingTargetRuntime(t *testing.T) {
 	t.Setenv("AIAPP_CPUVM_RUNNER", "dry-run")
 	t.Setenv("AIAPP_GPUVM_RUNNER", "dry-run")
 	e := newTestServer(t)
 
 	// The mock Target is used to exercise the deployment flow itself. It must
-	// not require a separately registered Runtime Profile or force the App Spec
+	// not require a separately registered runtime configuration or force the App Spec
 	// to claim runtime_type=mock.
 	appVersionID := createApp(t, e, validCPUApp())
 	createMockTargetProfile(t, e)
 
 	deployment := postJSON[model.DeploymentResponse](t, e, http.MethodPost, "/api/v1/deployments", model.DeploymentCreateRequest{
-		AppVersionID:     appVersionID,
-		RuntimeProfileID: "legacy-runtime-not-registered",
-		TargetProfileID:  "target-mock-001",
+		AppVersionID:    appVersionID,
+		TargetProfileID: "target-mock-001",
 	})
 	if deployment.Status != model.StatusRunning {
 		t.Fatalf("deployment status = %s, want %s", deployment.Status, model.StatusRunning)
@@ -236,7 +261,6 @@ func TestCPUVMRuntimeE2E(t *testing.T) {
 	e := newTestServer(t)
 
 	appVersionID := createApp(t, e, validCPUApp())
-	createCPURuntimeProfile(t, e)
 	createCPUTargetProfile(t, e)
 
 	check := postJSON[model.ResourceCheckResponse](t, e, http.MethodPost, "/api/v1/resources/check", model.ResourceCheckRequest{
@@ -247,9 +271,8 @@ func TestCPUVMRuntimeE2E(t *testing.T) {
 	}
 
 	deployment := postJSON[model.DeploymentResponse](t, e, http.MethodPost, "/api/v1/deployments", model.DeploymentCreateRequest{
-		AppVersionID:     appVersionID,
-		RuntimeProfileID: "rt-cpu-001",
-		TargetProfileID:  "target-cpu-001",
+		AppVersionID:    appVersionID,
+		TargetProfileID: "target-cpu-001",
 	})
 	if deployment.Status != model.StatusRunning {
 		t.Fatalf("deployment status = %s, want %s", deployment.Status, model.StatusRunning)
@@ -280,7 +303,6 @@ func TestGPUVMRuntimeE2E(t *testing.T) {
 	e := newTestServer(t)
 
 	appVersionID := createApp(t, e, validGPUApp())
-	createGPURuntimeProfile(t, e)
 	createGPUTargetProfile(t, e)
 
 	check := postJSON[model.ResourceCheckResponse](t, e, http.MethodPost, "/api/v1/resources/check", model.ResourceCheckRequest{
@@ -291,9 +313,8 @@ func TestGPUVMRuntimeE2E(t *testing.T) {
 	}
 
 	deployment := postJSON[model.DeploymentResponse](t, e, http.MethodPost, "/api/v1/deployments", model.DeploymentCreateRequest{
-		AppVersionID:     appVersionID,
-		RuntimeProfileID: "rt-gpu-001",
-		TargetProfileID:  "target-gpu-001",
+		AppVersionID:    appVersionID,
+		TargetProfileID: "target-gpu-001",
 	})
 	if deployment.Status != model.StatusRunning {
 		t.Fatalf("deployment status = %s, want %s", deployment.Status, model.StatusRunning)
@@ -324,7 +345,6 @@ func TestAIInfraRuntimeSkeletonE2E(t *testing.T) {
 	e := newTestServer(t)
 
 	appVersionID := createApp(t, e, validAIInfraApp())
-	createAIInfraRuntimeProfile(t, e)
 	createAIInfraTargetProfile(t, e)
 
 	check := postJSON[model.ResourceCheckResponse](t, e, http.MethodPost, "/api/v1/resources/check", model.ResourceCheckRequest{
@@ -335,9 +355,8 @@ func TestAIInfraRuntimeSkeletonE2E(t *testing.T) {
 	}
 
 	deployment := postJSON[model.DeploymentResponse](t, e, http.MethodPost, "/api/v1/deployments", model.DeploymentCreateRequest{
-		AppVersionID:     appVersionID,
-		RuntimeProfileID: "rt-aiinfra-001",
-		TargetProfileID:  "target-aiinfra-001",
+		AppVersionID:    appVersionID,
+		TargetProfileID: "target-aiinfra-001",
 	})
 	if deployment.Status != model.StatusRunning {
 		t.Fatalf("deployment status = %s, want %s", deployment.Status, model.StatusRunning)
@@ -368,22 +387,19 @@ func TestMonitoringSummaryE2E(t *testing.T) {
 	e := newTestServer(t)
 
 	appVersionID := createApp(t, e, validCPUApp())
-	createCPURuntimeProfile(t, e)
 	createCPUTargetProfile(t, e)
 
 	postJSON[model.ResourceCheckResponse](t, e, http.MethodPost, "/api/v1/resources/check", model.ResourceCheckRequest{
 		TargetProfileID: "target-cpu-001",
 	})
 	postJSON[model.DeploymentResponse](t, e, http.MethodPost, "/api/v1/deployments", model.DeploymentCreateRequest{
-		AppVersionID:     appVersionID,
-		RuntimeProfileID: "rt-cpu-001",
-		TargetProfileID:  "target-cpu-001",
+		AppVersionID:    appVersionID,
+		TargetProfileID: "target-cpu-001",
 	})
 
 	failed := request(t, e, http.MethodPost, "/api/v1/deployments", model.DeploymentCreateRequest{
-		AppVersionID:     "missing-app-version",
-		RuntimeProfileID: "rt-cpu-001",
-		TargetProfileID:  "target-cpu-001",
+		AppVersionID:    "missing-app-version",
+		TargetProfileID: "target-cpu-001",
 	})
 	if failed.Code != http.StatusBadRequest {
 		t.Fatalf("failed deployment status = %d, want %d", failed.Code, http.StatusBadRequest)
@@ -427,12 +443,10 @@ func TestInferenceMetricsE2E(t *testing.T) {
 	e := newTestServer(t)
 
 	appVersionID := createApp(t, e, validCPUApp())
-	createCPURuntimeProfile(t, e)
 	createCPUTargetProfile(t, e)
 	deployment := postJSON[model.DeploymentResponse](t, e, http.MethodPost, "/api/v1/deployments", model.DeploymentCreateRequest{
-		AppVersionID:     appVersionID,
-		RuntimeProfileID: "rt-cpu-001",
-		TargetProfileID:  "target-cpu-001",
+		AppVersionID:    appVersionID,
+		TargetProfileID: "target-cpu-001",
 	})
 
 	metric := postJSON[model.InferenceMetricRecord](t, e, http.MethodPost, "/api/v1/deployments/"+deployment.DeploymentID+"/metrics", model.InferenceMetricCreateRequest{
@@ -494,18 +508,13 @@ func TestExternalInterfaceExamplesE2E(t *testing.T) {
 		t.Fatalf("unexpected invalid app response: %+v", invalidResp)
 	}
 
-	runtimeProfile := postRawJSON[map[string]any](t, e, http.MethodPost, "/api/v1/runtime-profiles", readInterfaceRequest(t, "runtime-profile-gpu-vm.json"))
-	if runtimeProfile["request_id"] == "" || runtimeProfile["profile_id"] != "runtime-gpu-vm-001" {
-		t.Fatalf("unexpected runtime profile response: %+v", runtimeProfile)
-	}
-
 	targetProfile := postRawJSON[map[string]any](t, e, http.MethodPost, "/api/v1/target-profiles", readInterfaceRequest(t, "target-profile-aws-gpu.json"))
 	if targetProfile["request_id"] == "" || targetProfile["profile_id"] != "target-aws-gpu-001" {
 		t.Fatalf("unexpected target profile response: %+v", targetProfile)
 	}
 
 	resourceCheck := postRawJSON[model.ResourceCheckResponse](t, e, http.MethodPost, "/api/v1/resources/check", readInterfaceRequest(t, "resource-check-gpu.json"))
-	if resourceCheck.RequestID == "" || resourceCheck.RuntimeProfileID != "runtime-gpu-vm-001" || resourceCheck.Status != "available" {
+	if resourceCheck.RequestID == "" || resourceCheck.Status != "available" {
 		t.Fatalf("unexpected resource check response: %+v", resourceCheck)
 	}
 
@@ -588,21 +597,6 @@ func createApp(t *testing.T, e http.Handler, spec model.AppSpec) string {
 	return resp.AppVersionID
 }
 
-func createMockRuntimeProfile(t *testing.T, e http.Handler) {
-	t.Helper()
-	resp := postJSON[model.RuntimeProfile](t, e, http.MethodPost, "/api/v1/runtime-profiles", model.RuntimeProfile{
-		RuntimeProfileID: "rt-mock-001",
-		Name:             "mock-runtime",
-		RuntimeType:      "mock",
-		Accelerator:      "none",
-		AdapterType:      "mock",
-		OperatingMode:    "local_mock",
-	})
-	if resp.RuntimeProfileID != "rt-mock-001" {
-		t.Fatalf("runtime profile id = %s", resp.RuntimeProfileID)
-	}
-}
-
 func createMockTargetProfile(t *testing.T, e http.Handler) {
 	t.Helper()
 	resp := postJSON[model.TargetProfile](t, e, http.MethodPost, "/api/v1/target-profiles", model.TargetProfile{
@@ -618,21 +612,6 @@ func createMockTargetProfile(t *testing.T, e http.Handler) {
 	})
 	if resp.TargetProfileID != "target-mock-001" {
 		t.Fatalf("target profile id = %s", resp.TargetProfileID)
-	}
-}
-
-func createCPURuntimeProfile(t *testing.T, e http.Handler) {
-	t.Helper()
-	resp := postJSON[model.RuntimeProfile](t, e, http.MethodPost, "/api/v1/runtime-profiles", model.RuntimeProfile{
-		RuntimeProfileID: "rt-cpu-001",
-		Name:             "cpu-vm-runtime",
-		RuntimeType:      "cpu",
-		Accelerator:      "none",
-		AdapterType:      "cpu_vm",
-		OperatingMode:    "vm_process",
-	})
-	if resp.RuntimeProfileID != "rt-cpu-001" {
-		t.Fatalf("runtime profile id = %s", resp.RuntimeProfileID)
 	}
 }
 
@@ -660,21 +639,6 @@ func createCPUTargetProfile(t *testing.T, e http.Handler) {
 	})
 	if resp.TargetProfileID != "target-cpu-001" {
 		t.Fatalf("target profile id = %s", resp.TargetProfileID)
-	}
-}
-
-func createGPURuntimeProfile(t *testing.T, e http.Handler) {
-	t.Helper()
-	resp := postJSON[model.RuntimeProfile](t, e, http.MethodPost, "/api/v1/runtime-profiles", model.RuntimeProfile{
-		RuntimeProfileID: "rt-gpu-001",
-		Name:             "gpu-vm-runtime",
-		RuntimeType:      "gpu",
-		Accelerator:      "nvidia",
-		AdapterType:      "gpu_vm",
-		OperatingMode:    "vm_process",
-	})
-	if resp.RuntimeProfileID != "rt-gpu-001" {
-		t.Fatalf("runtime profile id = %s", resp.RuntimeProfileID)
 	}
 }
 
@@ -707,21 +671,6 @@ func createGPUTargetProfile(t *testing.T, e http.Handler) {
 	})
 	if resp.TargetProfileID != "target-gpu-001" {
 		t.Fatalf("target profile id = %s", resp.TargetProfileID)
-	}
-}
-
-func createAIInfraRuntimeProfile(t *testing.T, e http.Handler) {
-	t.Helper()
-	resp := postJSON[model.RuntimeProfile](t, e, http.MethodPost, "/api/v1/runtime-profiles", model.RuntimeProfile{
-		RuntimeProfileID: "rt-aiinfra-001",
-		Name:             "etri-aiinfra-runtime",
-		RuntimeType:      "aiinfra",
-		Accelerator:      "none",
-		AdapterType:      "etri_aiinfra",
-		OperatingMode:    "remote_api",
-	})
-	if resp.RuntimeProfileID != "rt-aiinfra-001" {
-		t.Fatalf("runtime profile id = %s", resp.RuntimeProfileID)
 	}
 }
 

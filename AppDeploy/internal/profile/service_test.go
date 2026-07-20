@@ -15,28 +15,6 @@ func TestServiceDeleteProfileResponses(t *testing.T) {
 	repo := store.NewMemory()
 	service := NewService(repo)
 
-	runtimeProfile := model.RuntimeProfile{
-		RuntimeProfileID: "runtime-delete-service",
-		Name:             "runtime service delete",
-		RuntimeType:      "mock",
-		Accelerator:      "none",
-		AdapterType:      "mock",
-		OperatingMode:    "local_mock",
-	}
-	if _, err := service.CreateRuntime(ctx, runtimeProfile); err != nil {
-		t.Fatal(err)
-	}
-	runtimeDeleted, err := service.DeleteRuntime(ctx, runtimeProfile.RuntimeProfileID)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if runtimeDeleted.ProfileType != model.ProfileTypeRuntime || runtimeDeleted.ProfileID != runtimeProfile.RuntimeProfileID || runtimeDeleted.Name != runtimeProfile.Name {
-		t.Fatalf("unexpected runtime delete response: %+v", runtimeDeleted)
-	}
-	if !runtimeDeleted.Deleted || runtimeDeleted.InventoryDeleted || runtimeDeleted.DeletedAt.IsZero() || runtimeDeleted.RequestID != "" {
-		t.Fatalf("unexpected runtime delete result fields: %+v", runtimeDeleted)
-	}
-
 	targetProfile := validTargetProfile()
 	targetProfile.TargetProfileID = "target-delete-service"
 	targetProfile.Name = "target service delete"

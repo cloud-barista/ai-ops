@@ -71,7 +71,7 @@ func TestVMAdapterLifecycleCharacterization(t *testing.T) {
 				DeploymentID: "dep-characterization",
 				RequestID:    "req-characterization",
 				App:          app,
-				Runtime:      model.RuntimeProfile{RuntimeType: scenario.runtimeType},
+				Runtime:      model.RuntimeConfig{RuntimeType: scenario.runtimeType},
 				Target:       scenario.target,
 			}
 			deployed, err := adapter.Deploy(ctx, plan)
@@ -148,7 +148,7 @@ func TestVMAdapterErrorCharacterization(t *testing.T) {
 			wrongApp.AppSpec.Runtime.Type = "other"
 			adapter := scenario.newAdapter(&recordingVMRunner{outputs: map[string]string{}, failures: map[string]error{}})
 			_, err := adapter.Deploy(ctx, runtime.DeploymentPlan{App: wrongApp, Target: scenario.target})
-			assertVMAppError(t, err, model.ErrRuntimeProfileInvalid, scenario.displayName+" adapter can deploy only "+scenario.runtimeType+" apps", http.StatusBadRequest, false)
+			assertVMAppError(t, err, model.ErrRuntimeConfigInvalid, scenario.displayName+" adapter can deploy only "+scenario.runtimeType+" apps", http.StatusBadRequest, false)
 
 			prepareRunner := &recordingVMRunner{outputs: map[string]string{}, failures: map[string]error{"prepare-artifact": errors.New("prepare failed")}}
 			_, err = scenario.newAdapter(prepareRunner).Prepare(ctx, app, scenario.target)

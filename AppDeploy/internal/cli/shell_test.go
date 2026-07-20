@@ -270,10 +270,9 @@ func TestPackageDeployStopsWhenResourceIsUnavailable(t *testing.T) {
 			})
 		case "/api/v1/resources/check":
 			_ = json.NewEncoder(w).Encode(model.ResourceCheckResponse{
-				RuntimeProfileID: "rt-unavailable",
-				TargetProfileID:  "target-unavailable",
-				Status:           "unavailable",
-				Checks:           map[string]string{"target": "unreachable"},
+				TargetProfileID: "target-unavailable",
+				Status:          "unavailable",
+				Checks:          map[string]string{"target": "unreachable"},
 			})
 		case "/api/v1/deployments":
 			deploymentCalls++
@@ -289,7 +288,6 @@ func TestPackageDeployStopsWhenResourceIsUnavailable(t *testing.T) {
 	err := shell.Run(context.Background(), []string{
 		"packages", "deploy",
 		"--type", "aiops-geon-service-control",
-		"--runtime-id", "rt-unavailable",
 		"--target-id", "target-unavailable",
 	})
 	if err == nil {
@@ -324,14 +322,6 @@ func TestCommandWorkflowFromRegistrationToDeployment(t *testing.T) {
 	api := newCLIAPI(t)
 	dir := t.TempDir()
 	appFile := writeJSON(t, dir, "app.json", model.AppCreateRequest{AppSpec: validMockApp()})
-	runtimeFile := writeJSON(t, dir, "runtime.json", model.RuntimeProfile{
-		RuntimeProfileID: "rt-cli-mock",
-		Name:             "cli-mock-runtime",
-		RuntimeType:      "mock",
-		Accelerator:      "none",
-		AdapterType:      "mock",
-		OperatingMode:    "local_mock",
-	})
 	targetFile := writeJSON(t, dir, "target.json", model.TargetProfile{
 		TargetProfileID: "target-cli-mock",
 		Name:            "cli-mock-target",
@@ -351,9 +341,8 @@ func TestCommandWorkflowFromRegistrationToDeployment(t *testing.T) {
 	if app.AppVersionID == "" {
 		t.Fatal("app version id is empty")
 	}
-	runCommand(t, api, "runtimes", "add", runtimeFile)
 	runCommand(t, api, "targets", "add", targetFile)
-	deploymentOutput := runCommand(t, api, "deployments", "create", app.AppVersionID, "rt-cli-mock", "target-cli-mock")
+	deploymentOutput := runCommand(t, api, "deployments", "create", app.AppVersionID, "target-cli-mock")
 	var deployment model.DeploymentResponse
 	if err := json.Unmarshal([]byte(deploymentOutput), &deployment); err != nil {
 		t.Fatalf("decode deployment output: %v\n%s", err, deploymentOutput)

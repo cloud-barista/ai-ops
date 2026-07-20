@@ -102,9 +102,8 @@ func TestDeleteAppWithFailedDeploymentReturnsConflictE2E(t *testing.T) {
 	e := newTestServer(t)
 	created := postJSON[model.AppResponse](t, e, http.MethodPost, "/api/v1/apps", model.AppCreateRequest{AppSpec: validMockApp()})
 	failedCreate := request(t, e, http.MethodPost, "/api/v1/deployments", model.DeploymentCreateRequest{
-		AppVersionID:     created.AppVersionID,
-		RuntimeProfileID: "rt-missing",
-		TargetProfileID:  "target-missing",
+		AppVersionID:    created.AppVersionID,
+		TargetProfileID: "target-missing",
 	})
 	assertAPIError(t, failedCreate, http.StatusBadRequest, model.ErrTargetProfileInvalid)
 
@@ -155,7 +154,6 @@ func TestDeleteAppWithMixedStoppedAndRunningHistoryReturnsConflictE2E(t *testing
 func createMockAppForDeleteE2E(t *testing.T, e http.Handler) model.AppResponse {
 	t.Helper()
 	created := postJSON[model.AppResponse](t, e, http.MethodPost, "/api/v1/apps", model.AppCreateRequest{AppSpec: validMockApp()})
-	createMockRuntimeProfile(t, e)
 	createMockTargetProfile(t, e)
 	return created
 }
@@ -163,9 +161,8 @@ func createMockAppForDeleteE2E(t *testing.T, e http.Handler) model.AppResponse {
 func createMockDeploymentForDeleteE2E(t *testing.T, e http.Handler, appVersionID string) model.DeploymentResponse {
 	t.Helper()
 	return postJSON[model.DeploymentResponse](t, e, http.MethodPost, "/api/v1/deployments", model.DeploymentCreateRequest{
-		AppVersionID:     appVersionID,
-		RuntimeProfileID: "rt-mock-001",
-		TargetProfileID:  "target-mock-001",
+		AppVersionID:    appVersionID,
+		TargetProfileID: "target-mock-001",
 	})
 }
 

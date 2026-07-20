@@ -5,8 +5,7 @@
   "anyOf": [
     {
       "required": [
-        "app_version_id",
-        "target_profile_id"
+        "app_version_id"
       ]
     },
     {
@@ -22,13 +21,9 @@
     "app_version_id": {
       "type": "string"
     },
-    "runtime_profile_id": {
-      "type": "string",
-      "deprecated": true,
-      "description": "Legacy field. Runtime Profile registration is no longer used; execution settings always come from the Target Profile runtime block."
-    },
     "target_profile_id": {
-      "type": "string"
+      "type": "string",
+      "description": "Optional Target Profile hint; App Deployer selects a ready matching target when omitted."
     },
     "requested_by": {
       "type": "string"

@@ -77,19 +77,16 @@ if ([string]::IsNullOrWhiteSpace($createdApp.app_version_id)) {
     throw "empty app_version_id"
 }
 
-$cpuRuntime = Read-JsonFile "runtime-cpu-vm.json"
-Invoke-Api -Name "03-runtime-cpu" -Method "POST" -Path "/api/v1/runtime-profiles" -Body $cpuRuntime | Out-Null
-
 $cpuTarget = Read-JsonFile "target-cpu-vm.json"
-Invoke-Api -Name "04-target-cpu" -Method "POST" -Path "/api/v1/target-profiles" -Body $cpuTarget | Out-Null
+Invoke-Api -Name "03-target-cpu" -Method "POST" -Path "/api/v1/target-profiles" -Body $cpuTarget | Out-Null
 
 $cpuCheck = Read-JsonFile "resource-check-cpu.json"
-$resourceCheck = Invoke-Api -Name "05-resource-check-cpu" -Method "POST" -Path "/api/v1/resources/check" -Body $cpuCheck
+$resourceCheck = Invoke-Api -Name "04-resource-check-cpu" -Method "POST" -Path "/api/v1/resources/check" -Body $cpuCheck
 Assert-Equal -Name "resource.status" -Actual $resourceCheck.status -Expected "available"
 
 $deploymentBody = Read-JsonFile "deployment-cpu-template.json"
 $deploymentBody.app_version_id = $createdApp.app_version_id
-$deployment = Invoke-Api -Name "06-deployment-cpu" -Method "POST" -Path "/api/v1/deployments" -Body $deploymentBody
+$deployment = Invoke-Api -Name "05-deployment-cpu" -Method "POST" -Path "/api/v1/deployments" -Body $deploymentBody
 Assert-Equal -Name "deployment.status" -Actual $deployment.status -Expected "RUNNING"
 
 $metricBody = Read-JsonFile "metric-cpu-sample.json"
@@ -116,10 +113,8 @@ if ($IncludeGpu) {
     $gpuApp = Read-JsonFile "app-gpu-script.json"
     $gpuApp.app_spec.metadata.name = "sample-gpu-app-$RunId"
     $createdGpuApp = Invoke-Api -Name "15-app-gpu" -Method "POST" -Path "/api/v1/apps" -Body $gpuApp
-    $gpuRuntime = Read-JsonFile "runtime-gpu-vm.json"
-    Invoke-Api -Name "16-runtime-gpu" -Method "POST" -Path "/api/v1/runtime-profiles" -Body $gpuRuntime | Out-Null
     $gpuTarget = Read-JsonFile "target-gpu-vm.json"
-    Invoke-Api -Name "17-target-gpu" -Method "POST" -Path "/api/v1/target-profiles" -Body $gpuTarget | Out-Null
+    Invoke-Api -Name "16-target-gpu" -Method "POST" -Path "/api/v1/target-profiles" -Body $gpuTarget | Out-Null
     $gpuCheck = Read-JsonFile "resource-check-gpu.json"
     Invoke-Api -Name "18-resource-check-gpu" -Method "POST" -Path "/api/v1/resources/check" -Body $gpuCheck | Out-Null
     $gpuDeploymentBody = Read-JsonFile "deployment-gpu-template.json"

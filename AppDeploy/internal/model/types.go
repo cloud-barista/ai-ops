@@ -23,22 +23,22 @@ const (
 )
 
 const (
-	ErrAppSpecInvalid        = "APP_SPEC_INVALID"
-	ErrAppArtifactNotFound   = "APP_ARTIFACT_NOT_FOUND"
-	ErrEntrypointInvalid     = "ENTRYPOINT_INVALID"
-	ErrRuntimeProfileInvalid = "RUNTIME_PROFILE_INVALID"
-	ErrTargetProfileInvalid  = "TARGET_PROFILE_INVALID"
-	ErrResourceInsufficient  = "RESOURCE_INSUFFICIENT"
-	ErrGPURuntimeNotFound    = "GPU_RUNTIME_NOT_FOUND"
-	ErrNvidiaDriverNotFound  = "NVIDIA_DRIVER_NOT_FOUND"
-	ErrCSPVMUnreachable      = "CSP_VM_UNREACHABLE"
-	ErrStorageUnavailable    = "STORAGE_PATH_UNAVAILABLE"
-	ErrAIInfraAPITimeout     = "AI_INFRA_API_TIMEOUT"
-	ErrAIInfraAPIFailed      = "AI_INFRA_API_FAILED"
-	ErrGatewayAuthFailed     = "GATEWAY_AUTH_FAILED"
-	ErrBespinAPIFailed       = "BESPIN_API_FAILED"
-	ErrDeploymentFailed      = "DEPLOYMENT_FAILED"
-	ErrRuntimeFailed         = "RUNTIME_FAILED"
+	ErrAppSpecInvalid       = "APP_SPEC_INVALID"
+	ErrAppArtifactNotFound  = "APP_ARTIFACT_NOT_FOUND"
+	ErrEntrypointInvalid    = "ENTRYPOINT_INVALID"
+	ErrRuntimeConfigInvalid = "RUNTIME_PROFILE_INVALID"
+	ErrTargetProfileInvalid = "TARGET_PROFILE_INVALID"
+	ErrResourceInsufficient = "RESOURCE_INSUFFICIENT"
+	ErrGPURuntimeNotFound   = "GPU_RUNTIME_NOT_FOUND"
+	ErrNvidiaDriverNotFound = "NVIDIA_DRIVER_NOT_FOUND"
+	ErrCSPVMUnreachable     = "CSP_VM_UNREACHABLE"
+	ErrStorageUnavailable   = "STORAGE_PATH_UNAVAILABLE"
+	ErrAIInfraAPITimeout    = "AI_INFRA_API_TIMEOUT"
+	ErrAIInfraAPIFailed     = "AI_INFRA_API_FAILED"
+	ErrGatewayAuthFailed    = "GATEWAY_AUTH_FAILED"
+	ErrBespinAPIFailed      = "BESPIN_API_FAILED"
+	ErrDeploymentFailed     = "DEPLOYMENT_FAILED"
+	ErrRuntimeFailed        = "RUNTIME_FAILED"
 )
 
 type HealthResponse struct {
@@ -101,8 +101,7 @@ type AppDeleteResponse struct {
 }
 
 const (
-	ProfileTypeRuntime = "runtime"
-	ProfileTypeTarget  = "target"
+	ProfileTypeTarget = "target"
 )
 
 type ProfileDeleteResponse struct {
@@ -181,14 +180,13 @@ type Healthcheck struct {
 	Command string `json:"command,omitempty"`
 }
 
-type RuntimeProfile struct {
-	RuntimeProfileID string            `json:"runtime_profile_id"`
-	Name             string            `json:"name,omitempty"`
-	RuntimeType      string            `json:"runtime_type"`
-	Accelerator      string            `json:"accelerator,omitempty"`
-	AdapterType      string            `json:"adapter_type"`
-	OperatingMode    string            `json:"operating_mode"`
-	Readiness        map[string]string `json:"readiness,omitempty"`
+// RuntimeConfig is the transient execution configuration derived from a
+// TargetProfile. It is never registered or persisted separately.
+type RuntimeConfig struct {
+	RuntimeType   string `json:"runtime_type"`
+	Accelerator   string `json:"accelerator,omitempty"`
+	AdapterType   string `json:"adapter_type"`
+	OperatingMode string `json:"operating_mode"`
 }
 
 type TargetProfile struct {
@@ -238,13 +236,12 @@ type TargetNetwork struct {
 }
 
 type DeploymentCreateRequest struct {
-	AppID            string              `json:"app_id,omitempty"`
-	AppVersionID     string              `json:"app_version_id"`
-	RuntimeProfileID string              `json:"runtime_profile_id,omitempty"`
-	TargetProfileID  string              `json:"target_profile_id"`
-	RequestedBy      string              `json:"requested_by,omitempty"`
-	Parameters       map[string]any      `json:"parameters,omitempty"`
-	Manifest         *DeploymentManifest `json:"manifest,omitempty"`
+	AppID           string              `json:"app_id,omitempty"`
+	AppVersionID    string              `json:"app_version_id,omitempty"`
+	TargetProfileID string              `json:"target_profile_id,omitempty"`
+	RequestedBy     string              `json:"requested_by,omitempty"`
+	Parameters      map[string]any      `json:"parameters,omitempty"`
+	Manifest        *DeploymentManifest `json:"manifest,omitempty"`
 }
 
 const (
@@ -253,8 +250,9 @@ const (
 )
 
 // DeploymentManifest is the normalized deployment intent consumed by the
-// orchestrator. It references a registered App and Target Profile; execution
-// settings always come from the Target Profile runtime block.
+// orchestrator. It references a registered App and may carry a target hint;
+// the App Deployer selects the actual Target Profile from the requirement
+// envelope and current readiness.
 type DeploymentManifest struct {
 	SchemaVersion string                      `json:"schema_version"`
 	Kind          string                      `json:"kind"`
@@ -267,28 +265,24 @@ type DeploymentManifestMetadata struct {
 }
 
 type DeploymentManifestSpec struct {
-	AppVersionID     string         `json:"app_version_id"`
-	// RuntimeProfileID is retained only for decoding legacy manifests. The
-	// orchestrator ignores it and never uses it to select an adapter.
-	RuntimeProfileID string         `json:"runtime_profile_id,omitempty"`
-	TargetProfileID  string         `json:"target_profile_id"`
-	Accelerator      string         `json:"accelerator,omitempty"`
-	Resources        Resources      `json:"resources"`
-	RequestedBy      string         `json:"requested_by,omitempty"`
-	Parameters       map[string]any `json:"parameters,omitempty"`
+	AppVersionID    string         `json:"app_version_id"`
+	TargetProfileID string         `json:"target_profile_id,omitempty"`
+	Accelerator     string         `json:"accelerator,omitempty"`
+	Resources       Resources      `json:"resources"`
+	RequestedBy     string         `json:"requested_by,omitempty"`
+	Parameters      map[string]any `json:"parameters,omitempty"`
 }
 
 type DeploymentResponse struct {
-	RequestID        string              `json:"request_id,omitempty"`
-	DeploymentID     string              `json:"deployment_id"`
-	AppID            string              `json:"app_id,omitempty"`
-	AppVersionID     string              `json:"app_version_id"`
-	RuntimeProfileID string              `json:"runtime_profile_id,omitempty"`
-	TargetProfileID  string              `json:"target_profile_id"`
-	Status           string              `json:"status"`
-	CreatedAt        time.Time           `json:"created_at"`
-	UpdatedAt        time.Time           `json:"updated_at"`
-	Manifest         *DeploymentManifest `json:"manifest,omitempty"`
+	RequestID       string              `json:"request_id,omitempty"`
+	DeploymentID    string              `json:"deployment_id"`
+	AppID           string              `json:"app_id,omitempty"`
+	AppVersionID    string              `json:"app_version_id"`
+	TargetProfileID string              `json:"target_profile_id"`
+	Status          string              `json:"status"`
+	CreatedAt       time.Time           `json:"created_at"`
+	UpdatedAt       time.Time           `json:"updated_at"`
+	Manifest        *DeploymentManifest `json:"manifest,omitempty"`
 }
 
 type DeploymentEvent struct {
@@ -348,36 +342,33 @@ type InferenceInvokeRequest struct {
 }
 
 type InferenceInvokeResponse struct {
-	RequestID        string    `json:"request_id,omitempty"`
-	DeploymentID     string    `json:"deployment_id"`
-	AppID            string    `json:"app_id,omitempty"`
-	AppVersionID     string    `json:"app_version_id"`
-	RuntimeProfileID string    `json:"runtime_profile_id"`
-	TargetProfileID  string    `json:"target_profile_id"`
-	Method           string    `json:"method"`
-	Path             string    `json:"path"`
-	Port             int       `json:"port"`
-	StatusCode       int       `json:"status_code"`
-	Body             any       `json:"body,omitempty"`
-	RawBody          string    `json:"raw_body,omitempty"`
-	DurationMS       int64     `json:"duration_ms"`
-	InvokedAt        time.Time `json:"invoked_at"`
+	RequestID       string    `json:"request_id,omitempty"`
+	DeploymentID    string    `json:"deployment_id"`
+	AppID           string    `json:"app_id,omitempty"`
+	AppVersionID    string    `json:"app_version_id"`
+	TargetProfileID string    `json:"target_profile_id"`
+	Method          string    `json:"method"`
+	Path            string    `json:"path"`
+	Port            int       `json:"port"`
+	StatusCode      int       `json:"status_code"`
+	Body            any       `json:"body,omitempty"`
+	RawBody         string    `json:"raw_body,omitempty"`
+	DurationMS      int64     `json:"duration_ms"`
+	InvokedAt       time.Time `json:"invoked_at"`
 }
 
 type ResourceCheckRequest struct {
-	RuntimeProfileID string   `json:"runtime_profile_id,omitempty"`
-	TargetProfileID  string   `json:"target_profile_id"`
-	Checks           []string `json:"checks,omitempty"`
+	TargetProfileID string   `json:"target_profile_id"`
+	Checks          []string `json:"checks,omitempty"`
 }
 
 type ResourceCheckResponse struct {
-	RequestID        string            `json:"request_id,omitempty"`
-	RuntimeProfileID string            `json:"runtime_profile_id,omitempty"`
-	TargetProfileID  string            `json:"target_profile_id"`
-	Status           string            `json:"status"`
-	Checks           map[string]string `json:"checks"`
-	Details          map[string]any    `json:"details,omitempty"`
-	CheckedAt        time.Time         `json:"checked_at,omitempty"`
+	RequestID       string            `json:"request_id,omitempty"`
+	TargetProfileID string            `json:"target_profile_id"`
+	Status          string            `json:"status"`
+	Checks          map[string]string `json:"checks"`
+	Details         map[string]any    `json:"details,omitempty"`
+	CheckedAt       time.Time         `json:"checked_at,omitempty"`
 }
 
 type ResourceInventory struct {

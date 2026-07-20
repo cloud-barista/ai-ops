@@ -61,15 +61,6 @@ func validateAppDeletion(deployments map[string]model.DeploymentResponse, app mo
 	)
 }
 
-func validateRuntimeProfileDeletion(deployments map[string]model.DeploymentResponse, profileID string) error {
-	return validateProfileDeletion(
-		deployments,
-		func(deployment model.DeploymentResponse) bool { return deployment.RuntimeProfileID == profileID },
-		model.ErrRuntimeProfileInvalid,
-		"all deployments must be STOPPED before the runtime profile can be deleted",
-	)
-}
-
 func validateTargetProfileDeletion(deployments map[string]model.DeploymentResponse, profileID string) error {
 	return validateProfileDeletion(
 		deployments,

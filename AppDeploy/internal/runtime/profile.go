@@ -2,10 +2,9 @@ package runtime
 
 import "github.com/khu/ai-app-deployer/internal/model"
 
-// ProfileFromTarget derives the default execution profile for a target when a
-// caller does not need a separately registered Runtime Profile. The derived
-// profile is transient; it is not persisted as a Runtime Profile record.
-func ProfileFromTarget(target model.TargetProfile) model.RuntimeProfile {
+// ConfigFromTarget derives the transient execution configuration for a Target.
+// It is never registered or persisted separately.
+func ConfigFromTarget(target model.TargetProfile) model.RuntimeConfig {
 	adapterType := target.Runtime.RuntimeType
 	switch target.Runtime.RuntimeType {
 	case "cpu":
@@ -20,11 +19,10 @@ func ProfileFromTarget(target model.TargetProfile) model.RuntimeProfile {
 	if target.CSP == "mock" {
 		adapterType = "mock"
 	}
-	return model.RuntimeProfile{
-		RuntimeProfileID: target.TargetProfileID + "-runtime-derived",
-		RuntimeType:      target.Runtime.RuntimeType,
-		Accelerator:      target.Runtime.Accelerator,
-		AdapterType:      adapterType,
-		OperatingMode:    target.Runtime.OperatingMode,
+	return model.RuntimeConfig{
+		RuntimeType:   target.Runtime.RuntimeType,
+		Accelerator:   target.Runtime.Accelerator,
+		AdapterType:   adapterType,
+		OperatingMode: target.Runtime.OperatingMode,
 	}
 }

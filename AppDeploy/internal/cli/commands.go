@@ -47,34 +47,6 @@ func (s *Shell) apps(ctx context.Context, args []string) error {
 	}
 }
 
-func (s *Shell) runtimes(ctx context.Context, args []string) error {
-	if len(args) == 0 {
-		return errors.New("사용법: runtimes list | add [json-file] | delete <runtime-id> --yes")
-	}
-	switch strings.ToLower(args[0]) {
-	case "list", "ls":
-		return s.showList(ctx, "/api/v1/runtime-profiles", []column{
-			{title: "Runtime ID", path: "runtime_profile_id"},
-			{title: "종류", path: "runtime_type"},
-			{title: "Adapter", path: "adapter_type"},
-			{title: "운영 모드", path: "operating_mode"},
-		})
-	case "add", "create":
-		payload, err := s.fileOrRuntimeWizard(args[1:])
-		if err != nil {
-			return err
-		}
-		return s.showJSON(ctx, http.MethodPost, "/api/v1/runtime-profiles", payload)
-	case "delete", "remove", "rm":
-		if len(args) != 3 || (args[2] != "--yes" && args[2] != "-y") {
-			return errors.New("사용법: runtimes delete <runtime-id> --yes")
-		}
-		return s.showJSON(ctx, http.MethodDelete, "/api/v1/runtime-profiles/"+url.PathEscape(args[1]), nil)
-	default:
-		return fmt.Errorf("알 수 없는 runtimes 작업 %q입니다", args[0])
-	}
-}
-
 func (s *Shell) targets(ctx context.Context, args []string) error {
 	if len(args) == 0 {
 		return errors.New("사용법: targets list | add [json-file] | delete <target-id> --yes")
@@ -117,13 +89,10 @@ func (s *Shell) resources(ctx context.Context, args []string) error {
 			{title: "저장소", path: "storage_available"},
 		})
 	case "check":
-		if len(args) < 2 || len(args) > 3 {
+		if len(args) != 2 {
 			return errors.New("사용법: resources check <target-id>")
 		}
 		req := model.ResourceCheckRequest{TargetProfileID: args[1]}
-		if len(args) == 3 {
-			req.RuntimeProfileID = args[2]
-		}
 		return s.showJSON(ctx, http.MethodPost, "/api/v1/resources/check", req)
 	default:
 		return fmt.Errorf("알 수 없는 resources 작업 %q입니다", args[0])
@@ -305,6 +274,9 @@ func (s *Shell) raw(ctx context.Context, args []string) error {
 }
 
 func (s *Shell) deploymentRequest(ctx context.Context, args []string) (model.DeploymentCreateRequest, error) {
+	if len(args) == 1 {
+		return model.DeploymentCreateRequest{AppVersionID: args[0], RequestedBy: "appdeployer-cli"}, nil
+	}
 	if len(args) == 2 {
 		return model.DeploymentCreateRequest{
 			AppVersionID:    args[0],
@@ -312,16 +284,8 @@ func (s *Shell) deploymentRequest(ctx context.Context, args []string) (model.Dep
 			RequestedBy:     "appdeployer-cli",
 		}, nil
 	}
-	if len(args) == 3 {
-		return model.DeploymentCreateRequest{
-			AppVersionID:     args[0],
-			RuntimeProfileID: args[1],
-			TargetProfileID:  args[2],
-			RequestedBy:      "appdeployer-cli",
-		}, nil
-	}
 	if len(args) != 0 {
-		return model.DeploymentCreateRequest{}, errors.New("사용법: deployments create [app-version-id target-id] 또는 [app-version-id runtime-id target-id]")
+		return model.DeploymentCreateRequest{}, errors.New("사용법: deployments create [app-version-id [target-hint]]")
 	}
 	fmt.Fprintln(s.out, "등록된 항목을 확인한 뒤 배포 식별자를 입력하세요.")
 	if err := s.showList(ctx, "/api/v1/apps", []column{{title: "APP VERSION ID", path: "app_version_id"}, {title: "NAME", path: "name"}, {title: "VERSION", path: "version"}}); err != nil {
@@ -334,7 +298,7 @@ func (s *Shell) deploymentRequest(ctx context.Context, args []string) (model.Dep
 	if err != nil {
 		return model.DeploymentCreateRequest{}, err
 	}
-	targetID, err := s.prompt("Target Profile ID", "", true)
+	targetID, err := s.prompt("Target Profile hint (Enter=automatic selection)", "", false)
 	if err != nil {
 		return model.DeploymentCreateRequest{}, err
 	}

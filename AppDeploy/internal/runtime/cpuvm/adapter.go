@@ -51,9 +51,9 @@ func (a *Adapter) ValidateTarget(ctx context.Context, target model.TargetProfile
 	return nil
 }
 
-func (a *Adapter) HealthCheck(ctx context.Context, profile model.RuntimeProfile, target model.TargetProfile) error {
+func (a *Adapter) HealthCheck(ctx context.Context, profile model.RuntimeConfig, target model.TargetProfile) error {
 	if profile.RuntimeType != "cpu" || profile.AdapterType != "cpu_vm" {
-		return apperrors.New(model.ErrRuntimeProfileInvalid, "cpu vm adapter requires runtime_type=cpu and adapter_type=cpu_vm", http.StatusBadRequest, false)
+		return apperrors.New(model.ErrRuntimeConfigInvalid, "cpu vm adapter requires runtime_type=cpu and adapter_type=cpu_vm", http.StatusBadRequest, false)
 	}
 	if err := a.ValidateTarget(ctx, target); err != nil {
 		return err

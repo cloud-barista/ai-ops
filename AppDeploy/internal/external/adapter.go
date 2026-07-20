@@ -44,7 +44,7 @@ type DeployRequest struct {
 	DeploymentID string
 	RequestID    string
 	App          model.AppResponse
-	Runtime      model.RuntimeProfile
+	Runtime      model.RuntimeConfig
 	Target       model.TargetProfile
 	Parameters   map[string]any
 }

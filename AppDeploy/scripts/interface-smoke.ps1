@@ -113,11 +113,8 @@ if ($invalidResponse.error.code -ne "APP_SPEC_INVALID") {
     throw "invalid app error code = $($invalidResponse.error.code), want APP_SPEC_INVALID"
 }
 
-$runtime = Read-JsonFile "runtime-profile-gpu-vm.json"
-Invoke-Api -Name "05-runtime-gpu" -Method "POST" -Path "/api/v1/runtime-profiles" -Body $runtime | Out-Null
-
 $target = Read-JsonFile "target-profile-aws-gpu.json"
-Invoke-Api -Name "06-target-gpu" -Method "POST" -Path "/api/v1/target-profiles" -Body $target | Out-Null
+Invoke-Api -Name "05-target-gpu" -Method "POST" -Path "/api/v1/target-profiles" -Body $target | Out-Null
 
 $resource = Read-JsonFile "resource-check-gpu.json"
 $resourceCheck = Invoke-Api -Name "07-resource-check-gpu" -Method "POST" -Path "/api/v1/resources/check" -Body $resource

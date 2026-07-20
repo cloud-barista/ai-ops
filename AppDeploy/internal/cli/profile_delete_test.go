@@ -10,8 +10,6 @@ import (
 
 func TestProfileDeleteRequiresConfirmationBeforeAPICall(t *testing.T) {
 	tests := [][]string{
-		{"runtimes", "delete", "rt-delete-me"},
-		{"runtimes", "remove", "rt-delete-me", "--force"},
 		{"targets", "delete", "target-delete-me"},
 		{"targets", "rm", "target-delete-me", "-f"},
 	}
@@ -38,8 +36,6 @@ func TestProfileDeleteAliasesCallEscapedDeleteEndpoints(t *testing.T) {
 		path         string
 		profileType  string
 	}{
-		{command: "runtimes", operation: "delete", confirmation: "--yes", path: "/api/v1/runtime-profiles/rt%20delete", profileType: "runtime"},
-		{command: "runtimes", operation: "rm", confirmation: "-y", path: "/api/v1/runtime-profiles/rt%20delete", profileType: "runtime"},
 		{command: "targets", operation: "remove", confirmation: "--yes", path: "/api/v1/target-profiles/target%20delete", profileType: "target"},
 		{command: "targets", operation: "delete", confirmation: "-y", path: "/api/v1/target-profiles/target%20delete", profileType: "target"},
 	}
@@ -56,10 +52,7 @@ func TestProfileDeleteAliasesCallEscapedDeleteEndpoints(t *testing.T) {
 				_, _ = w.Write([]byte(`{"profile_type":"` + test.profileType + `","profile_id":"deleted-profile","name":"Deleted profile","deleted":true,"inventory_deleted":false,"deleted_at":"2026-07-13T00:00:00Z"}`))
 			})
 
-			id := "rt delete"
-			if test.command == "targets" {
-				id = "target delete"
-			}
+			id := "target delete"
 			var output bytes.Buffer
 			err := New(api, strings.NewReader(""), &output).Run(context.Background(), []string{test.command, test.operation, id, test.confirmation})
 			if err != nil {

@@ -16,7 +16,7 @@ func TestETRIMockClientDeploymentFlow(t *testing.T) {
 	adapter := New(etri.NewMockClient())
 	ctx := context.Background()
 	target := validTarget()
-	profile := validRuntimeProfile()
+	profile := validRuntimeConfig()
 	app := validApp()
 
 	if err := adapter.HealthCheck(ctx, profile, target); err != nil {
@@ -73,7 +73,7 @@ func TestETRIMockClientFailureMapping(t *testing.T) {
 	client.SetFailure(etri.MockStepCheck, external.NewError(external.ProviderETRI, external.ErrorKindTimeout, "etri fixture timeout", true))
 	adapter := New(client)
 
-	err := adapter.HealthCheck(ctx, validRuntimeProfile(), validTarget())
+	err := adapter.HealthCheck(ctx, validRuntimeConfig(), validTarget())
 	appErr := mustAppError(t, err)
 	if appErr.Code != model.ErrAIInfraAPITimeout {
 		t.Fatalf("code = %s, want %s", appErr.Code, model.ErrAIInfraAPITimeout)
@@ -83,7 +83,7 @@ func TestETRIMockClientFailureMapping(t *testing.T) {
 	}
 
 	client.SetFailure(etri.MockStepCheck, external.NewError(external.ProviderETRI, external.ErrorKindAuthFailed, "etri fixture auth failed", false))
-	err = adapter.HealthCheck(ctx, validRuntimeProfile(), validTarget())
+	err = adapter.HealthCheck(ctx, validRuntimeConfig(), validTarget())
 	appErr = mustAppError(t, err)
 	if appErr.Code != model.ErrGatewayAuthFailed {
 		t.Fatalf("code = %s, want %s", appErr.Code, model.ErrGatewayAuthFailed)
@@ -103,7 +103,7 @@ func TestETRIMockClientDeployFailureMapping(t *testing.T) {
 		DeploymentID: "dep-aiinfra-001",
 		RequestID:    "req-aiinfra-001",
 		App:          validApp(),
-		Runtime:      validRuntimeProfile(),
+		Runtime:      validRuntimeConfig(),
 		Target:       validTarget(),
 	})
 	appErr := mustAppError(t, err)
@@ -121,13 +121,12 @@ func mustAppError(t *testing.T, err error) *apperrors.AppError {
 	return appErr
 }
 
-func validRuntimeProfile() model.RuntimeProfile {
-	return model.RuntimeProfile{
-		RuntimeProfileID: "rt-aiinfra-001",
-		RuntimeType:      "aiinfra",
-		Accelerator:      "none",
-		AdapterType:      "etri_aiinfra",
-		OperatingMode:    "remote_api",
+func validRuntimeConfig() model.RuntimeConfig {
+	return model.RuntimeConfig{
+		RuntimeType:   "aiinfra",
+		Accelerator:   "none",
+		AdapterType:   "etri_aiinfra",
+		OperatingMode: "remote_api",
 	}
 }
 

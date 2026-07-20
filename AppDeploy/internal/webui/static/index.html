@@ -322,7 +322,7 @@ go run ./cmd/web</pre></div></li>
   </dialog>
 
   <dialog id="deployment-dialog" class="modal">
-    <form id="deployment-form" class="modal-card modal-small"><div class="modal-header"><div><span class="section-label">DEPLOY</span><h2>새 배포 만들기</h2><p>App과 Target Profile을 선택하세요. 실행 방식은 Target Profile에서 결정됩니다.</p></div><button type="button" class="icon-button dialog-close" aria-label="닫기">×</button></div><div class="modal-body form-stack"><label>App Version<select name="app_version_id" id="deployment-app" required></select></label><label>Target Profile<select name="target_profile_id" id="deployment-target" required></select></label></div><div class="modal-footer"><button type="button" class="button button-secondary dialog-close">취소</button><button type="submit" class="button button-primary">배포 시작</button></div></form>
+    <form id="deployment-form" class="modal-card modal-small"><div class="modal-header"><div><span class="section-label">DEPLOY</span><h2>새 배포 만들기</h2><p>App만 선택하면 App Deployer가 VM readiness와 resource 요구사항을 검사해 Target Profile을 자동 선택합니다.</p></div><button type="button" class="icon-button dialog-close" aria-label="닫기">×</button></div><div class="modal-body form-stack"><label>App Version<select name="app_version_id" id="deployment-app" required></select></label><label>Target Profile hint (선택)<select name="target_profile_id" id="deployment-target" data-empty-label="App Deployer 자동 선택"></select></label></div><div class="modal-footer"><button type="button" class="button button-secondary dialog-close">취소</button><button type="submit" class="button button-primary">배포 시작</button></div></form>
   </dialog>
 
   <dialog id="metric-dialog" class="modal">

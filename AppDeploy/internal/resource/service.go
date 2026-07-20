@@ -35,7 +35,7 @@ func (s *Service) Check(ctx context.Context, targetProfileID string) (model.Reso
 		checks["target"] = apperrors.PublicMessage(err, "target validation failed")
 	}
 	if status == "available" {
-		if err := s.adapter.HealthCheck(ctx, runtime.ProfileFromTarget(target), target); err != nil {
+		if err := s.adapter.HealthCheck(ctx, runtime.ConfigFromTarget(target), target); err != nil {
 			status = "unavailable"
 			checks["runtime"] = apperrors.PublicMessage(err, "runtime health check failed")
 		}

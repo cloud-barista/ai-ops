@@ -58,9 +58,6 @@ func (a *API) Register(e *echo.Echo) {
 	v1.GET("/apps", a.listApps)
 	v1.GET("/apps/:app_id", a.getApp)
 	v1.DELETE("/apps/:app_id", a.deleteApp)
-	v1.POST("/runtime-profiles", a.createRuntimeProfile)
-	v1.GET("/runtime-profiles", a.listRuntimeProfiles)
-	v1.DELETE("/runtime-profiles/:runtime_profile_id", a.deleteRuntimeProfile)
 	v1.POST("/target-profiles", a.createTargetProfile)
 	v1.GET("/target-profiles", a.listTargetProfiles)
 	v1.DELETE("/target-profiles/:target_profile_id", a.deleteTargetProfile)
@@ -232,42 +229,6 @@ func (a *API) deleteApp(c echo.Context) error {
 	return c.JSON(http.StatusOK, resp)
 }
 
-func (a *API) createRuntimeProfile(c echo.Context) error {
-	var req model.RuntimeProfile
-	if err := c.Bind(&req); err != nil {
-		return a.error(c, apperrors.New(model.ErrRuntimeProfileInvalid, "invalid JSON request body", http.StatusBadRequest, false))
-	}
-	resp, err := a.profiles.CreateRuntime(c.Request().Context(), req)
-	if err != nil {
-		return a.error(c, err)
-	}
-	return c.JSON(http.StatusCreated, profileResponse(c, resp.RuntimeProfileID, resp))
-}
-
-func (a *API) listRuntimeProfiles(c echo.Context) error {
-	items, err := a.profiles.ListRuntimes(c.Request().Context())
-	if err != nil {
-		return a.error(c, err)
-	}
-	return c.JSON(http.StatusOK, listResponse(c, "runtime_profiles", items))
-}
-
-func (a *API) deleteRuntimeProfile(c echo.Context) error {
-	resp, err := a.profiles.DeleteRuntime(c.Request().Context(), c.Param("runtime_profile_id"))
-	if err != nil {
-		return a.error(c, err)
-	}
-	resp.RequestID = requestID(c)
-	log.Info().
-		Str("request_id", resp.RequestID).
-		Str("profile_type", resp.ProfileType).
-		Str("profile_id", resp.ProfileID).
-		Str("name", resp.Name).
-		Str("component", "profile-registry").
-		Msg("runtime profile deleted; stopped deployment history retained")
-	return c.JSON(http.StatusOK, resp)
-}
-
 func (a *API) createTargetProfile(c echo.Context) error {
 	var req model.TargetProfile
 	if err := c.Bind(&req); err != nil {
@@ -315,7 +276,6 @@ func (a *API) checkResource(c echo.Context) error {
 		return a.error(c, err)
 	}
 	resp.RequestID = requestID(c)
-	resp.RuntimeProfileID = req.RuntimeProfileID
 	return c.JSON(http.StatusOK, resp)
 }
 

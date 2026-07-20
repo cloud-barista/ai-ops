@@ -3,6 +3,8 @@
 ## 역할
 Deployment 생성, 상태 전이, DeploymentEvent 기록, Runtime Adapter 호출 흐름을 구현한다.
 
+Planner는 App 요구사항과 DeploymentManifest를 만들고 상태 관찰·재시도 판단을 담당한다. Orchestrator/App Deployer는 artifact 생성, 등록 Target Profile 열거, VM/runtime readiness 확인, Manifest 자원 매칭, 실제 Target 선택과 배포 실행을 담당한다. Manifest의 `target_profile_id`는 선택적 hint이며 선택 결과는 응답과 normalized Manifest에 기록한다.
+
 ## 상태 머신
 ```text
 REQUESTED -> VALIDATING -> VALIDATED -> SCHEDULING -> DEPLOYING -> RUNNING

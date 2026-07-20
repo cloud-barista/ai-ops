@@ -28,12 +28,12 @@ func (a *Adapter) ValidateTarget(ctx context.Context, target model.TargetProfile
 	return nil
 }
 
-func (a *Adapter) HealthCheck(ctx context.Context, profile model.RuntimeProfile, target model.TargetProfile) error {
+func (a *Adapter) HealthCheck(ctx context.Context, profile model.RuntimeConfig, target model.TargetProfile) error {
 	if profile.RuntimeType != "aiinfra" || profile.AdapterType != "etri_aiinfra" {
-		return apperrors.New(model.ErrRuntimeProfileInvalid, "ai-infra adapter requires runtime_type=aiinfra and adapter_type=etri_aiinfra", http.StatusBadRequest, false)
+		return apperrors.New(model.ErrRuntimeConfigInvalid, "ai-infra adapter requires runtime_type=aiinfra and adapter_type=etri_aiinfra", http.StatusBadRequest, false)
 	}
 	if profile.OperatingMode != "" && profile.OperatingMode != "remote_api" && profile.OperatingMode != "local_mock" {
-		return apperrors.New(model.ErrRuntimeProfileInvalid, "ai-infra adapter requires operating_mode=remote_api or local_mock", http.StatusBadRequest, false)
+		return apperrors.New(model.ErrRuntimeConfigInvalid, "ai-infra adapter requires operating_mode=remote_api or local_mock", http.StatusBadRequest, false)
 	}
 	if err := a.ValidateTarget(ctx, target); err != nil {
 		return err
@@ -70,7 +70,7 @@ func (a *Adapter) Prepare(ctx context.Context, app model.AppResponse, target mod
 func (a *Adapter) Deploy(ctx context.Context, plan runtime.DeploymentPlan) (*runtime.DeployResult, error) {
 	appRuntime := plan.App.AppSpec.Runtime.Type
 	if appRuntime != "aiinfra" && appRuntime != "gpu" {
-		return nil, apperrors.New(model.ErrRuntimeProfileInvalid, "ai-infra adapter can deploy only aiinfra or gpu apps", http.StatusBadRequest, false)
+		return nil, apperrors.New(model.ErrRuntimeConfigInvalid, "ai-infra adapter can deploy only aiinfra or gpu apps", http.StatusBadRequest, false)
 	}
 	client, err := a.ensureClient()
 	if err != nil {

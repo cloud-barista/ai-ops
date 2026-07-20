@@ -16,10 +16,6 @@ type AppRepository interface {
 }
 
 type ProfileRepository interface {
-	CreateRuntimeProfile(ctx context.Context, profile model.RuntimeProfile) error
-	ListRuntimeProfiles(ctx context.Context) ([]model.RuntimeProfile, error)
-	GetRuntimeProfile(ctx context.Context, id string) (model.RuntimeProfile, error)
-	DeleteRuntimeProfile(ctx context.Context, id string) (model.RuntimeProfile, error)
 	CreateTargetProfile(ctx context.Context, profile model.TargetProfile) error
 	ListTargetProfiles(ctx context.Context) ([]model.TargetProfile, error)
 	GetTargetProfile(ctx context.Context, id string) (model.TargetProfile, error)

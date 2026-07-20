@@ -16,24 +16,24 @@ func NewMatcher() *Matcher {
 	return &Matcher{}
 }
 
-func (m *Matcher) Match(ctx context.Context, app model.AppResponse, runtimeProfile model.RuntimeProfile, target model.TargetProfile) error {
-	return m.match(ctx, app, runtimeProfile, target, app.AppSpec.Runtime.Accelerator, app.AppSpec.Resources)
+func (m *Matcher) Match(ctx context.Context, app model.AppResponse, runtimeConfig model.RuntimeConfig, target model.TargetProfile) error {
+	return m.match(ctx, app, runtimeConfig, target, app.AppSpec.Runtime.Accelerator, app.AppSpec.Resources)
 }
 
 // MatchManifest applies the resource envelope selected by the deployment
 // planner. AppSpec requirements remain the fallback for legacy requests.
-func (m *Matcher) MatchManifest(ctx context.Context, manifest model.DeploymentManifest, app model.AppResponse, runtimeProfile model.RuntimeProfile, target model.TargetProfile) error {
-	return m.match(ctx, app, runtimeProfile, target, manifest.Spec.Accelerator, manifest.Spec.Resources)
+func (m *Matcher) MatchManifest(ctx context.Context, manifest model.DeploymentManifest, app model.AppResponse, runtimeConfig model.RuntimeConfig, target model.TargetProfile) error {
+	return m.match(ctx, app, runtimeConfig, target, manifest.Spec.Accelerator, manifest.Spec.Resources)
 }
 
-func (m *Matcher) match(ctx context.Context, app model.AppResponse, runtimeProfile model.RuntimeProfile, target model.TargetProfile, accelerator string, resources model.Resources) error {
+func (m *Matcher) match(ctx context.Context, app model.AppResponse, runtimeConfig model.RuntimeConfig, target model.TargetProfile, accelerator string, resources model.Resources) error {
 	_ = ctx
-	_ = runtimeProfile // retained in the adapter boundary for compatibility
+	_ = runtimeConfig // retained in the adapter boundary for adapter checks
 	appRuntime := app.AppSpec.Runtime.Type
 	// A mock Target is an adapter test boundary, not a physical capacity
 	// boundary. It intentionally accepts any App runtime so callers can run
 	// CPU/GPU/AI-Infra App Specs through the in-process mock adapter without
-	// creating a second Runtime Profile. The Target Profile still selects the
+	// creating a separate runtime registration. The Target Profile still selects the
 	// adapter and carries the runtime settings used by the orchestrator.
 	if target.CSP == "mock" || target.Runtime.RuntimeType == "mock" {
 		return nil
@@ -68,7 +68,7 @@ func (m *Matcher) match(ctx context.Context, app model.AppResponse, runtimeProfi
 		return nil
 	}
 	if appRuntime == "mock" {
-		if runtimeProfile.AdapterType != "mock" || target.Runtime.RuntimeType != "mock" {
+		if runtimeConfig.AdapterType != "mock" || target.Runtime.RuntimeType != "mock" {
 			return apperrors.New(model.ErrResourceInsufficient, "mock app requires mock runtime and target", http.StatusBadRequest, false)
 		}
 		return nil

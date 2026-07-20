@@ -8,7 +8,7 @@ import (
 
 type Adapter interface {
 	ValidateTarget(ctx context.Context, target model.TargetProfile) error
-	HealthCheck(ctx context.Context, runtime model.RuntimeProfile, target model.TargetProfile) error
+	HealthCheck(ctx context.Context, runtime model.RuntimeConfig, target model.TargetProfile) error
 	Prepare(ctx context.Context, app model.AppResponse, target model.TargetProfile) (*PrepareResult, error)
 	Deploy(ctx context.Context, plan DeploymentPlan) (*DeployResult, error)
 	GetStatus(ctx context.Context, deploymentID string) (*RuntimeStatus, error)
@@ -40,7 +40,7 @@ type DeploymentPlan struct {
 	RequestID    string
 	Manifest     *model.DeploymentManifest
 	App          model.AppResponse
-	Runtime      model.RuntimeProfile
+	Runtime      model.RuntimeConfig
 	Target       model.TargetProfile
 	Parameters   map[string]any
 }
@@ -50,6 +50,6 @@ type StopPlan struct {
 	RequestID    string
 	Manifest     *model.DeploymentManifest
 	App          model.AppResponse
-	Runtime      model.RuntimeProfile
+	Runtime      model.RuntimeConfig
 	Target       model.TargetProfile
 }

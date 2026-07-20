@@ -8,11 +8,10 @@ import (
 
 func TestNormalizeManifestFromLegacyRequest(t *testing.T) {
 	manifest, err := normalizeManifest(model.DeploymentCreateRequest{
-		AppVersionID:     "appver-001",
-		RuntimeProfileID: "rt-cpu-001",
-		TargetProfileID:  "target-cpu-001",
-		RequestedBy:      "appdeployer-web",
-		Parameters:       map[string]any{"port": 18080},
+		AppVersionID:    "appver-001",
+		TargetProfileID: "target-cpu-001",
+		RequestedBy:     "appdeployer-web",
+		Parameters:      map[string]any{"port": 18080},
 	}, "dep-001")
 	if err != nil {
 		t.Fatal(err)
@@ -23,7 +22,7 @@ func TestNormalizeManifestFromLegacyRequest(t *testing.T) {
 	if manifest.Metadata == nil || manifest.Metadata.Name != "dep-001" {
 		t.Fatalf("unexpected manifest metadata: %+v", manifest.Metadata)
 	}
-	if manifest.Spec.AppVersionID != "appver-001" || manifest.Spec.RuntimeProfileID != "rt-cpu-001" || manifest.Spec.TargetProfileID != "target-cpu-001" {
+	if manifest.Spec.AppVersionID != "appver-001" || manifest.Spec.TargetProfileID != "target-cpu-001" {
 		t.Fatalf("unexpected manifest references: %+v", manifest.Spec)
 	}
 }
@@ -34,10 +33,8 @@ func TestNormalizeManifestAcceptsManifestOnly(t *testing.T) {
 			SchemaVersion: model.DeploymentManifestSchemaVersion,
 			Kind:          model.DeploymentManifestKind,
 			Spec: model.DeploymentManifestSpec{
-				AppVersionID:     "appver-001",
-				RuntimeProfileID: "rt-cpu-001",
-				TargetProfileID:  "target-cpu-001",
-				RequestedBy:      "ai-ops-geon-planner",
+				AppVersionID: "appver-001",
+				RequestedBy:  "ai-ops-geon-planner",
 			},
 		},
 	}, "dep-002")
@@ -52,16 +49,15 @@ func TestNormalizeManifestAcceptsManifestOnly(t *testing.T) {
 	}
 }
 
-func TestNormalizeManifestAllowsTargetOnlyRequests(t *testing.T) {
+func TestNormalizeManifestAllowsPlannerRequestWithoutTarget(t *testing.T) {
 	manifest, err := normalizeManifest(model.DeploymentCreateRequest{
-		AppVersionID:    "appver-001",
-		TargetProfileID: "target-cpu-001",
+		AppVersionID: "appver-001",
 	}, "dep-target-only")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if manifest.Spec.RuntimeProfileID != "" {
-		t.Fatalf("runtime_profile_id = %q, want omitted", manifest.Spec.RuntimeProfileID)
+	if manifest.Spec.AppVersionID != "appver-001" || manifest.Spec.TargetProfileID != "" {
+		t.Fatalf("unexpected planner references: %+v", manifest.Spec)
 	}
 }
 
@@ -72,9 +68,8 @@ func TestNormalizeManifestRejectsConflictingLegacyFields(t *testing.T) {
 			SchemaVersion: model.DeploymentManifestSchemaVersion,
 			Kind:          model.DeploymentManifestKind,
 			Spec: model.DeploymentManifestSpec{
-				AppVersionID:     "appver-001",
-				RuntimeProfileID: "rt-cpu-001",
-				TargetProfileID:  "target-cpu-001",
+				AppVersionID:    "appver-001",
+				TargetProfileID: "target-cpu-001",
 			},
 		},
 	}, "dep-003")
@@ -117,11 +112,10 @@ func TestNormalizeManifestRejectsNvidiaWithoutGPU(t *testing.T) {
 			SchemaVersion: model.DeploymentManifestSchemaVersion,
 			Kind:          model.DeploymentManifestKind,
 			Spec: model.DeploymentManifestSpec{
-				AppVersionID:     "appver-1",
-				RuntimeProfileID: "runtime-1",
-				TargetProfileID:  "target-1",
-				Accelerator:      "nvidia",
-				Resources:        model.Resources{GPU: "0"},
+				AppVersionID:    "appver-1",
+				TargetProfileID: "target-1",
+				Accelerator:     "nvidia",
+				Resources:       model.Resources{GPU: "0"},
 			},
 		},
 	}, "dep-1")

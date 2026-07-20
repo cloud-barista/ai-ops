@@ -20,20 +20,6 @@ func NewService(repo store.ProfileRepository) *Service {
 	return &Service{repo: repo}
 }
 
-func (s *Service) CreateRuntime(ctx context.Context, profile model.RuntimeProfile) (model.RuntimeProfile, error) {
-	if err := ValidateRuntimeProfile(profile); err != nil {
-		return model.RuntimeProfile{}, err
-	}
-	if err := s.repo.CreateRuntimeProfile(ctx, profile); err != nil {
-		return model.RuntimeProfile{}, err
-	}
-	return profile, nil
-}
-
-func (s *Service) ListRuntimes(ctx context.Context) ([]model.RuntimeProfile, error) {
-	return s.repo.ListRuntimeProfiles(ctx)
-}
-
 func (s *Service) CreateTarget(ctx context.Context, profile model.TargetProfile) (model.TargetProfile, error) {
 	if err := ValidateTargetProfile(profile); err != nil {
 		return model.TargetProfile{}, err
@@ -48,27 +34,8 @@ func (s *Service) ListTargets(ctx context.Context) ([]model.TargetProfile, error
 	return s.repo.ListTargetProfiles(ctx)
 }
 
-func (s *Service) GetRuntime(ctx context.Context, id string) (model.RuntimeProfile, error) {
-	return s.repo.GetRuntimeProfile(ctx, id)
-}
-
 func (s *Service) GetTarget(ctx context.Context, id string) (model.TargetProfile, error) {
 	return s.repo.GetTargetProfile(ctx, id)
-}
-
-func (s *Service) DeleteRuntime(ctx context.Context, id string) (model.ProfileDeleteResponse, error) {
-	profile, err := s.repo.DeleteRuntimeProfile(ctx, id)
-	if err != nil {
-		return model.ProfileDeleteResponse{}, err
-	}
-	return model.ProfileDeleteResponse{
-		ProfileType:      model.ProfileTypeRuntime,
-		ProfileID:        profile.RuntimeProfileID,
-		Name:             profile.Name,
-		Deleted:          true,
-		InventoryDeleted: false,
-		DeletedAt:        time.Now().UTC(),
-	}, nil
 }
 
 func (s *Service) DeleteTarget(ctx context.Context, id string) (model.ProfileDeleteResponse, error) {
@@ -84,25 +51,6 @@ func (s *Service) DeleteTarget(ctx context.Context, id string) (model.ProfileDel
 		InventoryDeleted: inventoryDeleted,
 		DeletedAt:        time.Now().UTC(),
 	}, nil
-}
-
-func ValidateRuntimeProfile(profile model.RuntimeProfile) error {
-	if strings.TrimSpace(profile.RuntimeProfileID) == "" {
-		return runtimeInvalid("runtime_profile_id is required")
-	}
-	if !allowed(profile.RuntimeType, "mock", "cpu", "gpu", "aiinfra") {
-		return runtimeInvalid("runtime_type must be one of mock, cpu, gpu, aiinfra")
-	}
-	if profile.Accelerator != "" && !allowed(profile.Accelerator, "none", "nvidia") {
-		return runtimeInvalid("accelerator must be none or nvidia")
-	}
-	if !allowed(profile.AdapterType, "mock", "cpu_vm", "gpu_vm", "etri_aiinfra") {
-		return runtimeInvalid("adapter_type must be one of mock, cpu_vm, gpu_vm, etri_aiinfra")
-	}
-	if !allowed(profile.OperatingMode, "local_mock", "dry_run", "vm_process", "remote_api") {
-		return runtimeInvalid("operating_mode must be one of local_mock, dry_run, vm_process, remote_api")
-	}
-	return nil
 }
 
 func ValidateTargetProfile(profile model.TargetProfile) error {
@@ -138,10 +86,6 @@ func validateCredentialRef(credentialRef string) error {
 		return targetInvalid("vm.credential_ref must be a credential reference such as cred://runtime/credential-id")
 	}
 	return nil
-}
-
-func runtimeInvalid(message string) error {
-	return apperrors.New(model.ErrRuntimeProfileInvalid, message, http.StatusBadRequest, false)
 }
 
 func targetInvalid(message string) error {

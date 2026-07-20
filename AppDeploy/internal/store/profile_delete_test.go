@@ -12,37 +12,37 @@ import (
 	"github.com/khu/ai-app-deployer/internal/model"
 )
 
-type profileDeleteRepository interface {
+type targetDeleteRepository interface {
 	ProfileRepository
 	DeploymentRepository
 	MetricRepository
 }
 
-type profileDeleteRepositoryFactory struct {
+type targetDeleteRepositoryFactory struct {
 	name string
-	open func(t *testing.T) (profileDeleteRepository, func() profileDeleteRepository)
+	open func(t *testing.T) (targetDeleteRepository, func() targetDeleteRepository)
 }
 
-func profileDeleteRepositoryFactories() []profileDeleteRepositoryFactory {
-	return []profileDeleteRepositoryFactory{
+func targetDeleteRepositoryFactories() []targetDeleteRepositoryFactory {
+	return []targetDeleteRepositoryFactory{
 		{
 			name: "memory",
-			open: func(t *testing.T) (profileDeleteRepository, func() profileDeleteRepository) {
+			open: func(t *testing.T) (targetDeleteRepository, func() targetDeleteRepository) {
 				t.Helper()
 				repo := NewMemory()
-				return repo, func() profileDeleteRepository { return repo }
+				return repo, func() targetDeleteRepository { return repo }
 			},
 		},
 		{
 			name: "file",
-			open: func(t *testing.T) (profileDeleteRepository, func() profileDeleteRepository) {
+			open: func(t *testing.T) (targetDeleteRepository, func() targetDeleteRepository) {
 				t.Helper()
 				path := filepath.Join(t.TempDir(), "store.json")
 				repo, err := NewFile(path)
 				if err != nil {
 					t.Fatal(err)
 				}
-				return repo, func() profileDeleteRepository {
+				return repo, func() targetDeleteRepository {
 					reopened, err := NewFile(path)
 					if err != nil {
 						t.Fatal(err)
@@ -54,16 +54,13 @@ func profileDeleteRepositoryFactories() []profileDeleteRepositoryFactory {
 	}
 }
 
-func TestProfileDeleteAllowsStoppedHistoryAndPreservesEvidence(t *testing.T) {
-	for _, factory := range profileDeleteRepositoryFactories() {
+func TestTargetDeleteAllowsStoppedHistoryAndPreservesEvidence(t *testing.T) {
+	for _, factory := range targetDeleteRepositoryFactories() {
 		factory := factory
 		t.Run(factory.name, func(t *testing.T) {
 			ctx := context.Background()
 			repo, reopen := factory.open(t)
-			runtimeProfile, targetProfile := profilesForDeleteTest("stopped")
-			if err := repo.CreateRuntimeProfile(ctx, runtimeProfile); err != nil {
-				t.Fatal(err)
-			}
+			targetProfile := targetForDeleteTest("stopped")
 			if err := repo.CreateTargetProfile(ctx, targetProfile); err != nil {
 				t.Fatal(err)
 			}
@@ -71,12 +68,12 @@ func TestProfileDeleteAllowsStoppedHistoryAndPreservesEvidence(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			deployment := deploymentForProfileDeleteTest("dep-profile-stopped", runtimeProfile.RuntimeProfileID, targetProfile.TargetProfileID, model.StatusStopped)
+			deployment := deploymentForTargetDeleteTest("dep-target-stopped", targetProfile.TargetProfileID, model.StatusStopped)
 			if err := repo.CreateDeployment(ctx, deployment); err != nil {
 				t.Fatal(err)
 			}
 			event := model.DeploymentEvent{
-				EventID:      "event-profile-stopped",
+				EventID:      "event-target-stopped",
 				DeploymentID: deployment.DeploymentID,
 				Stage:        model.StatusStopped,
 				Message:      "stopped",
@@ -86,7 +83,7 @@ func TestProfileDeleteAllowsStoppedHistoryAndPreservesEvidence(t *testing.T) {
 				t.Fatal(err)
 			}
 			metric := model.InferenceMetricRecord{
-				MetricID:     "metric-profile-stopped",
+				MetricID:     "metric-target-stopped",
 				DeploymentID: deployment.DeploymentID,
 				Timestamp:    time.Now().UTC(),
 				LatencyMS:    12.5,
@@ -95,13 +92,6 @@ func TestProfileDeleteAllowsStoppedHistoryAndPreservesEvidence(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			deletedRuntime, err := repo.DeleteRuntimeProfile(ctx, runtimeProfile.RuntimeProfileID)
-			if err != nil {
-				t.Fatal(err)
-			}
-			if deletedRuntime.RuntimeProfileID != runtimeProfile.RuntimeProfileID || deletedRuntime.Name != runtimeProfile.Name {
-				t.Fatalf("deleted runtime profile = %+v", deletedRuntime)
-			}
 			deletedTarget, inventoryDeleted, err := repo.DeleteTargetProfile(ctx, targetProfile.TargetProfileID)
 			if err != nil {
 				t.Fatal(err)
@@ -111,18 +101,13 @@ func TestProfileDeleteAllowsStoppedHistoryAndPreservesEvidence(t *testing.T) {
 			}
 
 			persisted := reopen()
-			_, err = persisted.GetRuntimeProfile(ctx, runtimeProfile.RuntimeProfileID)
-			assertAppStoreError(t, err, "NOT_FOUND", http.StatusNotFound)
 			_, err = persisted.GetTargetProfile(ctx, targetProfile.TargetProfileID)
 			assertAppStoreError(t, err, "NOT_FOUND", http.StatusNotFound)
 			assertInventoryMissing(t, persisted, targetProfile.TargetProfileID)
 
 			gotDeployment, err := persisted.GetDeployment(ctx, deployment.DeploymentID)
-			if err != nil {
-				t.Fatalf("STOPPED deployment was removed: %v", err)
-			}
-			if gotDeployment.Status != model.StatusStopped {
-				t.Fatalf("deployment status = %s, want %s", gotDeployment.Status, model.StatusStopped)
+			if err != nil || gotDeployment.Status != model.StatusStopped {
+				t.Fatalf("STOPPED deployment was not preserved: %+v err=%v", gotDeployment, err)
 			}
 			events, err := persisted.ListEvents(ctx, deployment.DeploymentID, "")
 			if err != nil || len(events) != 1 || events[0].EventID != event.EventID {
@@ -133,25 +118,23 @@ func TestProfileDeleteAllowsStoppedHistoryAndPreservesEvidence(t *testing.T) {
 				t.Fatalf("metrics were not preserved: items=%+v err=%v", metrics, err)
 			}
 
-			_, err = persisted.DeleteRuntimeProfile(ctx, runtimeProfile.RuntimeProfileID)
-			assertAppStoreError(t, err, "NOT_FOUND", http.StatusNotFound)
 			_, _, err = persisted.DeleteTargetProfile(ctx, targetProfile.TargetProfileID)
 			assertAppStoreError(t, err, "NOT_FOUND", http.StatusNotFound)
 		})
 	}
 }
 
-func TestProfileDeleteReportsInventoryPresence(t *testing.T) {
-	for _, factory := range profileDeleteRepositoryFactories() {
+func TestTargetDeleteReportsInventoryPresence(t *testing.T) {
+	for _, factory := range targetDeleteRepositoryFactories() {
 		factory := factory
 		t.Run(factory.name, func(t *testing.T) {
 			ctx := context.Background()
 			repo, reopen := factory.open(t)
-			_, targetWithoutInventory := profilesForDeleteTest("without-inventory")
-			if err := repo.CreateTargetProfile(ctx, targetWithoutInventory); err != nil {
+			target := targetForDeleteTest("without-inventory")
+			if err := repo.CreateTargetProfile(ctx, target); err != nil {
 				t.Fatal(err)
 			}
-			_, inventoryDeleted, err := repo.DeleteTargetProfile(ctx, targetWithoutInventory.TargetProfileID)
+			_, inventoryDeleted, err := repo.DeleteTargetProfile(ctx, target.TargetProfileID)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -160,100 +143,76 @@ func TestProfileDeleteReportsInventoryPresence(t *testing.T) {
 			}
 
 			persisted := reopen()
-			_, err = persisted.GetTargetProfile(ctx, targetWithoutInventory.TargetProfileID)
+			_, err = persisted.GetTargetProfile(ctx, target.TargetProfileID)
 			assertAppStoreError(t, err, "NOT_FOUND", http.StatusNotFound)
 		})
 	}
 }
 
-func TestProfileDeleteRejectsAnyNonStoppedDeployment(t *testing.T) {
-	for _, factory := range profileDeleteRepositoryFactories() {
+func TestTargetDeleteRejectsAnyNonStoppedDeployment(t *testing.T) {
+	for _, factory := range targetDeleteRepositoryFactories() {
 		factory := factory
 		t.Run(factory.name, func(t *testing.T) {
 			ctx := context.Background()
 			repo, reopen := factory.open(t)
-			runtimeProfile, targetProfile := profilesForDeleteTest("blocked")
-			if err := repo.CreateRuntimeProfile(ctx, runtimeProfile); err != nil {
+			target := targetForDeleteTest("blocked")
+			if err := repo.CreateTargetProfile(ctx, target); err != nil {
 				t.Fatal(err)
 			}
-			if err := repo.CreateTargetProfile(ctx, targetProfile); err != nil {
-				t.Fatal(err)
-			}
-			if err := repo.SaveInventory(ctx, inventoryForDeleteTest(targetProfile.TargetProfileID)); err != nil {
+			if err := repo.SaveInventory(ctx, inventoryForDeleteTest(target.TargetProfileID)); err != nil {
 				t.Fatal(err)
 			}
 
-			statuses := []string{model.StatusStopped, model.StatusRunning, model.StatusValidationFailed}
-			for index, status := range statuses {
-				deployment := deploymentForProfileDeleteTest(
-					"dep-profile-blocked-"+string(rune('a'+index)),
-					runtimeProfile.RuntimeProfileID,
-					targetProfile.TargetProfileID,
-					status,
-				)
+			for index, status := range []string{model.StatusStopped, model.StatusRunning, model.StatusValidationFailed} {
+				deployment := deploymentForTargetDeleteTest("dep-target-blocked-"+string(rune('a'+index)), target.TargetProfileID, status)
 				if err := repo.CreateDeployment(ctx, deployment); err != nil {
 					t.Fatal(err)
 				}
 			}
 
-			_, err := repo.DeleteRuntimeProfile(ctx, runtimeProfile.RuntimeProfileID)
-			assertAppStoreError(t, err, model.ErrRuntimeProfileInvalid, http.StatusConflict)
-			assertDeploymentCountDetail(t, err, 2)
-			_, _, err = repo.DeleteTargetProfile(ctx, targetProfile.TargetProfileID)
+			_, _, err := repo.DeleteTargetProfile(ctx, target.TargetProfileID)
 			assertAppStoreError(t, err, model.ErrTargetProfileInvalid, http.StatusConflict)
 			assertDeploymentCountDetail(t, err, 2)
 
 			persisted := reopen()
-			if _, err := persisted.GetRuntimeProfile(ctx, runtimeProfile.RuntimeProfileID); err != nil {
-				t.Fatalf("blocked runtime profile was removed: %v", err)
-			}
-			if _, err := persisted.GetTargetProfile(ctx, targetProfile.TargetProfileID); err != nil {
+			if _, err := persisted.GetTargetProfile(ctx, target.TargetProfileID); err != nil {
 				t.Fatalf("blocked target profile was removed: %v", err)
 			}
-			assertInventoryPresent(t, persisted, targetProfile.TargetProfileID)
+			assertInventoryPresent(t, persisted, target.TargetProfileID)
 		})
 	}
 }
 
-func TestProfileDeleteHonorsCanceledContext(t *testing.T) {
-	for _, factory := range profileDeleteRepositoryFactories() {
+func TestTargetDeleteHonorsCanceledContext(t *testing.T) {
+	for _, factory := range targetDeleteRepositoryFactories() {
 		factory := factory
 		t.Run(factory.name, func(t *testing.T) {
 			ctx := context.Background()
 			repo, reopen := factory.open(t)
-			runtimeProfile, targetProfile := profilesForDeleteTest("canceled")
-			if err := repo.CreateRuntimeProfile(ctx, runtimeProfile); err != nil {
+			target := targetForDeleteTest("canceled")
+			if err := repo.CreateTargetProfile(ctx, target); err != nil {
 				t.Fatal(err)
 			}
-			if err := repo.CreateTargetProfile(ctx, targetProfile); err != nil {
-				t.Fatal(err)
-			}
-			if err := repo.SaveInventory(ctx, inventoryForDeleteTest(targetProfile.TargetProfileID)); err != nil {
+			if err := repo.SaveInventory(ctx, inventoryForDeleteTest(target.TargetProfileID)); err != nil {
 				t.Fatal(err)
 			}
 
 			canceled, cancel := context.WithCancel(ctx)
 			cancel()
-			if _, err := repo.DeleteRuntimeProfile(canceled, runtimeProfile.RuntimeProfileID); !errors.Is(err, context.Canceled) {
-				t.Fatalf("runtime delete error = %v, want context.Canceled", err)
-			}
-			if _, _, err := repo.DeleteTargetProfile(canceled, targetProfile.TargetProfileID); !errors.Is(err, context.Canceled) {
+			if _, _, err := repo.DeleteTargetProfile(canceled, target.TargetProfileID); !errors.Is(err, context.Canceled) {
 				t.Fatalf("target delete error = %v, want context.Canceled", err)
 			}
 
 			persisted := reopen()
-			if _, err := persisted.GetRuntimeProfile(ctx, runtimeProfile.RuntimeProfileID); err != nil {
-				t.Fatalf("runtime profile changed after canceled delete: %v", err)
-			}
-			if _, err := persisted.GetTargetProfile(ctx, targetProfile.TargetProfileID); err != nil {
+			if _, err := persisted.GetTargetProfile(ctx, target.TargetProfileID); err != nil {
 				t.Fatalf("target profile changed after canceled delete: %v", err)
 			}
-			assertInventoryPresent(t, persisted, targetProfile.TargetProfileID)
+			assertInventoryPresent(t, persisted, target.TargetProfileID)
 		})
 	}
 }
 
-func TestFileProfileDeleteRollsBackWhenPersistenceFails(t *testing.T) {
+func TestFileTargetDeleteRollsBackWhenPersistenceFails(t *testing.T) {
 	ctx := context.Background()
 	dir := t.TempDir()
 	storePath := filepath.Join(dir, "store.json")
@@ -261,14 +220,11 @@ func TestFileProfileDeleteRollsBackWhenPersistenceFails(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	runtimeProfile, targetProfile := profilesForDeleteTest("rollback")
-	if err := repo.CreateRuntimeProfile(ctx, runtimeProfile); err != nil {
+	target := targetForDeleteTest("rollback")
+	if err := repo.CreateTargetProfile(ctx, target); err != nil {
 		t.Fatal(err)
 	}
-	if err := repo.CreateTargetProfile(ctx, targetProfile); err != nil {
-		t.Fatal(err)
-	}
-	if err := repo.SaveInventory(ctx, inventoryForDeleteTest(targetProfile.TargetProfileID)); err != nil {
+	if err := repo.SaveInventory(ctx, inventoryForDeleteTest(target.TargetProfileID)); err != nil {
 		t.Fatal(err)
 	}
 
@@ -278,60 +234,42 @@ func TestFileProfileDeleteRollsBackWhenPersistenceFails(t *testing.T) {
 	}
 	repo.path = filepath.Join(blocker, "store.json")
 
-	if _, err := repo.DeleteRuntimeProfile(ctx, runtimeProfile.RuntimeProfileID); err == nil {
-		t.Fatal("runtime delete unexpectedly succeeded when persistence failed")
-	}
-	if _, _, err := repo.DeleteTargetProfile(ctx, targetProfile.TargetProfileID); err == nil {
+	if _, _, err := repo.DeleteTargetProfile(ctx, target.TargetProfileID); err == nil {
 		t.Fatal("target delete unexpectedly succeeded when persistence failed")
 	}
-	if _, err := repo.GetRuntimeProfile(ctx, runtimeProfile.RuntimeProfileID); err != nil {
-		t.Fatalf("runtime profile was not rolled back: %v", err)
-	}
-	if _, err := repo.GetTargetProfile(ctx, targetProfile.TargetProfileID); err != nil {
+	if _, err := repo.GetTargetProfile(ctx, target.TargetProfileID); err != nil {
 		t.Fatalf("target profile was not rolled back: %v", err)
 	}
-	assertInventoryPresent(t, repo, targetProfile.TargetProfileID)
+	assertInventoryPresent(t, repo, target.TargetProfileID)
 
 	persisted, err := NewFile(storePath)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := persisted.GetRuntimeProfile(ctx, runtimeProfile.RuntimeProfileID); err != nil {
-		t.Fatalf("persisted runtime profile changed after rollback: %v", err)
-	}
-	if _, err := persisted.GetTargetProfile(ctx, targetProfile.TargetProfileID); err != nil {
+	if _, err := persisted.GetTargetProfile(ctx, target.TargetProfileID); err != nil {
 		t.Fatalf("persisted target profile changed after rollback: %v", err)
 	}
-	assertInventoryPresent(t, persisted, targetProfile.TargetProfileID)
+	assertInventoryPresent(t, persisted, target.TargetProfileID)
 }
 
-func profilesForDeleteTest(suffix string) (model.RuntimeProfile, model.TargetProfile) {
-	runtimeID := "runtime-delete-" + suffix
-	targetID := "target-delete-" + suffix
-	return model.RuntimeProfile{
-			RuntimeProfileID: runtimeID,
-			Name:             "runtime " + suffix,
-			RuntimeType:      "mock",
-			AdapterType:      "mock",
-			OperatingMode:    "local_mock",
-		}, model.TargetProfile{
-			TargetProfileID: targetID,
-			Name:            "target " + suffix,
-			CSP:             "mock",
-			Runtime:         model.TargetRuntime{RuntimeType: "mock", OperatingMode: "local_mock"},
-		}
+func targetForDeleteTest(suffix string) model.TargetProfile {
+	return model.TargetProfile{
+		TargetProfileID: "target-delete-" + suffix,
+		Name:            "target " + suffix,
+		CSP:             "mock",
+		Runtime:         model.TargetRuntime{RuntimeType: "mock", OperatingMode: "local_mock"},
+	}
 }
 
-func deploymentForProfileDeleteTest(id, runtimeID, targetID, status string) model.DeploymentResponse {
+func deploymentForTargetDeleteTest(id, targetID, status string) model.DeploymentResponse {
 	now := time.Now().UTC()
 	return model.DeploymentResponse{
-		DeploymentID:     id,
-		AppVersionID:     "appver-profile-delete",
-		RuntimeProfileID: runtimeID,
-		TargetProfileID:  targetID,
-		Status:           status,
-		CreatedAt:        now,
-		UpdatedAt:        now,
+		DeploymentID:    id,
+		AppVersionID:    "appver-profile-delete",
+		TargetProfileID: targetID,
+		Status:          status,
+		CreatedAt:       now,
+		UpdatedAt:       now,
 	}
 }
 

@@ -34,12 +34,11 @@ func TestValidateTargetRequiresGPUCount(t *testing.T) {
 
 func TestHealthCheckMapsNvidiaSMIFailure(t *testing.T) {
 	adapter := New(failingRunner{})
-	err := adapter.HealthCheck(context.Background(), model.RuntimeProfile{
-		RuntimeProfileID: "rt-gpu-001",
-		RuntimeType:      "gpu",
-		Accelerator:      "nvidia",
-		AdapterType:      "gpu_vm",
-		OperatingMode:    "vm_process",
+	err := adapter.HealthCheck(context.Background(), model.RuntimeConfig{
+		RuntimeType:   "gpu",
+		Accelerator:   "nvidia",
+		AdapterType:   "gpu_vm",
+		OperatingMode: "vm_process",
 	}, validTarget())
 	if err == nil {
 		t.Fatal("expected nvidia-smi failure")
@@ -51,12 +50,11 @@ func TestHealthCheckMapsNvidiaSMIFailure(t *testing.T) {
 
 func TestHealthCheckDryRun(t *testing.T) {
 	adapter := New(NewDryRunRunner())
-	err := adapter.HealthCheck(context.Background(), model.RuntimeProfile{
-		RuntimeProfileID: "rt-gpu-001",
-		RuntimeType:      "gpu",
-		Accelerator:      "nvidia",
-		AdapterType:      "gpu_vm",
-		OperatingMode:    "vm_process",
+	err := adapter.HealthCheck(context.Background(), model.RuntimeConfig{
+		RuntimeType:   "gpu",
+		Accelerator:   "nvidia",
+		AdapterType:   "gpu_vm",
+		OperatingMode: "vm_process",
 	}, validTarget())
 	if err != nil {
 		t.Fatal(err)

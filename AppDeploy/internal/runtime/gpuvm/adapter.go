@@ -51,12 +51,12 @@ func (a *Adapter) ValidateTarget(ctx context.Context, target model.TargetProfile
 	return nil
 }
 
-func (a *Adapter) HealthCheck(ctx context.Context, profile model.RuntimeProfile, target model.TargetProfile) error {
+func (a *Adapter) HealthCheck(ctx context.Context, profile model.RuntimeConfig, target model.TargetProfile) error {
 	if profile.RuntimeType != "gpu" || profile.AdapterType != "gpu_vm" {
-		return apperrors.New(model.ErrRuntimeProfileInvalid, "gpu vm adapter requires runtime_type=gpu and adapter_type=gpu_vm", http.StatusBadRequest, false)
+		return apperrors.New(model.ErrRuntimeConfigInvalid, "gpu vm adapter requires runtime_type=gpu and adapter_type=gpu_vm", http.StatusBadRequest, false)
 	}
 	if profile.Accelerator != "" && profile.Accelerator != "nvidia" {
-		return apperrors.New(model.ErrRuntimeProfileInvalid, "gpu vm adapter requires nvidia accelerator", http.StatusBadRequest, false)
+		return apperrors.New(model.ErrRuntimeConfigInvalid, "gpu vm adapter requires nvidia accelerator", http.StatusBadRequest, false)
 	}
 	if err := a.ValidateTarget(ctx, target); err != nil {
 		return err

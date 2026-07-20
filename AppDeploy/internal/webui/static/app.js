@@ -56,7 +56,7 @@ const fieldHelpDefinitions = [
   ["#target-form [name='log_dir']", "실행 로그를 저장할 대상 VM 내부 디렉터리입니다. 예: /tmp/aiapp/logs"],
 
   ["#deployment-form [name='app_version_id']", "등록된 App의 특정 버전을 선택합니다. App 등록 시 app_version_id가 자동 발급됩니다."],
-  ["#deployment-form [name='target_profile_id']", "App을 실행할 VM 또는 AI Infra 대상을 선택합니다. 실행 방식은 Target Profile의 runtime 설정을 사용합니다."],
+  ["#deployment-form [name='target_profile_id']", "선택하면 Target hint로 사용하고, 비워 두면 App Deployer가 VM readiness와 resource 요구사항을 검사해 적합한 Target을 자동 선택합니다."],
 
   ["#resource-target", "준비 상태를 검사할 배포 대상입니다. 연결성, Runtime, GPU와 저장 경로를 Adapter 기준으로 확인합니다."],
   ["#metric-form [name='deployment_id']", "메트릭을 연결할 배포를 선택합니다."],
@@ -518,6 +518,11 @@ function populateCredentialRefs() {
 }
 
 function populateSelects() {
+  const deploymentTarget = $("#deployment-target");
+  if (deploymentTarget) {
+    deploymentTarget.removeAttribute("required");
+    deploymentTarget.dataset.emptyLabel = "App Deployer automatic selection";
+  }
   fillSelect("#deployment-app", state.apps, "app_version_id", item => `${item.name} ${item.version} · ${shortID(item.app_version_id)}`);
   fillSelect("#deployment-target", state.targets, "target_profile_id", item => `${item.name || item.target_profile_id} · ${item.runtime?.runtime_type}`);
   fillSelect("#resource-target", state.targets, "target_profile_id", item => `${item.name || item.target_profile_id} · ${item.target_profile_id}`);
@@ -536,8 +541,8 @@ function navigate(viewName) {
 }
 
 function openDialog(id) {
-  if (id === "deployment-dialog" && (!state.apps.length || !state.targets.length)) {
-    toast("배포 준비 필요", "App과 Target Profile을 먼저 등록하세요. Runtime Profile은 선택 사항입니다.", "error");
+  if (id === "deployment-dialog" && !state.apps.length) {
+    toast("배포 준비 필요", "App을 먼저 등록하세요. Target은 App Deployer가 자동 선택합니다.", "error");
     return;
   }
   const dialog = document.getElementById(id);

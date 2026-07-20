@@ -6,8 +6,8 @@ import (
 	"github.com/khu/ai-app-deployer/internal/model"
 )
 
-func TestProfileFromTargetMapsRuntimeAdapterDefaults(t *testing.T) {
-	profile := ProfileFromTarget(model.TargetProfile{
+func TestConfigFromTargetMapsRuntimeAdapterDefaults(t *testing.T) {
+	profile := ConfigFromTarget(model.TargetProfile{
 		TargetProfileID: "target-gpu-001",
 		Runtime: model.TargetRuntime{
 			RuntimeType:   "gpu",
@@ -15,13 +15,13 @@ func TestProfileFromTargetMapsRuntimeAdapterDefaults(t *testing.T) {
 			OperatingMode: "vm_process",
 		},
 	})
-	if profile.RuntimeProfileID != "target-gpu-001-runtime-derived" || profile.RuntimeType != "gpu" || profile.AdapterType != "gpu_vm" || profile.Accelerator != "nvidia" || profile.OperatingMode != "vm_process" {
+	if profile.RuntimeType != "gpu" || profile.AdapterType != "gpu_vm" || profile.Accelerator != "nvidia" || profile.OperatingMode != "vm_process" {
 		t.Fatalf("unexpected derived runtime profile: %+v", profile)
 	}
 }
 
 func TestProfileFromMockTargetAlwaysUsesMockAdapter(t *testing.T) {
-	profile := ProfileFromTarget(model.TargetProfile{
+	profile := ConfigFromTarget(model.TargetProfile{
 		TargetProfileID: "target-mock-001",
 		CSP:             "mock",
 		Runtime: model.TargetRuntime{

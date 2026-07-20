@@ -92,19 +92,18 @@ func (s *Service) Invoke(ctx context.Context, deploymentID string, req model.Inf
 	}
 	body, raw := parseBody(rawBody)
 	return model.InferenceInvokeResponse{
-		DeploymentID:     deployment.DeploymentID,
-		AppID:            deployment.AppID,
-		AppVersionID:     deployment.AppVersionID,
-		RuntimeProfileID: deployment.RuntimeProfileID,
-		TargetProfileID:  deployment.TargetProfileID,
-		Method:           method,
-		Path:             path,
-		Port:             port,
-		StatusCode:       statusCode,
-		Body:             body,
-		RawBody:          raw,
-		DurationMS:       time.Since(start).Milliseconds(),
-		InvokedAt:        start,
+		DeploymentID:    deployment.DeploymentID,
+		AppID:           deployment.AppID,
+		AppVersionID:    deployment.AppVersionID,
+		TargetProfileID: deployment.TargetProfileID,
+		Method:          method,
+		Path:            path,
+		Port:            port,
+		StatusCode:      statusCode,
+		Body:            body,
+		RawBody:         raw,
+		DurationMS:      time.Since(start).Milliseconds(),
+		InvokedAt:       start,
 	}, nil
 }
 

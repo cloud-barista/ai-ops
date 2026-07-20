@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://khu.ai/schemas/deployment_manifest.schema.json",
   "title": "KHU Deployment Manifest",
-  "description": "Planner-compatible deployment intent referencing a registered App and Target Profile. Target Profile runtime settings select execution.",
+  "description": "Planner-compatible deployment intent referencing a registered App. The optional target_profile_id is only a hint; App Deployer selects a ready Target Profile using the requirement envelope.",
   "type": "object",
   "required": [
     "schema_version",
@@ -27,20 +27,15 @@
     "spec": {
       "type": "object",
       "required": [
-        "app_version_id",
-        "target_profile_id"
+        "app_version_id"
       ],
       "properties": {
         "app_version_id": {
           "type": "string"
         },
-        "runtime_profile_id": {
-          "type": "string",
-          "deprecated": true,
-          "description": "Legacy field. Ignored by the orchestrator; execution settings always come from the Target Profile runtime block."
-        },
         "target_profile_id": {
-          "type": "string"
+          "type": "string",
+          "description": "Optional Target Profile hint. When omitted, App Deployer selects a ready matching target."
         },
         "accelerator": {
           "enum": [

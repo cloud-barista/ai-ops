@@ -26,7 +26,7 @@ func (a *Adapter) ValidateTarget(ctx context.Context, target model.TargetProfile
 	return nil
 }
 
-func (a *Adapter) HealthCheck(ctx context.Context, profile model.RuntimeProfile, target model.TargetProfile) error {
+func (a *Adapter) HealthCheck(ctx context.Context, profile model.RuntimeConfig, target model.TargetProfile) error {
 	return nil
 }
 

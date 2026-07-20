@@ -13,7 +13,6 @@ type Memory struct {
 	appsByID        map[string]model.AppResponse
 	appsByVersionID map[string]model.AppResponse
 	appNameVersion  map[string]string
-	runtimes        map[string]model.RuntimeProfile
 	targets         map[string]model.TargetProfile
 	deployments     map[string]model.DeploymentResponse
 	events          map[string][]model.DeploymentEvent
@@ -26,7 +25,6 @@ func NewMemory() *Memory {
 		appsByID:        map[string]model.AppResponse{},
 		appsByVersionID: map[string]model.AppResponse{},
 		appNameVersion:  map[string]string{},
-		runtimes:        map[string]model.RuntimeProfile{},
 		targets:         map[string]model.TargetProfile{},
 		deployments:     map[string]model.DeploymentResponse{},
 		events:          map[string][]model.DeploymentEvent{},
@@ -90,50 +88,6 @@ func (m *Memory) DeleteApp(ctx context.Context, appID string) (model.AppResponse
 	delete(m.appsByVersionID, app.AppVersionID)
 	delete(m.appNameVersion, appNameVersionKey(app.Name, app.Version))
 	return app, nil
-}
-
-func (m *Memory) CreateRuntimeProfile(ctx context.Context, profile model.RuntimeProfile) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	m.runtimes[profile.RuntimeProfileID] = profile
-	return nil
-}
-
-func (m *Memory) ListRuntimeProfiles(ctx context.Context) ([]model.RuntimeProfile, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	return mapValues(m.runtimes), nil
-}
-
-func (m *Memory) GetRuntimeProfile(ctx context.Context, id string) (model.RuntimeProfile, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	return mapValue(m.runtimes, id, "runtime profile not found")
-}
-
-func (m *Memory) DeleteRuntimeProfile(ctx context.Context, id string) (model.RuntimeProfile, error) {
-	if err := contextError(ctx); err != nil {
-		return model.RuntimeProfile{}, err
-	}
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	if err := contextError(ctx); err != nil {
-		return model.RuntimeProfile{}, err
-	}
-
-	profile, err := mapValue(m.runtimes, id, "runtime profile not found")
-	if err != nil {
-		return model.RuntimeProfile{}, err
-	}
-	if err := validateRuntimeProfileDeletion(m.deployments, id); err != nil {
-		return model.RuntimeProfile{}, err
-	}
-	if err := contextError(ctx); err != nil {
-		return model.RuntimeProfile{}, err
-	}
-
-	delete(m.runtimes, id)
-	return profile, nil
 }
 
 func (m *Memory) CreateTargetProfile(ctx context.Context, profile model.TargetProfile) error {

@@ -10,7 +10,6 @@
 | TC-IF-APP-001 | App 등록 삭제 | 미사용 App에 `DELETE /api/v1/apps/{app_id}` 또는 `apps delete <app-id> --yes` | `app-delete-success.json` 형태의 응답, 목록/상세 제외, 같은 name/version 재등록 가능 |
 | TC-IF-APP-002 | STOPPED 이력 App 삭제 | 모든 참조 Deployment를 STOPPED로 만든 뒤 DELETE | App 등록 삭제, STOPPED Deployment 이력과 package/git/binary/script 및 VM 파일 유지 |
 | TC-IF-APP-003 | App 삭제 참조 보호 | STOPPED 외 참조 Deployment가 하나 이상인 App에 DELETE | APP_SPEC_INVALID/409, App 등록과 Deployment 이력 및 artifact·VM 파일 유지 |
-| TC-IF-006 | Runtime Profile 등록 | `deliverables/interface/examples/requests/runtime-profile-gpu-vm.json` | runtime_profile_id, profile_id 반환 |
 | TC-IF-007 | Target Profile 등록 | `deliverables/interface/examples/requests/target-profile-aws-gpu.json` | target_profile_id, profile_id 반환 |
 | TC-IF-PROFILE-001 | 미참조 Profile 삭제 | 미사용 Runtime/Target에 각 DELETE API를 호출하고 이름 없는 Profile도 확인 | 정확한 공통 응답 필드, `name` 항상 포함(미저장 시 빈 문자열), 목록 제외 |
 | TC-IF-PROFILE-002 | STOPPED 이력 Profile 삭제 | 모든 참조 Deployment를 STOPPED로 만든 뒤 Runtime/Target DELETE | Profile 삭제, STOPPED Deployment/Event/Metric 이력 유지 |
@@ -20,7 +19,7 @@
 | TC-IF-008 | Resource Check | `deliverables/interface/examples/requests/resource-check-gpu.json` | available 또는 표준 failure 반환 |
 | TC-IF-009 | Deployment 생성 | `deliverables/interface/examples/requests/deployment-create-gpu.json` | deployment_id, 표준 status 반환 |
 | TC-IF-009-M | Manifest-only Deployment 생성 | `deliverables/interface/examples/requests/deployment-create-manifest.json` | 등록된 Profile 참조로 Manifest 정규화·배포, 응답에 manifest 반환 |
-| TC-IF-009-T | Target-only Deployment 생성 | `POST /api/v1/deployments`에 `app_version_id`, `target_profile_id`만 전송 | Target Profile runtime 설정으로 실행 프로파일을 파생해 배포 |
+| TC-IF-009-T | Planner Manifest Deployment 생성 | `POST /api/v1/deployments`에 `manifest.spec.app_version_id`와 resource envelope를 전송하고 Target hint는 생략 | App Deployer가 VM readiness/자원 매칭 후 선택한 `target_profile_id`를 응답과 normalized manifest에 기록 |
 | TC-IF-010 | Deployment 상태 조회 | `GET /api/v1/deployments/{deployment_id}` | 표준 status enum 반환 |
 | TC-IF-011 | Deployment 로그 조회 | `GET /api/v1/deployments/{deployment_id}/logs` | request_id, deployment_id, stage 포함 |
 | TC-IF-012 | Deployment 중지 | `deliverables/interface/examples/requests/deployment-stop.json` | STOPPING 또는 STOPPED 반환 |
@@ -29,7 +28,7 @@
 | TC-IF-015 | 범위 검수 | OpenAPI paths/components 검색 | Docker/K8s/Container API 없음 |
 | TC-IF-PKG-001 | 프리셋 Package 생성 | `deliverables/interface/examples/requests/package-build-aiops-geon.json`을 `POST /api/v1/artifacts/packages`에 JSON으로 전송 | package, checksum, app_spec 반환 |
 | TC-IF-PKG-002 | 업로드 Package 생성 | script 파일과 `package_type=script`를 multipart로 전송 | Linux amd64 tar.gz와 등록 가능한 app_spec 반환 |
-| TC-IF-PKG-003 | Package 연속 배포 | Package 응답의 app_spec 등록 → Resource Check → Deployment 생성 | available일 때만 app_version_id와 표준 deployment status 반환 |
+| TC-IF-PKG-003 | Package 연속 배포 | Package 응답의 app_spec 등록 → Deployment 요청 (Target hint 선택) | App Deployer가 readiness/자원 검사를 수행하고 선택 결과와 표준 deployment status 반환 |
 | TC-IF-PKG-004 | Package 입력 거부 | 미지원 유형, 빈 source, unsafe ZIP 또는 제한 초과 업로드 | APP_SPEC_INVALID 또는 APP_ARTIFACT_NOT_FOUND 반환 |
 | TC-IF-CRED-001 | Runtime Credential 등록 | 신뢰된 OpenSSH SHA256 fingerprint와 실행 중 생성한 canary로 Web/API/CLI의 private_key/password 분기를 각각 등록하고 정적 secret fixture는 만들지 않음 | 응답은 `host_key_fingerprint` 등 공개 메타데이터와 `persistent=false`만 포함하고 비밀값은 포함하지 않음 |
 | TC-IF-CRED-002 | Runtime Credential 목록/ENV | Runtime 등록 후 GET하고 `_SSH_HOST_KEY_FINGERPRINT`를 포함한 ENV Credential도 구성 | Runtime 항목은 fingerprint를 포함하고 ENV 항목과 모든 비밀값은 제외하며, ENV fingerprint 누락은 해석 실패 |

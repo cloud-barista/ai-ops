@@ -29,14 +29,11 @@ func TestDeleteProfilesWithStoppedHistoryPreservesEvidenceAndCredentialE2E(t *te
 	assertStatus(t, credentialRecorder, http.StatusCreated)
 	assertCredentialSecretAbsent(t, credentialRecorder.Body.Bytes(), secret)
 
-	runtimeProfile := profileDeleteRuntimeE2E("runtime-profile-delete", "runtime delete e2e")
-	postJSON[model.RuntimeProfile](t, e, http.MethodPost, "/api/v1/runtime-profiles", runtimeProfile)
 	targetProfile := profileDeleteTargetE2E("target-profile-delete", "target delete e2e", credentialRef)
 	postJSON[model.TargetProfile](t, e, http.MethodPost, "/api/v1/target-profiles", targetProfile)
 
 	check := postJSON[model.ResourceCheckResponse](t, e, http.MethodPost, "/api/v1/resources/check", model.ResourceCheckRequest{
-		RuntimeProfileID: runtimeProfile.RuntimeProfileID,
-		TargetProfileID:  targetProfile.TargetProfileID,
+		TargetProfileID: targetProfile.TargetProfileID,
 	})
 	if check.Status != "available" {
 		t.Fatalf("resource check status = %s, want available", check.Status)
@@ -44,9 +41,8 @@ func TestDeleteProfilesWithStoppedHistoryPreservesEvidenceAndCredentialE2E(t *te
 
 	app := postJSON[model.AppResponse](t, e, http.MethodPost, "/api/v1/apps", model.AppCreateRequest{AppSpec: validMockApp()})
 	deployment := postJSON[model.DeploymentResponse](t, e, http.MethodPost, "/api/v1/deployments", model.DeploymentCreateRequest{
-		AppVersionID:     app.AppVersionID,
-		RuntimeProfileID: runtimeProfile.RuntimeProfileID,
-		TargetProfileID:  targetProfile.TargetProfileID,
+		AppVersionID:    app.AppVersionID,
+		TargetProfileID: targetProfile.TargetProfileID,
 	})
 	metric := postJSON[model.InferenceMetricRecord](t, e, http.MethodPost, "/api/v1/deployments/"+deployment.DeploymentID+"/metrics", model.InferenceMetricCreateRequest{
 		LatencyMS:    8.5,
@@ -59,16 +55,13 @@ func TestDeleteProfilesWithStoppedHistoryPreservesEvidenceAndCredentialE2E(t *te
 
 	deletedTarget := postJSON[model.ProfileDeleteResponse](t, e, http.MethodDelete, "/api/v1/target-profiles/"+targetProfile.TargetProfileID, nil)
 	assertProfileDeleteResponse(t, deletedTarget, model.ProfileTypeTarget, targetProfile.TargetProfileID, targetProfile.Name, true)
-	deletedRuntime := postJSON[model.ProfileDeleteResponse](t, e, http.MethodDelete, "/api/v1/runtime-profiles/"+runtimeProfile.RuntimeProfileID, nil)
-	assertProfileDeleteResponse(t, deletedRuntime, model.ProfileTypeRuntime, runtimeProfile.RuntimeProfileID, runtimeProfile.Name, false)
 
 	assertAPIError(t, request(t, e, http.MethodDelete, "/api/v1/target-profiles/"+targetProfile.TargetProfileID, nil), http.StatusNotFound, "NOT_FOUND")
-	assertAPIError(t, request(t, e, http.MethodDelete, "/api/v1/runtime-profiles/"+runtimeProfile.RuntimeProfileID, nil), http.StatusNotFound, "NOT_FOUND")
-	assertProfileAbsentFromLists(t, e, runtimeProfile.RuntimeProfileID, targetProfile.TargetProfileID)
+	assertTargetAbsentFromLists(t, e, targetProfile.TargetProfileID)
 	assertTargetInventoryAbsentE2E(t, e, targetProfile.TargetProfileID)
 
 	preservedDeployment := getJSON[model.DeploymentResponse](t, e, "/api/v1/deployments/"+deployment.DeploymentID)
-	if preservedDeployment.Status != model.StatusStopped || preservedDeployment.RuntimeProfileID != runtimeProfile.RuntimeProfileID || preservedDeployment.TargetProfileID != targetProfile.TargetProfileID {
+	if preservedDeployment.Status != model.StatusStopped || preservedDeployment.TargetProfileID != targetProfile.TargetProfileID {
 		t.Fatalf("STOPPED deployment history was not preserved: %+v", preservedDeployment)
 	}
 	logs := getJSON[struct {
@@ -106,32 +99,21 @@ func TestDeleteProfilesWithRunningDeploymentReturnsConflictE2E(t *testing.T) {
 	t.Setenv("AIAPP_GPUVM_RUNNER", "dry-run")
 	e := newTestServer(t)
 
-	runtimeProfile := profileDeleteRuntimeE2E("runtime-profile-blocked", "blocked runtime")
 	targetProfile := profileDeleteTargetE2E("target-profile-blocked", "blocked target", "")
-	postJSON[model.RuntimeProfile](t, e, http.MethodPost, "/api/v1/runtime-profiles", runtimeProfile)
 	postJSON[model.TargetProfile](t, e, http.MethodPost, "/api/v1/target-profiles", targetProfile)
 	postJSON[model.ResourceCheckResponse](t, e, http.MethodPost, "/api/v1/resources/check", model.ResourceCheckRequest{TargetProfileID: targetProfile.TargetProfileID})
 	app := postJSON[model.AppResponse](t, e, http.MethodPost, "/api/v1/apps", model.AppCreateRequest{AppSpec: validMockApp()})
 	deployment := postJSON[model.DeploymentResponse](t, e, http.MethodPost, "/api/v1/deployments", model.DeploymentCreateRequest{
-		AppVersionID:     app.AppVersionID,
-		RuntimeProfileID: runtimeProfile.RuntimeProfileID,
-		TargetProfileID:  targetProfile.TargetProfileID,
+		AppVersionID:    app.AppVersionID,
+		TargetProfileID: targetProfile.TargetProfileID,
 	})
 	if deployment.Status != model.StatusRunning {
 		t.Fatalf("deployment status = %s, want %s", deployment.Status, model.StatusRunning)
 	}
 
-	runtimeDelete := request(t, e, http.MethodDelete, "/api/v1/runtime-profiles/"+runtimeProfile.RuntimeProfileID, nil)
-	assertProfileDeleteConflictE2E(t, runtimeDelete, model.ErrRuntimeProfileInvalid, 1)
 	targetDelete := request(t, e, http.MethodDelete, "/api/v1/target-profiles/"+targetProfile.TargetProfileID, nil)
 	assertProfileDeleteConflictE2E(t, targetDelete, model.ErrTargetProfileInvalid, 1)
 
-	runtimes := getJSON[struct {
-		Items []model.RuntimeProfile `json:"items"`
-	}](t, e, "/api/v1/runtime-profiles")
-	if len(runtimes.Items) != 1 || runtimes.Items[0].RuntimeProfileID != runtimeProfile.RuntimeProfileID {
-		t.Fatalf("runtime profile changed after rejected delete: %+v", runtimes.Items)
-	}
 	targets := getJSON[struct {
 		Items []model.TargetProfile `json:"items"`
 	}](t, e, "/api/v1/target-profiles")
@@ -141,17 +123,6 @@ func TestDeleteProfilesWithRunningDeploymentReturnsConflictE2E(t *testing.T) {
 	assertTargetInventoryPresentE2E(t, e, targetProfile.TargetProfileID)
 	if got := getJSON[model.DeploymentResponse](t, e, "/api/v1/deployments/"+deployment.DeploymentID); got.Status != model.StatusRunning {
 		t.Fatalf("deployment changed after rejected profile delete: %+v", got)
-	}
-}
-
-func profileDeleteRuntimeE2E(id, name string) model.RuntimeProfile {
-	return model.RuntimeProfile{
-		RuntimeProfileID: id,
-		Name:             name,
-		RuntimeType:      "mock",
-		Accelerator:      "none",
-		AdapterType:      "mock",
-		OperatingMode:    "local_mock",
 	}
 }
 
@@ -199,16 +170,8 @@ func assertProfileDeleteConflictE2E(t *testing.T, recorder *httptest.ResponseRec
 	}
 }
 
-func assertProfileAbsentFromLists(t *testing.T, handler http.Handler, runtimeID, targetID string) {
+func assertTargetAbsentFromLists(t *testing.T, handler http.Handler, targetID string) {
 	t.Helper()
-	runtimes := getJSON[struct {
-		Items []model.RuntimeProfile `json:"items"`
-	}](t, handler, "/api/v1/runtime-profiles")
-	for _, item := range runtimes.Items {
-		if item.RuntimeProfileID == runtimeID {
-			t.Fatalf("deleted runtime profile remains in list: %+v", item)
-		}
-	}
 	targets := getJSON[struct {
 		Items []model.TargetProfile `json:"items"`
 	}](t, handler, "/api/v1/target-profiles")

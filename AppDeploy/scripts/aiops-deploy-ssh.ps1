@@ -70,7 +70,6 @@ $Config = Get-Content -LiteralPath $ConfigFullPath -Raw | ConvertFrom-Json
 $AppSettings = Get-Setting $Config "app" $null
 $PackageSettings = Get-Setting $Config "package" $null
 $AppDeploySettings = Get-Setting $Config "appdeploy" $null
-$RuntimeProfileSettings = Get-Setting $Config "runtime_profile" $null
 $TargetProfileSettings = Get-Setting $Config "target_profile" $null
 $ServiceOperationSettings = Get-Setting $Config "service_operation" $null
 $LoggingSettings = Get-Setting $Config "logging" $null
@@ -484,7 +483,7 @@ function Invoke-AppDeploy {
     return Invoke-RestMethod -Uri $uri -Method $Method -ContentType "application/json; charset=utf-8" -Body $bytes -TimeoutSec 120
 }
 
-# App Spec, Runtime Profile, Target Profile을 만들고 resource check 후 deployment를 생성한다.
+# App Spec과 Target Profile을 만들고 resource check 후 deployment를 생성한다.
 function Register-AndDeploy {
     param(
         [pscustomobject]$PackageInfo,
@@ -497,7 +496,6 @@ function Register-AndDeploy {
     $appVersionPrefix = [string](Get-Setting $AppSettings "version_prefix" "ssh")
     $appVersion = "$appVersionPrefix-$runId"
     $appDescription = [string](Get-Setting $AppSettings "description" "ai-ops-geon service-control-api deployed by AppDeploy SSH script")
-    $runtimeProfileId = "$([string](Get-Setting $RuntimeProfileSettings "id_prefix" "rt-aiops-geon-cpu-ssh-home"))-$runId"
     $targetProfileId = "$([string](Get-Setting $TargetProfileSettings "id_prefix" "target-aiops-geon-cpu-ssh-home"))-$runId"
 
     $appResources = Get-Setting $AppSettings "resources" $null
@@ -543,15 +541,6 @@ function Register-AndDeploy {
         }
     }
 
-    $runtimeProfile = @{
-        runtime_profile_id = $runtimeProfileId
-        name = [string](Get-Setting $RuntimeProfileSettings "name" "aiops-geon cpu ssh vm process")
-        runtime_type = [string](Get-Setting $RuntimeProfileSettings "runtime_type" "cpu")
-        adapter_type = [string](Get-Setting $RuntimeProfileSettings "adapter_type" "cpu_vm")
-        operating_mode = [string](Get-Setting $RuntimeProfileSettings "operating_mode" "vm_process")
-        accelerator = [string](Get-Setting $RuntimeProfileSettings "accelerator" "none")
-    }
-
     $remoteBaseDir = [string](Get-Setting $TargetProfileSettings "remote_base_dir" "aiapp")
     $artifactDir = [string](Get-Setting $TargetProfileSettings "artifact_dir" "$RemoteHome/$remoteBaseDir/artifacts")
     $modelDir = [string](Get-Setting $TargetProfileSettings "model_dir" "$RemoteHome/$remoteBaseDir/models")
@@ -583,20 +572,17 @@ function Register-AndDeploy {
         }
     }
 
-    Write-RunLog -Stage "register" -Message "registering app/runtime/target profiles"
+    Write-RunLog -Stage "register" -Message "registering app/target profiles"
     $createdApp = Invoke-AppDeploy -Method Post -Path "/api/v1/apps" -Body @{ app_spec = $appSpec }
-    Invoke-AppDeploy -Method Post -Path "/api/v1/runtime-profiles" -Body $runtimeProfile | Out-Null
     Invoke-AppDeploy -Method Post -Path "/api/v1/target-profiles" -Body $targetProfile | Out-Null
 
     $resourceCheck = Invoke-AppDeploy -Method Post -Path "/api/v1/resources/check" -Body @{
-        runtime_profile_id = $runtimeProfileId
         target_profile_id = $targetProfileId
     }
     Write-RunLog -Stage "resource" -Message "resource check status: $($resourceCheck.status)"
 
     $deployment = Invoke-AppDeploy -Method Post -Path "/api/v1/deployments" -Body @{
         app_version_id = $createdApp.app_version_id
-        runtime_profile_id = $runtimeProfileId
         target_profile_id = $targetProfileId
     }
     Write-RunLog -Stage "deploy" -Message "deployment created: $($deployment.deployment_id), status=$($deployment.status)"
@@ -605,7 +591,6 @@ function Register-AndDeploy {
         AppName          = $appName
         AppVersion       = $appVersion
         AppVersionId     = $createdApp.app_version_id
-        RuntimeProfileId = $runtimeProfileId
         TargetProfileId  = $targetProfileId
         RemoteBaseDir    = $remoteBaseDir
         ArtifactBaseDir  = $artifactDir
@@ -766,12 +751,9 @@ function Resolve-RemoteArtifactCleanupTarget {
         $appName = [string](Get-Setting $State "app_name" ([string](Get-Setting $AppSettings "name" "aiops-geon-service-control")))
         $appVersion = [string](Get-Setting $State "app_version" $null)
         if ([string]::IsNullOrWhiteSpace($appVersion)) {
-            $runtimeProfileId = [string](Get-Setting $State "runtime_profile_id" "")
             $targetProfileId = [string](Get-Setting $State "target_profile_id" "")
             $runId = $null
-            if ($runtimeProfileId -match "(\d{14})$") {
-                $runId = $Matches[1]
-            } elseif ($targetProfileId -match "(\d{14})$") {
+            if ($targetProfileId -match "(\d{14})$") {
                 $runId = $Matches[1]
             }
 
@@ -891,15 +873,11 @@ function Stop-DeploymentById {
 
 # 여러 번 deploy한 경우 state에 없는 이전 RUNNING deployment까지 찾아 중지한다.
 function Get-MatchingRunningDeployments {
-    $runtimePrefix = [string](Get-Setting $RuntimeProfileSettings "id_prefix" "rt-aiops-geon-cpu-ssh-home")
     $targetPrefix = [string](Get-Setting $TargetProfileSettings "id_prefix" "target-aiops-geon-cpu-ssh-home")
     $deploymentList = Invoke-AppDeploy -Method Get -Path "/api/v1/deployments"
 
     return @($deploymentList.deployments) | Where-Object {
-        $_.status -eq "RUNNING" -and (
-            ([string]$_.runtime_profile_id).StartsWith($runtimePrefix) -or
-            ([string]$_.target_profile_id).StartsWith($targetPrefix)
-        )
+        $_.status -eq "RUNNING" -and ([string]$_.target_profile_id).StartsWith($targetPrefix)
     }
 }
 
@@ -1163,7 +1141,6 @@ try {
                 app_name = $deployResult.AppName
                 app_version = $deployResult.AppVersion
                 app_version_id = $deployResult.AppVersionId
-                runtime_profile_id = $deployResult.RuntimeProfileId
                 target_profile_id = $deployResult.TargetProfileId
                 remote_base_dir = $deployResult.RemoteBaseDir
                 remote_artifact_base_dir = $deployResult.ArtifactBaseDir

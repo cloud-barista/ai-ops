@@ -141,23 +141,22 @@ ai-app-deployer/
 | internal/app | App 등록, 버전 관리, App Spec 검증 |
 | internal/deployment | Deployment 생성, 상태 머신, Event Log |
 | internal/runtime | Runtime Adapter Interface와 Mock/CPU VM/GPU VM/AI-Infra 구현 |
-| internal/resource | Runtime Profile, Target Profile, Resource Inventory, 매칭 로직 |
+| internal/resource | Target Profile, Resource Inventory, 매칭 로직 |
 | internal/external | ETRI, 이노그리드, 베스핀글로벌 연동 Adapter |
 | internal/logger | 구조화 로그, request_id, 민감정보 마스킹 |
 | internal/errors | 표준 에러 코드, HTTP 응답 매핑 |
 | api/openapi.yaml | Swagger/OpenAPI 계약 |
-| schemas | App Spec, Runtime Profile, Target Profile JSON Schema |
+| schemas | App Spec, Target Profile JSON Schema |
 | agent_md | 코딩 에이전트 역할별 작업 지시 |
 
 ## 5. 데이터 명세
 
-프로토타입은 App Spec, Runtime Profile, Target Profile, Deployment, Deployment Event를 핵심 데이터로 사용한다. 모든 명세는 구조 설계서와 동일한 필드명과 상태값을 사용해야 한다.
+프로토타입은 App Spec, Target Profile, Deployment, Deployment Event를 핵심 데이터로 사용한다. 모든 명세는 구조 설계서와 동일한 필드명과 상태값을 사용해야 한다.
 
 | 데이터 | 설명 | 저장 기준 |
 | --- | --- | --- |
 | App | AI App의 논리적 식별자 | app_id, name, latest_version |
 | AppVersion | 실제 배포 가능한 App 명세 버전 | app_version_id, app_id, version, app_spec |
-| RuntimeProfile | Runtime 능력과 Adapter 유형 | runtime_type, accelerator, adapter_type, operating_mode |
 | TargetProfile | 배포 대상 VM/외부 API 정보 | csp, vm, gpu, storage, network, credential_ref |
 | Deployment | 배포 작업 단위 | deployment_id, app_version_id, target_profile_id, status (실행 설정은 Target Profile에서 결정) |
 | DeploymentEvent | 상태 전이와 상세 로그 | event_id, deployment_id, stage, message, error_code |
@@ -248,8 +247,6 @@ API는 Swagger/OpenAPI를 기준 계약으로 관리한다. Handler 구현, API 
 | GET | /api/v1/deployments/{deployment_id} | 배포 상태 조회 | 필수 |
 | GET | /api/v1/deployments/{deployment_id}/logs | 배포 로그 조회 | 필수 |
 | POST | /api/v1/deployments/{deployment_id}/stop | 배포 중지 | 필수 |
-| POST | /api/v1/runtime-profiles | Runtime Profile 등록 | 필수 |
-| GET | /api/v1/runtime-profiles | Runtime Profile 목록 조회 | 필수 |
 | POST | /api/v1/target-profiles | Target Profile 등록 | 필수 |
 | GET | /api/v1/target-profiles | Target Profile 목록 조회 | 필수 |
 | POST | /api/v1/resources/check | Target 자원 점검 | 필수 |
@@ -311,7 +308,7 @@ ANY_ACTIVE_STATE -> UNKNOWN
 | 입력 | JSON ai-ops-geon preset 또는 multipart `go/python/node/binary/script` source, App 기본값 |
 | 처리 | 유형별 고정 build/entrypoint 규칙, ZIP 안전성·크기 검증, Linux amd64 tar.gz와 SHA-256 생성 |
 | 출력 | artifact URI, archive name, checksum, App Spec |
-| 호출 흐름 | Web/CLI/Shell이 Package 응답의 `app_spec` 등록 → Target Resource Check → `available`일 때만 Deployment 생성 |
+| 호출 흐름 | Web/CLI/Shell이 Package 응답의 `app_spec` 등록 → Target hint 선택(선택) → Deployment 요청; App Deployer가 VM readiness와 자원 매칭을 수행 |
 | 제한 | 임의 서버 source path/build command, Container/OCI/Registry 기능 금지 |
 | 실패 처리 | 표준 ErrorResponse를 반환하며 후속 API 실패 시 생성 archive/App을 자동 rollback하지 않음 |
 
@@ -344,7 +341,7 @@ Orchestrator는 Deployment 생성 후 상태 머신을 따라 검증, 매칭, �
 
 | 단계 | 처리 |
 | --- | --- |
-| CreateDeployment | app_version_id, target_profile_id 검증 및 Target Profile runtime 기반 실행 프로파일 구성 |
+| CreateDeployment | app_version_id/Manifest 검증, 후보 Target VM readiness·자원 매칭·Target 선택 및 선택된 Target runtime 기반 실행 프로파일 구성 |
 | Validate | App Spec과 Target 호환성 검증 |
 | Schedule | Resource Matcher로 배포 가능 여부 판단 |
 | Prepare | Artifact와 model_refs를 Target 경로로 준비 |
@@ -358,14 +355,14 @@ Resource Matcher는 App의 자원 요구사항과 Target Profile/Resource Invent
 
 | 입력 | 출력 | 실패 코드 |
 | --- | --- | --- |
-| AppSpec.resources, RuntimeProfile, TargetProfile, ResourceInventory | DeploymentPlan | RESOURCE_INSUFFICIENT, GPU_RUNTIME_NOT_FOUND, STORAGE_PATH_UNAVAILABLE |
+| AppSpec.resources, TargetProfile, ResourceInventory | DeploymentPlan | RESOURCE_INSUFFICIENT, GPU_RUNTIME_NOT_FOUND, STORAGE_PATH_UNAVAILABLE |
 
 ### 8.5 Runtime Adapter
 
 ```go
 type RuntimeAdapter interface {
     ValidateTarget(ctx context.Context, target TargetProfile) error
-    HealthCheck(ctx context.Context, runtime RuntimeProfile, target TargetProfile) error
+    HealthCheck(ctx context.Context, target TargetProfile) error
     Prepare(ctx context.Context, app AppSpec, target TargetProfile) (*PrepareResult, error)
     Deploy(ctx context.Context, plan DeploymentPlan) (*DeployResult, error)
     GetStatus(ctx context.Context, deploymentID string) (*RuntimeStatus, error)

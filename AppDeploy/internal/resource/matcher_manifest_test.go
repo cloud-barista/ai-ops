@@ -15,7 +15,7 @@ func TestMatchManifestUsesPlannerGPURequirement(t *testing.T) {
 		Runtime:   model.AppRuntime{Type: "gpu", Accelerator: "nvidia"},
 		Resources: model.Resources{GPU: "1"},
 	}}
-	runtimeProfile := model.RuntimeProfile{RuntimeType: "gpu", Accelerator: "nvidia"}
+	runtimeConfig := model.RuntimeConfig{RuntimeType: "gpu", Accelerator: "nvidia"}
 	target := model.TargetProfile{
 		Runtime: model.TargetRuntime{RuntimeType: "gpu", Accelerator: "nvidia"},
 		GPU:     &model.GPUProfile{Vendor: "nvidia", Count: 1},
@@ -25,7 +25,7 @@ func TestMatchManifestUsesPlannerGPURequirement(t *testing.T) {
 			Accelerator: "nvidia",
 			Resources:   model.Resources{GPU: "2"},
 		},
-	}, app, runtimeProfile, target)
+	}, app, runtimeConfig, target)
 	if err == nil {
 		t.Fatal("expected planner GPU requirement to fail against one-GPU target")
 	}
@@ -39,7 +39,7 @@ func TestMatchManifestRejectsUnavailableAccelerator(t *testing.T) {
 	matcher := NewMatcher()
 	err := matcher.MatchManifest(context.Background(), model.DeploymentManifest{
 		Spec: model.DeploymentManifestSpec{Accelerator: "nvidia", Resources: model.Resources{GPU: "1"}},
-	}, model.AppResponse{AppSpec: model.AppSpec{Runtime: model.AppRuntime{Type: "cpu", Accelerator: "none"}}}, model.RuntimeProfile{RuntimeType: "cpu", Accelerator: "none"}, model.TargetProfile{Runtime: model.TargetRuntime{RuntimeType: "cpu", Accelerator: "none"}})
+	}, model.AppResponse{AppSpec: model.AppSpec{Runtime: model.AppRuntime{Type: "cpu", Accelerator: "none"}}}, model.RuntimeConfig{RuntimeType: "cpu", Accelerator: "none"}, model.TargetProfile{Runtime: model.TargetRuntime{RuntimeType: "cpu", Accelerator: "none"}})
 	if err == nil {
 		t.Fatal("expected unavailable accelerator to fail")
 	}
