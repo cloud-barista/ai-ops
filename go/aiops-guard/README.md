@@ -22,11 +22,11 @@
 {
   "mode": "mock",
   "service": "aiops-service",
-  "target_resource": "gpu-vm-l4",
+  "target_resource": "recorded-vm-id",
   "action": "scale_out",
   "instances": 3,
   "allowed_services": ["aiops-service", "aiops-worker"],
-  "allowed_resources": ["cpu-vm-standard", "gpu-vm-l4"],
+  "allowed_resources": ["recorded-vm-id"],
   "min_instances": 1,
   "max_instances": 5
 }
@@ -44,11 +44,11 @@ cat <<'JSON' | go run ./cmd/aiops-guard --input -
 {
   "mode": "mock",
   "service": "aiops-service",
-  "target_resource": "gpu-vm-l4",
+  "target_resource": "recorded-vm-id",
   "action": "scale_out",
   "instances": 3,
   "allowed_services": ["aiops-service", "aiops-worker"],
-  "allowed_resources": ["cpu-vm-standard", "gpu-vm-l4"],
+  "allowed_resources": ["recorded-vm-id"],
   "min_instances": 1,
   "max_instances": 5
 }

@@ -1,75 +1,36 @@
-# AI 응용 배포·제어 추론 최적화 전략
+# AI 응용 배포·제어 handoff 전략
 
 ## 목적
 
-이 문서는 1차년도 산출물인 다음 항목에 대응합니다.
+실제 VM 적합성 결과를 AI 응용 배포·제어 실행 주체가 처리할 수 있는 비실행 계획으로 변환합니다. 본 service-control 계층은 특정 팀 프레임워크를 고정하지 않습니다.
 
-```text
-CPU/GPU VM 환경을 위한 AI 응용 배포·제어 추론 최적화 전략
-```
+## 연결 계약
 
-현재 구현은 AI workload를 어느 CPU/GPU VM profile에 배치할지 결정하고, 선택 결과를 VM deployment/control plan으로 표현하는 Go prototype입니다. cloud VM을 직접 생성하지 않습니다.
+외부 에이전트는 registry에 다음 정보를 등록합니다.
 
-## 입력 데이터
+- endpoint와 invocation path
+- capability: `ai_application_deployment_control`
+- bounded actions: `deploy_application`, `observe_status`, `restart_application`, `stop_application`
+- 역할과 책임, 상태, version
 
-```text
-config/inference_optimization.json
-```
+실제 LLM이 workload 관측값을 바탕으로 이 목록 중 하나를 제안합니다. service-control은 capability와 Action이 모두 일치하는 enabled 외부 실행 주체를 찾아 `selected_executor`로 기록합니다. 일치 실행 주체가 없으면 `pending_executor`로 남기며 실행하지 않습니다.
 
-| Section | 의미 |
-| --- | --- |
-| `resources` | CPU/GPU VM candidate performance, cost, capacity, placement label, resource capacity |
-| `workloads` | AI workload type, VRAM requirement, latency SLO, throughput SLO, service name, container image |
-
-## 전략
-
-1. workload accelerator requirement를 확인합니다.
-2. supported model type 기준으로 VM candidate를 filter합니다.
-3. GPU memory requirement를 검증합니다.
-4. latency와 throughput SLO를 검증합니다.
-5. eligible candidate를 latency, throughput, cost, capacity 기준으로 scoring합니다.
-6. score가 가장 높은 VM resource를 선택합니다.
-7. 결과를 CPU/GPU VM deployment/control plan으로 변환합니다.
-8. service, instance 수, 자원 요구량과 bounded action을 사전검증합니다.
-
-## Go CLI
+## 계획 생성
 
 ```bash
 cd go/service-control-api
-go run ./cmd/aiops-service-control recommend-inference-placement \
-  --config ../../config/inference_optimization.json \
+go run ./cmd/aiops-service-control plan-ai-application-control \
+  --requirements ../../config/vm_workload_requirements.json \
+  --vm-snapshot ../../docs/evidence/artifacts/vm_20260707_resource_snapshot.json \
   --workload llm-chat-inference
 ```
 
-```bash
-go run ./cmd/aiops-service-control plan-inference-deployment \
-  --config ../../config/inference_optimization.json \
-  --workload llm-chat-inference
-```
+## 책임 경계
 
-## Deployment Plan Field
-
-| Field | 의미 |
+| 계층 | 책임 |
 | --- | --- |
-| `selected_resource` | 선택된 CPU/GPU VM resource candidate |
-| `deployment_plan.vm_deployment.service` | AI application service name |
-| `deployment_plan.vm_deployment.instances` | 필요한 VM instance 수 |
-| `deployment_plan.vm_deployment.placement_constraints` | CPU/GPU VM placement condition |
-| `deployment_plan.vm_deployment.resources` | CPU, memory, accelerator, VRAM requirement |
-| `deployment_plan.control_actions` | deploy, scale, monitor, rollback control action |
+| Service-control | LLM 선정, registry, 실제 VM 검증, Action 경계, handoff 계획 |
+| 인프라 계층 | VM 생성·조회·삭제와 실제 자원 정보 제공 |
+| 등록 실행 에이전트 | 배포·제어 실행과 결과 feedback 제공 |
 
-## Agent와의 관계
-
-- `AIApplicationManagementAgent`는 AI application deployment/control plan을 평가합니다.
-- `AISemiconductorInfraOpsAgent`는 CPU/GPU VM feasibility를 평가합니다.
-- `CostOptimizationAgent`는 cost efficiency를 평가합니다.
-- `AIServiceHASupportAgent`는 alert input이 제공될 때 recovery workflow와 연결할 수 있습니다.
-
-## 산출물 매핑
-
-| 산출물 | 파일 |
-| --- | --- |
-| AI 응용 배포·제어 추론 최적화 전략 | `docs/design/ai_application_deployment_strategy.md` |
-| CPU/GPU VM 및 workload 설정 | `config/inference_optimization.json` |
-| Placement recommendation CLI | `go run ./cmd/aiops-service-control recommend-inference-placement` |
-| Deployment/control plan CLI | `go run ./cmd/aiops-service-control plan-inference-deployment` |
+출력의 `execution_status=not_executed`는 계획 생성과 실제 실행을 구분하기 위한 필수 신호입니다.

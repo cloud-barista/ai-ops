@@ -1,93 +1,34 @@
-# CPU/GPU VM 추론 최적화 가이드
+# 실제 CPU/GPU VM 적합성 검증 가이드
 
 ## 목적
 
-이 문서는 다음 전략의 prototype 설계를 설명합니다.
+이 가이드는 인프라 계층이 제공한 실제 VM snapshot을 AI workload 요구사항과 비교하는 방법을 설명합니다. 가상 후보 ranking이나 예상 성능 score는 사용하지 않습니다.
 
-```text
-CPU/GPU VM-based AI application deployment/control inference optimization
-```
+## 입력과 상태
 
-현재 구현은 Go 기반 recommendation prototype입니다. 실제 GPU scheduler나 cloud VM provisioning system을 대체하지 않습니다. resource constraint, SLO, capacity, cost policy를 사용해 AI workload에 적합한 CPU/GPU VM resource candidate를 선택합니다.
-
-## 입력 설정
-
-설정 파일:
-
-```text
-config/inference_optimization.json
-```
-
-| Section | 의미 |
+| 입력 | 파일 |
 | --- | --- |
-| `resources` | CPU/GPU VM candidate, latency, throughput, cost, capacity, node selector, resource limit |
-| `workloads` | AI workload type, accelerator need, VRAM need, latency SLO, throughput SLO, service name, container image |
+| Workload 요구사항 | `config/vm_workload_requirements.json` |
+| 기록된 VM 예시 | `docs/evidence/artifacts/vm_20260707_resource_snapshot.json` |
+| 라이브 VM 결과 | `runs/<validation>/06_vm_resource_snapshot.json` |
 
-## 현재 Resource 후보
+판단 상태는 `incompatible`, `provisionally_compatible`, `compatible` 세 가지입니다. 성능이 측정되지 않았으면 자원 조건이 통과해도 잠정 적합으로 기록합니다. 성능이 측정된 경우에는 선언된 latency SLO 이하인지, 최소 throughput 이상인지 실제값으로 비교하며 기준을 벗어나면 `incompatible`로 판정합니다.
 
-| Resource | Accelerator | 용도 |
-| --- | --- | --- |
-| `cpu-vm-standard` | CPU | 경량 text classification 및 embedding workload |
-| `gpu-vm-l4` | GPU | 비용/성능 균형이 필요한 LLM 또는 vision inference |
-| `gpu-vm-a100` | GPU | 고성능 LLM 또는 vision inference |
+## 검증 항목
 
-## 배치 판단
+1. VM snapshot의 출처와 수집 상태
+2. workload의 accelerator 요구조건
+3. 선언된 최소 CPU·메모리·VRAM 조건
+4. 실제 benchmark가 제공한 latency·throughput·cost 상태
 
-배치 추천은 다음을 확인합니다.
-
-1. workload가 accelerator를 요구하는지 확인합니다.
-2. resource가 workload model type을 지원하는지 확인합니다.
-3. accelerator resource가 필요한 경우 GPU memory requirement를 확인합니다.
-4. latency와 throughput SLO 만족 여부를 확인합니다.
-5. eligible resource를 weighted score로 ranking합니다.
-
-Score:
-
-```text
-score =
-  latency_weight * latency_score
-+ throughput_weight * throughput_score
-+ cost_weight * cost_score
-+ capacity_weight * capacity_score
-```
-
-기본 weight:
-
-| 항목 | Weight |
-| --- | --- |
-| latency | 0.35 |
-| throughput | 0.30 |
-| cost | 0.20 |
-| capacity | 0.15 |
-
-## Go CLI
-
-Placement recommendation:
+## CLI
 
 ```bash
 cd go/service-control-api
-go run ./cmd/aiops-service-control recommend-inference-placement \
-  --config ../../config/inference_optimization.json \
+go run ./cmd/aiops-service-control validate-vm-suitability \
+  --requirements ../../config/vm_workload_requirements.json \
+  --vm-snapshot ../../docs/evidence/artifacts/vm_20260707_resource_snapshot.json \
   --workload llm-chat-inference
 ```
 
-Deployment/control plan 생성:
-
-```bash
-go run ./cmd/aiops-service-control plan-inference-deployment \
-  --config ../../config/inference_optimization.json \
-  --workload llm-chat-inference
-```
-
-## 기대 프로토타입 결과
-
-| Workload | Selected resource | Action | 이유 |
-| --- | --- | --- | --- |
-| `llm-chat-inference` | `gpu-vm-l4` | `deploy_on_gpu_vm` | GPU가 필요하고 L4 candidate가 SLO/cost balance를 만족 |
-| `text-classifier` | `cpu-vm-standard` | `deploy_on_cpu_vm` | CPU capacity가 설정 SLO를 만족 |
-
-## 향후 확장
-
-- 실제 AI-Infra 환경의 GPU memory telemetry 수집
-- 공유 infrastructure가 준비되면 CB-Tumblebug-managed VM inventory 연결
-- NPU 또는 AI 반도체 accelerator profile 추가
+이 명령은 VM을 선택하거나 생성하지 않습니다. 전달된 VM 하나가 해당 workload에 적합한지만 검증합니다.

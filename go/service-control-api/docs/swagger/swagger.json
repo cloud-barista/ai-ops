@@ -207,7 +207,7 @@
         },
         "/api/v1/apps/deployment-plan": {
             "post": {
-                "description": "Build a CPU/GPU VM-oriented deployment and control plan for the selected workload.",
+                "description": "Build a non-executing, capability-based handoff plan for any registered external execution agent.",
                 "consumes": [
                     "application/json"
                 ],
@@ -221,12 +221,12 @@
                 "operationId": "PostDeploymentPlan",
                 "parameters": [
                     {
-                        "description": "Inference workload request",
+                        "description": "VM compatibility request",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.WorkloadRequest"
+                            "$ref": "#/definitions/api.VMCompatibilityRequest"
                         }
                     }
                 ],
@@ -246,9 +246,9 @@
                 }
             }
         },
-        "/api/v1/apps/placement": {
+        "/api/v1/apps/vm-suitability": {
             "post": {
-                "description": "Recommend a CPU/GPU VM target for an AI application workload.",
+                "description": "Validate whether an infrastructure-supplied VM snapshot satisfies declared workload requirements without selecting or provisioning a VM.",
                 "consumes": [
                     "application/json"
                 ],
@@ -258,16 +258,16 @@
                 "tags": [
                     "AI Application Deployment"
                 ],
-                "summary": "Recommend CPU/GPU VM placement",
-                "operationId": "PostAppPlacement",
+                "summary": "Validate a provided CPU/GPU VM",
+                "operationId": "PostVMSuitability",
                 "parameters": [
                     {
-                        "description": "Inference workload request",
+                        "description": "VM compatibility request",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.WorkloadRequest"
+                            "$ref": "#/definitions/api.VMCompatibilityRequest"
                         }
                     }
                 ],
@@ -275,7 +275,89 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/api.PlacementResponse"
+                            "$ref": "#/definitions/api.VMCompatibilityResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/automation/action-proposals": {
+            "post": {
+                "description": "Call an actual configured LLM candidate, validate its bounded Action against actual VM evidence and Agent Registry policy, and return a non-executing external-agent handoff.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "Generate and validate an LLM-based automation Action",
+                "operationId": "PostLLMAutomationAction",
+                "parameters": [
+                    {
+                        "description": "LLM automation Action request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.LLMAutomationActionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.LLMAutomationActionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/automation/feedback": {
+            "post": {
+                "description": "Record normalized status and optional performance evidence for a previously approved correlation ID. Credentials and arbitrary secret fields are not accepted.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "Record external automation execution feedback",
+                "operationId": "PostAutomationFeedback",
+                "parameters": [
+                    {
+                        "description": "Automation execution feedback",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.AutomationFeedbackRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.AutomationFeedbackRecord"
                         }
                     },
                     "400": {
@@ -328,9 +410,51 @@
                 }
             }
         },
+        "/api/v1/planner/deployments": {
+            "post": {
+                "description": "Use an actual configured LLM to generate an AppDeploy DeploymentManifest, validate it with the Go Guard, submit it to AppDeploy, and poll the deployment status. AppDeploy retains target selection and execution responsibility.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "Plan and submit an AI application deployment",
+                "operationId": "PostAppDeployPlanner",
+                "parameters": [
+                    {
+                        "description": "Planner request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.AppDeployPlannerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/service-operations/run": {
             "post": {
-                "description": "Execute the Go service-control flow across LLM selection, agent checks, CPU/GPU placement, and deployment-control planning.",
+                "description": "Execute the Go service-control flow across LLM selection, agent checks, actual VM suitability validation, and generic deployment-control handoff planning.",
                 "consumes": [
                     "application/json"
                 ],
@@ -548,8 +672,14 @@
                 "reason": {
                     "type": "string"
                 },
+                "reviewer_type": {
+                    "type": "string"
+                },
                 "reward": {
                     "type": "number"
+                },
+                "skipped": {
+                    "type": "boolean"
                 }
             }
         },
@@ -567,42 +697,162 @@
                 }
             }
         },
+        "api.AppDeployPlannerRequest": {
+            "type": "object",
+            "required": [
+                "app_version_id",
+                "candidate_id",
+                "natural_language_request"
+            ],
+            "properties": {
+                "app_version_id": {
+                    "type": "string",
+                    "example": "appver-llm-inference-v1"
+                },
+                "candidate_id": {
+                    "type": "string",
+                    "example": "local-ollama-ops-llm"
+                },
+                "max_poll_attempts": {
+                    "type": "integer",
+                    "maximum": 600,
+                    "minimum": 1,
+                    "example": 60
+                },
+                "natural_language_request": {
+                    "type": "string",
+                    "maxLength": 8000,
+                    "example": "GPU 1개와 메모리 16Gi가 필요한 추론 앱을 배포해 주세요."
+                },
+                "parameters": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "poll_interval_ms": {
+                    "type": "integer",
+                    "maximum": 60000,
+                    "minimum": 1,
+                    "example": 1000
+                },
+                "requested_by": {
+                    "type": "string",
+                    "example": "ai-ops-geon-planner"
+                },
+                "target_profile_id": {
+                    "type": "string",
+                    "example": "target-profile-hint"
+                }
+            }
+        },
+        "api.AutomationFeedbackRecord": {
+            "type": "object",
+            "required": [
+                "correlation_id",
+                "executor",
+                "status"
+            ],
+            "properties": {
+                "correlation_id": {
+                    "type": "string"
+                },
+                "executor": {
+                    "type": "string"
+                },
+                "external_execution_id": {
+                    "type": "string"
+                },
+                "latency_ms": {
+                    "type": "number"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "received_at": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "throughput_rps": {
+                    "type": "number"
+                }
+            }
+        },
+        "api.AutomationFeedbackRequest": {
+            "type": "object",
+            "required": [
+                "correlation_id",
+                "executor",
+                "status"
+            ],
+            "properties": {
+                "correlation_id": {
+                    "type": "string"
+                },
+                "executor": {
+                    "type": "string"
+                },
+                "external_execution_id": {
+                    "type": "string"
+                },
+                "latency_ms": {
+                    "type": "number"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "throughput_rps": {
+                    "type": "number"
+                }
+            }
+        },
         "api.DeploymentPlan": {
             "type": "object",
             "properties": {
-                "container_image": {
+                "allowed_actions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "execution_status": {
                     "type": "string"
                 },
-                "control_actions": {
+                "executor_type": {
+                    "type": "string"
+                },
+                "feedback_required": {
+                    "type": "boolean"
+                },
+                "preconditions": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
-                "monitoring_metrics": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                "requested_action": {
+                    "type": "string"
+                },
+                "required_capability": {
+                    "type": "string"
+                },
+                "selected_executor": {
+                    "type": "string"
                 },
                 "service_name": {
                     "type": "string"
                 },
-                "slo": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "number",
-                        "format": "float64"
-                    }
-                },
                 "target_accelerator": {
                     "type": "string"
                 },
-                "target_resource": {
+                "target_vm_id": {
                     "type": "string"
                 },
-                "vm_deployment": {
-                    "$ref": "#/definitions/api.VMDeploymentPlan"
+                "workload": {
+                    "type": "string"
                 }
             }
         },
@@ -612,44 +862,41 @@
                 "action": {
                     "type": "string"
                 },
-                "cost_per_hour": {
-                    "type": "number"
+                "checks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.VMCompatibilityCheck"
+                    }
+                },
+                "compatibility_status": {
+                    "type": "string"
                 },
                 "deployment_plan": {
                     "$ref": "#/definitions/api.DeploymentPlan"
                 },
-                "latency_ms": {
-                    "type": "number"
+                "evidence_status": {
+                    "type": "string"
                 },
-                "ranked_candidates": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/api.PlacementCandidate"
-                    }
+                "performance_status": {
+                    "type": "string"
                 },
                 "reason": {
                     "type": "string"
                 },
-                "rejected_resources": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                "score": {
-                    "type": "number"
-                },
-                "selected_resource": {
-                    "type": "string"
-                },
-                "slo_satisfied": {
+                "resource_checks_passed": {
                     "type": "boolean"
                 },
-                "throughput_rps": {
-                    "type": "number"
+                "resource_source": {
+                    "type": "string"
+                },
+                "target_vm_id": {
+                    "type": "string"
                 },
                 "valid": {
                     "type": "boolean"
+                },
+                "validation_mode": {
+                    "type": "string"
                 },
                 "workload": {
                     "type": "string"
@@ -750,6 +997,20 @@
                 }
             }
         },
+        "api.GuardDecision": {
+            "type": "object",
+            "properties": {
+                "reason": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
         "api.GuardValidation": {
             "type": "object",
             "properties": {
@@ -782,6 +1043,104 @@
                 },
                 "valid": {
                     "type": "boolean"
+                }
+            }
+        },
+        "api.LLMActionProposal": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "confidence": {
+                    "type": "number"
+                },
+                "parameters": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "required_capability": {
+                    "type": "string"
+                },
+                "target_vm_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.LLMAutomationActionRequest": {
+            "type": "object",
+            "required": [
+                "candidate_id",
+                "target_vm",
+                "workload"
+            ],
+            "properties": {
+                "candidate_id": {
+                    "type": "string",
+                    "example": "local-ollama-ops-llm"
+                },
+                "observations": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "target_vm": {
+                    "$ref": "#/definitions/api.VMResourceSnapshot"
+                },
+                "workload": {
+                    "type": "string",
+                    "example": "llm-chat-inference"
+                }
+            }
+        },
+        "api.LLMAutomationActionResponse": {
+            "type": "object",
+            "properties": {
+                "correlation_id": {
+                    "type": "string"
+                },
+                "decision": {
+                    "$ref": "#/definitions/api.LLMDecisionResult"
+                },
+                "guard": {
+                    "$ref": "#/definitions/api.GuardDecision"
+                },
+                "handoff": {
+                    "$ref": "#/definitions/api.AgentInvocationPlan"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                },
+                "vm_compatibility": {
+                    "$ref": "#/definitions/api.VMCompatibilityResponse"
+                }
+            }
+        },
+        "api.LLMDecisionResult": {
+            "type": "object",
+            "properties": {
+                "actual_model": {
+                    "type": "string"
+                },
+                "candidate_id": {
+                    "type": "string"
+                },
+                "decision_execution_status": {
+                    "type": "string"
+                },
+                "latency_ms": {
+                    "type": "integer"
+                },
+                "proposal": {
+                    "$ref": "#/definitions/api.LLMActionProposal"
+                },
+                "provider": {
+                    "type": "string"
                 }
             }
         },
@@ -897,102 +1256,10 @@
                 }
             }
         },
-        "api.PlacementCandidate": {
-            "type": "object",
-            "properties": {
-                "accelerator": {
-                    "type": "string"
-                },
-                "action": {
-                    "type": "string"
-                },
-                "available_instances": {
-                    "type": "integer"
-                },
-                "cost_per_hour": {
-                    "type": "number"
-                },
-                "latency_ms": {
-                    "type": "number"
-                },
-                "resource": {
-                    "type": "string"
-                },
-                "score": {
-                    "type": "number"
-                },
-                "throughput_rps": {
-                    "type": "number"
-                }
-            }
-        },
-        "api.PlacementResponse": {
-            "type": "object",
-            "properties": {
-                "action": {
-                    "type": "string"
-                },
-                "cost_per_hour": {
-                    "type": "number"
-                },
-                "latency_ms": {
-                    "type": "number"
-                },
-                "ranked_candidates": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/api.PlacementCandidate"
-                    }
-                },
-                "reason": {
-                    "type": "string"
-                },
-                "rejected_resources": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                "score": {
-                    "type": "number"
-                },
-                "selected_resource": {
-                    "type": "string"
-                },
-                "slo_satisfied": {
-                    "type": "boolean"
-                },
-                "throughput_rps": {
-                    "type": "number"
-                },
-                "valid": {
-                    "type": "boolean"
-                },
-                "workload": {
-                    "type": "string"
-                }
-            }
-        },
-        "api.ResourceSpec": {
-            "type": "object",
-            "properties": {
-                "limits": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                "requests": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
         "api.ServiceOperationsRequest": {
             "type": "object",
             "required": [
+                "target_vm",
                 "workload"
             ],
             "properties": {
@@ -1000,9 +1267,13 @@
                     "type": "string",
                     "example": "go"
                 },
-                "inference_config": {
+                "llm_candidate_id": {
                     "type": "string",
-                    "example": "config/inference_optimization.json"
+                    "example": "local-ollama-ops-llm"
+                },
+                "llm_candidates": {
+                    "type": "string",
+                    "example": "config/ops_llm_eval_candidates.local_ollama.json"
                 },
                 "llm_config": {
                     "type": "string",
@@ -1014,15 +1285,25 @@
                 },
                 "mode": {
                     "type": "string",
-                    "example": "mock"
+                    "example": "plan_only"
+                },
+                "observations": {
+                    "type": "object",
+                    "additionalProperties": {}
                 },
                 "operation_resource": {
-                    "type": "string",
-                    "example": "gpu-vm-l4"
+                    "type": "string"
                 },
                 "operation_service": {
                     "type": "string",
                     "example": "llm-chat-inference"
+                },
+                "target_vm": {
+                    "$ref": "#/definitions/api.VMResourceSnapshot"
+                },
+                "vm_requirements": {
+                    "type": "string",
+                    "example": "config/vm_workload_requirements.json"
                 },
                 "workload": {
                     "type": "string",
@@ -1040,6 +1321,9 @@
                     "type": "string"
                 },
                 "command": {
+                    "type": "string"
+                },
+                "decision_execution_status": {
                     "type": "string"
                 },
                 "deployment_execution_mode": {
@@ -1065,6 +1349,9 @@
                 },
                 "inference_deployment_plan": {
                     "$ref": "#/definitions/api.DeploymentPlanResponse"
+                },
+                "llm_automation_action": {
+                    "$ref": "#/definitions/api.LLMAutomationActionResponse"
                 },
                 "metadata": {
                     "type": "object",
@@ -1098,35 +1385,165 @@
                 }
             }
         },
-        "api.VMDeploymentPlan": {
+        "api.VMCompatibilityCheck": {
             "type": "object",
             "properties": {
-                "instances": {
-                    "type": "integer"
+                "actual": {
+                    "type": "string"
                 },
-                "placement_constraints": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
+                "name": {
+                    "type": "string"
                 },
-                "resources": {
-                    "$ref": "#/definitions/api.ResourceSpec"
+                "reason": {
+                    "type": "string"
                 },
-                "service": {
+                "required": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }
         },
-        "api.WorkloadRequest": {
+        "api.VMCompatibilityRequest": {
             "type": "object",
             "required": [
+                "target_vm",
                 "workload"
             ],
             "properties": {
+                "target_vm": {
+                    "$ref": "#/definitions/api.VMResourceSnapshot"
+                },
                 "workload": {
                     "type": "string",
                     "example": "llm-chat-inference"
+                }
+            }
+        },
+        "api.VMCompatibilityResponse": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "checks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.VMCompatibilityCheck"
+                    }
+                },
+                "compatibility_status": {
+                    "type": "string"
+                },
+                "evidence_status": {
+                    "type": "string"
+                },
+                "performance_status": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "resource_checks_passed": {
+                    "type": "boolean"
+                },
+                "resource_source": {
+                    "type": "string"
+                },
+                "target_vm_id": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                },
+                "validation_mode": {
+                    "type": "string"
+                },
+                "workload": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.VMPerformanceEvidence": {
+            "type": "object",
+            "properties": {
+                "cost_per_hour": {
+                    "type": "number"
+                },
+                "latency_ms": {
+                    "type": "number"
+                },
+                "measured_at": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "throughput_rps": {
+                    "type": "number"
+                }
+            }
+        },
+        "api.VMResourceSnapshot": {
+            "type": "object",
+            "required": [
+                "accelerator",
+                "evidence_status",
+                "id",
+                "source"
+            ],
+            "properties": {
+                "accelerator": {
+                    "type": "string"
+                },
+                "availability_zone": {
+                    "type": "string"
+                },
+                "collected_at": {
+                    "type": "string"
+                },
+                "cpu_cores": {
+                    "type": "integer"
+                },
+                "cuda_version": {
+                    "type": "string"
+                },
+                "driver_version": {
+                    "type": "string"
+                },
+                "evidence_status": {
+                    "type": "string"
+                },
+                "gpu_memory_mib": {
+                    "type": "integer"
+                },
+                "gpu_model": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "instance_type": {
+                    "type": "string"
+                },
+                "memory_gb": {
+                    "type": "number"
+                },
+                "performance": {
+                    "$ref": "#/definitions/api.VMPerformanceEvidence"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "region": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
                 }
             }
         }

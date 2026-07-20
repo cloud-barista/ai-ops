@@ -10,6 +10,7 @@
       "actual_model": "llama3.2:3b",
       "endpoint": "http://127.0.0.1:11434/v1/chat/completions",
       "enabled": true,
+      "json_mode": true,
       "timeout_seconds": 60
     }
   ]

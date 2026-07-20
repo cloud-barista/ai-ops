@@ -1,67 +1,25 @@
-# 에이전트 Action 및 Reward 정책
+# 에이전트 Action 검증 정책
 
 ## 목적
 
-이 문서는 AI 기반 service-control framework에서 네 개 prototype agent가 action approval과 reward signal을 어떻게 노출하는지 정의합니다.
+등록 에이전트가 선언한 capability와 bounded Action 범위 안에서만 제어 계획을 만들도록 제한합니다.
 
-현재 reward value는 prototype review signal입니다. reinforcement learning으로 생성된 값이 아닙니다. Go 구현은 이를 `service-operations` readiness report에 포함하여 reviewer가 agent decision boundary를 확인할 수 있게 합니다.
-
-## 원칙
-
-- 각 agent는 `action`, `approved`, `reward`, `reason` field를 반환합니다.
-- `approved=true`는 해당 agent boundary 안에서 action이 허용됨을 의미합니다.
-- `approved=false`는 integrated readiness path를 차단합니다.
-- final readiness는 required agent review, VM deployment validation, operation context, guard-readiness check가 모두 valid일 때만 true입니다.
-- `go/aiops-guard`는 service, target resource, instance constraint를 검증하는 standalone bounded-action validator로 유지됩니다.
-
-## Agent 정책 표
-
-| Agent | 승인 action 예시 | Reward signal 의미 |
-| --- | --- | --- |
-| `AIServiceHASupportAgent` | `ha_scale_out_required`, `ha_no_action` | service health, availability, recovery need |
-| `AIApplicationManagementAgent` | `app_scale_service_instances`, `app_select_inference_vm` | AI application deployment/control suitability |
-| `AISemiconductorInfraOpsAgent` | `infra_capacity_approved`, `infra_select_cpu_gpu_vm` | CPU/GPU VM feasibility |
-| `CostOptimizationAgent` | `cost_budget_approved`, `cost_budget_rejected` | cost 및 resource-efficiency boundary |
-
-## Readiness 예시
-
-입력 context:
+## 흐름
 
 ```text
-operation_service=llm-chat-inference
-operation_resource=gpu-vm-l4
-workload=llm-chat-inference
-mode=mock
-guard_backend=go
+에이전트 등록
+-> capability + bounded Action 확인
+-> VM 적합성 결과와 요청 Action 대조
+-> Go Guard 경계 검증
+-> approved / rejected
+-> 승인 시에도 실행 상태는 not_executed
 ```
 
-기대 final result:
+## 범용 실행 계약
 
 ```text
-valid = true
-operation_pipeline_ready = true
-guard_backend = go
-guard_validation.valid = true
+capability = ai_application_deployment_control
+actions = deploy_application | observe_status | restart_application | stop_application
 ```
 
-## Go CLI
-
-```bash
-cd go/service-control-api
-go run ./cmd/aiops-service-control run-service-operations \
-  --llm-config ../../config/ops_llm_benchmark.json \
-  --llm-policy quality_first \
-  --inference-config ../../config/inference_optimization.json \
-  --workload llm-chat-inference \
-  --operation-service llm-chat-inference \
-  --operation-resource gpu-vm-l4 \
-  --mode mock \
-  --guard-backend go
-```
-
-## 향후 확장
-
-- prototype reward value를 측정된 operation outcome으로 대체
-- latency, availability, cost delta를 reward calibration input으로 추가
-- policy tuning이 최종 평가 범위가 되면 reward table을 별도 versioned config로 분리
-- infrastructure agent에 AI 반도체/NPU accelerator policy 추가
+LLM은 이 범위 안에서 Action을 제안하고 Go Guard가 최종 검증합니다. 계약을 만족하는 여러 외부 실행 주체가 등록될 수 있으며 특정 팀·제품 이름은 핵심 로직에 고정하지 않습니다.

@@ -311,31 +311,32 @@ def agent_registry_flow() -> None:
     d = Diagram(
         1600,
         820,
-        "에이전트 등록 관리 프로토타입",
-        "AI 에이전트 metadata, 권한, bounded action을 Go API와 검증 로직으로 관리",
+        "LLM 기반 에이전트 등록·Action 검증",
+        "실제 LLM의 제안을 Agent Registry와 Go Guard로 제한한 뒤 외부 실행 주체에 전달",
     )
-    d.panel(70, 170, 360, 500, "Registry Source")
-    d.box(Box(105, 260, 290, 125, "Agent JSON", ("name / role / enabled", "responsibility"), COLORS["surface"], COLORS["blue"], "1", 24, 19))
-    d.box(Box(105, 445, 290, 125, "Action Policy", ("allowed action set", "reward signal"), COLORS["surface"], COLORS["blue"], "2", 24, 19))
+    d.panel(70, 170, 405, 500, "AI 응용 자동화 에이전트")
+    d.box(Box(105, 250, 335, 130, "실제 LLM Endpoint", ("workload · VM · 관측값", "bounded Action JSON 제안"), COLORS["surface_blue"], COLORS["blue"], "1", 24, 19))
+    d.box(Box(105, 445, 335, 130, "Action Proposal", ("Action · reason · confidence", "target VM · capability"), COLORS["surface"], COLORS["blue"], "2", 24, 19))
+    d.arrow(272, 380, 272, 445)
 
-    d.panel(500, 170, 500, 500, "Go Registry API")
-    d.box(Box(545, 250, 185, 130, "List", ("등록 목록", "enabled 상태"), COLORS["surface_blue"], COLORS["blue"], None, 24, 18))
-    d.box(Box(770, 250, 185, 130, "Detail", ("역할·책임", "입출력 조건"), COLORS["surface_blue"], COLORS["blue"], None, 24, 18))
-    d.box(Box(545, 450, 410, 130, "Validate Action", ("요청 action이 agent 권한 안에 있는지 확인", "불허 action은 실행 전 차단"), COLORS["surface_amber"], COLORS["amber"], None, 24, 18))
+    d.panel(540, 170, 520, 500, "Agent Registry · Go Guard")
+    d.box(Box(580, 240, 205, 135, "Registry", ("enabled 상태", "capability · Action"), COLORS["surface_blue"], COLORS["blue"], None, 23, 18))
+    d.box(Box(815, 240, 205, 135, "VM / Workload", ("실제 VM ID", "allowed Action"), COLORS["surface_blue"], COLORS["blue"], None, 23, 18))
+    d.box(Box(580, 455, 440, 125, "Go Guard", ("VM · capability · Action 일치 검증", "approved / rejected"), COLORS["surface_amber"], COLORS["amber"], None, 24, 18))
+    d.elbow_arrow([(682, 375), (682, 415), (800, 415), (800, 455)])
+    d.elbow_arrow([(917, 375), (917, 415), (800, 415)], COLORS["blue"])
 
-    d.panel(1070, 170, 455, 500, "운영 결과")
-    d.box(Box(1115, 250, 345, 120, "Valid Readiness", ("허용 action이면 readiness 반영", "service operations report 연결"), COLORS["surface_green"], COLORS["green"], None, 24, 19))
-    d.box(Box(1115, 450, 345, 120, "Rejected Action", ("허용 범위 밖이면 거부", "위험 실행 방지"), COLORS["surface_red"], COLORS["red"], None, 24, 19))
+    d.panel(1125, 170, 405, 500, "외부 실행 연계")
+    d.box(Box(1160, 245, 335, 125, "Approved Handoff", ("correlation ID", "execution: not_executed"), COLORS["surface_green"], COLORS["green"], None, 24, 18))
+    d.box(Box(1160, 445, 335, 125, "대기 또는 거부", ("pending_executor", "rejected / llm_failed"), COLORS["surface_red"], COLORS["red"], None, 24, 18))
 
-    d.arrow(430, 322, 545, 322)
-    d.arrow(430, 507, 545, 507, COLORS["amber"])
-    d.arrow(730, 315, 770, 315)
-    d.elbow_arrow([(955, 515), (1035, 515), (1035, 310), (1115, 310)], COLORS["green"])
-    d.elbow_arrow([(955, 515), (1035, 515), (1035, 510), (1115, 510)], COLORS["red"])
+    d.arrow(475, 510, 580, 510, COLORS["amber"])
+    d.elbow_arrow([(1020, 515), (1090, 515), (1090, 307), (1160, 307)], COLORS["green"])
+    d.elbow_arrow([(1020, 515), (1090, 515), (1090, 507), (1160, 507)], COLORS["red"])
     d.small_text(
         95,
         735,
-        "핵심: agent가 할 수 있는 작업을 명시적으로 제한하고, 실제 배포·제어 요청은 bounded action 검증을 먼저 통과해야 한다.",
+        "핵심: LLM은 Action을 제안하고, Go가 실제 VM과 허용 범위를 검증한다. 외부 실행 결과는 correlation ID로 다시 기록한다.",
         20,
         COLORS["slate"],
     )
@@ -346,37 +347,37 @@ def cpu_gpu_placement_flow() -> None:
     d = Diagram(
         1800,
         920,
-        "CPU/GPU VM 기반 AI 응용 배포·제어 추론 최적화 전략",
-        "Workload 요구사항을 기준으로 resource 후보를 필터링하고, SLO·capacity·cost 점수로 배치 판단",
+        "실제 CPU/GPU VM 적합성 및 AI 응용 제어 계획",
+        "외부 인프라가 제공한 실제 VM snapshot을 검증하고, 등록 실행 에이전트로 handoff 계획 생성",
     )
-    d.panel(65, 170, 360, 570, "요구사항 입력")
-    d.box(Box(100, 260, 290, 130, "Workload Profile", ("model type / SLO", "VRAM / throughput"), COLORS["surface"], COLORS["blue"], "1", 24, 19))
-    d.box(Box(100, 455, 290, 130, "Control Policy", ("scale / monitor / rollback", "cost guardrail"), COLORS["surface"], COLORS["blue"], "2", 24, 19))
+    d.panel(65, 170, 360, 570, "사실 기반 입력")
+    d.box(Box(100, 260, 290, 130, "Workload 요구사항", ("accelerator", "선언된 최소 조건"), COLORS["surface"], COLORS["blue"], "1", 24, 19))
+    d.box(Box(100, 455, 290, 130, "실제 VM Snapshot", ("CPU / memory", "GPU / VRAM / driver"), COLORS["surface"], COLORS["blue"], "2", 24, 19))
 
-    d.panel(485, 170, 690, 570, "배치 판단")
-    d.box(Box(525, 250, 275, 125, "Candidate Filtering", ("지원 모델 확인", "제약 후보 제외"), COLORS["surface_blue"], COLORS["blue"], None, 23, 18))
-    d.box(Box(860, 250, 275, 125, "GPU 조건 확인", ("accelerator", "VRAM capacity"), COLORS["surface_blue"], COLORS["blue"], None, 23, 18))
-    d.box(Box(525, 450, 275, 125, "SLO Check", ("latency", "throughput"), COLORS["surface_blue"], COLORS["blue"], None, 23, 18))
-    d.box(Box(860, 450, 275, 125, "Weighted Scoring", ("quality / cost", "capacity ranking"), COLORS["surface_blue"], COLORS["blue"], None, 23, 18))
+    d.panel(485, 170, 690, 570, "VM 적합성 검증")
+    d.box(Box(525, 250, 275, 125, "Evidence Check", ("출처와 수집 상태", "실제값 확인"), COLORS["surface_blue"], COLORS["blue"], None, 23, 18))
+    d.box(Box(860, 250, 275, 125, "Resource Check", ("accelerator", "CPU / memory / VRAM"), COLORS["surface_blue"], COLORS["blue"], None, 23, 18))
+    d.box(Box(525, 450, 275, 125, "Performance Status", ("measured", "not_measured"), COLORS["surface_blue"], COLORS["blue"], None, 23, 18))
+    d.box(Box(860, 450, 275, 125, "Compatibility", ("incompatible", "provisional / compatible"), COLORS["surface_blue"], COLORS["blue"], None, 23, 18))
     d.arrow(800, 312, 860, 312)
     d.elbow_arrow([(997, 375), (997, 420), (662, 420), (662, 450)])
     d.arrow(800, 512, 860, 512)
 
-    d.panel(1235, 170, 500, 570, "배포·제어 출력")
-    d.box(Box(1275, 250, 390, 120, "Selected Resource", ("예: gpu-vm-l4 또는 cpu-vm", "선정 사유와 점수 포함"), COLORS["surface_green"], COLORS["green"], None, 24, 19))
-    d.box(Box(1275, 430, 390, 120, "Deployment Control Plan", ("deploy / scale / monitor", "rollback 조건"), COLORS["surface_green"], COLORS["green"], None, 24, 19))
-    d.box(Box(1275, 610, 390, 92, "Evidence", ("JSON output과 실행 로그로 증적화",), COLORS["surface"], COLORS["blue"], None, 24, 19))
+    d.panel(1235, 170, 500, 570, "제어 Handoff")
+    d.box(Box(1275, 250, 390, 120, "Agent Registry", ("capability", "bounded Action"), COLORS["surface_green"], COLORS["green"], None, 24, 19))
+    d.box(Box(1275, 430, 390, 120, "Control Handoff Plan", ("selected executor", "preconditions"), COLORS["surface_green"], COLORS["green"], None, 24, 19))
+    d.box(Box(1275, 610, 390, 92, "Execution Boundary", ("not_executed / feedback required",), COLORS["surface"], COLORS["blue"], None, 24, 19))
     d.arrow(1175, 512, 1275, 310, COLORS["green"])
     d.arrow(1470, 370, 1470, 430, COLORS["green"])
     d.arrow(1470, 550, 1470, 610, COLORS["green"])
 
     d.small_text(90, 800, "판단 기준", 22, COLORS["navy"], True)
-    d.chip(220, 790, "SLO", "#e9f2ff", COLORS["blue"])
-    d.chip(315, 790, "VRAM", "#e9f2ff", COLORS["blue"])
-    d.chip(430, 790, "throughput", "#e9f2ff", COLORS["blue"])
-    d.chip(605, 790, "capacity", "#e9f2ff", COLORS["blue"])
-    d.chip(745, 790, "cost", "#fff7e8", COLORS["amber"])
-    d.chip(845, 790, "risk guardrail", "#fff1f2", COLORS["red"])
+    d.chip(220, 790, "evidence", "#e9f2ff", COLORS["blue"])
+    d.chip(350, 790, "accelerator", "#e9f2ff", COLORS["blue"])
+    d.chip(515, 790, "CPU / memory", "#e9f2ff", COLORS["blue"])
+    d.chip(690, 790, "VRAM", "#e9f2ff", COLORS["blue"])
+    d.chip(790, 790, "capability", "#fff7e8", COLORS["amber"])
+    d.chip(935, 790, "Go Guard", "#fff1f2", COLORS["red"])
     d.save("cpu_gpu_placement_flow")
 
 

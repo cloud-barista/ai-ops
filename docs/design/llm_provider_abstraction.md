@@ -15,6 +15,7 @@ service-control layer는 다음 값을 config로 받습니다.
 | `endpoint` | OpenAI-compatible `/v1/chat/completions` endpoint |
 | `api_key_env` | API key를 읽을 환경 변수 이름 |
 | `enabled` | benchmark 실행 대상 여부 |
+| `json_mode` | provider가 지원할 때 JSON object 응답 형식을 요청할지 여부 |
 
 Go 코드는 위 값을 사용하여 동일한 scenario set을 provider별 endpoint로 보냅니다. 따라서 Ollama, vLLM, LM Studio, OpenAI API, Azure OpenAI, 연구용 GPU 서버 endpoint, AI-MCMP 연계 endpoint를 같은 runner로 검증할 수 있습니다.
 
@@ -33,7 +34,7 @@ config/ops_llm_eval_candidates.local_multi_ollama.json
 
 ## Integration Provider
 
-AppDeployer 또는 AI-MCMP 연계 환경에서는 platform layer가 endpoint와 credential을 제공합니다. 이때 service-control layer는 다음 예시 config를 기반으로 값을 주입받습니다.
+외부 플랫폼 또는 연구 환경에서는 연결 계층이 endpoint와 credential을 제공합니다. 이때 service-control layer는 다음 예시 config를 기반으로 값을 주입받습니다.
 
 ```text
 config/ops_llm_eval_candidates.openai_compatible.example.json
@@ -60,4 +61,4 @@ config/ops_llm_eval_candidates.integration.example.json
 - `selected_actual_model`과 `selected_provider` 기록
 - candidate별 `average_score` 산정
 
-Endpoint가 준비되지 않은 경우 fake executed result를 만들지 않습니다.
+Endpoint가 준비되지 않은 경우 fake executed result를 만들지 않습니다. 자동화 Action 제안은 같은 client를 재사용하며 `decision_execution_status`로 benchmark 상태와 분리합니다.

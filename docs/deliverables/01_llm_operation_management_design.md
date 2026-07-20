@@ -1,6 +1,6 @@
 # LLM 운영 관리 구조 설계서
 
-영문 제목: LLM Operation Management Structure Design
+English title: LLM Operation Management Structure Design
 
 ## 1. 설계 목적
 
@@ -15,7 +15,7 @@
 | 입력 | LLM candidate, metric, policy weight |
 | 처리 | policy별 weighted score 계산과 ranking |
 | 출력 | selected model, score, ranking, rationale |
-| 연계 | agent registry, CPU/GPU placement, AI 응용 배포·제어 계획 |
+| 연계 | 실제 LLM Action 제안, Agent Registry, VM 적합성, Go Guard와 배포·제어 handoff |
 | 검증 | Go CLI/API 기반 재현 검증 |
 
 ## 3. 운영 흐름
@@ -25,8 +25,9 @@ Ops policy/config
 -> LLM candidate ranking
 -> selected runtime candidate
 -> agent registry validation
--> CPU/GPU VM placement
--> AI 응용 배포·제어 계획
+-> actual VM suitability validation
+-> actual LLM Action proposal
+-> Go Guard and external handoff
 -> service readiness report
 ```
 
@@ -113,7 +114,19 @@ go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
 
 dry-run 결과는 `benchmark_status = dry_run`으로 기록됩니다. `benchmark_status = executed`인 실제 모델 응답이 수집되기 전까지는 최종 LLM 품질 평가로 주장하지 않습니다.
 
-## 9. 설계 경계
+## 9. 자동화 Action 연계
+
+Benchmark와 실제 자동화 판단은 같은 OpenAI-compatible Go client를 사용하지만 결과 상태를 분리합니다.
+
+| 실행 | 상태 필드 | 의미 |
+| --- | --- | --- |
+| Ops candidate 평가 | `benchmark_status` | 후보 모델의 scenario 평가 실행 여부 |
+| 자동화 Action 제안 | `decision_execution_status` | 실제 LLM이 현재 workload에 대한 Action을 제안했는지 여부 |
+| 외부 제어 | `handoff.execution_status` | 외부 실행 주체가 실제로 제어를 수행했는지 여부 |
+
+LLM 자동화 제안은 `plan-llm-automation-action` 또는 `/api/v1/automation/action-proposals`로 호출합니다. LLM 실패나 잘못된 JSON은 성공 baseline으로 대체하지 않습니다.
+
+## 10. 설계 경계
 
 | 경계 | 설명 |
 | --- | --- |

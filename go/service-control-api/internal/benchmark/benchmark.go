@@ -2,17 +2,17 @@ package benchmark
 
 import (
 	"bufio"
-	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"math"
-	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 	"time"
+
+	"kyunghee-aiops/service-control-api/internal/llmclient"
 )
 
 type RunOptions struct {
@@ -94,22 +94,11 @@ type scenario struct {
 }
 
 type candidateConfig struct {
-	Version         string      `json:"version"`
-	BenchmarkMode   string      `json:"benchmark_mode"`
-	BenchmarkStatus string      `json:"benchmark_status"`
-	Description     string      `json:"description"`
-	Candidates      []candidate `json:"candidates"`
-}
-
-type candidate struct {
-	CandidateID    string `json:"candidate_id"`
-	RoleLabel      string `json:"role_label"`
-	Provider       string `json:"provider"`
-	ActualModel    string `json:"actual_model"`
-	APIKeyEnv      string `json:"api_key_env"`
-	Endpoint       string `json:"endpoint"`
-	Enabled        bool   `json:"enabled"`
-	TimeoutSeconds int    `json:"timeout_seconds"`
+	Version         string                `json:"version"`
+	BenchmarkMode   string                `json:"benchmark_mode"`
+	BenchmarkStatus string                `json:"benchmark_status"`
+	Description     string                `json:"description"`
+	Candidates      []llmclient.Candidate `json:"candidates"`
 }
 
 type modelOutput struct {
@@ -127,14 +116,6 @@ type modelOutput struct {
 	ParsedResponse  map[string]any `json:"parsed_response,omitempty"`
 	Error           string         `json:"error,omitempty"`
 	CreatedAt       string         `json:"created_at"`
-}
-
-type openAIChatResponse struct {
-	Choices []struct {
-		Message struct {
-			Content string `json:"content"`
-		} `json:"message"`
-	} `json:"choices"`
 }
 
 func RunOpsLLMBenchmark(options RunOptions) (RunResult, error) {
@@ -514,87 +495,28 @@ func buildPrompt(scenario scenario) string {
 	)
 }
 
-func callOpenAICompatible(candidate candidate, prompt string) (modelOutput, error) {
-	if candidate.Endpoint == "" {
-		return modelOutput{BenchmarkStatus: "not_executed", Skipped: true}, fmt.Errorf("candidate endpoint is required")
-	}
-	apiKey := ""
-	if candidate.APIKeyEnv != "" {
-		apiKey = os.Getenv(candidate.APIKeyEnv)
-		if apiKey == "" {
-			return modelOutput{BenchmarkStatus: "not_executed", Skipped: true}, fmt.Errorf("%s is not set; no provider API call executed", candidate.APIKeyEnv)
-		}
-	}
-
-	requestBody := map[string]any{
-		"model":       candidate.ActualModel,
-		"temperature": 0,
-		"messages": []map[string]string{
-			{"role": "system", "content": "You are an AI service-control evaluator. Return only compact JSON."},
-			{"role": "user", "content": prompt},
-		},
-	}
-	bodyBytes, err := json.Marshal(requestBody)
+func callOpenAICompatible(candidate llmclient.Candidate, prompt string) (modelOutput, error) {
+	completion, err := llmclient.NewClient(nil).Complete(
+		context.Background(),
+		candidate,
+		"You are an AI service-control evaluator. Return only compact JSON.",
+		prompt,
+	)
 	if err != nil {
-		return modelOutput{BenchmarkStatus: "not_executed", Skipped: true}, err
-	}
-	request, err := http.NewRequest(http.MethodPost, candidate.Endpoint, bytes.NewReader(bodyBytes))
-	if err != nil {
-		return modelOutput{BenchmarkStatus: "not_executed", Skipped: true}, err
-	}
-	request.Header.Set("content-type", "application/json")
-	if apiKey != "" {
-		request.Header.Set("authorization", "Bearer "+apiKey)
-	}
-
-	start := time.Now()
-	timeout := time.Duration(candidate.TimeoutSeconds) * time.Second
-	if timeout <= 0 {
-		timeout = 60 * time.Second
-	}
-	client := http.Client{Timeout: timeout}
-	response, err := client.Do(request)
-	latency := time.Since(start).Milliseconds()
-	if err != nil {
-		return modelOutput{BenchmarkStatus: "not_executed", Skipped: true, LatencyMS: latency}, err
-	}
-	defer func() {
-		_ = response.Body.Close()
-	}()
-
-	responseBytes, readErr := io.ReadAll(response.Body)
-	if readErr != nil {
-		return modelOutput{BenchmarkStatus: "not_executed", Skipped: true, LatencyMS: latency}, readErr
-	}
-	if response.StatusCode < 200 || response.StatusCode >= 300 {
 		return modelOutput{
-			BenchmarkStatus: "not_executed",
+			BenchmarkStatus: completion.Status,
 			Skipped:         true,
-			LatencyMS:       latency,
-			RawResponse:     string(responseBytes),
-		}, fmt.Errorf("provider returned status %d", response.StatusCode)
+			LatencyMS:       completion.LatencyMS,
+		}, err
 	}
-
-	raw := extractAssistantContent(responseBytes)
-	parsed := parseJSONMap(raw)
+	raw := completion.Content
 	return modelOutput{
-		BenchmarkStatus: "executed",
+		BenchmarkStatus: completion.Status,
 		Skipped:         false,
-		LatencyMS:       latency,
+		LatencyMS:       completion.LatencyMS,
 		RawResponse:     raw,
-		ParsedResponse:  parsed,
+		ParsedResponse:  parseJSONMap(raw),
 	}, nil
-}
-
-func extractAssistantContent(responseBytes []byte) string {
-	var response openAIChatResponse
-	if err := json.Unmarshal(responseBytes, &response); err == nil && len(response.Choices) > 0 {
-		content := strings.TrimSpace(response.Choices[0].Message.Content)
-		if content != "" {
-			return content
-		}
-	}
-	return strings.TrimSpace(string(responseBytes))
 }
 
 func scoreOutput(scenario scenario, output modelOutput) float64 {

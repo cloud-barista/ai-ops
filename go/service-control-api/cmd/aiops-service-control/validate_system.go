@@ -8,7 +8,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -17,16 +19,19 @@ import (
 )
 
 type systemValidationOptions struct {
-	Target             string
-	OutputDir          string
-	SkipGoTests        bool
-	SkipTeamValidation bool
-	RunLLMBenchmark    bool
-	LLMScenariosPath   string
-	LLMCandidatesPath  string
-	LLMDryRun          bool
-	RunAPIIntegration  bool
-	APIPort            int
+	Target                    string
+	OutputDir                 string
+	SkipGoTests               bool
+	SkipTeamValidation        bool
+	RunLLMBenchmark           bool
+	LLMScenariosPath          string
+	LLMCandidatesPath         string
+	LLMDryRun                 bool
+	RunLLMDecision            bool
+	LLMDecisionCandidatesPath string
+	LLMDecisionCandidateID    string
+	RunAPIIntegration         bool
+	APIPort                   int
 }
 
 type systemValidationStep struct {
@@ -118,11 +123,60 @@ func runSystemValidation(ctx context.Context, service api.Service, config api.Se
 		))
 	}
 
+	teamSnapshotPath := ""
+	if target == "vm" {
+		nvidiaOutputPath := filepath.Join(outputDirAbs, "04_vm_nvidia_smi.txt")
+		nvidiaStep := runCommandStep(
+			"vm-gpu-nvidia-smi",
+			config.RepoRoot,
+			nvidiaOutputPath,
+			"nvidia-smi",
+		)
+		addStep(nvidiaStep)
+
+		metadataPath := filepath.Join(outputDirAbs, "05_vm_aws_metadata.json")
+		metadata := collectAWSMetadata()
+		addStep(writeJSONStep("vm-aws-metadata", metadataPath, metadata))
+		if !metadata.Valid {
+			valid = false
+		}
+
+		memInfo, _ := os.ReadFile("/proc/meminfo")
+		nvidiaQuery := commandOutput(
+			config.RepoRoot,
+			"nvidia-smi",
+			"--query-gpu=name,memory.total,driver_version",
+			"--format=csv,noheader,nounits",
+		)
+		nvidiaOutput := commandOutput(config.RepoRoot, "nvidia-smi")
+		snapshot := buildVMResourceSnapshot(
+			metadata,
+			runtime.NumCPU(),
+			string(memInfo),
+			nvidiaQuery,
+			nvidiaOutput,
+			time.Now().UTC().Format(time.RFC3339),
+		)
+		teamSnapshotPath = filepath.Join(outputDirAbs, "06_vm_resource_snapshot.json")
+		snapshotStep := writeJSONStep("vm-resource-snapshot", teamSnapshotPath, snapshot)
+		if snapshot.EvidenceStatus != "collected" {
+			snapshotStep.Valid = false
+			snapshotStep.Reason = "live VM resource evidence is incomplete"
+		}
+		addStep(snapshotStep)
+	}
+
 	if options.SkipTeamValidation {
 		addStep(systemValidationStep{Name: "team-validation", Valid: true, Skipped: true, Reason: "--skip-team-validation was enabled"})
 	} else {
 		teamValidationDir := filepath.Join(outputDirAbs, "team-validation")
-		teamValidation, err := runTeamValidation(ctx, service, config, teamValidationDir)
+		var teamValidation map[string]any
+		var err error
+		if teamSnapshotPath != "" {
+			teamValidation, err = runTeamValidationWithSnapshot(ctx, service, config, teamValidationDir, teamSnapshotPath)
+		} else {
+			teamValidation, err = runTeamValidation(ctx, service, config, teamValidationDir)
+		}
 		teamStep := systemValidationStep{
 			Name:       "team-validation",
 			Valid:      false,
@@ -180,6 +234,53 @@ func runSystemValidation(ctx context.Context, service api.Service, config api.Se
 		})
 	}
 
+	if options.RunLLMDecision {
+		decisionSnapshotPath := teamSnapshotPath
+		if decisionSnapshotPath == "" {
+			decisionSnapshotPath = filepath.Join(config.RepoRoot, "docs", "evidence", "artifacts", "vm_20260707_resource_snapshot.json")
+		}
+		decisionOutputPath := filepath.Join(outputDirAbs, "07_llm_automation_action.json")
+		decisionStep := systemValidationStep{
+			Name:       "llm-automation-decision",
+			Valid:      false,
+			OutputPath: decisionOutputPath,
+		}
+		snapshot, loadErr := loadVMResourceSnapshot(decisionSnapshotPath)
+		if loadErr != nil {
+			decisionStep.Error = loadErr.Error()
+			addStep(decisionStep)
+		} else {
+			decision, decisionErr := service.PlanLLMAutomationActionFromPaths(
+				ctx,
+				filepath.Join(config.RepoRoot, "config", "vm_workload_requirements.json"),
+				options.LLMDecisionCandidatesPath,
+				api.LLMAutomationActionRequest{
+					Workload:    "llm-chat-inference",
+					TargetVM:    snapshot,
+					CandidateID: options.LLMDecisionCandidateID,
+				},
+			)
+			if writeErr := writeJSONFile(decisionOutputPath, decision); writeErr != nil {
+				decisionStep.Error = writeErr.Error()
+			} else if decisionErr != nil {
+				decisionStep.Error = decisionErr.Error()
+			} else {
+				decisionStep.Valid = decision.Decision.DecisionExecutionStatus == "executed" && decision.Guard.Valid
+				if !decision.Valid && decision.Status == "pending_executor" {
+					decisionStep.Reason = "LLM decision and Go Guard passed; no external executor is registered in this validation process"
+				}
+			}
+			addStep(decisionStep)
+		}
+	} else {
+		addStep(systemValidationStep{
+			Name:    "llm-automation-decision",
+			Valid:   true,
+			Skipped: true,
+			Reason:  "--run-llm-decision was not enabled",
+		})
+	}
+
 	if options.RunAPIIntegration {
 		apiOutputDir := filepath.Join(outputDirAbs, "api-integration-validation")
 		apiSummary, err := runAPIIntegrationValidation(config, apiIntegrationValidationOptions{
@@ -204,21 +305,6 @@ func runSystemValidation(ctx context.Context, service api.Service, config api.Se
 		})
 	}
 
-	if target == "vm" {
-		addStep(runCommandStep(
-			"vm-gpu-nvidia-smi",
-			config.RepoRoot,
-			filepath.Join(outputDirAbs, "04_vm_nvidia_smi.txt"),
-			"nvidia-smi",
-		))
-		metadataPath := filepath.Join(outputDirAbs, "05_vm_aws_metadata.json")
-		metadata := collectAWSMetadata()
-		addStep(writeJSONStep("vm-aws-metadata", metadataPath, metadata))
-		if !metadata.Valid {
-			valid = false
-		}
-	}
-
 	summary := map[string]any{
 		"command":              "validate-system",
 		"valid":                valid,
@@ -231,6 +317,7 @@ func runSystemValidation(ctx context.Context, service api.Service, config api.Se
 			"go_module_tests",
 			"team_validation",
 			"ops_llm_benchmark",
+			"llm_automation_decision",
 			"api_integration_validation",
 			"service_operations_readiness",
 			"target_environment_evidence",
@@ -241,6 +328,7 @@ func runSystemValidation(ctx context.Context, service api.Service, config api.Se
 			"nvidia_smi",
 			"gpu_driver_cuda_visibility",
 			"aws_instance_metadata",
+			"live_vm_resource_snapshot",
 		}
 	}
 
@@ -250,6 +338,101 @@ func runSystemValidation(ctx context.Context, service api.Service, config api.Se
 	}
 	summary["summary_path"] = summaryPath
 	return summary, nil
+}
+
+var cudaVersionPattern = regexp.MustCompile(`CUDA Version:\s*([0-9.]+)`)
+
+func buildVMResourceSnapshot(
+	metadata awsMetadataEvidence,
+	cpuCores int,
+	memInfo string,
+	nvidiaQuery string,
+	nvidiaOutput string,
+	collectedAt string,
+) api.VMResourceSnapshot {
+	provider := ""
+	if metadata.Valid {
+		provider = "aws"
+	}
+	accelerator := "cpu"
+	gpuModel, gpuMemoryMiB, driverVersion := parseNVIDIAQuery(nvidiaQuery)
+	if gpuModel != "" {
+		accelerator = "gpu"
+	}
+	cudaVersion := ""
+	if matches := cudaVersionPattern.FindStringSubmatch(nvidiaOutput); len(matches) == 2 {
+		cudaVersion = matches[1]
+	}
+	memoryGB := parseMemoryGB(memInfo)
+	evidenceStatus := "incomplete"
+	if metadata.Valid && cpuCores > 0 && memoryGB > 0 {
+		evidenceStatus = "collected"
+	}
+	instanceType := metadata.Metadata["instance_type"]
+	region := metadata.Metadata["region"]
+	snapshotID := buildVMSnapshotID(provider, region, instanceType, accelerator, collectedAt)
+
+	return api.VMResourceSnapshot{
+		ID:               snapshotID,
+		Source:           "live_vm_system_validation",
+		EvidenceStatus:   evidenceStatus,
+		Provider:         provider,
+		Region:           region,
+		AvailabilityZone: metadata.Metadata["availability_zone"],
+		InstanceType:     instanceType,
+		Accelerator:      accelerator,
+		CPUCores:         cpuCores,
+		MemoryGB:         memoryGB,
+		GPUModel:         gpuModel,
+		GPUMemoryMiB:     gpuMemoryMiB,
+		DriverVersion:    driverVersion,
+		CUDAVersion:      cudaVersion,
+		CollectedAt:      collectedAt,
+		Performance: api.VMPerformanceEvidence{
+			Status: "not_measured",
+		},
+	}
+}
+
+func parseNVIDIAQuery(value string) (string, int, string) {
+	line := strings.TrimSpace(strings.Split(value, "\n")[0])
+	if line == "" || strings.Contains(strings.ToLower(line), "not found") {
+		return "", 0, ""
+	}
+	parts := strings.Split(line, ",")
+	if len(parts) < 3 {
+		return "", 0, ""
+	}
+	memoryMiB, err := strconv.Atoi(strings.TrimSpace(parts[1]))
+	if err != nil {
+		return "", 0, ""
+	}
+	return strings.TrimSpace(parts[0]), memoryMiB, strings.TrimSpace(parts[2])
+}
+
+func parseMemoryGB(memInfo string) float64 {
+	for _, line := range strings.Split(memInfo, "\n") {
+		fields := strings.Fields(line)
+		if len(fields) < 2 || fields[0] != "MemTotal:" {
+			continue
+		}
+		memoryKiB, err := strconv.ParseFloat(fields[1], 64)
+		if err != nil {
+			return 0
+		}
+		return memoryKiB / 1024 / 1024
+	}
+	return 0
+}
+
+func buildVMSnapshotID(provider string, region string, instanceType string, accelerator string, collectedAt string) string {
+	values := []string{provider, region, instanceType, accelerator, collectedAt}
+	for index, value := range values {
+		value = strings.ToLower(strings.TrimSpace(value))
+		replacer := strings.NewReplacer(" ", "-", ".", "-", "/", "-", ":", "", "+", "-")
+		values[index] = replacer.Replace(value)
+	}
+	return strings.Trim(strings.Join(values, "-"), "-")
 }
 
 func collectSystemEnvironment(target string, repoRoot string) systemEnvironmentEvidence {

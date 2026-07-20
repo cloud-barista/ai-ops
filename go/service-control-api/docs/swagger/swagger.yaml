@@ -84,8 +84,12 @@ definitions:
         type: object
       reason:
         type: string
+      reviewer_type:
+        type: string
       reward:
         type: number
+      skipped:
+        type: boolean
     type: object
   api.AgentReviews:
     properties:
@@ -96,62 +100,145 @@ definitions:
       infrastructure:
         $ref: '#/definitions/api.AgentReview'
     type: object
+  api.AppDeployPlannerRequest:
+    properties:
+      app_version_id:
+        example: appver-llm-inference-v1
+        type: string
+      candidate_id:
+        example: local-ollama-ops-llm
+        type: string
+      max_poll_attempts:
+        example: 60
+        maximum: 600
+        minimum: 1
+        type: integer
+      natural_language_request:
+        example: GPU 1개와 메모리 16Gi가 필요한 추론 앱을 배포해 주세요.
+        maxLength: 8000
+        type: string
+      parameters:
+        additionalProperties: {}
+        type: object
+      poll_interval_ms:
+        example: 1000
+        maximum: 60000
+        minimum: 1
+        type: integer
+      requested_by:
+        example: ai-ops-geon-planner
+        type: string
+      target_profile_id:
+        example: target-profile-hint
+        type: string
+    required:
+    - app_version_id
+    - candidate_id
+    - natural_language_request
+    type: object
+  api.AutomationFeedbackRecord:
+    properties:
+      correlation_id:
+        type: string
+      executor:
+        type: string
+      external_execution_id:
+        type: string
+      latency_ms:
+        type: number
+      message:
+        type: string
+      received_at:
+        type: string
+      status:
+        type: string
+      throughput_rps:
+        type: number
+    required:
+    - correlation_id
+    - executor
+    - status
+    type: object
+  api.AutomationFeedbackRequest:
+    properties:
+      correlation_id:
+        type: string
+      executor:
+        type: string
+      external_execution_id:
+        type: string
+      latency_ms:
+        type: number
+      message:
+        type: string
+      status:
+        type: string
+      throughput_rps:
+        type: number
+    required:
+    - correlation_id
+    - executor
+    - status
+    type: object
   api.DeploymentPlan:
     properties:
-      container_image:
+      allowed_actions:
+        items:
+          type: string
+        type: array
+      execution_status:
         type: string
-      control_actions:
+      executor_type:
+        type: string
+      feedback_required:
+        type: boolean
+      preconditions:
         items:
           type: string
         type: array
-      monitoring_metrics:
-        items:
-          type: string
-        type: array
+      requested_action:
+        type: string
+      required_capability:
+        type: string
+      selected_executor:
+        type: string
       service_name:
         type: string
-      slo:
-        additionalProperties:
-          format: float64
-          type: number
-        type: object
       target_accelerator:
         type: string
-      target_resource:
+      target_vm_id:
         type: string
-      vm_deployment:
-        $ref: '#/definitions/api.VMDeploymentPlan'
+      workload:
+        type: string
     type: object
   api.DeploymentPlanResponse:
     properties:
       action:
         type: string
-      cost_per_hour:
-        type: number
+      checks:
+        items:
+          $ref: '#/definitions/api.VMCompatibilityCheck'
+        type: array
+      compatibility_status:
+        type: string
       deployment_plan:
         $ref: '#/definitions/api.DeploymentPlan'
-      latency_ms:
-        type: number
-      ranked_candidates:
-        items:
-          $ref: '#/definitions/api.PlacementCandidate'
-        type: array
+      evidence_status:
+        type: string
+      performance_status:
+        type: string
       reason:
         type: string
-      rejected_resources:
-        additionalProperties:
-          type: string
-        type: object
-      score:
-        type: number
-      selected_resource:
-        type: string
-      slo_satisfied:
+      resource_checks_passed:
         type: boolean
-      throughput_rps:
-        type: number
+      resource_source:
+        type: string
+      target_vm_id:
+        type: string
       valid:
         type: boolean
+      validation_mode:
+        type: string
       workload:
         type: string
     type: object
@@ -220,6 +307,15 @@ definitions:
     - role
     - version
     type: object
+  api.GuardDecision:
+    properties:
+      reason:
+        type: string
+      status:
+        type: string
+      valid:
+        type: boolean
+    type: object
   api.GuardValidation:
     properties:
       backend:
@@ -242,6 +338,72 @@ definitions:
         type: boolean
       valid:
         type: boolean
+    type: object
+  api.LLMActionProposal:
+    properties:
+      action:
+        type: string
+      confidence:
+        type: number
+      parameters:
+        additionalProperties: {}
+        type: object
+      reason:
+        type: string
+      required_capability:
+        type: string
+      target_vm_id:
+        type: string
+    type: object
+  api.LLMAutomationActionRequest:
+    properties:
+      candidate_id:
+        example: local-ollama-ops-llm
+        type: string
+      observations:
+        additionalProperties: {}
+        type: object
+      target_vm:
+        $ref: '#/definitions/api.VMResourceSnapshot'
+      workload:
+        example: llm-chat-inference
+        type: string
+    required:
+    - candidate_id
+    - target_vm
+    - workload
+    type: object
+  api.LLMAutomationActionResponse:
+    properties:
+      correlation_id:
+        type: string
+      decision:
+        $ref: '#/definitions/api.LLMDecisionResult'
+      guard:
+        $ref: '#/definitions/api.GuardDecision'
+      handoff:
+        $ref: '#/definitions/api.AgentInvocationPlan'
+      status:
+        type: string
+      valid:
+        type: boolean
+      vm_compatibility:
+        $ref: '#/definitions/api.VMCompatibilityResponse'
+    type: object
+  api.LLMDecisionResult:
+    properties:
+      actual_model:
+        type: string
+      candidate_id:
+        type: string
+      decision_execution_status:
+        type: string
+      latency_ms:
+        type: integer
+      proposal:
+        $ref: '#/definitions/api.LLMActionProposal'
+      provider:
+        type: string
     type: object
   api.OperationReadiness:
     properties:
@@ -317,74 +479,16 @@ definitions:
       valid:
         type: boolean
     type: object
-  api.PlacementCandidate:
-    properties:
-      accelerator:
-        type: string
-      action:
-        type: string
-      available_instances:
-        type: integer
-      cost_per_hour:
-        type: number
-      latency_ms:
-        type: number
-      resource:
-        type: string
-      score:
-        type: number
-      throughput_rps:
-        type: number
-    type: object
-  api.PlacementResponse:
-    properties:
-      action:
-        type: string
-      cost_per_hour:
-        type: number
-      latency_ms:
-        type: number
-      ranked_candidates:
-        items:
-          $ref: '#/definitions/api.PlacementCandidate'
-        type: array
-      reason:
-        type: string
-      rejected_resources:
-        additionalProperties:
-          type: string
-        type: object
-      score:
-        type: number
-      selected_resource:
-        type: string
-      slo_satisfied:
-        type: boolean
-      throughput_rps:
-        type: number
-      valid:
-        type: boolean
-      workload:
-        type: string
-    type: object
-  api.ResourceSpec:
-    properties:
-      limits:
-        additionalProperties:
-          type: string
-        type: object
-      requests:
-        additionalProperties:
-          type: string
-        type: object
-    type: object
   api.ServiceOperationsRequest:
     properties:
       guard_backend:
         example: go
         type: string
-      inference_config:
-        example: config/inference_optimization.json
+      llm_candidate_id:
+        example: local-ollama-ops-llm
+        type: string
+      llm_candidates:
+        example: config/ops_llm_eval_candidates.local_ollama.json
         type: string
       llm_config:
         example: config/ops_llm_benchmark.json
@@ -393,18 +497,26 @@ definitions:
         example: quality_first
         type: string
       mode:
-        example: mock
+        example: plan_only
         type: string
+      observations:
+        additionalProperties: {}
+        type: object
       operation_resource:
-        example: gpu-vm-l4
         type: string
       operation_service:
         example: llm-chat-inference
+        type: string
+      target_vm:
+        $ref: '#/definitions/api.VMResourceSnapshot'
+      vm_requirements:
+        example: config/vm_workload_requirements.json
         type: string
       workload:
         example: llm-chat-inference
         type: string
     required:
+    - target_vm
     - workload
     type: object
   api.ServiceOperationsResponse:
@@ -414,6 +526,8 @@ definitions:
       benchmark_status:
         type: string
       command:
+        type: string
+      decision_execution_status:
         type: string
       deployment_execution_mode:
         type: string
@@ -431,6 +545,8 @@ definitions:
         $ref: '#/definitions/api.GuardValidation'
       inference_deployment_plan:
         $ref: '#/definitions/api.DeploymentPlanResponse'
+      llm_automation_action:
+        $ref: '#/definitions/api.LLMAutomationActionResponse'
       metadata:
         additionalProperties:
           type: string
@@ -452,26 +568,113 @@ definitions:
       valid:
         type: boolean
     type: object
-  api.VMDeploymentPlan:
+  api.VMCompatibilityCheck:
     properties:
-      instances:
-        type: integer
-      placement_constraints:
-        additionalProperties:
-          type: string
-        type: object
-      resources:
-        $ref: '#/definitions/api.ResourceSpec'
-      service:
+      actual:
+        type: string
+      name:
+        type: string
+      reason:
+        type: string
+      required:
+        type: string
+      status:
         type: string
     type: object
-  api.WorkloadRequest:
+  api.VMCompatibilityRequest:
     properties:
+      target_vm:
+        $ref: '#/definitions/api.VMResourceSnapshot'
       workload:
         example: llm-chat-inference
         type: string
     required:
+    - target_vm
     - workload
+    type: object
+  api.VMCompatibilityResponse:
+    properties:
+      action:
+        type: string
+      checks:
+        items:
+          $ref: '#/definitions/api.VMCompatibilityCheck'
+        type: array
+      compatibility_status:
+        type: string
+      evidence_status:
+        type: string
+      performance_status:
+        type: string
+      reason:
+        type: string
+      resource_checks_passed:
+        type: boolean
+      resource_source:
+        type: string
+      target_vm_id:
+        type: string
+      valid:
+        type: boolean
+      validation_mode:
+        type: string
+      workload:
+        type: string
+    type: object
+  api.VMPerformanceEvidence:
+    properties:
+      cost_per_hour:
+        type: number
+      latency_ms:
+        type: number
+      measured_at:
+        type: string
+      source:
+        type: string
+      status:
+        type: string
+      throughput_rps:
+        type: number
+    type: object
+  api.VMResourceSnapshot:
+    properties:
+      accelerator:
+        type: string
+      availability_zone:
+        type: string
+      collected_at:
+        type: string
+      cpu_cores:
+        type: integer
+      cuda_version:
+        type: string
+      driver_version:
+        type: string
+      evidence_status:
+        type: string
+      gpu_memory_mib:
+        type: integer
+      gpu_model:
+        type: string
+      id:
+        type: string
+      instance_type:
+        type: string
+      memory_gb:
+        type: number
+      performance:
+        $ref: '#/definitions/api.VMPerformanceEvidence'
+      provider:
+        type: string
+      region:
+        type: string
+      source:
+        type: string
+    required:
+    - accelerator
+    - evidence_status
+    - id
+    - source
     type: object
 info:
   contact: {}
@@ -618,16 +821,16 @@ paths:
     post:
       consumes:
       - application/json
-      description: Build a CPU/GPU VM-oriented deployment and control plan for the
-        selected workload.
+      description: Build a non-executing, capability-based handoff plan for any registered
+        external execution agent.
       operationId: PostDeploymentPlan
       parameters:
-      - description: Inference workload request
+      - description: VM compatibility request
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/api.WorkloadRequest'
+          $ref: '#/definitions/api.VMCompatibilityRequest'
       produces:
       - application/json
       responses:
@@ -642,33 +845,92 @@ paths:
       summary: Build an AI application deployment plan
       tags:
       - AI Application Deployment
-  /api/v1/apps/placement:
+  /api/v1/apps/vm-suitability:
     post:
       consumes:
       - application/json
-      description: Recommend a CPU/GPU VM target for an AI application workload.
-      operationId: PostAppPlacement
+      description: Validate whether an infrastructure-supplied VM snapshot satisfies
+        declared workload requirements without selecting or provisioning a VM.
+      operationId: PostVMSuitability
       parameters:
-      - description: Inference workload request
+      - description: VM compatibility request
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/api.WorkloadRequest'
+          $ref: '#/definitions/api.VMCompatibilityRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/api.PlacementResponse'
+            $ref: '#/definitions/api.VMCompatibilityResponse'
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/api.ErrorResponse'
-      summary: Recommend CPU/GPU VM placement
+      summary: Validate a provided CPU/GPU VM
       tags:
       - AI Application Deployment
+  /api/v1/automation/action-proposals:
+    post:
+      consumes:
+      - application/json
+      description: Call an actual configured LLM candidate, validate its bounded Action
+        against actual VM evidence and Agent Registry policy, and return a non-executing
+        external-agent handoff.
+      operationId: PostLLMAutomationAction
+      parameters:
+      - description: LLM automation Action request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.LLMAutomationActionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.LLMAutomationActionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Generate and validate an LLM-based automation Action
+      tags:
+      - AI Application Automation
+  /api/v1/automation/feedback:
+    post:
+      consumes:
+      - application/json
+      description: Record normalized status and optional performance evidence for
+        a previously approved correlation ID. Credentials and arbitrary secret fields
+        are not accepted.
+      operationId: PostAutomationFeedback
+      parameters:
+      - description: Automation execution feedback
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.AutomationFeedbackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.AutomationFeedbackRecord'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Record external automation execution feedback
+      tags:
+      - AI Application Automation
   /api/v1/ops-llm/select:
     post:
       consumes:
@@ -697,12 +959,43 @@ paths:
       summary: Select an Ops LLM policy candidate
       tags:
       - LLM Operation Management
+  /api/v1/planner/deployments:
+    post:
+      consumes:
+      - application/json
+      description: Use an actual configured LLM to generate an AppDeploy DeploymentManifest,
+        validate it with the Go Guard, submit it to AppDeploy, and poll the deployment
+        status. AppDeploy retains target selection and execution responsibility.
+      operationId: PostAppDeployPlanner
+      parameters:
+      - description: Planner request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.AppDeployPlannerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Plan and submit an AI application deployment
+      tags:
+      - AI Application Automation
   /api/v1/service-operations/run:
     post:
       consumes:
       - application/json
       description: Execute the Go service-control flow across LLM selection, agent
-        checks, CPU/GPU placement, and deployment-control planning.
+        checks, actual VM suitability validation, and generic deployment-control handoff
+        planning.
       operationId: PostServiceOperationsRun
       parameters:
       - description: Service operation request

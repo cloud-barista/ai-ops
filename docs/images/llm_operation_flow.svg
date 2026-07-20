@@ -26,9 +26,9 @@
 <text x="178" y="485" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Candidate Config</text>
 <text x="136" y="518" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">provider / endpoint</text>
 <text x="136" y="543" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">actual_model / role label</text>
-<rect x="118" y="620" width="175" height="36" rx="18" fill="#ffffff" stroke="#31445a" stroke-width="1"/>
+<rect x="118" y="620" width="174" height="36" rx="18" fill="#ffffff" stroke="#31445a" stroke-width="1"/>
 <text x="135" y="651" fill="#27496d" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="700" text-anchor="start">JSONL scenarios</text>
-<rect x="118" y="672" width="188" height="36" rx="18" fill="#ffffff" stroke="#65758b" stroke-width="1"/>
+<rect x="118" y="672" width="189" height="36" rx="18" fill="#ffffff" stroke="#65758b" stroke-width="1"/>
 <text x="135" y="703" fill="#27496d" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="700" text-anchor="start">candidate ranking</text>
 <rect x="571" y="178" width="420" height="560" rx="26" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
 <rect x="565" y="170" width="420" height="560" rx="26" fill="#ffffff" stroke="#d6dce4" stroke-width="2"/>
@@ -78,9 +78,9 @@
 <line x1="1325" y1="520" x2="1365" y2="520" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
 <polygon points="1365,520 1352,527 1352,513" fill="#65758b"/>
 <text x="90" y="806" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="start">상태값 해석</text>
-<rect x="235" y="770" width="270" height="36" rx="18" fill="#ffffff" stroke="#65758b" stroke-width="1"/>
+<rect x="235" y="770" width="272" height="36" rx="18" fill="#ffffff" stroke="#65758b" stroke-width="1"/>
 <text x="252" y="801" fill="#27496d" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="700" text-anchor="start">not_executed: 정책 baseline</text>
-<rect x="565" y="770" width="231" height="36" rx="18" fill="#ffffff" stroke="#65758b" stroke-width="1"/>
+<rect x="565" y="770" width="230" height="36" rx="18" fill="#ffffff" stroke="#65758b" stroke-width="1"/>
 <text x="582" y="801" fill="#27496d" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="700" text-anchor="start">dry_run: 연결 구조 검증</text>
 <rect x="890" y="770" width="326" height="36" rx="18" fill="#ffffff" stroke="#65758b" stroke-width="1"/>
 <text x="907" y="801" fill="#27496d" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="700" text-anchor="start">executed: 실제 endpoint 응답 평가</text>

@@ -8,6 +8,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
@@ -50,11 +51,12 @@ type apiIntegrationValidationSummary struct {
 }
 
 type apiEndpointSpec struct {
-	Name   string
-	Method string
-	Path   string
-	Body   map[string]any
-	Check  func(map[string]any) []string
+	Name     string
+	Method   string
+	Path     string
+	Body     map[string]any
+	BodyFunc func() map[string]any
+	Check    func(map[string]any) []string
 }
 
 func runAPIIntegrationValidation(config api.ServerConfig, options apiIntegrationValidationOptions) (apiIntegrationValidationSummary, error) {
@@ -72,6 +74,14 @@ func runAPIIntegrationValidation(config api.ServerConfig, options apiIntegration
 	baseURL := strings.TrimRight(options.BaseURL, "/")
 	var shutdown func(context.Context) error
 	if baseURL == "" {
+		provider := startAPIIntegrationLLMProvider()
+		defer provider.Close()
+		candidatesPath := filepath.Join(outputDirAbs, "api-integration-llm-candidates.json")
+		candidateConfig := fmt.Sprintf(`{"version":"1","candidates":[{"candidate_id":"api-integration-model","role_label":"primary-ops-llm","provider":"local-contract-test","actual_model":"api-integration-test-model","endpoint":%q,"enabled":true}]}`, provider.URL)
+		if err := os.WriteFile(candidatesPath, []byte(candidateConfig), 0o600); err != nil {
+			return apiIntegrationValidationSummary{}, err
+		}
+		config.LLMCandidatesPath = candidatesPath
 		baseURL, shutdown, err = startLocalAPIServer(config, options.Port)
 		if err != nil {
 			return apiIntegrationValidationSummary{}, err
@@ -122,6 +132,16 @@ func runAPIIntegrationValidation(config api.ServerConfig, options apiIntegration
 	return summary, nil
 }
 
+func startAPIIntegrationLLMProvider() *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
+		content := `{"action":"observe_status","reason":"Contract test provider response.","confidence":0.8,"required_capability":"ai_application_deployment_control","target_vm_id":"aws-us-west-2-g6-xlarge-l4-20260707"}`
+		writer.Header().Set("content-type", "application/json")
+		_ = json.NewEncoder(writer).Encode(map[string]any{
+			"choices": []map[string]any{{"message": map[string]string{"content": content}}},
+		})
+	}))
+}
+
 func startLocalAPIServer(config api.ServerConfig, port int) (string, func(context.Context) error, error) {
 	address := fmt.Sprintf("127.0.0.1:%d", port)
 	listener, err := net.Listen("tcp", address)
@@ -170,6 +190,8 @@ func waitForAPIHealth(baseURL string, timeout time.Duration) error {
 }
 
 func apiIntegrationEndpointSpecs() []apiEndpointSpec {
+	var automationCorrelationID string
+	var automationExecutor string
 	return []apiEndpointSpec{
 		{
 			Name:   "healthz",
@@ -202,8 +224,15 @@ func apiIntegrationEndpointSpecs() []apiEndpointSpec {
 				"role":            "Review AI application deployment plans.",
 				"endpoint":        "https://agent.example.com",
 				"invocation_path": "/v1/actions",
-				"capabilities":    []string{"deployment_review"},
-				"bounded_actions": []string{"review_deployment_plan"},
+				"capabilities": []string{
+					"deployment_review",
+					"ai_application_deployment_control",
+				},
+				"bounded_actions": []string{
+					"review_deployment_plan",
+					"deploy_application",
+					"observe_status",
+				},
 			},
 			Check: func(response map[string]any) []string {
 				return requireValues(response, map[string]any{
@@ -232,6 +261,60 @@ func apiIntegrationEndpointSpecs() []apiEndpointSpec {
 			},
 		},
 		{
+			Name:   "llm-automation-action",
+			Method: http.MethodPost,
+			Path:   "/api/v1/automation/action-proposals",
+			Body: map[string]any{
+				"workload":     "llm-chat-inference",
+				"target_vm":    apiValidationTargetVM(),
+				"candidate_id": "api-integration-model",
+			},
+			Check: func(response map[string]any) []string {
+				checks := requireValues(response, map[string]any{
+					"valid":  true,
+					"status": "approved",
+				})
+				checks = append(checks, requirePresent(response, "correlation_id", "decision", "guard", "handoff")...)
+				decision, ok := response["decision"].(map[string]any)
+				if !ok {
+					checks = append(checks, "decision is not an object")
+				} else {
+					checks = append(checks, requireValues(decision, map[string]any{"decision_execution_status": "executed"})...)
+				}
+				if value, ok := response["correlation_id"].(string); ok {
+					automationCorrelationID = value
+				}
+				if handoff, ok := response["handoff"].(map[string]any); ok {
+					if value, ok := handoff["agent"].(string); ok {
+						automationExecutor = value
+					}
+				}
+				return checks
+			},
+		},
+		{
+			Name:   "automation-feedback",
+			Method: http.MethodPost,
+			Path:   "/api/v1/automation/feedback",
+			BodyFunc: func() map[string]any {
+				return map[string]any{
+					"correlation_id":        automationCorrelationID,
+					"executor":              automationExecutor,
+					"status":                "succeeded",
+					"external_execution_id": "api-integration-execution",
+					"latency_ms":            15.0,
+					"throughput_rps":        2.0,
+				}
+			},
+			Check: func(response map[string]any) []string {
+				return requireValues(response, map[string]any{
+					"correlation_id": automationCorrelationID,
+					"executor":       automationExecutor,
+					"status":         "succeeded",
+				})
+			},
+		},
+		{
 			Name:   "ops-llm-select",
 			Method: http.MethodPost,
 			Path:   "/api/v1/ops-llm/select",
@@ -244,13 +327,16 @@ func apiIntegrationEndpointSpecs() []apiEndpointSpec {
 			},
 		},
 		{
-			Name:   "apps-placement",
+			Name:   "apps-vm-suitability",
 			Method: http.MethodPost,
-			Path:   "/api/v1/apps/placement",
-			Body:   map[string]any{"workload": "llm-chat-inference"},
+			Path:   "/api/v1/apps/vm-suitability",
+			Body: map[string]any{
+				"workload":  "llm-chat-inference",
+				"target_vm": apiValidationTargetVM(),
+			},
 			Check: func(response map[string]any) []string {
 				checks := requireValues(response, map[string]any{"valid": true})
-				checks = append(checks, requirePresent(response, "selected_resource", "action", "ranked_candidates", "rejected_resources")...)
+				checks = append(checks, requirePresent(response, "target_vm_id", "compatibility_status", "resource_checks_passed", "checks")...)
 				return checks
 			},
 		},
@@ -258,10 +344,13 @@ func apiIntegrationEndpointSpecs() []apiEndpointSpec {
 			Name:   "apps-deployment-plan",
 			Method: http.MethodPost,
 			Path:   "/api/v1/apps/deployment-plan",
-			Body:   map[string]any{"workload": "llm-chat-inference"},
+			Body: map[string]any{
+				"workload":  "llm-chat-inference",
+				"target_vm": apiValidationTargetVM(),
+			},
 			Check: func(response map[string]any) []string {
 				checks := requireValues(response, map[string]any{"valid": true})
-				checks = append(checks, requirePresent(response, "selected_resource", "deployment_plan")...)
+				checks = append(checks, requirePresent(response, "target_vm_id", "deployment_plan")...)
 				return checks
 			},
 		},
@@ -272,9 +361,10 @@ func apiIntegrationEndpointSpecs() []apiEndpointSpec {
 			Body: map[string]any{
 				"llm_policy":         "quality_first",
 				"workload":           "llm-chat-inference",
+				"target_vm":          apiValidationTargetVM(),
 				"operation_service":  "llm-chat-inference",
-				"operation_resource": "gpu-vm-l4",
-				"mode":               "mock",
+				"operation_resource": "aws-us-west-2-g6-xlarge-l4-20260707",
+				"mode":               "plan_only",
 				"guard_backend":      "go",
 			},
 			Check: func(response map[string]any) []string {
@@ -307,6 +397,23 @@ func apiIntegrationEndpointSpecs() []apiEndpointSpec {
 	}
 }
 
+func apiValidationTargetVM() map[string]any {
+	return map[string]any{
+		"id":              "aws-us-west-2-g6-xlarge-l4-20260707",
+		"source":          "recorded_vm_validation_evidence",
+		"evidence_status": "collected",
+		"provider":        "aws",
+		"region":          "us-west-2",
+		"instance_type":   "g6.xlarge",
+		"accelerator":     "gpu",
+		"gpu_model":       "NVIDIA L4",
+		"gpu_memory_mib":  23034,
+		"performance": map[string]any{
+			"status": "not_measured",
+		},
+	}
+}
+
 func callAndValidateEndpoint(client *http.Client, baseURL string, outputDir string, index int, spec apiEndpointSpec) apiEndpointValidation {
 	result := apiEndpointValidation{
 		Name:   spec.Name,
@@ -314,9 +421,13 @@ func callAndValidateEndpoint(client *http.Client, baseURL string, outputDir stri
 		Path:   spec.Path,
 		Checks: []string{},
 	}
+	body := spec.Body
+	if spec.BodyFunc != nil {
+		body = spec.BodyFunc()
+	}
 	var requestBody io.Reader
-	if spec.Body != nil {
-		bodyBytes, err := json.Marshal(spec.Body)
+	if body != nil {
+		bodyBytes, err := json.Marshal(body)
 		if err != nil {
 			result.Error = err.Error()
 			return result
@@ -328,7 +439,7 @@ func callAndValidateEndpoint(client *http.Client, baseURL string, outputDir stri
 		result.Error = err.Error()
 		return result
 	}
-	if spec.Body != nil {
+	if body != nil {
 		request.Header.Set("content-type", "application/json")
 	}
 	response, err := client.Do(request)

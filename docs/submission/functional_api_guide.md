@@ -1,231 +1,134 @@
 # 기능/API 가이드
 
-## 1. 목적
+## 1. 개요
 
-이 가이드는 1차년도 service-control 기능 프로토타입의 Go Echo HTTP API를 설명합니다. API는 Go CLI와 동일한 핵심 기능인 Ops LLM 정책 선정, 에이전트 registry 등록·조회, CPU/GPU VM 배치 추천, 배포 계획 생성, 통합 서비스 운영 준비도 검증을 제공합니다.
-
-Swagger/OpenAPI 산출물은 `docs/submission/openapi_service_control.yaml`에 있습니다.
-
-## 2. API 서버 실행
+Go Echo API는 Ops LLM 선정, 에이전트 등록·Action 검증, LLM Deployment Manifest 생성, Go Guard 검증과 AppDeploy 배포 연계를 제공합니다.
 
 ```bash
 cd go/service-control-api
 go run ./cmd/service-control-api
 ```
 
-기대 시작 신호:
-
-```text
-http server started on [::]:8080
-```
-
-## 3. Endpoint 목록
+## 2. Endpoint
 
 | Method | Path | 기능 |
 | --- | --- | --- |
 | `GET` | `/healthz` | 상태 확인 |
-| `GET` | `/openapi.yaml` | OpenAPI YAML 계약 반환 |
-| `GET` | `/api/v1/agents` | 등록된 AI agent 목록 조회 |
-| `POST` | `/api/v1/agents` | 외부 AI agent 런타임 등록 |
-| `GET` | `/api/v1/agents/{name}` | agent 상세 조회 |
-| `POST` | `/api/v1/agents/{name}/actions/{action}/validate` | bounded action 검증 |
-| `POST` | `/api/v1/agents/{name}/invocations/plan` | capability/action 검증 후 호출 계획 생성 |
-| `POST` | `/api/v1/ops-llm/select` | Ops LLM policy 기반 candidate selection 실행 |
-| `POST` | `/api/v1/apps/placement` | AI workload의 CPU/GPU VM 배치 추천 |
-| `POST` | `/api/v1/apps/deployment-plan` | AI 응용 배포·제어 계획 생성 |
-| `POST` | `/api/v1/service-operations/run` | 통합 service-operations readiness pipeline 실행 |
+| `GET` | `/openapi.yaml` | OpenAPI 계약 |
+| `GET`, `POST` | `/api/v1/agents` | 에이전트 조회·외부 등록 |
+| `POST` | `/api/v1/agents/{name}/actions/{action}/validate` | bounded Action 검증 |
+| `POST` | `/api/v1/agents/{name}/invocations/plan` | 비실행 호출 계획 생성 |
+| `POST` | `/api/v1/ops-llm/select` | Ops LLM 정책 선정 |
+| `POST` | `/api/v1/apps/vm-suitability` | 제공된 실제 VM 적합성 검증 |
+| `POST` | `/api/v1/apps/deployment-plan` | 범용 외부 에이전트 handoff 계획 |
+| `POST` | `/api/v1/automation/action-proposals` | 실제 LLM Action 제안과 Go Guard 검증 |
+| `POST` | `/api/v1/automation/feedback` | 승인된 handoff의 실행 상태 기록 |
+| `POST` | `/api/v1/planner/deployments` | 자연어 요구를 Manifest로 생성·검증하고 AppDeploy에 전달 |
+| `POST` | `/api/v1/service-operations/run` | 전체 계획 흐름 통합 보고 |
 
-## 4. 기본 확인
-
-```bash
-curl http://127.0.0.1:8080/healthz
-```
-
-기대 응답:
+## 3. 외부 에이전트 등록 계약
 
 ```json
-{"service":"service-control-api","status":"ok"}
+{
+  "name": "ExternalExecutionAgent",
+  "version": "0.1.0",
+  "role": "Execute validated AI application control requests.",
+  "endpoint": "https://agent.example.com",
+  "invocation_path": "/v1/actions",
+  "capabilities": ["ai_application_deployment_control"],
+  "bounded_actions": [
+    "deploy_application",
+    "observe_status",
+    "restart_application",
+    "stop_application"
+  ]
+}
 ```
 
-OpenAPI 계약 확인:
+특정 프레임워크 이름을 요구하지 않습니다. capability와 Action이 일치하는 enabled agent라면 동일한 방식으로 연결됩니다.
+
+## 4. 실제 VM 적합성 요청
 
 ```bash
-curl http://127.0.0.1:8080/openapi.yaml
+curl -s -X POST http://127.0.0.1:8080/api/v1/apps/vm-suitability \
+  -H 'content-type: application/json' \
+  --data @../../examples/requests/validate-vm-suitability.json
 ```
 
-## 4.1 시연용 예제 파일
+핵심 응답은 `target_vm_id`, `compatibility_status`, `resource_checks_passed`, `performance_status`, `checks`입니다. 성능이 없으면 `not_measured`로 반환합니다. 측정값과 성능 요구사항이 모두 있으면 `checks`에 latency SLO와 최소 throughput 비교 결과가 포함됩니다.
 
-API 시연에 사용할 request/response 예제는 다음 위치에 있습니다.
-
-| 예제 | 경로 |
-| --- | --- |
-| Ops LLM 선정 요청 | `examples/requests/select-ops-llm.json` |
-| CPU/GPU 배치 추천 요청 | `examples/requests/recommend-inference-placement.json` |
-| 배포·제어 계획 요청 | `examples/requests/plan-inference-deployment.json` |
-| 통합 service-operations 요청 | `examples/requests/run-service-operations.json` |
-| Ops LLM 선정 응답 예시 | `examples/responses/select-ops-llm-success.json` |
-| CPU/GPU 배치 추천 응답 예시 | `examples/responses/recommend-inference-placement-success.json` |
-| 배포·제어 계획 응답 예시 | `examples/responses/plan-inference-deployment-success.json` |
-| 통합 service-operations 응답 예시 | `examples/responses/run-service-operations-success.json` |
-
-## 4.2 로컬 API 통합 검증
-
-로컬 API flow를 한 번에 확인하려면 Go CLI 검증 명령을 실행합니다.
+## 5. 제어 handoff 계획
 
 ```bash
-cd go/service-control-api
+curl -s -X POST http://127.0.0.1:8080/api/v1/apps/deployment-plan \
+  -H 'content-type: application/json' \
+  --data @../../examples/requests/plan-ai-application-control.json
+```
+
+`selected_executor`는 registry에 일치 에이전트가 있을 때만 나타납니다. 응답의 `execution_status=not_executed`는 이 API가 실행기가 아니라 계획·검증 계층임을 나타냅니다.
+
+## 6. LLM 자동화 Action
+
+서버는 `AIOPS_LLM_CANDIDATES_PATH`로 candidate config를 받습니다. 요청자는 등록된 `candidate_id`, workload, 실제 VM snapshot과 운영 관측값만 전달합니다.
+
+```bash
+curl -s -X POST http://127.0.0.1:8080/api/v1/automation/action-proposals \
+  -H 'content-type: application/json' \
+  --data @../../examples/requests/plan-llm-automation-action.json
+```
+
+`decision_execution_status=executed`와 `guard.status=approved`를 각각 확인해야 합니다. 일치하는 외부 실행 주체가 없으면 `status=pending_executor`이며 실제 배포 완료가 아닙니다.
+
+## 7. AppDeploy Planner 실행
+
+서버 실행 전에 candidate config와 AppDeploy API base URL을 설정합니다. URL은 `/api/v1`까지 포함합니다.
+
+```bash
+export AIOPS_LLM_CANDIDATES_PATH=../../config/ops_llm_eval_candidates.local_ollama.json
+export AIOPS_APPDEPLOY_BASE_URL=http://127.0.0.1:8081/api/v1
+
+go run ./cmd/service-control-api
+```
+
+다른 터미널에서 요청합니다.
+
+```bash
+curl -s -X POST http://127.0.0.1:8080/api/v1/planner/deployments \
+  -H 'content-type: application/json' \
+  --data @../../examples/requests/run-appdeploy-planner.json
+```
+
+응답의 `generation.guard_valid`, `manifest`, `deployment.status`, `polling`, `retry_recommended`를 확인합니다. `deployment.target_profile_id`는 플래너가 아니라 AppDeploy가 선택한 실제 결과입니다.
+
+CLI에서는 다음 명령을 사용합니다.
+
+```bash
+go run ./cmd/aiops-service-control run-appdeploy-planner \
+  --request "GPU 1개와 메모리 16Gi가 필요한 추론 앱을 배포해 주세요." \
+  --app-version-id appver-llm-inference-v1 \
+  --candidate-id local-ollama-ops-llm \
+  --candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
+  --appdeploy-base-url http://127.0.0.1:8081/api/v1
+```
+
+## 8. API 통합 검증
+
+```bash
 go run ./cmd/aiops-service-control api-integration-validation \
   --output-dir ../../runs/api-integration-local \
   --port 18080
 ```
 
-이 명령은 Go 코드에서 로컬 API 서버를 실행하고 상태 확인, agent 목록, 외부 agent 등록, 호출 계획, LLM 선정, CPU/GPU 배치, 배포 계획, service-operations endpoint를 순차 호출합니다. 각 응답에서 `source`, `execution_status`, `selected_model`, `benchmark_status`, `selected_resource`, `deployment_plan`, `guard_validation` 등 핵심 필드를 확인합니다.
+이 검증은 10개 API 흐름과 핵심 JSON field를 확인합니다. 테스트용 OpenAI-compatible endpoint를 실제 호출하고 승인 correlation ID의 feedback까지 검증하지만 외부 실행 주체의 endpoint 자체는 실행하지 않습니다.
 
-이 결과는 local endpoint availability와 response structure, 그리고 service-control API flow의 field-level validation을 확인하는 것입니다. production-level operational validation 또는 실제 cloud deployment 완료를 의미하지 않습니다.
+## 9. 예제 파일
 
-## 5. Agent Registry API
-
-```bash
-curl http://127.0.0.1:8080/api/v1/agents
-```
-
-응답에는 설정 파일의 기본 agent와 API로 등록한 외부 agent가 함께 표시됩니다. 외부 agent 등록 정보는 서버 프로세스 메모리에만 유지됩니다.
-
-```bash
-curl -s -X POST http://127.0.0.1:8080/api/v1/agents \
-  -H 'content-type: application/json' \
-  -d '{
-    "name":"ExternalDeploymentAdvisor",
-    "version":"0.1.0",
-    "role":"Review AI application deployment plans.",
-    "endpoint":"https://agent.example.com",
-    "invocation_path":"/v1/actions",
-    "capabilities":["deployment_review"],
-    "bounded_actions":["review_deployment_plan"]
-  }'
-```
-
-등록된 agent의 capability와 action을 검증하여 호출 계획을 생성합니다.
-
-```bash
-curl -s -X POST http://127.0.0.1:8080/api/v1/agents/ExternalDeploymentAdvisor/invocations/plan \
-  -H 'content-type: application/json' \
-  -d '{"capability":"deployment_review","action":"review_deployment_plan"}'
-```
-
-이 API는 외부 HTTP 요청을 실행하지 않습니다. 응답의 `execution_status`는 `not_executed`이며, 실제 dispatcher와 인증·재시도·감사는 후속 연계 범위입니다.
-
-## 6. Ops LLM 선정 API
-
-```bash
-curl -s -X POST http://127.0.0.1:8080/api/v1/ops-llm/select \
-  -H 'content-type: application/json' \
-  -d '{"policy":"quality_first"}'
-```
-
-주요 응답 필드:
-
-| Field | 의미 |
+| 구분 | 파일 |
 | --- | --- |
-| `selected_model` | 요청 policy로 선택된 candidate |
-| `selected_actual_model` | 실제 provider model 연결 placeholder 또는 향후 평가 모델명 |
-| `selected_provider` | 실제 model provider 연결 정보 |
-| `evaluation_source` | 현재 점수의 출처 |
-| `evaluation_type` | 현재 평가 값의 성격 |
-| `benchmark_status` | `not_executed`, `dry_run`, `executed` 중 benchmark 실행 상태 |
-| `selected_score` | weighted prototype policy score |
-| `ranking` | score 기준 candidate ranking |
-| `rationale` | 선정 이유 설명 |
-| `valid` | 요청이 성공적으로 처리되었는지 여부 |
+| VM 적합성 요청·응답 | `examples/requests/validate-vm-suitability.json`, `examples/responses/validate-vm-suitability-success.json` |
+| 제어 계획 요청·응답 | `examples/requests/plan-ai-application-control.json`, `examples/responses/plan-ai-application-control-success.json` |
+| LLM 자동화 요청·응답 | `examples/requests/plan-llm-automation-action.json`, `examples/responses/plan-llm-automation-action-success.json` |
+| AppDeploy Planner 요청·응답 | `examples/requests/run-appdeploy-planner.json`, `examples/responses/run-appdeploy-planner-success.json` |
+| 통합 운영 요청·응답 | `examples/requests/run-service-operations.json`, `examples/responses/run-service-operations-success.json` |
 
-현재 policy 값은 수동 정의된 prototype policy baseline이며 최종 표준 benchmark result가 아닙니다. `primary-ops-llm`은 내부 역할 label이고, 실제 provider model은 `selected_actual_model`로 분리합니다.
-
-## 7. 배치 추천 API
-
-```bash
-curl -s -X POST http://127.0.0.1:8080/api/v1/apps/placement \
-  -H 'content-type: application/json' \
-  -d '{"workload":"llm-chat-inference"}'
-```
-
-주요 응답 필드:
-
-| Field | 의미 |
-| --- | --- |
-| `selected_resource` | 추천된 CPU/GPU VM resource profile |
-| `action` | 추천 deployment action |
-| `score` | weighted placement score |
-| `slo_satisfied` | 선택 resource가 설정 SLO를 만족하는지 여부 |
-| `ranked_candidates` | eligible candidate ranking |
-| `rejected_resources` | 제약 조건으로 제외된 resource |
-
-## 8. 배포 계획 API
-
-```bash
-curl -s -X POST http://127.0.0.1:8080/api/v1/apps/deployment-plan \
-  -H 'content-type: application/json' \
-  -d '{"workload":"llm-chat-inference"}'
-```
-
-배포 계획 응답에는 service name, container image, target resource, target accelerator, VM instance 수, placement constraints, resource requests, resource capacity, control actions, monitoring metrics, SLO values가 포함됩니다.
-
-## 9. Service Operations API
-
-```bash
-curl -s -X POST http://127.0.0.1:8080/api/v1/service-operations/run \
-  -H 'content-type: application/json' \
-  -d '{"llm_policy":"quality_first","workload":"llm-chat-inference","operation_service":"llm-chat-inference","operation_resource":"gpu-vm-l4","mode":"mock","guard_backend":"go"}'
-```
-
-주요 응답 필드:
-
-| Field | 의미 |
-| --- | --- |
-| `valid` | 통합 readiness 결과 |
-| `selected_llm` | 선택된 LLM policy candidate |
-| `runtime_model` | readiness flow에서 사용된 runtime model label |
-| `selected_actual_model` | 실제 provider model 연결 placeholder 또는 향후 평가 모델명 |
-| `selected_provider` | 실제 provider 연결 정보 |
-| `benchmark_status` | LLM benchmark 실행 상태 |
-| `selected_resource` | 선택된 CPU/GPU VM candidate |
-| `deployment_plan` | AI 응용 배포·제어 계획 |
-| `deployment_validation` | VM 배포 사양의 필수 필드와 자원 요구량 사전검증 결과 |
-| `deployment_execution_mode` | 현재 배포 실행 경계. 기본값은 `mock` |
-| `agent_reviews` | application, infrastructure, cost 관점 검토 결과 |
-| `operation_pipeline_ready` | VM 기반 서비스 운영 context 준비 여부 |
-| `guard_backend` | guard 검증 backend, 기본 기대값은 `go` |
-| `guard_validation` | bounded-action readiness validation 결과 |
-
-## 10. Ops LLM 평가 Dry-Run CLI
-
-실제 provider API를 호출하지 않고 LLM 평가 scenario/candidate 연결을 확인하려면 CLI를 사용합니다.
-
-```bash
-cd go/service-control-api
-go run ./cmd/aiops-service-control run-ops-llm-benchmark \
-  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
-  --candidates ../../config/ops_llm_eval_candidates.json \
-  --output-dir ../../runs/ops-llm-evaluation-dry-run \
-  --dry-run
-
-go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
-  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
-  --outputs ../../runs/ops-llm-evaluation-dry-run/model_outputs.jsonl \
-  --summary ../../runs/ops-llm-evaluation-dry-run/evaluation_summary.json
-```
-
-dry-run 결과는 실제 LLM API benchmark 결과가 아닙니다. dry-run summary의 평균 점수는 실제 모델 성능 점수가 아니라 scenario/candidate/output/evaluator 연결 구조 확인용 값입니다.
-
-## 11. Operation Context 경계
-
-`operation_service`와 `operation_resource`는 readiness와 guard validation에 사용하는 VM 기반 service-control target을 식별합니다. 값을 생략하면 선택된 workload service와 CPU/GPU VM resource를 사용합니다.
-
-## 12. OpenAPI 산출물
-
-OpenAPI 문서는 필수 제출 산출물입니다.
-
-```text
-docs/submission/openapi_service_control.yaml
-```
-
-이 가이드와 `go/service-control-api/internal/api/server.go`의 Go route definition을 함께 검토해야 합니다.
+상세 계약은 `docs/submission/openapi_service_control.yaml`에서 확인합니다.

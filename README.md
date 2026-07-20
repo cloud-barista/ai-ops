@@ -10,25 +10,28 @@
 
 이 저장소는 경희대학교 1차년도 연구 범위 중 **AI 기반 서비스 제어 및 관리 자동화 프레임워크**를 위한 제출용/시연용 패키지입니다.
 
-핵심 구현은 Go 언어로 구성되어 있으며, Ops 분석 기반 LLM 선정, AI 에이전트 등록 관리, CPU/GPU VM 기반 AI 응용 배포·제어 판단을 하나의 service-control prototype으로 검증합니다.
+핵심 구현은 Go 언어로 구성되어 있습니다. 실제 LLM endpoint가 자연어 배포 요구를 분석해 AppDeploy `DeploymentManifest`를 생성하고, Go Guard가 계약·자원 값·보안 정책을 검증한 뒤 AppDeploy에 전달합니다. AppDeploy가 실제 Target과 Runtime Adapter를 선택하며, 본 프로젝트는 배포 상태와 로그를 조회해 결과를 반환합니다.
 
 ## 🎯 담당 범위
 
 - Ops 분석 시험 및 최적 LLM 선정 흐름
 - AI LLM 운영 관리 구조 설계 및 검증
-- 정적·외부 AI 에이전트 등록 관리와 bounded action 검증
-- CPU/GPU VM 기반 AI 응용 추론 배치 추천
-- AI 응용 배포·제어 계획 생성
+- `AIApplicationAutomationAgent`를 LLM Deployment Planner로 등록·관리
+- 자연어 App 요구 분석과 CPU·메모리·GPU·디스크·accelerator 요구량 결정
+- AppDeploy 공식 Deployment Manifest 생성과 Go Guard 검증
+- 승인된 Manifest의 AppDeploy 전달, 배포 상태 polling, 로그 조회와 재시도 가능 여부 판단
+- 인프라 계층이 제공한 실제 CPU/GPU VM snapshot과 workload 요구사항의 보조 적합성 검증
 
-이 저장소는 실제 인프라 생성이나 운영 배포 완료를 직접 주장하지 않습니다. 실제 VM과 GPU 적용 결과는 외부 인프라 계층의 실행 결과와 구분합니다.
+이 저장소는 VM 후보를 임의로 만들거나 VM을 직접 프로비저닝하지 않습니다. 실제 인프라 생성은 인프라 계층이, App Spec 조회·Target 선택·Adapter 선택·배포 실행은 AppDeploy가 담당합니다. LLM 또는 AppDeploy 호출 실패를 가짜 성공 결과로 대체하지 않습니다.
 
 ## 🗂️ 코드 구조
 
 | 경로 | 설명 |
 | --- | --- |
-| [`go/service-control-api/`](go/service-control-api/) | LLM 선정, 외부 Agent registry, CPU/GPU 배치, 배포·제어 계획을 수행하는 Go API/CLI |
+| [`go/service-control-api/`](go/service-control-api/) | LLM Deployment Planner, Agent Registry, Go Guard, AppDeploy 연계를 제공하는 Go API/CLI |
+| [`contracts/appdeploy/`](contracts/appdeploy/) | Planner가 검증하는 AppDeploy Deployment Manifest 계약 snapshot |
 | [`go/aiops-guard/`](go/aiops-guard/) | 서비스 제어 action의 허용 범위를 검증하는 Go guard |
-| [`config/`](config/) | LLM 후보, 에이전트 registry, CPU/GPU 배치 정책 설정 |
+| [`config/`](config/) | LLM 후보, 에이전트 registry, workload별 VM 요구사항 설정 |
 | [`data/`](data/) | Ops LLM 평가 scenario |
 | [`docs/`](docs/) | 산출물, 실행 가이드, 검증 문서, 구조도 |
 | [`examples/`](examples/) | API 요청/응답 예제 |
@@ -51,6 +54,8 @@
 | [테스트 가이드](docs/submission/test_guide.md) | Go 테스트와 검증 명령 |
 | [기능/API 가이드](docs/submission/functional_api_guide.md) | API 기능과 응답 구조 |
 | [OpenAPI 계약](docs/submission/openapi_service_control.yaml) | Swagger/OpenAPI 산출물 |
+| [LLM Deployment Planner·Go Guard 흐름](docs/design/main_llm_go_guard_control_flow.md) | 자연어 요구 분석, Manifest 검증, AppDeploy 전달과 상태 조회 구조 |
+| [플래너·AppDeploy 책임 경계](docs/design/integration_boundary.md) | Planner, AppDeploy, 인프라 계층의 역할 구분 |
 | [Ops LLM 평가 방법](docs/submission/ops_llm_benchmark_method.md) | dry-run과 실제 endpoint 실행 기준 |
 | [1차년도 VM 통합·개별 동작 시나리오](docs/design/year1_vm_operation_scenarios.md) | 컨테이너를 제외한 VM-only 통합 흐름과 개별 시험 초안 |
 | [검증 증적 가이드](docs/evidence/증적_패키지_가이드.md) | 실행 결과와 증적 정리 기준 |

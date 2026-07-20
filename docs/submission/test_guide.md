@@ -1,263 +1,113 @@
 # 테스트 가이드
 
-## 1. 목적
-
-이 가이드는 1차년도 Go 기반 service-control prototype의 기능 test와 validation 절차를 정의합니다. 테스트는 prototype behavior를 검증하며, production performance 또는 standardized LLM benchmark quality를 증명하지 않습니다.
-
-검증 결과를 제출 증적으로 정리할 때는 `docs/evidence/증적_패키지_가이드.md`를 기준으로 command, environment, JSON/log output을 함께 보존합니다.
-
-## 2. Go Guard 테스트
+## 1. 정적·단위 검증
 
 ```bash
-cd go/aiops-guard
-go test ./...
+make test
+make vet
 ```
 
-검증 항목:
+검증 대상은 실제 LLM Manifest 생성, Go Guard, AppDeploy client·polling·retry 판단, LLM 선정, Agent Registry, 실제 VM 보조 적합성과 HTTP API입니다.
 
-- Go guard bounded-action validation
-
-## 3. Service-Control API 테스트
+Planner 핵심 패키지만 빠르게 확인하려면 다음을 실행합니다.
 
 ```bash
 cd go/service-control-api
-go test ./...
+go test ./internal/appdeploy ./internal/deploymentplanner
 ```
 
-검증 항목:
-
-- API route behavior
-- Service-control model behavior
-- LLM policy selection logic
-- Ops LLM dry-run/evaluator wiring
-- Agent registry validation
-- CPU/GPU placement 및 deployment-plan logic
-
-## 4. Team Validation
+## 2. Team validation
 
 ```bash
 cd go/service-control-api
-go run ./cmd/aiops-service-control team-validation
+go run ./cmd/aiops-service-control team-validation \
+  --output-dir ../../runs/team-validation
 ```
 
-검증 항목:
+| 단계 | 의미 |
+| --- | --- |
+| `select-ops-llm` | LLM 정책 선정 |
+| `list-agents` | 등록 에이전트 조회 |
+| `validate-agent-action` | bounded Action 검증 |
+| `validate-vm-suitability` | 기록된 실제 VM snapshot 적합성 검증 |
+| `plan-ai-application-control` | 범용 외부 에이전트 handoff 계획 |
+| `run-service-operations` | 전체 계획 결과 통합 |
 
-- Ops LLM selection policy prototype
-- Agent registry listing
-- Agent bounded-action validation
-- CPU/GPU VM placement recommendation
-- AI 응용 배포·제어 계획 생성
-- Mock 배포 dry-run 및 guard-readiness 검증
-- 통합 service-operations readiness
-
-## 5. System Validation
-
-`validate-system`은 로컬과 VM에서 동일한 검증 command를 사용하기 위한 통합 검증 명령입니다.
-
-로컬 검증:
+## 3. 로컬 검증
 
 ```bash
-cd go/service-control-api
 go run ./cmd/aiops-service-control validate-system \
   --target local \
+  --run-api-integration \
+  --api-port 18080 \
   --output-dir ../../runs/full-validation-local
 ```
 
-VM 내부 검증:
+## 4. VM 검증
 
 ```bash
-cd go/service-control-api
 go run ./cmd/aiops-service-control validate-system \
   --target vm \
   --output-dir ../../runs/full-validation-vm
 ```
 
-공통 검증 항목:
+VM에서 추가되는 증적:
 
-- Go version, Git branch, Git commit, hostname 기록
-- `go/aiops-guard` 테스트
-- `go/service-control-api` 테스트
-- `team-validation`
-- service-operations readiness
-- 선택 사항: `--run-llm-benchmark` 사용 시 실제 LLM benchmark와 evaluator 실행
-- 선택 사항: `--run-api-integration` 사용 시 6개 API endpoint field-level 검증 실행
+- `04_vm_nvidia_smi.txt`
+- `05_vm_aws_metadata.json`
+- `06_vm_resource_snapshot.json`
+- CPU·메모리·GPU·VRAM·driver·CUDA 값이 반영된 team-validation 결과
 
-VM 추가 검증 항목:
+`performance.status=not_measured`는 실패가 아니라 workload latency·throughput·cost를 아직 측정하지 않았다는 뜻입니다.
 
-- `nvidia-smi`
-- GPU driver/CUDA visibility
-- AWS instance metadata
-
-주의: `--target vm`은 AWS GPU VM 내부에서 실행해야 합니다. 로컬 WSL에서 실행하면 GPU/metadata 검증이 실패하는 것이 정상입니다.
-
-실제 LLM benchmark를 포함하는 로컬 검증:
+## 5. 실제 LLM benchmark
 
 ```bash
-cd go/service-control-api
 go run ./cmd/aiops-service-control validate-system \
-  --target local \
+  --target vm \
   --run-llm-benchmark \
   --llm-candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
-  --output-dir ../../runs/full-validation-local-executed
+  --output-dir ../../runs/full-validation-vm-llm
 ```
 
-위 명령은 `--llm-dry-run`을 붙이지 않는 한 실제 endpoint를 호출합니다.
+실제 endpoint 응답이 있어야 `benchmark_status=executed`가 됩니다. `dry_run`과 `not_executed`는 실제 모델 성능 결과로 해석하지 않습니다.
 
-로컬 API 통합 검증을 포함하는 로컬 검증:
+실제 LLM 자동화 Action까지 검증하려면 다음 옵션을 추가합니다.
 
 ```bash
-cd go/service-control-api
 go run ./cmd/aiops-service-control validate-system \
-  --target local \
-  --run-api-integration \
-  --api-port 18080 \
-  --output-dir ../../runs/full-validation-local-with-api
+  --target vm \
+  --run-llm-decision \
+  --llm-decision-candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
+  --llm-decision-candidate-id local-ollama-ops-llm \
+  --output-dir ../../runs/full-validation-vm-action
 ```
 
-`--run-llm-benchmark` 또는 `--run-api-integration`을 주지 않은 optional step은 `skipped=true`와 reason으로 기록됩니다. skipped는 실패가 아니라 실행하지 않았음을 남기는 evidence입니다.
+## 6. 결과 해석 경계
 
-## 6. Local API Integration Validation
-
-로컬 API 통합 검증은 Go CLI가 API 서버를 실행한 뒤 여러 endpoint를 순차적으로 호출하고 핵심 response field를 확인합니다.
-
-```bash
-cd go/service-control-api
-go run ./cmd/aiops-service-control api-integration-validation \
-  --output-dir ../../runs/api-integration-local \
-  --port 18080
-```
-
-검증 endpoint:
-
-| endpoint | 확인 필드 |
+| 신호 | 의미 |
 | --- | --- |
-| `/healthz` | `status`, `service` |
-| `/api/v1/agents` | `agents`, `version`, `command` |
-| `/api/v1/ops-llm/select` | `valid`, `selected_model`, `selected_actual_model`, `benchmark_status` |
-| `/api/v1/apps/placement` | `valid`, `selected_resource`, `action`, `slo_satisfied` |
-| `/api/v1/apps/deployment-plan` | `valid`, `selected_resource`, `deployment_plan` |
-| `/api/v1/service-operations/run` | `valid`, `selected_llm`, `benchmark_status`, `selected_resource`, `deployment_plan`, `deployment_validation`, `deployment_execution_mode`, `guard_backend`, `guard_validation` |
+| `resource_checks_passed=true` | 선언된 실제 VM 자원 조건 통과 |
+| `compatibility_status=provisionally_compatible` | 자원 통과, 성능 미측정 |
+| `selected_executor` | 조건에 맞는 등록 외부 실행 에이전트 발견 |
+| `decision_execution_status=executed` | 실제 LLM endpoint가 Action 제안을 반환함 |
+| `guard.status=approved` | LLM Action이 VM·capability·bounded Action 정책을 통과함 |
+| `execution_status=not_executed` | 계획만 생성, 외부 제어 미실행 |
+| `operation_pipeline_ready=false` | 실제 운영 실행 완료를 주장하지 않음 |
 
-이 검증은 로컬 service-control API flow의 endpoint 응답과 핵심 JSON field를 확인합니다. production-level operational validation 또는 실제 cloud deployment 완료를 의미하지 않습니다.
+## 7. AppDeploy Planner 계약 검증
 
-## 7. 기대 신호
-
-기대되는 prototype-level output signal:
+`go test ./...`에는 테스트용 OpenAI-compatible LLM과 AppDeploy HTTP 서버를 사용하는 end-to-end 계약 테스트가 포함됩니다. 테스트는 다음 순서를 확인합니다.
 
 ```text
-selected_model = primary-ops-llm
-selected_actual_model = to-be-evaluated-primary-model
-benchmark_status = not_executed
-selected_resource = gpu-vm-l4
-valid = true
-guard_backend = go
-guard_validation.valid = true
-deployment_execution_mode = mock
-deployment_validation.valid = true
+LLM Manifest 생성
+  -> Go Guard 승인
+  -> POST /api/v1/deployments
+  -> GET /api/v1/deployments/{deployment_id}
+  -> GET /api/v1/deployments/{deployment_id}/logs
+  -> RUNNING 결과 반환
 ```
 
-이 신호는 Go API/CLI validation flow가 올바르게 연결되었음을 확인합니다. standardized LLM evaluation quality, production performance, live GPU scheduling, actual cloud provisioning을 증명하지 않습니다.
+이 테스트는 실제 HTTP 요청과 계약 처리를 검증하지만 테스트 프로세스 안의 mock upstream을 사용합니다. 실제 통합 완료를 주장하려면 별도로 실제 LLM endpoint, 실행 중인 AppDeploy, 등록된 App Version과 준비된 Target을 사용해 `run-appdeploy-planner`를 수행해야 합니다.
 
-## 8. Ops LLM 평가 Dry-Run
-
-```bash
-cd go/service-control-api
-go run ./cmd/aiops-service-control run-ops-llm-benchmark \
-  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
-  --candidates ../../config/ops_llm_eval_candidates.json \
-  --output-dir ../../runs/ops-llm-evaluation-dry-run \
-  --dry-run
-
-go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
-  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
-  --outputs ../../runs/ops-llm-evaluation-dry-run/model_outputs.jsonl \
-  --summary ../../runs/ops-llm-evaluation-dry-run/evaluation_summary.json
-```
-
-기대 신호:
-
-```text
-benchmark_status = dry_run
-selected_actual_model = ""
-```
-
-dry-run은 실제 LLM API를 호출하지 않으므로 최종 LLM 품질 benchmark 결과가 아닙니다.
-
-dry-run에서 생성된 average score는 scenario/candidate/output/evaluator wiring 확인을 위한 값이며, 실제 모델 성능 점수로 해석하지 않습니다.
-
-## 9. Ops LLM 실제 실행 Benchmark
-
-OpenAI-compatible endpoint가 실행 중이면 `--dry-run` 없이 실행합니다.
-
-```bash
-cd go/service-control-api
-go run ./cmd/aiops-service-control run-ops-llm-benchmark \
-  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
-  --candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
-  --output-dir ../../runs/ops-llm-evaluation-executed
-
-go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
-  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
-  --outputs ../../runs/ops-llm-evaluation-executed/model_outputs.jsonl \
-  --summary ../../runs/ops-llm-evaluation-executed/evaluation_summary.json
-```
-
-기대 신호:
-
-```text
-benchmark_status = executed
-dry_run = false
-selected_actual_model = <configured-actual-model>
-```
-
-endpoint가 없거나 model이 준비되지 않은 경우 benchmark command는 실패합니다. 이 실패는 실제 실행 검증이 수행되지 않았다는 명확한 증거로 보존합니다.
-
-## 10. 검증 증거 파일
-
-`team-validation` 또는 `validate-system`을 `--output-dir`와 함께 실행하면 validation evidence를 보존할 수 있습니다.
-
-| 파일 | 검증 의미 |
-| --- | --- |
-| `00_team_validation_summary.json` | 전체 validation step 요약 |
-| `01_select_ops_llm.json` | Ops LLM policy selection |
-| `02_list_agents.json` | Registered agent list |
-| `03_validate_agent_action.json` | Agent bounded-action validation |
-| `04_recommend_inference_placement.json` | CPU/GPU VM placement recommendation |
-| `05_plan_inference_deployment.json` | AI 응용 배포·제어 계획 생성 |
-| `06_run_service_operations.json` | Integrated service-operations readiness |
-
-`validate-system`은 추가로 `00_system_validation_summary.json`, `01_environment.json`, Go test output, LLM benchmark output, VM target의 GPU/metadata evidence를 저장합니다.
-
-## 11. 실패 로그와 오류 메시지 보존
-
-검증 실패 시 전체 terminal output과 생성 JSON 파일을 날짜가 포함된 directory에 보존합니다.
-
-```bash
-cd go/service-control-api
-go run ./cmd/aiops-service-control team-validation \
-  --output-dir ../../runs/validation-YYYYMMDD-HHMMSS
-```
-
-권장 실패 로그 기록:
-
-| 항목 | 보존 내용 |
-| --- | --- |
-| Command | 실패한 정확한 command |
-| Environment | OS, Go 버전, branch, latest commit |
-| Error output | 전체 stderr/stdout text |
-| JSON evidence | 생성 JSON 파일 |
-| Human note | 관찰된 실패와 다음 조치에 대한 짧은 설명 |
-
-## 12. 사람 검토 항목
-
-사람 검토자는 다음을 확인해야 합니다.
-
-- 테스트가 올바른 Go module directory에서 실행되었는지
-- README link와 문서 link가 정상적으로 연결되는지
-- DOCX 제출본이 있다고 주장하는 경우 실제 파일이 존재하는지
-- prototype boundary statement가 포함되어 있는지
-- repository가 production readiness를 주장하지 않는지
-- repository가 final standardized LLM benchmark result를 주장하지 않는지
-- dry-run 결과를 실제 LLM 응답 평가로 표현하지 않았는지
-- 실제 LLM 응답 평가라고 주장하는 결과가 `benchmark_status = executed`인지
-- VM 검증이라고 주장하는 결과가 실제 VM 내부에서 `--target vm`으로 실행되었는지
+`runs/`는 로컬 증적이며 Git 추적 대상이 아닙니다. 제출할 증적만 검토 후 `docs/evidence/artifacts/`에 redacted copy로 보존합니다.

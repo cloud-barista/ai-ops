@@ -1,116 +1,126 @@
 # 에이전트 등록 관리 프로토타입
+English title: Agent Registration Management Prototype
 
-영문 제목: Agent Registration Management Prototype
+## 1. 목적
 
-## 1. 설계 목적
-
-본 문서는 AI 서비스 제어에 참여하는 agent를 등록하고, 각 agent의 역할과 허용 action을 검증하는 구조를 정의합니다. 설정 파일의 기본 agent와 외부 프레임워크의 agent를 동일한 조회·검증 경계에서 관리하며, 임의 action이 곧바로 실행되지 않도록 합니다.
-
-## 2. 한눈에 보는 구조
+본 프로토타입은 LLM 기반 AI 응용 자동화 에이전트의 Planner 역할, capability, 허용 Action을 Go 기반 Agent Registry에서 관리합니다. LLM이 생성한 Deployment Manifest를 바로 실행하지 않고 Go Guard를 통과한 결과만 AppDeploy에 전달합니다.
 
 ![에이전트 등록 관리 흐름도](../images/agent_registry_flow.png)
 
-| 항목 | 내용 |
-| --- | --- |
-| 입력 | `config/agent_registry.json`, 외부 agent 등록 요청 |
-| 관리 대상 | agent name, endpoint, capability, bounded action |
-| 처리 | agent 등록·조회, capability/action 허용 여부 검증 |
-| 출력 | agent list, agent detail, action validation, invocation plan |
-| 연계 | service-operations readiness report |
+## 2. 핵심 구성
 
-## 3. Registry 데이터 구조
+| 구성 | 역할 |
+| --- | --- |
+| `AIApplicationAutomationAgent` | 자연어 요구를 분석해 AppDeploy Deployment Manifest를 생성하는 LLM Planner |
+| Agent Registry | 에이전트의 역할, capability, bounded Action과 사용 상태 관리 |
+| Go Action Validator | registry의 capability와 bounded Action을 결정론적으로 검사 |
+| Go Guard | Manifest 계약, 자원 값, 요청 보존과 보안 경계를 승인 또는 거부 |
+| AppDeploy | 승인된 Manifest를 받아 Target과 Adapter를 선택하고 배포 상태를 제공 |
+
+VM 적합성 및 비용 증거 확인은 별도 AI 에이전트가 아니라 Go 검증 로직입니다. 외부 팀의 에이전트는 필요할 때 runtime registry에 추가할 수 있습니다.
+
+## 3. 기본 에이전트
+
+`config/agent_registry.json`에는 핵심 내부 에이전트 한 개를 정의합니다.
+
+| 필드 | 값 |
+| --- | --- |
+| 이름 | `AIApplicationAutomationAgent` |
+| capability | `ai_application_deployment_control`, `deployment_manifest_planning` |
+| 핵심 bounded Actions | `generate_deployment_manifest`, `submit_deployment_manifest`, `observe_deployment_status` |
+| 실행 방식 | 실제 LLM 생성 후 Go Guard 검증, AppDeploy API 연계 |
+
+LLM provider와 실제 모델은 registry에 고정하지 않고 별도의 candidate config로 주입합니다. 따라서 Ollama, vLLM, OpenAI-compatible 연구 서버 등으로 교체할 수 있습니다.
+
+## 4. 외부 실행 주체 등록
+
+외부 실행 주체는 다음 계약으로 등록합니다.
 
 | 필드 | 의미 |
 | --- | --- |
-| `name` | agent 식별자 |
-| `korean_name` | 한글 agent 이름 |
-| `role` | agent 역할 |
-| `responsibilities` | 책임 범위 |
-| `version` | 외부 agent 버전 |
-| `endpoint` | 외부 agent 기본 endpoint |
-| `invocation_path` | 검증된 호출 계획에 사용할 고정 경로 |
-| `capabilities` | agent가 제공한다고 등록한 기능 |
-| `bounded_actions` | 허용 action 목록 |
-| `reward_signals` | 향후 평가 기준 |
-| `enabled` | 사용 여부 |
-| `source` | 설정 파일 또는 runtime 등록 구분 |
+| `name`, `version` | 실행 주체 식별 정보 |
+| `endpoint`, `invocation_path` | 승인 후 전달할 대상 주소와 고정 경로 |
+| `capabilities` | 제공 가능한 기능 |
+| `bounded_actions` | 실제 처리 가능한 Action 목록 |
+| `enabled` | 현재 선택 가능 여부 |
 
-## 4. 등록 Agent
+```json
+{
+  "name": "ExternalExecutionAgent",
+  "version": "0.1.0",
+  "role": "Execute validated AI application control requests.",
+  "endpoint": "https://agent.example.com",
+  "invocation_path": "/v1/actions",
+  "capabilities": ["ai_application_deployment_control"],
+  "bounded_actions": [
+    "deploy_application",
+    "observe_status",
+    "restart_application",
+    "stop_application"
+  ]
+}
+```
 
-| Agent | 역할 | 대표 action |
-| --- | --- | --- |
-| `AIServiceHASupportAgent` | 서비스 가용성과 recovery 필요성 검토 | `ha_scale_out_required`, `ha_no_action` |
-| `AIApplicationManagementAgent` | AI 응용 배포·제어 검토 | `app_select_inference_vm`, `app_scale_service_instances` |
-| `AISemiconductorInfraOpsAgent` | CPU/GPU VM 제약 검증 | `infra_select_cpu_gpu_vm`, `infra_capacity_approved` |
-| `CostOptimizationAgent` | 비용과 resource efficiency 검토 | `cost_budget_approved`, `cost_budget_rejected` |
+Runtime 등록은 prototype 프로세스 메모리에 저장되며 서버 재시작 시 초기화됩니다. credential과 token은 registry payload에 저장하지 않습니다.
 
-외부 agent는 `POST /api/v1/agents`로 등록합니다. 등록 정보는 prototype 서버의 프로세스 메모리에만 유지되며 서버 재시작 시 초기화됩니다. 설정 파일의 기본 agent는 계속 유지됩니다.
+## 5. Planner 검증 흐름
 
-## 5. Action 및 호출 계획 검증 규칙
+```text
+자연어 배포 요구
+        ↓
+실제 LLM Deployment Manifest 생성
+        ↓
+app_version_id와 선택적 Target hint 보존
+        ↓
+CPU·메모리·GPU·디스크·accelerator 검증
+        ↓
+Go Guard 승인 또는 거부
+        ↓
+승인: AppDeploy 배포 요청과 상태 polling
+거부: MANIFEST_REJECTED 상태 반환
+```
 
-| 단계 | 검증 내용 | 실패 시 처리 |
-| --- | --- | --- |
-| 1 | agent가 registry에 존재하는지 확인 | invalid |
-| 2 | agent가 enabled 상태인지 확인 | invalid |
-| 3 | 요청 capability가 `capabilities`에 포함되는지 확인 | invalid |
-| 4 | 요청 action이 `bounded_actions`에 포함되는지 확인 | invalid |
-| 5 | 검증된 endpoint와 action으로 호출 계획 생성 | `not_executed` 상태 반환 |
+`generation.execution_status=executed`는 LLM 호출과 Manifest 생성이 수행되었다는 뜻입니다. 실제 배포 완료 여부는 별도의 `deployment.status=RUNNING`으로 확인합니다.
 
-## 6. Service-Control 연계
-
-| 연계 지점 | 설명 |
-| --- | --- |
-| LLM 선정 이후 | 선택된 LLM이 제안하는 운영 판단을 agent boundary와 비교한다. |
-| 배포 계획 생성 이후 | application/infrastructure/cost 관점에서 배포 계획을 검토한다. |
-| readiness 판단 | agent review가 실패하면 통합 준비도 결과를 valid로 처리하지 않는다. |
-| 외부 agent 연계 | 등록된 capability와 bounded action을 검증한 뒤 호출 대상 계획을 생성한다. |
-
-## 7. 검증 방법
+## 6. CLI 검증
 
 ```bash
 cd go/service-control-api
+
 go run ./cmd/aiops-service-control list-agents \
   --registry ../../config/agent_registry.json
 
 go run ./cmd/aiops-service-control validate-agent-action \
   --registry ../../config/agent_registry.json \
-  --agent AIApplicationManagementAgent \
-  --action app_scale_service_instances
+  --agent AIApplicationAutomationAgent \
+  --action generate_deployment_manifest
 ```
 
-기대 신호:
-
-```text
-valid = true
-```
-
-API 기반 외부 agent 등록과 호출 계획 생성 예시는 다음과 같습니다.
+실제 LLM Planner 연계는 실행 중인 OpenAI-compatible endpoint와 AppDeploy가 있을 때 다음 명령으로 검증합니다.
 
 ```bash
-curl -X POST http://127.0.0.1:8080/api/v1/agents \
-  -H 'content-type: application/json' \
-  -d '{
-    "name":"ExternalDeploymentAdvisor",
-    "version":"0.1.0",
-    "role":"Review AI application deployment plans.",
-    "endpoint":"https://agent.example.com",
-    "invocation_path":"/v1/actions",
-    "capabilities":["deployment_review"],
-    "bounded_actions":["review_deployment_plan"]
-  }'
-
-curl -X POST http://127.0.0.1:8080/api/v1/agents/ExternalDeploymentAdvisor/invocations/plan \
-  -H 'content-type: application/json' \
-  -d '{"capability":"deployment_review","action":"review_deployment_plan"}'
+go run ./cmd/aiops-service-control run-appdeploy-planner \
+  --request "GPU 추론 앱을 배포해 주세요." \
+  --app-version-id appver-llm-inference-v1 \
+  --candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
+  --candidate-id local-ollama-ops-llm \
+  --appdeploy-base-url http://127.0.0.1:8081/api/v1
 ```
 
-## 8. 설계 경계
+## 7. API
 
-| 경계 | 설명 |
-| --- | --- |
-| Autonomy 경계 | 완전한 autonomous multi-agent orchestration이 아니다. |
-| Safety 경계 | 허용 action 외 command는 ready 처리하지 않는다. |
-| 실행 경계 | invocation plan은 외부 HTTP 요청을 실행하지 않으며 `not_executed`로 반환한다. |
-| 저장 경계 | runtime 등록은 프로세스 메모리 기반이며 영구 저장이 아니다. |
-| Reward 경계 | reward signal은 설계 기준이며 RL 학습 결과가 아니다. |
-| 확장 경계 | 향후 인증, 영구 저장, health check, 실제 metric, 승인된 dispatcher와 연결할 수 있다. |
+| Method | Path | 기능 |
+| --- | --- | --- |
+| `GET`, `POST` | `/api/v1/agents` | 에이전트 조회 및 외부 실행 주체 등록 |
+| `POST` | `/api/v1/agents/{name}/actions/{action}/validate` | bounded Action 검증 |
+| `POST` | `/api/v1/agents/{name}/invocations/plan` | 비실행 호출 계획 생성 |
+| `POST` | `/api/v1/automation/action-proposals` | 실제 LLM 제안과 Go Guard 검증 |
+| `POST` | `/api/v1/automation/feedback` | 승인된 correlation ID의 실행 상태 기록 |
+| `POST` | `/api/v1/planner/deployments` | Manifest 생성·Go Guard·AppDeploy 상태 추적 |
+
+## 8. 현재 경계
+
+- 완전 자율 multi-agent orchestration은 구현 범위가 아닙니다.
+- AppDeploy endpoint가 설정된 경우에만 실제 배포 요청을 호출합니다.
+- 실제 LLM 실패, 잘못된 JSON, 허용 범위 밖 Action은 fallback 성공으로 바꾸지 않습니다.
+- 인증, registry 영구 저장, 승인된 dispatcher 연결은 후속 통합 항목입니다.

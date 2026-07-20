@@ -52,6 +52,62 @@ type AgentInvocationPlan struct {
 	Reason          string         `json:"reason"`
 }
 
+type LLMAutomationActionRequest struct {
+	Workload     string             `json:"workload" validate:"required" example:"llm-chat-inference"`
+	TargetVM     VMResourceSnapshot `json:"target_vm" validate:"required"`
+	CandidateID  string             `json:"candidate_id" validate:"required" example:"local-ollama-ops-llm"`
+	Observations map[string]any     `json:"observations,omitempty"`
+}
+
+type LLMActionProposal struct {
+	Action             string         `json:"action"`
+	Reason             string         `json:"reason"`
+	Confidence         float64        `json:"confidence"`
+	RequiredCapability string         `json:"required_capability"`
+	TargetVMID         string         `json:"target_vm_id"`
+	Parameters         map[string]any `json:"parameters,omitempty"`
+}
+
+type LLMDecisionResult struct {
+	DecisionExecutionStatus string            `json:"decision_execution_status"`
+	CandidateID             string            `json:"candidate_id"`
+	Provider                string            `json:"provider"`
+	ActualModel             string            `json:"actual_model"`
+	LatencyMS               int64             `json:"latency_ms"`
+	Proposal                LLMActionProposal `json:"proposal"`
+}
+
+type GuardDecision struct {
+	Valid  bool   `json:"valid"`
+	Status string `json:"status"`
+	Reason string `json:"reason"`
+}
+
+type LLMAutomationActionResponse struct {
+	Valid           bool                    `json:"valid"`
+	Status          string                  `json:"status"`
+	CorrelationID   string                  `json:"correlation_id,omitempty"`
+	VMCompatibility VMCompatibilityResponse `json:"vm_compatibility"`
+	Decision        LLMDecisionResult       `json:"decision"`
+	Guard           GuardDecision           `json:"guard"`
+	Handoff         AgentInvocationPlan     `json:"handoff"`
+}
+
+type AutomationFeedbackRequest struct {
+	CorrelationID       string   `json:"correlation_id" validate:"required"`
+	Executor            string   `json:"executor" validate:"required"`
+	Status              string   `json:"status" validate:"required"`
+	ExternalExecutionID string   `json:"external_execution_id,omitempty"`
+	LatencyMS           *float64 `json:"latency_ms,omitempty"`
+	ThroughputRPS       *float64 `json:"throughput_rps,omitempty"`
+	Message             string   `json:"message,omitempty"`
+}
+
+type AutomationFeedbackRecord struct {
+	AutomationFeedbackRequest
+	ReceivedAt string `json:"received_at"`
+}
+
 type OpsLLMBenchmark struct {
 	Version    string                  `json:"version"`
 	Metadata   map[string]any          `json:"metadata"`
@@ -120,96 +176,115 @@ type OpsLLMRankedItem struct {
 	Notes            []string           `json:"notes"`
 }
 
-type InferenceConfig struct {
-	Version   string              `json:"version"`
-	Weights   map[string]float64  `json:"weights"`
-	Resources []InferenceResource `json:"resources"`
-	Workloads []InferenceWorkload `json:"workloads"`
+type VMCompatibilityRequest struct {
+	Workload string             `json:"workload" validate:"required" example:"llm-chat-inference"`
+	TargetVM VMResourceSnapshot `json:"target_vm" validate:"required"`
 }
 
-type InferenceResource struct {
-	ID                    string            `json:"id"`
-	Accelerator           string            `json:"accelerator"`
-	CPUCores              int               `json:"cpu_cores"`
-	MemoryGB              int               `json:"memory_gb"`
-	GPUMemoryGB           float64           `json:"gpu_memory_gb"`
-	ExpectedLatencyMS     float64           `json:"expected_latency_ms"`
-	ExpectedThroughputRPS float64           `json:"expected_throughput_rps"`
-	CostPerHour           float64           `json:"cost_per_hour"`
-	AvailableInstances    int               `json:"available_instances"`
-	PlacementLabels       map[string]string `json:"placement_labels"`
-	ResourceCapacity      map[string]string `json:"resource_capacity"`
-	SupportedModelTypes   []string          `json:"supported_model_types"`
+type VMRequirementsConfig struct {
+	Version        string                  `json:"version"`
+	ValidationMode string                  `json:"validation_mode"`
+	Workloads      []VMWorkloadRequirement `json:"workloads"`
 }
 
-type InferenceWorkload struct {
-	ID                  string  `json:"id"`
-	ModelType           string  `json:"model_type"`
-	RequiresAccelerator bool    `json:"requires_accelerator"`
-	EstimatedVRAMGB     float64 `json:"estimated_vram_gb"`
-	LatencySLOMS        float64 `json:"latency_slo_ms"`
-	MinThroughputRPS    float64 `json:"min_throughput_rps"`
-	BatchSize           int     `json:"batch_size"`
-	ServiceName         string  `json:"service_name"`
-	ContainerImage      string  `json:"container_image"`
-	Instances           int     `json:"instances"`
+type VMWorkloadRequirement struct {
+	ID                     string   `json:"id"`
+	ServiceName            string   `json:"service_name"`
+	RequiredAccelerator    string   `json:"required_accelerator"`
+	MinimumCPUCores        int      `json:"minimum_cpu_cores,omitempty"`
+	MinimumMemoryGB        float64  `json:"minimum_memory_gb,omitempty"`
+	MinimumGPUMemoryGB     float64  `json:"minimum_gpu_memory_gb,omitempty"`
+	LatencySLOMS           *float64 `json:"latency_slo_ms,omitempty"`
+	MinimumThroughputRPS   *float64 `json:"minimum_throughput_rps,omitempty"`
+	AllowedControlActions  []string `json:"allowed_control_actions"`
+	RequirementSource      string   `json:"requirement_source"`
+	RequirementsRecordedAt string   `json:"requirements_recorded_at,omitempty"`
 }
 
-type WorkloadRequest struct {
-	Workload string `json:"workload" validate:"required" example:"llm-chat-inference"`
+type VMResourceSnapshot struct {
+	ID               string                `json:"id" validate:"required"`
+	Source           string                `json:"source" validate:"required"`
+	EvidenceStatus   string                `json:"evidence_status" validate:"required"`
+	Provider         string                `json:"provider,omitempty"`
+	Region           string                `json:"region,omitempty"`
+	AvailabilityZone string                `json:"availability_zone,omitempty"`
+	InstanceType     string                `json:"instance_type,omitempty"`
+	Accelerator      string                `json:"accelerator" validate:"required"`
+	CPUCores         int                   `json:"cpu_cores,omitempty"`
+	MemoryGB         float64               `json:"memory_gb,omitempty"`
+	GPUModel         string                `json:"gpu_model,omitempty"`
+	GPUMemoryMiB     int                   `json:"gpu_memory_mib,omitempty"`
+	DriverVersion    string                `json:"driver_version,omitempty"`
+	CUDAVersion      string                `json:"cuda_version,omitempty"`
+	CollectedAt      string                `json:"collected_at,omitempty"`
+	Performance      VMPerformanceEvidence `json:"performance"`
+}
+
+type VMPerformanceEvidence struct {
+	Status        string   `json:"status"`
+	LatencyMS     *float64 `json:"latency_ms,omitempty"`
+	ThroughputRPS *float64 `json:"throughput_rps,omitempty"`
+	CostPerHour   *float64 `json:"cost_per_hour,omitempty"`
+	MeasuredAt    string   `json:"measured_at,omitempty"`
+	Source        string   `json:"source,omitempty"`
+}
+
+type VMCompatibilityCheck struct {
+	Name     string `json:"name"`
+	Status   string `json:"status"`
+	Actual   string `json:"actual,omitempty"`
+	Required string `json:"required,omitempty"`
+	Reason   string `json:"reason"`
+}
+
+type VMCompatibilityResponse struct {
+	Valid                bool                   `json:"valid"`
+	ValidationMode       string                 `json:"validation_mode"`
+	Workload             string                 `json:"workload"`
+	TargetVMID           string                 `json:"target_vm_id"`
+	ResourceSource       string                 `json:"resource_source"`
+	EvidenceStatus       string                 `json:"evidence_status"`
+	CompatibilityStatus  string                 `json:"compatibility_status"`
+	ResourceChecksPassed bool                   `json:"resource_checks_passed"`
+	PerformanceStatus    string                 `json:"performance_status"`
+	Action               string                 `json:"action"`
+	Reason               string                 `json:"reason"`
+	Checks               []VMCompatibilityCheck `json:"checks"`
 }
 
 type ServiceOperationsRequest struct {
-	LLMConfigPath     string `json:"llm_config" example:"config/ops_llm_benchmark.json"`
-	InferenceConfig   string `json:"inference_config" example:"config/inference_optimization.json"`
-	LLMPolicy         string `json:"llm_policy" example:"quality_first"`
-	Workload          string `json:"workload" validate:"required" example:"llm-chat-inference"`
-	OperationService  string `json:"operation_service" example:"llm-chat-inference"`
-	OperationResource string `json:"operation_resource" example:"gpu-vm-l4"`
-	Mode              string `json:"mode" example:"mock"`
-	GuardBackend      string `json:"guard_backend" example:"go"`
-}
-
-type PlacementResponse struct {
-	Valid             bool                 `json:"valid"`
-	Workload          string               `json:"workload"`
-	SelectedResource  string               `json:"selected_resource"`
-	Action            string               `json:"action"`
-	Score             float64              `json:"score"`
-	LatencyMS         float64              `json:"latency_ms"`
-	ThroughputRPS     float64              `json:"throughput_rps"`
-	CostPerHour       float64              `json:"cost_per_hour"`
-	SLOSatisfied      bool                 `json:"slo_satisfied"`
-	Reason            string               `json:"reason"`
-	RejectedResources map[string]string    `json:"rejected_resources"`
-	RankedCandidates  []PlacementCandidate `json:"ranked_candidates"`
-}
-
-type PlacementCandidate struct {
-	Resource           string  `json:"resource"`
-	Accelerator        string  `json:"accelerator"`
-	Score              float64 `json:"score"`
-	LatencyMS          float64 `json:"latency_ms"`
-	ThroughputRPS      float64 `json:"throughput_rps"`
-	CostPerHour        float64 `json:"cost_per_hour"`
-	AvailableInstances int     `json:"available_instances"`
-	Action             string  `json:"action"`
+	LLMConfigPath     string             `json:"llm_config" example:"config/ops_llm_benchmark.json"`
+	LLMCandidatesPath string             `json:"llm_candidates,omitempty" example:"config/ops_llm_eval_candidates.local_ollama.json"`
+	LLMCandidateID    string             `json:"llm_candidate_id,omitempty" example:"local-ollama-ops-llm"`
+	LLMPolicy         string             `json:"llm_policy" example:"quality_first"`
+	VMRequirements    string             `json:"vm_requirements" example:"config/vm_workload_requirements.json"`
+	Workload          string             `json:"workload" validate:"required" example:"llm-chat-inference"`
+	TargetVM          VMResourceSnapshot `json:"target_vm" validate:"required"`
+	Observations      map[string]any     `json:"observations,omitempty"`
+	OperationService  string             `json:"operation_service" example:"llm-chat-inference"`
+	OperationResource string             `json:"operation_resource"`
+	Mode              string             `json:"mode" example:"plan_only"`
+	GuardBackend      string             `json:"guard_backend" example:"go"`
 }
 
 type DeploymentPlanResponse struct {
-	PlacementResponse
+	VMCompatibilityResponse
 	DeploymentPlan DeploymentPlan `json:"deployment_plan"`
 }
 
 type DeploymentPlan struct {
-	ServiceName       string             `json:"service_name"`
-	ContainerImage    string             `json:"container_image"`
-	TargetResource    string             `json:"target_resource"`
-	TargetAccelerator string             `json:"target_accelerator"`
-	VM                VMDeploymentPlan   `json:"vm_deployment"`
-	ControlActions    []string           `json:"control_actions"`
-	MonitoringMetrics []string           `json:"monitoring_metrics"`
-	SLO               map[string]float64 `json:"slo"`
+	Workload           string   `json:"workload"`
+	ServiceName        string   `json:"service_name"`
+	TargetVMID         string   `json:"target_vm_id"`
+	TargetAccelerator  string   `json:"target_accelerator"`
+	ExecutorType       string   `json:"executor_type"`
+	RequiredCapability string   `json:"required_capability"`
+	SelectedExecutor   string   `json:"selected_executor,omitempty"`
+	RequestedAction    string   `json:"requested_action"`
+	AllowedActions     []string `json:"allowed_actions"`
+	Preconditions      []string `json:"preconditions"`
+	ExecutionStatus    string   `json:"execution_status"`
+	FeedbackRequired   bool     `json:"feedback_required"`
 }
 
 type DeploymentValidation struct {
@@ -226,12 +301,14 @@ type AgentReviews struct {
 }
 
 type AgentReview struct {
-	Agent      string            `json:"agent"`
-	Action     string            `json:"action"`
-	Reward     float64           `json:"reward"`
-	Approved   bool              `json:"approved"`
-	Reason     string            `json:"reason"`
-	Parameters map[string]string `json:"parameters"`
+	ReviewerType string            `json:"reviewer_type"`
+	Agent        string            `json:"agent,omitempty"`
+	Action       string            `json:"action"`
+	Reward       float64           `json:"reward"`
+	Approved     bool              `json:"approved"`
+	Skipped      bool              `json:"skipped,omitempty"`
+	Reason       string            `json:"reason"`
+	Parameters   map[string]string `json:"parameters"`
 }
 
 type OperationReadiness struct {
@@ -255,36 +332,26 @@ type GuardValidation struct {
 }
 
 type ServiceOperationsResponse struct {
-	Command                 string                 `json:"command"`
-	Valid                   bool                   `json:"valid"`
-	SelectedLLM             string                 `json:"selected_llm"`
-	SelectedActualModel     string                 `json:"selected_actual_model"`
-	SelectedProvider        string                 `json:"selected_provider"`
-	EvaluationSource        string                 `json:"evaluation_source"`
-	EvaluationType          string                 `json:"evaluation_type"`
-	BenchmarkStatus         string                 `json:"benchmark_status"`
-	RuntimeModel            string                 `json:"runtime_model"`
-	SelectedResource        string                 `json:"selected_resource"`
-	DeploymentPlan          DeploymentPlan         `json:"deployment_plan"`
-	InferenceDeploymentPlan DeploymentPlanResponse `json:"inference_deployment_plan"`
-	DeploymentValidation    DeploymentValidation   `json:"deployment_validation"`
-	DeploymentExecutionMode string                 `json:"deployment_execution_mode"`
-	AgentReviews            AgentReviews           `json:"agent_reviews"`
-	Operation               OperationReadiness     `json:"operation"`
-	OperationPipelineReady  bool                   `json:"operation_pipeline_ready"`
-	GuardBackend            string                 `json:"guard_backend"`
-	GuardValidation         GuardValidation        `json:"guard_validation"`
-	Metadata                map[string]string      `json:"metadata"`
-}
-
-type VMDeploymentPlan struct {
-	Service              string            `json:"service"`
-	Instances            int               `json:"instances"`
-	PlacementConstraints map[string]string `json:"placement_constraints"`
-	Resources            ResourceSpec      `json:"resources"`
-}
-
-type ResourceSpec struct {
-	Requests map[string]string `json:"requests"`
-	Limits   map[string]string `json:"limits"`
+	Command                 string                      `json:"command"`
+	Valid                   bool                        `json:"valid"`
+	SelectedLLM             string                      `json:"selected_llm"`
+	SelectedActualModel     string                      `json:"selected_actual_model"`
+	SelectedProvider        string                      `json:"selected_provider"`
+	EvaluationSource        string                      `json:"evaluation_source"`
+	EvaluationType          string                      `json:"evaluation_type"`
+	BenchmarkStatus         string                      `json:"benchmark_status"`
+	DecisionExecutionStatus string                      `json:"decision_execution_status"`
+	LLMAutomationAction     LLMAutomationActionResponse `json:"llm_automation_action"`
+	RuntimeModel            string                      `json:"runtime_model"`
+	SelectedResource        string                      `json:"selected_resource"`
+	DeploymentPlan          DeploymentPlan              `json:"deployment_plan"`
+	InferenceDeploymentPlan DeploymentPlanResponse      `json:"inference_deployment_plan"`
+	DeploymentValidation    DeploymentValidation        `json:"deployment_validation"`
+	DeploymentExecutionMode string                      `json:"deployment_execution_mode"`
+	AgentReviews            AgentReviews                `json:"agent_reviews"`
+	Operation               OperationReadiness          `json:"operation"`
+	OperationPipelineReady  bool                        `json:"operation_pipeline_ready"`
+	GuardBackend            string                      `json:"guard_backend"`
+	GuardValidation         GuardValidation             `json:"guard_validation"`
+	Metadata                map[string]string           `json:"metadata"`
 }

@@ -1,60 +1,35 @@
-# Integration Boundary
+# 플래너·AppDeploy·인프라 책임 경계
 
-## 목적
+## 연계 원칙
 
-이 문서는 geon service-control prototype과 AppDeployer 또는 AI-MCMP 연계 프레임워크 사이의 책임 경계를 정리합니다.
+`geon` 브랜치는 자연어 요구를 AppDeploy가 이해하는 `DeploymentManifest`로 변환하고 검증하는 LLM Deployment Planner입니다. 실제 VM 선택과 배포 실행을 중복 구현하지 않습니다.
 
-## Service-Control 책임
+## 책임 구분
 
-geon service-control layer는 다음 판단과 계획 생성을 담당합니다.
+| 단계 | Planner (`geon`) | AppDeploy | 인프라 계층 |
+| --- | --- | --- | --- |
+| 요구 해석 | 자연어 요구 분석 | - | - |
+| 자원 요구 | CPU·메모리·GPU·디스크·accelerator 결정 | App Spec 기본값과 병합 | 실제 자원 정보 제공 |
+| Manifest | 생성 및 Go Guard 검증 | 형식 재검증 | - |
+| Target | 선택적 hint만 제공 | 후보 조회, readiness, 최종 Target 선택 | VM 제공 |
+| Runtime | 선택하지 않음 | Target 기반 Adapter 선택 | 실행 환경 제공 |
+| 배포 | API 요청 전달 | artifact 준비와 VM/외부 AI-Infra 배포 | 배포 대상 제공 |
+| 상태 | polling과 결과 해석 | 상태·이벤트·로그 저장 | Runtime 상태 제공 |
+| 재시도 | 명시된 `retryable`을 근거로 권고 | 오류 코드와 retryable 제공 | 실패 원인 제공 |
 
-| 영역 | 책임 |
-| --- | --- |
-| Ops LLM | LLM 후보 설정, scenario 기반 평가, 실행 결과 요약 |
-| Agent registry | 등록 agent와 bounded action 검증 |
-| Placement decision | CPU/GPU VM 후보 중 워크로드 요구사항에 맞는 배치 추천 |
-| Deployment/control plan | AI 응용 배포·제어 계획과 manifest 초안 생성 |
-| Guard validation | 허용 action과 운영 제어 경계 검증 |
+## 연계 계약
 
-이 layer는 판단과 계획을 생성하지만, 실제 운영 플랫폼에 대한 live deployment 완료를 직접 주장하지 않습니다.
+- AppDeploy OpenAPI: `AppDeploy/contracts/openapi/openapi.yaml`
+- Manifest Schema: `AppDeploy/contracts/schemas/deployment_manifest.schema.json`
+- 배포 요청: `POST /api/v1/deployments`
+- 상태 조회: `GET /api/v1/deployments/{deployment_id}`
+- 로그 조회: `GET /api/v1/deployments/{deployment_id}/logs`
 
-## 연계 프레임워크 책임
+저장소의 `contracts/appdeploy/deployment_manifest.schema.json`은 구현 검증에 사용한 계약 snapshot입니다. 실제 통합 시에는 양쪽 브랜치의 계약 버전을 함께 확인해야 합니다.
 
-AppDeployer 또는 AI-MCMP 연계 프레임워크는 다음 실행 계층을 담당합니다.
+## 구현 경계
 
-| 영역 | 책임 |
-| --- | --- |
-| 실제 배포 실행 | application deployment, update, rollback apply |
-| Infra 연계 | GPU VM, provider credential, runtime endpoint 제공 |
-| 상태 반영 | 실제 배포 결과, runtime 상태, endpoint health 제공 |
-| Credential 관리 | provider API key와 cloud credential 관리 |
-
-service-control layer는 이 실행 계층에서 제공하는 endpoint, infra 상태, credential reference를 config 또는 API 입력으로 소비합니다.
-
-## LLM Endpoint 경계
-
-Ollama는 통합 필수 요소가 아니라 local example provider입니다. 통합 환경에서는 다음과 같은 endpoint로 교체할 수 있습니다.
-
-- vLLM
-- LM Studio
-- OpenAI API
-- Azure OpenAI
-- 연구용 GPU 서버 endpoint
-- AI-MCMP 또는 deployment platform이 제공하는 OpenAI-compatible LLM endpoint
-
-service-control layer는 OpenAI-compatible endpoint 계약만 사용하므로, provider 교체는 candidate config 변경으로 처리합니다.
-
-## Deployment 경계
-
-geon prototype은 VM 배포 사양, mock mode, bounded action validation을 통해 배포·제어 계획을 검증합니다. 실제 VM 배포, update 완료, rollback 완료는 외부 AI-Infra 연계 결과가 있을 때만 주장할 수 있습니다.
-
-## 주장 가능한 결과
-
-| 주장 | 조건 |
-| --- | --- |
-| service-control 판단 검증 완료 | Go test, team-validation, validate-system 성공 |
-| 실제 LLM 응답 평가 완료 | `evaluation_summary.json`에 `benchmark_status = executed` 기록 |
-| VM 환경 검증 완료 | VM 내부에서 `validate-system --target vm` 실행 및 evidence 저장 |
-| 실제 배포 완료 | AppDeployer 또는 AI-MCMP 연계 프레임워크의 실행 결과 확보 |
-
-이 구분을 통해 service-control prototype의 판단 결과와 외부 platform 실행 결과를 혼동하지 않습니다.
+- `target_profile_id`는 hint이며 최종 Target 선택 결과가 아닙니다.
+- credential, private key, token은 Manifest와 Git에 포함하지 않습니다.
+- 1차년도 경로는 VM 기반이며 컨테이너와 Kubernetes 배포를 요구하지 않습니다.
+- AppDeploy endpoint가 없는 환경에서는 계약 테스트만 가능하며 실제 배포 완료를 주장하지 않습니다.

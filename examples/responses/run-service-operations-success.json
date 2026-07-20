@@ -1,39 +1,51 @@
 {
+  "command": "run-service-operations",
   "valid": true,
   "selected_llm": "primary-ops-llm",
   "selected_actual_model": "to-be-evaluated-primary-model",
+  "selected_provider": "prototype-policy",
   "benchmark_status": "not_executed",
-  "selected_resource": "gpu-vm-l4",
+  "selected_resource": "aws-us-west-2-g6-xlarge-l4-20260707",
   "deployment_plan": {
+    "workload": "llm-chat-inference",
     "service_name": "llm-chat-inference",
-    "target_resource": "gpu-vm-l4",
+    "target_vm_id": "aws-us-west-2-g6-xlarge-l4-20260707",
     "target_accelerator": "gpu",
-    "vm_deployment": {
-      "service": "llm-chat-inference",
-      "instances": 1,
-      "placement_constraints": {
-        "aiops.resource/gpu-class": "l4"
-      }
-    }
+    "executor_type": "registered_external_agent",
+    "required_capability": "ai_application_deployment_control",
+    "requested_action": "deploy_application",
+    "preconditions": [
+      "target_vm_evidence_collected",
+      "measure_latency_throughput_and_cost",
+      "register_executor_agent"
+    ],
+    "execution_status": "not_executed",
+    "feedback_required": true
   },
   "deployment_validation": {
-    "mode": "mock",
-    "valid": true,
-    "checks": [
-      "service_name_present",
-      "container_image_present",
-      "target_resource_present",
-      "instance_count_positive",
-      "resource_request_present"
-    ]
+    "mode": "plan_only",
+    "valid": true
   },
-  "deployment_execution_mode": "mock",
+  "agent_reviews": {
+    "application": {
+      "approved": true
+    },
+    "infrastructure": {
+      "approved": true
+    },
+    "cost": {
+      "approved": false,
+      "skipped": true
+    }
+  },
+  "operation": {
+    "valid": false,
+    "skipped": true
+  },
+  "operation_pipeline_ready": false,
   "guard_backend": "go",
   "guard_validation": {
     "valid": true,
-    "agent": "AIApplicationManagementAgent",
-    "action": "app_scale_service_instances"
-  },
-  "operation_pipeline_ready": true,
-  "message": "Prototype service-control readiness flow completed in mock mode."
+    "runtime_wired": false
+  }
 }

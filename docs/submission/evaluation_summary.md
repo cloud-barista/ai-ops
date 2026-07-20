@@ -1,79 +1,38 @@
 # 평가 요약
 
-## 1. 범위
-
-이 문서는 1차년도 Go 기반 service-control prototype의 현재 기능 평가 항목을 요약합니다. 평가는 prototype behavior와 integration readiness를 보여주기 위한 것입니다. 최종 production performance benchmark나 final standardized LLM benchmark quality를 주장하지 않습니다.
-
-## 2. 평가 항목
-
-| 항목 | 검증 방법 | 현재 증거 유형 |
+| 평가 항목 | 명령·API | 판정 기준 |
 | --- | --- | --- |
-| Ops LLM selection policy prototype | `select-ops-llm`, `team-validation` | policy 기반 candidate ranking output |
-| Ops LLM evaluation dry-run | `run-ops-llm-benchmark`, `evaluate-ops-llm-outputs` | Go 기반 scenario/candidate 연결 및 dry-run evaluation summary |
-| Agent registry 및 bounded-action validation | `list-agents`, `show-agent`, `validate-agent-action` | registered agents와 allowed action check |
-| CPU/GPU VM placement recommendation | `recommend-inference-placement` | selected resource와 rejected-resource explanation |
-| AI 응용 배포·제어 계획 생성 | `plan-inference-deployment` | service, VM instance, placement constraint, resource capacity, control action 생성 결과 |
-| VM deployment 및 guard validation | `run-service-operations` | VM 배포 사양 사전검증과 `guard_validation.valid = true` |
-| Local API integration validation | `go run ./cmd/aiops-service-control api-integration-validation` | Go CLI 기반 6개 endpoint 순차 호출과 핵심 response field 검증 |
-| Go unit test | 각 Go module의 `go test ./...` | module-level test pass/fail output |
-| Integrated readiness | `team-validation` | `runs/<output-dir>/` 아래 JSON output files |
+| Ops LLM 선정 | `select-ops-llm` | model/provider/score/status 분리 |
+| 실제 LLM Action | `plan-llm-automation-action` | actual model, latency, bounded Action, 실패 상태 보존 |
+| 에이전트 등록 | `/api/v1/agents` | capability와 bounded Action 보존 |
+| VM 적합성 | `validate-vm-suitability` | 실제 snapshot의 조건별 pass/fail |
+| 제어 계획 | `plan-ai-application-control` | 범용 executor capability와 `not_executed` |
+| 통합 검증 | `validate-system` | Go test, API, VM 증적과 단계별 결과 |
 
-## 3. 기대 프로토타입 신호
+## 판정 신호
 
 ```text
-selected_model = primary-ops-llm
-selected_actual_model = to-be-evaluated-primary-model
-benchmark_status = not_executed
-selected_resource = gpu-vm-l4
-valid = true
-guard_backend = go
-guard_validation.valid = true
+resource_checks_passed = true
+compatibility_status = provisionally_compatible | compatible
+performance_status = not_measured | measured
+decision_execution_status = executed | rejected | llm_failed
+guard.status = approved | rejected
+executor_type = registered_external_agent
+execution_status = not_executed
+operation_pipeline_ready = false
 ```
 
-이 신호는 현재 prototype의 functional wiring을 확인합니다. production performance, actual cloud provisioning, final model quality를 증명하지 않습니다.
+실제 workload 성능이 없으면 `provisionally_compatible`이며 최종 최적화 완료로 해석하지 않습니다. 실제 외부 실행 결과가 없으면 배포 완료로 해석하지 않습니다.
 
-## 4. 산출물 관계
+## 실제 LLM 자동화 확인
 
-| 평가 영역 | 관련 산출물 |
-| --- | --- |
-| LLM policy selection | `docs/deliverables/01_llm_operation_management_design.md` |
-| Agent registry validation | `docs/deliverables/02_agent_registration_management_prototype.md` |
-| CPU/GPU placement 및 deployment-control plan | `docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md` |
-| API behavior | `docs/submission/functional_api_guide.md`, `docs/submission/openapi_service_control.yaml` |
-| Test procedure | `docs/submission/test_guide.md` |
-| Development validation records | `docs/submission/development_validation_log.md` |
+2026-07-16 로컬 OpenAI-compatible endpoint의 `llama3.2:3b`를 기록된 AWS L4 VM snapshot과 함께 실행했습니다.
 
-## 5. Benchmark 경계
+```text
+decision_execution_status = executed
+proposal.action = observe_status
+guard.status = approved
+status = pending_executor
+```
 
-현재 LLM policy score는 `config/ops_llm_benchmark.json`에 수동 정의된 prototype baseline입니다. Go selection flow의 기능 검증 input으로 해석해야 합니다.
-
-Go 기반 dry-run/evaluator는 다음 파일을 사용합니다.
-
-| 파일 | 의미 |
-| --- | --- |
-| `data/ops_llm_eval_scenarios.jsonl` | project-specific Ops LLM scenario set |
-| `config/ops_llm_eval_candidates.json` | role label과 future actual model 후보 연결 |
-| `runs/ops-llm-evaluation-dry-run/model_outputs.jsonl` | dry-run output evidence |
-| `runs/ops-llm-evaluation-dry-run/evaluation_summary.json` | dry-run evaluation summary |
-
-dry-run의 `benchmark_status`는 `dry_run`이며, 실제 LLM API benchmark 결과가 아닙니다. dry-run average score는 실제 모델 성능 점수가 아니라 pipeline wiring 확인용 summary입니다. 최종 정량 보고를 위해서는 통제된 per-model Ops evaluation run, 고정 prompt, 고정 dataset, 반복 가능한 metric, 문서화된 scoring rule이 필요합니다.
-
-## 6. API 검증 경계
-
-로컬 API 기본 응답 확인은 API 서버가 실행되고 주요 endpoint가 JSON 응답을 반환하는지 확인합니다. Local API integration validation은 `/healthz`, `/api/v1/agents`, `/api/v1/ops-llm/select`, `/api/v1/apps/placement`, `/api/v1/apps/deployment-plan`, `/api/v1/service-operations/run`을 순차 호출하고 핵심 field를 확인합니다.
-
-이 결과는 로컬 service-control API flow 검증이며 production-level operational validation 또는 실제 cloud deployment 완료를 의미하지 않습니다.
-
-## 7. Infrastructure 경계
-
-기본 service-control path는 mock validation을 사용하며 live cluster를 변경하지 않습니다. 실제 GPU VM provisioning은 AI-Infra 또는 CB-Tumblebug integration boundary입니다. prototype은 placement recommendation과 deployment plan을 생성하지만, 기본 로컬 검증 경로에서 actual GPU VM creation을 주장하지 않습니다.
-
-## 8. 한계
-
-- LLM policy score는 수동 정의된 prototype baseline입니다.
-- 현재 package는 standardized LLM benchmark result를 주장하지 않습니다.
-- Ops LLM dry-run은 provider API를 호출하지 않습니다.
-- 별도 Python 기반 실험 runner는 제출용 핵심 구현에 포함하지 않습니다.
-- 기본 service-control path는 mock validation을 사용합니다.
-- `aiops-guard`는 standalone module로 구현되어 있으며, `service-control-api`에서의 full runtime invocation은 다음 integration step입니다.
-- actual GPU VM provisioning과 live cluster scheduling에는 external infrastructure와 credential이 필요합니다.
+이는 실제 LLM 판단과 Go Guard 검증이 동작했음을 뜻합니다. 외부 실행 주체를 등록하지 않았으므로 실제 배포·제어 완료 결과는 아닙니다. Redacted 결과는 `docs/evidence/artifacts/local_20260716_llm_automation_action.json`에 보존합니다.

@@ -2,21 +2,29 @@ package api
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"math"
 	"path/filepath"
 	"sort"
+	"strings"
+
+	"kyunghee-aiops/service-control-api/internal/automation"
+	"kyunghee-aiops/service-control-api/internal/llmclient"
 )
 
 type Service struct {
-	config        ServerConfig
-	runtimeAgents *runtimeAgentStore
+	config             ServerConfig
+	runtimeAgents      *runtimeAgentStore
+	automationFeedback *automationFeedbackStore
 }
 
 func NewService(config ServerConfig) Service {
 	return Service{
-		config:        config,
-		runtimeAgents: newRuntimeAgentStore(),
+		config:             config,
+		runtimeAgents:      newRuntimeAgentStore(),
+		automationFeedback: newAutomationFeedbackStore(),
 	}
 }
 
@@ -213,142 +221,479 @@ func (service Service) SelectOpsLLMFromPath(ctx context.Context, path string, po
 	}, nil
 }
 
-func (service Service) RecommendPlacement(ctx context.Context, workloadID string) (PlacementResponse, error) {
-	return service.RecommendPlacementFromPath(ctx, service.config.path("config", "inference_optimization.json"), workloadID)
+func (service Service) ValidateVMSuitability(ctx context.Context, request VMCompatibilityRequest) (VMCompatibilityResponse, error) {
+	return service.ValidateVMSuitabilityFromPath(
+		ctx,
+		service.config.path("config", "vm_workload_requirements.json"),
+		request,
+	)
 }
 
-func (service Service) RecommendPlacementFromPath(ctx context.Context, path string, workloadID string) (PlacementResponse, error) {
+func (service Service) ValidateVMSuitabilityFromPath(ctx context.Context, path string, request VMCompatibilityRequest) (VMCompatibilityResponse, error) {
 	if err := ensureContext(ctx); err != nil {
-		return PlacementResponse{}, err
+		return VMCompatibilityResponse{}, err
 	}
-	_, workload, candidates, rejected, err := service.rankPlacementFromPath(ctx, path, workloadID)
+	config, err := loadJSON[VMRequirementsConfig](path)
 	if err != nil {
-		return PlacementResponse{}, err
+		return VMCompatibilityResponse{}, err
 	}
-	if len(candidates) == 0 {
-		return PlacementResponse{
-			Valid:             false,
-			Workload:          workload.ID,
-			SelectedResource:  "",
-			Action:            "manual_review_required",
-			Reason:            "no eligible CPU/GPU VM resource satisfied the workload constraints",
-			RejectedResources: rejected,
-		}, nil
-	}
-
-	sort.SliceStable(candidates, func(i, j int) bool {
-		if candidates[i].Score == candidates[j].Score {
-			if candidates[i].CostPerHour == candidates[j].CostPerHour {
-				return candidates[i].Resource < candidates[j].Resource
-			}
-			return candidates[i].CostPerHour < candidates[j].CostPerHour
-		}
-		return candidates[i].Score > candidates[j].Score
-	})
-	best := candidates[0]
-	return PlacementResponse{
-		Valid:             true,
-		Workload:          workload.ID,
-		SelectedResource:  best.Resource,
-		Action:            best.Action,
-		Score:             best.Score,
-		LatencyMS:         best.LatencyMS,
-		ThroughputRPS:     best.ThroughputRPS,
-		CostPerHour:       best.CostPerHour,
-		SLOSatisfied:      true,
-		Reason:            "selected resource satisfies latency, throughput, accelerator, and capacity constraints",
-		RejectedResources: rejected,
-		RankedCandidates:  candidates,
-	}, nil
-}
-
-func (service Service) BuildDeploymentPlan(ctx context.Context, workloadID string) (DeploymentPlanResponse, error) {
-	return service.BuildDeploymentPlanFromPath(ctx, service.config.path("config", "inference_optimization.json"), workloadID)
-}
-
-func (service Service) BuildDeploymentPlanFromPath(ctx context.Context, path string, workloadID string) (DeploymentPlanResponse, error) {
-	if err := ensureContext(ctx); err != nil {
-		return DeploymentPlanResponse{}, err
-	}
-	placement, err := service.RecommendPlacementFromPath(ctx, path, workloadID)
-	if err != nil {
-		return DeploymentPlanResponse{}, err
-	}
-	if !placement.Valid {
-		return DeploymentPlanResponse{PlacementResponse: placement}, nil
-	}
-
-	config, err := loadJSON[InferenceConfig](path)
-	if err != nil {
-		return DeploymentPlanResponse{}, err
-	}
-	workload, ok := findWorkload(config.Workloads, workloadID)
+	workload, ok := findVMWorkload(config.Workloads, request.Workload)
 	if !ok {
-		return DeploymentPlanResponse{}, fmt.Errorf("unknown workload: %s", workloadID)
+		return VMCompatibilityResponse{}, fmt.Errorf("unknown workload: %s", request.Workload)
 	}
-	resource := findResource(config.Resources, placement.SelectedResource)
-	if resource.ID == "" {
-		return DeploymentPlanResponse{}, fmt.Errorf("selected resource is not defined: %s", placement.SelectedResource)
+	if strings.TrimSpace(request.TargetVM.ID) == "" {
+		return VMCompatibilityResponse{}, fmt.Errorf("target VM id is required")
 	}
 
-	capacity := copyStringMap(resource.ResourceCapacity)
-	if resource.Accelerator == "gpu" {
-		if _, ok := capacity["accelerator_count"]; !ok {
-			capacity["accelerator_count"] = "1"
+	resourceChecks := buildVMCompatibilityChecks(workload, request.TargetVM)
+	resourceChecksPassed := true
+	for _, check := range resourceChecks {
+		if check.Status == "fail" {
+			resourceChecksPassed = false
+			break
 		}
 	}
-	if resource.Accelerator == "npu" {
-		if _, ok := capacity["accelerator_count"]; !ok {
-			capacity["accelerator_count"] = "1"
+
+	performanceStatus := strings.TrimSpace(request.TargetVM.Performance.Status)
+	if performanceStatus == "" {
+		performanceStatus = "not_measured"
+	}
+	performanceChecks := buildVMPerformanceChecks(workload, request.TargetVM, performanceStatus)
+	performanceChecksPassed := true
+	for _, check := range performanceChecks {
+		if check.Status == "fail" {
+			performanceChecksPassed = false
+			break
 		}
 	}
-	if workload.EstimatedVRAMGB > 0 && resource.Accelerator != "cpu" {
-		capacity["vram_gb"] = trimFloat(workload.EstimatedVRAMGB)
-	}
-	placementLabels := copyStringMap(resource.PlacementLabels)
-	if len(placementLabels) == 0 {
-		placementLabels["aiops.resource/accelerator"] = resource.Accelerator
+	checks := append(resourceChecks, performanceChecks...)
+
+	compatibilityStatus := "incompatible"
+	action := "manual_review_required"
+	reason := "the provided VM does not satisfy the declared workload requirements"
+	if resourceChecksPassed {
+		if performanceStatus != "measured" {
+			compatibilityStatus = "provisionally_compatible"
+			action = "benchmark_then_prepare_control_plan"
+			reason = "resource checks passed, but workload performance remains unmeasured"
+		} else if performanceChecksPassed {
+			compatibilityStatus = "compatible"
+			action = "prepare_registered_agent_control_plan"
+			reason = "the provided VM satisfies the declared resource and measured performance requirements"
+		} else {
+			reason = "the provided VM hardware is suitable, but measured performance does not satisfy the declared workload requirements"
+		}
 	}
 
-	plan := DeploymentPlan{
-		ServiceName:       workload.ServiceName,
-		ContainerImage:    workload.ContainerImage,
-		TargetResource:    resource.ID,
-		TargetAccelerator: resource.Accelerator,
-		VM: VMDeploymentPlan{
-			Service:              workload.ServiceName,
-			Instances:            workload.Instances,
-			PlacementConstraints: placementLabels,
-			Resources: ResourceSpec{
-				Requests: map[string]string{
-					"cpu_cores": fmt.Sprintf("%d", maxInt(1, minInt(resource.CPUCores, 8))),
-					"memory_gb": fmt.Sprintf("%d", maxInt(1, minInt(resource.MemoryGB, 32))),
-				},
-				Limits: capacity,
-			},
-		},
-		ControlActions: []string{
-			placement.Action,
-			"scale_instances",
-			"monitor_latency",
-			"rollback_on_slo_violation",
-		},
-		MonitoringMetrics: []string{
-			"inference_latency_ms",
-			"inference_throughput_rps",
-			"gpu_memory_utilization",
-			"cost_per_hour",
-		},
-		SLO: map[string]float64{
-			"latency_ms":         workload.LatencySLOMS,
-			"min_throughput_rps": workload.MinThroughputRPS,
-		},
+	validationMode := config.ValidationMode
+	if validationMode == "" {
+		validationMode = "actual_vm_compatibility"
 	}
-
-	return DeploymentPlanResponse{
-		PlacementResponse: placement,
-		DeploymentPlan:    plan,
+	return VMCompatibilityResponse{
+		Valid:                true,
+		ValidationMode:       validationMode,
+		Workload:             workload.ID,
+		TargetVMID:           request.TargetVM.ID,
+		ResourceSource:       request.TargetVM.Source,
+		EvidenceStatus:       request.TargetVM.EvidenceStatus,
+		CompatibilityStatus:  compatibilityStatus,
+		ResourceChecksPassed: resourceChecksPassed,
+		PerformanceStatus:    performanceStatus,
+		Action:               action,
+		Reason:               reason,
+		Checks:               checks,
 	}, nil
+}
+
+func buildVMCompatibilityChecks(workload VMWorkloadRequirement, target VMResourceSnapshot) []VMCompatibilityCheck {
+	checks := []VMCompatibilityCheck{}
+	add := func(name string, passed bool, actual string, required string, passReason string, failReason string) {
+		status := "pass"
+		reason := passReason
+		if !passed {
+			status = "fail"
+			reason = failReason
+		}
+		checks = append(checks, VMCompatibilityCheck{
+			Name:     name,
+			Status:   status,
+			Actual:   actual,
+			Required: required,
+			Reason:   reason,
+		})
+	}
+
+	add(
+		"evidence_status",
+		strings.EqualFold(target.EvidenceStatus, "collected"),
+		target.EvidenceStatus,
+		"collected",
+		"target VM evidence was collected",
+		"target VM evidence has not been collected",
+	)
+	if workload.RequiredAccelerator != "" {
+		add(
+			"accelerator",
+			strings.EqualFold(target.Accelerator, workload.RequiredAccelerator),
+			target.Accelerator,
+			workload.RequiredAccelerator,
+			"target VM accelerator matches the workload requirement",
+			"target VM accelerator does not match the workload requirement",
+		)
+	}
+	if workload.MinimumCPUCores > 0 {
+		add(
+			"cpu_cores",
+			target.CPUCores >= workload.MinimumCPUCores,
+			fmt.Sprintf("%d", target.CPUCores),
+			fmt.Sprintf("%d", workload.MinimumCPUCores),
+			"target VM CPU capacity satisfies the declared minimum",
+			"target VM CPU capacity is below the declared minimum or was not collected",
+		)
+	}
+	if workload.MinimumMemoryGB > 0 {
+		add(
+			"memory_gb",
+			target.MemoryGB >= workload.MinimumMemoryGB,
+			trimFloat(target.MemoryGB),
+			trimFloat(workload.MinimumMemoryGB),
+			"target VM memory satisfies the declared minimum",
+			"target VM memory is below the declared minimum or was not collected",
+		)
+	}
+	if workload.MinimumGPUMemoryGB > 0 {
+		actualGB := float64(target.GPUMemoryMiB) / 1024
+		add(
+			"gpu_memory_gb",
+			actualGB >= workload.MinimumGPUMemoryGB,
+			trimFloat(actualGB),
+			trimFloat(workload.MinimumGPUMemoryGB),
+			"target VM GPU memory satisfies the declared minimum",
+			"target VM GPU memory is below the declared minimum or was not collected",
+		)
+	}
+	return checks
+}
+
+func buildVMPerformanceChecks(workload VMWorkloadRequirement, target VMResourceSnapshot, performanceStatus string) []VMCompatibilityCheck {
+	checks := []VMCompatibilityCheck{}
+	if workload.LatencySLOMS != nil {
+		check := VMCompatibilityCheck{
+			Name:     "latency_slo_ms",
+			Required: trimFloat(*workload.LatencySLOMS),
+		}
+		switch {
+		case performanceStatus != "measured":
+			check.Status = "not_measured"
+			check.Reason = "latency evidence has not been measured"
+		case target.Performance.LatencyMS == nil:
+			check.Status = "fail"
+			check.Reason = "performance is marked measured, but latency evidence is missing"
+		default:
+			check.Actual = trimFloat(*target.Performance.LatencyMS)
+			if *target.Performance.LatencyMS <= *workload.LatencySLOMS {
+				check.Status = "pass"
+				check.Reason = "measured latency satisfies the declared SLO"
+			} else {
+				check.Status = "fail"
+				check.Reason = "measured latency exceeds the declared SLO"
+			}
+		}
+		checks = append(checks, check)
+	}
+	if workload.MinimumThroughputRPS != nil {
+		check := VMCompatibilityCheck{
+			Name:     "minimum_throughput_rps",
+			Required: trimFloat(*workload.MinimumThroughputRPS),
+		}
+		switch {
+		case performanceStatus != "measured":
+			check.Status = "not_measured"
+			check.Reason = "throughput evidence has not been measured"
+		case target.Performance.ThroughputRPS == nil:
+			check.Status = "fail"
+			check.Reason = "performance is marked measured, but throughput evidence is missing"
+		default:
+			check.Actual = trimFloat(*target.Performance.ThroughputRPS)
+			if *target.Performance.ThroughputRPS >= *workload.MinimumThroughputRPS {
+				check.Status = "pass"
+				check.Reason = "measured throughput satisfies the declared minimum"
+			} else {
+				check.Status = "fail"
+				check.Reason = "measured throughput is below the declared minimum"
+			}
+		}
+		checks = append(checks, check)
+	}
+	return checks
+}
+
+func (service Service) BuildDeploymentPlan(ctx context.Context, request VMCompatibilityRequest) (DeploymentPlanResponse, error) {
+	return service.BuildDeploymentPlanFromPath(
+		ctx,
+		service.config.path("config", "vm_workload_requirements.json"),
+		request,
+	)
+}
+
+func (service Service) BuildDeploymentPlanFromPath(ctx context.Context, path string, request VMCompatibilityRequest) (DeploymentPlanResponse, error) {
+	if err := ensureContext(ctx); err != nil {
+		return DeploymentPlanResponse{}, err
+	}
+	compatibility, err := service.ValidateVMSuitabilityFromPath(ctx, path, request)
+	if err != nil {
+		return DeploymentPlanResponse{}, err
+	}
+	if !compatibility.ResourceChecksPassed {
+		return DeploymentPlanResponse{VMCompatibilityResponse: compatibility}, nil
+	}
+	config, err := loadJSON[VMRequirementsConfig](path)
+	if err != nil {
+		return DeploymentPlanResponse{}, err
+	}
+	workload, ok := findVMWorkload(config.Workloads, request.Workload)
+	if !ok {
+		return DeploymentPlanResponse{}, fmt.Errorf("unknown workload: %s", request.Workload)
+	}
+
+	preconditions := []string{"target_vm_evidence_collected"}
+	if compatibility.PerformanceStatus != "measured" {
+		preconditions = append(preconditions, "measure_latency_throughput_and_cost")
+	}
+	requiredCapability := "ai_application_deployment_control"
+	requestedAction := "deploy_application"
+	selectedExecutor := service.selectExecutionAgent(requiredCapability, requestedAction)
+	if selectedExecutor == "" {
+		preconditions = append(preconditions, "register_executor_agent")
+	} else {
+		preconditions = append(preconditions, "registered_executor_agent_validated")
+	}
+	return DeploymentPlanResponse{
+		VMCompatibilityResponse: compatibility,
+		DeploymentPlan: DeploymentPlan{
+			Workload:           workload.ID,
+			ServiceName:        workload.ServiceName,
+			TargetVMID:         request.TargetVM.ID,
+			TargetAccelerator:  request.TargetVM.Accelerator,
+			ExecutorType:       "registered_external_agent",
+			RequiredCapability: requiredCapability,
+			SelectedExecutor:   selectedExecutor,
+			RequestedAction:    requestedAction,
+			AllowedActions:     append([]string(nil), workload.AllowedControlActions...),
+			Preconditions:      preconditions,
+			ExecutionStatus:    "not_executed",
+			FeedbackRequired:   true,
+		},
+	}, nil
+}
+
+func (service Service) selectExecutionAgent(capability string, action string) string {
+	for _, agent := range service.runtimeAgents.list() {
+		if agent.Enabled && contains(agent.Capabilities, capability) && contains(agent.BoundedActions, action) {
+			return agent.Name
+		}
+	}
+	return ""
+}
+
+func (service Service) PlanLLMAutomationAction(ctx context.Context, request LLMAutomationActionRequest) (LLMAutomationActionResponse, error) {
+	return service.PlanLLMAutomationActionFromPaths(
+		ctx,
+		service.config.path("config", "vm_workload_requirements.json"),
+		service.config.LLMCandidatesPath,
+		request,
+	)
+}
+
+func (service Service) PlanLLMAutomationActionFromPaths(
+	ctx context.Context,
+	requirementsPath string,
+	candidatesPath string,
+	request LLMAutomationActionRequest,
+) (LLMAutomationActionResponse, error) {
+	if err := ensureContext(ctx); err != nil {
+		return LLMAutomationActionResponse{}, err
+	}
+	compatibility, err := service.ValidateVMSuitabilityFromPath(ctx, requirementsPath, VMCompatibilityRequest{
+		Workload: request.Workload,
+		TargetVM: request.TargetVM,
+	})
+	if err != nil {
+		return LLMAutomationActionResponse{}, err
+	}
+	result := LLMAutomationActionResponse{
+		Status:          "not_executed",
+		VMCompatibility: compatibility,
+		Decision: LLMDecisionResult{
+			DecisionExecutionStatus: "not_executed",
+			CandidateID:             request.CandidateID,
+		},
+		Guard: GuardDecision{
+			Status: "not_evaluated",
+			Reason: "LLM Action proposal has not been evaluated",
+		},
+	}
+	if !compatibility.ResourceChecksPassed || compatibility.CompatibilityStatus == "incompatible" {
+		result.Status = "vm_incompatible"
+		result.Guard.Status = "rejected"
+		result.Guard.Reason = "actual VM compatibility checks failed before the LLM decision call"
+		return result, nil
+	}
+
+	requirements, err := loadJSON[VMRequirementsConfig](requirementsPath)
+	if err != nil {
+		return result, err
+	}
+	workload, ok := findVMWorkload(requirements.Workloads, request.Workload)
+	if !ok {
+		return result, fmt.Errorf("unknown workload: %s", request.Workload)
+	}
+	candidateConfig, err := llmclient.LoadCandidateConfig(candidatesPath)
+	if err != nil {
+		return result, err
+	}
+	candidate, err := llmclient.FindEnabledCandidate(candidateConfig, request.CandidateID)
+	if err != nil {
+		return result, err
+	}
+
+	planner := automation.NewPlanner(llmclient.NewClient(nil))
+	decision, planErr := planner.Plan(ctx, candidate, automation.DecisionContext{
+		Workload:            workload.ID,
+		ServiceName:         workload.ServiceName,
+		TargetVMID:          request.TargetVM.ID,
+		CompatibilityStatus: compatibility.CompatibilityStatus,
+		Checks:              automationChecks(compatibility.Checks),
+		Observations:        request.Observations,
+		AllowedActions:      append([]string(nil), workload.AllowedControlActions...),
+		RequiredCapability:  "ai_application_deployment_control",
+	})
+	result.Decision = mapLLMDecision(decision)
+	if planErr != nil {
+		result.Status = decision.ExecutionStatus
+		result.Guard.Status = "rejected"
+		result.Guard.Reason = "the LLM decision did not produce a valid bounded Action proposal"
+		return result, planErr
+	}
+
+	proposal := decision.Proposal
+	automationAgent, err := service.ShowAgent(ctx, "AIApplicationAutomationAgent")
+	if err != nil {
+		return result, fmt.Errorf("load automation agent policy: %w", err)
+	}
+	guard := validateLLMActionProposal(workload, request.TargetVM.ID, automationAgent, proposal)
+	result.Guard = guard
+	if !guard.Valid {
+		result.Status = "rejected"
+		return result, nil
+	}
+	selectedExecutor := service.selectExecutionAgent(proposal.RequiredCapability, proposal.Action)
+	if selectedExecutor == "" {
+		result.Status = "pending_executor"
+		return result, nil
+	}
+	parameters := copyAnyMap(proposal.Parameters)
+	parameters["workload"] = workload.ID
+	parameters["target_vm_id"] = request.TargetVM.ID
+	handoff, err := service.BuildAgentInvocationPlan(ctx, selectedExecutor, AgentInvocationPlanRequest{
+		Capability: proposal.RequiredCapability,
+		Action:     proposal.Action,
+		Parameters: parameters,
+	})
+	if err != nil {
+		return result, err
+	}
+	correlationID, err := newCorrelationID()
+	if err != nil {
+		return result, err
+	}
+	result.Valid = true
+	result.Status = "approved"
+	result.CorrelationID = correlationID
+	result.Handoff = handoff
+	service.automationFeedback.register(correlationID, selectedExecutor)
+	return result, nil
+}
+
+func automationChecks(checks []VMCompatibilityCheck) []map[string]string {
+	items := make([]map[string]string, 0, len(checks))
+	for _, check := range checks {
+		items = append(items, map[string]string{
+			"name":     check.Name,
+			"status":   check.Status,
+			"actual":   check.Actual,
+			"required": check.Required,
+			"reason":   check.Reason,
+		})
+	}
+	return items
+}
+
+func mapLLMDecision(decision automation.DecisionResult) LLMDecisionResult {
+	return LLMDecisionResult{
+		DecisionExecutionStatus: decision.ExecutionStatus,
+		CandidateID:             decision.CandidateID,
+		Provider:                decision.Provider,
+		ActualModel:             decision.ActualModel,
+		LatencyMS:               decision.LatencyMS,
+		Proposal: LLMActionProposal{
+			Action:             decision.Proposal.Action,
+			Reason:             decision.Proposal.Reason,
+			Confidence:         decision.Proposal.Confidence,
+			RequiredCapability: decision.Proposal.RequiredCapability,
+			TargetVMID:         decision.Proposal.TargetVMID,
+			Parameters:         copyAnyMap(decision.Proposal.Parameters),
+		},
+	}
+}
+
+func validateLLMActionProposal(
+	workload VMWorkloadRequirement,
+	targetVMID string,
+	automationAgent AgentProfile,
+	proposal automation.ActionProposal,
+) GuardDecision {
+	result := GuardDecision{Status: "rejected"}
+	if proposal.TargetVMID != targetVMID {
+		result.Reason = "LLM proposal target VM differs from the validated VM"
+		return result
+	}
+	if proposal.RequiredCapability != "ai_application_deployment_control" {
+		result.Reason = "LLM proposal requested an unsupported capability"
+		return result
+	}
+	if !automationAgent.Enabled || !contains(automationAgent.Capabilities, proposal.RequiredCapability) {
+		result.Reason = "LLM proposal capability is not enabled in the Agent Registry"
+		return result
+	}
+	if !contains(automationAgent.BoundedActions, proposal.Action) {
+		result.Reason = "LLM proposal Action is outside the Agent Registry bounded Action list"
+		return result
+	}
+	if !contains(workload.AllowedControlActions, proposal.Action) {
+		result.Reason = "LLM proposal Action is outside the workload bounded Action list"
+		return result
+	}
+	result.Valid = true
+	result.Status = "approved"
+	result.Reason = "LLM proposal matches the validated VM, required capability, and bounded Action policy"
+	return result
+}
+
+func copyAnyMap(source map[string]any) map[string]any {
+	result := make(map[string]any, len(source)+2)
+	for key, value := range source {
+		result[key] = value
+	}
+	return result
+}
+
+func newCorrelationID() (string, error) {
+	bytes := make([]byte, 12)
+	if _, err := rand.Read(bytes); err != nil {
+		return "", fmt.Errorf("generate correlation id: %w", err)
+	}
+	return "automation-" + hex.EncodeToString(bytes), nil
 }
 
 func (service Service) RunServiceOperations(ctx context.Context, request ServiceOperationsRequest) (ServiceOperationsResponse, error) {
@@ -359,58 +704,88 @@ func (service Service) RunServiceOperations(ctx context.Context, request Service
 		request.LLMPolicy = "quality_first"
 	}
 	if request.Mode == "" {
-		request.Mode = "mock"
+		request.Mode = "plan_only"
 	}
 	if request.GuardBackend == "" {
 		request.GuardBackend = "go"
 	}
 	llmConfigPath := service.resolvePath(request.LLMConfigPath, "config", "ops_llm_benchmark.json")
-	inferenceConfigPath := service.resolvePath(request.InferenceConfig, "config", "inference_optimization.json")
+	vmRequirementsPath := service.resolvePath(request.VMRequirements, "config", "vm_workload_requirements.json")
 
 	llmSelection, err := service.SelectOpsLLMFromPath(ctx, llmConfigPath, request.LLMPolicy)
 	if err != nil {
 		return ServiceOperationsResponse{}, err
 	}
-	deploymentPlan, err := service.BuildDeploymentPlanFromPath(ctx, inferenceConfigPath, request.Workload)
+	deploymentPlan, err := service.BuildDeploymentPlanFromPath(ctx, vmRequirementsPath, VMCompatibilityRequest{
+		Workload: request.Workload,
+		TargetVM: request.TargetVM,
+	})
 	if err != nil {
 		return ServiceOperationsResponse{}, err
+	}
+	llmAutomationAction := LLMAutomationActionResponse{
+		Status: "not_executed",
+		Decision: LLMDecisionResult{
+			DecisionExecutionStatus: "not_executed",
+		},
+		Guard: GuardDecision{
+			Status: "not_evaluated",
+			Reason: "llm_candidate_id was not provided",
+		},
+	}
+	if request.LLMCandidateID != "" {
+		llmCandidatesPath := service.resolvePath(request.LLMCandidatesPath, "config", "ops_llm_eval_candidates.json")
+		llmAutomationAction, err = service.PlanLLMAutomationActionFromPaths(ctx, vmRequirementsPath, llmCandidatesPath, LLMAutomationActionRequest{
+			Workload:     request.Workload,
+			TargetVM:     request.TargetVM,
+			CandidateID:  request.LLMCandidateID,
+			Observations: request.Observations,
+		})
+		if err != nil {
+			return ServiceOperationsResponse{}, err
+		}
 	}
 	operationService, operationResource := normalizeOperationContext(request, deploymentPlan)
 	deploymentValidation := validateVMDeploymentPlan(deploymentPlan.DeploymentPlan, request.Mode)
 	reviews := buildAgentReviews(deploymentPlan)
 	operation := OperationReadiness{
-		Valid:          operationService != "" && operationResource != "",
+		Valid:          false,
 		Skipped:        true,
 		Service:        operationService,
 		TargetResource: operationResource,
-		Reason:         "operation target is validated for VM deployment and control readiness",
+		Reason:         "external agent execution is outside this prototype; only a capability-based non-executing handoff plan was generated",
 	}
 	guardValidation := buildGuardValidation(request, operationService, operationResource)
-	ready := deploymentValidation.Valid &&
+	planningValid := deploymentPlan.Valid &&
+		deploymentPlan.ResourceChecksPassed &&
+		deploymentValidation.Valid &&
 		reviews.Application.Approved &&
 		reviews.Infrastructure.Approved &&
-		reviews.Cost.Approved &&
-		operation.Valid &&
 		guardValidation.Valid
+	if request.LLMCandidateID != "" {
+		planningValid = planningValid && llmAutomationAction.Valid && llmAutomationAction.Guard.Valid
+	}
 
 	return ServiceOperationsResponse{
 		Command:                 "run-service-operations",
-		Valid:                   ready,
+		Valid:                   planningValid,
 		SelectedLLM:             llmSelection.SelectedModel,
 		SelectedActualModel:     llmSelection.SelectedActualModel,
 		SelectedProvider:        llmSelection.SelectedProvider,
 		EvaluationSource:        llmSelection.EvaluationSource,
 		EvaluationType:          llmSelection.EvaluationType,
 		BenchmarkStatus:         llmSelection.BenchmarkStatus,
+		DecisionExecutionStatus: llmAutomationAction.Decision.DecisionExecutionStatus,
+		LLMAutomationAction:     llmAutomationAction,
 		RuntimeModel:            runtimeModelFromSelection(llmSelection),
-		SelectedResource:        deploymentPlan.SelectedResource,
+		SelectedResource:        deploymentPlan.TargetVMID,
 		DeploymentPlan:          deploymentPlan.DeploymentPlan,
 		InferenceDeploymentPlan: deploymentPlan,
 		DeploymentValidation:    deploymentValidation,
 		DeploymentExecutionMode: request.Mode,
 		AgentReviews:            reviews,
 		Operation:               operation,
-		OperationPipelineReady:  ready,
+		OperationPipelineReady:  false,
 		GuardBackend:            request.GuardBackend,
 		GuardValidation:         guardValidation,
 		Metadata: map[string]string{
@@ -424,6 +799,7 @@ func (service Service) RunServiceOperations(ctx context.Context, request Service
 			"evaluation_source":         llmSelection.EvaluationSource,
 			"evaluation_type":           llmSelection.EvaluationType,
 			"benchmark_status":          llmSelection.BenchmarkStatus,
+			"decision_execution_status": llmAutomationAction.Decision.DecisionExecutionStatus,
 			"deployment_execution_mode": request.Mode,
 		},
 	}, nil
@@ -436,7 +812,7 @@ func normalizeOperationContext(request ServiceOperationsRequest, plan Deployment
 	}
 	targetResource := request.OperationResource
 	if targetResource == "" {
-		targetResource = plan.SelectedResource
+		targetResource = plan.TargetVMID
 	}
 	return serviceName, targetResource
 }
@@ -481,92 +857,6 @@ func (service Service) resolvePath(path string, defaultParts ...string) string {
 	return filepath.Join(service.config.RepoRoot, path)
 }
 
-func (service Service) rankPlacementFromPath(ctx context.Context, path string, workloadID string) (InferenceConfig, InferenceWorkload, []PlacementCandidate, map[string]string, error) {
-	if err := ensureContext(ctx); err != nil {
-		return InferenceConfig{}, InferenceWorkload{}, nil, nil, err
-	}
-	config, err := loadJSON[InferenceConfig](path)
-	if err != nil {
-		return InferenceConfig{}, InferenceWorkload{}, nil, nil, err
-	}
-	workload, ok := findWorkload(config.Workloads, workloadID)
-	if !ok {
-		return InferenceConfig{}, InferenceWorkload{}, nil, nil, fmt.Errorf("unknown workload: %s", workloadID)
-	}
-
-	rejected := map[string]string{}
-	eligible := []InferenceResource{}
-	for _, resource := range config.Resources {
-		if reason := rejectPlacement(workload, resource); reason != "" {
-			rejected[resource.ID] = reason
-			continue
-		}
-		eligible = append(eligible, resource)
-	}
-	if len(eligible) == 0 {
-		return config, workload, nil, rejected, nil
-	}
-
-	minCost := math.MaxFloat64
-	maxCapacity := 1
-	for _, resource := range eligible {
-		if resource.CostPerHour > 0 && resource.CostPerHour < minCost {
-			minCost = resource.CostPerHour
-		}
-		if resource.AvailableInstances > maxCapacity {
-			maxCapacity = resource.AvailableInstances
-		}
-	}
-	if minCost == math.MaxFloat64 {
-		minCost = 0
-	}
-
-	candidates := []PlacementCandidate{}
-	for _, resource := range eligible {
-		latencyScore := cappedRatio(workload.LatencySLOMS, resource.ExpectedLatencyMS)
-		throughputScore := cappedRatio(resource.ExpectedThroughputRPS, workload.MinThroughputRPS)
-		costScore := inverseScore(minCost, resource.CostPerHour)
-		capacityScore := float64(resource.AvailableInstances) / float64(maxCapacity)
-		score := config.Weights["latency"]*latencyScore +
-			config.Weights["throughput"]*throughputScore +
-			config.Weights["cost"]*costScore +
-			config.Weights["capacity"]*capacityScore
-		candidates = append(candidates, PlacementCandidate{
-			Resource:           resource.ID,
-			Accelerator:        resource.Accelerator,
-			Score:              round6(score),
-			LatencyMS:          resource.ExpectedLatencyMS,
-			ThroughputRPS:      resource.ExpectedThroughputRPS,
-			CostPerHour:        resource.CostPerHour,
-			AvailableInstances: resource.AvailableInstances,
-			Action:             actionForResource(resource),
-		})
-	}
-	return config, workload, candidates, rejected, nil
-}
-
-func rejectPlacement(workload InferenceWorkload, resource InferenceResource) string {
-	if workload.RequiresAccelerator && resource.Accelerator == "cpu" {
-		return "accelerator required but resource is CPU-only"
-	}
-	if !contains(resource.SupportedModelTypes, workload.ModelType) {
-		return fmt.Sprintf("model type %s is not supported", workload.ModelType)
-	}
-	if resource.Accelerator != "cpu" && workload.EstimatedVRAMGB > resource.GPUMemoryGB {
-		return fmt.Sprintf("estimated VRAM %gGB exceeds resource GPU memory %gGB", workload.EstimatedVRAMGB, resource.GPUMemoryGB)
-	}
-	if resource.ExpectedLatencyMS > workload.LatencySLOMS {
-		return fmt.Sprintf("latency %gms exceeds SLO %gms", resource.ExpectedLatencyMS, workload.LatencySLOMS)
-	}
-	if resource.ExpectedThroughputRPS < workload.MinThroughputRPS {
-		return fmt.Sprintf("throughput %grps is below required %grps", resource.ExpectedThroughputRPS, workload.MinThroughputRPS)
-	}
-	if resource.AvailableInstances <= 0 {
-		return "no available VM capacity"
-	}
-	return ""
-}
-
 func loadAgentRegistry(path string) (AgentRegistry, error) {
 	registry, err := loadJSON[AgentRegistry](path)
 	if err != nil {
@@ -603,36 +893,27 @@ func findAgent(agents []AgentProfile, name string) (AgentProfile, error) {
 	return AgentProfile{}, fmt.Errorf("unknown agent: %s", name)
 }
 
-func actionForResource(resource InferenceResource) string {
-	if resource.Accelerator == "gpu" {
-		return "deploy_on_gpu_vm"
-	}
-	if resource.Accelerator == "npu" {
-		return "deploy_on_npu_vm"
-	}
-	return "deploy_on_cpu_vm"
-}
-
 func validateVMDeploymentPlan(plan DeploymentPlan, mode string) DeploymentValidation {
 	if mode == "" {
-		mode = "mock"
+		mode = "plan_only"
 	}
 	checks := []string{
+		"workload_present",
 		"service_name_present",
-		"container_image_present",
-		"target_resource_present",
-		"instance_count_positive",
-		"resource_request_present",
+		"actual_target_vm_present",
+		"registered_external_agent_executor_type",
+		"required_capability_present",
+		"execution_status_not_executed",
 	}
-	valid := plan.ServiceName != "" &&
-		plan.ContainerImage != "" &&
-		plan.TargetResource != "" &&
-		plan.VM.Service != "" &&
-		plan.VM.Instances > 0 &&
-		len(plan.VM.Resources.Requests) > 0
-	reason := "VM deployment specification passed the prototype readiness checks"
+	valid := plan.Workload != "" &&
+		plan.ServiceName != "" &&
+		plan.TargetVMID != "" &&
+		plan.ExecutorType == "registered_external_agent" &&
+		plan.RequiredCapability != "" &&
+		plan.ExecutionStatus == "not_executed"
+	reason := "VM compatibility result was converted into a non-executing registered-agent handoff plan"
 	if !valid {
-		reason = "VM deployment specification is missing a required field"
+		reason = "registered-agent handoff plan is missing a required field"
 	}
 	return DeploymentValidation{
 		Mode:   mode,
@@ -645,16 +926,16 @@ func validateVMDeploymentPlan(plan DeploymentPlan, mode string) DeploymentValida
 func buildAgentReviews(plan DeploymentPlanResponse) AgentReviews {
 	return AgentReviews{
 		Application: AgentReview{
-			Agent:    "AIApplicationManagementAgent",
-			Action:   "app_plan_deployment",
-			Reward:   0.8,
-			Approved: plan.Valid,
-			Reason:   "AI application deployment plan is ready for CPU/GPU VM deployment validation.",
+			ReviewerType: "llm_agent",
+			Agent:        "AIApplicationAutomationAgent",
+			Action:       "prepare_bounded_control_handoff",
+			Reward:       0.8,
+			Approved:     plan.Valid && plan.ResourceChecksPassed,
+			Reason:       "AI application control request is prepared for capability-based external-agent handoff without executing it.",
 			Parameters: map[string]string{
 				"workload":          plan.Workload,
-				"service":           plan.DeploymentPlan.VM.Service,
-				"instances":         fmt.Sprintf("%d", plan.DeploymentPlan.VM.Instances),
-				"selected_resource": plan.SelectedResource,
+				"service":           plan.DeploymentPlan.ServiceName,
+				"selected_resource": plan.TargetVMID,
 			},
 		},
 		Infrastructure: buildInfrastructureReview(plan),
@@ -663,51 +944,40 @@ func buildAgentReviews(plan DeploymentPlanResponse) AgentReviews {
 }
 
 func buildInfrastructureReview(plan DeploymentPlanResponse) AgentReview {
-	if !plan.Valid {
+	if !plan.Valid || !plan.ResourceChecksPassed {
 		return AgentReview{
-			Agent:      "AISemiconductorInfraOpsAgent",
-			Action:     "infra_placement_rejected",
-			Reward:     -1.0,
-			Approved:   false,
-			Reason:     plan.Reason,
-			Parameters: map[string]string{"selected_resource": plan.SelectedResource},
+			ReviewerType: "deterministic_go_validator",
+			Action:       "vm_suitability_rejected",
+			Reward:       -1.0,
+			Approved:     false,
+			Reason:       plan.Reason,
+			Parameters:   map[string]string{"target_vm_id": plan.TargetVMID},
 		}
 	}
 	return AgentReview{
-		Agent:    "AISemiconductorInfraOpsAgent",
-		Action:   "infra_placement_approved",
-		Reward:   0.7,
-		Approved: true,
-		Reason:   "Selected CPU/GPU VM resource satisfies SLO and capacity constraints.",
+		ReviewerType: "deterministic_go_validator",
+		Action:       "vm_suitability_validated",
+		Reward:       0.7,
+		Approved:     true,
+		Reason:       "The provided VM satisfies the declared resource requirements; performance evidence is reported separately.",
 		Parameters: map[string]string{
-			"selected_resource": plan.SelectedResource,
-			"latency_ms":        trimFloat(plan.LatencyMS),
-			"throughput_rps":    trimFloat(plan.ThroughputRPS),
-			"cost_per_hour":     trimFloat(plan.CostPerHour),
+			"target_vm_id":       plan.TargetVMID,
+			"resource_source":    plan.ResourceSource,
+			"performance_status": plan.PerformanceStatus,
 		},
 	}
 }
 
 func buildCostReview(plan DeploymentPlanResponse) AgentReview {
-	if !plan.Valid {
-		return AgentReview{
-			Agent:      "CostOptimizationAgent",
-			Action:     "cost_placement_rejected",
-			Reward:     -0.5,
-			Approved:   false,
-			Reason:     plan.Reason,
-			Parameters: map[string]string{"selected_resource": plan.SelectedResource},
-		}
-	}
 	return AgentReview{
-		Agent:    "CostOptimizationAgent",
-		Action:   "cost_placement_approved",
-		Reward:   0.55,
-		Approved: true,
-		Reason:   "Selected CPU/GPU VM resource is within the cost policy.",
+		ReviewerType: "evidence_check",
+		Action:       "cost_review_not_measured",
+		Reward:       0,
+		Approved:     false,
+		Skipped:      true,
+		Reason:       "No measured VM cost evidence was supplied, so cost approval was not claimed.",
 		Parameters: map[string]string{
-			"selected_resource": plan.SelectedResource,
-			"cost_per_hour":     fmt.Sprintf("%.2f", plan.CostPerHour),
+			"target_vm_id": plan.TargetVMID,
 		},
 	}
 }
@@ -734,22 +1004,13 @@ func ensureContext(ctx context.Context) error {
 	return nil
 }
 
-func findWorkload(workloads []InferenceWorkload, id string) (InferenceWorkload, bool) {
+func findVMWorkload(workloads []VMWorkloadRequirement, id string) (VMWorkloadRequirement, bool) {
 	for _, workload := range workloads {
 		if workload.ID == id {
 			return workload, true
 		}
 	}
-	return InferenceWorkload{}, false
-}
-
-func findResource(resources []InferenceResource, id string) InferenceResource {
-	for _, resource := range resources {
-		if resource.ID == id {
-			return resource
-		}
-	}
-	return InferenceResource{}
+	return VMWorkloadRequirement{}, false
 }
 
 func contains(values []string, target string) bool {
@@ -789,17 +1050,6 @@ func inverseScore(minimum float64, value float64) float64 {
 	return minimum / value
 }
 
-func cappedRatio(numerator float64, denominator float64) float64 {
-	if denominator <= 0 {
-		return 0
-	}
-	score := numerator / denominator
-	if score > 1 {
-		return 1
-	}
-	return score
-}
-
 func round6(value float64) float64 {
 	return math.Round(value*1_000_000) / 1_000_000
 }
@@ -810,28 +1060,6 @@ func roundMetrics(metrics map[string]float64) map[string]float64 {
 		rounded[key] = round6(value)
 	}
 	return rounded
-}
-
-func copyStringMap(input map[string]string) map[string]string {
-	output := map[string]string{}
-	for key, value := range input {
-		output[key] = value
-	}
-	return output
-}
-
-func maxInt(left int, right int) int {
-	if left > right {
-		return left
-	}
-	return right
-}
-
-func minInt(left int, right int) int {
-	if left < right {
-		return left
-	}
-	return right
 }
 
 func trimFloat(value float64) string {

@@ -1,0 +1,30 @@
+{
+  "version": "1",
+  "validation_mode": "actual_vm_compatibility",
+  "workloads": [
+    {
+      "id": "llm-chat-inference",
+      "service_name": "llm-chat-inference",
+      "required_accelerator": "gpu",
+      "allowed_control_actions": [
+        "deploy_application",
+        "observe_status",
+        "restart_application",
+        "stop_application"
+      ],
+      "requirement_source": "year1_vm_only_service_control_scope"
+    },
+    {
+      "id": "text-classifier",
+      "service_name": "text-classifier",
+      "required_accelerator": "cpu",
+      "allowed_control_actions": [
+        "deploy_application",
+        "observe_status",
+        "restart_application",
+        "stop_application"
+      ],
+      "requirement_source": "year1_vm_only_service_control_scope"
+    }
+  ]
+}

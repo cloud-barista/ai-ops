@@ -1,48 +1,48 @@
 openapi: 3.0.3
 info:
   title: AI Service Control API
-  version: "0.1.0"
+  version: "0.3.0"
   description: >
-    Go Echo API contract for the 1st-year service-control prototype. The API
-    exposes LLM selection, agent registry listing, CPU/GPU VM placement,
-    AI application deployment/control plan generation, and service-operations readiness.
-    It is a functional prototype contract, not a production AIOps API.
+    Go Echo contract for Ops LLM selection, actual LLM-based automation
+    Action proposals, agent registry management, actual CPU/GPU VM
+    suitability validation, Go Guard checks, and AppDeploy Planner integration.
+    The Planner generates and validates a DeploymentManifest; AppDeploy selects
+    the actual Target and performs deployment execution.
 servers:
   - url: http://127.0.0.1:8080
 paths:
   /healthz:
     get:
-      summary: Health check
+      summary: Check service health
       responses:
         "200":
-          description: Service is healthy
+          description: Healthy
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/HealthResponse"
+                type: object
+                properties:
+                  status: {type: string, example: ok}
+                  service: {type: string, example: service-control-api}
   /openapi.yaml:
     get:
-      summary: Download this OpenAPI document
+      summary: Download this contract
       responses:
         "200":
           description: OpenAPI YAML
-          content:
-            application/yaml:
-              schema:
-                type: string
   /api/v1/agents:
     get:
-      summary: List registered AIOps agents
+      summary: List configured and runtime agents
       responses:
         "200":
-          description: Registered agent profiles
+          description: Agent list
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AgentListResponse"
+                type: object
+                additionalProperties: true
     post:
-      summary: Register an external AIOps agent
-      description: Registers an external agent endpoint, capabilities, and bounded actions in process memory.
+      summary: Register an external agent
       requestBody:
         required: true
         content:
@@ -51,62 +51,50 @@ paths:
               $ref: "#/components/schemas/ExternalAgentRegistrationRequest"
       responses:
         "201":
-          description: Runtime agent registration
+          description: Registered agent
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/AgentProfile"
         "400":
-          description: Invalid or duplicate registration
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/BadRequest"
   /api/v1/agents/{name}:
     get:
-      summary: Get a registered AIOps agent
+      summary: Get a registered agent
       parameters:
         - $ref: "#/components/parameters/AgentName"
       responses:
         "200":
-          description: Registered agent profile
+          description: Agent profile
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/AgentProfile"
         "404":
           description: Agent not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
   /api/v1/agents/{name}/actions/{action}/validate:
     post:
-      summary: Validate an action against an agent boundary
+      summary: Validate a bounded Action
       parameters:
         - $ref: "#/components/parameters/AgentName"
         - name: action
           in: path
           required: true
-          schema:
-            type: string
+          schema: {type: string}
       responses:
         "200":
-          description: Action validation result
+          description: Action result
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AgentActionValidationResponse"
-        "404":
-          description: Agent not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                type: object
+                properties:
+                  agent: {type: string}
+                  action: {type: string}
+                  valid: {type: boolean}
   /api/v1/agents/{name}/invocations/plan:
     post:
-      summary: Build a validated external-agent invocation plan
-      description: Validates capability and bounded action, then returns a plan without executing an external HTTP request.
+      summary: Build a non-executing agent invocation plan
       parameters:
         - $ref: "#/components/parameters/AgentName"
       requestBody:
@@ -117,86 +105,130 @@ paths:
               $ref: "#/components/schemas/AgentInvocationPlanRequest"
       responses:
         "200":
-          description: Non-executing invocation plan
+          description: Invocation plan
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/AgentInvocationPlan"
         "400":
-          description: Capability or action boundary validation failed
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/BadRequest"
   /api/v1/ops-llm/select:
     post:
-      summary: Select the prototype Ops LLM candidate for an operation policy
+      summary: Select an Ops LLM policy candidate
       requestBody:
-        required: false
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/OpsLLMSelectRequest"
+              type: object
+              properties:
+                policy: {type: string, example: quality_first}
       responses:
         "200":
-          description: LLM ranking and selected candidate
+          description: LLM selection
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/OpsLLMSelectionResponse"
-        "400":
-          description: Invalid policy
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-  /api/v1/apps/placement:
+                type: object
+                additionalProperties: true
+  /api/v1/apps/vm-suitability:
     post:
-      summary: Recommend CPU/GPU VM placement for an AI workload
+      summary: Validate an infrastructure-supplied VM
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/WorkloadRequest"
+              $ref: "#/components/schemas/VMCompatibilityRequest"
       responses:
         "200":
-          description: Placement recommendation
+          description: VM suitability result
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PlacementResponse"
+                $ref: "#/components/schemas/VMCompatibilityResponse"
         "400":
-          description: Unknown workload or invalid request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/BadRequest"
   /api/v1/apps/deployment-plan:
     post:
-      summary: Build a CPU/GPU VM deployment/control plan for an AI workload
+      summary: Build a capability-based external-agent handoff plan
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/WorkloadRequest"
+              $ref: "#/components/schemas/VMCompatibilityRequest"
       responses:
         "200":
-          description: Deployment/control plan
+          description: Non-executing handoff plan
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/DeploymentPlanResponse"
         "400":
-          description: Unknown workload or invalid request
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/automation/action-proposals:
+    post:
+      summary: Generate and validate an actual LLM automation Action
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LLMAutomationActionRequest"
+      responses:
+        "200":
+          description: LLM decision, Go Guard result, and optional non-executing handoff
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: "#/components/schemas/LLMAutomationActionResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/automation/feedback:
+    post:
+      summary: Record external execution feedback for an approved correlation ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AutomationFeedbackRequest"
+      responses:
+        "200":
+          description: Stored feedback record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutomationFeedbackRecord"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/planner/deployments:
+    post:
+      summary: Generate a guarded DeploymentManifest and submit it to AppDeploy
+      description: >
+        Calls a configured OpenAI-compatible LLM, validates the generated
+        DeploymentManifest with deterministic Go rules, submits it to
+        AppDeploy POST /api/v1/deployments, and polls status and logs. The
+        optional target_profile_id is a hint; AppDeploy owns final Target and
+        Runtime Adapter selection.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppDeployPlannerRequest"
+      responses:
+        "200":
+          description: Planner generation, guard, AppDeploy status, and logs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppDeployPlannerResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
   /api/v1/service-operations/run:
     post:
-      summary: Run the Go service operations readiness pipeline
+      summary: Run integrated service-control planning
       requestBody:
         required: true
         content:
@@ -205,408 +237,357 @@ paths:
               $ref: "#/components/schemas/ServiceOperationsRequest"
       responses:
         "200":
-          description: Service operations readiness report
+          description: Planning and validation report
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ServiceOperationsResponse"
+                type: object
+                additionalProperties: true
         "400":
-          description: Invalid policy, workload, or config
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/BadRequest"
 components:
   parameters:
     AgentName:
       name: name
       in: path
       required: true
-      schema:
-        type: string
+      schema: {type: string}
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
   schemas:
-    HealthResponse:
+    AppDeployPlannerRequest:
       type: object
+      required: [natural_language_request, app_version_id, candidate_id]
       properties:
-        status:
+        natural_language_request:
           type: string
-          example: ok
-        service:
+          maxLength: 8000
+          example: GPU 1개와 메모리 16Gi가 필요한 추론 앱을 배포해 주세요.
+        app_version_id:
           type: string
-          example: service-control-api
+          example: appver-llm-inference-v1
+        candidate_id:
+          type: string
+          example: local-ollama-ops-llm
+        target_profile_id:
+          type: string
+          description: Optional AppDeploy Target Profile hint.
+        requested_by:
+          type: string
+          example: ai-ops-geon-planner
+        parameters:
+          type: object
+          additionalProperties: true
+        poll_interval_ms:
+          type: integer
+          minimum: 1
+          maximum: 60000
+          default: 1000
+        max_poll_attempts:
+          type: integer
+          minimum: 1
+          maximum: 600
+          default: 60
+    AppDeployPlannerResponse:
+      type: object
+      required: [valid, status, generation, manifest, deployment, polling, retry_recommended]
+      properties:
+        valid: {type: boolean}
+        status: {type: string, example: RUNNING}
+        generation:
+          type: object
+          additionalProperties: true
+        manifest:
+          $ref: "#/components/schemas/AppDeployDeploymentManifest"
+        deployment:
+          type: object
+          additionalProperties: true
+        polling:
+          type: object
+          additionalProperties: true
+        logs:
+          type: array
+          items: {type: object, additionalProperties: true}
+        retry_recommended: {type: boolean}
+        retry_reason: {type: string}
+    AppDeployDeploymentManifest:
+      type: object
+      required: [schema_version, kind, spec]
+      properties:
+        schema_version:
+          type: string
+          enum: [deployment.khu.ai/v1alpha1]
+        kind:
+          type: string
+          enum: [DeploymentManifest]
+        metadata:
+          type: object
+          properties:
+            name: {type: string}
+        spec:
+          type: object
+          required: [app_version_id, accelerator, resources]
+          properties:
+            app_version_id: {type: string}
+            target_profile_id:
+              type: string
+              description: Optional hint; AppDeploy performs final Target selection.
+            accelerator: {type: string, enum: [none, nvidia]}
+            resources:
+              type: object
+              required: [cpu, memory, gpu, storage]
+              properties:
+                cpu: {type: string, example: "4"}
+                memory: {type: string, example: 16Gi}
+                gpu: {type: string, example: "1"}
+                storage: {type: string, example: 20Gi}
+            requested_by: {type: string}
+            parameters: {type: object, additionalProperties: true}
     ErrorResponse:
       type: object
-      required:
-        - valid
-        - message
+      required: [valid, message]
       properties:
-        valid:
-          type: boolean
-          example: false
-        message:
-          type: string
-          example: "Malformed request body: check JSON syntax"
-    AgentListResponse:
-      type: object
-      properties:
-        command:
-          type: string
-          example: list-agents
-        version:
-          type: string
-          example: "1"
-        persistence:
-          type: string
-          example: configuration_and_process_memory
-        runtime_agent_count:
-          type: integer
-        agents:
-          type: array
-          items:
-            $ref: "#/components/schemas/AgentProfile"
+        valid: {type: boolean, example: false}
+        message: {type: string}
     AgentProfile:
       type: object
       properties:
-        name:
-          type: string
-          example: AIApplicationManagementAgent
-        korean_name:
-          type: string
-          example: AI application management agent
-        version:
-          type: string
-        role:
-          type: string
+        name: {type: string}
+        korean_name: {type: string}
+        version: {type: string}
+        role: {type: string}
         responsibilities:
           type: array
-          items:
-            type: string
+          items: {type: string}
         capabilities:
           type: array
-          items:
-            type: string
+          items: {type: string}
         bounded_actions:
           type: array
-          items:
-            type: string
-        reward_signals:
-          type: array
-          items:
-            type: string
-        enabled:
-          type: boolean
-        endpoint:
-          type: string
-          format: uri
-        invocation_path:
-          type: string
-        source:
-          type: string
-          enum: [configuration, runtime]
-        registered_at:
-          type: string
-          format: date-time
+          items: {type: string}
+        enabled: {type: boolean}
+        endpoint: {type: string, format: uri}
+        invocation_path: {type: string}
+        source: {type: string, enum: [configuration, runtime]}
     ExternalAgentRegistrationRequest:
       type: object
       required: [name, version, role, endpoint, invocation_path, capabilities, bounded_actions]
       properties:
-        name:
-          type: string
-          pattern: "^[A-Za-z][A-Za-z0-9_-]{2,63}$"
-        korean_name:
-          type: string
-        version:
-          type: string
-        role:
-          type: string
+        name: {type: string}
+        korean_name: {type: string}
+        version: {type: string}
+        role: {type: string}
         responsibilities:
           type: array
-          items:
-            type: string
-        endpoint:
-          type: string
-          format: uri
-        invocation_path:
-          type: string
-          example: /v1/actions
+          items: {type: string}
+        endpoint: {type: string, format: uri}
+        invocation_path: {type: string, example: /v1/actions}
         capabilities:
           type: array
           minItems: 1
-          items:
-            type: string
+          items: {type: string}
         bounded_actions:
           type: array
           minItems: 1
-          items:
-            type: string
-        reward_signals:
-          type: array
-          items:
-            type: string
-        enabled:
-          type: boolean
-          default: true
-    AgentActionValidationResponse:
-      type: object
-      properties:
-        agent:
-          type: string
-        action:
-          type: string
-        valid:
-          type: boolean
+          items: {type: string}
+        enabled: {type: boolean, default: true}
     AgentInvocationPlanRequest:
       type: object
       required: [capability, action]
       properties:
-        capability:
-          type: string
-        action:
-          type: string
+        capability: {type: string}
+        action: {type: string}
         parameters:
           type: object
           additionalProperties: true
     AgentInvocationPlan:
       type: object
       properties:
-        valid:
-          type: boolean
-        agent:
-          type: string
-        capability:
-          type: string
-        action:
-          type: string
-        target_url:
-          type: string
-          format: uri
+        valid: {type: boolean}
+        agent: {type: string}
+        capability: {type: string}
+        action: {type: string}
+        target_url: {type: string, format: uri}
         parameters:
           type: object
           additionalProperties: true
-        execution_status:
-          type: string
-          enum: [not_executed]
-        reason:
-          type: string
-    OpsLLMSelectRequest:
+        execution_status: {type: string, enum: [not_executed]}
+        reason: {type: string}
+    VMCompatibilityRequest:
+      type: object
+      required: [workload, target_vm]
+      properties:
+        workload: {type: string, example: llm-chat-inference}
+        target_vm:
+          $ref: "#/components/schemas/VMResourceSnapshot"
+    VMResourceSnapshot:
+      type: object
+      required: [id, source, evidence_status, accelerator]
+      properties:
+        id: {type: string, example: aws-us-west-2-g6-xlarge-l4-20260707}
+        source: {type: string, example: live_vm_system_validation}
+        evidence_status: {type: string, enum: [collected, incomplete]}
+        provider: {type: string}
+        region: {type: string}
+        availability_zone: {type: string}
+        instance_type: {type: string}
+        accelerator: {type: string, enum: [cpu, gpu]}
+        cpu_cores: {type: integer}
+        memory_gb: {type: number}
+        gpu_model: {type: string}
+        gpu_memory_mib: {type: integer}
+        driver_version: {type: string}
+        cuda_version: {type: string}
+        collected_at: {type: string, format: date-time}
+        performance:
+          $ref: "#/components/schemas/VMPerformanceEvidence"
+    VMPerformanceEvidence:
       type: object
       properties:
-        policy:
-          type: string
-          example: quality_first
-    OpsLLMSelectionResponse:
+        status: {type: string, enum: [not_measured, measured]}
+        latency_ms: {type: number}
+        throughput_rps: {type: number}
+        cost_per_hour: {type: number}
+        measured_at: {type: string, format: date-time}
+        source: {type: string}
+    VMCompatibilityResponse:
       type: object
       properties:
-        valid:
-          type: boolean
-        policy:
+        valid: {type: boolean}
+        validation_mode: {type: string, example: actual_vm_compatibility}
+        workload: {type: string}
+        target_vm_id: {type: string}
+        resource_source: {type: string}
+        evidence_status: {type: string}
+        compatibility_status:
           type: string
-        selected_model:
-          type: string
-          example: primary-ops-llm
-        selected_actual_model:
-          type: string
-          example: to-be-evaluated-primary-model
-        selected_provider:
-          type: string
-          example: prototype-policy
-        evaluation_source:
-          type: string
-          example: prototype_policy_config
-        evaluation_type:
-          type: string
-          example: prototype_policy_baseline
-        benchmark_status:
-          type: string
-          example: not_executed
-        selected_score:
-          type: number
-        rationale:
-          type: string
-        ranking:
+          enum: [incompatible, provisionally_compatible, compatible]
+        resource_checks_passed: {type: boolean}
+        performance_status: {type: string}
+        action: {type: string}
+        reason: {type: string}
+        checks:
           type: array
           items:
             type: object
-    WorkloadRequest:
-      type: object
-      required:
-        - workload
-      properties:
-        workload:
-          type: string
-          example: llm-chat-inference
-    ServiceOperationsRequest:
-      type: object
-      required:
-        - workload
-      properties:
-        llm_config:
-          type: string
-          example: config/ops_llm_benchmark.json
-        inference_config:
-          type: string
-          example: config/inference_optimization.json
-        llm_policy:
-          type: string
-          example: quality_first
-        workload:
-          type: string
-          description: AI workload ID used for placement and deployment-plan generation.
-          example: llm-chat-inference
-        operation_service:
-          type: string
-          description: AI service used for bounded operation validation.
-          example: llm-chat-inference
-        operation_resource:
-          type: string
-          description: CPU/GPU VM resource used for bounded operation validation.
-          example: gpu-vm-l4
-        mode:
-          type: string
-          example: mock
-        guard_backend:
-          type: string
-          example: go
-    PlacementResponse:
+            additionalProperties: true
+    DeploymentPlan:
       type: object
       properties:
-        valid:
-          type: boolean
-        workload:
-          type: string
-        selected_resource:
-          type: string
-          example: gpu-vm-l4
-        action:
-          type: string
-          example: deploy_on_gpu_vm
-        score:
-          type: number
-        slo_satisfied:
-          type: boolean
-        rejected_resources:
-          type: object
-        ranked_candidates:
+        workload: {type: string}
+        service_name: {type: string}
+        target_vm_id: {type: string}
+        target_accelerator: {type: string}
+        executor_type: {type: string, enum: [registered_external_agent]}
+        required_capability: {type: string, example: ai_application_deployment_control}
+        selected_executor: {type: string}
+        requested_action: {type: string, example: deploy_application}
+        allowed_actions:
           type: array
-          items:
-            type: object
+          items: {type: string}
+        preconditions:
+          type: array
+          items: {type: string}
+        execution_status: {type: string, enum: [not_executed]}
+        feedback_required: {type: boolean}
     DeploymentPlanResponse:
       allOf:
-        - $ref: "#/components/schemas/PlacementResponse"
+        - $ref: "#/components/schemas/VMCompatibilityResponse"
         - type: object
           properties:
             deployment_plan:
               $ref: "#/components/schemas/DeploymentPlan"
-    DeploymentPlan:
+    LLMAutomationActionRequest:
+      type: object
+      required: [workload, target_vm, candidate_id]
+      properties:
+        workload: {type: string, example: llm-chat-inference}
+        target_vm:
+          $ref: "#/components/schemas/VMResourceSnapshot"
+        candidate_id: {type: string, example: local-ollama-ops-llm}
+        observations:
+          type: object
+          additionalProperties: true
+    LLMActionProposal:
+      type: object
+      required: [action, reason, confidence, required_capability, target_vm_id]
+      properties:
+        action: {type: string, enum: [deploy_application, observe_status, restart_application, stop_application]}
+        reason: {type: string}
+        confidence: {type: number, minimum: 0, maximum: 1}
+        required_capability: {type: string, example: ai_application_deployment_control}
+        target_vm_id: {type: string}
+        parameters:
+          type: object
+          additionalProperties: true
+    LLMDecisionResult:
       type: object
       properties:
-        service_name:
-          type: string
-        container_image:
-          type: string
-        target_resource:
-          type: string
-        target_accelerator:
-          type: string
-        vm_deployment:
-          type: object
+        decision_execution_status: {type: string, enum: [not_executed, executed, rejected, llm_failed]}
+        candidate_id: {type: string}
+        provider: {type: string}
+        actual_model: {type: string}
+        latency_ms: {type: integer, format: int64}
+        proposal:
+          $ref: "#/components/schemas/LLMActionProposal"
+    GuardDecision:
+      type: object
+      properties:
+        valid: {type: boolean}
+        status: {type: string, enum: [not_evaluated, approved, rejected]}
+        reason: {type: string}
+    LLMAutomationActionResponse:
+      type: object
+      properties:
+        valid: {type: boolean}
+        status: {type: string, enum: [not_executed, approved, rejected, pending_executor, vm_incompatible, llm_failed]}
+        correlation_id: {type: string}
+        vm_compatibility:
+          $ref: "#/components/schemas/VMCompatibilityResponse"
+        decision:
+          $ref: "#/components/schemas/LLMDecisionResult"
+        guard:
+          $ref: "#/components/schemas/GuardDecision"
+        handoff:
+          $ref: "#/components/schemas/AgentInvocationPlan"
+    AutomationFeedbackRequest:
+      type: object
+      required: [correlation_id, executor, status]
+      properties:
+        correlation_id: {type: string}
+        executor: {type: string}
+        status: {type: string, enum: [accepted, running, succeeded, failed, stopped]}
+        external_execution_id: {type: string}
+        latency_ms: {type: number}
+        throughput_rps: {type: number}
+        message: {type: string}
+    AutomationFeedbackRecord:
+      allOf:
+        - $ref: "#/components/schemas/AutomationFeedbackRequest"
+        - type: object
           properties:
-            service:
-              type: string
-              description: AI application service name.
-            instances:
-              type: integer
-            placement_constraints:
-              type: object
-            resources:
-              type: object
-        control_actions:
-          type: array
-          items:
-            type: string
-        monitoring_metrics:
-          type: array
-          items:
-            type: string
-    GuardValidation:
+            received_at: {type: string, format: date-time}
+    ServiceOperationsRequest:
       type: object
+      required: [workload, target_vm]
       properties:
-        backend:
-          type: string
-          example: go
-        valid:
-          type: boolean
-        runtime_wired:
-          type: boolean
-          example: false
-        mode:
-          type: string
-          example: mock
-        boundary:
-          type: string
-        operation_service:
-          type: string
-        operation_resource:
-          type: string
-        checked_actions:
-          type: array
-          items:
-            type: string
-        reason:
-          type: string
-    ServiceOperationsResponse:
-      type: object
-      properties:
-        command:
-          type: string
-          example: run-service-operations
-        valid:
-          type: boolean
-        selected_llm:
-          type: string
-          example: primary-ops-llm
-        selected_actual_model:
-          type: string
-          example: to-be-evaluated-primary-model
-        selected_provider:
-          type: string
-          example: prototype-policy
-        evaluation_source:
-          type: string
-          example: prototype_policy_config
-        evaluation_type:
-          type: string
-          example: prototype_policy_baseline
-        benchmark_status:
-          type: string
-          example: not_executed
-        runtime_model:
-          type: string
-          example: primary-ops-llm
-        selected_resource:
-          type: string
-          example: gpu-vm-l4
-        deployment_plan:
-          $ref: "#/components/schemas/DeploymentPlan"
-        inference_deployment_plan:
-          $ref: "#/components/schemas/DeploymentPlanResponse"
-        deployment_validation:
+        llm_config: {type: string, example: config/ops_llm_benchmark.json}
+        vm_requirements: {type: string, example: config/vm_workload_requirements.json}
+        llm_policy: {type: string, example: quality_first}
+        llm_candidates: {type: string, example: config/ops_llm_eval_candidates.local_ollama.json}
+        llm_candidate_id: {type: string, example: local-ollama-ops-llm}
+        workload: {type: string, example: llm-chat-inference}
+        target_vm:
+          $ref: "#/components/schemas/VMResourceSnapshot"
+        observations:
           type: object
-        deployment_execution_mode:
-          type: string
-          enum:
-            - mock
-          example: mock
-        agent_reviews:
-          type: object
-        operation:
-          type: object
-        operation_pipeline_ready:
-          type: boolean
-        guard_backend:
-          type: string
-          example: go
-        guard_validation:
-          $ref: "#/components/schemas/GuardValidation"
-        metadata:
-          type: object
+          additionalProperties: true
+        operation_service: {type: string, example: llm-chat-inference}
+        operation_resource: {type: string, example: aws-us-west-2-g6-xlarge-l4-20260707}
+        mode: {type: string, enum: [plan_only]}
+        guard_backend: {type: string, enum: [go]}

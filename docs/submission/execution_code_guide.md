@@ -4,55 +4,60 @@
 
 | 코드 | 목적 |
 | --- | --- |
-| `go/service-control-api/cmd/service-control-api/main.go` | HTTP API server entrypoint |
-| `go/service-control-api/cmd/aiops-service-control/main.go` | CLI entrypoint |
-| `go/service-control-api/cmd/aiops-service-control/api_integration_validation.go` | Go 기반 local API integration validation runner |
-| `go/service-control-api/cmd/aiops-service-control/validate_system.go` | local/vm 공통 system validation runner |
-| `go/service-control-api/internal/api/service.go` | LLM selection, agent registry, CPU/GPU placement, readiness pipeline |
-| `go/service-control-api/internal/api/server.go` | HTTP route |
-| `go/service-control-api/internal/api/models.go` | request/response model |
-| `go/service-control-api/internal/benchmark/` | Ops LLM benchmark runner와 evaluator |
-| `go/aiops-guard/` | standalone bounded-action guard |
+| `cmd/service-control-api/main.go` | Echo HTTP API entrypoint |
+| `cmd/aiops-service-control/main.go` | CLI와 team-validation |
+| `cmd/aiops-service-control/validate_system.go` | 로컬/VM 환경 검증과 라이브 VM snapshot 수집 |
+| `internal/api/service.go` | 실제 LLM Action 제안, registry, VM 적합성, Go Guard와 handoff 통합 |
+| `internal/api/server.go` | HTTP route와 validation |
+| `internal/benchmark/` | Ops LLM benchmark runner와 evaluator |
+| `internal/automation/` | LLM Action prompt, 엄격한 JSON 파싱과 제안 결과 |
+| `internal/llmclient/` | OpenAI-compatible provider 공용 클라이언트 |
+| `internal/deploymentplanner/` | 자연어 요구 분석, Manifest 생성, 상태 polling과 재시도 판단 |
+| `internal/appdeploy/` | AppDeploy 계약 모델, Go Guard, HTTP client |
+| `go/aiops-guard/` | bounded VM Action 검증 |
 
-## 기본 검증 명령
+## 기본 검증
 
 ```bash
-cd go/aiops-guard
-go test ./...
+make test
+make vet
 ```
 
 ```bash
 cd go/service-control-api
-go test ./...
+go run ./cmd/aiops-service-control team-validation \
+  --output-dir ../../runs/team-validation
+```
+
+## 실제 VM snapshot 검증
+
+```bash
+go run ./cmd/aiops-service-control validate-vm-suitability \
+  --requirements ../../config/vm_workload_requirements.json \
+  --vm-snapshot ../../docs/evidence/artifacts/vm_20260707_resource_snapshot.json \
+  --workload llm-chat-inference
 ```
 
 ```bash
-go run ./cmd/aiops-service-control team-validation
+go run ./cmd/aiops-service-control plan-ai-application-control \
+  --requirements ../../config/vm_workload_requirements.json \
+  --vm-snapshot ../../docs/evidence/artifacts/vm_20260707_resource_snapshot.json \
+  --workload llm-chat-inference
 ```
 
-```bash
-go run ./cmd/aiops-service-control run-service-operations \
-  --llm-config ../../config/ops_llm_benchmark.json \
-  --llm-policy quality_first \
-  --inference-config ../../config/inference_optimization.json \
-  --workload llm-chat-inference \
-  --operation-service llm-chat-inference \
-  --operation-resource gpu-vm-l4 \
-  --mode mock \
-  --guard-backend go
-```
-
-## Local/VM System Validation
+## System validation
 
 로컬:
 
 ```bash
 go run ./cmd/aiops-service-control validate-system \
   --target local \
+  --run-api-integration \
+  --api-port 18080 \
   --output-dir ../../runs/full-validation-local
 ```
 
-AWS GPU VM 내부:
+VM 내부:
 
 ```bash
 go run ./cmd/aiops-service-control validate-system \
@@ -60,101 +65,34 @@ go run ./cmd/aiops-service-control validate-system \
   --output-dir ../../runs/full-validation-vm
 ```
 
-실제 LLM benchmark 포함:
+VM 명령은 `06_vm_resource_snapshot.json`을 만들고 해당 snapshot을 같은 실행의 team-validation에 전달합니다.
+
+## 실제 Ops LLM endpoint 포함
 
 ```bash
 go run ./cmd/aiops-service-control validate-system \
-  --target local \
+  --target vm \
   --run-llm-benchmark \
   --llm-candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
-  --output-dir ../../runs/full-validation-local-executed
-```
-
-VM 내부에서는 `--target vm`으로 변경합니다.
-
-API 통합 검증 포함:
-
-```bash
-go run ./cmd/aiops-service-control validate-system \
-  --target local \
+  --run-llm-decision \
+  --llm-decision-candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
+  --llm-decision-candidate-id local-ollama-ops-llm \
   --run-api-integration \
   --api-port 18080 \
-  --output-dir ../../runs/full-validation-local-with-api
+  --output-dir ../../runs/full-validation-vm-complete
 ```
 
-`--run-llm-benchmark` 또는 `--run-api-integration`이 없으면 해당 optional step은 `skipped=true`로 기록됩니다.
+Ollama는 OpenAI-compatible endpoint 예시일 뿐 필수 런타임이 아닙니다. `benchmark_status=executed`는 Ops 평가, `decision_execution_status=executed`는 자동화 Action 제안이 실제 endpoint에서 수행되었음을 각각 뜻합니다.
 
-## API Integration Validation
-
-```bash
-go run ./cmd/aiops-service-control api-integration-validation \
-  --output-dir ../../runs/api-integration-local \
-  --port 18080
-```
-
-이 명령은 6개 endpoint를 순차 호출하고 response field를 검증합니다. local API integration validation이며 production-level operational validation은 아닙니다.
-
-## Ops LLM Dry-Run
+## AppDeploy Planner
 
 ```bash
-go run ./cmd/aiops-service-control run-ops-llm-benchmark \
-  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
-  --candidates ../../config/ops_llm_eval_candidates.json \
-  --output-dir ../../runs/ops-llm-evaluation-dry-run \
-  --dry-run
-
-go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
-  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
-  --outputs ../../runs/ops-llm-evaluation-dry-run/model_outputs.jsonl \
-  --summary ../../runs/ops-llm-evaluation-dry-run/evaluation_summary.json
-```
-
-## Ops LLM 실제 실행
-
-OpenAI-compatible endpoint가 준비된 경우:
-
-```bash
-go run ./cmd/aiops-service-control run-ops-llm-benchmark \
-  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
+go run ./cmd/aiops-service-control run-appdeploy-planner \
+  --request "GPU 추론 앱을 배포해 주세요." \
+  --app-version-id appver-llm-inference-v1 \
+  --candidate-id local-ollama-ops-llm \
   --candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
-  --output-dir ../../runs/ops-llm-evaluation-executed
-
-go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
-  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
-  --outputs ../../runs/ops-llm-evaluation-executed/model_outputs.jsonl \
-  --summary ../../runs/ops-llm-evaluation-executed/evaluation_summary.json
+  --appdeploy-base-url http://127.0.0.1:8081/api/v1
 ```
 
-기대 신호:
-
-```text
-benchmark_status = executed
-dry_run = false
-selected_actual_model = <configured-actual-model>
-```
-
-로컬 example provider 후보를 비교하려면 다음 config를 사용할 수 있습니다. Ollama는 로컬 검증 예시이며 통합 환경의 필수 runtime이 아닙니다.
-
-```bash
-go run ./cmd/aiops-service-control run-ops-llm-benchmark \
-  --scenarios ../../data/ops_llm_eval_scenarios.jsonl \
-  --candidates ../../config/ops_llm_eval_candidates.local_multi_ollama.json \
-  --output-dir ../../runs/ops-llm-evaluation-local-multi-executed
-```
-
-candidate config는 실행 결과가 아니며, 실제 endpoint 응답과 `evaluation_summary.json`의 `benchmark_status = executed`가 있어야 비교 결과로 해석합니다.
-
-## 출력 증거
-
-`runs/` directory는 local evidence이며 committed source package에는 포함하지 않습니다.
-
-주요 evidence:
-
-```text
-runs/full-validation-local/
-runs/full-validation-vm/
-runs/ops-llm-evaluation-dry-run/
-runs/ops-llm-evaluation-executed/
-```
-
-`benchmark_status = dry_run`은 평가 파이프라인 검증이고, `benchmark_status = executed`만 실제 provider 응답 기반 평가입니다.
+실행 순서는 LLM 호출, Manifest Go Guard 검증, AppDeploy 배포 요청, 상태 polling, 로그 조회입니다. 실제 Target과 Runtime Adapter는 AppDeploy가 선택합니다.

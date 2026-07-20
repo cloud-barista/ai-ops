@@ -1,7 +1,7 @@
 {
   "version": "1",
   "benchmark_mode": "integration_candidate_config",
-  "description": "Integration candidate config example for an AppDeployer or AI-MCMP linked environment. This file is not an executed result. Replace endpoint, actual_model, provider, and api_key_env with values injected by the deployment or platform layer.",
+  "description": "Generic integration candidate example for an external LLM endpoint. This file is not an executed result. Replace endpoint, actual_model, provider, and api_key_env with values supplied by the connected platform or research environment.",
   "candidates": [
     {
       "candidate_id": "integration-primary-ops-llm",
@@ -11,6 +11,7 @@
       "endpoint": "https://replace-with-platform-endpoint/v1/chat/completions",
       "api_key_env": "AI_MCMP_LLM_API_KEY",
       "enabled": false,
+      "json_mode": true,
       "timeout_seconds": 60
     }
   ]

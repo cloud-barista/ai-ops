@@ -13,11 +13,11 @@ func validScaleRequest() Request {
 	return Request{
 		Mode:             ModeMock,
 		Service:          "aiops-service",
-		TargetResource:   "gpu-vm-l4",
+		TargetResource:   "recorded-vm-id",
 		Action:           ActionScaleOut,
 		Instances:        ptr(3),
 		AllowedServices:  []string{"aiops-service", "aiops-worker"},
-		AllowedResources: []string{"cpu-vm-standard", "gpu-vm-l4"},
+		AllowedResources: []string{"recorded-vm-id"},
 		MinInstances:     1,
 		MaxInstances:     5,
 	}
@@ -30,7 +30,7 @@ func TestScaleOutBuildsStableVMActionPlan(t *testing.T) {
 		t.Fatalf("expected valid result, got reason=%q", result.Reason)
 	}
 
-	want := "scale service=aiops-service target_resource=gpu-vm-l4 instances=3"
+	want := "scale service=aiops-service target_resource=recorded-vm-id instances=3"
 	if result.ActionPlan != want {
 		t.Fatalf("action plan mismatch\nwant: %s\n got: %s", want, result.ActionPlan)
 	}
@@ -116,7 +116,7 @@ func TestObserveOnlyBuildsReadOnlyPlan(t *testing.T) {
 	if !result.Valid {
 		t.Fatalf("expected observe validation success, got reason=%q", result.Reason)
 	}
-	want := "observe service=aiops-service target_resource=gpu-vm-l4"
+	want := "observe service=aiops-service target_resource=recorded-vm-id"
 	if result.ActionPlan != want {
 		t.Fatalf("action plan mismatch\nwant: %s\n got: %s", want, result.ActionPlan)
 	}

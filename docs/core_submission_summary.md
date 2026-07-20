@@ -8,10 +8,11 @@
 
 - Ops 분석 시험 및 최적 LLM 선정 정책 흐름
 - AI LLM 운영 관리 구조 검증
-- AI 에이전트 등록 및 bounded action 검증
-- CPU/GPU VM 배치 추천
-- AI 응용 배포·제어 계획 생성
-- mock 서비스 운영 준비도 보고
+- 실제 LLM 기반 App 요구 분석과 CPU·메모리·GPU·디스크·accelerator 요구량 결정
+- LLM Deployment Planner 등록과 bounded Action 검증
+- AppDeploy Deployment Manifest 생성 및 Go Guard 검증
+- AppDeploy 배포 요청, 상태 polling, 로그 조회와 명시적 retryable 판단
+- 실제 CPU/GPU VM snapshot 보조 적합성 검증
 - local/vm 공통 system validation evidence 생성
 
 본 패키지는 운영 환경 투입을 위한 완성형 시스템이 아니며, 최종 표준 LLM 벤치마크 결과를 주장하지 않습니다.
@@ -22,9 +23,9 @@
 | --- | --- |
 | Ops 분석 시험 및 최적 LLM 선정 | `config/ops_llm_benchmark.json`을 사용하는 Go API/CLI 정책 선정 흐름 |
 | Ops LLM 평가 확장 구조 | `data/ops_llm_eval_scenarios.jsonl`, `config/ops_llm_eval_candidates.json`, Go dry-run/evaluator CLI |
-| AI LLM 운영 관리 구조 | 통합 Go 서비스 운영 준비도 pipeline |
-| AI 에이전트 등록 관리 프로토타입 | 에이전트 registry 설정과 Go list/show/validate action |
-| CPU/GPU VM 기반 AI 응용 배포·제어 전략 | Go CPU/GPU 배치 추천과 AI 응용 배포·제어 계획 생성 |
+| AI LLM 운영 관리 구조 | 통합 Go 서비스 제어 pipeline과 실제 provider 실행 상태 분리 |
+| AI 에이전트 등록 관리 프로토타입 | LLM Deployment Planner 역할·capability·bounded Action 등록과 검증 |
+| CPU/GPU VM 기반 AI 응용 배포·제어 전략 | 실제 LLM Manifest 생성, Go Guard, AppDeploy 요청·상태 추적 |
 | 안전 검증 경계 | 독립 Go `aiops-guard` 계약과 service-control guard 준비도 출력 |
 | 로컬/VM 실행 검증 | `validate-system --target local/vm` 공통 검증 명령 |
 
@@ -72,11 +73,9 @@ Markdown과 YAML 파일은 원본 산출물입니다. DOCX 파일은 Markdown �
 
 문서 패키지는 `docs/README.md`를 진입점으로 하며, 공식 산출물, 실행/검증 문서, 증적 패키지 가이드, 제출 체크리스트, API 예제를 연결합니다.
 
-LLM 선정 값은 수동 정의된 프로토타입 정책 기준값입니다. 최종 표준 벤치마크 결과가 아니며, 정량 보고 전에는 통제된 per-model Ops 평가를 통해 재생성해야 합니다.
+LLM 선정 baseline은 최종 표준 벤치마크 결과가 아닙니다. 실제 candidate endpoint를 실행한 benchmark와 LLM 자동화 Action 결과는 각각 `benchmark_status`와 `decision_execution_status`로 구분합니다.
 
-Ops LLM dry-run/evaluator는 Go로 구현되어 있으며, 기본 상태에서는 실제 provider API를 호출하지 않습니다.
-
-실제 GPU VM 프로비저닝은 AI-Infra 또는 CB-Tumblebug 연동 경계에 있습니다. 기본 로컬 검증 경로는 mock 실행을 사용합니다.
+실제 GPU VM 프로비저닝은 CB-Tumblebug 등 외부 인프라 계층의 경계에 있습니다. 실제 App Spec 조회, Target·Adapter 선택과 VM 배포 실행은 AppDeploy의 경계이며, service-control은 상위 Planner로 동작합니다.
 
 ## 7. 검증
 
@@ -101,7 +100,9 @@ team-validation valid = true
 selected_model = primary-ops-llm
 selected_actual_model = to-be-evaluated-primary-model
 benchmark_status = not_executed
-selected_resource = gpu-vm-l4
+selected_resource = <actual-vm-snapshot-id>
+compatibility_status = provisionally_compatible | compatible
+execution_status = not_executed
 run-service-operations valid = true
 guard_backend = go
 guard_validation.valid = true

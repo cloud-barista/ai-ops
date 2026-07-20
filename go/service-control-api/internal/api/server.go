@@ -14,8 +14,11 @@ const (
 	pathOpenAPI        = "/openapi.yaml"
 	pathAgents         = "/api/v1/agents"
 	pathOpsLLMSelect   = "/api/v1/ops-llm/select"
-	pathAppPlacement   = "/api/v1/apps/placement"
+	pathVMSuitability  = "/api/v1/apps/vm-suitability"
 	pathDeploymentPlan = "/api/v1/apps/deployment-plan"
+	pathAutomationPlan = "/api/v1/automation/action-proposals"
+	pathAutomationFeed = "/api/v1/automation/feedback"
+	pathPlannerDeploy  = "/api/v1/planner/deployments"
 	pathServiceOpsRun  = "/api/v1/service-operations/run"
 )
 
@@ -72,11 +75,37 @@ func NewServer(config ServerConfig) *echo.Echo {
 	server.POST(pathAgents+"/:name/actions/:action/validate", handler.RestPostAgentActionValidate)
 	server.POST(pathAgents+"/:name/invocations/plan", handler.RestPostAgentInvocationPlan)
 	server.POST(pathOpsLLMSelect, handler.RestPostOpsLLMSelect)
-	server.POST(pathAppPlacement, handler.RestPostAppPlacement)
+	server.POST(pathVMSuitability, handler.RestPostVMSuitability)
 	server.POST(pathDeploymentPlan, handler.RestPostDeploymentPlan)
+	server.POST(pathAutomationPlan, handler.RestPostLLMAutomationAction)
+	server.POST(pathAutomationFeed, handler.RestPostAutomationFeedback)
+	server.POST(pathPlannerDeploy, handler.RestPostAppDeployPlanner)
 	server.POST(pathServiceOpsRun, handler.RestPostServiceOperationsRun)
 
 	return server
+}
+
+// RestPostAppDeployPlanner godoc
+// @ID PostAppDeployPlanner
+// @Summary Plan and submit an AI application deployment
+// @Description Use an actual configured LLM to generate an AppDeploy DeploymentManifest, validate it with the Go Guard, submit it to AppDeploy, and poll the deployment status. AppDeploy retains target selection and execution responsibility.
+// @Tags AI Application Automation
+// @Accept json
+// @Produce json
+// @Param request body AppDeployPlannerRequest true "Planner request"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} ErrorResponse
+// @Router /api/v1/planner/deployments [post]
+func (handler restHandler) RestPostAppDeployPlanner(context echo.Context) error {
+	var request AppDeployPlannerRequest
+	if message, err := bindAndValidate(context, &request); err != nil {
+		return jsonError(context, http.StatusBadRequest, message, err)
+	}
+	result, err := handler.service.RunAppDeployPlanner(context.Request().Context(), request)
+	if err != nil {
+		return jsonError(context, http.StatusBadRequest, "Deployment planner request could not be processed", err)
+	}
+	return context.JSON(http.StatusOK, result)
 }
 
 // RestGetHealthz godoc
@@ -235,25 +264,25 @@ func (handler restHandler) RestPostOpsLLMSelect(context echo.Context) error {
 	return context.JSON(http.StatusOK, result)
 }
 
-// RestPostAppPlacement godoc
-// @ID PostAppPlacement
-// @Summary Recommend CPU/GPU VM placement
-// @Description Recommend a CPU/GPU VM target for an AI application workload.
+// RestPostVMSuitability godoc
+// @ID PostVMSuitability
+// @Summary Validate a provided CPU/GPU VM
+// @Description Validate whether an infrastructure-supplied VM snapshot satisfies declared workload requirements without selecting or provisioning a VM.
 // @Tags AI Application Deployment
 // @Accept json
 // @Produce json
-// @Param request body WorkloadRequest true "Inference workload request"
-// @Success 200 {object} PlacementResponse
+// @Param request body VMCompatibilityRequest true "VM compatibility request"
+// @Success 200 {object} VMCompatibilityResponse
 // @Failure 400 {object} ErrorResponse
-// @Router /api/v1/apps/placement [post]
-func (handler restHandler) RestPostAppPlacement(context echo.Context) error {
-	var request WorkloadRequest
+// @Router /api/v1/apps/vm-suitability [post]
+func (handler restHandler) RestPostVMSuitability(context echo.Context) error {
+	var request VMCompatibilityRequest
 	if message, err := bindAndValidate(context, &request); err != nil {
 		return jsonError(context, http.StatusBadRequest, message, err)
 	}
-	result, err := handler.service.RecommendPlacement(context.Request().Context(), request.Workload)
+	result, err := handler.service.ValidateVMSuitability(context.Request().Context(), request)
 	if err != nil {
-		return jsonError(context, http.StatusBadRequest, "Placement request could not be processed", err)
+		return jsonError(context, http.StatusBadRequest, "VM suitability request could not be processed", err)
 	}
 	return context.JSON(http.StatusOK, result)
 }
@@ -261,22 +290,68 @@ func (handler restHandler) RestPostAppPlacement(context echo.Context) error {
 // RestPostDeploymentPlan godoc
 // @ID PostDeploymentPlan
 // @Summary Build an AI application deployment plan
-// @Description Build a CPU/GPU VM-oriented deployment and control plan for the selected workload.
+// @Description Build a non-executing, capability-based handoff plan for any registered external execution agent.
 // @Tags AI Application Deployment
 // @Accept json
 // @Produce json
-// @Param request body WorkloadRequest true "Inference workload request"
+// @Param request body VMCompatibilityRequest true "VM compatibility request"
 // @Success 200 {object} DeploymentPlanResponse
 // @Failure 400 {object} ErrorResponse
 // @Router /api/v1/apps/deployment-plan [post]
 func (handler restHandler) RestPostDeploymentPlan(context echo.Context) error {
-	var request WorkloadRequest
+	var request VMCompatibilityRequest
 	if message, err := bindAndValidate(context, &request); err != nil {
 		return jsonError(context, http.StatusBadRequest, message, err)
 	}
-	result, err := handler.service.BuildDeploymentPlan(context.Request().Context(), request.Workload)
+	result, err := handler.service.BuildDeploymentPlan(context.Request().Context(), request)
 	if err != nil {
 		return jsonError(context, http.StatusBadRequest, "Deployment plan request could not be processed", err)
+	}
+	return context.JSON(http.StatusOK, result)
+}
+
+// RestPostLLMAutomationAction godoc
+// @ID PostLLMAutomationAction
+// @Summary Generate and validate an LLM-based automation Action
+// @Description Call an actual configured LLM candidate, validate its bounded Action against actual VM evidence and Agent Registry policy, and return a non-executing external-agent handoff.
+// @Tags AI Application Automation
+// @Accept json
+// @Produce json
+// @Param request body LLMAutomationActionRequest true "LLM automation Action request"
+// @Success 200 {object} LLMAutomationActionResponse
+// @Failure 400 {object} ErrorResponse
+// @Router /api/v1/automation/action-proposals [post]
+func (handler restHandler) RestPostLLMAutomationAction(context echo.Context) error {
+	var request LLMAutomationActionRequest
+	if message, err := bindAndValidate(context, &request); err != nil {
+		return jsonError(context, http.StatusBadRequest, message, err)
+	}
+	result, err := handler.service.PlanLLMAutomationAction(context.Request().Context(), request)
+	if err != nil {
+		return jsonError(context, http.StatusBadRequest, "LLM automation Action request could not be processed", err)
+	}
+	return context.JSON(http.StatusOK, result)
+}
+
+// RestPostAutomationFeedback godoc
+// @ID PostAutomationFeedback
+// @Summary Record external automation execution feedback
+// @Description Record normalized status and optional performance evidence for a previously approved correlation ID. Credentials and arbitrary secret fields are not accepted.
+// @Tags AI Application Automation
+// @Accept json
+// @Produce json
+// @Param request body AutomationFeedbackRequest true "Automation execution feedback"
+// @Success 200 {object} AutomationFeedbackRecord
+// @Failure 400 {object} ErrorResponse
+// @Router /api/v1/automation/feedback [post]
+func (handler restHandler) RestPostAutomationFeedback(context echo.Context) error {
+	var request AutomationFeedbackRequest
+	if message, err := bindAndValidate(context, &request); err != nil {
+		return jsonError(context, http.StatusBadRequest, message, err)
+	}
+	result, err := handler.service.RecordAutomationFeedback(context.Request().Context(), request)
+	if err != nil {
+		return jsonError(context, http.StatusBadRequest, "Automation feedback could not be recorded", err)
 	}
 	return context.JSON(http.StatusOK, result)
 }
@@ -284,7 +359,7 @@ func (handler restHandler) RestPostDeploymentPlan(context echo.Context) error {
 // RestPostServiceOperationsRun godoc
 // @ID PostServiceOperationsRun
 // @Summary Run service-control operation planning
-// @Description Execute the Go service-control flow across LLM selection, agent checks, CPU/GPU placement, and deployment-control planning.
+// @Description Execute the Go service-control flow across LLM selection, agent checks, actual VM suitability validation, and generic deployment-control handoff planning.
 // @Tags Service Control
 // @Accept json
 // @Produce json

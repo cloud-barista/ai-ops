@@ -10,8 +10,10 @@ import (
 )
 
 type ServerConfig struct {
-	RepoRoot    string
-	OpenAPIPath string
+	RepoRoot          string
+	OpenAPIPath       string
+	LLMCandidatesPath string
+	AppDeployBaseURL  string
 }
 
 func NewServerConfig() ServerConfig {
@@ -26,9 +28,17 @@ func NewServerConfig() ServerConfig {
 	if openAPIPath == "" {
 		openAPIPath = filepath.Join(repoRoot, "docs", "submission", "openapi_service_control.yaml")
 	}
+	llmCandidatesPath := viper.GetString("LLM_CANDIDATES_PATH")
+	if llmCandidatesPath == "" {
+		llmCandidatesPath = filepath.Join(repoRoot, "config", "ops_llm_eval_candidates.json")
+	} else if !filepath.IsAbs(llmCandidatesPath) {
+		llmCandidatesPath = filepath.Join(repoRoot, llmCandidatesPath)
+	}
 	return ServerConfig{
-		RepoRoot:    repoRoot,
-		OpenAPIPath: openAPIPath,
+		RepoRoot:          repoRoot,
+		OpenAPIPath:       openAPIPath,
+		LLMCandidatesPath: llmCandidatesPath,
+		AppDeployBaseURL:  viper.GetString("APPDEPLOY_BASE_URL"),
 	}
 }
 

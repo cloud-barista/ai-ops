@@ -1,32 +1,28 @@
 # 서비스 제어 프레임워크 매핑
 
-## 연구 범위 매핑
+## 연구 범위와 구현
 
-| 연구 범위 | 공식 설계 산출물 | Go 구현 |
+| 연구 범위 | 설계 산출물 | Go 구현 |
 | --- | --- | --- |
-| AI LLM 운영 관리 설계 | `docs/deliverables/01_llm_operation_management_design.md` | Ops LLM policy ranking 및 runtime candidate selection |
-| AI 에이전트 등록 관리 | `docs/deliverables/02_agent_registration_management_prototype.md` | Agent registry와 bounded-action validation |
-| AI 응용 자동화 에이전트 설계 | `docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md` | application, infrastructure, cost review output |
-| CPU/GPU VM 기반 AI 응용 배포·제어 | `docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md` | placement recommendation 및 deployment-plan generation |
-| 안전 검증 | `docs/submission/test_guide.md` | standalone `aiops-guard`와 service-control guard-readiness response |
+| AI LLM 운영 관리 | `01_llm_operation_management_design.md` | policy ranking, benchmark status, actual model 분리 |
+| 에이전트 등록 관리 | `02_agent_registration_management_prototype.md` | LLM Deployment Planner의 역할, capability, bounded Action 등록 |
+| AI 응용 자동화 에이전트 | `03_ai_application_deployment_control_optimization_strategy.md` | 자연어 App 요구 분석, 자원 요구량 결정, Deployment Manifest 생성 |
+| CPU/GPU VM 배포·제어 | 동일 산출물 | Go Guard 검증, AppDeploy 요청, 상태 polling과 로그 조회 |
+| 안전 경계 | `test_guide.md` | 계약·자원 값·요청 보존·비밀정보 검증, 명시적 retryable 판단 |
+
+그림 A의 상위 서비스 제어 흐름은 `docs/design/main_llm_go_guard_control_flow.md`에서 통합하여 설명합니다. 그림의 `명령 파일(manifest)`는 Kubernetes manifest가 아니라 AppDeploy 공식 `DeploymentManifest`입니다.
 
 ## Pipeline
 
 ```text
-config/ops_llm_benchmark.json
--> select-ops-llm
--> config/agent_registry.json
--> validate-agent-action
--> config/inference_optimization.json
--> recommend-inference-placement
--> plan-inference-deployment
--> run-service-operations
+Natural-language App requirement + app_version_id
+  -> actual LLM requirement analysis
+  -> CPU / memory / GPU / storage / accelerator decision
+  -> AppDeploy DeploymentManifest
+  -> deterministic Go Guard validation
+  -> AppDeploy POST /api/v1/deployments
+  -> deployment status polling and log collection
+  -> retry recommendation only when AppDeploy marks an error retryable
 ```
 
-## 안전 경계
-
-Go layer는 service operation이 ready로 판단되기 전에 선택 action과 deployment plan을 검증합니다. 기본 team validation은 `mock` mode를 사용하며 cluster credential을 요구하지 않습니다.
-
-`aiops-guard`는 standalone bounded-action validator로 유지됩니다. `service-control-api`와 `aiops-guard` 사이의 full runtime wiring은 다음 단계의 integration item입니다.
-
-이 매핑은 1차년도 기능 prototype mapping입니다. production readiness, final standardized LLM benchmark completion, 기본 검증 경로에서의 actual GPU VM provisioning을 주장하지 않습니다.
+내부 핵심 에이전트는 `AIApplicationAutomationAgent`이며 현재 주 역할은 LLM Deployment Planner입니다. 기존 범용 Action handoff API는 연구 호환용 보조 경로로 유지하며, AppDeploy 연계의 공식 주 경로는 `POST /api/v1/planner/deployments`입니다. 최종 Target과 Runtime Adapter는 Planner가 아니라 AppDeploy가 선택합니다.

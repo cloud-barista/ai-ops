@@ -1,8 +1,10 @@
 flowchart LR
-  A[Workload requirement] --> B[Resource candidate filtering]
-  B --> C[Accelerator and VRAM check]
-  C --> D[SLO and throughput check]
-  D --> E[Weighted placement scoring]
-  E --> F[Selected CPU/GPU VM profile]
-  F --> G[Deployment/control plan]
-  G --> H[Mock or VM validation]
+  A[Workload requirements] --> C[Actual VM suitability validation]
+  B[Infrastructure-supplied VM snapshot] --> C
+  C --> D{Resource checks}
+  D -->|fail| E[Incompatible]
+  D -->|pass, performance absent| F[Provisionally compatible]
+  D -->|pass, performance measured| G[Compatible]
+  F --> H[Capability-based agent handoff plan]
+  G --> H
+  H --> I[Execution status: not executed]

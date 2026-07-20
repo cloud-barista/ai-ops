@@ -58,7 +58,7 @@ func TestRegisterExternalAgentRejectsDuplicateAndUnsafeEndpoint(t *testing.T) {
 	ctx := context.Background()
 
 	_, err := service.RegisterExternalAgent(ctx, ExternalAgentRegistrationRequest{
-		Name:           "AIApplicationManagementAgent",
+		Name:           "AIApplicationAutomationAgent",
 		Version:        "0.1.0",
 		Role:           "Duplicate static agent.",
 		Endpoint:       "https://agent.example.com",

@@ -112,9 +112,10 @@ func run(args []string) error {
 			"command": "select-ops-llm",
 			"config":  configPath,
 		}), *saveResultDir)
-	case "recommend-inference-placement":
-		flags := flag.NewFlagSet("recommend-inference-placement", flag.ContinueOnError)
-		config := flags.String("config", "config/inference_optimization.json", "Inference optimization JSON path")
+	case "validate-vm-suitability":
+		flags := flag.NewFlagSet("validate-vm-suitability", flag.ContinueOnError)
+		requirements := flags.String("requirements", "config/vm_workload_requirements.json", "VM workload requirements JSON path")
+		snapshot := flags.String("vm-snapshot", "docs/evidence/artifacts/vm_20260707_resource_snapshot.json", "Collected VM resource snapshot JSON path")
 		workload := flags.String("workload", "", "Inference workload ID")
 		saveResultDir := addSaveResultDirFlag(flags)
 		if err := flags.Parse(args[1:]); err != nil {
@@ -123,18 +124,27 @@ func run(args []string) error {
 		if *workload == "" {
 			return fmt.Errorf("--workload is required")
 		}
-		configPath := resolveInputPath(serverConfig, *config)
-		result, err := service.RecommendPlacementFromPath(ctx, configPath, *workload)
+		requirementsPath := resolveInputPath(serverConfig, *requirements)
+		targetVM, err := loadVMResourceSnapshot(resolveInputPath(serverConfig, *snapshot))
 		if err != nil {
 			return err
 		}
-		return emitReport("recommend-inference-placement", withFields(result, map[string]any{
-			"command": "recommend-inference-placement",
-			"config":  configPath,
+		result, err := service.ValidateVMSuitabilityFromPath(ctx, requirementsPath, api.VMCompatibilityRequest{
+			Workload: *workload,
+			TargetVM: targetVM,
+		})
+		if err != nil {
+			return err
+		}
+		return emitReport("validate-vm-suitability", withFields(result, map[string]any{
+			"command":      "validate-vm-suitability",
+			"requirements": requirementsPath,
+			"vm_snapshot":  resolveInputPath(serverConfig, *snapshot),
 		}), *saveResultDir)
-	case "plan-inference-deployment":
-		flags := flag.NewFlagSet("plan-inference-deployment", flag.ContinueOnError)
-		config := flags.String("config", "config/inference_optimization.json", "Inference optimization JSON path")
+	case "plan-ai-application-control":
+		flags := flag.NewFlagSet("plan-ai-application-control", flag.ContinueOnError)
+		requirements := flags.String("requirements", "config/vm_workload_requirements.json", "VM workload requirements JSON path")
+		snapshot := flags.String("vm-snapshot", "docs/evidence/artifacts/vm_20260707_resource_snapshot.json", "Collected VM resource snapshot JSON path")
 		workload := flags.String("workload", "", "Inference workload ID")
 		saveResultDir := addSaveResultDirFlag(flags)
 		if err := flags.Parse(args[1:]); err != nil {
@@ -143,24 +153,113 @@ func run(args []string) error {
 		if *workload == "" {
 			return fmt.Errorf("--workload is required")
 		}
-		configPath := resolveInputPath(serverConfig, *config)
-		result, err := service.BuildDeploymentPlanFromPath(ctx, configPath, *workload)
+		requirementsPath := resolveInputPath(serverConfig, *requirements)
+		targetVM, err := loadVMResourceSnapshot(resolveInputPath(serverConfig, *snapshot))
 		if err != nil {
 			return err
 		}
-		return emitReport("plan-inference-deployment", withFields(result, map[string]any{
-			"command": "plan-inference-deployment",
-			"config":  configPath,
+		result, err := service.BuildDeploymentPlanFromPath(ctx, requirementsPath, api.VMCompatibilityRequest{
+			Workload: *workload,
+			TargetVM: targetVM,
+		})
+		if err != nil {
+			return err
+		}
+		return emitReport("plan-ai-application-control", withFields(result, map[string]any{
+			"command":      "plan-ai-application-control",
+			"requirements": requirementsPath,
+			"vm_snapshot":  resolveInputPath(serverConfig, *snapshot),
 		}), *saveResultDir)
+	case "plan-llm-automation-action":
+		flags := flag.NewFlagSet("plan-llm-automation-action", flag.ContinueOnError)
+		requirements := flags.String("requirements", "config/vm_workload_requirements.json", "VM workload requirements JSON path")
+		snapshot := flags.String("vm-snapshot", "docs/evidence/artifacts/vm_20260707_resource_snapshot.json", "Collected VM resource snapshot JSON path")
+		candidates := flags.String("candidates", "config/ops_llm_eval_candidates.json", "OpenAI-compatible LLM candidate JSON path")
+		candidateID := flags.String("candidate-id", "", "Enabled LLM candidate ID")
+		workload := flags.String("workload", "", "Inference workload ID")
+		saveResultDir := addSaveResultDirFlag(flags)
+		if err := flags.Parse(args[1:]); err != nil {
+			return err
+		}
+		if *workload == "" {
+			return fmt.Errorf("--workload is required")
+		}
+		if *candidateID == "" {
+			return fmt.Errorf("--candidate-id is required")
+		}
+		requirementsPath := resolveInputPath(serverConfig, *requirements)
+		snapshotPath := resolveInputPath(serverConfig, *snapshot)
+		candidatesPath := resolveInputPath(serverConfig, *candidates)
+		targetVM, err := loadVMResourceSnapshot(snapshotPath)
+		if err != nil {
+			return err
+		}
+		result, err := service.PlanLLMAutomationActionFromPaths(ctx, requirementsPath, candidatesPath, api.LLMAutomationActionRequest{
+			Workload:    *workload,
+			TargetVM:    targetVM,
+			CandidateID: *candidateID,
+		})
+		if err != nil {
+			return err
+		}
+		return emitReport("plan-llm-automation-action", withFields(result, map[string]any{
+			"command":      "plan-llm-automation-action",
+			"requirements": requirementsPath,
+			"vm_snapshot":  snapshotPath,
+			"candidates":   candidatesPath,
+		}), *saveResultDir)
+	case "run-appdeploy-planner":
+		flags := flag.NewFlagSet("run-appdeploy-planner", flag.ContinueOnError)
+		naturalLanguageRequest := flags.String("request", "", "Natural-language application deployment requirement")
+		appVersionID := flags.String("app-version-id", "", "AppDeploy application version ID")
+		candidateID := flags.String("candidate-id", "", "Enabled LLM candidate ID")
+		candidates := flags.String("candidates", "config/ops_llm_eval_candidates.json", "OpenAI-compatible LLM candidate JSON path")
+		appDeployBaseURL := flags.String("appdeploy-base-url", "", "AppDeploy API base URL ending in /api/v1")
+		targetProfileID := flags.String("target-profile-id", "", "Optional AppDeploy target profile hint")
+		requestedBy := flags.String("requested-by", "ai-ops-geon-planner", "Planner requester identifier")
+		pollIntervalMS := flags.Int("poll-interval-ms", 1000, "Deployment status polling interval in milliseconds")
+		maxPollAttempts := flags.Int("max-poll-attempts", 60, "Maximum number of deployment status polls")
+		saveResultDir := addSaveResultDirFlag(flags)
+		if err := flags.Parse(args[1:]); err != nil {
+			return err
+		}
+		if strings.TrimSpace(*naturalLanguageRequest) == "" {
+			return fmt.Errorf("--request is required")
+		}
+		if strings.TrimSpace(*appVersionID) == "" {
+			return fmt.Errorf("--app-version-id is required")
+		}
+		if strings.TrimSpace(*candidateID) == "" {
+			return fmt.Errorf("--candidate-id is required")
+		}
+		if strings.TrimSpace(*appDeployBaseURL) == "" {
+			return fmt.Errorf("--appdeploy-base-url is required")
+		}
+		result, err := service.RunAppDeployPlannerWithConfig(ctx, api.AppDeployPlannerRequest{
+			NaturalLanguageRequest: *naturalLanguageRequest,
+			AppVersionID:           *appVersionID,
+			CandidateID:            *candidateID,
+			TargetProfileID:        *targetProfileID,
+			RequestedBy:            *requestedBy,
+			PollIntervalMS:         *pollIntervalMS,
+			MaxPollAttempts:        *maxPollAttempts,
+		}, resolveInputPath(serverConfig, *candidates), *appDeployBaseURL)
+		if err != nil {
+			return err
+		}
+		return emitReport("run-appdeploy-planner", result, *saveResultDir)
 	case "run-service-operations":
 		flags := flag.NewFlagSet("run-service-operations", flag.ContinueOnError)
 		llmConfig := flags.String("llm-config", "config/ops_llm_benchmark.json", "Ops LLM benchmark JSON path")
+		llmCandidates := flags.String("llm-candidates", "config/ops_llm_eval_candidates.json", "OpenAI-compatible LLM candidate JSON path")
+		llmCandidateID := flags.String("llm-candidate-id", "", "Optional enabled LLM candidate ID for actual Action planning")
 		llmPolicy := flags.String("llm-policy", "quality_first", "Ops LLM selection policy")
-		inferenceConfig := flags.String("inference-config", "config/inference_optimization.json", "Inference optimization JSON path")
+		vmRequirements := flags.String("vm-requirements", "config/vm_workload_requirements.json", "VM workload requirements JSON path")
+		vmSnapshot := flags.String("vm-snapshot", "docs/evidence/artifacts/vm_20260707_resource_snapshot.json", "Collected VM resource snapshot JSON path")
 		workload := flags.String("workload", "", "Inference workload ID")
 		operationService := flags.String("operation-service", "", "AI service for bounded operation validation")
 		operationResource := flags.String("operation-resource", "", "CPU/GPU VM resource for bounded operation validation")
-		mode := flags.String("mode", "mock", "Execution mode")
+		mode := flags.String("mode", "plan_only", "Execution mode")
 		guardBackend := flags.String("guard-backend", "go", "Guard backend")
 		saveResultDir := addSaveResultDirFlag(flags)
 		if err := flags.Parse(args[1:]); err != nil {
@@ -169,11 +268,18 @@ func run(args []string) error {
 		if *workload == "" {
 			return fmt.Errorf("--workload is required")
 		}
+		targetVM, err := loadVMResourceSnapshot(resolveInputPath(serverConfig, *vmSnapshot))
+		if err != nil {
+			return err
+		}
 		result, err := service.RunServiceOperations(ctx, api.ServiceOperationsRequest{
 			LLMConfigPath:     resolveInputPath(serverConfig, *llmConfig),
-			InferenceConfig:   resolveInputPath(serverConfig, *inferenceConfig),
+			LLMCandidatesPath: resolveInputPath(serverConfig, *llmCandidates),
+			LLMCandidateID:    *llmCandidateID,
+			VMRequirements:    resolveInputPath(serverConfig, *vmRequirements),
 			LLMPolicy:         *llmPolicy,
 			Workload:          *workload,
+			TargetVM:          targetVM,
 			OperationService:  *operationService,
 			OperationResource: *operationResource,
 			Mode:              *mode,
@@ -268,22 +374,31 @@ func run(args []string) error {
 		llmScenarios := flags.String("llm-scenarios", "data/ops_llm_eval_scenarios.jsonl", "Ops LLM evaluation scenarios JSONL path")
 		llmCandidates := flags.String("llm-candidates", "config/ops_llm_eval_candidates.json", "Ops LLM evaluation candidates JSON path")
 		llmDryRun := flags.Bool("llm-dry-run", false, "Run the Ops LLM benchmark in dry-run mode")
+		runLLMDecision := flags.Bool("run-llm-decision", false, "Run an actual LLM automation Action decision")
+		llmDecisionCandidates := flags.String("llm-decision-candidates", "config/ops_llm_eval_candidates.json", "LLM automation decision candidates JSON path")
+		llmDecisionCandidateID := flags.String("llm-decision-candidate-id", "", "Enabled candidate ID for the LLM automation decision")
 		runAPIIntegration := flags.Bool("run-api-integration", false, "Run local API integration validation as part of system validation")
 		apiPort := flags.Int("api-port", 18080, "Local API server port for API integration validation; use 0 for an ephemeral port")
 		if err := flags.Parse(args[1:]); err != nil {
 			return err
 		}
+		if *runLLMDecision && *llmDecisionCandidateID == "" {
+			return fmt.Errorf("--llm-decision-candidate-id is required with --run-llm-decision")
+		}
 		result, err := runSystemValidation(ctx, service, serverConfig, systemValidationOptions{
-			Target:             *target,
-			OutputDir:          *outputDir,
-			SkipGoTests:        *skipGoTests,
-			SkipTeamValidation: *skipTeamValidation,
-			RunLLMBenchmark:    *runLLMBenchmark,
-			LLMScenariosPath:   resolveInputPath(serverConfig, *llmScenarios),
-			LLMCandidatesPath:  resolveInputPath(serverConfig, *llmCandidates),
-			LLMDryRun:          *llmDryRun,
-			RunAPIIntegration:  *runAPIIntegration,
-			APIPort:            *apiPort,
+			Target:                    *target,
+			OutputDir:                 *outputDir,
+			SkipGoTests:               *skipGoTests,
+			SkipTeamValidation:        *skipTeamValidation,
+			RunLLMBenchmark:           *runLLMBenchmark,
+			LLMScenariosPath:          resolveInputPath(serverConfig, *llmScenarios),
+			LLMCandidatesPath:         resolveInputPath(serverConfig, *llmCandidates),
+			LLMDryRun:                 *llmDryRun,
+			RunLLMDecision:            *runLLMDecision,
+			LLMDecisionCandidatesPath: resolveInputPath(serverConfig, *llmDecisionCandidates),
+			LLMDecisionCandidateID:    *llmDecisionCandidateID,
+			RunAPIIntegration:         *runAPIIntegration,
+			APIPort:                   *apiPort,
 		})
 		if err != nil {
 			return err
@@ -321,6 +436,21 @@ func resolveInputPath(config api.ServerConfig, path string) string {
 		return path
 	}
 	return filepath.Join(config.RepoRoot, path)
+}
+
+func loadVMResourceSnapshot(path string) (api.VMResourceSnapshot, error) {
+	content, err := os.ReadFile(path)
+	if err != nil {
+		return api.VMResourceSnapshot{}, err
+	}
+	var snapshot api.VMResourceSnapshot
+	if err := json.Unmarshal(content, &snapshot); err != nil {
+		return api.VMResourceSnapshot{}, err
+	}
+	if snapshot.ID == "" || snapshot.Source == "" || snapshot.Accelerator == "" {
+		return api.VMResourceSnapshot{}, fmt.Errorf("VM resource snapshot is missing id, source, or accelerator")
+	}
+	return snapshot, nil
 }
 
 func firstNonEmpty(values ...string) string {
@@ -382,6 +512,11 @@ func emitReport(command string, value any, saveResultDir string) error {
 }
 
 func runTeamValidation(ctx context.Context, service api.Service, config api.ServerConfig, outputDir string) (map[string]any, error) {
+	vmSnapshotPath := filepath.Join(config.RepoRoot, "docs", "evidence", "artifacts", "vm_20260707_resource_snapshot.json")
+	return runTeamValidationWithSnapshot(ctx, service, config, outputDir, vmSnapshotPath)
+}
+
+func runTeamValidationWithSnapshot(ctx context.Context, service api.Service, config api.ServerConfig, outputDir string, vmSnapshotPath string) (map[string]any, error) {
 	if outputDir == "" {
 		outputDir = filepath.Join(config.RepoRoot, "runs", "team-validation", time.Now().Format("20060102-150405"))
 	}
@@ -395,7 +530,11 @@ func runTeamValidation(ctx context.Context, service api.Service, config api.Serv
 
 	llmConfig := filepath.Join(config.RepoRoot, "config", "ops_llm_benchmark.json")
 	agentRegistry := filepath.Join(config.RepoRoot, "config", "agent_registry.json")
-	inferenceConfig := filepath.Join(config.RepoRoot, "config", "inference_optimization.json")
+	vmRequirements := filepath.Join(config.RepoRoot, "config", "vm_workload_requirements.json")
+	targetVM, err := loadVMResourceSnapshot(vmSnapshotPath)
+	if err != nil {
+		return nil, err
+	}
 
 	valid := true
 	writeErrors := []string{}
@@ -438,30 +577,37 @@ func runTeamValidation(ctx context.Context, service api.Service, config api.Serv
 	actionValid, err := service.ValidateAgentActionFromPath(
 		ctx,
 		agentRegistry,
-		"AIApplicationManagementAgent",
-		"app_scale_service_instances",
+		"AIApplicationAutomationAgent",
+		"observe_status",
 	)
 	addStep("validate-agent-action", map[string]any{
 		"command": "validate-agent-action",
 		"valid":   actionValid,
-		"agent":   "AIApplicationManagementAgent",
-		"action":  "app_scale_service_instances",
+		"agent":   "AIApplicationAutomationAgent",
+		"action":  "observe_status",
 	}, err == nil && actionValid, err)
 
-	placement, err := service.RecommendPlacementFromPath(ctx, inferenceConfig, "llm-chat-inference")
-	addStep("recommend-inference-placement", placement, err == nil && placement.Valid, err)
+	compatibility, err := service.ValidateVMSuitabilityFromPath(ctx, vmRequirements, api.VMCompatibilityRequest{
+		Workload: "llm-chat-inference",
+		TargetVM: targetVM,
+	})
+	addStep("validate-vm-suitability", compatibility, err == nil && compatibility.Valid && compatibility.ResourceChecksPassed, err)
 
-	deploymentPlan, err := service.BuildDeploymentPlanFromPath(ctx, inferenceConfig, "llm-chat-inference")
-	addStep("plan-inference-deployment", deploymentPlan, err == nil && deploymentPlan.Valid, err)
+	deploymentPlan, err := service.BuildDeploymentPlanFromPath(ctx, vmRequirements, api.VMCompatibilityRequest{
+		Workload: "llm-chat-inference",
+		TargetVM: targetVM,
+	})
+	addStep("plan-ai-application-control", deploymentPlan, err == nil && deploymentPlan.Valid, err)
 
 	serviceOperations, err := service.RunServiceOperations(ctx, api.ServiceOperationsRequest{
 		LLMConfigPath:     llmConfig,
-		InferenceConfig:   inferenceConfig,
+		VMRequirements:    vmRequirements,
 		LLMPolicy:         "quality_first",
 		Workload:          "llm-chat-inference",
+		TargetVM:          targetVM,
 		OperationService:  "llm-chat-inference",
-		OperationResource: "gpu-vm-l4",
-		Mode:              "mock",
+		OperationResource: targetVM.ID,
+		Mode:              "plan_only",
 		GuardBackend:      "go",
 	})
 	addStep("run-service-operations", serviceOperations, err == nil && serviceOperations.Valid, err)
@@ -478,7 +624,7 @@ func runTeamValidation(ctx context.Context, service api.Service, config api.Serv
 		"scope": []string{
 			"ops_llm_selection",
 			"agent_registry_management",
-			"cpu_gpu_vm_inference_placement",
+			"actual_vm_workload_compatibility",
 			"ai_application_deployment_control_plan",
 			"service_operations_readiness",
 		},

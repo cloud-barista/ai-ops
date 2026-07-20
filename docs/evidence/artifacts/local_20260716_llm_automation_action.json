@@ -1,0 +1,61 @@
+{
+  "valid": false,
+  "status": "pending_executor",
+  "vm_compatibility": {
+    "valid": true,
+    "validation_mode": "actual_vm_compatibility",
+    "workload": "llm-chat-inference",
+    "target_vm_id": "aws-us-west-2-g6-xlarge-l4-20260707",
+    "resource_source": "cb-tumblebug_and_vm_evidence",
+    "evidence_status": "collected",
+    "compatibility_status": "provisionally_compatible",
+    "resource_checks_passed": true,
+    "performance_status": "not_measured",
+    "action": "benchmark_then_prepare_control_plan",
+    "reason": "resource checks passed, but workload performance remains unmeasured",
+    "checks": [
+      {
+        "name": "evidence_status",
+        "status": "pass",
+        "actual": "collected",
+        "required": "collected",
+        "reason": "target VM evidence was collected"
+      },
+      {
+        "name": "accelerator",
+        "status": "pass",
+        "actual": "gpu",
+        "required": "gpu",
+        "reason": "target VM accelerator matches the workload requirement"
+      }
+    ]
+  },
+  "decision": {
+    "decision_execution_status": "executed",
+    "candidate_id": "local-ollama-ops-llm",
+    "provider": "local-openai-compatible",
+    "actual_model": "llama3.2:3b",
+    "latency_ms": 6333,
+    "proposal": {
+      "action": "observe_status",
+      "reason": "No measured performance or incident observation available",
+      "confidence": 0,
+      "required_capability": "ai_application_deployment_control",
+      "target_vm_id": "aws-us-west-2-g6-xlarge-l4-20260707"
+    }
+  },
+  "guard": {
+    "valid": true,
+    "status": "approved",
+    "reason": "LLM proposal matches the validated VM, required capability, and bounded Action policy"
+  },
+  "handoff": {
+    "valid": false,
+    "agent": "",
+    "capability": "",
+    "action": "",
+    "target_url": "",
+    "execution_status": "",
+    "reason": ""
+  }
+}
