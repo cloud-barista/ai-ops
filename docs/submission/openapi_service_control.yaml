@@ -5,7 +5,7 @@ info:
   description: >
     Go Echo contract for Ops LLM selection, actual LLM-based automation
     Action proposals, agent registry management, actual CPU/GPU VM
-    suitability validation, Go Guard checks, and AppDeploy Planner integration.
+    suitability validation, Go Request/Manifest Guard checks, and AppDeploy Planner integration.
     The Planner generates and validates a DeploymentManifest; AppDeploy selects
     the actual Target and performs deployment execution.
 servers:
@@ -204,10 +204,11 @@ paths:
           $ref: "#/components/responses/BadRequest"
   /api/v1/planner/deployments:
     post:
-      summary: Generate a guarded DeploymentManifest and submit it to AppDeploy
+      summary: Guard a request, generate a DeploymentManifest, and submit it to AppDeploy
       description: >
-        Calls a configured OpenAI-compatible LLM, validates the generated
-        DeploymentManifest with deterministic Go rules, submits it to
+        Validates the caller request with deterministic Go rules before any
+        upstream call, invokes a configured OpenAI-compatible LLM, validates
+        the generated DeploymentManifest with a second Go guard, submits it to
         AppDeploy POST /api/v1/deployments, and polls status and logs. The
         optional target_profile_id is a hint; AppDeploy owns final Target and
         Runtime Adapter selection.
@@ -219,13 +220,19 @@ paths:
               $ref: "#/components/schemas/AppDeployPlannerRequest"
       responses:
         "200":
-          description: Planner generation, guard, AppDeploy status, and logs
+          description: Request guard, planner generation, manifest guard, AppDeploy status, and logs
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/AppDeployPlannerResponse"
         "400":
-          $ref: "#/components/responses/BadRequest"
+          description: Request rejected by Go Request Guard or invalid planner input
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/AppDeployPlannerResponse"
+                  - $ref: "#/components/schemas/ErrorResponse"
   /api/v1/service-operations/run:
     post:
       summary: Run integrated service-control planning
@@ -295,10 +302,12 @@ components:
           default: 60
     AppDeployPlannerResponse:
       type: object
-      required: [valid, status, generation, manifest, deployment, polling, retry_recommended]
+      required: [valid, status, request_guard, generation, manifest, deployment, polling, retry_recommended]
       properties:
         valid: {type: boolean}
         status: {type: string, example: RUNNING}
+        request_guard:
+          $ref: "#/components/schemas/PlannerGuardDecision"
         generation:
           type: object
           additionalProperties: true
@@ -315,6 +324,23 @@ components:
           items: {type: object, additionalProperties: true}
         retry_recommended: {type: boolean}
         retry_reason: {type: string}
+    PlannerGuardDecision:
+      type: object
+      required: [valid, status, policy_version, reason, checks]
+      properties:
+        valid: {type: boolean}
+        status: {type: string, enum: [approved, rejected]}
+        policy_version: {type: string, example: v1}
+        reason: {type: string}
+        checks:
+          type: array
+          items:
+            type: object
+            required: [name, passed, reason]
+            properties:
+              name: {type: string}
+              passed: {type: boolean}
+              reason: {type: string}
     AppDeployDeploymentManifest:
       type: object
       required: [schema_version, kind, spec]

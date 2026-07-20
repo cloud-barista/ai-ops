@@ -337,9 +337,48 @@ func TestAppDeployPlannerEndpointGeneratesValidManifestAndTracksDeployment(t *te
 	if result["valid"] != true || result["status"] != "RUNNING" {
 		t.Fatalf("unexpected planner response: %#v", result)
 	}
+	requestGuard := result["request_guard"].(map[string]any)
+	if requestGuard["valid"] != true || requestGuard["status"] != "approved" {
+		t.Fatalf("expected approved request guard result: %#v", requestGuard)
+	}
 	deployment := result["deployment"].(map[string]any)
 	if deployment["target_profile_id"] != "appdeploy-selected-target" {
 		t.Fatalf("AppDeploy-selected target was not preserved: %#v", deployment)
+	}
+}
+
+func TestAppDeployPlannerEndpointRejectsRequestBeforeLLMCall(t *testing.T) {
+	upstreamCalls := 0
+	upstream := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		upstreamCalls++
+		http.Error(writer, "request guard should prevent upstream calls", http.StatusInternalServerError)
+	}))
+	defer upstream.Close()
+
+	config := NewServerConfig()
+	config.LLMCandidatesPath = writeAutomationCandidateConfig(t, upstream.URL+"/llm")
+	config.AppDeployBaseURL = upstream.URL + "/api/v1"
+	server := NewServer(config)
+	body := strings.NewReader(`{
+		"natural_language_request":"이 앱을 Kubernetes 클러스터에 배포해 주세요.",
+		"app_version_id":"appver-llm-v1",
+		"candidate_id":"decision-model",
+		"requested_by":"ai-ops-geon-planner"
+	}`)
+	request := httptest.NewRequest(http.MethodPost, "/api/v1/planner/deployments", body)
+	request.Header.Set("content-type", "application/json")
+	response := httptest.NewRecorder()
+	server.ServeHTTP(response, request)
+
+	if response.Code != http.StatusBadRequest {
+		t.Fatalf("expected status 400, got %d body=%s", response.Code, response.Body.String())
+	}
+	result := decodeObject(t, response.Body.Bytes())
+	if result["status"] != "REQUEST_REJECTED" {
+		t.Fatalf("expected REQUEST_REJECTED response, got %#v", result)
+	}
+	if upstreamCalls != 0 {
+		t.Fatalf("expected no LLM or AppDeploy calls, got %d", upstreamCalls)
 	}
 }
 

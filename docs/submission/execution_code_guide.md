@@ -92,7 +92,8 @@ go run ./cmd/aiops-service-control run-appdeploy-planner \
   --app-version-id appver-llm-inference-v1 \
   --candidate-id local-ollama-ops-llm \
   --candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
+  --guard-policy ../../config/planner_guard_policy.json \
   --appdeploy-base-url http://127.0.0.1:8081/api/v1
 ```
 
-실행 순서는 LLM 호출, Manifest Go Guard 검증, AppDeploy 배포 요청, 상태 polling, 로그 조회입니다. 실제 Target과 Runtime Adapter는 AppDeploy가 선택합니다.
+실행 순서는 Go Request Guard, LLM 호출, Go Manifest Guard, AppDeploy 배포 요청, 상태 polling, 로그 조회입니다. 요청 Guard가 거부하면 외부 호출을 시작하지 않습니다. 실제 Target과 Runtime Adapter는 AppDeploy가 선택합니다.

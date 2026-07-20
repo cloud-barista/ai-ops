@@ -88,7 +88,7 @@ func NewServer(config ServerConfig) *echo.Echo {
 // RestPostAppDeployPlanner godoc
 // @ID PostAppDeployPlanner
 // @Summary Plan and submit an AI application deployment
-// @Description Use an actual configured LLM to generate an AppDeploy DeploymentManifest, validate it with the Go Guard, submit it to AppDeploy, and poll the deployment status. AppDeploy retains target selection and execution responsibility.
+// @Description Validate the request with Go Request Guard, use an actual configured LLM to generate an AppDeploy DeploymentManifest, validate it with Go Manifest Guard, submit it to AppDeploy, and poll the deployment status. AppDeploy retains target selection and execution responsibility.
 // @Tags AI Application Automation
 // @Accept json
 // @Produce json
@@ -103,6 +103,9 @@ func (handler restHandler) RestPostAppDeployPlanner(context echo.Context) error 
 	}
 	result, err := handler.service.RunAppDeployPlanner(context.Request().Context(), request)
 	if err != nil {
+		if result.Status == "REQUEST_REJECTED" {
+			return context.JSON(http.StatusBadRequest, result)
+		}
 		return jsonError(context, http.StatusBadRequest, "Deployment planner request could not be processed", err)
 	}
 	return context.JSON(http.StatusOK, result)

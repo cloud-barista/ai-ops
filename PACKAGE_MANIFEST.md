@@ -6,10 +6,11 @@
 
 | 경로 | 설명 |
 | --- | --- |
-| `go/service-control-api/` | LLM Deployment Manifest 생성, Go Guard, AppDeploy 상태 추적과 Agent Registry를 수행하는 Go Echo API/CLI |
+| `go/service-control-api/` | LLM Deployment Manifest 생성, 요청·Manifest 이중 Go Guard, AppDeploy 상태 추적과 Agent Registry를 수행하는 Go Echo API/CLI |
 | `contracts/appdeploy/deployment_manifest.schema.json` | Planner 연계에 사용하는 AppDeploy Manifest 계약 snapshot |
 | `go/aiops-guard/` | 서비스 제어 action을 허용 범위 안에서 검증하는 독립 Go 안전 게이트 |
 | `config/agent_registry.json` | 에이전트 registry와 bounded action 메타데이터 |
+| `config/planner_guard_policy.json` | LLM 호출 전 요청자·VM 범위·민감 파라미터를 검사하는 Go Request Guard 정책 |
 | `config/ops_llm_benchmark.json` | 수동 정의된 프로토타입 LLM 정책 기준값과 선정 가중치 |
 | `config/ops_llm_eval_candidates.openai_compatible.example.json` | OpenAI-compatible provider 교체 예시 |
 | `config/vm_workload_requirements.json` | 실제 CPU/GPU VM 적합성 검증을 위한 workload 요구사항 |

@@ -220,7 +220,7 @@ def architecture() -> None:
         1800,
         1040,
         "AI 기반 서비스 제어 및 관리 자동화 프레임워크",
-        "자연어 요구를 AppDeploy DeploymentManifest로 변환하고 Go Guard로 검증하는 LLM Planner 구조",
+        "자연어 요청과 LLM Manifest를 두 단계 Go Guard로 검증하는 AppDeploy 연계 구조",
     )
     d.panel(58, 170, 360, 720, "Planner 입력")
     input_boxes = [
@@ -231,20 +231,21 @@ def architecture() -> None:
     for b in input_boxes:
         d.box(b)
 
-    d.panel(460, 170, 820, 720, "Go LLM Deployment Planner")
+    d.panel(460, 170, 820, 720, "Go LLM Deployment Planner · Dual Guard")
     core_boxes = [
-        Box(505, 280, 320, 140, "LLM 요구 분석", ("CPU · memory · GPU", "storage · accelerator"), COLORS["surface_blue"], COLORS["blue"], None, 25, 19),
-        Box(915, 280, 320, 140, "Manifest 생성", ("공식 계약 JSON", "신뢰 입력값 보존"), COLORS["surface_blue"], COLORS["blue"], None, 25, 19),
-        Box(505, 515, 320, 140, "Go Guard", ("형식 · 자원 값 · 비밀정보", "approved / rejected"), COLORS["surface_amber"], COLORS["amber"], None, 25, 19),
-        Box(915, 515, 320, 140, "AppDeploy Client", ("POST deployment", "status · logs polling"), COLORS["surface_green"], COLORS["green"], None, 25, 19),
+        Box(505, 280, 320, 130, "Go Request Guard", ("요청자 · VM 범위", "민감 파라미터"), COLORS["surface_amber"], COLORS["amber"], None, 24, 18),
+        Box(915, 280, 320, 130, "Main LLM Planner", ("CPU · memory · GPU", "storage · accelerator"), COLORS["surface_blue"], COLORS["blue"], None, 24, 18),
+        Box(505, 500, 320, 130, "Manifest 생성", ("공식 계약 JSON", "신뢰 입력값 보존"), COLORS["surface_blue"], COLORS["blue"], None, 24, 18),
+        Box(915, 500, 320, 130, "Go Manifest Guard", ("형식 · 자원 값 · 보안", "approved / rejected"), COLORS["surface_amber"], COLORS["amber"], None, 24, 18),
+        Box(710, 720, 320, 105, "AppDeploy Client", ("POST · status · logs",), COLORS["surface_green"], COLORS["green"], None, 24, 18),
     ]
     for b in core_boxes:
         d.box(b)
-    d.arrow(825, 350, 915, 350)
-    d.elbow_arrow([(1075, 420), (1075, 465), (665, 465), (665, 515)], COLORS["amber"])
-    d.arrow(825, 585, 915, 585, COLORS["green"])
-    d.box(Box(610, 735, 520, 95, "Agent Registry", ("보조 Action API의 역할·capability·허용 범위 관리",), COLORS["surface"], COLORS["blue"], None, 24, 18))
-    d.elbow_arrow([(870, 735), (870, 700), (665, 700), (665, 655)], COLORS["blue"])
+    d.arrow(384, 345, 505, 345, COLORS["amber"])
+    d.arrow(825, 345, 915, 345)
+    d.elbow_arrow([(1075, 410), (1075, 455), (665, 455), (665, 500)])
+    d.arrow(825, 565, 915, 565, COLORS["amber"])
+    d.elbow_arrow([(1075, 630), (1075, 680), (870, 680), (870, 720)], COLORS["green"])
     d.chip(525, 235, "Echo API / CLI", "#e9f2ff", COLORS["blue"])
     d.chip(705, 235, "OpenAI-compatible", "#eef7f0", COLORS["green"])
     d.chip(940, 235, "OpenAPI", "#fff3df", COLORS["amber"])
@@ -258,14 +259,14 @@ def architecture() -> None:
     ]
     for b in output_boxes:
         d.box(b)
-    d.elbow_arrow([(1235, 585), (1285, 585), (1285, 310), (1355, 310)], COLORS["green"])
+    d.elbow_arrow([(1030, 772), (1285, 772), (1285, 310), (1355, 310)], COLORS["green"])
     d.arrow(1530, 370, 1530, 400)
     d.arrow(1530, 520, 1530, 550, COLORS["green"])
     d.arrow(1530, 670, 1530, 700)
     d.small_text(
         74,
         954,
-        "책임 경계: Planner는 요구 분석·Manifest 검증·상태 추적을 담당하고, 실제 Target 선택과 VM 배포는 AppDeploy가 담당한다.",
+        "책임 경계: Planner는 요청 검증·요구 분석·Manifest 검증·상태 추적을 담당하고, 실제 Target 선택과 VM 배포는 AppDeploy가 담당한다.",
         20,
         COLORS["slate"],
     )

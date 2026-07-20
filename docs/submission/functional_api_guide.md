@@ -85,6 +85,7 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/automation/action-proposals \
 
 ```bash
 export AIOPS_LLM_CANDIDATES_PATH=../../config/ops_llm_eval_candidates.local_ollama.json
+export AIOPS_PLANNER_GUARD_POLICY_PATH=../../config/planner_guard_policy.json
 export AIOPS_APPDEPLOY_BASE_URL=http://127.0.0.1:8081/api/v1
 
 go run ./cmd/service-control-api
@@ -98,7 +99,7 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/planner/deployments \
   --data @../../examples/requests/run-appdeploy-planner.json
 ```
 
-응답의 `generation.guard_valid`, `manifest`, `deployment.status`, `polling`, `retry_recommended`를 확인합니다. `deployment.target_profile_id`는 플래너가 아니라 AppDeploy가 선택한 실제 결과입니다.
+응답의 `request_guard`, `generation.guard_valid`, `manifest`, `deployment.status`, `polling`, `retry_recommended`를 확인합니다. `request_guard.status=rejected`이면 LLM과 AppDeploy는 호출되지 않습니다. `deployment.target_profile_id`는 플래너가 아니라 AppDeploy가 선택한 실제 결과입니다.
 
 CLI에서는 다음 명령을 사용합니다.
 
@@ -108,6 +109,7 @@ go run ./cmd/aiops-service-control run-appdeploy-planner \
   --app-version-id appver-llm-inference-v1 \
   --candidate-id local-ollama-ops-llm \
   --candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
+  --guard-policy ../../config/planner_guard_policy.json \
   --appdeploy-base-url http://127.0.0.1:8081/api/v1
 ```
 

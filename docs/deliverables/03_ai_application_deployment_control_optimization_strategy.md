@@ -3,18 +3,19 @@ English title: AI Application Deployment and Control Optimization Strategy
 
 ## 1. 설계 목적
 
-본 설계는 자연어 AI 응용 배포 요구를 LLM으로 분석하고, CPU·메모리·GPU·디스크·accelerator 요구량을 구조화한 뒤 AppDeploy에 전달하는 Go 기반 Deployment Planner를 정의합니다.
+본 설계는 자연어 AI 응용 배포 요구를 Go Request Guard로 선검증하고 LLM으로 분석한 뒤, CPU·메모리·GPU·디스크·accelerator 요구량을 구조화하여 Go Manifest Guard를 거쳐 AppDeploy에 전달하는 Go 기반 Deployment Planner를 정의합니다.
 
 플래너는 VM을 직접 생성하거나 최종 Target을 선택하지 않습니다. AppDeploy가 App Spec, Target Profile, readiness, Runtime Adapter를 기준으로 실제 배포 대상을 선택하고 실행합니다.
 
-![CPU/GPU 자원 요구와 AppDeploy Target 선택 흐름](../images/cpu_gpu_placement_flow.png)
+![이중 Go Guard 기반 LLM Planner와 AppDeploy 연계 흐름](../images/service_control_architecture.png)
 
 ## 2. 구성
 
 | 구성 | 역할 |
 | --- | --- |
+| Go Request Guard | LLM 호출 전 요청자, 1차년도 VM 범위, 민감 파라미터 검증 |
 | LLM Planner | 자연어 요구 분석과 Deployment Manifest 생성 |
-| Go Guard | Manifest 형식, 자원 값, 요청 보존, 비밀정보 유입 검증 |
+| Go Manifest Guard | Manifest 형식, 자원 값, 요청 보존, 비밀정보 유입 검증 |
 | AppDeploy Client | 배포 요청 전달, 상태 polling, 로그 수집 |
 | Agent Registry | 플래너와 연계 에이전트의 역할·capability·허용 Action 관리 |
 
@@ -22,10 +23,11 @@ English title: AI Application Deployment and Control Optimization Strategy
 
 ```text
 자연어 배포 요구 + app_version_id
+  -> Go Request Guard 승인 또는 거부
   -> 실제 LLM endpoint 호출
   -> CPU/메모리/GPU/디스크/accelerator 결정
   -> DeploymentManifest 생성
-  -> Go Guard 승인 또는 거부
+  -> Go Manifest Guard 승인 또는 거부
   -> AppDeploy POST /api/v1/deployments
   -> 상태 polling 및 로그 조회
   -> 결과와 재시도 권고 반환
@@ -65,9 +67,18 @@ English title: AI Application Deployment and Control Optimization Strategy
 | Storage | artifact, 모델, 로그를 고려한 최소 저장공간 요구 생성 |
 | Target | 플래너는 요구 envelope만 제공하고 AppDeploy가 실제 준비 상태와 비교 |
 
-LLM의 출력은 최종 사실이 아니라 후보 계획입니다. Go Guard를 통과한 요구 envelope만 AppDeploy로 전달됩니다.
+LLM의 출력은 최종 사실이 아니라 후보 계획입니다. 두 Go Guard를 모두 통과한 요구 envelope만 AppDeploy로 전달됩니다.
 
-## 6. Go Guard 정책
+## 6. 이중 Go Guard 정책
+
+### 6.1 Go Request Guard
+
+1. 자연어 요구, App Version, LLM candidate 필수값 확인
+2. 요청 길이와 요청자 allowlist 확인
+3. 1차년도 VM 범위를 벗어나는 Kubernetes·컨테이너·shell 실행 요청 거부
+4. password, token, credential, private key, API key 유사 파라미터 거부
+
+### 6.2 Go Manifest Guard
 
 1. `schema_version`과 `kind` 고정
 2. 요청의 `app_version_id`와 선택적 Target hint 변조 방지
@@ -92,7 +103,8 @@ REQUESTED -> VALIDATING -> VALIDATED -> SCHEDULING -> DEPLOYING -> RUNNING
 
 | 기능 | 경로 |
 | --- | --- |
-| Manifest 모델·Go Guard | `go/service-control-api/internal/appdeploy/` |
+| 요청 Guard·정책 | `go/service-control-api/internal/plannerguard/`, `config/planner_guard_policy.json` |
+| Manifest 모델·Guard | `go/service-control-api/internal/appdeploy/` |
 | LLM 생성·polling orchestration | `go/service-control-api/internal/deploymentplanner/` |
 | Echo API | `POST /api/v1/planner/deployments` |
 | CLI | `run-appdeploy-planner` |
@@ -109,6 +121,7 @@ go run ./cmd/aiops-service-control run-appdeploy-planner \
   --app-version-id appver-llm-inference-v1 \
   --candidate-id local-ollama-ops-llm \
   --candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
+  --guard-policy ../../config/planner_guard_policy.json \
   --appdeploy-base-url http://127.0.0.1:8081/api/v1
 ```
 

@@ -963,9 +963,10 @@ paths:
     post:
       consumes:
       - application/json
-      description: Use an actual configured LLM to generate an AppDeploy DeploymentManifest,
-        validate it with the Go Guard, submit it to AppDeploy, and poll the deployment
-        status. AppDeploy retains target selection and execution responsibility.
+      description: Validate the request with Go Request Guard, use an actual configured
+        LLM to generate an AppDeploy DeploymentManifest, validate it with Go Manifest
+        Guard, submit it to AppDeploy, and poll the deployment status. AppDeploy retains
+        target selection and execution responsibility.
       operationId: PostAppDeployPlanner
       parameters:
       - description: Planner request

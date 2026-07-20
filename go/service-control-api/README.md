@@ -1,6 +1,6 @@
 # Service Control API
 
-AI service-control prototype의 Go 구현 모듈입니다. 이 모듈은 실제 LLM 기반 Deployment Manifest 생성, Go Guard 검증, AppDeploy 요청·상태 추적, agent 등록과 bounded Action 검증을 제공합니다.
+AI service-control prototype의 Go 구현 모듈입니다. 이 모듈은 LLM 호출 전 Go Request Guard, 실제 LLM 기반 Deployment Manifest 생성, Go Manifest Guard, AppDeploy 요청·상태 추적, agent 등록과 bounded Action 검증을 제공합니다.
 
 ## 테스트 실행
 
@@ -43,6 +43,7 @@ go run ./cmd/aiops-service-control run-appdeploy-planner \
   --app-version-id appver-llm-inference-v1 \
   --candidate-id local-ollama-ops-llm \
   --candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
+  --guard-policy ../../config/planner_guard_policy.json \
   --appdeploy-base-url http://127.0.0.1:8081/api/v1
 
 go run ./cmd/aiops-service-control run-service-operations \

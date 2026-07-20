@@ -1,6 +1,19 @@
 {
   "valid": true,
   "status": "RUNNING",
+  "request_guard": {
+    "valid": true,
+    "status": "approved",
+    "policy_version": "v1",
+    "reason": "request satisfies the configured planner boundary",
+    "checks": [
+      {"name": "required_fields", "passed": true, "reason": "required planner fields are present"},
+      {"name": "request_length", "passed": true, "reason": "request is within the configured length limit"},
+      {"name": "requester_allowlist", "passed": true, "reason": "requester is allowed by the planner guard policy"},
+      {"name": "vm_only_scope", "passed": true, "reason": "request remains within the first-year VM-only scope"},
+      {"name": "sensitive_parameters", "passed": true, "reason": "request parameters do not contain forbidden credential fields"}
+    ]
+  },
   "generation": {
     "execution_status": "executed",
     "candidate_id": "local-ollama-ops-llm",

@@ -6,7 +6,7 @@
 </defs>
 <rect width="1800" height="1040" fill="#ffffff"/>
 <text x="58" y="74" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="38" font-weight="700" text-anchor="start">AI 기반 서비스 제어 및 관리 자동화 프레임워크</text>
-<text x="61" y="118" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start">자연어 요구를 AppDeploy DeploymentManifest로 변환하고 Go Guard로 검증하는 LLM Planner 구조</text>
+<text x="61" y="118" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start">자연어 요청과 LLM Manifest를 두 단계 Go Guard로 검증하는 AppDeploy 연계 구조</text>
 <rect x="1435" y="48" width="307" height="44" rx="22" fill="#ffffff" stroke="#d6dce4" stroke-width="1"/>
 <text x="1460" y="76" fill="#27496d" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="17" font-weight="700" text-anchor="start">Kyung Hee OPS · Go Prototype</text>
 <rect x="64" y="178" width="360" height="720" rx="26" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
@@ -35,43 +35,45 @@
 <text x="118" y="763" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">Target hint 선택 사항</text>
 <rect x="466" y="178" width="820" height="720" rx="26" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
 <rect x="460" y="170" width="820" height="720" rx="26" fill="#ffffff" stroke="#d6dce4" stroke-width="2"/>
-<text x="488" y="225" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Go LLM Deployment Planner</text>
-<rect x="510" y="287" width="320" height="140" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
-<rect x="505" y="280" width="320" height="140" rx="20" fill="#ffffff" stroke="#31445a" stroke-width="2"/>
-<text x="531" y="335" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="25" font-weight="700" text-anchor="start">LLM 요구 분석</text>
-<text x="531" y="368" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">CPU · memory · GPU</text>
-<text x="531" y="393" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">storage · accelerator</text>
-<rect x="920" y="287" width="320" height="140" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
-<rect x="915" y="280" width="320" height="140" rx="20" fill="#ffffff" stroke="#31445a" stroke-width="2"/>
-<text x="941" y="335" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="25" font-weight="700" text-anchor="start">Manifest 생성</text>
-<text x="941" y="368" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">공식 계약 JSON</text>
-<text x="941" y="393" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">신뢰 입력값 보존</text>
-<rect x="510" y="522" width="320" height="140" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
-<rect x="505" y="515" width="320" height="140" rx="20" fill="#ffffff" stroke="#65758b" stroke-width="2"/>
-<text x="531" y="570" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="25" font-weight="700" text-anchor="start">Go Guard</text>
-<text x="531" y="603" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">형식 · 자원 값 · 비밀정보</text>
-<text x="531" y="628" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">approved / rejected</text>
-<rect x="920" y="522" width="320" height="140" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
-<rect x="915" y="515" width="320" height="140" rx="20" fill="#ffffff" stroke="#65758b" stroke-width="2"/>
-<text x="941" y="570" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="25" font-weight="700" text-anchor="start">AppDeploy Client</text>
-<text x="941" y="603" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">POST deployment</text>
-<text x="941" y="628" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">status · logs polling</text>
-<line x1="825" y1="350" x2="915" y2="350" stroke="#27496d" stroke-width="4" stroke-linecap="round"/>
-<polygon points="915,350 902,357 902,343" fill="#27496d"/>
-<line x1="1075" y1="420" x2="1075" y2="465" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
-<line x1="1075" y1="465" x2="665" y2="465" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
-<line x1="665" y1="465" x2="665" y2="515" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
-<polygon points="665,515 658,502 672,502" fill="#65758b"/>
-<line x1="825" y1="585" x2="915" y2="585" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
-<polygon points="915,585 902,592 902,578" fill="#65758b"/>
-<rect x="615" y="742" width="520" height="95" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
-<rect x="610" y="735" width="520" height="95" rx="20" fill="#ffffff" stroke="#31445a" stroke-width="2"/>
-<text x="636" y="790" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Agent Registry</text>
-<text x="636" y="823" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">보조 Action API의 역할·capability·허용 범위 관리</text>
-<line x1="870" y1="735" x2="870" y2="700" stroke="#31445a" stroke-width="4" stroke-linecap="round"/>
-<line x1="870" y1="700" x2="665" y2="700" stroke="#31445a" stroke-width="4" stroke-linecap="round"/>
-<line x1="665" y1="700" x2="665" y2="655" stroke="#31445a" stroke-width="4" stroke-linecap="round"/>
-<polygon points="665,655 672,667 658,667" fill="#31445a"/>
+<text x="488" y="225" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Go LLM Deployment Planner · Dual Guard</text>
+<rect x="510" y="287" width="320" height="130" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="505" y="280" width="320" height="130" rx="20" fill="#ffffff" stroke="#65758b" stroke-width="2"/>
+<text x="531" y="335" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Go Request Guard</text>
+<text x="531" y="368" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">요청자 · VM 범위</text>
+<text x="531" y="392" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">민감 파라미터</text>
+<rect x="920" y="287" width="320" height="130" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="915" y="280" width="320" height="130" rx="20" fill="#ffffff" stroke="#31445a" stroke-width="2"/>
+<text x="941" y="335" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Main LLM Planner</text>
+<text x="941" y="368" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">CPU · memory · GPU</text>
+<text x="941" y="392" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">storage · accelerator</text>
+<rect x="510" y="507" width="320" height="130" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="505" y="500" width="320" height="130" rx="20" fill="#ffffff" stroke="#31445a" stroke-width="2"/>
+<text x="531" y="555" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Manifest 생성</text>
+<text x="531" y="588" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">공식 계약 JSON</text>
+<text x="531" y="612" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">신뢰 입력값 보존</text>
+<rect x="920" y="507" width="320" height="130" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="915" y="500" width="320" height="130" rx="20" fill="#ffffff" stroke="#65758b" stroke-width="2"/>
+<text x="941" y="555" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Go Manifest Guard</text>
+<text x="941" y="588" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">형식 · 자원 값 · 보안</text>
+<text x="941" y="612" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">approved / rejected</text>
+<rect x="715" y="727" width="320" height="105" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="710" y="720" width="320" height="105" rx="20" fill="#ffffff" stroke="#65758b" stroke-width="2"/>
+<text x="736" y="775" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">AppDeploy Client</text>
+<text x="736" y="808" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">POST · status · logs</text>
+<line x1="384" y1="345" x2="505" y2="345" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<polygon points="505,345 492,352 492,338" fill="#65758b"/>
+<line x1="825" y1="345" x2="915" y2="345" stroke="#27496d" stroke-width="4" stroke-linecap="round"/>
+<polygon points="915,345 902,352 902,338" fill="#27496d"/>
+<line x1="1075" y1="410" x2="1075" y2="455" stroke="#27496d" stroke-width="4" stroke-linecap="round"/>
+<line x1="1075" y1="455" x2="665" y2="455" stroke="#27496d" stroke-width="4" stroke-linecap="round"/>
+<line x1="665" y1="455" x2="665" y2="500" stroke="#27496d" stroke-width="4" stroke-linecap="round"/>
+<polygon points="665,500 658,487 672,487" fill="#27496d"/>
+<line x1="825" y1="565" x2="915" y2="565" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<polygon points="915,565 902,572 902,558" fill="#65758b"/>
+<line x1="1075" y1="630" x2="1075" y2="680" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<line x1="1075" y1="680" x2="870" y2="680" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<line x1="870" y1="680" x2="870" y2="720" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<polygon points="870,720 863,707 877,707" fill="#65758b"/>
 <rect x="525" y="235" width="158" height="36" rx="18" fill="#ffffff" stroke="#31445a" stroke-width="1"/>
 <text x="542" y="266" fill="#27496d" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="700" text-anchor="start">Echo API / CLI</text>
 <rect x="705" y="235" width="202" height="36" rx="18" fill="#ffffff" stroke="#65758b" stroke-width="1"/>
@@ -101,8 +103,8 @@
 <text x="1381" y="755" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">산출물과 증적</text>
 <text x="1381" y="788" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">설계서 · API 예시</text>
 <text x="1381" y="813" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">local / VM validation</text>
-<line x1="1235" y1="585" x2="1285" y2="585" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
-<line x1="1285" y1="585" x2="1285" y2="310" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<line x1="1030" y1="772" x2="1285" y2="772" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<line x1="1285" y1="772" x2="1285" y2="310" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
 <line x1="1285" y1="310" x2="1355" y2="310" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
 <polygon points="1355,310 1342,317 1342,303" fill="#65758b"/>
 <line x1="1530" y1="370" x2="1530" y2="400" stroke="#27496d" stroke-width="4" stroke-linecap="round"/>
@@ -111,5 +113,5 @@
 <polygon points="1530,550 1523,537 1537,537" fill="#65758b"/>
 <line x1="1530" y1="670" x2="1530" y2="700" stroke="#27496d" stroke-width="4" stroke-linecap="round"/>
 <polygon points="1530,700 1523,687 1537,687" fill="#27496d"/>
-<text x="74" y="978" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start">책임 경계: Planner는 요구 분석·Manifest 검증·상태 추적을 담당하고, 실제 Target 선택과 VM 배포는 AppDeploy가 담당한다.</text>
+<text x="74" y="978" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start">책임 경계: Planner는 요청 검증·요구 분석·Manifest 검증·상태 추적을 담당하고, 실제 Target 선택과 VM 배포는 AppDeploy가 담당한다.</text>
 </svg>

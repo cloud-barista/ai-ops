@@ -8,6 +8,7 @@ import (
 
 	"kyunghee-aiops/service-control-api/internal/appdeploy"
 	"kyunghee-aiops/service-control-api/internal/llmclient"
+	"kyunghee-aiops/service-control-api/internal/plannerguard"
 )
 
 type manifestGenerator interface {
@@ -38,6 +39,7 @@ type PollingResult struct {
 type Response struct {
 	Valid            bool                         `json:"valid"`
 	Status           string                       `json:"status"`
+	RequestGuard     plannerguard.Decision        `json:"request_guard"`
 	Generation       GenerateResult               `json:"generation"`
 	Manifest         appdeploy.DeploymentManifest `json:"manifest"`
 	Deployment       appdeploy.DeploymentResponse `json:"deployment"`

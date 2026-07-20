@@ -10,10 +10,11 @@ import (
 )
 
 type ServerConfig struct {
-	RepoRoot          string
-	OpenAPIPath       string
-	LLMCandidatesPath string
-	AppDeployBaseURL  string
+	RepoRoot               string
+	OpenAPIPath            string
+	LLMCandidatesPath      string
+	PlannerGuardPolicyPath string
+	AppDeployBaseURL       string
 }
 
 func NewServerConfig() ServerConfig {
@@ -34,11 +35,18 @@ func NewServerConfig() ServerConfig {
 	} else if !filepath.IsAbs(llmCandidatesPath) {
 		llmCandidatesPath = filepath.Join(repoRoot, llmCandidatesPath)
 	}
+	plannerGuardPolicyPath := viper.GetString("PLANNER_GUARD_POLICY_PATH")
+	if plannerGuardPolicyPath == "" {
+		plannerGuardPolicyPath = filepath.Join(repoRoot, "config", "planner_guard_policy.json")
+	} else if !filepath.IsAbs(plannerGuardPolicyPath) {
+		plannerGuardPolicyPath = filepath.Join(repoRoot, plannerGuardPolicyPath)
+	}
 	return ServerConfig{
-		RepoRoot:          repoRoot,
-		OpenAPIPath:       openAPIPath,
-		LLMCandidatesPath: llmCandidatesPath,
-		AppDeployBaseURL:  viper.GetString("APPDEPLOY_BASE_URL"),
+		RepoRoot:               repoRoot,
+		OpenAPIPath:            openAPIPath,
+		LLMCandidatesPath:      llmCandidatesPath,
+		PlannerGuardPolicyPath: plannerGuardPolicyPath,
+		AppDeployBaseURL:       viper.GetString("APPDEPLOY_BASE_URL"),
 	}
 }
 

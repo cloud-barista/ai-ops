@@ -96,6 +96,7 @@ AppDeploy Planner 연계 시에는 실제 LLM endpoint와 AppDeploy 서버를 �
 
 ```bash
 export AIOPS_LLM_CANDIDATES_PATH=../../config/ops_llm_eval_candidates.local_ollama.json
+export AIOPS_PLANNER_GUARD_POLICY_PATH=../../config/planner_guard_policy.json
 export AIOPS_APPDEPLOY_BASE_URL=http://127.0.0.1:8081/api/v1
 
 go run ./cmd/service-control-api
@@ -109,6 +110,7 @@ go run ./cmd/aiops-service-control run-appdeploy-planner \
   --app-version-id appver-llm-inference-v1 \
   --candidate-id local-ollama-ops-llm \
   --candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
+  --guard-policy ../../config/planner_guard_policy.json \
   --appdeploy-base-url http://127.0.0.1:8081/api/v1
 ```
 

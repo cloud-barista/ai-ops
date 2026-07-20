@@ -10,7 +10,7 @@
 
 이 저장소는 경희대학교 1차년도 연구 범위 중 **AI 기반 서비스 제어 및 관리 자동화 프레임워크**를 위한 제출용/시연용 패키지입니다.
 
-핵심 구현은 Go 언어로 구성되어 있습니다. 실제 LLM endpoint가 자연어 배포 요구를 분석해 AppDeploy `DeploymentManifest`를 생성하고, Go Guard가 계약·자원 값·보안 정책을 검증한 뒤 AppDeploy에 전달합니다. AppDeploy가 실제 Target과 Runtime Adapter를 선택하며, 본 프로젝트는 배포 상태와 로그를 조회해 결과를 반환합니다.
+핵심 구현은 Go 언어로 구성되어 있습니다. Go Request Guard가 자연어 요청의 권한·1차년도 VM 범위·민감정보 유입을 먼저 검사하고, 실제 LLM endpoint가 승인된 요구를 AppDeploy `DeploymentManifest`로 변환합니다. 이어 Go Manifest Guard가 계약·자원 값·보안 정책을 검증한 뒤 AppDeploy에 전달합니다. AppDeploy가 실제 Target과 Runtime Adapter를 선택하며, 본 프로젝트는 배포 상태와 로그를 조회해 결과를 반환합니다.
 
 ## 🎯 담당 범위
 
@@ -18,7 +18,7 @@
 - AI LLM 운영 관리 구조 설계 및 검증
 - `AIApplicationAutomationAgent`를 LLM Deployment Planner로 등록·관리
 - 자연어 App 요구 분석과 CPU·메모리·GPU·디스크·accelerator 요구량 결정
-- AppDeploy 공식 Deployment Manifest 생성과 Go Guard 검증
+- AppDeploy 공식 Deployment Manifest 생성과 요청·Manifest 이중 Go Guard 검증
 - 승인된 Manifest의 AppDeploy 전달, 배포 상태 polling, 로그 조회와 재시도 가능 여부 판단
 - 인프라 계층이 제공한 실제 CPU/GPU VM snapshot과 workload 요구사항의 보조 적합성 검증
 
@@ -28,7 +28,7 @@
 
 | 경로 | 설명 |
 | --- | --- |
-| [`go/service-control-api/`](go/service-control-api/) | LLM Deployment Planner, Agent Registry, Go Guard, AppDeploy 연계를 제공하는 Go API/CLI |
+| [`go/service-control-api/`](go/service-control-api/) | LLM Deployment Planner, Agent Registry, 이중 Go Guard, AppDeploy 연계를 제공하는 Go API/CLI |
 | [`contracts/appdeploy/`](contracts/appdeploy/) | Planner가 검증하는 AppDeploy Deployment Manifest 계약 snapshot |
 | [`go/aiops-guard/`](go/aiops-guard/) | 서비스 제어 action의 허용 범위를 검증하는 Go guard |
 | [`config/`](config/) | LLM 후보, 에이전트 registry, workload별 VM 요구사항 설정 |

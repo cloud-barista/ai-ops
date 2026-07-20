@@ -214,6 +214,7 @@ func run(args []string) error {
 		appVersionID := flags.String("app-version-id", "", "AppDeploy application version ID")
 		candidateID := flags.String("candidate-id", "", "Enabled LLM candidate ID")
 		candidates := flags.String("candidates", "config/ops_llm_eval_candidates.json", "OpenAI-compatible LLM candidate JSON path")
+		guardPolicy := flags.String("guard-policy", "config/planner_guard_policy.json", "Go Request Guard policy JSON path")
 		appDeployBaseURL := flags.String("appdeploy-base-url", "", "AppDeploy API base URL ending in /api/v1")
 		targetProfileID := flags.String("target-profile-id", "", "Optional AppDeploy target profile hint")
 		requestedBy := flags.String("requested-by", "ai-ops-geon-planner", "Planner requester identifier")
@@ -243,7 +244,7 @@ func run(args []string) error {
 			RequestedBy:            *requestedBy,
 			PollIntervalMS:         *pollIntervalMS,
 			MaxPollAttempts:        *maxPollAttempts,
-		}, resolveInputPath(serverConfig, *candidates), *appDeployBaseURL)
+		}, resolveInputPath(serverConfig, *candidates), resolveInputPath(serverConfig, *guardPolicy), *appDeployBaseURL)
 		if err != nil {
 			return err
 		}
