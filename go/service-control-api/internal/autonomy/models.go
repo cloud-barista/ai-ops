@@ -136,6 +136,7 @@ type EvaluationInput struct {
 	RuntimeHealth       string
 	Policy              SLOPolicy
 	MaxMetricAge        time.Duration
+	EvidenceNotBefore   time.Time
 	PreviousConsecutive int
 }
 

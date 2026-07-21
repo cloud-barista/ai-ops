@@ -2,10 +2,13 @@ package api
 
 import (
 	"bytes"
+	"crypto/subtle"
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 
@@ -13,6 +16,41 @@ import (
 )
 
 const maxAutonomyConfigBytes = 64 << 10
+
+func (handler restHandler) requireAutonomyAdmin(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(context echo.Context) error {
+		if bindAddressIsLoopback(handler.config.BindAddress) && remoteAddressIsLoopback(context.Request().RemoteAddr) {
+			return next(context)
+		}
+		expected := strings.TrimSpace(handler.config.AutonomyAdminToken)
+		if expected == "" {
+			return context.JSON(http.StatusForbidden, ErrorResponse{Valid: false, Message: "Autonomy mutations are restricted to loopback unless an admin token is configured"})
+		}
+		provided := strings.TrimSpace(strings.TrimPrefix(context.Request().Header.Get("Authorization"), "Bearer "))
+		if len(provided) != len(expected) || subtle.ConstantTimeCompare([]byte(provided), []byte(expected)) != 1 {
+			return context.JSON(http.StatusUnauthorized, ErrorResponse{Valid: false, Message: "Valid Autonomy admin authorization is required"})
+		}
+		return next(context)
+	}
+}
+
+func bindAddressIsLoopback(address string) bool {
+	address = strings.Trim(strings.TrimSpace(address), "[]")
+	if strings.EqualFold(address, "localhost") {
+		return true
+	}
+	ip := net.ParseIP(address)
+	return ip != nil && ip.IsLoopback()
+}
+
+func remoteAddressIsLoopback(remoteAddress string) bool {
+	host, _, err := net.SplitHostPort(strings.TrimSpace(remoteAddress))
+	if err != nil {
+		host = strings.Trim(strings.TrimSpace(remoteAddress), "[]")
+	}
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
+}
 
 func (handler restHandler) RestGetAutonomyStatus(context echo.Context) error {
 	return context.JSON(http.StatusOK, handler.service.autonomyManager.Status())

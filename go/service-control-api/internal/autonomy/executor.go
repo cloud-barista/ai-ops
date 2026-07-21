@@ -22,6 +22,7 @@ const (
 	ExecutionFailed         ExecutionStatus = "execution_failed"
 	ExecutionPartialFailure ExecutionStatus = "partial_failure"
 	ExecutionBlocked        ExecutionStatus = "blocked"
+	ExecutionNotApplicable  ExecutionStatus = "not_applicable"
 )
 
 type ExecutionInput struct {
@@ -68,6 +69,14 @@ func (executor Executor) Execute(ctx context.Context, input ExecutionInput) Exec
 		result.Reason = "deployment status and metrics were refreshed without changing state"
 		return result
 	case ActionStop:
+		if terminalDeploymentStatus(input.Deployment.Status) {
+			if _, err := executor.control.GetDeployment(ctx, input.Deployment.DeploymentID); err != nil {
+				return failedExecution(result, "AppDeploy terminal deployment observation failed")
+			}
+			result.Status = ExecutionNotApplicable
+			result.Reason = "the deployment is already terminal; status was observed without issuing stop"
+			return result
+		}
 		if _, err := executor.control.StopDeployment(ctx, input.Deployment.DeploymentID); err != nil {
 			return failedExecution(result, "AppDeploy stop request failed")
 		}
@@ -76,7 +85,7 @@ func (executor Executor) Execute(ctx context.Context, input ExecutionInput) Exec
 		result.Reason = "deployment stop request was accepted"
 		return result
 	case ActionRestart:
-		return executor.replace(ctx, result, input.Deployment.Manifest)
+		return executor.replace(ctx, result, input.Deployment.Manifest, input.Deployment.Status)
 	case ActionRollback:
 		if strings.TrimSpace(input.RollbackAppVersionID) == "" {
 			result.Status = ExecutionBlocked
@@ -85,7 +94,7 @@ func (executor Executor) Execute(ctx context.Context, input ExecutionInput) Exec
 		}
 		manifest := input.Deployment.Manifest
 		manifest.Spec.AppVersionID = input.RollbackAppVersionID
-		return executor.replace(ctx, result, manifest)
+		return executor.replace(ctx, result, manifest, input.Deployment.Status)
 	case ActionScaleOut:
 		if strings.TrimSpace(input.StandbyTargetProfileID) == "" {
 			result.Status = ExecutionBlocked
@@ -110,26 +119,42 @@ func (executor Executor) Execute(ctx context.Context, input ExecutionInput) Exec
 	}
 }
 
-func (executor Executor) replace(ctx context.Context, result ExecutionResult, manifest appdeploy.DeploymentManifest) ExecutionResult {
+func (executor Executor) replace(ctx context.Context, result ExecutionResult, manifest appdeploy.DeploymentManifest, currentStatus string) ExecutionResult {
 	if strings.TrimSpace(manifest.Spec.AppVersionID) == "" {
 		result.Status = ExecutionBlocked
 		result.Reason = "the current deployment does not contain a reusable manifest"
 		return result
 	}
-	if _, err := executor.control.StopDeployment(ctx, result.DeploymentID); err != nil {
-		return failedExecution(result, "AppDeploy stop request failed before replacement")
+	if !terminalDeploymentStatus(currentStatus) {
+		if _, err := executor.control.StopDeployment(ctx, result.DeploymentID); err != nil {
+			return failedExecution(result, "AppDeploy stop request failed before replacement")
+		}
+		result.StopCompleted = true
 	}
-	result.StopCompleted = true
 	created, err := executor.control.CreateDeployment(ctx, manifest)
 	if err != nil {
-		result.Status = ExecutionPartialFailure
-		result.Reason = "the original deployment stopped but replacement creation failed; automatic execution is locked"
+		if result.StopCompleted {
+			result.Status = ExecutionPartialFailure
+			result.Reason = "the original deployment stopped but replacement creation failed; automatic execution is locked"
+		} else {
+			result.Status = ExecutionFailed
+			result.Reason = "AppDeploy replacement creation failed"
+		}
 		return result
 	}
 	result.Status = ExecutionSucceeded
 	result.NewDeploymentID = created.DeploymentID
 	result.Reason = "the original deployment stopped and a replacement deployment was requested"
 	return result
+}
+
+func terminalDeploymentStatus(status string) bool {
+	switch strings.ToUpper(strings.TrimSpace(status)) {
+	case "STOPPED", "FAILED", "SUCCEEDED", "COMPLETED", "CANCELLED", "CANCELED", "TERMINATED":
+		return true
+	default:
+		return false
+	}
 }
 
 func failedExecution(result ExecutionResult, reason string) ExecutionResult {

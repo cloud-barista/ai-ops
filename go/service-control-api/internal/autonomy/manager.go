@@ -43,6 +43,7 @@ type DeploymentRuntimeState struct {
 	LastExecution         *ExecutionResult                     `json:"last_execution,omitempty"`
 	CooldownUntil         time.Time                            `json:"cooldown_until,omitempty"`
 	AutomaticActionCount  int                                  `json:"automatic_action_count"`
+	LastActionAt          time.Time                            `json:"last_action_at,omitempty"`
 	LastDeployment        *appdeploy.DeploymentResponse        `json:"last_deployment,omitempty"`
 	LastMonitoringSummary *appdeploy.MonitoringSummaryResponse `json:"last_monitoring_summary,omitempty"`
 }
@@ -67,23 +68,26 @@ type CycleResult struct {
 }
 
 type Manager struct {
-	mu         sync.RWMutex
-	cycleMu    sync.Mutex
-	config     Config
-	state      DeploymentRuntimeState
-	running    bool
-	locked     bool
-	cancel     context.CancelFunc
-	done       chan struct{}
-	events     []Event
-	control    AppDeployControl
-	planner    DecisionPlanner
-	authorizer ActionAuthorizer
-	executor   Executor
-	now        func() time.Time
-	sequence   atomic.Uint64
-	cycles     atomic.Uint64
-	loopStarts int
+	mu                sync.RWMutex
+	cycleMu           sync.Mutex
+	config            Config
+	state             DeploymentRuntimeState
+	running           bool
+	locked            bool
+	cancel            context.CancelFunc
+	done              chan struct{}
+	activeCycleCancel context.CancelFunc
+	activeCycleID     string
+	configGeneration  uint64
+	events            []Event
+	control           AppDeployControl
+	planner           DecisionPlanner
+	authorizer        ActionAuthorizer
+	executor          Executor
+	now               func() time.Time
+	sequence          atomic.Uint64
+	cycles            atomic.Uint64
+	loopStarts        int
 }
 
 func NewManager(control AppDeployControl, planner DecisionPlanner, authorizer ActionAuthorizer) *Manager {
@@ -103,16 +107,22 @@ func (manager *Manager) Configure(config Config) error {
 		return err
 	}
 	manager.mu.Lock()
-	defer manager.mu.Unlock()
 	if manager.running {
+		manager.mu.Unlock()
 		return fmt.Errorf("stop the autonomy loop before replacing its configuration")
 	}
+	manager.configGeneration++
+	cancelCycle := manager.activeCycleCancel
 	manager.config = config
 	if manager.state.PrimaryDeploymentID != config.DeploymentID {
 		manager.state = DeploymentRuntimeState{PrimaryDeploymentID: config.DeploymentID}
 	}
 	if config.Mode == ModeGuardedAuto {
 		manager.locked = false
+	}
+	manager.mu.Unlock()
+	if cancelCycle != nil {
+		cancelCycle()
 	}
 	return nil
 }
@@ -179,13 +189,18 @@ func (manager *Manager) EmergencyStop() Status {
 func (manager *Manager) stopLoop(resetMode bool) {
 	manager.mu.Lock()
 	cancel := manager.cancel
+	cancelCycle := manager.activeCycleCancel
 	done := manager.done
+	manager.configGeneration++
 	if resetMode {
 		manager.config.Mode = ModeMonitorOnly
 	}
 	manager.mu.Unlock()
 	if cancel != nil {
 		cancel()
+	}
+	if cancelCycle != nil {
+		cancelCycle()
 	}
 	if done != nil {
 		<-done
@@ -223,34 +238,49 @@ func (manager *Manager) RunCycle(ctx context.Context) CycleResult {
 
 	now := manager.now()
 	cycleID := fmt.Sprintf("cycle-%d", manager.cycles.Add(1))
-	manager.mu.RLock()
+	cycleCtx, cancelCycle := context.WithCancel(ctx)
+	manager.mu.Lock()
 	config := manager.config
 	state := manager.state
 	locked := manager.locked
-	manager.mu.RUnlock()
+	generation := manager.configGeneration
+	manager.activeCycleCancel = cancelCycle
+	manager.activeCycleID = cycleID
+	manager.mu.Unlock()
+	defer func() {
+		cancelCycle()
+		manager.mu.Lock()
+		if manager.activeCycleID == cycleID {
+			manager.activeCycleCancel = nil
+			manager.activeCycleID = ""
+		}
+		manager.mu.Unlock()
+	}()
 	result := CycleResult{CycleID: cycleID}
 
 	if manager.control == nil {
 		return manager.finishCycle(result, Event{Timestamp: now, CycleID: cycleID, DeploymentID: config.DeploymentID, Stage: "monitor", Status: "source_unavailable", Reason: "AppDeploy is not configured"})
 	}
-	deployment, err := manager.control.GetDeployment(ctx, config.DeploymentID)
+	deployment, err := manager.control.GetDeployment(cycleCtx, config.DeploymentID)
 	if err != nil {
 		return manager.finishCycle(result, Event{Timestamp: now, CycleID: cycleID, DeploymentID: config.DeploymentID, Stage: "monitor", Status: "source_unavailable", Reason: "AppDeploy deployment status could not be read"})
 	}
-	metrics, err := manager.control.ListDeploymentMetrics(ctx, config.DeploymentID)
+	metrics, err := manager.control.ListDeploymentMetrics(cycleCtx, config.DeploymentID)
 	if err != nil {
 		return manager.finishCycle(result, Event{Timestamp: now, CycleID: cycleID, DeploymentID: config.DeploymentID, Stage: "monitor", Status: "source_unavailable", Reason: "AppDeploy metrics could not be read"})
 	}
-	summary, err := manager.control.GetMonitoringSummary(ctx)
+	summary, err := manager.control.GetMonitoringSummary(cycleCtx)
 	if err != nil {
 		return manager.finishCycle(result, Event{Timestamp: now, CycleID: cycleID, DeploymentID: config.DeploymentID, Stage: "monitor", Status: "source_unavailable", Reason: "AppDeploy monitoring summary could not be read"})
 	}
 	metric := latestMetric(metrics.Items)
+	metric = safeMetric(metric)
 	runtimeHealth := runtimeHealthFor(summary.RuntimeHealth, deployment.TargetProfileID)
 	evaluation := Evaluate(EvaluationInput{
 		Now: now, Metric: metric, DeploymentStatus: deployment.Status, MonitoringStatus: summary.Status,
 		RuntimeHealth: runtimeHealth, Policy: config.SLO,
 		MaxMetricAge:        time.Duration(config.MaxMetricAgeSeconds) * time.Second,
+		EvidenceNotBefore:   state.LastActionAt,
 		PreviousConsecutive: state.ConsecutiveViolations,
 	})
 	result.Evaluation = &evaluation
@@ -258,8 +288,10 @@ func (manager *Manager) RunCycle(ctx context.Context) CycleResult {
 	manager.state.PrimaryDeploymentID = config.DeploymentID
 	manager.state.ConsecutiveViolations = evaluation.ConsecutiveViolations
 	manager.state.LastEvaluation = &evaluation
-	manager.state.LastDeployment = &deployment
-	manager.state.LastMonitoringSummary = &summary
+	safeDeployment := deploymentForStatus(deployment)
+	safeSummary := monitoringSummaryForStatus(summary)
+	manager.state.LastDeployment = &safeDeployment
+	manager.state.LastMonitoringSummary = &safeSummary
 	if metric != nil {
 		manager.state.LastMetricTimestamp = metric.Timestamp
 	}
@@ -285,7 +317,7 @@ func (manager *Manager) RunCycle(ctx context.Context) CycleResult {
 	if manager.planner == nil {
 		return manager.finishCycle(result, Event{Timestamp: now, CycleID: cycleID, DeploymentID: config.DeploymentID, Stage: "qwen", Status: "decision_failed", Reason: "Qwen planner is not configured", Evaluation: &evaluation})
 	}
-	decision, err := manager.planner.Plan(ctx, DecisionInput{Deployment: deployment, Evaluation: evaluation, Config: config})
+	decision, err := manager.planner.Plan(cycleCtx, DecisionInput{Deployment: deployment, Evaluation: evaluation, Config: config})
 	if err != nil || !decision.Action.Valid() {
 		return manager.finishCycle(result, Event{Timestamp: now, CycleID: cycleID, DeploymentID: config.DeploymentID, Stage: "qwen", Status: "decision_failed", Reason: "Qwen did not return a valid bounded Action", Evaluation: &evaluation})
 	}
@@ -294,7 +326,7 @@ func (manager *Manager) RunCycle(ctx context.Context) CycleResult {
 
 	approved, authorizationReason := false, "Agent Registry authorizer is not configured"
 	if manager.authorizer != nil {
-		approved, authorizationReason, err = manager.authorizer.Validate(ctx, string(decision.Action))
+		approved, authorizationReason, err = manager.authorizer.Validate(cycleCtx, string(decision.Action))
 		if err != nil {
 			approved = false
 			authorizationReason = "Agent Registry authorization failed"
@@ -318,14 +350,28 @@ func (manager *Manager) RunCycle(ctx context.Context) CycleResult {
 		result.Reason = guard.Reason
 		return result
 	}
+	if allowed, reason := manager.executionFence(generation); !allowed {
+		fencedGuard := GuardDecision{Status: GuardBlocked, Reason: reason}
+		result.Guard = &fencedGuard
+		result.Status = string(GuardBlocked)
+		result.Reason = reason
+		manager.mu.Lock()
+		manager.state.LastGuard = &fencedGuard
+		manager.mu.Unlock()
+		manager.recordEvent(Event{Timestamp: manager.now(), CycleID: cycleID, DeploymentID: config.DeploymentID, Stage: "guard", Status: string(GuardBlocked), Reason: reason, Evaluation: &evaluation, Decision: &decision, Guard: &fencedGuard})
+		return result
+	}
 
-	execution := manager.executor.Execute(ctx, ExecutionInput{Action: decision.Action, Deployment: deployment, StandbyTargetProfileID: config.StandbyTargetProfileID, RollbackAppVersionID: config.RollbackAppVersionID})
+	execution := manager.executor.Execute(cycleCtx, ExecutionInput{Action: decision.Action, Deployment: deployment, StandbyTargetProfileID: config.StandbyTargetProfileID, RollbackAppVersionID: config.RollbackAppVersionID})
+	completedAt := manager.now()
 	result.Execution = &execution
 	manager.mu.Lock()
 	manager.state.LastExecution = &execution
-	if execution.Status == ExecutionSucceeded {
+	if execution.Status == ExecutionSucceeded && stateChangingAction(decision.Action) {
 		manager.state.AutomaticActionCount++
-		manager.state.CooldownUntil = now.Add(time.Duration(config.CooldownSeconds) * time.Second)
+		manager.state.ConsecutiveViolations = 0
+		manager.state.LastActionAt = completedAt
+		manager.state.CooldownUntil = completedAt.Add(time.Duration(config.CooldownSeconds) * time.Second)
 		if execution.NewDeploymentID != "" {
 			if decision.Action == ActionScaleOut {
 				manager.state.RelatedDeploymentIDs = append(manager.state.RelatedDeploymentIDs, execution.NewDeploymentID)
@@ -338,15 +384,32 @@ func (manager *Manager) RunCycle(ctx context.Context) CycleResult {
 	if execution.Status == ExecutionPartialFailure {
 		manager.locked = true
 		manager.config.Mode = ModeMonitorOnly
+		manager.state.ConsecutiveViolations = 0
+		manager.state.LastActionAt = completedAt
 	}
 	manager.mu.Unlock()
 	manager.recordEvent(Event{Timestamp: now, CycleID: cycleID, DeploymentID: config.DeploymentID, Stage: "execute", Status: string(execution.Status), Reason: execution.Reason, Evaluation: &evaluation, Decision: &decision, Guard: &guard, Execution: &execution})
 	result.Status = string(execution.Status)
 	result.Reason = execution.Reason
-	if execution.Status == ExecutionSucceeded {
+	if execution.Status == ExecutionSucceeded && stateChangingAction(decision.Action) {
 		manager.recordEvent(Event{Timestamp: now, CycleID: cycleID, DeploymentID: config.DeploymentID, Stage: "feedback", Status: "awaiting_evidence", Reason: "Action completed; a later cycle must collect fresh evidence before another Action", Execution: &execution})
 	}
 	return result
+}
+
+func (manager *Manager) executionFence(generation uint64) (bool, string) {
+	manager.mu.RLock()
+	defer manager.mu.RUnlock()
+	if manager.configGeneration != generation {
+		return false, "the cycle was cancelled by a stop or configuration change"
+	}
+	if manager.config.Mode != ModeGuardedAuto {
+		return false, "current mode no longer permits automatic state changes"
+	}
+	if manager.locked {
+		return false, "automatic execution is locked after a partial failure"
+	}
+	return true, ""
 }
 
 func (manager *Manager) finishCycle(result CycleResult, event Event) CycleResult {
@@ -383,6 +446,34 @@ func latestMetric(metrics []appdeploy.InferenceMetricRecord) *appdeploy.Inferenc
 		}
 	}
 	return &latest
+}
+
+func safeMetric(metric *appdeploy.InferenceMetricRecord) *appdeploy.InferenceMetricRecord {
+	if metric == nil {
+		return nil
+	}
+	safe := *metric
+	safe.Metadata = nil
+	return &safe
+}
+
+func deploymentForStatus(deployment appdeploy.DeploymentResponse) appdeploy.DeploymentResponse {
+	safe := deployment
+	safe.Manifest.Spec.Parameters = nil
+	return safe
+}
+
+func monitoringSummaryForStatus(summary appdeploy.MonitoringSummaryResponse) appdeploy.MonitoringSummaryResponse {
+	safe := summary
+	safe.Alarms = append([]appdeploy.DeploymentAlarmSummary(nil), summary.Alarms...)
+	for index := range safe.Alarms {
+		safe.Alarms[index].LatestMessage = ""
+	}
+	return safe
+}
+
+func stateChangingAction(action Action) bool {
+	return action == ActionScaleOut || action == ActionRestart || action == ActionRollback || action == ActionStop
 }
 
 func runtimeHealthFor(snapshots []appdeploy.RuntimeHealthSnapshot, targetProfileID string) string {

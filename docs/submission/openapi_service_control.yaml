@@ -265,6 +265,10 @@ paths:
   /api/v1/autonomy/config:
     put:
       summary: Replace guarded autonomous loop configuration
+      description: Loopback requests are allowed directly. Remote requests require an Autonomy admin Bearer token.
+      security:
+        - {}
+        - AutonomyAdminToken: []
       requestBody:
         required: true
         content:
@@ -283,6 +287,9 @@ paths:
   /api/v1/autonomy/start:
     post:
       summary: Start the configured monitoring loop
+      security:
+        - {}
+        - AutonomyAdminToken: []
       responses:
         "200":
           description: Started or already-running loop status
@@ -295,6 +302,9 @@ paths:
   /api/v1/autonomy/stop:
     post:
       summary: Stop the monitoring loop
+      security:
+        - {}
+        - AutonomyAdminToken: []
       responses:
         "200":
           description: Stopped loop status
@@ -305,6 +315,9 @@ paths:
   /api/v1/autonomy/emergency-stop:
     post:
       summary: Stop immediately and return to Monitor Only
+      security:
+        - {}
+        - AutonomyAdminToken: []
       responses:
         "200":
           description: Stopped Monitor Only status
@@ -315,6 +328,9 @@ paths:
   /api/v1/autonomy/cycles:
     post:
       summary: Run one serialized autonomy cycle
+      security:
+        - {}
+        - AutonomyAdminToken: []
       responses:
         "200":
           description: Observation, decision, guard, and optional execution result
@@ -340,6 +356,11 @@ paths:
                     items:
                       $ref: "#/components/schemas/AutonomyEvent"
 components:
+  securitySchemes:
+    AutonomyAdminToken:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque admin token
   parameters:
     AgentName:
       name: name

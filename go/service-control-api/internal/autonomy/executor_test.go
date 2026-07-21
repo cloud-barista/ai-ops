@@ -69,6 +69,32 @@ func TestExecutorReportsPartialFailure(t *testing.T) {
 	}
 }
 
+func TestExecutorStopOnTerminalDeploymentOnlyObserves(t *testing.T) {
+	deployment := executorDeployment()
+	deployment.Status = "STOPPED"
+	fake := executionFake{deployment: deployment}
+	result := NewExecutor(&fake).Execute(context.Background(), ExecutionInput{Action: ActionStop, Deployment: deployment})
+	if result.Status != ExecutionNotApplicable {
+		t.Fatalf("terminal stop should be non-applicable: %#v", result)
+	}
+	if !reflect.DeepEqual(fake.calls, []string{"get:dep-1"}) {
+		t.Fatalf("terminal stop must only observe status: %v", fake.calls)
+	}
+}
+
+func TestExecutorRestartSkipsStopForTerminalDeployment(t *testing.T) {
+	deployment := executorDeployment()
+	deployment.Status = "STOPPED"
+	fake := executionFake{deployment: deployment}
+	result := NewExecutor(&fake).Execute(context.Background(), ExecutionInput{Action: ActionRestart, Deployment: deployment})
+	if result.Status != ExecutionSucceeded || result.StopCompleted {
+		t.Fatalf("terminal restart should create without stop: %#v", result)
+	}
+	if !reflect.DeepEqual(fake.calls, []string{"create"}) {
+		t.Fatalf("terminal restart calls=%v", fake.calls)
+	}
+}
+
 func executorDeployment() appdeploy.DeploymentResponse {
 	return appdeploy.DeploymentResponse{
 		DeploymentID: "dep-1", AppVersionID: "appver-current", TargetProfileID: "target-primary", Status: "RUNNING",

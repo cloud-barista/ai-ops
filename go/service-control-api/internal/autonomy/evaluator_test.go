@@ -53,6 +53,19 @@ func TestEvaluateEvidenceFreshnessAndFailureState(t *testing.T) {
 	}
 }
 
+func TestEvaluateRejectsMetricReusedAfterAction(t *testing.T) {
+	now := time.Date(2026, 7, 21, 3, 10, 0, 0, time.UTC)
+	metric := metricAt(now.Add(-time.Second), 900, 0.5, 100, 10)
+	got := Evaluate(EvaluationInput{
+		Now: now, Metric: &metric, DeploymentStatus: "RUNNING", MonitoringStatus: "ok", RuntimeHealth: "ok",
+		Policy: SLOPolicy{MaxLatencyMS: 500, MinThroughputRPS: 1, MaxErrorRate: 0.05}, MaxMetricAge: time.Minute,
+		EvidenceNotBefore: now,
+	})
+	if got.Status != EvaluationInsufficientEvidence || got.EvidenceFresh {
+		t.Fatalf("pre-Action metric must not be reused: %#v", got)
+	}
+}
+
 func TestConfigValidate(t *testing.T) {
 	valid := DefaultConfig()
 	valid.DeploymentID = "dep-1"

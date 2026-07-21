@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -15,6 +16,8 @@ type ServerConfig struct {
 	LLMCandidatesPath      string
 	PlannerGuardPolicyPath string
 	AppDeployBaseURL       string
+	BindAddress            string
+	AutonomyAdminToken     string
 }
 
 func NewServerConfig() ServerConfig {
@@ -41,12 +44,18 @@ func NewServerConfig() ServerConfig {
 	} else if !filepath.IsAbs(plannerGuardPolicyPath) {
 		plannerGuardPolicyPath = filepath.Join(repoRoot, plannerGuardPolicyPath)
 	}
+	bindAddress := strings.TrimSpace(viper.GetString("BIND_ADDRESS"))
+	if bindAddress == "" {
+		bindAddress = "127.0.0.1"
+	}
 	return ServerConfig{
 		RepoRoot:               repoRoot,
 		OpenAPIPath:            openAPIPath,
 		LLMCandidatesPath:      llmCandidatesPath,
 		PlannerGuardPolicyPath: plannerGuardPolicyPath,
 		AppDeployBaseURL:       viper.GetString("APPDEPLOY_BASE_URL"),
+		BindAddress:            bindAddress,
+		AutonomyAdminToken:     viper.GetString("AUTONOMY_ADMIN_TOKEN"),
 	}
 }
 

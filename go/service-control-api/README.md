@@ -68,6 +68,7 @@ export AIOPS_REPO_ROOT="$HOME/Documents/Kyunghee-aiops-go"
 export AIOPS_LLM_CANDIDATES_PATH="config/ops_llm_eval_candidates.local_ollama.json"
 export AIOPS_PLANNER_GUARD_POLICY_PATH="config/planner_guard_policy.json"
 export AIOPS_APPDEPLOY_BASE_URL="http://127.0.0.1:8080/api/v1"
+export AIOPS_BIND_ADDRESS="127.0.0.1"
 export PORT=18080
 
 cd "$HOME/Documents/Kyunghee-aiops-go/go/service-control-api"
@@ -160,6 +161,18 @@ AppDeploy 상태·Metric
 ```
 
 서버를 재시작하면 Loop는 항상 `STOPPED`, 모드는 항상 `Monitor Only`로 초기화됩니다. Credential이나 Secret은 설정·프롬프트·이벤트에 포함할 수 없습니다.
+
+geon 서버는 기본적으로 `127.0.0.1`에만 bind됩니다. 공동 VM 등에서 외부 접속을 명시적으로 허용할 때는 관리자 토큰도 함께 설정해야 하며, 외부의 상태 변경 API 요청은 Bearer 토큰 없이는 거부됩니다.
+
+```bash
+export AIOPS_BIND_ADDRESS="0.0.0.0"
+export AIOPS_AUTONOMY_ADMIN_TOKEN="충분히-긴-임의-토큰"
+
+curl -X POST http://SERVER:18080/api/v1/autonomy/emergency-stop \
+  -H "Authorization: Bearer $AIOPS_AUTONOMY_ADMIN_TOKEN"
+```
+
+토큰은 웹페이지나 설정 JSON에 입력하지 않습니다. 원격 운영에서는 TLS reverse proxy와 접근 제어를 함께 사용하고, Agent Control 웹의 상태 변경 버튼은 loopback 접속에서 사용합니다.
 
 #### Monitor Only 안전 데모
 

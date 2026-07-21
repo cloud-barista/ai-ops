@@ -2,7 +2,9 @@ package autonomy
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -36,7 +38,7 @@ func TestManagerMonitorOnlyRequiresConfirmedViolation(t *testing.T) {
 	}
 }
 
-func TestManagerGuardedAutoExecutesOnceThenCooldownBlocks(t *testing.T) {
+func TestManagerGuardedAutoExecutesOnceThenRequiresNewEvidence(t *testing.T) {
 	now := time.Date(2026, 7, 21, 4, 0, 0, 0, time.UTC)
 	control := newManagerControl(now)
 	planner := &managerPlanner{decision: Decision{Action: ActionRestart, Reason: "restart", Confidence: 0.8}}
@@ -53,8 +55,8 @@ func TestManagerGuardedAutoExecutesOnceThenCooldownBlocks(t *testing.T) {
 		t.Fatalf("expected one guarded execution: %#v stop=%d create=%d", first, control.stopCalls, control.createCalls)
 	}
 	second := manager.RunCycle(context.Background())
-	if second.Status != string(GuardBlocked) || control.stopCalls != 1 || control.createCalls != 1 {
-		t.Fatalf("cooldown must prevent duplicate execution: %#v stop=%d create=%d", second, control.stopCalls, control.createCalls)
+	if second.Status != string(EvaluationInsufficientEvidence) || control.stopCalls != 1 || control.createCalls != 1 {
+		t.Fatalf("evidence fence must prevent duplicate execution: %#v stop=%d create=%d", second, control.stopCalls, control.createCalls)
 	}
 }
 
@@ -74,6 +76,28 @@ func TestManagerPartialFailureReturnsToMonitorOnly(t *testing.T) {
 	status := manager.Status()
 	if result.Status != string(ExecutionPartialFailure) || status.Config.Mode != ModeMonitorOnly || !status.ExecutionLocked {
 		t.Fatalf("partial failure must lock automatic execution: result=%#v status=%#v", result, status)
+	}
+}
+
+func TestManagerTerminalStopDoesNotConsumeActionBudget(t *testing.T) {
+	now := time.Now().UTC()
+	control := newManagerControl(now)
+	control.deployment.Status = "STOPPED"
+	manager := NewManager(control, &managerPlanner{decision: Decision{Action: ActionStop}}, &managerAuthorizer{approved: true})
+	manager.now = func() time.Time { return now }
+	config := managerConfig(ModeGuardedAuto)
+	config.ConsecutiveViolations = 1
+	if err := manager.Configure(config); err != nil {
+		t.Fatal(err)
+	}
+
+	result := manager.RunCycle(context.Background())
+	status := manager.Status()
+	if result.Status != string(ExecutionNotApplicable) || control.stopCalls != 0 {
+		t.Fatalf("terminal stop must not issue stop: result=%#v stop_calls=%d", result, control.stopCalls)
+	}
+	if status.State.AutomaticActionCount != 0 || !status.State.CooldownUntil.IsZero() {
+		t.Fatalf("terminal stop consumed safety budget: %#v", status.State)
 	}
 }
 
@@ -114,6 +138,78 @@ func TestManagerEventStoreKeepsNewestTwoHundred(t *testing.T) {
 	}
 }
 
+func TestManagerEmergencyStopFencesInFlightManualCycle(t *testing.T) {
+	now := time.Now().UTC()
+	control := newManagerControl(now)
+	planner := &blockingManagerPlanner{started: make(chan struct{}), release: make(chan struct{}), decision: Decision{Action: ActionRestart}}
+	manager := NewManager(control, planner, &managerAuthorizer{approved: true})
+	manager.now = func() time.Time { return now }
+	config := managerConfig(ModeGuardedAuto)
+	config.ConsecutiveViolations = 1
+	if err := manager.Configure(config); err != nil {
+		t.Fatal(err)
+	}
+
+	done := make(chan CycleResult, 1)
+	go func() { done <- manager.RunCycle(context.Background()) }()
+	<-planner.started
+	manager.EmergencyStop()
+	close(planner.release)
+	result := <-done
+	if control.stopCalls != 0 || control.createCalls != 0 {
+		t.Fatalf("emergency stop did not fence in-flight execution: stop=%d create=%d", control.stopCalls, control.createCalls)
+	}
+	if result.Status != string(GuardBlocked) {
+		t.Fatalf("in-flight cycle should finish blocked: %#v", result)
+	}
+}
+
+func TestManagerRequiresMetricNewerThanLastAction(t *testing.T) {
+	now := time.Now().UTC()
+	control := newManagerControl(now)
+	manager := NewManager(control, &managerPlanner{decision: Decision{Action: ActionScaleOut}}, &managerAuthorizer{approved: true})
+	manager.now = func() time.Time { return now }
+	config := managerConfig(ModeGuardedAuto)
+	config.ConsecutiveViolations = 1
+	config.CooldownSeconds = 0
+	config.StandbyTargetProfileID = "target-standby"
+	if err := manager.Configure(config); err != nil {
+		t.Fatal(err)
+	}
+
+	first := manager.RunCycle(context.Background())
+	second := manager.RunCycle(context.Background())
+	if first.Status != string(ExecutionSucceeded) || second.Status != string(EvaluationInsufficientEvidence) {
+		t.Fatalf("same metric must not authorize a second Action: first=%#v second=%#v", first, second)
+	}
+	if control.createCalls != 1 {
+		t.Fatalf("same metric triggered %d creates", control.createCalls)
+	}
+}
+
+func TestManagerStatusDoesNotExposeManifestParametersOrMetricMetadata(t *testing.T) {
+	now := time.Now().UTC()
+	control := newManagerControl(now)
+	control.deployment.Manifest.Spec.Parameters = map[string]any{"password": "manifest-secret"}
+	control.metric.Metadata = map[string]any{"api_key": "metric-secret"}
+	manager := NewManager(control, &managerPlanner{decision: Decision{Action: ActionObserve}}, &managerAuthorizer{approved: true})
+	manager.now = func() time.Time { return now }
+	config := managerConfig(ModeMonitorOnly)
+	config.ConsecutiveViolations = 1
+	if err := manager.Configure(config); err != nil {
+		t.Fatal(err)
+	}
+	manager.RunCycle(context.Background())
+
+	content, err := json.Marshal(manager.Status())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(content), "manifest-secret") || strings.Contains(string(content), "metric-secret") {
+		t.Fatalf("status leaked AppDeploy supplied data: %s", content)
+	}
+}
+
 func managerConfig(mode Mode) Config {
 	config := DefaultConfig()
 	config.Mode = mode
@@ -125,6 +221,18 @@ type managerPlanner struct {
 	mu       sync.Mutex
 	decision Decision
 	calls    int
+}
+
+type blockingManagerPlanner struct {
+	started  chan struct{}
+	release  chan struct{}
+	decision Decision
+}
+
+func (planner *blockingManagerPlanner) Plan(context.Context, DecisionInput) (Decision, error) {
+	close(planner.started)
+	<-planner.release
+	return planner.decision, nil
 }
 
 func (planner *managerPlanner) Plan(context.Context, DecisionInput) (Decision, error) {

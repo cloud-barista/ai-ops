@@ -25,6 +25,9 @@ func Evaluate(input EvaluationInput) Evaluation {
 	if input.Metric != nil && !input.Metric.Timestamp.IsZero() && input.MaxMetricAge >= 0 {
 		age := input.Now.Sub(input.Metric.Timestamp)
 		result.EvidenceFresh = age >= 0 && age <= input.MaxMetricAge
+		if !input.EvidenceNotBefore.IsZero() && !input.Metric.Timestamp.After(input.EvidenceNotBefore) {
+			result.EvidenceFresh = false
+		}
 	}
 	if result.EvidenceFresh {
 		metric := input.Metric

@@ -108,9 +108,50 @@ func TestOpenAPIContractParsesAndContainsAutonomyRoutes(t *testing.T) {
 	}
 }
 
+func TestAutonomyMutationsRejectRemoteRequestsWithoutAdminToken(t *testing.T) {
+	config := NewServerConfig()
+	config.AutonomyAdminToken = "test-admin-token"
+	server := NewServer(config)
+
+	request := httptest.NewRequest(http.MethodPost, "/api/v1/autonomy/emergency-stop", nil)
+	request.RemoteAddr = "203.0.113.20:4321"
+	response := httptest.NewRecorder()
+	server.ServeHTTP(response, request)
+	if response.Code != http.StatusUnauthorized {
+		t.Fatalf("remote mutation without token: code=%d body=%s", response.Code, response.Body.String())
+	}
+
+	request = httptest.NewRequest(http.MethodPost, "/api/v1/autonomy/emergency-stop", nil)
+	request.RemoteAddr = "203.0.113.20:4321"
+	request.Header.Set("Authorization", "Bearer test-admin-token")
+	response = httptest.NewRecorder()
+	server.ServeHTTP(response, request)
+	if response.Code != http.StatusOK {
+		t.Fatalf("remote mutation with token: code=%d body=%s", response.Code, response.Body.String())
+	}
+}
+
+func TestServerConfigDefaultsToLoopbackBinding(t *testing.T) {
+	config := NewServerConfig()
+	if config.BindAddress != "127.0.0.1" {
+		t.Fatalf("default bind address=%q want loopback", config.BindAddress)
+	}
+}
+
+func TestAutonomyMutationsRequireTokenWhenServerBindsExternally(t *testing.T) {
+	config := NewServerConfig()
+	config.BindAddress = "0.0.0.0"
+	server := NewServer(config)
+	response := performJSONRequest(t, server, http.MethodPost, "/api/v1/autonomy/emergency-stop", "")
+	if response.Code != http.StatusForbidden {
+		t.Fatalf("external binding must not trust a loopback proxy peer: code=%d body=%s", response.Code, response.Body.String())
+	}
+}
+
 func performJSONRequest(t *testing.T, server http.Handler, method string, path string, body string) *httptest.ResponseRecorder {
 	t.Helper()
 	request := httptest.NewRequest(method, path, strings.NewReader(body))
+	request.RemoteAddr = "127.0.0.1:4321"
 	if body != "" {
 		request.Header.Set("Content-Type", "application/json")
 	}
