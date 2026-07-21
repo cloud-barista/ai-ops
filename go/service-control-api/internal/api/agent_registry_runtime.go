@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/url"
 	"regexp"
@@ -18,6 +19,11 @@ const (
 )
 
 var agentNamePattern = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_-]{2,63}$`)
+
+var (
+	errRuntimeAgentNotFound     = errors.New("runtime agent was not found")
+	errConfiguredAgentProtected = errors.New("configuration agent is protected")
+)
 
 type runtimeAgentStore struct {
 	mu     sync.RWMutex
@@ -43,6 +49,16 @@ func (store *runtimeAgentStore) add(agent AgentProfile) error {
 	}
 	store.agents[agent.Name] = agent
 	return nil
+}
+
+func (store *runtimeAgentStore) remove(name string) (AgentProfile, bool) {
+	store.mu.Lock()
+	defer store.mu.Unlock()
+	agent, ok := store.agents[name]
+	if ok {
+		delete(store.agents, name)
+	}
+	return agent, ok
 }
 
 func (store *runtimeAgentStore) list() []AgentProfile {
@@ -100,6 +116,24 @@ func (service Service) RegisterExternalAgent(ctx context.Context, request Extern
 	}
 	if err := service.runtimeAgents.add(agent); err != nil {
 		return AgentProfile{}, err
+	}
+	return agent, nil
+}
+
+func (service Service) DeleteExternalAgent(ctx context.Context, name string) (AgentProfile, error) {
+	if err := ensureContext(ctx); err != nil {
+		return AgentProfile{}, err
+	}
+	registry, err := loadAgentRegistry(service.config.path("config", "agent_registry.json"))
+	if err != nil {
+		return AgentProfile{}, err
+	}
+	if _, err := findAgent(registry.Agents, name); err == nil {
+		return AgentProfile{}, fmt.Errorf("%w: %s", errConfiguredAgentProtected, name)
+	}
+	agent, ok := service.runtimeAgents.remove(name)
+	if !ok {
+		return AgentProfile{}, fmt.Errorf("%w: %s", errRuntimeAgentNotFound, name)
 	}
 	return agent, nil
 }

@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"errors"
 	"testing"
 )
 
@@ -114,5 +115,48 @@ func TestBuildAgentInvocationPlanRejectsUnboundedCapabilityAndAction(t *testing.
 	})
 	if err == nil {
 		t.Fatal("expected unbounded action to be rejected")
+	}
+}
+
+func TestDeleteExternalAgentRemovesRuntimeAgent(t *testing.T) {
+	service := NewService(NewServerConfig())
+	ctx := context.Background()
+	registered, err := service.RegisterExternalAgent(ctx, ExternalAgentRegistrationRequest{
+		Name:           "ResearchModelMonitorAgent",
+		Version:        "0.1.0",
+		Role:           "Review model runtime signals.",
+		Endpoint:       "http://model-monitor.internal:8090",
+		InvocationPath: "/v1/actions",
+		Capabilities:   []string{"model_monitoring"},
+		BoundedActions: []string{"collect_model_metrics"},
+	})
+	if err != nil {
+		t.Fatalf("register runtime agent: %v", err)
+	}
+
+	deleted, err := service.DeleteExternalAgent(ctx, registered.Name)
+	if err != nil || deleted.Name != registered.Name || deleted.Source != agentSourceRuntime {
+		t.Fatalf("unexpected deletion: deleted=%#v err=%v", deleted, err)
+	}
+	if _, err := service.ShowAgent(ctx, registered.Name); err == nil {
+		t.Fatal("deleted runtime agent is still visible")
+	}
+	if _, err := service.BuildAgentInvocationPlan(ctx, registered.Name, AgentInvocationPlanRequest{
+		Capability: "model_monitoring",
+		Action:     "collect_model_metrics",
+	}); err == nil {
+		t.Fatal("deleted runtime agent still produces invocation plans")
+	}
+}
+
+func TestDeleteExternalAgentRejectsConfiguredAndMissingAgents(t *testing.T) {
+	service := NewService(NewServerConfig())
+	ctx := context.Background()
+
+	if _, err := service.DeleteExternalAgent(ctx, "AIApplicationAutomationAgent"); !errors.Is(err, errConfiguredAgentProtected) {
+		t.Fatalf("configured agent deletion error=%v", err)
+	}
+	if _, err := service.DeleteExternalAgent(ctx, "MissingRuntimeAgent"); !errors.Is(err, errRuntimeAgentNotFound) {
+		t.Fatalf("missing agent deletion error=%v", err)
 	}
 }
