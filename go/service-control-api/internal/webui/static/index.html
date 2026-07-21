@@ -268,7 +268,7 @@
             <form id="feedback-form" class="form-grid">
               <label class="field full"><span>Correlation ID</span><input name="correlation_id" placeholder="corr-..." required></label>
               <label class="field"><span>Executor</span><input name="executor" value="AppDeployExecutorAgent" required></label>
-              <label class="field"><span>Status</span><select name="status"><option value="completed">completed</option><option value="failed">failed</option><option value="running">running</option></select></label>
+              <label class="field"><span>Status</span><select name="status"><option value="succeeded">succeeded</option><option value="failed">failed</option><option value="running">running</option></select></label>
               <label class="field full"><span>External Execution ID</span><input name="external_execution_id" placeholder="dep-..."></label>
               <label class="field"><span>Latency ms</span><input name="latency_ms" type="number" min="0" step="0.01"></label>
               <label class="field"><span>Throughput RPS</span><input name="throughput_rps" type="number" min="0" step="0.01"></label>
@@ -281,6 +281,13 @@
             <pre class="json-output tall" id="feedback-json">아직 Feedback 기록이 없습니다.</pre>
           </section>
         </div>
+        <section class="panel feedback-records-panel" aria-labelledby="feedback-records-title">
+          <div class="panel-header">
+            <div><p class="section-label">GEON RECORDS</p><h3 id="feedback-records-title">Recorded Feedback</h3></div>
+            <button class="icon-button danger-icon" id="clear-feedback-records" type="button" title="Feedback 전체 삭제" aria-label="Feedback 전체 삭제"><i data-lucide="trash-2" aria-hidden="true"></i></button>
+          </div>
+          <div class="activity-list feedback-record-list" id="feedback-record-list"><p class="empty-state">기록된 Feedback이 없습니다.</p></div>
+        </section>
       </section>
     </main>
   </div>

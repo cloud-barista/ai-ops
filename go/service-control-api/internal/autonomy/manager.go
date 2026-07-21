@@ -241,6 +241,19 @@ func (manager *Manager) ClearEvents() int {
 	return deleted
 }
 
+func (manager *Manager) DeleteEvent(sequence uint64) (Event, bool) {
+	manager.mu.Lock()
+	defer manager.mu.Unlock()
+	for index, event := range manager.events {
+		if event.Sequence != sequence {
+			continue
+		}
+		manager.events = append(manager.events[:index], manager.events[index+1:]...)
+		return event, true
+	}
+	return Event{}, false
+}
+
 func (manager *Manager) RunCycle(ctx context.Context) CycleResult {
 	manager.cycleMu.Lock()
 	defer manager.cycleMu.Unlock()

@@ -85,6 +85,9 @@ func NewServer(config ServerConfig) *echo.Echo {
 	server.POST(pathDeploymentPlan, handler.RestPostDeploymentPlan)
 	server.POST(pathAutomationPlan, handler.RestPostLLMAutomationAction)
 	server.POST(pathAutomationFeed, handler.RestPostAutomationFeedback)
+	server.GET(pathAutomationFeed, handler.RestGetAutomationFeedback)
+	server.DELETE(pathAutomationFeed+"/:correlation_id", handler.requireAutonomyAdmin(handler.RestDeleteAutomationFeedback))
+	server.DELETE(pathAutomationFeed, handler.requireAutonomyAdmin(handler.RestDeleteAllAutomationFeedback))
 	server.GET(pathAutonomy+"/status", handler.RestGetAutonomyStatus)
 	server.PUT(pathAutonomy+"/config", handler.requireAutonomyAdmin(handler.RestPutAutonomyConfig))
 	server.POST(pathAutonomy+"/start", handler.requireAutonomyAdmin(handler.RestPostAutonomyStart))
@@ -92,6 +95,7 @@ func NewServer(config ServerConfig) *echo.Echo {
 	server.POST(pathAutonomy+"/emergency-stop", handler.requireAutonomyAdmin(handler.RestPostAutonomyEmergencyStop))
 	server.POST(pathAutonomy+"/cycles", handler.requireAutonomyAdmin(handler.RestPostAutonomyCycle))
 	server.GET(pathAutonomy+"/events", handler.RestGetAutonomyEvents)
+	server.DELETE(pathAutonomy+"/events/:sequence", handler.requireAutonomyAdmin(handler.RestDeleteAutonomyEvent))
 	server.DELETE(pathAutonomy+"/events", handler.requireAutonomyAdmin(handler.RestDeleteAutonomyEvents))
 	server.POST(pathPlannerDeploy, handler.RestPostAppDeployPlanner)
 	server.POST(pathServiceOpsRun, handler.RestPostServiceOperationsRun)
@@ -402,6 +406,65 @@ func (handler restHandler) RestPostAutomationFeedback(context echo.Context) erro
 		return jsonError(context, http.StatusBadRequest, "Automation feedback could not be recorded", err)
 	}
 	return context.JSON(http.StatusOK, result)
+}
+
+// RestGetAutomationFeedback godoc
+// @ID GetAutomationFeedback
+// @Summary List automation execution feedback
+// @Description Return normalized execution feedback records held by the current geon process, newest first.
+// @Tags AI Application Automation
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Failure 500 {object} ErrorResponse
+// @Router /api/v1/automation/feedback [get]
+func (handler restHandler) RestGetAutomationFeedback(context echo.Context) error {
+	records, err := handler.service.ListAutomationFeedback(context.Request().Context())
+	if err != nil {
+		return jsonError(context, http.StatusInternalServerError, "Automation feedback could not be listed", err)
+	}
+	return context.JSON(http.StatusOK, map[string]any{"count": len(records), "feedback": records})
+}
+
+// RestDeleteAutomationFeedback godoc
+// @ID DeleteAutomationFeedback
+// @Summary Delete one automation execution feedback record
+// @Description Delete one geon-owned feedback record while preserving its approved correlation registration.
+// @Tags AI Application Automation
+// @Produce json
+// @Param correlation_id path string true "Automation correlation ID"
+// @Success 200 {object} map[string]interface{}
+// @Failure 401 {object} ErrorResponse
+// @Failure 403 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Router /api/v1/automation/feedback/{correlation_id} [delete]
+func (handler restHandler) RestDeleteAutomationFeedback(context echo.Context) error {
+	record, err := handler.service.DeleteAutomationFeedback(context.Request().Context(), context.Param("correlation_id"))
+	if errors.Is(err, errAutomationFeedbackNotFound) {
+		return context.JSON(http.StatusNotFound, ErrorResponse{Valid: false, Message: "Automation feedback was not found"})
+	}
+	if err != nil {
+		return jsonError(context, http.StatusInternalServerError, "Automation feedback could not be deleted", err)
+	}
+	return context.JSON(http.StatusOK, map[string]any{"deleted": true, "feedback": record})
+}
+
+// RestDeleteAllAutomationFeedback godoc
+// @ID DeleteAllAutomationFeedback
+// @Summary Clear automation execution feedback
+// @Description Clear geon-owned feedback records while preserving approved correlation registrations.
+// @Tags AI Application Automation
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Failure 401 {object} ErrorResponse
+// @Failure 403 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /api/v1/automation/feedback [delete]
+func (handler restHandler) RestDeleteAllAutomationFeedback(context echo.Context) error {
+	deleted, err := handler.service.ClearAutomationFeedback(context.Request().Context())
+	if err != nil {
+		return jsonError(context, http.StatusInternalServerError, "Automation feedback could not be cleared", err)
+	}
+	return context.JSON(http.StatusOK, map[string]any{"deleted": true, "deleted_count": deleted, "feedback": []AutomationFeedbackRecord{}})
 }
 
 // RestPostServiceOperationsRun godoc

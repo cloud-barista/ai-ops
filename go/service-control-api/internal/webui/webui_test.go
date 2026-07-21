@@ -56,6 +56,7 @@ func TestControlAppContainsOperationalViewsAndAPIContracts(t *testing.T) {
 		`id="agent-registration-form"`,
 		`id="action-form"`,
 		`id="feedback-form"`,
+		`<option value="succeeded">succeeded</option>`,
 		`aria-label="Agents &amp; Guard"`,
 		`data-close-dialog`,
 	} {
@@ -115,7 +116,8 @@ func TestControlAppContainsGeonDeletionControls(t *testing.T) {
 	for _, expected := range []string{
 		`id="clear-history"`,
 		`id="clear-autonomy-events"`,
-		`aria-label="Autonomy 이벤트 삭제"`,
+		`id="clear-feedback-records"`,
+		`id="feedback-record-list"`,
 	} {
 		if !strings.Contains(html, expected) {
 			t.Fatalf("expected deletion HTML contract %q", expected)
@@ -127,6 +129,14 @@ func TestControlAppContainsGeonDeletionControls(t *testing.T) {
 		`data-delete-agent`,
 		`deleteRuntimeAgent`,
 		`clearAutonomyEvents`,
+		`data-delete-event`,
+		`deleteAutonomyEvent`,
+		`data-delete-history`,
+		`deleteHistoryRecord`,
+		`data-delete-feedback`,
+		`deleteAutomationFeedback`,
+		`clearAutomationFeedback`,
+		`loadAutomationFeedback`,
 		`method: "DELETE"`,
 		`agent.source === "runtime"`,
 		`window.confirm`,

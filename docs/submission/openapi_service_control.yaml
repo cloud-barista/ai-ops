@@ -209,6 +209,21 @@ paths:
         "400":
           $ref: "#/components/responses/BadRequest"
   /api/v1/automation/feedback:
+    get:
+      summary: List execution feedback records owned by geon
+      responses:
+        "200":
+          description: Feedback records sorted newest first
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count: {type: integer, minimum: 0}
+                  feedback:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AutomationFeedbackRecord"
     post:
       summary: Record external execution feedback for an approved correlation ID
       requestBody:
@@ -226,6 +241,31 @@ paths:
                 $ref: "#/components/schemas/AutomationFeedbackRecord"
         "400":
           $ref: "#/components/responses/BadRequest"
+    delete:
+      summary: Clear execution feedback records owned by geon
+      description: Approved correlation registrations are preserved so valid feedback can be recorded again.
+      security:
+        - {}
+        - AutonomyAdminToken: []
+      responses:
+        "200":
+          description: Feedback records cleared
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted: {type: boolean, example: true}
+                  deleted_count: {type: integer, minimum: 0}
+                  feedback:
+                    type: array
+                    maxItems: 0
+                    items:
+                      $ref: "#/components/schemas/AutomationFeedbackRecord"
+        "401":
+          description: Invalid or missing admin token for an external request
+        "403":
+          description: External mutations are disabled without an admin token
   /api/v1/planner/deployments:
     post:
       summary: Guard a request, generate a DeploymentManifest, and submit it to AppDeploy
@@ -276,6 +316,35 @@ paths:
                 additionalProperties: true
         "400":
           $ref: "#/components/responses/BadRequest"
+  /api/v1/automation/feedback/{correlation_id}:
+    delete:
+      summary: Delete one execution feedback record owned by geon
+      description: The approved correlation registration is preserved.
+      security:
+        - {}
+        - AutonomyAdminToken: []
+      parameters:
+        - name: correlation_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: Deleted feedback record
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted: {type: boolean, example: true}
+                  feedback:
+                    $ref: "#/components/schemas/AutomationFeedbackRecord"
+        "401":
+          description: Invalid or missing admin token for an external request
+        "403":
+          description: External mutations are disabled without an admin token
+        "404":
+          description: Feedback record not found
   /api/v1/autonomy/status:
     get:
       summary: Get guarded autonomous loop status
@@ -403,6 +472,37 @@ paths:
           description: Invalid or missing admin token for an external request
         "403":
           description: External mutations are disabled without an admin token
+  /api/v1/autonomy/events/{sequence}:
+    delete:
+      summary: Delete one Autonomous Loop event
+      description: Deletes one event without renumbering later events or changing runtime state.
+      security:
+        - {}
+        - AutonomyAdminToken: []
+      parameters:
+        - name: sequence
+          in: path
+          required: true
+          schema: {type: integer, format: uint64, minimum: 1}
+      responses:
+        "200":
+          description: Deleted event
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted: {type: boolean, example: true}
+                  event:
+                    $ref: "#/components/schemas/AutonomyEvent"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          description: Invalid or missing admin token for an external request
+        "403":
+          description: External mutations are disabled without an admin token
+        "404":
+          description: Event not found
 components:
   securitySchemes:
     AutonomyAdminToken:

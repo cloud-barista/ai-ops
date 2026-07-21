@@ -171,6 +171,31 @@ func TestManagerClearEventsPreservesRuntimeStateAndSequence(t *testing.T) {
 	}
 }
 
+func TestManagerDeleteEventPreservesOrderAndSequence(t *testing.T) {
+	manager := NewManager(nil, nil, nil)
+	manager.recordEvent(Event{Stage: "test", Status: "first"})
+	manager.recordEvent(Event{Stage: "test", Status: "second"})
+	manager.recordEvent(Event{Stage: "test", Status: "third"})
+	events := manager.Events()
+
+	deleted, ok := manager.DeleteEvent(events[1].Sequence)
+	if !ok || deleted.Sequence != events[1].Sequence || deleted.Status != "second" {
+		t.Fatalf("unexpected deletion: deleted=%#v ok=%t", deleted, ok)
+	}
+	remaining := manager.Events()
+	if len(remaining) != 2 || remaining[0].Sequence != events[0].Sequence || remaining[1].Sequence != events[2].Sequence {
+		t.Fatalf("event order changed after deletion: %#v", remaining)
+	}
+	if _, ok := manager.DeleteEvent(events[1].Sequence); ok {
+		t.Fatal("missing event deletion unexpectedly succeeded")
+	}
+	manager.recordEvent(Event{Stage: "test", Status: "fourth"})
+	remaining = manager.Events()
+	if remaining[len(remaining)-1].Sequence <= events[2].Sequence {
+		t.Fatalf("event sequence was reused after individual deletion: %#v", remaining)
+	}
+}
+
 func TestManagerEmergencyStopFencesInFlightManualCycle(t *testing.T) {
 	now := time.Now().UTC()
 	control := newManagerControl(now)

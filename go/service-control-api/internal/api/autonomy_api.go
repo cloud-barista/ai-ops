@@ -8,6 +8,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/labstack/echo/v4"
@@ -90,6 +91,34 @@ func (handler restHandler) RestPostAutonomyCycle(context echo.Context) error {
 func (handler restHandler) RestGetAutonomyEvents(context echo.Context) error {
 	events := handler.service.autonomyManager.Events()
 	return context.JSON(http.StatusOK, map[string]any{"count": len(events), "events": events})
+}
+
+// RestDeleteAutonomyEvent godoc
+// @ID DeleteAutonomyEvent
+// @Summary Delete one guarded autonomous loop event
+// @Description Delete one in-memory timeline event by its monotonic sequence. Later events keep their original sequence values.
+// @Tags Autonomous Loop
+// @Produce json
+// @Param sequence path integer true "Event sequence"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} ErrorResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 403 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Router /api/v1/autonomy/events/{sequence} [delete]
+func (handler restHandler) RestDeleteAutonomyEvent(context echo.Context) error {
+	sequence, err := strconv.ParseUint(context.Param("sequence"), 10, 64)
+	if err != nil {
+		return jsonError(context, http.StatusBadRequest, "Autonomy event sequence is invalid", err)
+	}
+	if sequence == 0 {
+		return jsonError(context, http.StatusBadRequest, "Autonomy event sequence is invalid", fmt.Errorf("sequence must be greater than zero"))
+	}
+	deleted, ok := handler.service.autonomyManager.DeleteEvent(sequence)
+	if !ok {
+		return context.JSON(http.StatusNotFound, ErrorResponse{Valid: false, Message: "Autonomy event was not found"})
+	}
+	return context.JSON(http.StatusOK, map[string]any{"deleted": true, "event": deleted})
 }
 
 // RestDeleteAutonomyEvents godoc

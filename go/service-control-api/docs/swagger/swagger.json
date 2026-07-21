@@ -376,6 +376,32 @@
             }
         },
         "/api/v1/automation/feedback": {
+            "get": {
+                "description": "Return normalized execution feedback records held by the current geon process, newest first.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "List automation execution feedback",
+                "operationId": "GetAutomationFeedback",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Record normalized status and optional performance evidence for a previously approved correlation ID. Credentials and arbitrary secret fields are not accepted.",
                 "consumes": [
@@ -414,6 +440,93 @@
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "Clear geon-owned feedback records while preserving approved correlation registrations.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "Clear automation execution feedback",
+                "operationId": "DeleteAllAutomationFeedback",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/automation/feedback/{correlation_id}": {
+            "delete": {
+                "description": "Delete one geon-owned feedback record while preserving its approved correlation registration.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "Delete one automation execution feedback record",
+                "operationId": "DeleteAutomationFeedback",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Automation correlation ID",
+                        "name": "correlation_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
             }
         },
         "/api/v1/autonomy/events": {
@@ -443,6 +556,61 @@
                     },
                     "403": {
                         "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/autonomy/events/{sequence}": {
+            "delete": {
+                "description": "Delete one in-memory timeline event by its monotonic sequence. Later events keep their original sequence values.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Autonomous Loop"
+                ],
+                "summary": "Delete one guarded autonomous loop event",
+                "operationId": "DeleteAutonomyEvent",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Event sequence",
+                        "name": "sequence",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/api.ErrorResponse"
                         }

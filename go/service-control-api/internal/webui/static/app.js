@@ -28,6 +28,7 @@ const VIEW_LABELS = Object.freeze({
 const state = {
   agents: [],
   history: readHistory(),
+  feedbackRecords: [],
   lastGuard: null,
   activeView: "overview",
   autonomyTimer: null,
@@ -64,7 +65,9 @@ function parseList(value) {
 function readHistory() {
   try {
     const parsed = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
-    return Array.isArray(parsed) ? parsed.slice(0, 8) : [];
+    return Array.isArray(parsed)
+      ? parsed.slice(0, 8).map((entry, index) => ({ ...entry, id: entry.id || `history-${entry.at || "legacy"}-${index}` }))
+      : [];
   } catch (_error) {
     return [];
   }
@@ -80,6 +83,7 @@ function writeHistory() {
 
 function addHistory(type, status, title, detail) {
   state.history.unshift({
+    id: globalThis.crypto?.randomUUID?.() || `history-${Date.now()}-${Math.random().toString(16).slice(2)}`,
     type,
     status: text(status, "unknown"),
     title,
@@ -161,6 +165,9 @@ function switchView(viewName) {
     startAutonomyPolling();
   } else {
     stopAutonomyPolling();
+  }
+  if (viewName === "feedback") {
+    void loadAutomationFeedback().catch((error) => showToast(error.message, "error"));
   }
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -280,9 +287,28 @@ function renderHistory() {
     const time = document.createElement("time");
     time.dateTime = entry.at;
     time.textContent = new Date(entry.at).toLocaleString("ko-KR", { hour12: false });
-    item.append(marker, body, time);
+    const deleteButton = createElement("button", "icon-button danger-icon record-delete-button");
+    deleteButton.type = "button";
+    deleteButton.setAttribute("data-delete-history", entry.id);
+    deleteButton.title = "최근 제어 결과 삭제";
+    deleteButton.setAttribute("aria-label", "최근 제어 결과 삭제");
+    const deleteIcon = document.createElement("i");
+    deleteIcon.setAttribute("data-lucide", "trash-2");
+    deleteIcon.setAttribute("aria-hidden", "true");
+    deleteButton.append(deleteIcon);
+    item.append(marker, body, time, deleteButton);
     list.append(item);
   });
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function deleteHistoryRecord(id) {
+  const record = state.history.find((entry) => entry.id === id);
+  if (!record || !window.confirm(`최근 제어 결과 '${record.title}'을 삭제할까요?`)) return;
+  state.history = state.history.filter((entry) => entry.id !== id);
+  writeHistory();
+  renderHistory();
+  showToast("최근 제어 결과를 삭제했습니다.", "success");
 }
 
 function renderPlanner(payload) {
@@ -489,12 +515,80 @@ async function submitFeedback(event) {
     const payload = await apiRequest(API.feedback, { method: "POST", body: JSON.stringify(body) });
     byID("feedback-json").textContent = pretty(payload);
     addHistory("feedback", payload.status, "실행 Feedback", payload.external_execution_id || payload.correlation_id);
+    await loadAutomationFeedback();
     showToast("Feedback가 기록되었습니다.", "success");
   } catch (error) {
     byID("feedback-json").textContent = pretty(error.payload || { valid: false, message: error.message });
     showToast(error.message, "error");
   } finally {
     setBusy(form, false);
+  }
+}
+
+function renderAutomationFeedback(payload) {
+  const list = byID("feedback-record-list");
+  state.feedbackRecords = Array.isArray(payload.feedback) ? payload.feedback : [];
+  list.replaceChildren();
+  if (state.feedbackRecords.length === 0) {
+    list.append(createElement("p", "empty-state", "기록된 Feedback이 없습니다."));
+    return;
+  }
+  state.feedbackRecords.forEach((record) => {
+    const item = createElement("div", "activity-item feedback-record-item");
+    const marker = createElement("span", "activity-marker");
+    marker.dataset.status = String(record.status || "unknown").toLowerCase();
+    const body = createElement("div", "");
+    body.append(createElement("strong", "", text(record.correlation_id)));
+    body.append(createElement("span", "", `${text(record.status)} · ${text(record.executor)}`));
+    const time = document.createElement("time");
+    time.dateTime = record.received_at || "";
+    time.textContent = displayTimestamp(record.received_at);
+    const deleteButton = createElement("button", "icon-button danger-icon record-delete-button");
+    deleteButton.type = "button";
+    deleteButton.setAttribute("data-delete-feedback", text(record.correlation_id));
+    deleteButton.title = `${text(record.correlation_id)} 삭제`;
+    deleteButton.setAttribute("aria-label", `${text(record.correlation_id)} Feedback 삭제`);
+    const deleteIcon = document.createElement("i");
+    deleteIcon.setAttribute("data-lucide", "trash-2");
+    deleteIcon.setAttribute("aria-hidden", "true");
+    deleteButton.append(deleteIcon);
+    item.append(marker, body, time, deleteButton);
+    list.append(item);
+  });
+  if (window.lucide) window.lucide.createIcons();
+}
+
+async function loadAutomationFeedback() {
+  const payload = await apiRequest(API.feedback);
+  renderAutomationFeedback(payload);
+  return payload;
+}
+
+async function deleteAutomationFeedback(correlationID, button) {
+  if (!window.confirm(`Feedback '${correlationID}'을 geon에서 삭제할까요?`)) return;
+  button.disabled = true;
+  try {
+    await apiRequest(`${API.feedback}/${encodeURIComponent(correlationID)}`, { method: "DELETE" });
+    await loadAutomationFeedback();
+    showToast("Feedback 기록을 삭제했습니다.", "success");
+  } catch (error) {
+    showToast(error.message, "error");
+    button.disabled = false;
+  }
+}
+
+async function clearAutomationFeedback() {
+  if (!window.confirm("geon에 저장된 실행 Feedback 기록을 모두 삭제할까요?")) return;
+  const button = byID("clear-feedback-records");
+  button.disabled = true;
+  try {
+    const payload = await apiRequest(API.feedback, { method: "DELETE" });
+    renderAutomationFeedback(payload);
+    showToast(`${Number(payload.deleted_count || 0)}개의 Feedback 기록을 삭제했습니다.`, "success");
+  } catch (error) {
+    showToast(error.message, "error");
+  } finally {
+    button.disabled = false;
   }
 }
 
@@ -597,12 +691,24 @@ function renderAutonomyEvents(payload) {
     const body = createElement("div", "timeline-event-body");
     const status = createElement("strong", "", text(entry.status));
     status.dataset.status = String(entry.status || "").toLowerCase();
-    body.append(status, createElement("span", "", text(entry.reason)));
+    const titleRow = createElement("div", "record-title-row");
+    const deleteButton = createElement("button", "icon-button danger-icon record-delete-button");
+    deleteButton.type = "button";
+    deleteButton.setAttribute("data-delete-event", String(entry.sequence));
+    deleteButton.title = `Event #${text(entry.sequence)} 삭제`;
+    deleteButton.setAttribute("aria-label", `Event #${text(entry.sequence)} 삭제`);
+    const deleteIcon = document.createElement("i");
+    deleteIcon.setAttribute("data-lucide", "trash-2");
+    deleteIcon.setAttribute("aria-hidden", "true");
+    deleteButton.append(deleteIcon);
+    titleRow.append(status, deleteButton);
+    body.append(titleRow, createElement("span", "", text(entry.reason)));
     const details = document.createElement("details");
     details.append(createElement("summary", "", "JSON"), createElement("pre", "", pretty(entry)));
     row.append(timeElement, stage, body, details);
     timeline.append(row);
   });
+  if (window.lucide) window.lucide.createIcons();
 }
 
 async function loadAutonomy(forceFormSync = false) {
@@ -688,12 +794,26 @@ async function clearAutonomyEvents() {
   }
 }
 
+async function deleteAutonomyEvent(sequence, button) {
+  if (!window.confirm(`Autonomy Event #${sequence}을 삭제할까요?`)) return;
+  button.disabled = true;
+  try {
+    await apiRequest(`${API.autonomyEvents}/${encodeURIComponent(sequence)}`, { method: "DELETE" });
+    await loadAutonomy();
+    showToast(`Autonomy Event #${sequence}을 삭제했습니다.`, "success");
+  } catch (error) {
+    showToast(error.message, "error");
+    button.disabled = false;
+  }
+}
+
 async function refreshDashboard() {
   const button = byID("refresh-button");
   button.disabled = true;
   try {
     const requests = [loadHealth(), loadAgents()];
     if (state.activeView === "autonomy") requests.push(loadAutonomy());
+    if (state.activeView === "feedback") requests.push(loadAutomationFeedback());
     await Promise.all(requests);
     byID("last-updated").textContent = new Date().toLocaleString("ko-KR", { hour12: false });
   } catch (error) {
@@ -722,6 +842,11 @@ function bindEvents() {
     writeHistory();
     renderHistory();
   });
+  byID("recent-list").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-delete-history]");
+    if (!button) return;
+    deleteHistoryRecord(button.dataset.deleteHistory);
+  });
   byID("agent-table-body").addEventListener("click", (event) => {
     const button = event.target.closest("[data-delete-agent]");
     if (!button) return;
@@ -731,6 +856,12 @@ function bindEvents() {
   byID("action-form").addEventListener("submit", submitAction);
   byID("action-validation-form").addEventListener("submit", submitActionValidation);
   byID("feedback-form").addEventListener("submit", submitFeedback);
+  byID("feedback-record-list").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-delete-feedback]");
+    if (!button) return;
+    void deleteAutomationFeedback(button.dataset.deleteFeedback, button);
+  });
+  byID("clear-feedback-records").addEventListener("click", () => void clearAutomationFeedback());
   byID("autonomy-form").addEventListener("submit", submitAutonomyConfig);
   byID("autonomy-start").addEventListener("click", () => runAutonomyControl(API.autonomyStart, "Autonomy loop를 시작했습니다."));
   byID("autonomy-stop").addEventListener("click", () => runAutonomyControl(API.autonomyStop, "Autonomy loop를 중지했습니다."));
@@ -740,6 +871,11 @@ function bindEvents() {
     void runAutonomyControl(API.autonomyEmergencyStop, "Emergency Stop이 적용되었습니다.");
   });
   byID("clear-autonomy-events").addEventListener("click", () => void clearAutonomyEvents());
+  byID("autonomy-timeline").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-delete-event]");
+    if (!button) return;
+    void deleteAutonomyEvent(button.dataset.deleteEvent, button);
+  });
   byID("autonomy-refresh").addEventListener("click", async () => {
     setAutonomyBusy(true);
     try {

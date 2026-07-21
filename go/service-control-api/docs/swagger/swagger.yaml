@@ -936,6 +936,52 @@ paths:
       tags:
       - AI Application Automation
   /api/v1/automation/feedback:
+    delete:
+      description: Clear geon-owned feedback records while preserving approved correlation
+        registrations.
+      operationId: DeleteAllAutomationFeedback
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Clear automation execution feedback
+      tags:
+      - AI Application Automation
+    get:
+      description: Return normalized execution feedback records held by the current
+        geon process, newest first.
+      operationId: GetAutomationFeedback
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: List automation execution feedback
+      tags:
+      - AI Application Automation
     post:
       consumes:
       - application/json
@@ -964,6 +1010,40 @@ paths:
       summary: Record external automation execution feedback
       tags:
       - AI Application Automation
+  /api/v1/automation/feedback/{correlation_id}:
+    delete:
+      description: Delete one geon-owned feedback record while preserving its approved
+        correlation registration.
+      operationId: DeleteAutomationFeedback
+      parameters:
+      - description: Automation correlation ID
+        in: path
+        name: correlation_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Delete one automation execution feedback record
+      tags:
+      - AI Application Automation
   /api/v1/autonomy/events:
     delete:
       description: Clear only the in-memory event timeline. Loop configuration, runtime
@@ -986,6 +1066,44 @@ paths:
           schema:
             $ref: '#/definitions/api.ErrorResponse'
       summary: Clear guarded autonomous loop events
+      tags:
+      - Autonomous Loop
+  /api/v1/autonomy/events/{sequence}:
+    delete:
+      description: Delete one in-memory timeline event by its monotonic sequence.
+        Later events keep their original sequence values.
+      operationId: DeleteAutonomyEvent
+      parameters:
+      - description: Event sequence
+        in: path
+        name: sequence
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Delete one guarded autonomous loop event
       tags:
       - Autonomous Loop
   /api/v1/ops-llm/select:

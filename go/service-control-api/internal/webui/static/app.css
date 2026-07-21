@@ -595,6 +595,31 @@ textarea:focus-visible {
   font-size: 11px;
 }
 
+.activity-marker {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+  background: var(--teal);
+}
+
+.activity-item time {
+  flex: 0 0 auto;
+  color: var(--ink-muted);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.record-delete-button {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+}
+
+.feedback-records-panel {
+  margin-top: 16px;
+}
+
 .empty-state,
 .empty-cell {
   color: var(--ink-muted);
@@ -977,6 +1002,14 @@ textarea:focus-visible {
   display: grid;
   min-width: 0;
   gap: 4px;
+}
+
+.record-title-row {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 .timeline-event-body strong,
@@ -1442,6 +1475,31 @@ dialog::backdrop {
 
   .autonomy-controls .button {
     width: 100%;
+  }
+
+  .activity-item {
+    display: grid;
+    grid-template-columns: 8px minmax(0, 1fr) 32px;
+  }
+
+  .activity-item .activity-marker {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .activity-item > div {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .activity-item time {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .activity-item .record-delete-button {
+    grid-column: 3;
+    grid-row: 1 / span 2;
   }
 
   .timeline-event {

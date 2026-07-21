@@ -76,6 +76,27 @@ func TestDeleteAutonomyEventsAPI(t *testing.T) {
 	}
 }
 
+func TestDeleteAutonomyEventAPI(t *testing.T) {
+	server := NewServer(NewServerConfig())
+	cycle := performJSONRequest(t, server, http.MethodPost, "/api/v1/autonomy/cycles", "")
+	if cycle.Code != http.StatusOK {
+		t.Fatalf("create autonomy event: code=%d body=%s", cycle.Code, cycle.Body.String())
+	}
+	eventsResponse := performJSONRequest(t, server, http.MethodGet, "/api/v1/autonomy/events", "")
+	eventsPayload := decodeObject(t, eventsResponse.Body.Bytes())
+	events := eventsPayload["events"].([]any)
+	sequence := uint64(events[0].(map[string]any)["sequence"].(float64))
+
+	deleted := performJSONRequest(t, server, http.MethodDelete, "/api/v1/autonomy/events/"+strconv.FormatUint(sequence, 10), "")
+	if deleted.Code != http.StatusOK || !strings.Contains(deleted.Body.String(), `"deleted":true`) || !strings.Contains(deleted.Body.String(), `"sequence":`+strconv.FormatUint(sequence, 10)) {
+		t.Fatalf("delete autonomy event: code=%d body=%s", deleted.Code, deleted.Body.String())
+	}
+	missing := performJSONRequest(t, server, http.MethodDelete, "/api/v1/autonomy/events/"+strconv.FormatUint(sequence, 10), "")
+	if missing.Code != http.StatusNotFound {
+		t.Fatalf("missing autonomy event deletion: code=%d body=%s", missing.Code, missing.Body.String())
+	}
+}
+
 func TestAutonomyAPIFlowWithoutAppDeploy(t *testing.T) {
 	server := NewServer(NewServerConfig())
 
@@ -149,14 +170,22 @@ func TestOpenAPIContractParsesAndContainsAutonomyRoutes(t *testing.T) {
 	if contract.OpenAPI != "3.0.3" {
 		t.Fatalf("unexpected OpenAPI version: %q", contract.OpenAPI)
 	}
-	for _, path := range []string{"/api/v1/autonomy/status", "/api/v1/autonomy/config", "/api/v1/autonomy/start", "/api/v1/autonomy/stop", "/api/v1/autonomy/emergency-stop", "/api/v1/autonomy/cycles", "/api/v1/autonomy/events"} {
+	for _, path := range []string{
+		"/api/v1/autonomy/status", "/api/v1/autonomy/config", "/api/v1/autonomy/start",
+		"/api/v1/autonomy/stop", "/api/v1/autonomy/emergency-stop", "/api/v1/autonomy/cycles",
+		"/api/v1/autonomy/events", "/api/v1/autonomy/events/{sequence}",
+		"/api/v1/automation/feedback", "/api/v1/automation/feedback/{correlation_id}",
+	} {
 		if _, ok := contract.Paths[path]; !ok {
 			t.Fatalf("OpenAPI contract is missing %s", path)
 		}
 	}
 	for path, method := range map[string]string{
-		"/api/v1/agents/{name}":   "delete",
-		"/api/v1/autonomy/events": "delete",
+		"/api/v1/agents/{name}":                        "delete",
+		"/api/v1/autonomy/events":                      "delete",
+		"/api/v1/autonomy/events/{sequence}":           "delete",
+		"/api/v1/automation/feedback":                  "delete",
+		"/api/v1/automation/feedback/{correlation_id}": "delete",
 	} {
 		operations, ok := contract.Paths[path]
 		if !ok {
@@ -165,6 +194,9 @@ func TestOpenAPIContractParsesAndContainsAutonomyRoutes(t *testing.T) {
 		if _, ok := operations[method]; !ok {
 			t.Fatalf("OpenAPI contract is missing %s %s", method, path)
 		}
+	}
+	if _, ok := contract.Paths["/api/v1/automation/feedback"]["get"]; !ok {
+		t.Fatal("OpenAPI contract is missing get /api/v1/automation/feedback")
 	}
 }
 
@@ -196,7 +228,13 @@ func TestDeletionMutationsRejectRemoteRequestsWithoutAdminToken(t *testing.T) {
 	config.AutonomyAdminToken = "test-admin-token"
 	server := NewServer(config)
 
-	for _, path := range []string{"/api/v1/agents/DisposableResearchAgent", "/api/v1/autonomy/events"} {
+	for _, path := range []string{
+		"/api/v1/agents/DisposableResearchAgent",
+		"/api/v1/autonomy/events",
+		"/api/v1/autonomy/events/1",
+		"/api/v1/automation/feedback",
+		"/api/v1/automation/feedback/automation-test",
+	} {
 		request := httptest.NewRequest(http.MethodDelete, path, nil)
 		request.RemoteAddr = "203.0.113.20:4321"
 		response := httptest.NewRecorder()
@@ -670,6 +708,31 @@ func TestAutomationFeedbackEndpoint(t *testing.T) {
 	feedback := decodeObject(t, feedbackResponse.Body.Bytes())
 	if feedback["status"] != "running" || feedback["correlation_id"] != correlationID {
 		t.Fatalf("unexpected feedback response: %#v", feedback)
+	}
+
+	listed := performJSONRequest(t, server, http.MethodGet, "/api/v1/automation/feedback", "")
+	if listed.Code != http.StatusOK || !strings.Contains(listed.Body.String(), `"count":1`) || !strings.Contains(listed.Body.String(), correlationID) {
+		t.Fatalf("list automation feedback: code=%d body=%s", listed.Code, listed.Body.String())
+	}
+	deleted := performJSONRequest(t, server, http.MethodDelete, "/api/v1/automation/feedback/"+correlationID, "")
+	if deleted.Code != http.StatusOK || !strings.Contains(deleted.Body.String(), `"deleted":true`) {
+		t.Fatalf("delete automation feedback: code=%d body=%s", deleted.Code, deleted.Body.String())
+	}
+	missing := performJSONRequest(t, server, http.MethodDelete, "/api/v1/automation/feedback/"+correlationID, "")
+	if missing.Code != http.StatusNotFound {
+		t.Fatalf("missing automation feedback deletion: code=%d body=%s", missing.Code, missing.Body.String())
+	}
+	recordedAgain := performJSONRequest(t, server, http.MethodPost, "/api/v1/automation/feedback", string(feedbackBody))
+	if recordedAgain.Code != http.StatusOK {
+		t.Fatalf("record feedback after deletion: code=%d body=%s", recordedAgain.Code, recordedAgain.Body.String())
+	}
+	cleared := performJSONRequest(t, server, http.MethodDelete, "/api/v1/automation/feedback", "")
+	if cleared.Code != http.StatusOK || !strings.Contains(cleared.Body.String(), `"deleted_count":1`) {
+		t.Fatalf("clear automation feedback: code=%d body=%s", cleared.Code, cleared.Body.String())
+	}
+	listed = performJSONRequest(t, server, http.MethodGet, "/api/v1/automation/feedback", "")
+	if listed.Code != http.StatusOK || !strings.Contains(listed.Body.String(), `"count":0`) {
+		t.Fatalf("feedback remained after clear: code=%d body=%s", listed.Code, listed.Body.String())
 	}
 }
 

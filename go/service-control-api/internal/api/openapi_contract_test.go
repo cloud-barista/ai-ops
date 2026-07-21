@@ -33,7 +33,14 @@ func TestGeneratedSwaggerContainsDeletionOperations(t *testing.T) {
 		if err != nil {
 			t.Fatalf("read generated Swagger %s: %v", path, err)
 		}
-		for _, operationID := range []string{"DeleteAgent", "DeleteAutonomyEvents"} {
+		for _, operationID := range []string{
+			"DeleteAgent",
+			"DeleteAutonomyEvent",
+			"DeleteAutonomyEvents",
+			"GetAutomationFeedback",
+			"DeleteAutomationFeedback",
+			"DeleteAllAutomationFeedback",
+		} {
 			if !strings.Contains(string(content), operationID) {
 				t.Fatalf("generated Swagger %s is missing %s", path, operationID)
 			}

@@ -230,18 +230,23 @@ Agent Control의 삭제 기능은 geon이 소유한 시험 데이터에만 적�
 
 - **Agents & Guard**의 휴지통 버튼은 웹/API로 등록한 `source=runtime` Agent만 삭제합니다.
 - `config/agent_registry.json`에서 읽은 Configuration Agent에는 삭제 버튼이 표시되지 않습니다.
-- **Decision Timeline**의 휴지통 버튼은 Autonomous Loop 이벤트만 비웁니다. Loop 설정, 상태, cooldown 및 Action budget은 유지됩니다.
-- **최근 제어 결과**의 기록 삭제는 현재 브라우저의 localStorage만 비웁니다.
+- **Decision Timeline**의 행 휴지통은 선택한 이벤트만 삭제하고, 헤더 휴지통은 이벤트 전체를 비웁니다. Sequence를 다시 부여하지 않으며 Loop 설정, 상태, cooldown 및 Action budget은 유지됩니다.
+- **Feedback**의 행 휴지통은 선택한 실행 Feedback만 삭제하고, 헤더 휴지통은 Feedback 전체를 비웁니다. 승인된 correlation 등록은 유지되므로 같은 실행의 정상 Feedback을 다시 기록할 수 있습니다.
+- **최근 제어 결과**의 행 휴지통은 브라우저 localStorage의 선택 기록만 삭제하고, `기록 삭제`는 해당 기록 전체를 비웁니다.
 - AppDeploy App·Deployment·Runtime Profile·Target Profile과 CB-Tumblebug Infra·VM은 삭제하지 않습니다.
 
 로컬 API에서 같은 동작을 확인할 수 있습니다.
 
 ```bash
 curl -X DELETE http://127.0.0.1:18080/api/v1/agents/RUNTIME_AGENT_NAME
+curl -X DELETE http://127.0.0.1:18080/api/v1/autonomy/events/SEQUENCE
 curl -X DELETE http://127.0.0.1:18080/api/v1/autonomy/events
+curl http://127.0.0.1:18080/api/v1/automation/feedback
+curl -X DELETE http://127.0.0.1:18080/api/v1/automation/feedback/CORRELATION_ID
+curl -X DELETE http://127.0.0.1:18080/api/v1/automation/feedback
 ```
 
-외부 bind 환경에서는 두 요청 모두 `AIOPS_AUTONOMY_ADMIN_TOKEN` Bearer token이 필요합니다.
+외부 bind 환경에서는 모든 DELETE 요청에 `AIOPS_AUTONOMY_ADMIN_TOKEN` Bearer token이 필요합니다.
 
 AI service-control prototype의 Go 구현 모듈입니다. 이 모듈은 LLM 호출 전 Go Request Guard, 실제 LLM 기반 Deployment Manifest 생성, Go Manifest Guard, AppDeploy 요청·상태 추적, agent 등록과 bounded Action 검증을 제공합니다.
 
