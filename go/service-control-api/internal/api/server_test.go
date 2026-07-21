@@ -25,6 +25,24 @@ func TestHealthz(t *testing.T) {
 	}
 }
 
+func TestControlApp(t *testing.T) {
+	server := NewServer(NewServerConfig())
+	request := httptest.NewRequest(http.MethodGet, "/", nil)
+	response := httptest.NewRecorder()
+
+	server.ServeHTTP(response, request)
+
+	if response.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d body=%s", response.Code, response.Body.String())
+	}
+	if !strings.Contains(response.Header().Get("Content-Type"), "text/html") {
+		t.Fatalf("expected HTML content type, got %q", response.Header().Get("Content-Type"))
+	}
+	if !strings.Contains(response.Body.String(), "geon Agent Control") {
+		t.Fatalf("expected embedded Agent Control app, got: %s", response.Body.String())
+	}
+}
+
 func TestListAgents(t *testing.T) {
 	server := NewServer(NewServerConfig())
 	request := httptest.NewRequest(http.MethodGet, "/api/v1/agents", nil)

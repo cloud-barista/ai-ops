@@ -7,6 +7,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/rs/zerolog/log"
+
+	"kyunghee-aiops/service-control-api/internal/webui"
 )
 
 const (
@@ -66,6 +68,7 @@ func NewServer(config ServerConfig) *echo.Echo {
 			return nil
 		},
 	}))
+	webui.Register(server)
 
 	server.GET(pathHealthz, handler.RestGetHealthz)
 	server.GET(pathOpenAPI, handler.RestGetOpenAPI)

@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>geon Agent Control</title>
+  <link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="주 탐색">
+      <div class="brand-lockup">
+        <span class="brand-mark" aria-hidden="true">G</span>
+        <span><strong>geon</strong><small>Agent Control</small></span>
+      </div>
+
+      <nav class="primary-nav">
+        <button class="nav-item is-active" type="button" data-view-target="overview" aria-label="Overview">
+          <i data-lucide="layout-dashboard" aria-hidden="true"></i><span>Overview</span>
+        </button>
+        <button class="nav-item" type="button" data-view-target="planner" aria-label="Deployment Planner">
+          <i data-lucide="route" aria-hidden="true"></i><span>Deployment Planner</span>
+        </button>
+        <button class="nav-item" type="button" data-view-target="agents" aria-label="Agents &amp; Guard">
+          <i data-lucide="shield-check" aria-hidden="true"></i><span>Agents &amp; Guard</span>
+        </button>
+        <button class="nav-item" type="button" data-view-target="feedback" aria-label="Feedback">
+          <i data-lucide="activity" aria-hidden="true"></i><span>Feedback</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="service-indicator"><span class="status-dot" id="sidebar-health-dot"></span><span>service-control-api</span></div>
+        <small>VM-only control plane</small>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow" id="view-eyebrow">CONTROL PLANE</p>
+          <h1 id="view-title">운영 개요</h1>
+        </div>
+        <div class="topbar-actions">
+          <span class="health-pill" id="health-pill"><span class="status-dot"></span><span>확인 중</span></span>
+          <a class="button button-secondary" href="http://127.0.0.1:8080/" target="_blank" rel="noreferrer">
+            <i data-lucide="external-link" aria-hidden="true"></i><span>AppDeploy</span>
+          </a>
+          <button class="icon-button" id="refresh-button" type="button" title="새로고침" aria-label="새로고침">
+            <i data-lucide="refresh-cw" aria-hidden="true"></i>
+          </button>
+        </div>
+      </header>
+
+      <section class="view is-active" data-view="overview">
+        <div class="view-heading">
+          <div><p class="section-label">SYSTEM STATE</p><h2>AI 응용 제어 상태</h2></div>
+          <time id="last-updated">-</time>
+        </div>
+
+        <div class="metric-grid" aria-label="시스템 지표">
+          <article class="metric-card"><span>geon API</span><strong id="metric-api">CHECKING</strong><small>service-control</small></article>
+          <article class="metric-card"><span>등록 Agent</span><strong id="metric-agents">0</strong><small>configured + runtime</small></article>
+          <article class="metric-card"><span>Planner Model</span><strong>Qwen3.5</strong><small>qwen3.5:4b</small></article>
+          <article class="metric-card"><span>최근 Guard</span><strong id="metric-guard">-</strong><small id="metric-guard-detail">no decision</small></article>
+        </div>
+
+        <section class="panel workflow-panel" aria-labelledby="workflow-title">
+          <div class="panel-header"><div><p class="section-label">CONTROL FLOW</p><h3 id="workflow-title">배포 판단 파이프라인</h3></div><span class="scope-badge">1차년도 VM-only</span></div>
+          <ol class="flow-track">
+            <li><span>1</span><div><strong>Request Guard</strong><small>권한 · 범위 · 비밀정보</small></div></li>
+            <li><span>2</span><div><strong>Qwen Planner</strong><small>자원 요구 · Action</small></div></li>
+            <li><span>3</span><div><strong>Go Guard</strong><small>Manifest · bounded Action</small></div></li>
+            <li><span>4</span><div><strong>AppDeploy</strong><small>Target · 실행 · 로그</small></div></li>
+          </ol>
+        </section>
+
+        <div class="overview-grid">
+          <section class="panel" aria-labelledby="agent-snapshot-title">
+            <div class="panel-header"><div><p class="section-label">REGISTRY</p><h3 id="agent-snapshot-title">Agent Snapshot</h3></div><button class="text-button" type="button" data-view-target="agents">전체 보기</button></div>
+            <div class="compact-list" id="overview-agent-list"><p class="empty-state">Agent 정보를 불러오는 중입니다.</p></div>
+          </section>
+          <section class="panel" aria-labelledby="activity-title">
+            <div class="panel-header"><div><p class="section-label">LOCAL HISTORY</p><h3 id="activity-title">최근 제어 결과</h3></div><button class="text-button danger-text" id="clear-history" type="button">기록 삭제</button></div>
+            <div class="activity-list" id="recent-list"><p class="empty-state">저장된 결과가 없습니다.</p></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" data-view="planner" hidden>
+        <div class="view-heading">
+          <div><p class="section-label">QWEN → GO GUARD → APPDEPLOY</p><h2>Deployment Planner</h2></div>
+          <span class="scope-badge">DeploymentManifest</span>
+        </div>
+        <div class="split-layout planner-layout">
+          <section class="panel form-panel" aria-labelledby="planner-form-title">
+            <div class="panel-header"><div><p class="section-label">REQUEST</p><h3 id="planner-form-title">배포 요구</h3></div></div>
+            <form id="planner-form" class="form-grid">
+              <label class="field full"><span>자연어 요구</span><textarea name="natural_language_request" rows="5" required>Mock 환경에서 CPU 1, 메모리 1Gi, GPU 0, 스토리지 1Gi로 테스트 앱을 배포해 주세요.</textarea></label>
+              <label class="field full"><span>App Version ID</span><input name="app_version_id" placeholder="appver-..." autocomplete="off" required></label>
+              <label class="field"><span>LLM Candidate</span><input name="candidate_id" value="qwen3.5-ops-planner" required></label>
+              <label class="field"><span>Target Hint</span><input name="target_profile_id" placeholder="target-mock-001"></label>
+              <label class="field"><span>Polling Interval</span><input name="poll_interval_ms" type="number" min="100" max="60000" value="500"></label>
+              <label class="field"><span>Max Attempts</span><input name="max_poll_attempts" type="number" min="1" max="600" value="60"></label>
+              <div class="form-actions full"><button class="button button-primary" type="submit"><i data-lucide="play" aria-hidden="true"></i><span>Plan &amp; Deploy</span></button></div>
+            </form>
+          </section>
+
+          <section class="panel result-panel" aria-labelledby="planner-result-title">
+            <div class="panel-header"><div><p class="section-label">RESULT</p><h3 id="planner-result-title">실행 결과</h3></div><button class="icon-button" type="button" data-copy-target="planner-json" title="JSON 복사" aria-label="Planner JSON 복사"><i data-lucide="copy" aria-hidden="true"></i></button></div>
+            <div class="result-empty" id="planner-empty"><i data-lucide="route" aria-hidden="true"></i><strong>대기 중</strong></div>
+            <div id="planner-summary" hidden>
+              <div class="result-status-line"><span class="status-badge" id="planner-status">-</span><span id="planner-deployment-id">-</span></div>
+              <dl class="result-facts">
+                <div><dt>Model</dt><dd id="planner-model">-</dd></div>
+                <div><dt>Request Guard</dt><dd id="planner-request-guard">-</dd></div>
+                <div><dt>Manifest Guard</dt><dd id="planner-manifest-guard">-</dd></div>
+                <div><dt>Target</dt><dd id="planner-target">-</dd></div>
+                <div><dt>Latency</dt><dd id="planner-latency">-</dd></div>
+                <div><dt>Logs</dt><dd id="planner-log-count">-</dd></div>
+              </dl>
+            </div>
+            <pre class="json-output" id="planner-json">아직 실행 결과가 없습니다.</pre>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" data-view="agents" hidden>
+        <div class="view-heading">
+          <div><p class="section-label">AGENT REGISTRY · QWEN ACTION · GO GUARD</p><h2>Agents &amp; Guard</h2></div>
+          <button class="button button-primary" id="open-agent-dialog" type="button"><i data-lucide="user-plus" aria-hidden="true"></i><span>Agent 등록</span></button>
+        </div>
+
+        <section class="panel registry-panel" aria-labelledby="registry-title">
+          <div class="panel-header"><div><p class="section-label">REGISTRY</p><h3 id="registry-title">등록 Agent <span class="count-label" id="agent-count">0</span></h3></div><button class="icon-button" id="refresh-agents" type="button" title="Agent 새로고침" aria-label="Agent 새로고침"><i data-lucide="refresh-cw" aria-hidden="true"></i></button></div>
+          <div class="table-wrap">
+            <table>
+                <thead><tr><th>Agent</th><th>Role</th><th>Capabilities</th><th>Bounded Actions</th><th>Status</th></tr></thead>
+              <tbody id="agent-table-body"><tr><td colspan="5" class="empty-cell">Agent 정보를 불러오는 중입니다.</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <div class="agent-workspace">
+          <section class="panel form-panel" aria-labelledby="action-form-title">
+            <div class="panel-header"><div><p class="section-label">LLM ACTION</p><h3 id="action-form-title">Action Proposal</h3></div></div>
+            <form id="action-form" class="form-grid compact-fields">
+              <label class="field"><span>Workload</span><select name="workload"><option value="llm-chat-inference">llm-chat-inference</option><option value="text-classifier">text-classifier</option></select></label>
+              <label class="field"><span>Candidate</span><input name="candidate_id" value="qwen3.5-ops-planner" required></label>
+              <label class="field full"><span>Target VM ID</span><input name="vm_id" value="aws-us-west-2-g6-xlarge-l4-20260707" required></label>
+              <label class="field"><span>Accelerator</span><select name="accelerator"><option value="gpu">GPU</option><option value="cpu">CPU</option></select></label>
+              <label class="field"><span>Evidence</span><select name="evidence_status"><option value="collected">collected</option><option value="not_collected">not_collected</option></select></label>
+              <label class="field"><span>Provider</span><input name="provider" value="aws"></label>
+              <label class="field"><span>Region</span><input name="region" value="us-west-2"></label>
+              <label class="field"><span>Instance Type</span><input name="instance_type" value="g6.xlarge"></label>
+              <label class="field"><span>GPU Model</span><input name="gpu_model" value="NVIDIA L4"></label>
+              <label class="field"><span>GPU Memory MiB</span><input name="gpu_memory_mib" type="number" min="0" value="23034"></label>
+              <label class="field"><span>Performance</span><select name="performance_status"><option value="not_measured">not_measured</option><option value="measured">measured</option></select></label>
+              <label class="field full"><span>Observations JSON</span><textarea name="observations" rows="3">{"service_status":"unknown","incident":"none"}</textarea></label>
+              <div class="form-actions full"><button class="button button-primary" type="submit"><i data-lucide="sparkles" aria-hidden="true"></i><span>Generate &amp; Validate</span></button></div>
+            </form>
+
+            <form id="action-validation-form" class="inline-validation">
+              <label class="field"><span>Agent</span><select name="agent_name" id="validation-agent"></select></label>
+              <label class="field"><span>Action</span><input name="action" value="observe_status" required></label>
+              <button class="button button-secondary" type="submit"><i data-lucide="shield" aria-hidden="true"></i><span>Action 검증</span></button>
+            </form>
+          </section>
+
+          <section class="panel result-panel" aria-labelledby="action-result-title">
+            <div class="panel-header"><div><p class="section-label">GUARD DECISION</p><h3 id="action-result-title">승인 결과</h3></div><button class="icon-button" type="button" data-copy-target="action-json" title="JSON 복사" aria-label="Action JSON 복사"><i data-lucide="copy" aria-hidden="true"></i></button></div>
+            <div class="guard-decision" id="guard-decision" data-status="idle">
+              <div class="guard-icon"><i data-lucide="shield-question" aria-hidden="true"></i></div>
+              <div><span id="guard-status">NOT EVALUATED</span><strong id="guard-action">Action 대기 중</strong><p id="guard-reason">-</p></div>
+            </div>
+            <dl class="result-facts guard-facts">
+              <div><dt>Actual Model</dt><dd id="action-model">-</dd></div>
+              <div><dt>Confidence</dt><dd id="action-confidence">-</dd></div>
+              <div><dt>Target VM</dt><dd id="action-target">-</dd></div>
+              <div><dt>Handoff</dt><dd id="action-handoff">-</dd></div>
+            </dl>
+            <pre class="json-output" id="action-json">아직 Action 결과가 없습니다.</pre>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" data-view="feedback" hidden>
+        <div class="view-heading">
+          <div><p class="section-label">EXECUTION FEEDBACK</p><h2>Feedback</h2></div>
+          <span class="scope-badge">correlation based</span>
+        </div>
+        <div class="split-layout feedback-layout">
+          <section class="panel form-panel" aria-labelledby="feedback-form-title">
+            <div class="panel-header"><div><p class="section-label">RECORD</p><h3 id="feedback-form-title">실행 결과 기록</h3></div></div>
+            <form id="feedback-form" class="form-grid">
+              <label class="field full"><span>Correlation ID</span><input name="correlation_id" placeholder="corr-..." required></label>
+              <label class="field"><span>Executor</span><input name="executor" value="AppDeployExecutorAgent" required></label>
+              <label class="field"><span>Status</span><select name="status"><option value="completed">completed</option><option value="failed">failed</option><option value="running">running</option></select></label>
+              <label class="field full"><span>External Execution ID</span><input name="external_execution_id" placeholder="dep-..."></label>
+              <label class="field"><span>Latency ms</span><input name="latency_ms" type="number" min="0" step="0.01"></label>
+              <label class="field"><span>Throughput RPS</span><input name="throughput_rps" type="number" min="0" step="0.01"></label>
+              <label class="field full"><span>Message</span><textarea name="message" rows="4"></textarea></label>
+              <div class="form-actions full"><button class="button button-primary" type="submit"><i data-lucide="save" aria-hidden="true"></i><span>Feedback 기록</span></button></div>
+            </form>
+          </section>
+          <section class="panel result-panel" aria-labelledby="feedback-result-title">
+            <div class="panel-header"><div><p class="section-label">RESPONSE</p><h3 id="feedback-result-title">기록 결과</h3></div><button class="icon-button" type="button" data-copy-target="feedback-json" title="JSON 복사" aria-label="Feedback JSON 복사"><i data-lucide="copy" aria-hidden="true"></i></button></div>
+            <pre class="json-output tall" id="feedback-json">아직 Feedback 기록이 없습니다.</pre>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="agent-dialog">
+    <form id="agent-registration-form" class="dialog-card">
+      <div class="dialog-header"><div><p class="section-label">RUNTIME AGENT</p><h2>External Agent 등록</h2></div><button class="icon-button" type="button" data-close-dialog aria-label="닫기"><i data-lucide="x" aria-hidden="true"></i></button></div>
+      <div class="dialog-body form-grid">
+        <label class="field"><span>Name</span><input name="name" value="AppDeployExecutorAgent" required></label>
+        <label class="field"><span>Version</span><input name="version" value="0.1.0" required></label>
+        <label class="field full"><span>Role</span><input name="role" value="Execute bounded AI application control actions through AppDeploy." required></label>
+        <label class="field"><span>Endpoint</span><input name="endpoint" type="url" value="http://127.0.0.1:8080" required></label>
+        <label class="field"><span>Invocation Path</span><input name="invocation_path" value="/api/v1/deployments" required></label>
+        <label class="field full"><span>Capabilities</span><input name="capabilities" value="ai_application_deployment_control" required></label>
+        <label class="field full"><span>Bounded Actions</span><input name="bounded_actions" value="deploy_application, observe_status, restart_application, stop_application" required></label>
+      </div>
+      <div class="dialog-footer"><button class="button button-secondary" type="button" data-close-dialog>취소</button><button class="button button-primary" type="submit"><i data-lucide="plus" aria-hidden="true"></i><span>등록</span></button></div>
+    </form>
+  </dialog>
+
+  <div class="toast-region" id="toast-region" aria-live="polite"></div>
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <script src="/assets/app.js"></script>
+</body>
+</html>

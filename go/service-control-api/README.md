@@ -1,5 +1,149 @@
 # Service Control API
 
+## geon Agent Control 실행 가이드
+
+geon Agent Control은 Agent Registry, Qwen 기반 Action 및 배포 계획 생성, Go Guard 승인·거부, AppDeploy 전달 결과와 실행 Feedback을 확인하는 웹 화면입니다. AppDeploy 소스는 수정하지 않으며 두 서버를 별도 프로세스로 실행합니다.
+
+### 구성과 포트
+
+| 구성 요소 | 역할 | 기본 주소 |
+| --- | --- | --- |
+| AppDeploy | App/Target 등록 및 실제 배포 실행 | `http://127.0.0.1:8080/` |
+| Ollama | Qwen `qwen3.5:4b` 추론 | `http://127.0.0.1:11434/` |
+| geon Agent Control | Agent 판단·Guard·AppDeploy 연동 | `http://127.0.0.1:18080/` |
+
+### 1. 사전 확인
+
+- Go가 설치되어 있어야 합니다. Go `1.22` 이상을 권장합니다.
+- Ollama가 설치되어 있어야 합니다.
+- `qwen3.5:4b` 모델이 Ollama에 준비되어 있어야 합니다.
+- AppDeploy 저장소와 geon 저장소를 각각 로컬에 준비합니다.
+
+Git Bash에서 Go를 찾지 못하면 다음과 같이 PATH를 추가합니다.
+
+```bash
+export PATH="/c/Program Files/Go/bin:$PATH"
+go version
+```
+
+Ollama와 Qwen 모델을 확인합니다.
+
+```bash
+ollama list
+ollama pull qwen3.5:4b   # 목록에 모델이 없을 때만 실행
+```
+
+Git Bash에서 `ollama: command not found`가 나오면 Windows 설치 경로의 실행 파일을 직접 사용합니다.
+
+```bash
+"$HOME/AppData/Local/Programs/Ollama/ollama.exe" list
+"$HOME/AppData/Local/Programs/Ollama/ollama.exe" pull qwen3.5:4b
+```
+
+### 2. AppDeploy 실행
+
+첫 번째 터미널에서 AppDeploy를 실행합니다. 아래 경로는 현재 개발 PC의 저장 위치 예시입니다.
+
+```bash
+export PATH="/c/Program Files/Go/bin:$PATH"
+cd "$HOME/Documents/Codex/2026-07-09/new-chat/outputs/ai-ops-AppDeployer/AppDeploy"
+go run ./cmd/web
+```
+
+다른 터미널에서 상태를 확인합니다.
+
+```bash
+curl http://127.0.0.1:8080/api/v1/healthz
+```
+
+정상이라면 `http://127.0.0.1:8080/`에서 AppDeploy 웹 화면이 열립니다.
+
+### 3. geon Agent Control 실행
+
+두 번째 터미널에서 다음 명령을 실행합니다.
+
+```bash
+export PATH="/c/Program Files/Go/bin:$PATH"
+export AIOPS_REPO_ROOT="$HOME/Documents/Kyunghee-aiops-go"
+export AIOPS_LLM_CANDIDATES_PATH="config/ops_llm_eval_candidates.local_ollama.json"
+export AIOPS_PLANNER_GUARD_POLICY_PATH="config/planner_guard_policy.json"
+export AIOPS_APPDEPLOY_BASE_URL="http://127.0.0.1:8080/api/v1"
+export PORT=18080
+
+cd "$HOME/Documents/Kyunghee-aiops-go/go/service-control-api"
+go run ./cmd/service-control-api
+```
+
+상태를 확인합니다.
+
+```bash
+curl http://127.0.0.1:18080/healthz
+```
+
+정상 응답 예시는 다음과 같습니다.
+
+```json
+{"service":"service-control-api","status":"ok"}
+```
+
+브라우저에서 `http://127.0.0.1:18080/`을 엽니다.
+
+### 4. 화면 사용 순서
+
+1. AppDeploy에서 Mock Target을 등록합니다.
+2. AppDeploy에서 테스트 App을 등록하고 `app_version_id`를 복사합니다.
+3. geon의 **Agents & Guard**에서 Agent Registry와 허용 Action을 확인합니다.
+4. 필요한 경우 **Agent 등록**에서 `AppDeployExecutorAgent`를 등록합니다.
+5. **Deployment Planner**의 자연어 요구와 `app_version_id`를 입력합니다.
+6. Target을 고정하려면 `Target Hint`에 `target-mock-001`과 같은 Target Profile ID를 입력합니다.
+7. **Generate & Deploy**를 실행하고 Request Guard, Qwen 모델, Manifest Guard, 배포 상태와 로그를 확인합니다.
+8. 외부 실행 결과가 있으면 **Feedback**에서 correlation ID와 실행 상태를 기록합니다.
+
+자연어 요청 예시는 다음과 같습니다.
+
+```text
+Mock 환경에서 CPU 1개, 메모리 1Gi, GPU 0개,
+스토리지 1Gi를 사용하는 테스트 앱을 배포해 주세요.
+```
+
+처리 흐름은 다음과 같습니다.
+
+```text
+자연어 요청
+→ Go Request Guard
+→ Qwen Deployment Manifest 생성
+→ Go Manifest Guard
+→ AppDeploy API 호출
+→ 배포 상태·로그 확인
+→ Feedback 기록
+```
+
+### 5. 실행 상태의 의미
+
+- `approved`: Qwen 제안과 Go Guard 검증이 통과했습니다.
+- `rejected`: 정책 또는 Agent bounded Action 검증에서 거부되었습니다.
+- `pending_executor`: 판단과 검증은 완료됐지만 실행 Agent가 등록되지 않았습니다.
+- `not_executed`: 실행 계획만 생성했으며 해당 Action을 직접 실행하지 않았습니다.
+- `RUNNING`, `STOPPED`, `FAILED`: AppDeploy가 반환한 실제 배포 상태입니다.
+
+`AppDeployExecutorAgent`는 프로세스 메모리에 등록되므로 geon 서버를 재시작하면 다시 등록해야 합니다. 실제 배포를 실행하려면 AppDeploy에 유효한 App Version과 Target Profile이 먼저 등록되어 있어야 합니다.
+
+### 6. 종료와 문제 확인
+
+각 서버를 실행한 터미널에서 `Ctrl+C`를 누르면 종료됩니다.
+
+```bash
+curl http://127.0.0.1:8080/api/v1/healthz
+curl http://127.0.0.1:11434/api/tags
+curl http://127.0.0.1:18080/healthz
+```
+
+- `connection refused`: 해당 서버가 실행되지 않았거나 포트가 다릅니다.
+- `candidate not found`: Qwen 후보 설정 파일 또는 candidate ID를 확인합니다.
+- `model not found`: Ollama에서 `qwen3.5:4b`를 먼저 pull 합니다.
+- `AppDeploy base URL is required`: `AIOPS_APPDEPLOY_BASE_URL` 환경변수를 설정합니다.
+- AppDeploy 배포 요청 실패: App과 Target이 등록됐는지 먼저 확인합니다.
+
 AI service-control prototype의 Go 구현 모듈입니다. 이 모듈은 LLM 호출 전 Go Request Guard, 실제 LLM 기반 Deployment Manifest 생성, Go Manifest Guard, AppDeploy 요청·상태 추적, agent 등록과 bounded Action 검증을 제공합니다.
 
 ## 테스트 실행
@@ -44,7 +188,7 @@ go run ./cmd/aiops-service-control run-appdeploy-planner \
   --candidate-id qwen3.5-ops-planner \
   --candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
   --guard-policy ../../config/planner_guard_policy.json \
-  --appdeploy-base-url http://127.0.0.1:8081/api/v1
+  --appdeploy-base-url http://127.0.0.1:8080/api/v1
 
 go run ./cmd/aiops-service-control run-service-operations \
   --llm-config ../../config/ops_llm_benchmark.json \
