@@ -10,23 +10,26 @@ func Evaluate(input EvaluationInput) Evaluation {
 	deploymentFailed := failedStatus(input.DeploymentStatus)
 	monitoringFailed := unhealthyStatus(input.MonitoringStatus)
 	runtimeFailed := unhealthyStatus(input.RuntimeHealth)
-	result.FailureEvidence = deploymentFailed || monitoringFailed || runtimeFailed
-
-	if deploymentFailed {
-		result.Violations = append(result.Violations, Violation{Code: "deployment_failed", Reason: "AppDeploy reports a failed deployment state"})
-	}
-	if monitoringFailed {
-		result.Violations = append(result.Violations, Violation{Code: "monitoring_degraded", Reason: "AppDeploy monitoring status is degraded or unavailable"})
-	}
-	if runtimeFailed {
-		result.Violations = append(result.Violations, Violation{Code: "runtime_unhealthy", Reason: "target runtime health is degraded or unavailable"})
-	}
+	rawFailureEvidence := deploymentFailed || monitoringFailed || runtimeFailed
 
 	if input.Metric != nil && !input.Metric.Timestamp.IsZero() && input.MaxMetricAge >= 0 {
 		age := input.Now.Sub(input.Metric.Timestamp)
 		result.EvidenceFresh = age >= 0 && age <= input.MaxMetricAge
 		if !input.EvidenceNotBefore.IsZero() && !input.Metric.Timestamp.After(input.EvidenceNotBefore) {
 			result.EvidenceFresh = false
+		}
+	}
+	failureEvidenceUsable := input.EvidenceNotBefore.IsZero() || input.FailureEvidenceFresh || result.EvidenceFresh
+	result.FailureEvidence = rawFailureEvidence && failureEvidenceUsable
+	if result.FailureEvidence {
+		if deploymentFailed {
+			result.Violations = append(result.Violations, Violation{Code: "deployment_failed", Reason: "AppDeploy reports a failed deployment state"})
+		}
+		if monitoringFailed {
+			result.Violations = append(result.Violations, Violation{Code: "monitoring_degraded", Reason: "AppDeploy monitoring status is degraded or unavailable"})
+		}
+		if runtimeFailed {
+			result.Violations = append(result.Violations, Violation{Code: "runtime_unhealthy", Reason: "target runtime health is degraded or unavailable"})
 		}
 	}
 	if result.EvidenceFresh {

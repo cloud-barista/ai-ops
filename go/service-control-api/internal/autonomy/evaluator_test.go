@@ -66,6 +66,18 @@ func TestEvaluateRejectsMetricReusedAfterAction(t *testing.T) {
 	}
 }
 
+func TestEvaluateRejectsReusedFailureStateAfterAction(t *testing.T) {
+	now := time.Date(2026, 7, 21, 3, 10, 0, 0, time.UTC)
+	got := Evaluate(EvaluationInput{
+		Now: now, DeploymentStatus: "FAILED", MonitoringStatus: "degraded", RuntimeHealth: "unavailable",
+		Policy: SLOPolicy{MaxLatencyMS: 500}, MaxMetricAge: time.Minute, EvidenceNotBefore: now,
+		FailureEvidenceFresh: false,
+	})
+	if got.Status != EvaluationInsufficientEvidence || got.FailureEvidence {
+		t.Fatalf("unchanged failure state must not be reused after an Action: %#v", got)
+	}
+}
+
 func TestConfigValidate(t *testing.T) {
 	valid := DefaultConfig()
 	valid.DeploymentID = "dep-1"

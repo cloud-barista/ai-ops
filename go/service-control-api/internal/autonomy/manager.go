@@ -33,19 +33,20 @@ type Event struct {
 }
 
 type DeploymentRuntimeState struct {
-	PrimaryDeploymentID   string                               `json:"primary_deployment_id"`
-	RelatedDeploymentIDs  []string                             `json:"related_deployment_ids"`
-	ConsecutiveViolations int                                  `json:"consecutive_violations"`
-	LastMetricTimestamp   time.Time                            `json:"last_metric_timestamp,omitempty"`
-	LastEvaluation        *Evaluation                          `json:"last_evaluation,omitempty"`
-	LastDecision          *Decision                            `json:"last_decision,omitempty"`
-	LastGuard             *GuardDecision                       `json:"last_guard,omitempty"`
-	LastExecution         *ExecutionResult                     `json:"last_execution,omitempty"`
-	CooldownUntil         time.Time                            `json:"cooldown_until,omitempty"`
-	AutomaticActionCount  int                                  `json:"automatic_action_count"`
-	LastActionAt          time.Time                            `json:"last_action_at,omitempty"`
-	LastDeployment        *appdeploy.DeploymentResponse        `json:"last_deployment,omitempty"`
-	LastMonitoringSummary *appdeploy.MonitoringSummaryResponse `json:"last_monitoring_summary,omitempty"`
+	PrimaryDeploymentID    string                               `json:"primary_deployment_id"`
+	RelatedDeploymentIDs   []string                             `json:"related_deployment_ids"`
+	ConsecutiveViolations  int                                  `json:"consecutive_violations"`
+	LastMetricTimestamp    time.Time                            `json:"last_metric_timestamp,omitempty"`
+	LastEvaluation         *Evaluation                          `json:"last_evaluation,omitempty"`
+	LastDecision           *Decision                            `json:"last_decision,omitempty"`
+	LastGuard              *GuardDecision                       `json:"last_guard,omitempty"`
+	LastExecution          *ExecutionResult                     `json:"last_execution,omitempty"`
+	CooldownUntil          time.Time                            `json:"cooldown_until,omitempty"`
+	AutomaticActionCount   int                                  `json:"automatic_action_count"`
+	LastActionAt           time.Time                            `json:"last_action_at,omitempty"`
+	LastActionDeploymentID string                               `json:"last_action_deployment_id,omitempty"`
+	LastDeployment         *appdeploy.DeploymentResponse        `json:"last_deployment,omitempty"`
+	LastMonitoringSummary  *appdeploy.MonitoringSummaryResponse `json:"last_monitoring_summary,omitempty"`
 }
 
 type Status struct {
@@ -279,9 +280,10 @@ func (manager *Manager) RunCycle(ctx context.Context) CycleResult {
 	evaluation := Evaluate(EvaluationInput{
 		Now: now, Metric: metric, DeploymentStatus: deployment.Status, MonitoringStatus: summary.Status,
 		RuntimeHealth: runtimeHealth, Policy: config.SLO,
-		MaxMetricAge:        time.Duration(config.MaxMetricAgeSeconds) * time.Second,
-		EvidenceNotBefore:   state.LastActionAt,
-		PreviousConsecutive: state.ConsecutiveViolations,
+		MaxMetricAge:         time.Duration(config.MaxMetricAgeSeconds) * time.Second,
+		EvidenceNotBefore:    state.LastActionAt,
+		FailureEvidenceFresh: state.LastActionAt.IsZero() || state.LastActionDeploymentID != config.DeploymentID,
+		PreviousConsecutive:  state.ConsecutiveViolations,
 	})
 	result.Evaluation = &evaluation
 	manager.mu.Lock()
@@ -371,6 +373,7 @@ func (manager *Manager) RunCycle(ctx context.Context) CycleResult {
 		manager.state.AutomaticActionCount++
 		manager.state.ConsecutiveViolations = 0
 		manager.state.LastActionAt = completedAt
+		manager.state.LastActionDeploymentID = config.DeploymentID
 		manager.state.CooldownUntil = completedAt.Add(time.Duration(config.CooldownSeconds) * time.Second)
 		if execution.NewDeploymentID != "" {
 			if decision.Action == ActionScaleOut {
@@ -386,6 +389,7 @@ func (manager *Manager) RunCycle(ctx context.Context) CycleResult {
 		manager.config.Mode = ModeMonitorOnly
 		manager.state.ConsecutiveViolations = 0
 		manager.state.LastActionAt = completedAt
+		manager.state.LastActionDeploymentID = config.DeploymentID
 	}
 	manager.mu.Unlock()
 	manager.recordEvent(Event{Timestamp: now, CycleID: cycleID, DeploymentID: config.DeploymentID, Stage: "execute", Status: string(execution.Status), Reason: execution.Reason, Evaluation: &evaluation, Decision: &decision, Guard: &guard, Execution: &execution})

@@ -129,15 +129,16 @@ type Violation struct {
 }
 
 type EvaluationInput struct {
-	Now                 time.Time
-	Metric              *appdeploy.InferenceMetricRecord
-	DeploymentStatus    string
-	MonitoringStatus    string
-	RuntimeHealth       string
-	Policy              SLOPolicy
-	MaxMetricAge        time.Duration
-	EvidenceNotBefore   time.Time
-	PreviousConsecutive int
+	Now                  time.Time
+	Metric               *appdeploy.InferenceMetricRecord
+	DeploymentStatus     string
+	MonitoringStatus     string
+	RuntimeHealth        string
+	Policy               SLOPolicy
+	MaxMetricAge         time.Duration
+	EvidenceNotBefore    time.Time
+	FailureEvidenceFresh bool
+	PreviousConsecutive  int
 }
 
 type Evaluation struct {

@@ -187,6 +187,30 @@ func TestManagerRequiresMetricNewerThanLastAction(t *testing.T) {
 	}
 }
 
+func TestManagerRequiresNewEvidenceBeforeRepeatingActionOnFailedPrimary(t *testing.T) {
+	now := time.Now().UTC()
+	control := newManagerControl(now)
+	control.deployment.Status = "FAILED"
+	manager := NewManager(control, &managerPlanner{decision: Decision{Action: ActionScaleOut}}, &managerAuthorizer{approved: true})
+	manager.now = func() time.Time { return now }
+	config := managerConfig(ModeGuardedAuto)
+	config.ConsecutiveViolations = 1
+	config.CooldownSeconds = 0
+	config.StandbyTargetProfileID = "target-standby"
+	if err := manager.Configure(config); err != nil {
+		t.Fatal(err)
+	}
+
+	first := manager.RunCycle(context.Background())
+	second := manager.RunCycle(context.Background())
+	if first.Status != string(ExecutionSucceeded) || second.Status != string(EvaluationInsufficientEvidence) {
+		t.Fatalf("failed primary was reused as evidence: first=%#v second=%#v", first, second)
+	}
+	if control.createCalls != 1 {
+		t.Fatalf("unchanged failure state triggered %d creates", control.createCalls)
+	}
+}
+
 func TestManagerStatusDoesNotExposeManifestParametersOrMetricMetadata(t *testing.T) {
 	now := time.Now().UTC()
 	control := newManagerControl(now)
