@@ -72,6 +72,30 @@ paths:
                 $ref: "#/components/schemas/AgentProfile"
         "404":
           description: Agent not found
+    delete:
+      summary: Delete a runtime Agent
+      description: Deletes only an Agent registered in the current geon process. Configuration-backed Agents are protected.
+      security:
+        - AutonomyAdminToken: []
+      parameters:
+        - $ref: "#/components/parameters/AgentName"
+      responses:
+        "200":
+          description: Runtime Agent deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted: {type: boolean, example: true}
+                  name: {type: string}
+                  source: {type: string, enum: [runtime]}
+        "401":
+          description: Invalid or missing admin token for an external request
+        "403":
+          description: Configuration Agent is protected or external mutations are disabled
+        "404":
+          description: Runtime Agent not found
   /api/v1/agents/{name}/actions/{action}/validate:
     post:
       summary: Validate a bounded Action
@@ -355,6 +379,30 @@ paths:
                     maxItems: 200
                     items:
                       $ref: "#/components/schemas/AutonomyEvent"
+    delete:
+      summary: Clear Autonomous Loop events
+      description: Clears only the in-memory event timeline and preserves loop configuration, runtime state, cooldown, and Action budget.
+      security:
+        - AutonomyAdminToken: []
+      responses:
+        "200":
+          description: Event timeline cleared
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted: {type: boolean, example: true}
+                  deleted_count: {type: integer, minimum: 0}
+                  events:
+                    type: array
+                    maxItems: 0
+                    items:
+                      $ref: "#/components/schemas/AutonomyEvent"
+        "401":
+          description: Invalid or missing admin token for an external request
+        "403":
+          description: External mutations are disabled without an admin token
 components:
   securitySchemes:
     AutonomyAdminToken:

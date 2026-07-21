@@ -733,6 +733,39 @@ paths:
       tags:
       - Agent Registry
   /api/v1/agents/{name}:
+    delete:
+      description: Delete only an Agent registered in process memory. Configuration-backed
+        Agents are protected.
+      operationId: DeleteAgent
+      parameters:
+      - description: Agent name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Delete a runtime AI operation agent
+      tags:
+      - Agent Registry
     get:
       operationId: GetAgent
       parameters:
@@ -931,6 +964,30 @@ paths:
       summary: Record external automation execution feedback
       tags:
       - AI Application Automation
+  /api/v1/autonomy/events:
+    delete:
+      description: Clear only the in-memory event timeline. Loop configuration, runtime
+        state, cooldown, and Action budget are preserved.
+      operationId: DeleteAutonomyEvents
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Clear guarded autonomous loop events
+      tags:
+      - Autonomous Loop
   /api/v1/ops-llm/select:
     post:
       consumes:

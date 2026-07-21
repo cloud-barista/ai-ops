@@ -112,6 +112,53 @@
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "Delete only an Agent registered in process memory. Configuration-backed Agents are protected.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Agent Registry"
+                ],
+                "summary": "Delete a runtime AI operation agent",
+                "operationId": "DeleteAgent",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Agent name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
             }
         },
         "/api/v1/agents/{name}/actions/{action}/validate": {
@@ -362,6 +409,40 @@
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/autonomy/events": {
+            "delete": {
+                "description": "Clear only the in-memory event timeline. Loop configuration, runtime state, cooldown, and Action budget are preserved.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Autonomous Loop"
+                ],
+                "summary": "Clear guarded autonomous loop events",
+                "operationId": "DeleteAutonomyEvents",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/api.ErrorResponse"
                         }

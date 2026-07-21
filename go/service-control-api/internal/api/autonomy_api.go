@@ -92,6 +92,25 @@ func (handler restHandler) RestGetAutonomyEvents(context echo.Context) error {
 	return context.JSON(http.StatusOK, map[string]any{"count": len(events), "events": events})
 }
 
+// RestDeleteAutonomyEvents godoc
+// @ID DeleteAutonomyEvents
+// @Summary Clear guarded autonomous loop events
+// @Description Clear only the in-memory event timeline. Loop configuration, runtime state, cooldown, and Action budget are preserved.
+// @Tags Autonomous Loop
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Failure 401 {object} ErrorResponse
+// @Failure 403 {object} ErrorResponse
+// @Router /api/v1/autonomy/events [delete]
+func (handler restHandler) RestDeleteAutonomyEvents(context echo.Context) error {
+	deleted := handler.service.autonomyManager.ClearEvents()
+	return context.JSON(http.StatusOK, map[string]any{
+		"deleted":       true,
+		"deleted_count": deleted,
+		"events":        []autonomy.Event{},
+	})
+}
+
 func decodeAutonomyConfig(context echo.Context) (autonomy.Config, error) {
 	var config autonomy.Config
 	content, err := io.ReadAll(io.LimitReader(context.Request().Body, maxAutonomyConfigBytes+1))

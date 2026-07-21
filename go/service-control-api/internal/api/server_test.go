@@ -28,6 +28,54 @@ func TestHealthz(t *testing.T) {
 	}
 }
 
+func TestDeleteRuntimeAgentAPI(t *testing.T) {
+	server := NewServer(NewServerConfig())
+	registration := `{
+		"name":"DisposableResearchAgent","version":"0.1.0","role":"Temporary validation agent",
+		"endpoint":"http://disposable-agent.internal:8090","invocation_path":"/v1/actions",
+		"capabilities":["test_validation"],"bounded_actions":["collect_test_evidence"]
+	}`
+	created := performJSONRequest(t, server, http.MethodPost, "/api/v1/agents", registration)
+	if created.Code != http.StatusCreated {
+		t.Fatalf("register runtime agent: code=%d body=%s", created.Code, created.Body.String())
+	}
+
+	deleted := performJSONRequest(t, server, http.MethodDelete, "/api/v1/agents/DisposableResearchAgent", "")
+	if deleted.Code != http.StatusOK || !strings.Contains(deleted.Body.String(), `"deleted":true`) || !strings.Contains(deleted.Body.String(), `"source":"runtime"`) {
+		t.Fatalf("delete runtime agent: code=%d body=%s", deleted.Code, deleted.Body.String())
+	}
+	missingAfterDelete := performJSONRequest(t, server, http.MethodGet, "/api/v1/agents/DisposableResearchAgent", "")
+	if missingAfterDelete.Code != http.StatusNotFound {
+		t.Fatalf("deleted runtime agent remained visible: code=%d body=%s", missingAfterDelete.Code, missingAfterDelete.Body.String())
+	}
+
+	protected := performJSONRequest(t, server, http.MethodDelete, "/api/v1/agents/AIApplicationAutomationAgent", "")
+	if protected.Code != http.StatusForbidden {
+		t.Fatalf("configured agent deletion: code=%d body=%s", protected.Code, protected.Body.String())
+	}
+	missing := performJSONRequest(t, server, http.MethodDelete, "/api/v1/agents/MissingRuntimeAgent", "")
+	if missing.Code != http.StatusNotFound {
+		t.Fatalf("missing agent deletion: code=%d body=%s", missing.Code, missing.Body.String())
+	}
+}
+
+func TestDeleteAutonomyEventsAPI(t *testing.T) {
+	server := NewServer(NewServerConfig())
+	cycle := performJSONRequest(t, server, http.MethodPost, "/api/v1/autonomy/cycles", "")
+	if cycle.Code != http.StatusOK {
+		t.Fatalf("create autonomy event: code=%d body=%s", cycle.Code, cycle.Body.String())
+	}
+
+	deleted := performJSONRequest(t, server, http.MethodDelete, "/api/v1/autonomy/events", "")
+	if deleted.Code != http.StatusOK || !strings.Contains(deleted.Body.String(), `"deleted":true`) || !strings.Contains(deleted.Body.String(), `"deleted_count":1`) {
+		t.Fatalf("delete autonomy events: code=%d body=%s", deleted.Code, deleted.Body.String())
+	}
+	events := performJSONRequest(t, server, http.MethodGet, "/api/v1/autonomy/events", "")
+	if events.Code != http.StatusOK || !strings.Contains(events.Body.String(), `"count":0`) {
+		t.Fatalf("events remained after delete: code=%d body=%s", events.Code, events.Body.String())
+	}
+}
+
 func TestAutonomyAPIFlowWithoutAppDeploy(t *testing.T) {
 	server := NewServer(NewServerConfig())
 
@@ -106,6 +154,18 @@ func TestOpenAPIContractParsesAndContainsAutonomyRoutes(t *testing.T) {
 			t.Fatalf("OpenAPI contract is missing %s", path)
 		}
 	}
+	for path, method := range map[string]string{
+		"/api/v1/agents/{name}":   "delete",
+		"/api/v1/autonomy/events": "delete",
+	} {
+		operations, ok := contract.Paths[path]
+		if !ok {
+			t.Fatalf("OpenAPI contract is missing %s", path)
+		}
+		if _, ok := operations[method]; !ok {
+			t.Fatalf("OpenAPI contract is missing %s %s", method, path)
+		}
+	}
 }
 
 func TestAutonomyMutationsRejectRemoteRequestsWithoutAdminToken(t *testing.T) {
@@ -128,6 +188,22 @@ func TestAutonomyMutationsRejectRemoteRequestsWithoutAdminToken(t *testing.T) {
 	server.ServeHTTP(response, request)
 	if response.Code != http.StatusOK {
 		t.Fatalf("remote mutation with token: code=%d body=%s", response.Code, response.Body.String())
+	}
+}
+
+func TestDeletionMutationsRejectRemoteRequestsWithoutAdminToken(t *testing.T) {
+	config := NewServerConfig()
+	config.AutonomyAdminToken = "test-admin-token"
+	server := NewServer(config)
+
+	for _, path := range []string{"/api/v1/agents/DisposableResearchAgent", "/api/v1/autonomy/events"} {
+		request := httptest.NewRequest(http.MethodDelete, path, nil)
+		request.RemoteAddr = "203.0.113.20:4321"
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, request)
+		if response.Code != http.StatusUnauthorized {
+			t.Fatalf("remote DELETE %s without token: code=%d body=%s", path, response.Code, response.Body.String())
+		}
 	}
 }
 

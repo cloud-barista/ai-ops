@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"net/http"
 
 	playgroundvalidator "github.com/go-playground/validator/v10"
@@ -76,6 +77,7 @@ func NewServer(config ServerConfig) *echo.Echo {
 	server.GET(pathAgents, handler.RestGetAgents)
 	server.POST(pathAgents, handler.RestPostAgent)
 	server.GET(pathAgents+"/:name", handler.RestGetAgent)
+	server.DELETE(pathAgents+"/:name", handler.requireAutonomyAdmin(handler.RestDeleteAgent))
 	server.POST(pathAgents+"/:name/actions/:action/validate", handler.RestPostAgentActionValidate)
 	server.POST(pathAgents+"/:name/invocations/plan", handler.RestPostAgentInvocationPlan)
 	server.POST(pathOpsLLMSelect, handler.RestPostOpsLLMSelect)
@@ -90,6 +92,7 @@ func NewServer(config ServerConfig) *echo.Echo {
 	server.POST(pathAutonomy+"/emergency-stop", handler.requireAutonomyAdmin(handler.RestPostAutonomyEmergencyStop))
 	server.POST(pathAutonomy+"/cycles", handler.requireAutonomyAdmin(handler.RestPostAutonomyCycle))
 	server.GET(pathAutonomy+"/events", handler.RestGetAutonomyEvents)
+	server.DELETE(pathAutonomy+"/events", handler.requireAutonomyAdmin(handler.RestDeleteAutonomyEvents))
 	server.POST(pathPlannerDeploy, handler.RestPostAppDeployPlanner)
 	server.POST(pathServiceOpsRun, handler.RestPostServiceOperationsRun)
 
@@ -205,6 +208,37 @@ func (handler restHandler) RestGetAgent(context echo.Context) error {
 		return jsonError(context, http.StatusNotFound, "Agent was not found", err)
 	}
 	return context.JSON(http.StatusOK, result)
+}
+
+// RestDeleteAgent godoc
+// @ID DeleteAgent
+// @Summary Delete a runtime AI operation agent
+// @Description Delete only an Agent registered in process memory. Configuration-backed Agents are protected.
+// @Tags Agent Registry
+// @Produce json
+// @Param name path string true "Agent name"
+// @Success 200 {object} map[string]interface{}
+// @Failure 401 {object} ErrorResponse
+// @Failure 403 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Router /api/v1/agents/{name} [delete]
+func (handler restHandler) RestDeleteAgent(context echo.Context) error {
+	agent, err := handler.service.DeleteExternalAgent(context.Request().Context(), context.Param("name"))
+	if err != nil {
+		switch {
+		case errors.Is(err, errConfiguredAgentProtected):
+			return jsonError(context, http.StatusForbidden, "Configuration Agent is protected", err)
+		case errors.Is(err, errRuntimeAgentNotFound):
+			return jsonError(context, http.StatusNotFound, "Runtime Agent was not found", err)
+		default:
+			return jsonError(context, http.StatusInternalServerError, "Runtime Agent deletion failed", err)
+		}
+	}
+	return context.JSON(http.StatusOK, map[string]any{
+		"deleted": true,
+		"name":    agent.Name,
+		"source":  agent.Source,
+	})
 }
 
 // RestPostAgentActionValidate godoc
