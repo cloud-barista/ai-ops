@@ -206,7 +206,7 @@ function renderAgents() {
   if (state.agents.length === 0) {
     const row = document.createElement("tr");
     const cell = createElement("td", "empty-cell", "등록된 Agent가 없습니다.");
-    cell.colSpan = 5;
+    cell.colSpan = 6;
     row.append(cell);
     tableBody.append(row);
     snapshot.append(createElement("p", "empty-state", "등록된 Agent가 없습니다."));
@@ -228,6 +228,29 @@ function renderAgents() {
     const statusCell = document.createElement("td");
     statusCell.append(status);
     row.append(statusCell);
+    const manageCell = document.createElement("td");
+    manageCell.className = "agent-manage-cell";
+    if (agent.source === "runtime") {
+      const deleteButton = createElement("button", "icon-button danger-icon");
+      deleteButton.type = "button";
+      deleteButton.setAttribute("data-delete-agent", text(agent.name));
+      deleteButton.title = `${text(agent.name)} 삭제`;
+      deleteButton.setAttribute("aria-label", `${text(agent.name)} 삭제`);
+      const deleteIcon = document.createElement("i");
+      deleteIcon.setAttribute("data-lucide", "trash-2");
+      deleteIcon.setAttribute("aria-hidden", "true");
+      deleteButton.append(deleteIcon);
+      manageCell.append(deleteButton);
+    } else {
+      const protectedLabel = createElement("span", "protected-label");
+      protectedLabel.title = "config/agent_registry.json에서 관리되는 핵심 Agent입니다.";
+      const lockIcon = document.createElement("i");
+      lockIcon.setAttribute("data-lucide", "lock-keyhole");
+      lockIcon.setAttribute("aria-hidden", "true");
+      protectedLabel.append(lockIcon, createElement("span", "", "설정 보호"));
+      manageCell.append(protectedLabel);
+    }
+    row.append(manageCell);
     tableBody.append(row);
 
     const item = createElement("div", "compact-item");
@@ -238,6 +261,7 @@ function renderAgents() {
     snapshot.append(item);
     validation.append(new Option(text(agent.name), text(agent.name)));
   });
+  if (window.lucide) window.lucide.createIcons();
 }
 
 async function loadAgents() {
@@ -482,12 +506,25 @@ async function submitFeedback(event) {
   }
 }
 
+async function deleteRuntimeAgent(name, button) {
+  if (!window.confirm(`Runtime Agent '${name}'을 geon에서 삭제할까요?`)) return;
+  button.disabled = true;
+  try {
+    await apiRequest(`${API.agents}/${encodeURIComponent(name)}`, { method: "DELETE" });
+    await loadAgents();
+    showToast(`Runtime Agent '${name}'을 삭제했습니다.`, "success");
+  } catch (error) {
+    showToast(error.message, "error");
+    button.disabled = false;
+  }
+}
+
 function setAutonomyBusy(busy) {
   state.autonomyBusy = busy;
   const status = state.autonomyStatus || {};
   byID("autonomy-start").disabled = busy || Boolean(status.running);
   byID("autonomy-stop").disabled = busy || !status.running;
-  ["autonomy-run-cycle", "autonomy-emergency-stop", "autonomy-refresh"].forEach((id) => { byID(id).disabled = busy; });
+  ["autonomy-run-cycle", "autonomy-emergency-stop", "autonomy-refresh", "clear-autonomy-events"].forEach((id) => { byID(id).disabled = busy; });
   const submit = byID("autonomy-form").querySelector('button[type="submit"]');
   submit.disabled = busy || Boolean(status.running);
 }
@@ -644,6 +681,21 @@ async function runAutonomyControl(path, successMessage) {
   }
 }
 
+async function clearAutonomyEvents() {
+  if (!window.confirm("geon의 자율 제어 이벤트만 삭제할까요? Loop 설정과 AppDeploy 자원은 유지됩니다.")) return;
+  setAutonomyBusy(true);
+  try {
+    const payload = await apiRequest(API.autonomyEvents, { method: "DELETE" });
+    renderAutonomyEvents(payload);
+    showToast(`${Number(payload.deleted_count || 0)}개의 자율 제어 이벤트를 삭제했습니다.`, "success");
+  } catch (error) {
+    showToast(error.message, "error");
+  } finally {
+    setAutonomyBusy(false);
+    await loadAutonomy().catch(() => {});
+  }
+}
+
 async function refreshDashboard() {
   const button = byID("refresh-button");
   button.disabled = true;
@@ -673,9 +725,15 @@ function bindEvents() {
     }
   });
   byID("clear-history").addEventListener("click", () => {
+    if (!window.confirm("이 브라우저에 저장된 geon 시험 기록만 삭제할까요?")) return;
     state.history = [];
     writeHistory();
     renderHistory();
+  });
+  byID("agent-table-body").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-delete-agent]");
+    if (!button) return;
+    void deleteRuntimeAgent(button.dataset.deleteAgent, button);
   });
   byID("planner-form").addEventListener("submit", submitPlanner);
   byID("action-form").addEventListener("submit", submitAction);
@@ -689,6 +747,7 @@ function bindEvents() {
     if (!window.confirm("Autonomy loop를 즉시 중지하고 Monitor Only로 전환할까요?")) return;
     void runAutonomyControl(API.autonomyEmergencyStop, "Emergency Stop이 적용되었습니다.");
   });
+  byID("clear-autonomy-events").addEventListener("click", () => void clearAutonomyEvents());
   byID("autonomy-refresh").addEventListener("click", async () => {
     setAutonomyBusy(true);
     try {

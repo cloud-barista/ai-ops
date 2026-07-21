@@ -107,6 +107,36 @@ func TestControlAppContainsAutonomyView(t *testing.T) {
 	}
 }
 
+func TestControlAppContainsGeonDeletionControls(t *testing.T) {
+	server := echo.New()
+	Register(server)
+
+	html := requestBody(t, server, "/")
+	for _, expected := range []string{
+		`id="clear-history"`,
+		`id="clear-autonomy-events"`,
+		`aria-label="Autonomy 이벤트 삭제"`,
+	} {
+		if !strings.Contains(html, expected) {
+			t.Fatalf("expected deletion HTML contract %q", expected)
+		}
+	}
+
+	javascript := requestBody(t, server, "/assets/app.js")
+	for _, expected := range []string{
+		`data-delete-agent`,
+		`deleteRuntimeAgent`,
+		`clearAutonomyEvents`,
+		`method: "DELETE"`,
+		`agent.source === "runtime"`,
+		`window.confirm`,
+	} {
+		if !strings.Contains(javascript, expected) {
+			t.Fatalf("expected deletion JavaScript contract %q", expected)
+		}
+	}
+}
+
 func requestBody(t *testing.T, server *echo.Echo, path string) string {
 	t.Helper()
 	request := httptest.NewRequest(http.MethodGet, path, nil)

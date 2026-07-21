@@ -139,8 +139,8 @@
           <div class="panel-header"><div><p class="section-label">REGISTRY</p><h3 id="registry-title">등록 Agent <span class="count-label" id="agent-count">0</span></h3></div><button class="icon-button" id="refresh-agents" type="button" title="Agent 새로고침" aria-label="Agent 새로고침"><i data-lucide="refresh-cw" aria-hidden="true"></i></button></div>
           <div class="table-wrap">
             <table>
-                <thead><tr><th>Agent</th><th>Role</th><th>Capabilities</th><th>Bounded Actions</th><th>Status</th></tr></thead>
-              <tbody id="agent-table-body"><tr><td colspan="5" class="empty-cell">Agent 정보를 불러오는 중입니다.</td></tr></tbody>
+                <thead><tr><th>Agent</th><th>Role</th><th>Capabilities</th><th>Bounded Actions</th><th>Status</th><th>Manage</th></tr></thead>
+              <tbody id="agent-table-body"><tr><td colspan="6" class="empty-cell">Agent 정보를 불러오는 중입니다.</td></tr></tbody>
             </table>
           </div>
         </section>
@@ -246,7 +246,13 @@
         </div>
 
         <section class="panel autonomy-timeline-panel" aria-labelledby="autonomy-timeline-title">
-          <div class="panel-header"><div><p class="section-label">LATEST 200 EVENTS</p><h3 id="autonomy-timeline-title">Decision Timeline</h3></div><button class="icon-button" id="autonomy-refresh" type="button" title="Autonomy 새로고침" aria-label="Autonomy 새로고침"><i data-lucide="refresh-cw" aria-hidden="true"></i></button></div>
+          <div class="panel-header">
+            <div><p class="section-label">LATEST 200 EVENTS</p><h3 id="autonomy-timeline-title">Decision Timeline</h3></div>
+            <div class="panel-header-actions">
+              <button class="icon-button danger-icon" id="clear-autonomy-events" type="button" title="Autonomy 이벤트 삭제" aria-label="Autonomy 이벤트 삭제"><i data-lucide="trash-2" aria-hidden="true"></i></button>
+              <button class="icon-button" id="autonomy-refresh" type="button" title="Autonomy 새로고침" aria-label="Autonomy 새로고침"><i data-lucide="refresh-cw" aria-hidden="true"></i></button>
+            </div>
+          </div>
           <div class="autonomy-timeline" id="autonomy-timeline"><p class="empty-state">기록된 자율 제어 이벤트가 없습니다.</p></div>
         </section>
       </section>

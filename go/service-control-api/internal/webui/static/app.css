@@ -239,7 +239,8 @@ textarea:focus-visible {
 
 .topbar-actions,
 .form-actions,
-.dialog-footer {
+.dialog-footer,
+.panel-header-actions {
   display: flex;
   align-items: center;
   gap: 9px;
@@ -723,6 +724,16 @@ textarea:focus-visible {
   color: var(--amber);
 }
 
+.danger-icon {
+  color: var(--coral);
+}
+
+.danger-icon:hover {
+  border-color: #dfaa9f;
+  background: var(--coral-soft);
+  color: var(--coral);
+}
+
 .status-badge[data-status="monitoring"],
 .status-badge[data-status="monitor_only"],
 .status-badge[data-status="would_execute"],
@@ -1055,11 +1066,39 @@ td {
   font-size: 12px;
 }
 
-th:nth-child(1) { width: 22%; }
+th:nth-child(1) { width: 20%; }
 th:nth-child(2) { width: 12%; }
-th:nth-child(3) { width: 24%; }
-th:nth-child(4) { width: 32%; }
-th:nth-child(5) { width: 10%; }
+th:nth-child(3) { width: 22%; }
+th:nth-child(4) { width: 29%; }
+th:nth-child(5) { width: 9%; }
+th:nth-child(6) { width: 8%; }
+
+.agent-manage-cell {
+  text-align: right;
+}
+
+.agent-manage-cell .icon-button {
+  margin-left: auto;
+}
+
+.protected-label {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-muted);
+  padding: 0 9px;
+  color: var(--ink-muted);
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.protected-label svg {
+  width: 13px;
+  height: 13px;
+}
 
 td code {
   font-family: Consolas, "SFMono-Regular", monospace;

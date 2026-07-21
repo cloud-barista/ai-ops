@@ -224,6 +224,25 @@ curl http://127.0.0.1:18080/api/v1/autonomy/events
 
 VM-only `scale_out_application`은 추가 Deployment 생성까지만 수행합니다. Load Balancer나 트래픽 분산은 포함하지 않으며 결과에 `traffic_handoff_required: true`가 표시됩니다. 중지 후 재생성에 실패한 `partial_failure`가 발생하면 자동 실행이 잠기고 모드는 Monitor Only로 돌아갑니다.
 
+#### geon 기록 삭제
+
+Agent Control의 삭제 기능은 geon이 소유한 시험 데이터에만 적용됩니다.
+
+- **Agents & Guard**의 휴지통 버튼은 웹/API로 등록한 `source=runtime` Agent만 삭제합니다.
+- `config/agent_registry.json`에서 읽은 Configuration Agent는 `설정 보호`로 표시되며 삭제할 수 없습니다.
+- **Decision Timeline**의 휴지통 버튼은 Autonomous Loop 이벤트만 비웁니다. Loop 설정, 상태, cooldown 및 Action budget은 유지됩니다.
+- **최근 제어 결과**의 기록 삭제는 현재 브라우저의 localStorage만 비웁니다.
+- AppDeploy App·Deployment·Runtime Profile·Target Profile과 CB-Tumblebug Infra·VM은 삭제하지 않습니다.
+
+로컬 API에서 같은 동작을 확인할 수 있습니다.
+
+```bash
+curl -X DELETE http://127.0.0.1:18080/api/v1/agents/RUNTIME_AGENT_NAME
+curl -X DELETE http://127.0.0.1:18080/api/v1/autonomy/events
+```
+
+외부 bind 환경에서는 두 요청 모두 `AIOPS_AUTONOMY_ADMIN_TOKEN` Bearer token이 필요합니다.
+
 AI service-control prototype의 Go 구현 모듈입니다. 이 모듈은 LLM 호출 전 Go Request Guard, 실제 LLM 기반 Deployment Manifest 생성, Go Manifest Guard, AppDeploy 요청·상태 추적, agent 등록과 bounded Action 검증을 제공합니다.
 
 ## 테스트 실행
@@ -291,6 +310,7 @@ go run ./cmd/aiops-service-control run-service-operations \
 | `GET` | `/api/v1/agents` |
 | `POST` | `/api/v1/agents` |
 | `GET` | `/api/v1/agents/:name` |
+| `DELETE` | `/api/v1/agents/:name` |
 | `POST` | `/api/v1/agents/:name/actions/:action/validate` |
 | `POST` | `/api/v1/agents/:name/invocations/plan` |
 | `POST` | `/api/v1/ops-llm/select` |
@@ -305,6 +325,7 @@ go run ./cmd/aiops-service-control run-service-operations \
 | `POST` | `/api/v1/autonomy/emergency-stop` |
 | `POST` | `/api/v1/autonomy/cycles` |
 | `GET` | `/api/v1/autonomy/events` |
+| `DELETE` | `/api/v1/autonomy/events` |
 | `POST` | `/api/v1/planner/deployments` |
 | `POST` | `/api/v1/service-operations/run` |
 
