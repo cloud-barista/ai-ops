@@ -138,6 +138,39 @@ func TestManagerEventStoreKeepsNewestTwoHundred(t *testing.T) {
 	}
 }
 
+func TestManagerClearEventsPreservesRuntimeStateAndSequence(t *testing.T) {
+	manager := NewManager(nil, nil, nil)
+	config := DefaultConfig()
+	config.DeploymentID = "dep-clear-events"
+	if err := manager.Configure(config); err != nil {
+		t.Fatal(err)
+	}
+	manager.mu.Lock()
+	manager.state.AutomaticActionCount = 2
+	manager.state.CooldownUntil = time.Now().UTC().Add(time.Minute)
+	manager.mu.Unlock()
+	manager.recordEvent(Event{Stage: "test", Status: "first"})
+	manager.recordEvent(Event{Stage: "test", Status: "second"})
+	before := manager.Status()
+	previousSequence := manager.Events()[1].Sequence
+
+	deleted := manager.ClearEvents()
+	if deleted != 2 || len(manager.Events()) != 0 {
+		t.Fatalf("deleted=%d events=%d", deleted, len(manager.Events()))
+	}
+	after := manager.Status()
+	if after.Config != before.Config || after.State.PrimaryDeploymentID != before.State.PrimaryDeploymentID ||
+		after.State.AutomaticActionCount != before.State.AutomaticActionCount || after.State.CooldownUntil != before.State.CooldownUntil {
+		t.Fatalf("event clearing changed runtime state: before=%#v after=%#v", before, after)
+	}
+
+	manager.recordEvent(Event{Stage: "test", Status: "after-clear"})
+	events := manager.Events()
+	if len(events) != 1 || events[0].Sequence <= previousSequence {
+		t.Fatalf("event sequence was reused after clear: previous=%d events=%#v", previousSequence, events)
+	}
+}
+
 func TestManagerEmergencyStopFencesInFlightManualCycle(t *testing.T) {
 	now := time.Now().UTC()
 	control := newManagerControl(now)

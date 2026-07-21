@@ -233,6 +233,14 @@ func (manager *Manager) Events() []Event {
 	return append([]Event(nil), manager.events...)
 }
 
+func (manager *Manager) ClearEvents() int {
+	manager.mu.Lock()
+	defer manager.mu.Unlock()
+	deleted := len(manager.events)
+	manager.events = make([]Event, 0, 200)
+	return deleted
+}
+
 func (manager *Manager) RunCycle(ctx context.Context) CycleResult {
 	manager.cycleMu.Lock()
 	defer manager.cycleMu.Unlock()
