@@ -24,8 +24,8 @@ func TestSelectOpsLLMMatchesConfiguredBaseline(t *testing.T) {
 	if result.SelectedModel != "primary-ops-llm" {
 		t.Fatalf("expected primary-ops-llm, got %s", result.SelectedModel)
 	}
-	if result.SelectedActualModel != "to-be-evaluated-primary-model" {
-		t.Fatalf("expected selected actual model placeholder, got %s", result.SelectedActualModel)
+	if result.SelectedActualModel != "qwen3.5:4b" {
+		t.Fatalf("expected qwen3.5:4b, got %s", result.SelectedActualModel)
 	}
 	if result.EvaluationType != "prototype_policy_baseline" {
 		t.Fatalf("expected prototype policy baseline, got %s", result.EvaluationType)
@@ -440,8 +440,8 @@ func TestRunServiceOperationsCombinesCoreDecisionsInGo(t *testing.T) {
 	if report.SelectedLLM != "primary-ops-llm" {
 		t.Fatalf("expected primary-ops-llm, got %s", report.SelectedLLM)
 	}
-	if report.SelectedActualModel != "to-be-evaluated-primary-model" {
-		t.Fatalf("expected selected actual model placeholder, got %s", report.SelectedActualModel)
+	if report.SelectedActualModel != "qwen3.5:4b" {
+		t.Fatalf("expected qwen3.5:4b, got %s", report.SelectedActualModel)
 	}
 	if report.BenchmarkStatus != "not_executed" {
 		t.Fatalf("expected benchmark status not_executed, got %s", report.BenchmarkStatus)

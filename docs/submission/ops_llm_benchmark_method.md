@@ -69,8 +69,12 @@ Ollama는 local validation용 example provider입니다. benchmark runner는 특
 
 ```bash
 ollama serve
-ollama pull llama3.2:3b
+ollama pull qwen3.5:4b
 ```
+
+`qwen3.5:4b` Ollama 양자화 모델은 약 3.4GB이므로 로컬과 AWS NVIDIA L4 24GB VM에서 같은 candidate 설정으로 실행할 수 있습니다.
+초기 모델 로딩과 복잡한 시나리오 응답을 고려해 기본 Qwen candidate timeout은 120초로 설정합니다.
+구조화된 Planner JSON만 필요하므로 Qwen candidate에는 `reasoning_effort: none`을 적용해 thinking trace와 최종 응답이 분리되면서 내용이 비는 경우를 방지합니다.
 
 ```bash
 cd go/service-control-api
@@ -90,7 +94,7 @@ go run ./cmd/aiops-service-control evaluate-ops-llm-outputs \
 ```text
 benchmark_status = executed
 dry_run = false
-selected_actual_model = llama3.2:3b
+selected_actual_model = qwen3.5:4b
 ```
 
 Candidate config는 실행 결과가 아닙니다. 실제 executed benchmark는 `runs/.../evaluation_summary.json`에 `benchmark_status = executed`가 기록된 경우에만 주장할 수 있습니다.
@@ -101,7 +105,7 @@ Candidate config는 실행 결과가 아닙니다. 실제 executed benchmark는 
 
 ```bash
 ollama serve
-ollama pull qwen2.5:3b
+ollama pull qwen3.5:4b
 ollama pull llama3.2:3b
 ollama pull gemma2:2b
 ```

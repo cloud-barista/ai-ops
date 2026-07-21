@@ -102,13 +102,15 @@ export AIOPS_APPDEPLOY_BASE_URL=http://127.0.0.1:8081/api/v1
 go run ./cmd/service-control-api
 ```
 
+기본 candidate인 `qwen3.5:4b`는 약 3.4GB의 Ollama 양자화 모델로, 로컬과 AWS NVIDIA L4 24GB VM에서 같은 Planner 설정을 사용할 수 있습니다.
+
 CLI로 동일한 흐름을 실행할 수도 있습니다.
 
 ```bash
 go run ./cmd/aiops-service-control run-appdeploy-planner \
   --request "GPU 1개와 메모리 16Gi가 필요한 추론 앱을 배포해 주세요." \
   --app-version-id appver-llm-inference-v1 \
-  --candidate-id local-ollama-ops-llm \
+  --candidate-id qwen3.5-ops-planner \
   --candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
   --guard-policy ../../config/planner_guard_policy.json \
   --appdeploy-base-url http://127.0.0.1:8081/api/v1
@@ -152,7 +154,7 @@ go run ./cmd/aiops-service-control validate-system \
   --llm-candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
   --run-llm-decision \
   --llm-decision-candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
-  --llm-decision-candidate-id local-ollama-ops-llm \
+  --llm-decision-candidate-id qwen3.5-ops-planner \
   --run-api-integration \
   --api-port 18080 \
   --output-dir ../../runs/full-validation-vm-complete

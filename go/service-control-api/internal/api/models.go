@@ -55,7 +55,7 @@ type AgentInvocationPlan struct {
 type LLMAutomationActionRequest struct {
 	Workload     string             `json:"workload" validate:"required" example:"llm-chat-inference"`
 	TargetVM     VMResourceSnapshot `json:"target_vm" validate:"required"`
-	CandidateID  string             `json:"candidate_id" validate:"required" example:"local-ollama-ops-llm"`
+	CandidateID  string             `json:"candidate_id" validate:"required" example:"qwen3.5-ops-planner"`
 	Observations map[string]any     `json:"observations,omitempty"`
 }
 
@@ -255,7 +255,7 @@ type VMCompatibilityResponse struct {
 type ServiceOperationsRequest struct {
 	LLMConfigPath     string             `json:"llm_config" example:"config/ops_llm_benchmark.json"`
 	LLMCandidatesPath string             `json:"llm_candidates,omitempty" example:"config/ops_llm_eval_candidates.local_ollama.json"`
-	LLMCandidateID    string             `json:"llm_candidate_id,omitempty" example:"local-ollama-ops-llm"`
+	LLMCandidateID    string             `json:"llm_candidate_id,omitempty" example:"qwen3.5-ops-planner"`
 	LLMPolicy         string             `json:"llm_policy" example:"quality_first"`
 	VMRequirements    string             `json:"vm_requirements" example:"config/vm_workload_requirements.json"`
 	Workload          string             `json:"workload" validate:"required" example:"llm-chat-inference"`

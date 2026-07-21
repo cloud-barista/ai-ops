@@ -103,7 +103,7 @@ go run ./cmd/aiops-service-control run-appdeploy-planner \
   --request "GPU 추론 앱을 배포해 주세요." \
   --app-version-id appver-llm-inference-v1 \
   --candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
-  --candidate-id local-ollama-ops-llm \
+  --candidate-id qwen3.5-ops-planner \
   --appdeploy-base-url http://127.0.0.1:8081/api/v1
 ```
 

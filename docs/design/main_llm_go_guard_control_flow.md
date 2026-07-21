@@ -69,7 +69,7 @@ LLM 호출 전에 다음 항목을 결정적으로 검사합니다.
 {
   "natural_language_request": "GPU 1개, CPU 4개, 메모리 16Gi가 필요한 추론 앱을 배포해 주세요.",
   "app_version_id": "appver-llm-inference-v1",
-  "candidate_id": "local-ollama-ops-llm"
+  "candidate_id": "qwen3.5-ops-planner"
 }
 ```
 

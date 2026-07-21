@@ -76,7 +76,7 @@ go run ./cmd/aiops-service-control validate-system \
   --llm-candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
   --run-llm-decision \
   --llm-decision-candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
-  --llm-decision-candidate-id local-ollama-ops-llm \
+  --llm-decision-candidate-id qwen3.5-ops-planner \
   --run-api-integration \
   --api-port 18080 \
   --output-dir ../../runs/full-validation-vm-complete
@@ -90,7 +90,7 @@ Ollama는 OpenAI-compatible endpoint 예시일 뿐 필수 런타임이 아닙니
 go run ./cmd/aiops-service-control run-appdeploy-planner \
   --request "GPU 추론 앱을 배포해 주세요." \
   --app-version-id appver-llm-inference-v1 \
-  --candidate-id local-ollama-ops-llm \
+  --candidate-id qwen3.5-ops-planner \
   --candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
   --guard-policy ../../config/planner_guard_policy.json \
   --appdeploy-base-url http://127.0.0.1:8081/api/v1

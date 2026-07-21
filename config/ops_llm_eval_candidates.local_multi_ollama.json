@@ -4,14 +4,15 @@
   "description": "Ollama models are only local example providers for multi-candidate executed benchmark. This config is not an executed result by itself.",
   "candidates": [
     {
-      "candidate_id": "local-ollama-qwen25-3b",
+      "candidate_id": "local-ollama-qwen35-4b",
       "role_label": "primary-ops-llm",
       "provider": "local-openai-compatible",
-      "actual_model": "qwen2.5:3b",
+      "actual_model": "qwen3.5:4b",
       "endpoint": "http://127.0.0.1:11434/v1/chat/completions",
       "enabled": true,
       "json_mode": true,
-      "timeout_seconds": 60
+      "reasoning_effort": "none",
+      "timeout_seconds": 120
     },
     {
       "candidate_id": "local-ollama-llama32-3b",

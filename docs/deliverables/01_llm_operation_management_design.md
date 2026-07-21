@@ -53,7 +53,7 @@ LLM은 운영 판단 후보를 제공하고, Go service-control layer는 선정 
 | `low-cost-ops-llm` | 저비용 후보 | 기초 검증 또는 비용 중심 검증 |
 | `code-cross-check-agent` | 교차 검토 후보 | 코드/문서 consistency 확인 |
 
-위 candidate 값은 내부 역할 label입니다. 실제 provider model 이름은 `actual_model`, `selected_actual_model`, `selected_provider`, `benchmark_status` 필드로 분리합니다. 현재 기본 benchmark status는 `not_executed`이며, 실제 모델 API 평가가 완료된 상태로 해석하지 않습니다.
+위 candidate 값은 내부 역할 label입니다. 현재 기본 Planner 역할은 `qwen3.5:4b`에 연결하며, 실제 provider model 이름은 `actual_model`, `selected_actual_model`, `selected_provider`, `benchmark_status` 필드로 분리합니다. 기본 benchmark status는 `not_executed`이며, Qwen 사용 결정 자체를 실제 정량평가 완료로 해석하지 않습니다.
 
 ## 6. Score 구성
 
@@ -82,7 +82,7 @@ go run ./cmd/aiops-service-control select-ops-llm \
 
 ```text
 selected_model = primary-ops-llm
-selected_actual_model = to-be-evaluated-primary-model
+selected_actual_model = qwen3.5:4b
 benchmark_status = not_executed
 ```
 

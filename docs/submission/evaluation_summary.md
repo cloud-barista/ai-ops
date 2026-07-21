@@ -26,7 +26,20 @@ operation_pipeline_ready = false
 
 ## 실제 LLM 자동화 확인
 
-2026-07-16 로컬 OpenAI-compatible endpoint의 `llama3.2:3b`를 기록된 AWS L4 VM snapshot과 함께 실행했습니다.
+2026-07-21 로컬 OpenAI-compatible endpoint에서 현재 기본 Planner 모델인 `qwen3.5:4b`를 10개 Ops 시나리오에 실제 실행했습니다.
+
+```text
+benchmark_status = executed
+executed_count = 10
+error_count = 0
+average_score = 0.9219
+```
+
+이는 Qwen3.5 Planner의 로컬 구조화 응답과 Go 평가 흐름이 실제 동작했음을 뜻합니다. 단일 candidate 로컬 평가이므로 모델 간 최종 우열이나 AWS L4 성능 검증으로 확대 해석하지 않습니다. 요약 증적은 `docs/evidence/artifacts/local_20260721_qwen35_ops_llm_evaluation_summary.json`에 보존합니다.
+
+### 과거 모델 실행 기록
+
+2026-07-16 로컬 OpenAI-compatible endpoint의 `llama3.2:3b`를 기록된 AWS L4 VM snapshot과 함께 실행했습니다. 이는 변경 전 모델로 수행한 과거 증적이며, 현재 기본 Planner 모델은 `qwen3.5:4b`입니다.
 
 ```text
 decision_execution_status = executed

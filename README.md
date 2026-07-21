@@ -12,6 +12,8 @@
 
 핵심 구현은 Go 언어로 구성되어 있습니다. Go Request Guard가 자연어 요청의 권한·1차년도 VM 범위·민감정보 유입을 먼저 검사하고, 실제 LLM endpoint가 승인된 요구를 AppDeploy `DeploymentManifest`로 변환합니다. 이어 Go Manifest Guard가 계약·자원 값·보안 정책을 검증한 뒤 AppDeploy에 전달합니다. AppDeploy가 실제 Target과 Runtime Adapter를 선택하며, 본 프로젝트는 배포 상태와 로그를 조회해 결과를 반환합니다.
 
+현재 기본 Planner 모델은 **Qwen 3.5 4B (`qwen3.5:4b`)**입니다. Go 구현은 OpenAI-compatible endpoint 계약을 사용하므로 Ollama, vLLM 또는 연구 서버는 Qwen을 제공하는 실행 런타임으로 교체할 수 있습니다. 약 3.4GB의 Ollama 양자화 모델을 사용해 로컬과 AWS NVIDIA L4 24GB VM에서 같은 Planner 설정을 검증합니다.
+
 ## 🎯 담당 범위
 
 - Ops 분석 시험 및 최적 LLM 선정 흐름

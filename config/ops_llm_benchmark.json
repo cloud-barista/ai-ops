@@ -14,7 +14,7 @@
     "measurement_level": "prototype_policy_baseline",
     "requires_regeneration_for_final_report": true,
     "candidate_identity_policy": "Candidate names are role labels for prototype policy wiring, not verified provider benchmark claims.",
-    "actual_model_policy": "The model field is an internal role label. actual_model is a placeholder or a future linked LLM model name.",
+    "actual_model_policy": "The model field is an internal role label. The primary role is linked to qwen3.5:4b, while benchmark_status records whether quantitative execution has completed.",
     "benchmark_status_policy": "If benchmark_status is not_executed, selected_actual_model must not be claimed as a final benchmark-selected model.",
     "last_updated": "2026-06-25",
     "notes": [
@@ -55,12 +55,12 @@
   "candidates": [
     {
       "model": "primary-ops-llm",
-      "actual_model": "to-be-evaluated-primary-model",
+      "actual_model": "qwen3.5:4b",
       "provider": "prototype-policy",
       "evaluation_source": "prototype_policy_config",
       "evaluation_type": "prototype_policy_baseline",
       "benchmark_status": "not_executed",
-      "role": "primary Ops reasoning model for service-control decisions",
+      "role": "Qwen-based deployment planning model for service-control decisions",
       "correct_detection_runs": 12,
       "total_detection_runs": 12,
       "metric_success_runs": 11,
@@ -72,7 +72,7 @@
       "estimated_cost_per_1k_ops": 1.0,
       "average_latency_ms": 900,
       "notes": [
-        "Use as the default prototype policy candidate for 4-Agent Ops reasoning.",
+        "Use as the default Qwen candidate for AI application deployment planning.",
         "Highest score under quality_first policy."
       ]
     },

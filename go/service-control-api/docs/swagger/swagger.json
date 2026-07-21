@@ -711,7 +711,7 @@
                 },
                 "candidate_id": {
                     "type": "string",
-                    "example": "local-ollama-ops-llm"
+                    "example": "qwen3.5-ops-planner"
                 },
                 "max_poll_attempts": {
                     "type": "integer",
@@ -1080,7 +1080,7 @@
             "properties": {
                 "candidate_id": {
                     "type": "string",
-                    "example": "local-ollama-ops-llm"
+                    "example": "qwen3.5-ops-planner"
                 },
                 "observations": {
                     "type": "object",
@@ -1269,7 +1269,7 @@
                 },
                 "llm_candidate_id": {
                     "type": "string",
-                    "example": "local-ollama-ops-llm"
+                    "example": "qwen3.5-ops-planner"
                 },
                 "llm_candidates": {
                     "type": "string",

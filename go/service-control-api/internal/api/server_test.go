@@ -113,8 +113,8 @@ func TestSelectOpsLLM(t *testing.T) {
 	if !strings.Contains(response.Body.String(), `"selected_model":"primary-ops-llm"`) {
 		t.Fatalf("expected primary-ops-llm selection: %s", response.Body.String())
 	}
-	if !strings.Contains(response.Body.String(), `"selected_actual_model":"to-be-evaluated-primary-model"`) {
-		t.Fatalf("expected selected actual model placeholder: %s", response.Body.String())
+	if !strings.Contains(response.Body.String(), `"selected_actual_model":"qwen3.5:4b"`) {
+		t.Fatalf("expected Qwen as the selected actual model: %s", response.Body.String())
 	}
 	if !strings.Contains(response.Body.String(), `"benchmark_status":"not_executed"`) {
 		t.Fatalf("expected not_executed benchmark status: %s", response.Body.String())
@@ -481,8 +481,8 @@ func TestRunServiceOperationsEndpoint(t *testing.T) {
 	if !strings.Contains(response.Body.String(), `"guard_backend":"go"`) {
 		t.Fatalf("expected Go guard backend: %s", response.Body.String())
 	}
-	if !strings.Contains(response.Body.String(), `"selected_actual_model":"to-be-evaluated-primary-model"`) {
-		t.Fatalf("expected selected actual model placeholder: %s", response.Body.String())
+	if !strings.Contains(response.Body.String(), `"selected_actual_model":"qwen3.5:4b"`) {
+		t.Fatalf("expected Qwen as the selected actual model: %s", response.Body.String())
 	}
 	if !strings.Contains(response.Body.String(), `"benchmark_status":"not_executed"`) {
 		t.Fatalf("expected benchmark status: %s", response.Body.String())

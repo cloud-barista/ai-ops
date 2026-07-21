@@ -280,7 +280,7 @@ components:
           example: appver-llm-inference-v1
         candidate_id:
           type: string
-          example: local-ollama-ops-llm
+          example: qwen3.5-ops-planner
         target_profile_id:
           type: string
           description: Optional AppDeploy Target Profile hint.
@@ -535,7 +535,7 @@ components:
         workload: {type: string, example: llm-chat-inference}
         target_vm:
           $ref: "#/components/schemas/VMResourceSnapshot"
-        candidate_id: {type: string, example: local-ollama-ops-llm}
+        candidate_id: {type: string, example: qwen3.5-ops-planner}
         observations:
           type: object
           additionalProperties: true
@@ -606,7 +606,7 @@ components:
         vm_requirements: {type: string, example: config/vm_workload_requirements.json}
         llm_policy: {type: string, example: quality_first}
         llm_candidates: {type: string, example: config/ops_llm_eval_candidates.local_ollama.json}
-        llm_candidate_id: {type: string, example: local-ollama-ops-llm}
+        llm_candidate_id: {type: string, example: qwen3.5-ops-planner}
         workload: {type: string, example: llm-chat-inference}
         target_vm:
           $ref: "#/components/schemas/VMResourceSnapshot"

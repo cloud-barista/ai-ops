@@ -4,14 +4,15 @@
   "description": "Ollama is only a local example provider. This config is not an executed result by itself.",
   "candidates": [
     {
-      "candidate_id": "local-ollama-ops-llm",
+      "candidate_id": "qwen3.5-ops-planner",
       "role_label": "primary-ops-llm",
       "provider": "local-openai-compatible",
-      "actual_model": "llama3.2:3b",
+      "actual_model": "qwen3.5:4b",
       "endpoint": "http://127.0.0.1:11434/v1/chat/completions",
       "enabled": true,
       "json_mode": true,
-      "timeout_seconds": 60
+      "reasoning_effort": "none",
+      "timeout_seconds": 120
     }
   ]
 }

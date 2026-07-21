@@ -16,9 +16,9 @@
   },
   "generation": {
     "execution_status": "executed",
-    "candidate_id": "local-ollama-ops-llm",
+    "candidate_id": "qwen3.5-ops-planner",
     "provider": "openai-compatible-local-example",
-    "actual_model": "llama3.2:3b",
+    "actual_model": "qwen3.5:4b",
     "latency_ms": 842,
     "guard_valid": true,
     "guard_reason": "deployment manifest matches the AppDeploy contract and trusted request fields",

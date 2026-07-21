@@ -106,7 +106,7 @@ definitions:
         example: appver-llm-inference-v1
         type: string
       candidate_id:
-        example: local-ollama-ops-llm
+        example: qwen3.5-ops-planner
         type: string
       max_poll_attempts:
         example: 60
@@ -358,7 +358,7 @@ definitions:
   api.LLMAutomationActionRequest:
     properties:
       candidate_id:
-        example: local-ollama-ops-llm
+        example: qwen3.5-ops-planner
         type: string
       observations:
         additionalProperties: {}
@@ -485,7 +485,7 @@ definitions:
         example: go
         type: string
       llm_candidate_id:
-        example: local-ollama-ops-llm
+        example: qwen3.5-ops-planner
         type: string
       llm_candidates:
         example: config/ops_llm_eval_candidates.local_ollama.json

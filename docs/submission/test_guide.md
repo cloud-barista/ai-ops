@@ -79,7 +79,7 @@ go run ./cmd/aiops-service-control validate-system \
   --target vm \
   --run-llm-decision \
   --llm-decision-candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
-  --llm-decision-candidate-id local-ollama-ops-llm \
+  --llm-decision-candidate-id qwen3.5-ops-planner \
   --output-dir ../../runs/full-validation-vm-action
 ```
 

@@ -15,9 +15,9 @@
   },
   "decision": {
     "decision_execution_status": "executed",
-    "candidate_id": "local-ollama-ops-llm",
+    "candidate_id": "qwen3.5-ops-planner",
     "provider": "local-openai-compatible",
-    "actual_model": "llama3.2:3b",
+    "actual_model": "qwen3.5:4b",
     "latency_ms": 842,
     "proposal": {
       "action": "observe_status",

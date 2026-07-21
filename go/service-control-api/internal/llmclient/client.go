@@ -15,15 +15,16 @@ import (
 const maxResponseBytes = 4 << 20
 
 type Candidate struct {
-	CandidateID    string `json:"candidate_id"`
-	RoleLabel      string `json:"role_label"`
-	Provider       string `json:"provider"`
-	ActualModel    string `json:"actual_model"`
-	APIKeyEnv      string `json:"api_key_env"`
-	Endpoint       string `json:"endpoint"`
-	Enabled        bool   `json:"enabled"`
-	JSONMode       bool   `json:"json_mode,omitempty"`
-	TimeoutSeconds int    `json:"timeout_seconds"`
+	CandidateID     string `json:"candidate_id"`
+	RoleLabel       string `json:"role_label"`
+	Provider        string `json:"provider"`
+	ActualModel     string `json:"actual_model"`
+	APIKeyEnv       string `json:"api_key_env"`
+	Endpoint        string `json:"endpoint"`
+	Enabled         bool   `json:"enabled"`
+	JSONMode        bool   `json:"json_mode,omitempty"`
+	ReasoningEffort string `json:"reasoning_effort,omitempty"`
+	TimeoutSeconds  int    `json:"timeout_seconds"`
 }
 
 type CandidateConfig struct {
@@ -96,6 +97,9 @@ func (client Client) Complete(ctx context.Context, candidate Candidate, systemPr
 	}
 	if candidate.JSONMode {
 		requestBody["response_format"] = map[string]string{"type": "json_object"}
+	}
+	if strings.TrimSpace(candidate.ReasoningEffort) != "" {
+		requestBody["reasoning_effort"] = candidate.ReasoningEffort
 	}
 	body, err := json.Marshal(requestBody)
 	if err != nil {

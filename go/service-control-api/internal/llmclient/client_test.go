@@ -24,18 +24,22 @@ func TestClientCompleteCallsOpenAICompatibleEndpoint(t *testing.T) {
 		if !ok || responseFormat["type"] != "json_object" {
 			t.Fatalf("expected JSON response format, got %#v", body["response_format"])
 		}
+		if body["reasoning_effort"] != "none" {
+			t.Fatalf("expected reasoning_effort none, got %#v", body["reasoning_effort"])
+		}
 		writer.Header().Set("content-type", "application/json")
 		_, _ = writer.Write([]byte(`{"choices":[{"message":{"content":"{\"action\":\"observe_status\"}"}}]}`))
 	}))
 	defer server.Close()
 
 	result, err := NewClient(nil).Complete(context.Background(), Candidate{
-		CandidateID: "test",
-		Provider:    "test-provider",
-		ActualModel: "test-model",
-		Endpoint:    server.URL,
-		Enabled:     true,
-		JSONMode:    true,
+		CandidateID:     "test",
+		Provider:        "test-provider",
+		ActualModel:     "test-model",
+		Endpoint:        server.URL,
+		Enabled:         true,
+		JSONMode:        true,
+		ReasoningEffort: "none",
 	}, "system", "user")
 	if err != nil {
 		t.Fatalf("Complete returned error: %v", err)

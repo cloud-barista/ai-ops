@@ -269,6 +269,29 @@ func TestLoadLocalMultiOllamaCandidateConfig(t *testing.T) {
 	}
 }
 
+func TestLoadLatestQwenCandidateConfig(t *testing.T) {
+	config, err := loadCandidateConfig(filepath.Join("..", "..", "..", "..", "config", "ops_llm_eval_candidates.local_ollama.json"))
+	if err != nil {
+		t.Fatalf("loadCandidateConfig returned error: %v", err)
+	}
+	if len(config.Candidates) != 1 {
+		t.Fatalf("expected one primary Qwen candidate, got %d", len(config.Candidates))
+	}
+	candidate := config.Candidates[0]
+	if candidate.CandidateID != "qwen3.5-ops-planner" {
+		t.Fatalf("expected qwen3.5-ops-planner, got %q", candidate.CandidateID)
+	}
+	if candidate.ActualModel != "qwen3.5:4b" {
+		t.Fatalf("expected qwen3.5:4b, got %q", candidate.ActualModel)
+	}
+	if candidate.TimeoutSeconds < 120 {
+		t.Fatalf("expected at least 120 seconds for Qwen3.5 inference, got %d", candidate.TimeoutSeconds)
+	}
+	if !candidate.Enabled {
+		t.Fatal("expected the primary Qwen candidate to be enabled")
+	}
+}
+
 func readJSONL(t *testing.T, path string) []map[string]any {
 	t.Helper()
 
