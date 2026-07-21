@@ -25,6 +25,9 @@
         <button class="nav-item" type="button" data-view-target="agents" aria-label="Agents &amp; Guard">
           <i data-lucide="shield-check" aria-hidden="true"></i><span>Agents &amp; Guard</span>
         </button>
+        <button class="nav-item" type="button" data-view-target="autonomy" aria-label="Autonomous Loop">
+          <i data-lucide="repeat-2" aria-hidden="true"></i><span>Autonomous Loop</span>
+        </button>
         <button class="nav-item" type="button" data-view-target="feedback" aria-label="Feedback">
           <i data-lucide="activity" aria-hidden="true"></i><span>Feedback</span>
         </button>
@@ -183,6 +186,69 @@
             <pre class="json-output" id="action-json">아직 Action 결과가 없습니다.</pre>
           </section>
         </div>
+      </section>
+
+      <section class="view" data-view="autonomy" hidden>
+        <div class="view-heading autonomy-heading">
+          <div><p class="section-label">SLO · QWEN · GO GUARD · APPDEPLOY</p><h2>Autonomous Loop</h2></div>
+          <div class="autonomy-controls" aria-label="Autonomy loop controls">
+            <span class="status-badge" id="autonomy-loop-status" data-status="stopped">STOPPED</span>
+            <button class="button button-secondary" id="autonomy-start" type="button"><i data-lucide="play" aria-hidden="true"></i><span>Start</span></button>
+            <button class="button button-secondary" id="autonomy-stop" type="button"><i data-lucide="square" aria-hidden="true"></i><span>Stop</span></button>
+            <button class="button button-secondary" id="autonomy-run-cycle" type="button"><i data-lucide="rotate-cw" aria-hidden="true"></i><span>Run Cycle</span></button>
+            <button class="button button-danger" id="autonomy-emergency-stop" type="button"><i data-lucide="octagon-x" aria-hidden="true"></i><span>Emergency</span></button>
+          </div>
+        </div>
+
+        <div class="autonomy-layout">
+          <section class="panel form-panel" aria-labelledby="autonomy-policy-title">
+            <div class="panel-header"><div><p class="section-label">POLICY</p><h3 id="autonomy-policy-title">Loop Configuration</h3></div><span class="connection-label" id="autonomy-connection">AppDeploy -</span></div>
+            <form id="autonomy-form" class="form-grid autonomy-form">
+              <fieldset class="mode-control full">
+                <legend>Execution Mode</legend>
+                <label><input type="radio" name="mode" value="monitor_only" checked><span><i data-lucide="eye" aria-hidden="true"></i>Monitor Only</span></label>
+                <label><input type="radio" name="mode" value="guarded_auto"><span><i data-lucide="shield-check" aria-hidden="true"></i>Guarded Auto</span></label>
+              </fieldset>
+              <label class="field full"><span>Deployment ID</span><input name="deployment_id" placeholder="dep-..." required autocomplete="off"></label>
+              <label class="field"><span>Max Latency (ms)</span><input name="max_latency_ms" type="number" min="0" step="0.01" required></label>
+              <label class="field"><span>Min Throughput (RPS)</span><input name="min_throughput_rps" type="number" min="0" step="0.01" required></label>
+              <label class="field"><span>Max Error Rate</span><input name="max_error_rate" type="number" min="0" max="1" step="0.001" required></label>
+              <label class="field"><span>Poll Interval (sec)</span><input name="poll_interval_seconds" type="number" min="2" max="3600" required></label>
+              <label class="field"><span>Consecutive Violations</span><input name="consecutive_violations" type="number" min="1" max="10" required></label>
+              <label class="field"><span>Cooldown (sec)</span><input name="cooldown_seconds" type="number" min="0" max="86400" required></label>
+              <label class="field"><span>Max Actions</span><input name="max_actions_per_deployment" type="number" min="1" max="20" required></label>
+              <label class="field"><span>Max Metric Age (sec)</span><input name="max_metric_age_seconds" type="number" min="2" max="86400" required></label>
+              <label class="field full"><span>Standby Target Profile</span><input name="standby_target_profile_id" placeholder="target-standby-001" autocomplete="off"></label>
+              <label class="field full"><span>Rollback App Version</span><input name="rollback_app_version_id" placeholder="appver-previous" autocomplete="off"></label>
+              <div class="form-actions full"><button class="button button-primary" type="submit"><i data-lucide="save" aria-hidden="true"></i><span>Save Policy</span></button></div>
+            </form>
+          </section>
+
+          <section class="panel autonomy-observation" aria-labelledby="autonomy-observation-title">
+            <div class="panel-header"><div><p class="section-label">CURRENT OBSERVATION</p><h3 id="autonomy-observation-title">Runtime Evidence</h3></div><time id="autonomy-last-metric">-</time></div>
+            <div class="autonomy-metrics">
+              <div><span>Latency</span><strong id="autonomy-latency">-</strong><small>ms</small></div>
+              <div><span>Throughput</span><strong id="autonomy-throughput">-</strong><small>RPS</small></div>
+              <div><span>Error Rate</span><strong id="autonomy-error-rate">-</strong><small>ratio</small></div>
+            </div>
+            <dl class="result-facts autonomy-facts">
+              <div><dt>SLO Evaluation</dt><dd id="autonomy-evaluation-status">-</dd></div>
+              <div><dt>Consecutive</dt><dd id="autonomy-consecutive">0</dd></div>
+              <div><dt>Cooldown Until</dt><dd id="autonomy-cooldown">-</dd></div>
+              <div><dt>Action Budget</dt><dd id="autonomy-action-budget">0 / 0</dd></div>
+              <div><dt>Qwen Action</dt><dd id="autonomy-qwen-action">-</dd></div>
+              <div><dt>Confidence</dt><dd id="autonomy-qwen-confidence">-</dd></div>
+              <div><dt>Go Guard</dt><dd id="autonomy-guard-status">-</dd></div>
+              <div><dt>AppDeploy Result</dt><dd id="autonomy-execution-status">-</dd></div>
+            </dl>
+            <pre class="json-output autonomy-json" id="autonomy-latest-json">아직 실행 결과가 없습니다.</pre>
+          </section>
+        </div>
+
+        <section class="panel autonomy-timeline-panel" aria-labelledby="autonomy-timeline-title">
+          <div class="panel-header"><div><p class="section-label">LATEST 200 EVENTS</p><h3 id="autonomy-timeline-title">Decision Timeline</h3></div><button class="icon-button" id="autonomy-refresh" type="button" title="Autonomy 새로고침" aria-label="Autonomy 새로고침"><i data-lucide="refresh-cw" aria-hidden="true"></i></button></div>
+          <div class="autonomy-timeline" id="autonomy-timeline"><p class="empty-state">기록된 자율 제어 이벤트가 없습니다.</p></div>
+        </section>
       </section>
 
       <section class="view" data-view="feedback" hidden>

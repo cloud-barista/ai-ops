@@ -6,6 +6,13 @@ const API = Object.freeze({
   planner: "/api/v1/planner/deployments",
   actionProposals: "/api/v1/automation/action-proposals",
   feedback: "/api/v1/automation/feedback",
+  autonomyStatus: "/api/v1/autonomy/status",
+  autonomyConfig: "/api/v1/autonomy/config",
+  autonomyStart: "/api/v1/autonomy/start",
+  autonomyStop: "/api/v1/autonomy/stop",
+  autonomyEmergencyStop: "/api/v1/autonomy/emergency-stop",
+  autonomyCycles: "/api/v1/autonomy/cycles",
+  autonomyEvents: "/api/v1/autonomy/events",
 });
 
 const HISTORY_KEY = "geon-agent-control-history-v1";
@@ -14,6 +21,7 @@ const VIEW_LABELS = Object.freeze({
   overview: ["CONTROL PLANE", "운영 개요"],
   planner: ["QWEN TO APPDEPLOY", "Deployment Planner"],
   agents: ["AGENT REGISTRY AND GO GUARD", "Agents & Guard"],
+  autonomy: ["SLO TO GUARDED EXECUTION", "Autonomous Loop"],
   feedback: ["EXECUTION FEEDBACK", "Feedback"],
 });
 
@@ -21,6 +29,11 @@ const state = {
   agents: [],
   history: readHistory(),
   lastGuard: null,
+  activeView: "overview",
+  autonomyTimer: null,
+  autonomyConfigLoaded: false,
+  autonomyBusy: false,
+  autonomyStatus: null,
 };
 
 function byID(id) {
@@ -34,6 +47,11 @@ function text(value, fallback = "-") {
 
 function pretty(value) {
   return JSON.stringify(value, null, 2);
+}
+
+function displayTimestamp(value, fallback = "-") {
+  if (!value || String(value).startsWith("0001-01-01")) return fallback;
+  return new Date(value).toLocaleString("ko-KR", { hour12: false });
 }
 
 function parseList(value) {
@@ -138,6 +156,12 @@ function switchView(viewName) {
   });
   byID("view-eyebrow").textContent = labels[0];
   byID("view-title").textContent = labels[1];
+  state.activeView = viewName;
+  if (viewName === "autonomy") {
+    startAutonomyPolling();
+  } else {
+    stopAutonomyPolling();
+  }
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -458,11 +482,175 @@ async function submitFeedback(event) {
   }
 }
 
+function setAutonomyBusy(busy) {
+  state.autonomyBusy = busy;
+  const status = state.autonomyStatus || {};
+  byID("autonomy-start").disabled = busy || Boolean(status.running);
+  byID("autonomy-stop").disabled = busy || !status.running;
+  ["autonomy-run-cycle", "autonomy-emergency-stop", "autonomy-refresh"].forEach((id) => { byID(id).disabled = busy; });
+  const submit = byID("autonomy-form").querySelector('button[type="submit"]');
+  submit.disabled = busy || Boolean(status.running);
+}
+
+function syncAutonomyForm(config) {
+  if (!config) return;
+  const form = byID("autonomy-form");
+  const mode = form.querySelector(`input[name="mode"][value="${config.mode}"]`);
+  if (mode) mode.checked = true;
+  const values = {
+    deployment_id: config.deployment_id,
+    max_latency_ms: config.slo?.max_latency_ms,
+    min_throughput_rps: config.slo?.min_throughput_rps,
+    max_error_rate: config.slo?.max_error_rate,
+    poll_interval_seconds: config.poll_interval_seconds,
+    consecutive_violations: config.consecutive_violations,
+    cooldown_seconds: config.cooldown_seconds,
+    max_actions_per_deployment: config.max_actions_per_deployment,
+    max_metric_age_seconds: config.max_metric_age_seconds,
+    standby_target_profile_id: config.standby_target_profile_id,
+    rollback_app_version_id: config.rollback_app_version_id,
+  };
+  Object.entries(values).forEach(([name, value]) => {
+    if (form.elements[name]) form.elements[name].value = value ?? "";
+  });
+  state.autonomyConfigLoaded = true;
+}
+
+function renderAutonomyStatus(payload, forceFormSync = false) {
+  state.autonomyStatus = payload;
+  const runtime = payload.state || {};
+  const evaluation = runtime.last_evaluation || {};
+  const metric = evaluation.metric || {};
+  const decision = runtime.last_decision || {};
+  const guard = runtime.last_guard || {};
+  const execution = runtime.last_execution || {};
+  const config = payload.config || {};
+  const loopStatus = byID("autonomy-loop-status");
+  const loopLabel = payload.execution_locked ? "LOCKED" : payload.running ? "RUNNING" : "STOPPED";
+  loopStatus.textContent = loopLabel;
+  loopStatus.dataset.status = payload.execution_locked ? "blocked" : payload.running ? "running" : "stopped";
+  byID("autonomy-connection").textContent = payload.appdeploy_configured ? "AppDeploy connected" : "AppDeploy not configured";
+  byID("autonomy-connection").dataset.status = payload.appdeploy_configured ? "ok" : "offline";
+  byID("autonomy-last-metric").textContent = displayTimestamp(runtime.last_metric_timestamp, "No metric");
+  byID("autonomy-latency").textContent = metric.latency_ms === undefined ? "-" : Number(metric.latency_ms).toFixed(2);
+  byID("autonomy-throughput").textContent = metric.throughput_rps === undefined ? "-" : Number(metric.throughput_rps).toFixed(2);
+  const errorRate = metric.request_count > 0 ? Number(metric.error_count || 0) / Number(metric.request_count) : null;
+  byID("autonomy-error-rate").textContent = errorRate === null ? "-" : errorRate.toFixed(3);
+  byID("autonomy-evaluation-status").textContent = text(evaluation.status);
+  byID("autonomy-consecutive").textContent = String(runtime.consecutive_violations || 0);
+  byID("autonomy-cooldown").textContent = displayTimestamp(runtime.cooldown_until);
+  byID("autonomy-action-budget").textContent = `${runtime.automatic_action_count || 0} / ${config.max_actions_per_deployment || 0}`;
+  byID("autonomy-qwen-action").textContent = text(decision.action);
+  byID("autonomy-qwen-confidence").textContent = decision.confidence === undefined ? "-" : `${Math.round(Number(decision.confidence) * 100)}%`;
+  byID("autonomy-guard-status").textContent = text(guard.status);
+  byID("autonomy-execution-status").textContent = text(execution.status);
+  byID("autonomy-latest-json").textContent = pretty(payload.latest_event || { status: "no_event" });
+  byID("autonomy-start").disabled = state.autonomyBusy || Boolean(payload.running);
+  byID("autonomy-stop").disabled = state.autonomyBusy || !payload.running;
+  byID("autonomy-form").querySelector('button[type="submit"]').disabled = state.autonomyBusy || Boolean(payload.running);
+  if (forceFormSync || !state.autonomyConfigLoaded) syncAutonomyForm(config);
+}
+
+function renderAutonomyEvents(payload) {
+  const timeline = byID("autonomy-timeline");
+  const events = Array.isArray(payload.events) ? [...payload.events].reverse() : [];
+  timeline.replaceChildren();
+  if (events.length === 0) {
+    timeline.append(createElement("p", "empty-state", "기록된 자율 제어 이벤트가 없습니다."));
+    return;
+  }
+  events.forEach((entry) => {
+    const row = createElement("article", "timeline-event");
+    const timeElement = document.createElement("time");
+    timeElement.dateTime = entry.timestamp || "";
+    timeElement.textContent = entry.timestamp ? new Date(entry.timestamp).toLocaleTimeString("ko-KR", { hour12: false }) : "-";
+    const stage = createElement("span", "timeline-event-stage", text(entry.stage));
+    const body = createElement("div", "timeline-event-body");
+    const status = createElement("strong", "", text(entry.status));
+    status.dataset.status = String(entry.status || "").toLowerCase();
+    body.append(status, createElement("span", "", text(entry.reason)));
+    const details = document.createElement("details");
+    details.append(createElement("summary", "", "JSON"), createElement("pre", "", pretty(entry)));
+    row.append(timeElement, stage, body, details);
+    timeline.append(row);
+  });
+}
+
+async function loadAutonomy(forceFormSync = false) {
+  const [status, events] = await Promise.all([apiRequest(API.autonomyStatus), apiRequest(API.autonomyEvents)]);
+  renderAutonomyStatus(status, forceFormSync);
+  renderAutonomyEvents(events);
+  return status;
+}
+
+function stopAutonomyPolling() {
+  if (state.autonomyTimer) window.clearInterval(state.autonomyTimer);
+  state.autonomyTimer = null;
+}
+
+function startAutonomyPolling() {
+  stopAutonomyPolling();
+  void loadAutonomy().catch((error) => showToast(error.message, "error"));
+  state.autonomyTimer = window.setInterval(() => {
+    if (state.activeView !== "autonomy" || state.autonomyBusy) return;
+    void loadAutonomy().catch((error) => showToast(error.message, "error"));
+  }, 3000);
+}
+
+async function submitAutonomyConfig(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const data = new FormData(form);
+  const body = {
+    mode: data.get("mode"),
+    poll_interval_seconds: Number(data.get("poll_interval_seconds")),
+    consecutive_violations: Number(data.get("consecutive_violations")),
+    cooldown_seconds: Number(data.get("cooldown_seconds")),
+    max_actions_per_deployment: Number(data.get("max_actions_per_deployment")),
+    max_metric_age_seconds: Number(data.get("max_metric_age_seconds")),
+    deployment_id: String(data.get("deployment_id") || "").trim(),
+    standby_target_profile_id: String(data.get("standby_target_profile_id") || "").trim(),
+    rollback_app_version_id: String(data.get("rollback_app_version_id") || "").trim(),
+    slo: {
+      max_latency_ms: Number(data.get("max_latency_ms")),
+      min_throughput_rps: Number(data.get("min_throughput_rps")),
+      max_error_rate: Number(data.get("max_error_rate")),
+    },
+  };
+  setAutonomyBusy(true);
+  try {
+    const payload = await apiRequest(API.autonomyConfig, { method: "PUT", body: JSON.stringify(body) });
+    renderAutonomyStatus(payload, true);
+    showToast("Autonomy 정책을 저장했습니다.", "success");
+  } catch (error) {
+    showToast(error.message, "error");
+  } finally {
+    setAutonomyBusy(false);
+    await loadAutonomy().catch(() => {});
+  }
+}
+
+async function runAutonomyControl(path, successMessage) {
+  setAutonomyBusy(true);
+  try {
+    const payload = await apiRequest(path, { method: "POST" });
+    if (path === API.autonomyCycles) byID("autonomy-latest-json").textContent = pretty(payload);
+    showToast(successMessage, payload.status === "partial_failure" ? "warning" : "success");
+  } catch (error) {
+    showToast(error.message, "error");
+  } finally {
+    setAutonomyBusy(false);
+    await loadAutonomy().catch(() => {});
+  }
+}
+
 async function refreshDashboard() {
   const button = byID("refresh-button");
   button.disabled = true;
   try {
-    await Promise.all([loadHealth(), loadAgents()]);
+    const requests = [loadHealth(), loadAgents()];
+    if (state.activeView === "autonomy") requests.push(loadAutonomy());
+    await Promise.all(requests);
     byID("last-updated").textContent = new Date().toLocaleString("ko-KR", { hour12: false });
   } catch (error) {
     showToast(error.message, "error");
@@ -493,6 +681,24 @@ function bindEvents() {
   byID("action-form").addEventListener("submit", submitAction);
   byID("action-validation-form").addEventListener("submit", submitActionValidation);
   byID("feedback-form").addEventListener("submit", submitFeedback);
+  byID("autonomy-form").addEventListener("submit", submitAutonomyConfig);
+  byID("autonomy-start").addEventListener("click", () => runAutonomyControl(API.autonomyStart, "Autonomy loop를 시작했습니다."));
+  byID("autonomy-stop").addEventListener("click", () => runAutonomyControl(API.autonomyStop, "Autonomy loop를 중지했습니다."));
+  byID("autonomy-run-cycle").addEventListener("click", () => runAutonomyControl(API.autonomyCycles, "Autonomy cycle을 실행했습니다."));
+  byID("autonomy-emergency-stop").addEventListener("click", () => {
+    if (!window.confirm("Autonomy loop를 즉시 중지하고 Monitor Only로 전환할까요?")) return;
+    void runAutonomyControl(API.autonomyEmergencyStop, "Emergency Stop이 적용되었습니다.");
+  });
+  byID("autonomy-refresh").addEventListener("click", async () => {
+    setAutonomyBusy(true);
+    try {
+      await loadAutonomy();
+    } catch (error) {
+      showToast(error.message, "error");
+    } finally {
+      setAutonomyBusy(false);
+    }
+  });
   byID("agent-registration-form").addEventListener("submit", submitAgentRegistration);
   byID("open-agent-dialog").addEventListener("click", () => byID("agent-dialog").showModal());
   document.querySelectorAll("[data-close-dialog]").forEach((button) => {
@@ -508,6 +714,7 @@ function bindEvents() {
       }
     });
   });
+  window.addEventListener("beforeunload", stopAutonomyPolling);
 }
 
 async function initialize() {

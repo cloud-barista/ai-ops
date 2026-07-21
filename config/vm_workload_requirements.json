@@ -9,7 +9,9 @@
       "allowed_control_actions": [
         "deploy_application",
         "observe_status",
+        "scale_out_application",
         "restart_application",
+        "rollback_application",
         "stop_application"
       ],
       "requirement_source": "year1_vm_only_service_control_scope"
@@ -21,7 +23,9 @@
       "allowed_control_actions": [
         "deploy_application",
         "observe_status",
+        "scale_out_application",
         "restart_application",
+        "rollback_application",
         "stop_application"
       ],
       "requirement_source": "year1_vm_only_service_control_scope"

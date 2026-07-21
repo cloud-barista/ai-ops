@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: AI Service Control API
-  version: "0.3.0"
+  version: "0.4.0"
   description: >
     Go Echo contract for Ops LLM selection, actual LLM-based automation
     Action proposals, agent registry management, actual CPU/GPU VM
@@ -9,7 +9,7 @@ info:
     The Planner generates and validates a DeploymentManifest; AppDeploy selects
     the actual Target and performs deployment execution.
 servers:
-  - url: http://127.0.0.1:8080
+  - url: http://127.0.0.1:18080
 paths:
   /healthz:
     get:
@@ -252,6 +252,93 @@ paths:
                 additionalProperties: true
         "400":
           $ref: "#/components/responses/BadRequest"
+  /api/v1/autonomy/status:
+    get:
+      summary: Get guarded autonomous loop status
+      responses:
+        "200":
+          description: Loop configuration, runtime evidence, and latest decision state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutonomyStatus"
+  /api/v1/autonomy/config:
+    put:
+      summary: Replace guarded autonomous loop configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AutonomyConfig"
+      responses:
+        "200":
+          description: Updated loop status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutonomyStatus"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/autonomy/start:
+    post:
+      summary: Start the configured monitoring loop
+      responses:
+        "200":
+          description: Started or already-running loop status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutonomyStatus"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/autonomy/stop:
+    post:
+      summary: Stop the monitoring loop
+      responses:
+        "200":
+          description: Stopped loop status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutonomyStatus"
+  /api/v1/autonomy/emergency-stop:
+    post:
+      summary: Stop immediately and return to Monitor Only
+      responses:
+        "200":
+          description: Stopped Monitor Only status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutonomyStatus"
+  /api/v1/autonomy/cycles:
+    post:
+      summary: Run one serialized autonomy cycle
+      responses:
+        "200":
+          description: Observation, decision, guard, and optional execution result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutonomyCycleResult"
+  /api/v1/autonomy/events:
+    get:
+      summary: List the latest 200 autonomy events
+      responses:
+        "200":
+          description: Chronological autonomy events
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count: {type: integer}
+                  events:
+                    type: array
+                    maxItems: 200
+                    items:
+                      $ref: "#/components/schemas/AutonomyEvent"
 components:
   parameters:
     AgentName:
@@ -543,7 +630,7 @@ components:
       type: object
       required: [action, reason, confidence, required_capability, target_vm_id]
       properties:
-        action: {type: string, enum: [deploy_application, observe_status, restart_application, stop_application]}
+        action: {type: string, enum: [deploy_application, observe_status, scale_out_application, restart_application, rollback_application, stop_application]}
         reason: {type: string}
         confidence: {type: number, minimum: 0, maximum: 1}
         required_capability: {type: string, example: ai_application_deployment_control}
@@ -598,6 +685,67 @@ components:
         - type: object
           properties:
             received_at: {type: string, format: date-time}
+    AutonomySLOPolicy:
+      type: object
+      additionalProperties: false
+      required: [max_latency_ms, min_throughput_rps, max_error_rate]
+      properties:
+        max_latency_ms: {type: number, minimum: 0, example: 500}
+        min_throughput_rps: {type: number, minimum: 0, example: 1}
+        max_error_rate: {type: number, minimum: 0, maximum: 1, example: 0.05}
+    AutonomyConfig:
+      type: object
+      additionalProperties: false
+      required: [mode, poll_interval_seconds, consecutive_violations, cooldown_seconds, max_actions_per_deployment, max_metric_age_seconds, deployment_id, slo]
+      properties:
+        mode: {type: string, enum: [monitor_only, guarded_auto]}
+        poll_interval_seconds: {type: integer, minimum: 2, maximum: 3600}
+        consecutive_violations: {type: integer, minimum: 1, maximum: 10}
+        cooldown_seconds: {type: integer, minimum: 0, maximum: 86400}
+        max_actions_per_deployment: {type: integer, minimum: 1, maximum: 20}
+        max_metric_age_seconds: {type: integer, minimum: 2, maximum: 86400}
+        deployment_id: {type: string, example: dep-example}
+        standby_target_profile_id: {type: string}
+        rollback_app_version_id: {type: string}
+        slo:
+          $ref: "#/components/schemas/AutonomySLOPolicy"
+    AutonomyStatus:
+      type: object
+      properties:
+        running: {type: boolean}
+        execution_locked: {type: boolean}
+        appdeploy_configured: {type: boolean}
+        config:
+          $ref: "#/components/schemas/AutonomyConfig"
+        state:
+          type: object
+          additionalProperties: true
+        latest_event:
+          $ref: "#/components/schemas/AutonomyEvent"
+    AutonomyCycleResult:
+      type: object
+      properties:
+        cycle_id: {type: string}
+        status: {type: string}
+        reason: {type: string}
+        evaluation: {type: object, additionalProperties: true}
+        decision: {type: object, additionalProperties: true}
+        guard: {type: object, additionalProperties: true}
+        execution: {type: object, additionalProperties: true}
+    AutonomyEvent:
+      type: object
+      properties:
+        sequence: {type: integer, format: int64}
+        timestamp: {type: string, format: date-time}
+        cycle_id: {type: string}
+        deployment_id: {type: string}
+        stage: {type: string, enum: [monitor, slo, qwen, guard, execute, feedback, control]}
+        status: {type: string}
+        reason: {type: string}
+        evaluation: {type: object, additionalProperties: true}
+        decision: {type: object, additionalProperties: true}
+        guard: {type: object, additionalProperties: true}
+        execution: {type: object, additionalProperties: true}
     ServiceOperationsRequest:
       type: object
       required: [workload, target_vm]

@@ -74,6 +74,42 @@ func (client Client) GetDeploymentLogs(ctx context.Context, deploymentID string)
 	return response, err
 }
 
+func (client Client) ListDeployments(ctx context.Context) (DeploymentListResponse, error) {
+	var response DeploymentListResponse
+	err := client.doJSON(ctx, http.MethodGet, "/deployments", nil, &response)
+	if len(response.Items) == 0 && len(response.Deployments) > 0 {
+		response.Items = append([]DeploymentResponse(nil), response.Deployments...)
+	}
+	return response, err
+}
+
+func (client Client) ListDeploymentMetrics(ctx context.Context, deploymentID string) (DeploymentMetricsResponse, error) {
+	var response DeploymentMetricsResponse
+	if strings.TrimSpace(deploymentID) == "" {
+		return response, fmt.Errorf("deployment_id is required")
+	}
+	err := client.doJSON(ctx, http.MethodGet, "/deployments/"+url.PathEscape(deploymentID)+"/metrics", nil, &response)
+	if len(response.Items) == 0 && len(response.Metrics) > 0 {
+		response.Items = append([]InferenceMetricRecord(nil), response.Metrics...)
+	}
+	return response, err
+}
+
+func (client Client) GetMonitoringSummary(ctx context.Context) (MonitoringSummaryResponse, error) {
+	var response MonitoringSummaryResponse
+	err := client.doJSON(ctx, http.MethodGet, "/monitoring/summary", nil, &response)
+	return response, err
+}
+
+func (client Client) StopDeployment(ctx context.Context, deploymentID string) (DeploymentResponse, error) {
+	var response DeploymentResponse
+	if strings.TrimSpace(deploymentID) == "" {
+		return response, fmt.Errorf("deployment_id is required")
+	}
+	err := client.doJSON(ctx, http.MethodPost, "/deployments/"+url.PathEscape(deploymentID)+"/stop", nil, &response)
+	return response, err
+}
+
 func (client Client) doJSON(ctx context.Context, method string, path string, input any, output any) error {
 	if err := ctx.Err(); err != nil {
 		return err

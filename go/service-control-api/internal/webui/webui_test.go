@@ -79,6 +79,34 @@ func TestControlAppContainsOperationalViewsAndAPIContracts(t *testing.T) {
 	}
 }
 
+func TestControlAppContainsAutonomyView(t *testing.T) {
+	server := echo.New()
+	Register(server)
+
+	html := requestBody(t, server, "/")
+	for _, expected := range []string{
+		`data-view="autonomy"`, `id="autonomy-form"`, `name="mode"`,
+		`id="autonomy-start"`, `id="autonomy-stop"`, `id="autonomy-emergency-stop"`, `id="autonomy-run-cycle"`,
+		`id="autonomy-latency"`, `id="autonomy-throughput"`, `id="autonomy-error-rate"`,
+		`id="autonomy-qwen-action"`, `id="autonomy-guard-status"`, `id="autonomy-execution-status"`,
+		`id="autonomy-timeline"`,
+	} {
+		if !strings.Contains(html, expected) {
+			t.Fatalf("expected autonomy HTML contract %q", expected)
+		}
+	}
+
+	javascript := requestBody(t, server, "/assets/app.js")
+	for _, expected := range []string{
+		`/api/v1/autonomy/status`, `/api/v1/autonomy/config`, `/api/v1/autonomy/start`,
+		`/api/v1/autonomy/stop`, `/api/v1/autonomy/emergency-stop`, `/api/v1/autonomy/cycles`, `/api/v1/autonomy/events`,
+	} {
+		if !strings.Contains(javascript, expected) {
+			t.Fatalf("expected autonomy JavaScript route %q", expected)
+		}
+	}
+}
+
 func requestBody(t *testing.T, server *echo.Echo, path string) string {
 	t.Helper()
 	request := httptest.NewRequest(http.MethodGet, path, nil)

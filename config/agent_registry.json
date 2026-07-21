@@ -21,7 +21,9 @@
         "observe_deployment_status",
         "deploy_application",
         "observe_status",
+        "scale_out_application",
         "restart_application",
+        "rollback_application",
         "stop_application"
       ],
       "reward_signals": [

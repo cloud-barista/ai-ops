@@ -5,9 +5,12 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strconv"
 	"strings"
 	"testing"
+
+	"go.yaml.in/yaml/v3"
 )
 
 func TestHealthz(t *testing.T) {
@@ -23,6 +26,97 @@ func TestHealthz(t *testing.T) {
 	if !strings.Contains(response.Body.String(), `"service":"service-control-api"`) {
 		t.Fatalf("unexpected body: %s", response.Body.String())
 	}
+}
+
+func TestAutonomyAPIFlowWithoutAppDeploy(t *testing.T) {
+	server := NewServer(NewServerConfig())
+
+	status := performJSONRequest(t, server, http.MethodGet, "/api/v1/autonomy/status", "")
+	if status.Code != http.StatusOK || !strings.Contains(status.Body.String(), `"mode":"monitor_only"`) || !strings.Contains(status.Body.String(), `"appdeploy_configured":false`) {
+		t.Fatalf("unexpected default status: code=%d body=%s", status.Code, status.Body.String())
+	}
+
+	secretConfig := `{"mode":"monitor_only","deployment_id":"dep-1","secret_key":"forbidden"}`
+	rejected := performJSONRequest(t, server, http.MethodPut, "/api/v1/autonomy/config", secretConfig)
+	if rejected.Code != http.StatusBadRequest {
+		t.Fatalf("secret-shaped unknown field must be rejected: code=%d body=%s", rejected.Code, rejected.Body.String())
+	}
+
+	validConfig := `{
+		"mode":"monitor_only","poll_interval_seconds":2,"consecutive_violations":2,
+		"cooldown_seconds":120,"max_actions_per_deployment":3,"max_metric_age_seconds":60,
+		"deployment_id":"dep-1","standby_target_profile_id":"","rollback_app_version_id":"",
+		"slo":{"max_latency_ms":500,"min_throughput_rps":1,"max_error_rate":0.05}
+	}`
+	configured := performJSONRequest(t, server, http.MethodPut, "/api/v1/autonomy/config", validConfig)
+	if configured.Code != http.StatusOK || !strings.Contains(configured.Body.String(), `"deployment_id":"dep-1"`) {
+		t.Fatalf("unexpected config response: code=%d body=%s", configured.Code, configured.Body.String())
+	}
+
+	cycle := performJSONRequest(t, server, http.MethodPost, "/api/v1/autonomy/cycles", "")
+	if cycle.Code != http.StatusOK || !strings.Contains(cycle.Body.String(), `"status":"source_unavailable"`) {
+		t.Fatalf("unconfigured AppDeploy cycle must remain observable: code=%d body=%s", cycle.Code, cycle.Body.String())
+	}
+
+	started := performJSONRequest(t, server, http.MethodPost, "/api/v1/autonomy/start", "")
+	if started.Code != http.StatusOK || !strings.Contains(started.Body.String(), `"running":true`) {
+		t.Fatalf("unexpected start: code=%d body=%s", started.Code, started.Body.String())
+	}
+	startedAgain := performJSONRequest(t, server, http.MethodPost, "/api/v1/autonomy/start", "")
+	if startedAgain.Code != http.StatusOK || !strings.Contains(startedAgain.Body.String(), `"running":true`) {
+		t.Fatalf("start must be idempotent: code=%d body=%s", startedAgain.Code, startedAgain.Body.String())
+	}
+	stopped := performJSONRequest(t, server, http.MethodPost, "/api/v1/autonomy/stop", "")
+	if stopped.Code != http.StatusOK || !strings.Contains(stopped.Body.String(), `"running":false`) {
+		t.Fatalf("unexpected stop: code=%d body=%s", stopped.Code, stopped.Body.String())
+	}
+
+	guardedConfig := strings.Replace(validConfig, `"mode":"monitor_only"`, `"mode":"guarded_auto"`, 1)
+	if response := performJSONRequest(t, server, http.MethodPut, "/api/v1/autonomy/config", guardedConfig); response.Code != http.StatusOK {
+		t.Fatalf("configure guarded mode: code=%d body=%s", response.Code, response.Body.String())
+	}
+	emergency := performJSONRequest(t, server, http.MethodPost, "/api/v1/autonomy/emergency-stop", "")
+	if emergency.Code != http.StatusOK || !strings.Contains(emergency.Body.String(), `"mode":"monitor_only"`) {
+		t.Fatalf("emergency stop must reset mode: code=%d body=%s", emergency.Code, emergency.Body.String())
+	}
+	events := performJSONRequest(t, server, http.MethodGet, "/api/v1/autonomy/events", "")
+	if events.Code != http.StatusOK || !strings.Contains(events.Body.String(), `"source_unavailable"`) {
+		t.Fatalf("unexpected event list: code=%d body=%s", events.Code, events.Body.String())
+	}
+}
+
+func TestOpenAPIContractParsesAndContainsAutonomyRoutes(t *testing.T) {
+	config := NewServerConfig()
+	content, err := os.ReadFile(config.OpenAPIPath)
+	if err != nil {
+		t.Fatalf("read OpenAPI: %v", err)
+	}
+	var contract struct {
+		OpenAPI string                    `yaml:"openapi"`
+		Paths   map[string]map[string]any `yaml:"paths"`
+	}
+	if err := yaml.Unmarshal(content, &contract); err != nil {
+		t.Fatalf("parse OpenAPI YAML: %v", err)
+	}
+	if contract.OpenAPI != "3.0.3" {
+		t.Fatalf("unexpected OpenAPI version: %q", contract.OpenAPI)
+	}
+	for _, path := range []string{"/api/v1/autonomy/status", "/api/v1/autonomy/config", "/api/v1/autonomy/start", "/api/v1/autonomy/stop", "/api/v1/autonomy/emergency-stop", "/api/v1/autonomy/cycles", "/api/v1/autonomy/events"} {
+		if _, ok := contract.Paths[path]; !ok {
+			t.Fatalf("OpenAPI contract is missing %s", path)
+		}
+	}
+}
+
+func performJSONRequest(t *testing.T, server http.Handler, method string, path string, body string) *httptest.ResponseRecorder {
+	t.Helper()
+	request := httptest.NewRequest(method, path, strings.NewReader(body))
+	if body != "" {
+		request.Header.Set("Content-Type", "application/json")
+	}
+	response := httptest.NewRecorder()
+	server.ServeHTTP(response, request)
+	return response
 }
 
 func TestControlApp(t *testing.T) {

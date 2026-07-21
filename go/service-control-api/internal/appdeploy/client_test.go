@@ -106,3 +106,69 @@ func TestClientRejectsUnsafeBaseURL(t *testing.T) {
 		}
 	}
 }
+
+func TestClientMonitoringAndControlContract(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		writer.Header().Set("content-type", "application/json")
+		switch {
+		case request.Method == http.MethodGet && request.URL.Path == "/api/v1/deployments":
+			_, _ = writer.Write([]byte(`{
+				"request_id":"req-list",
+				"deployments":[{"deployment_id":"dep-1","app_version_id":"appver-1","target_profile_id":"target-gpu","status":"RUNNING"}]
+			}`))
+		case request.Method == http.MethodGet && request.URL.Path == "/api/v1/deployments/dep-1/metrics":
+			_, _ = writer.Write([]byte(`{
+				"request_id":"req-metrics",
+				"metrics":[{"metric_id":"metric-1","deployment_id":"dep-1","timestamp":"2026-07-21T03:00:00Z","latency_ms":820,"throughput_rps":0.7,"request_count":100,"error_count":8}]
+			}`))
+		case request.Method == http.MethodGet && request.URL.Path == "/api/v1/monitoring/summary":
+			_, _ = writer.Write([]byte(`{
+				"request_id":"req-summary","generated_at":"2026-07-21T03:00:01Z","status":"degraded",
+				"deployments":{"total":1,"active":1,"failed":0,"stopped":0,"by_status":{"RUNNING":1}},
+				"runtime_health":[{"target_profile_id":"target-gpu","status":"available","runtime_health":"ok","cpu_available":true,"memory_available":true,"gpu_available":true,"storage_available":true,"last_checked_at":"2026-07-21T03:00:00Z"}],
+				"alarms":[]
+			}`))
+		case request.Method == http.MethodPost && request.URL.Path == "/api/v1/deployments/dep-1/stop":
+			writer.WriteHeader(http.StatusAccepted)
+			_, _ = writer.Write([]byte(`{"request_id":"req-stop","deployment_id":"dep-1","status":"STOPPED"}`))
+		default:
+			http.NotFound(writer, request)
+		}
+	}))
+	defer server.Close()
+
+	client, err := NewClient(server.URL+"/api/v1", server.Client())
+	if err != nil {
+		t.Fatalf("new client: %v", err)
+	}
+
+	deployments, err := client.ListDeployments(context.Background())
+	if err != nil || len(deployments.Items) != 1 || deployments.Items[0].DeploymentID != "dep-1" {
+		t.Fatalf("unexpected deployments: %#v err=%v", deployments, err)
+	}
+	metrics, err := client.ListDeploymentMetrics(context.Background(), "dep-1")
+	if err != nil || len(metrics.Items) != 1 || metrics.Items[0].LatencyMS != 820 {
+		t.Fatalf("unexpected metrics: %#v err=%v", metrics, err)
+	}
+	summary, err := client.GetMonitoringSummary(context.Background())
+	if err != nil || summary.Status != "degraded" || len(summary.RuntimeHealth) != 1 {
+		t.Fatalf("unexpected summary: %#v err=%v", summary, err)
+	}
+	stopped, err := client.StopDeployment(context.Background(), "dep-1")
+	if err != nil || stopped.Status != "STOPPED" {
+		t.Fatalf("unexpected stop result: %#v err=%v", stopped, err)
+	}
+}
+
+func TestClientRejectsEmptyDeploymentIDForMonitoringAndControl(t *testing.T) {
+	client, err := NewClient("http://127.0.0.1:8080/api/v1", nil)
+	if err != nil {
+		t.Fatalf("new client: %v", err)
+	}
+	if _, err := client.ListDeploymentMetrics(context.Background(), " "); err == nil {
+		t.Fatal("expected metrics lookup to reject empty deployment_id")
+	}
+	if _, err := client.StopDeployment(context.Background(), " "); err == nil {
+		t.Fatal("expected stop to reject empty deployment_id")
+	}
+}

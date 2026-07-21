@@ -20,6 +20,7 @@ const (
 	pathDeploymentPlan = "/api/v1/apps/deployment-plan"
 	pathAutomationPlan = "/api/v1/automation/action-proposals"
 	pathAutomationFeed = "/api/v1/automation/feedback"
+	pathAutonomy       = "/api/v1/autonomy"
 	pathPlannerDeploy  = "/api/v1/planner/deployments"
 	pathServiceOpsRun  = "/api/v1/service-operations/run"
 )
@@ -82,6 +83,13 @@ func NewServer(config ServerConfig) *echo.Echo {
 	server.POST(pathDeploymentPlan, handler.RestPostDeploymentPlan)
 	server.POST(pathAutomationPlan, handler.RestPostLLMAutomationAction)
 	server.POST(pathAutomationFeed, handler.RestPostAutomationFeedback)
+	server.GET(pathAutonomy+"/status", handler.RestGetAutonomyStatus)
+	server.PUT(pathAutonomy+"/config", handler.RestPutAutonomyConfig)
+	server.POST(pathAutonomy+"/start", handler.RestPostAutonomyStart)
+	server.POST(pathAutonomy+"/stop", handler.RestPostAutonomyStop)
+	server.POST(pathAutonomy+"/emergency-stop", handler.RestPostAutonomyEmergencyStop)
+	server.POST(pathAutonomy+"/cycles", handler.RestPostAutonomyCycle)
+	server.GET(pathAutonomy+"/events", handler.RestGetAutonomyEvents)
 	server.POST(pathPlannerDeploy, handler.RestPostAppDeployPlanner)
 	server.POST(pathServiceOpsRun, handler.RestPostServiceOperationsRun)
 

@@ -10,7 +10,9 @@ import (
 	"sort"
 	"strings"
 
+	"kyunghee-aiops/service-control-api/internal/appdeploy"
 	"kyunghee-aiops/service-control-api/internal/automation"
+	"kyunghee-aiops/service-control-api/internal/autonomy"
 	"kyunghee-aiops/service-control-api/internal/llmclient"
 )
 
@@ -18,14 +20,25 @@ type Service struct {
 	config             ServerConfig
 	runtimeAgents      *runtimeAgentStore
 	automationFeedback *automationFeedbackStore
+	autonomyManager    *autonomy.Manager
 }
 
 func NewService(config ServerConfig) Service {
-	return Service{
+	service := Service{
 		config:             config,
 		runtimeAgents:      newRuntimeAgentStore(),
 		automationFeedback: newAutomationFeedbackStore(),
 	}
+	var control autonomy.AppDeployControl
+	if strings.TrimSpace(config.AppDeployBaseURL) != "" {
+		client, err := appdeploy.NewClient(config.AppDeployBaseURL, nil)
+		if err == nil {
+			control = client
+		}
+	}
+	planner := newAutonomyDecisionPlanner(config, automation.NewPlanner(llmclient.NewClient(nil)))
+	service.autonomyManager = autonomy.NewManager(control, planner, newAutonomyActionAuthorizer(config))
+	return service
 }
 
 func (service Service) ListAgents(ctx context.Context) (map[string]any, error) {

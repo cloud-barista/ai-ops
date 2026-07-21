@@ -144,6 +144,73 @@ curl http://127.0.0.1:18080/healthz
 - `AppDeploy base URL is required`: `AIOPS_APPDEPLOY_BASE_URL` 환경변수를 설정합니다.
 - AppDeploy 배포 요청 실패: App과 Target이 등록됐는지 먼저 확인합니다.
 
+### 7. Autonomous Loop 실행
+
+**Autonomous Loop**는 AppDeploy의 배포 상태와 추론 지표를 주기적으로 읽고, SLO 위반을 Qwen과 Go Guard로 판단한 뒤 설정된 모드에 따라 Action을 제안하거나 실행합니다.
+
+```text
+AppDeploy 상태·Metric
+→ SLO Evaluator
+→ Qwen bounded Action
+→ Agent Registry
+→ Go Guard
+→ Monitor Only: would_execute
+→ Guarded Auto: AppDeploy Action 1건
+→ cooldown · 다음 주기 재평가
+```
+
+서버를 재시작하면 Loop는 항상 `STOPPED`, 모드는 항상 `Monitor Only`로 초기화됩니다. Credential이나 Secret은 설정·프롬프트·이벤트에 포함할 수 없습니다.
+
+#### Monitor Only 안전 데모
+
+1. Agent Control에서 **Autonomous Loop**를 엽니다.
+2. 실행 중인 AppDeploy `deployment_id`와 SLO를 입력합니다.
+3. `Monitor Only`를 선택하고 **Save Policy**를 누릅니다.
+4. AppDeploy에 위반 Metric을 기록합니다.
+
+```bash
+curl -X POST http://127.0.0.1:8080/api/v1/deployments/DEPLOYMENT_ID/metrics \
+  -H "Content-Type: application/json" \
+  -d '{"latency_ms":900,"throughput_rps":0.5,"request_count":100,"error_count":8}'
+```
+
+5. 같은 조건을 확인할 수 있도록 새 Metric을 한 번 더 기록하고 **Run Cycle**을 두 번 실행합니다.
+6. Timeline에서 `violated → proposed → would_execute`를 확인합니다. Monitor Only에서는 AppDeploy 상태 변경 API를 호출하지 않습니다.
+
+REST API로 같은 정책을 등록할 수도 있습니다.
+
+```bash
+curl -X PUT http://127.0.0.1:18080/api/v1/autonomy/config \
+  -H "Content-Type: application/json" \
+  -d '{
+    "mode":"monitor_only",
+    "poll_interval_seconds":10,
+    "consecutive_violations":2,
+    "cooldown_seconds":120,
+    "max_actions_per_deployment":3,
+    "max_metric_age_seconds":60,
+    "deployment_id":"DEPLOYMENT_ID",
+    "standby_target_profile_id":"",
+    "rollback_app_version_id":"",
+    "slo":{"max_latency_ms":500,"min_throughput_rps":1,"max_error_rate":0.05}
+  }'
+
+curl -X POST http://127.0.0.1:18080/api/v1/autonomy/cycles
+curl http://127.0.0.1:18080/api/v1/autonomy/events
+```
+
+#### Guarded Auto 데모
+
+실제 비용이나 서비스 영향이 없는 AppDeploy Mock App·Mock Target으로 먼저 실행합니다. **Guarded Auto**를 저장한 뒤 Loop를 시작하거나 **Run Cycle**을 누르면, 신선한 증거·연속 위반·Agent Registry·Go Guard·cooldown·Action budget을 모두 통과한 Action 하나만 실행됩니다.
+
+- `restart_application`: 현재 Deployment를 중지하고 동일 Manifest로 새 Deployment를 요청합니다.
+- `rollback_application`: 명시한 `rollback_app_version_id`로만 교체합니다.
+- `scale_out_application`: 명시한 `standby_target_profile_id`에 추가 VM Deployment를 요청합니다.
+- `stop_application`: 현재 Deployment의 stop API를 호출합니다.
+- `observe_status`: 상태와 Metric만 다시 조회합니다.
+
+VM-only `scale_out_application`은 추가 Deployment 생성까지만 수행합니다. Load Balancer나 트래픽 분산은 포함하지 않으며 결과에 `traffic_handoff_required: true`가 표시됩니다. 중지 후 재생성에 실패한 `partial_failure`가 발생하면 자동 실행이 잠기고 모드는 Monitor Only로 돌아갑니다.
+
 AI service-control prototype의 Go 구현 모듈입니다. 이 모듈은 LLM 호출 전 Go Request Guard, 실제 LLM 기반 Deployment Manifest 생성, Go Manifest Guard, AppDeploy 요청·상태 추적, agent 등록과 bounded Action 검증을 제공합니다.
 
 ## 테스트 실행
@@ -218,6 +285,13 @@ go run ./cmd/aiops-service-control run-service-operations \
 | `POST` | `/api/v1/apps/deployment-plan` |
 | `POST` | `/api/v1/automation/action-proposals` |
 | `POST` | `/api/v1/automation/feedback` |
+| `GET` | `/api/v1/autonomy/status` |
+| `PUT` | `/api/v1/autonomy/config` |
+| `POST` | `/api/v1/autonomy/start` |
+| `POST` | `/api/v1/autonomy/stop` |
+| `POST` | `/api/v1/autonomy/emergency-stop` |
+| `POST` | `/api/v1/autonomy/cycles` |
+| `GET` | `/api/v1/autonomy/events` |
 | `POST` | `/api/v1/planner/deployments` |
 | `POST` | `/api/v1/service-operations/run` |
 

@@ -1,6 +1,9 @@
 package appdeploy
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 const (
 	ManifestSchemaVersion = "deployment.khu.ai/v1alpha1"
@@ -48,6 +51,70 @@ type DeploymentResponse struct {
 	CreatedAt       string             `json:"created_at,omitempty"`
 	UpdatedAt       string             `json:"updated_at,omitempty"`
 	Manifest        DeploymentManifest `json:"manifest,omitempty"`
+}
+
+type DeploymentListResponse struct {
+	RequestID   string               `json:"request_id,omitempty"`
+	Items       []DeploymentResponse `json:"items,omitempty"`
+	Deployments []DeploymentResponse `json:"deployments,omitempty"`
+}
+
+type InferenceMetricRecord struct {
+	RequestID     string         `json:"request_id,omitempty"`
+	MetricID      string         `json:"metric_id"`
+	DeploymentID  string         `json:"deployment_id"`
+	Timestamp     time.Time      `json:"timestamp"`
+	LatencyMS     float64        `json:"latency_ms,omitempty"`
+	ThroughputRPS float64        `json:"throughput_rps,omitempty"`
+	QualityScore  float64        `json:"quality_score,omitempty"`
+	RequestCount  int            `json:"request_count,omitempty"`
+	ErrorCount    int            `json:"error_count,omitempty"`
+	Metadata      map[string]any `json:"metadata,omitempty"`
+}
+
+type DeploymentMetricsResponse struct {
+	RequestID string                  `json:"request_id,omitempty"`
+	Items     []InferenceMetricRecord `json:"items,omitempty"`
+	Metrics   []InferenceMetricRecord `json:"metrics,omitempty"`
+}
+
+type MonitoringSummaryResponse struct {
+	RequestID     string                   `json:"request_id,omitempty"`
+	GeneratedAt   time.Time                `json:"generated_at"`
+	Status        string                   `json:"status"`
+	Deployments   DeploymentMonitorSummary `json:"deployments"`
+	RuntimeHealth []RuntimeHealthSnapshot  `json:"runtime_health"`
+	Alarms        []DeploymentAlarmSummary `json:"alarms"`
+}
+
+type DeploymentMonitorSummary struct {
+	Total    int            `json:"total"`
+	Active   int            `json:"active"`
+	Failed   int            `json:"failed"`
+	Stopped  int            `json:"stopped"`
+	ByStatus map[string]int `json:"by_status"`
+}
+
+type RuntimeHealthSnapshot struct {
+	TargetProfileID  string    `json:"target_profile_id"`
+	Status           string    `json:"status"`
+	RuntimeHealth    string    `json:"runtime_health"`
+	CPUAvailable     bool      `json:"cpu_available"`
+	MemoryAvailable  bool      `json:"memory_available"`
+	GPUAvailable     bool      `json:"gpu_available"`
+	StorageAvailable bool      `json:"storage_available"`
+	LastCheckedAt    time.Time `json:"last_checked_at"`
+}
+
+type DeploymentAlarmSummary struct {
+	Severity           string    `json:"severity"`
+	ErrorCode          string    `json:"error_code"`
+	Count              int       `json:"count"`
+	LatestDeploymentID string    `json:"latest_deployment_id"`
+	LatestStage        string    `json:"latest_stage"`
+	LatestMessage      string    `json:"latest_message"`
+	LatestAt           time.Time `json:"latest_at"`
+	Retryable          bool      `json:"retryable"`
 }
 
 type DeploymentLog struct {
