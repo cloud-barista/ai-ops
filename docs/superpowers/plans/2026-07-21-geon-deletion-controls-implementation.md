@@ -232,11 +232,11 @@ git commit -m "feat: expose protected geon deletion APIs"
 
 **Interfaces:**
 - Consumes: `DELETE /api/v1/agents/{name}` and `DELETE /api/v1/autonomy/events`
-- Produces: Runtime Agent trash controls, protected-Agent indicator, event clear control, confirmed local-history clear
+- Produces: Runtime Agent trash controls, no deletion control for Configuration Agents, event clear control, confirmed local-history clear
 
 - [ ] **Step 1: Write failing embedded UI contract tests**
 
-Require the HTML and JavaScript assets to contain `delete-agent`, `clear-autonomy-events`, `DELETE`, `/api/v1/autonomy/events`, and a protected configuration Agent label. Keep the checks behavioral enough to ensure handlers and controls are wired, not just descriptive text.
+Require the HTML and JavaScript assets to contain `delete-agent`, `clear-autonomy-events`, `DELETE`, and `/api/v1/autonomy/events`. Assert that Configuration Agent protection labels are absent.
 
 - [ ] **Step 2: Run web UI tests and verify RED**
 
@@ -250,7 +250,7 @@ Expected: FAIL because the new controls and handlers are absent.
 
 - [ ] **Step 3: Implement Agent deletion controls**
 
-Render a trash icon button only when `agent.source === "runtime"`. Use a lock icon and protected label for configuration Agents. Confirm with the Agent name, call DELETE, clear the selected Agent when needed, and reload the registry only after success.
+Render a trash icon button only when `agent.source === "runtime"`. Render no deletion control or protection label for Configuration Agents. Confirm with the Agent name, call DELETE, clear the selected Agent when needed, and reload the registry only after success.
 
 - [ ] **Step 4: Implement event and local-history clearing controls**
 
@@ -310,7 +310,7 @@ Register a disposable Runtime Agent, delete it, confirm it no longer appears, ru
 
 - [ ] **Step 4: Verify desktop and mobile UI**
 
-Confirm configuration Agents show protection, Runtime Agents show a trash control, Timeline clear works, confirmation dialogs appear, and there is no horizontal overflow at 1440x900 and 390x844.
+Confirm Configuration Agents show no deletion control, Runtime Agents show a trash control, Timeline clear works, confirmation dialogs appear, and there is no horizontal overflow at 1440x900 and 390x844.
 
 - [ ] **Step 5: Final repository check**
 

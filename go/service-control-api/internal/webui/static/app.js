@@ -241,14 +241,6 @@ function renderAgents() {
       deleteIcon.setAttribute("aria-hidden", "true");
       deleteButton.append(deleteIcon);
       manageCell.append(deleteButton);
-    } else {
-      const protectedLabel = createElement("span", "protected-label");
-      protectedLabel.title = "config/agent_registry.json에서 관리되는 핵심 Agent입니다.";
-      const lockIcon = document.createElement("i");
-      lockIcon.setAttribute("data-lucide", "lock-keyhole");
-      lockIcon.setAttribute("aria-hidden", "true");
-      protectedLabel.append(lockIcon, createElement("span", "", "설정 보호"));
-      manageCell.append(protectedLabel);
     }
     row.append(manageCell);
     tableBody.append(row);

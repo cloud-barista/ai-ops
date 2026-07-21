@@ -229,7 +229,7 @@ VM-only `scale_out_application`은 추가 Deployment 생성까지만 수행합�
 Agent Control의 삭제 기능은 geon이 소유한 시험 데이터에만 적용됩니다.
 
 - **Agents & Guard**의 휴지통 버튼은 웹/API로 등록한 `source=runtime` Agent만 삭제합니다.
-- `config/agent_registry.json`에서 읽은 Configuration Agent는 `설정 보호`로 표시되며 삭제할 수 없습니다.
+- `config/agent_registry.json`에서 읽은 Configuration Agent에는 삭제 버튼이 표시되지 않습니다.
 - **Decision Timeline**의 휴지통 버튼은 Autonomous Loop 이벤트만 비웁니다. Loop 설정, 상태, cooldown 및 Action budget은 유지됩니다.
 - **최근 제어 결과**의 기록 삭제는 현재 브라우저의 localStorage만 비웁니다.
 - AppDeploy App·Deployment·Runtime Profile·Target Profile과 CB-Tumblebug Infra·VM은 삭제하지 않습니다.

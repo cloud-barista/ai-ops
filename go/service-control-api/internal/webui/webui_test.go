@@ -135,6 +135,11 @@ func TestControlAppContainsGeonDeletionControls(t *testing.T) {
 			t.Fatalf("expected deletion JavaScript contract %q", expected)
 		}
 	}
+	for _, forbidden := range []string{`설정 보호`, `protected-label`} {
+		if strings.Contains(javascript, forbidden) {
+			t.Fatalf("configuration Agents must not render protection label %q", forbidden)
+		}
+	}
 }
 
 func requestBody(t *testing.T, server *echo.Echo, path string) string {

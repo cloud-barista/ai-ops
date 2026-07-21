@@ -1081,25 +1081,6 @@ th:nth-child(6) { width: 8%; }
   margin-left: auto;
 }
 
-.protected-label {
-  display: inline-flex;
-  min-height: 28px;
-  align-items: center;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--surface-muted);
-  padding: 0 9px;
-  color: var(--ink-muted);
-  font-size: 10px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.protected-label svg {
-  width: 13px;
-  height: 13px;
-}
-
 td code {
   font-family: Consolas, "SFMono-Regular", monospace;
   font-size: 10px;

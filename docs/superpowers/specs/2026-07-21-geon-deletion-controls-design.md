@@ -46,7 +46,7 @@ geon Agent Control에서 geon이 소유한 시험 데이터를 안전하게 삭�
 ### Agent Registry
 
 - Runtime Agent 행에만 Lucide trash 아이콘 버튼을 표시한다.
-- Configuration Agent에는 삭제 버튼 대신 잠금 상태를 표시한다.
+- Configuration Agent에는 삭제 버튼이나 별도의 보호 문구를 표시하지 않는다.
 - 삭제 전 Agent 이름을 포함한 확인창을 표시한다.
 - 성공 후 Agent 목록, Agent count 및 선택 상태를 다시 불러온다.
 - 현재 선택된 Agent를 삭제하면 상세 영역을 빈 상태로 전환한다.
