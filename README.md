@@ -14,6 +14,90 @@
 
 현재 기본 Planner 모델은 **Qwen 3.5 4B (`qwen3.5:4b`)**입니다. Go 구현은 OpenAI-compatible endpoint 계약을 사용하므로 Ollama, vLLM 또는 연구 서버는 Qwen을 제공하는 실행 런타임으로 교체할 수 있습니다. 약 3.4GB의 Ollama 양자화 모델을 사용해 로컬과 AWS NVIDIA L4 24GB VM에서 같은 Planner 설정을 검증합니다.
 
+## 🚀 geon Control Plane 빠른 실행
+
+geon Control Plane은 자연어 운영 요청을 Qwen으로 계획하고, Go Request Guard와 Go Manifest Guard로 검증한 뒤 AppDeploy에 전달합니다. 세 구성 요소는 별도 프로세스로 실행합니다.
+
+| 구성 요소 | 역할 | 기본 주소 |
+| --- | --- | --- |
+| Ollama | Qwen `qwen3.5:4b` 추론 | `http://127.0.0.1:11434/` |
+| AppDeploy | App/Target 등록과 실제 배포 실행 | `http://127.0.0.1:8080/` |
+| geon Agent Control | Agent Registry, Qwen 계획, Go Guard, 자동화 제어 | `http://127.0.0.1:18080/` |
+
+### 1. 사전 준비
+
+- Go 1.25 이상
+- Ollama와 Qwen `qwen3.5:4b`
+- AppDeploy 브랜치 저장소와 geon 브랜치 저장소
+
+Windows Git Bash에서 Go 경로와 Qwen 모델을 확인합니다.
+
+```bash
+export PATH="/c/Program Files/Go/bin:$PATH"
+go version
+
+ollama list
+ollama pull qwen3.5:4b  # 목록에 없을 때만 실행
+```
+
+Git Bash에서 `ollama`를 찾지 못하면 `"$HOME/AppData/Local/Programs/Ollama/ollama.exe"`를 사용합니다.
+
+### 2. AppDeploy 실행
+
+첫 번째 터미널에서 AppDeploy 저장소 경로를 지정합니다. 다른 위치에 복제했다면 `APPDEPLOY_ROOT`만 변경합니다.
+
+```bash
+export PATH="/c/Program Files/Go/bin:$PATH"
+export APPDEPLOY_ROOT="$HOME/ai-ops-AppDeployer"
+
+cd "$APPDEPLOY_ROOT/AppDeploy"
+go mod download
+go run ./cmd/web
+```
+
+### 3. geon Agent Control 실행
+
+두 번째 터미널에서 geon 저장소 경로를 지정합니다. 다른 위치에 복제했다면 `AIOPS_REPO_ROOT`만 변경합니다.
+
+```bash
+export PATH="/c/Program Files/Go/bin:$PATH"
+export AIOPS_REPO_ROOT="$HOME/ai-ops-geon"
+export AIOPS_LLM_CANDIDATES_PATH="config/ops_llm_eval_candidates.local_ollama.json"
+export AIOPS_PLANNER_GUARD_POLICY_PATH="config/planner_guard_policy.json"
+export AIOPS_APPDEPLOY_BASE_URL="http://127.0.0.1:8080/api/v1"
+export AIOPS_BIND_ADDRESS="127.0.0.1"
+export PORT=18080
+
+cd "$AIOPS_REPO_ROOT/go/service-control-api"
+go mod download
+go run ./cmd/service-control-api
+```
+
+### 4. 상태와 웹 화면 확인
+
+세 번째 터미널에서 확인합니다.
+
+```bash
+curl http://127.0.0.1:11434/api/tags
+curl http://127.0.0.1:8080/api/v1/healthz
+curl http://127.0.0.1:18080/healthz
+```
+
+- AppDeploy: `http://127.0.0.1:8080/`
+- geon Agent Control: `http://127.0.0.1:18080/`
+
+### 5. 첫 사용 순서
+
+1. AppDeploy에서 Mock Target을 등록합니다.
+2. 테스트 App을 등록하고 `app_version_id`를 복사합니다.
+3. geon의 **Agents & Guard**에서 Agent와 허용 Action을 확인합니다.
+4. **Deployment Planner**에 자연어 요청과 `app_version_id`를 입력합니다.
+5. **Generate & Deploy**를 실행합니다.
+6. Request Guard, Qwen 결과, Manifest Guard, AppDeploy 배포 상태와 로그를 확인합니다.
+7. 실행 결과는 **Feedback**, 자율 운영 판단은 **Autonomous Loop**에서 확인합니다.
+
+각 서버는 실행한 터미널에서 `Ctrl+C`로 종료합니다. Autonomous Loop, Guarded Auto, 기록 삭제와 문제 해결 절차는 [geon Agent Control 상세 실행 가이드](go/service-control-api/README.md#geon-agent-control-실행-가이드)를 참고합니다.
+
 ## 🎯 담당 범위
 
 - Ops 분석 시험 및 최적 LLM 선정 흐름
