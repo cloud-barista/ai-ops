@@ -42,12 +42,19 @@ Git Bash에서 `ollama: command not found`가 나오면 Windows 설치 경로의
 
 ### 2. AppDeploy 실행
 
-첫 번째 터미널에서 AppDeploy를 실행합니다. 아래 경로는 현재 개발 PC의 저장 위치 예시입니다.
+AppDeploy 저장소 내부에서 첫 번째 터미널을 열고 실행합니다. Git이 실제 저장소 루트를 자동으로 찾습니다.
 
 ```bash
 export PATH="/c/Program Files/Go/bin:$PATH"
-cd "$HOME/Documents/Codex/2026-07-09/new-chat/outputs/ai-ops-AppDeployer/AppDeploy"
-go run ./cmd/web
+export APPDEPLOY_ROOT="$(git rev-parse --show-toplevel)"
+
+if [[ -f "$APPDEPLOY_ROOT/AppDeploy/go.mod" ]]; then
+  cd "$APPDEPLOY_ROOT/AppDeploy"
+  go mod download
+  go run ./cmd/web
+else
+  echo "오류: AppDeploy 저장소 내부에서 이 명령을 실행하세요."
+fi
 ```
 
 다른 터미널에서 상태를 확인합니다.
@@ -60,19 +67,24 @@ curl http://127.0.0.1:8080/api/v1/healthz
 
 ### 3. geon Agent Control 실행
 
-두 번째 터미널에서 다음 명령을 실행합니다.
+geon 저장소 내부에서 두 번째 터미널을 열고 다음 명령을 실행합니다.
 
 ```bash
 export PATH="/c/Program Files/Go/bin:$PATH"
-export AIOPS_REPO_ROOT="$HOME/Documents/Kyunghee-aiops-go"
+export AIOPS_REPO_ROOT="$(git rev-parse --show-toplevel)"
 export AIOPS_LLM_CANDIDATES_PATH="config/ops_llm_eval_candidates.local_ollama.json"
 export AIOPS_PLANNER_GUARD_POLICY_PATH="config/planner_guard_policy.json"
 export AIOPS_APPDEPLOY_BASE_URL="http://127.0.0.1:8080/api/v1"
 export AIOPS_BIND_ADDRESS="127.0.0.1"
 export PORT=18080
 
-cd "$HOME/Documents/Kyunghee-aiops-go/go/service-control-api"
-go run ./cmd/service-control-api
+if [[ -f "$AIOPS_REPO_ROOT/go/service-control-api/go.mod" ]]; then
+  cd "$AIOPS_REPO_ROOT/go/service-control-api"
+  go mod download
+  go run ./cmd/service-control-api
+else
+  echo "오류: geon 저장소 내부에서 이 명령을 실행하세요."
+fi
 ```
 
 상태를 확인합니다.

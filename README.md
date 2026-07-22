@@ -44,33 +44,41 @@ Git Bash에서 `ollama`를 찾지 못하면 `"$HOME/AppData/Local/Programs/Ollam
 
 ### 2. AppDeploy 실행
 
-첫 번째 터미널에서 AppDeploy 저장소 경로를 지정합니다. 다른 위치에 복제했다면 `APPDEPLOY_ROOT`만 변경합니다.
+AppDeploy 저장소 내부에서 첫 번째 터미널을 엽니다. Git이 실제 저장소 루트를 자동으로 찾으므로 복제 위치나 폴더 이름을 수정할 필요가 없습니다.
 
 ```bash
 export PATH="/c/Program Files/Go/bin:$PATH"
-export APPDEPLOY_ROOT="$HOME/ai-ops-AppDeployer"
+export APPDEPLOY_ROOT="$(git rev-parse --show-toplevel)"
 
-cd "$APPDEPLOY_ROOT/AppDeploy"
-go mod download
-go run ./cmd/web
+if [[ -f "$APPDEPLOY_ROOT/AppDeploy/go.mod" ]]; then
+  cd "$APPDEPLOY_ROOT/AppDeploy"
+  go mod download
+  go run ./cmd/web
+else
+  echo "오류: AppDeploy 저장소 내부에서 이 명령을 실행하세요."
+fi
 ```
 
 ### 3. geon Agent Control 실행
 
-두 번째 터미널에서 geon 저장소 경로를 지정합니다. 다른 위치에 복제했다면 `AIOPS_REPO_ROOT`만 변경합니다.
+geon 저장소 내부에서 두 번째 터미널을 엽니다. 현재 Git 저장소 루트를 기준으로 설정과 Go 모듈을 찾습니다.
 
 ```bash
 export PATH="/c/Program Files/Go/bin:$PATH"
-export AIOPS_REPO_ROOT="$HOME/ai-ops-geon"
+export AIOPS_REPO_ROOT="$(git rev-parse --show-toplevel)"
 export AIOPS_LLM_CANDIDATES_PATH="config/ops_llm_eval_candidates.local_ollama.json"
 export AIOPS_PLANNER_GUARD_POLICY_PATH="config/planner_guard_policy.json"
 export AIOPS_APPDEPLOY_BASE_URL="http://127.0.0.1:8080/api/v1"
 export AIOPS_BIND_ADDRESS="127.0.0.1"
 export PORT=18080
 
-cd "$AIOPS_REPO_ROOT/go/service-control-api"
-go mod download
-go run ./cmd/service-control-api
+if [[ -f "$AIOPS_REPO_ROOT/go/service-control-api/go.mod" ]]; then
+  cd "$AIOPS_REPO_ROOT/go/service-control-api"
+  go mod download
+  go run ./cmd/service-control-api
+else
+  echo "오류: geon 저장소 내부에서 이 명령을 실행하세요."
+fi
 ```
 
 ### 4. 상태와 웹 화면 확인
