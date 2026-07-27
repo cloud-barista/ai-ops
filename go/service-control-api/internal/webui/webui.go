@@ -7,12 +7,13 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-//go:embed static/index.html static/app.css static/app.js
+//go:embed static/index.html static/app.css static/app.js static/manifest_stages.js
 var assets embed.FS
 
 func Register(server *echo.Echo) {
 	server.GET("/", serveEmbedded("static/index.html", "text/html; charset=utf-8"))
 	server.GET("/assets/app.css", serveEmbedded("static/app.css", "text/css; charset=utf-8"))
+	server.GET("/assets/manifest_stages.js", serveEmbedded("static/manifest_stages.js", "text/javascript; charset=utf-8"))
 	server.GET("/assets/app.js", serveEmbedded("static/app.js", "text/javascript; charset=utf-8"))
 }
 

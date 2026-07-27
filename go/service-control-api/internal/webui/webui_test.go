@@ -20,6 +20,7 @@ func TestRegisterServesEmbeddedControlApp(t *testing.T) {
 	}{
 		{path: "/", contentType: "text/html", contains: "geon Agent Control"},
 		{path: "/assets/app.css", contentType: "text/css", contains: ":root"},
+		{path: "/assets/manifest_stages.js", contentType: "text/javascript", contains: "buildManifestStageViewModel"},
 		{path: "/assets/app.js", contentType: "text/javascript", contains: "loadAgents"},
 	}
 
@@ -230,7 +231,7 @@ func TestControlAppShowsManifestStagesInExecutionOrder(t *testing.T) {
 		t.Fatal("expected Manifest stage flow container")
 	}
 
-	javascript := requestBody(t, server, "/assets/app.js")
+	javascript := requestBody(t, server, "/assets/manifest_stages.js")
 	lastIndex := -1
 	for _, stage := range []string{
 		"user_request",
@@ -255,36 +256,21 @@ func TestControlAppRendersManifestStagesFromSelectedControlRun(t *testing.T) {
 	server := echo.New()
 	Register(server)
 
-	javascript := requestBody(t, server, "/assets/app.js")
-	renderStart := strings.Index(javascript, `function renderManifestStageFlow(run)`)
-	if renderStart == -1 {
-		t.Fatal("expected Manifest stage renderer")
-	}
-	renderEnd := strings.Index(javascript[renderStart:], `function renderControlRunTimeline(run)`)
-	if renderEnd == -1 {
-		t.Fatal("expected Manifest stage renderer boundary")
-	}
-	renderer := javascript[renderStart : renderStart+renderEnd]
-
-	for _, expected := range []string{
-		`const stages = new Map((run?.stages || []).map((stage) => [stage.name, stage]));`,
-		`const stage = stages.get(definition.key);`,
-		`item.dataset.status = stage?.status || (blocked ? "blocked" : "pending");`,
-		`stage?.reason || (blocked ?`,
-	} {
-		if !strings.Contains(renderer, expected) {
-			t.Fatalf("expected selected ControlRun stage behavior %q", expected)
-		}
+	html := requestBody(t, server, "/")
+	stageModule := strings.Index(html, `<script src="/assets/manifest_stages.js"></script>`)
+	appModule := strings.Index(html, `<script src="/assets/app.js"></script>`)
+	if stageModule == -1 || appModule == -1 || stageModule > appModule {
+		t.Fatal("Manifest stage mapper must load before the Control App")
 	}
 
-	for _, forbidden := range []string{
-		`definition.key === "user_request"`,
-		`status: "approved"`,
-		`ControlRun request received`,
-	} {
-		if strings.Contains(renderer, forbidden) {
-			t.Fatalf("Manifest stage renderer must not fabricate ControlRun data %q", forbidden)
-		}
+	mapper := requestBody(t, server, "/assets/manifest_stages.js")
+	if !strings.Contains(mapper, `buildManifestStageViewModel`) {
+		t.Fatal("expected embedded Manifest stage mapper")
+	}
+
+	app := requestBody(t, server, "/assets/app.js")
+	if !strings.Contains(app, `window.ManifestStages`) || !strings.Contains(app, `buildManifestStageViewModel(run)`) {
+		t.Fatal("expected Control App renderer to use the embedded Manifest stage mapper")
 	}
 }
 

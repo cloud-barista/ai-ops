@@ -25,14 +25,7 @@ const VIEW_LABELS = Object.freeze({
   overview: ["WORKFLOW GUIDE", "Guide"],
 });
 
-const MANIFEST_STAGE_ORDER = Object.freeze([
-  { key: "user_request", label: "?ъ슜???붿껌" },
-  { key: "request_guard", label: "Request Guard" },
-  { key: "agent_registry", label: "Agent Registry" },
-  { key: "agent_dispatch", label: "Agent ?ㅽ뻾" },
-  { key: "qwen_planner", label: "Qwen Planner" },
-  { key: "manifest_guard", label: "Manifest Guard" },
-});
+const { buildManifestStageViewModel } = window.ManifestStages;
 
 const state = {
   agents: [],
@@ -264,18 +257,15 @@ function controlRunRows(payload) {
 
 function renderManifestStageFlow(run) {
   const flow = byID("manifest-stage-flow");
-  const stages = new Map((run?.stages || []).map((stage) => [stage.name, stage]));
-  const blocked = (run?.stages || []).some((stage) => stage.status === "rejected");
   flow.replaceChildren();
 
-  MANIFEST_STAGE_ORDER.forEach((definition, index) => {
-    const stage = stages.get(definition.key);
+  buildManifestStageViewModel(run).forEach((stage) => {
     const item = createElement("li", "manifest-stage");
-    item.dataset.status = stage?.status || (blocked ? "blocked" : "pending");
+    item.dataset.status = stage.status;
     item.append(
-      createElement("span", "manifest-stage-index", String(index + 1)),
-      createElement("strong", "", definition.label),
-      createElement("small", "", stage?.reason || (blocked ? "?댁쟾 ?④퀎?먯꽌 以묐떒" : "?湲?以?)),
+      createElement("span", "manifest-stage-index", String(stage.index)),
+      createElement("strong", "", stage.label),
+      createElement("small", "", stage.reason),
     );
     flow.append(item);
   });
