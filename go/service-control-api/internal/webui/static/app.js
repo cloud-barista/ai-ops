@@ -36,6 +36,7 @@ const state = {
   autonomyConfigLoaded: false,
   autonomyBusy: false,
   autonomyStatus: null,
+  activeExecutionAgent: "",
 };
 
 function byID(id) {
@@ -179,7 +180,7 @@ function renderAgents() {
   if (state.agents.length === 0) {
     const row = document.createElement("tr");
     const cell = createElement("td", "empty-cell", "등록된 Agent가 없습니다.");
-    cell.colSpan = 6;
+    cell.colSpan = 7;
     row.append(cell);
     tableBody.append(row);
     validation.append(new Option("등록 Agent 없음", ""));
@@ -192,6 +193,10 @@ function renderAgents() {
     nameCell.append(createElement("strong", "", text(agent.name)));
     if (agent.korean_name) nameCell.append(createElement("small", "table-subtitle", agent.korean_name));
     row.append(nameCell);
+    const source = createElement("span", "mini-badge", agent.source === "runtime" ? "external" : "internal");
+    const sourceCell = document.createElement("td");
+    sourceCell.append(source);
+    row.append(sourceCell);
     row.append(createElement("td", "", text(agent.role)));
     row.append(createElement("td", "", (agent.capabilities || []).join(", ") || "-"));
     row.append(createElement("td", "", (agent.bounded_actions || []).join(", ") || "-"));
@@ -202,6 +207,18 @@ function renderAgents() {
     row.append(statusCell);
     const manageCell = document.createElement("td");
     manageCell.className = "agent-manage-cell";
+    if (agent.enabled !== false) {
+      const executeButton = createElement("button", "icon-button");
+      executeButton.type = "button";
+      executeButton.setAttribute("data-execute-agent", text(agent.name));
+      executeButton.title = `${text(agent.name)} 실행`;
+      executeButton.setAttribute("aria-label", `${text(agent.name)} 실행`);
+      const executeIcon = document.createElement("i");
+      executeIcon.setAttribute("data-lucide", "play");
+      executeIcon.setAttribute("aria-hidden", "true");
+      executeButton.append(executeIcon);
+      manageCell.append(executeButton);
+    }
     if (agent.source === "runtime") {
       const deleteButton = createElement("button", "icon-button danger-icon");
       deleteButton.type = "button";
@@ -578,6 +595,7 @@ async function submitAgentRegistration(event) {
     responsibilities: ["Execute only approved bounded actions"],
     endpoint: data.get("endpoint"),
     invocation_path: data.get("invocation_path"),
+    auth_token_env: String(data.get("auth_token_env") || "").trim(),
     capabilities: parseList(data.get("capabilities")),
     bounded_actions: parseList(data.get("bounded_actions")),
     reward_signals: ["execution_success", "slo_recovery"],
@@ -590,6 +608,87 @@ async function submitAgentRegistration(event) {
     await loadAgents();
     showToast(`${payload.name} 등록 완료`, "success");
   } catch (error) {
+    showToast(error.message, "error");
+  } finally {
+    setBusy(form, false);
+  }
+}
+
+function openAgentExecution(agentName) {
+  const agent = state.agents.find((item) => item.name === agentName);
+  if (!agent) {
+    showToast("선택한 Agent를 찾을 수 없습니다.", "error");
+    return;
+  }
+  state.activeExecutionAgent = agent.name;
+  byID("agent-execution-agent").textContent = agent.name;
+  byID("agent-execution-source").textContent = agent.source === "runtime" ? "external" : "internal";
+  const status = byID("agent-execution-status");
+  status.textContent = "READY";
+  status.dataset.status = "pending";
+  byID("agent-execution-run-id").textContent = "-";
+  byID("agent-execution-result").textContent = "아직 Agent 실행 결과가 없습니다.";
+
+  const capability = byID("agent-execution-capability");
+  capability.replaceChildren();
+  (agent.capabilities || []).forEach((value) => capability.append(new Option(value, value)));
+  const action = byID("agent-execution-action");
+  action.replaceChildren();
+  (agent.bounded_actions || []).forEach((value) => action.append(new Option(value, value)));
+
+  const isManifestAgent = agent.name === "AIApplicationAutomationAgent";
+  if (isManifestAgent) {
+    capability.value = "deployment_manifest_planning";
+    action.value = "generate_deployment_manifest";
+    byID("agent-execution-input").value = pretty({
+      natural_language_request: "Mock 환경에서 CPU 1, 메모리 1Gi, GPU 0, 스토리지 1Gi인 AI 응용 배포 계획을 생성해 주세요.",
+      app_version_id: localStorage.getItem(APP_VERSION_KEY) || "appver-example",
+      candidate_id: "qwen3.5-ops-planner",
+      requested_by: "ai-ops-geon-planner",
+    });
+  } else {
+    byID("agent-execution-input").value = "{}";
+  }
+  byID("agent-execution-dialog").showModal();
+}
+
+async function submitAgentExecution(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const agentName = state.activeExecutionAgent;
+  let input;
+  try {
+    input = JSON.parse(byID("agent-execution-input").value || "{}");
+  } catch (_error) {
+    showToast("Input JSON 형식을 확인해 주세요.", "error");
+    return;
+  }
+  const body = {
+    capability: byID("agent-execution-capability").value,
+    action: byID("agent-execution-action").value,
+    input,
+    context: { requested_by: "geon-agent-control" },
+  };
+  setBusy(form, true, "실행 중...");
+  const status = byID("agent-execution-status");
+  status.textContent = "EXECUTING";
+  status.dataset.status = "pending";
+  try {
+    const payload = await apiRequest(
+      `${API.agents}/${encodeURIComponent(agentName)}/execute`,
+      { method: "POST", body: JSON.stringify(body) },
+    );
+    const executionStatus = text(payload.execution?.status, "completed");
+    status.textContent = executionStatus.toUpperCase();
+    status.dataset.status = executionStatus;
+    byID("agent-execution-run-id").textContent = text(payload.run_id);
+    byID("agent-execution-result").textContent = pretty(payload);
+    await loadControlRuns();
+    showToast(`Agent 실행 완료: ${executionStatus}`, executionStatus === "completed" ? "success" : "warning");
+  } catch (error) {
+    status.textContent = "FAILED";
+    status.dataset.status = "failed";
+    byID("agent-execution-result").textContent = pretty(error.payload || { message: error.message });
     showToast(error.message, "error");
   } finally {
     setBusy(form, false);
@@ -953,9 +1052,14 @@ function bindEvents() {
     void selectControlRun(selectButton.dataset.selectRun).catch((error) => showToast(error.message, "error"));
   });
   byID("agent-table-body").addEventListener("click", (event) => {
-    const button = event.target.closest("[data-delete-agent]");
-    if (!button) return;
-    void deleteRuntimeAgent(button.dataset.deleteAgent, button);
+    const executeButton = event.target.closest("[data-execute-agent]");
+    if (executeButton) {
+      openAgentExecution(executeButton.dataset.executeAgent);
+      return;
+    }
+    const deleteButton = event.target.closest("[data-delete-agent]");
+    if (!deleteButton) return;
+    void deleteRuntimeAgent(deleteButton.dataset.deleteAgent, deleteButton);
   });
   byID("planner-form").addEventListener("submit", submitPlanner);
   byID("planner-submit").addEventListener("click", () => void submitPlannerRun());
@@ -1001,6 +1105,7 @@ function bindEvents() {
     }
   });
   byID("agent-registration-form").addEventListener("submit", submitAgentRegistration);
+  byID("agent-execution-form").addEventListener("submit", submitAgentExecution);
   byID("open-agent-dialog").addEventListener("click", () => byID("agent-dialog").showModal());
   document.querySelectorAll("[data-close-dialog]").forEach((button) => {
     button.addEventListener("click", () => button.closest("dialog").close());

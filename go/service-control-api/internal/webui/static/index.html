@@ -182,8 +182,8 @@
           </div>
           <div class="table-wrap">
             <table>
-                <thead><tr><th>Agent</th><th>Role</th><th>Capabilities</th><th>Bounded Actions</th><th>Status</th><th>Manage</th></tr></thead>
-              <tbody id="agent-table-body"><tr><td colspan="6" class="empty-cell">Agent 정보를 불러오는 중입니다.</td></tr></tbody>
+                <thead><tr><th>Agent</th><th>Source</th><th>Role</th><th>Capabilities</th><th>Bounded Actions</th><th>Status</th><th>Manage</th></tr></thead>
+              <tbody id="agent-table-body"><tr><td colspan="7" class="empty-cell">Agent 정보를 불러오는 중입니다.</td></tr></tbody>
             </table>
           </div>
         </section>
@@ -346,10 +346,32 @@
         <label class="field full"><span>Role</span><input name="role" value="Execute bounded AI application control actions through AppDeploy." required></label>
         <label class="field"><span>Endpoint</span><input name="endpoint" type="url" value="http://127.0.0.1:8080" required></label>
         <label class="field"><span>Invocation Path</span><input name="invocation_path" value="/api/v1/deployments" required></label>
+        <label class="field full"><span>Auth Token Environment Variable</span><input name="auth_token_env" placeholder="EXTERNAL_AGENT_TOKEN"></label>
         <label class="field full"><span>Capabilities</span><input name="capabilities" value="ai_application_deployment_control" required></label>
         <label class="field full"><span>Bounded Actions</span><input name="bounded_actions" value="deploy_application, observe_status, restart_application, stop_application" required></label>
       </div>
       <div class="dialog-footer"><button class="button button-secondary" type="button" data-close-dialog>취소</button><button class="button button-primary" type="submit"><i data-lucide="plus" aria-hidden="true"></i><span>등록</span></button></div>
+    </form>
+  </dialog>
+
+  <dialog id="agent-execution-dialog">
+    <form id="agent-execution-form" class="dialog-card">
+      <div class="dialog-header"><div><p class="section-label">GUARDED DISPATCH</p><h2>Agent 실행</h2></div><button class="icon-button" type="button" data-close-dialog aria-label="닫기"><i data-lucide="x" aria-hidden="true"></i></button></div>
+      <div class="dialog-body agent-execution-body">
+        <div class="agent-execution-meta">
+          <div><span>Agent</span><strong id="agent-execution-agent">-</strong></div>
+          <div><span>Source</span><strong id="agent-execution-source">-</strong></div>
+          <div><span>Status</span><strong class="status-badge" id="agent-execution-status" data-status="pending">READY</strong></div>
+          <div><span>ControlRun</span><code id="agent-execution-run-id">-</code></div>
+        </div>
+        <div class="form-grid">
+          <label class="field"><span>Capability</span><select name="capability" id="agent-execution-capability" required></select></label>
+          <label class="field"><span>Bounded Action</span><select name="action" id="agent-execution-action" required></select></label>
+          <label class="field full"><span>Input JSON</span><textarea name="input_json" id="agent-execution-input" rows="9" required>{}</textarea></label>
+        </div>
+        <pre class="json-output tall" id="agent-execution-result">아직 Agent 실행 결과가 없습니다.</pre>
+      </div>
+      <div class="dialog-footer"><button class="button button-secondary" type="button" data-close-dialog>닫기</button><button class="button button-primary" type="submit"><i data-lucide="play" aria-hidden="true"></i><span>실행</span></button></div>
     </form>
   </dialog>
 

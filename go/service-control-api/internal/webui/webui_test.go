@@ -305,6 +305,43 @@ func TestControlAppContainsGeonDeletionControls(t *testing.T) {
 	}
 }
 
+func TestControlAppContainsGuardedAgentExecution(t *testing.T) {
+	server := echo.New()
+	Register(server)
+
+	html := requestBody(t, server, "/")
+	for _, expected := range []string{
+		`id="agent-execution-dialog"`,
+		`id="agent-execution-form"`,
+		`id="agent-execution-agent"`,
+		`id="agent-execution-capability"`,
+		`id="agent-execution-action"`,
+		`id="agent-execution-input"`,
+		`id="agent-execution-result"`,
+		`id="agent-execution-run-id"`,
+		`name="auth_token_env"`,
+		`>Source</th>`,
+	} {
+		if !strings.Contains(html, expected) {
+			t.Fatalf("expected Agent execution HTML contract %q", expected)
+		}
+	}
+
+	javascript := requestBody(t, server, "/assets/app.js")
+	for _, expected := range []string{
+		`data-execute-agent`,
+		`openAgentExecution`,
+		`submitAgentExecution`,
+		`/execute`,
+		`auth_token_env`,
+		`loadControlRuns`,
+	} {
+		if !strings.Contains(javascript, expected) {
+			t.Fatalf("expected Agent execution JavaScript contract %q", expected)
+		}
+	}
+}
+
 func requestBody(t *testing.T, server *echo.Echo, path string) string {
 	t.Helper()
 	request := httptest.NewRequest(http.MethodGet, path, nil)

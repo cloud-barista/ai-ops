@@ -23,6 +23,29 @@ func (service Service) ExecuteAgent(
 	agentName string,
 	request AgentExecutionRequest,
 ) (AgentExecutionResponse, error) {
+	if agent, err := service.ShowAgent(ctx, agentName); err == nil &&
+		agent.Source == agentSourceConfiguration &&
+		agent.Name == "AIApplicationAutomationAgent" &&
+		request.Capability == capabilityDeploymentManifestPlanning &&
+		request.Action == actionGenerateDeploymentManifest {
+		manifestRequest, decodeErr := decodeManifestAgentInput(request.Input)
+		if decodeErr == nil {
+			manifestRequest.AgentName = agent.Name
+			run, runErr := service.CreateControlRun(ctx, manifestRequest)
+			response := manifestAgentExecutionResponse(agent, request, run)
+			if runErr != nil {
+				switch run.Status {
+				case controlrun.StatusRequestRejected, controlrun.StatusAgentRejected:
+					return response, fmt.Errorf("%w: %v", errAgentExecutionUnauthorized, runErr)
+				case controlrun.StatusManifestRejected:
+					return response, fmt.Errorf("%w: %v", errAgentExecutionResultRejected, runErr)
+				default:
+					return response, fmt.Errorf("%w: %v", errAgentExecutionUpstream, runErr)
+				}
+			}
+			return response, nil
+		}
+	}
 	return service.ExecuteAgentWithDispatcher(ctx, agentName, request, service.agentDispatcher)
 }
 
@@ -213,4 +236,54 @@ func controlRunAgentExecution(
 		Message:          execution.Message,
 		DomainValidation: execution.DomainValidation,
 	}
+}
+
+func manifestAgentExecutionResponse(
+	agent AgentProfile,
+	request AgentExecutionRequest,
+	run controlrun.Run,
+) AgentExecutionResponse {
+	response := AgentExecutionResponse{
+		RequestID:     "req-" + strings.TrimPrefix(run.RunID, "run-"),
+		RunID:         run.RunID,
+		SelectedAgent: agent,
+		RequestGuard: GuardDecision{
+			Valid:  run.RequestGuard.Valid,
+			Status: run.RequestGuard.Status,
+			Reason: run.RequestGuard.Reason,
+		},
+		Execution: AgentExecutionResult{
+			RunID:  run.RunID,
+			Agent:  agent.Name,
+			Status: "rejected",
+			Proposal: AgentProposal{
+				Action: request.Action,
+			},
+			DomainValidation: "manifest_guard",
+		},
+		ResultGuard: rejectedGuardDecision("DeploymentManifest did not pass Go Manifest Guard"),
+	}
+	if run.Execution != nil {
+		response.Execution.Status = run.Execution.Status
+		response.Execution.LatencyMS = run.Execution.LatencyMS
+		response.Execution.Result = run.Execution.Result
+		response.Execution.Evidence = run.Execution.Evidence
+		response.Execution.Message = run.Execution.Message
+		response.Execution.DomainValidation = run.Execution.DomainValidation
+	}
+	if run.Manifest.Kind != "" {
+		manifest := run.Manifest
+		generation := run.Generation
+		response.Execution.Manifest = &manifest
+		response.Execution.Generation = &generation
+	}
+	if run.Status == controlrun.StatusManifestApproved {
+		response.Execution.Status = "completed"
+		response.ResultGuard = GuardDecision{
+			Valid:  true,
+			Status: "approved",
+			Reason: "DeploymentManifest passed Go Manifest Guard",
+		}
+	}
+	return response
 }

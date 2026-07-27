@@ -1338,19 +1338,23 @@ td {
   font-size: 12px;
 }
 
-th:nth-child(1) { width: 20%; }
-th:nth-child(2) { width: 12%; }
-th:nth-child(3) { width: 22%; }
-th:nth-child(4) { width: 29%; }
-th:nth-child(5) { width: 9%; }
+th:nth-child(1) { width: 17%; }
+th:nth-child(2) { width: 8%; }
+th:nth-child(3) { width: 12%; }
+th:nth-child(4) { width: 20%; }
+th:nth-child(5) { width: 26%; }
 th:nth-child(6) { width: 8%; }
+th:nth-child(7) { width: 9%; }
 
 .agent-manage-cell {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
   text-align: right;
 }
 
 .agent-manage-cell .icon-button {
-  margin-left: auto;
+  flex: 0 0 auto;
 }
 
 td code {
@@ -1507,6 +1511,44 @@ dialog::backdrop {
 
 .dialog-body {
   overflow-y: auto;
+}
+
+.agent-execution-body {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+}
+
+.agent-execution-meta {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--line);
+}
+
+.agent-execution-meta > div {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+  background: #ffffff;
+  padding: 10px 12px;
+}
+
+.agent-execution-meta span {
+  color: var(--ink-muted);
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.agent-execution-meta strong,
+.agent-execution-meta code {
+  overflow: hidden;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .dialog-footer {

@@ -85,6 +85,60 @@ func TestExecuteRuntimeAgentRecordsApprovedControlRun(t *testing.T) {
 	}
 }
 
+func TestExecuteInternalManifestAgentReturnsApprovedManifestControlRun(t *testing.T) {
+	provider, closeProvider := automationProvider(t, `{
+  "schema_version":"deployment.khu.ai/v1alpha1",
+  "kind":"DeploymentManifest",
+  "metadata":{"name":"llm-service"},
+  "spec":{
+    "app_version_id":"appver-001",
+    "accelerator":"none",
+    "resources":{"cpu":"2","memory":"4Gi","gpu":"0","storage":"10Gi"}
+  }
+}`)
+	defer closeProvider()
+
+	config := NewServerConfig()
+	config.LLMCandidatesPath = writeAutomationCandidateConfig(t, provider)
+	service := NewService(config)
+
+	response, err := service.ExecuteAgent(
+		context.Background(),
+		"AIApplicationAutomationAgent",
+		AgentExecutionRequest{
+			Capability: capabilityDeploymentManifestPlanning,
+			Action:     actionGenerateDeploymentManifest,
+			Input: map[string]any{
+				"natural_language_request": "Deploy an inference application with CPU 2 and memory 4Gi.",
+				"app_version_id":           "appver-001",
+				"candidate_id":             "decision-model",
+				"requested_by":             "ai-ops-geon-planner",
+			},
+		},
+	)
+	if err != nil {
+		t.Fatalf("execute internal Manifest Agent: %v", err)
+	}
+	if !response.RequestGuard.Valid || !response.ResultGuard.Valid {
+		t.Fatalf("internal Manifest Agent guards were not approved: %#v", response)
+	}
+	if response.Execution.Manifest == nil ||
+		response.Execution.Manifest.Spec.AppVersionID != "appver-001" ||
+		response.Execution.DomainValidation != "manifest_guard" {
+		t.Fatalf("guarded Manifest execution result is incomplete: %#v", response.Execution)
+	}
+
+	run, ok := service.GetControlRun(response.RunID)
+	if !ok || run.Status != controlrun.StatusManifestApproved {
+		t.Fatalf("internal Agent did not use the Manifest ControlRun: %#v", run)
+	}
+	if run.SelectedAgent.Name != "AIApplicationAutomationAgent" ||
+		run.Execution == nil ||
+		run.Execution.GuardStatus != "approved" {
+		t.Fatalf("Manifest ControlRun Agent evidence is incomplete: %#v", run)
+	}
+}
+
 func TestExecuteRuntimeAgentStopsBeforeDispatchWhenGuardRejects(t *testing.T) {
 	service := NewService(NewServerConfig())
 	registerRuntimeExecutionAgent(t, service)
