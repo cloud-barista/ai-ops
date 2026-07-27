@@ -4,12 +4,11 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
 
 	"kyunghee-aiops/service-control-api/internal/appdeploy"
+	"kyunghee-aiops/service-control-api/internal/controlrun"
 	"kyunghee-aiops/service-control-api/internal/deploymentplanner"
 	"kyunghee-aiops/service-control-api/internal/llmclient"
-	"kyunghee-aiops/service-control-api/internal/plannerguard"
 )
 
 func (service Service) RunAppDeployPlanner(ctx context.Context, request AppDeployPlannerRequest) (deploymentplanner.Response, error) {
@@ -38,59 +37,58 @@ func (service Service) RunAppDeployPlannerWithConfig(
 	if strings.TrimSpace(request.RequestedBy) == "" {
 		request.RequestedBy = "ai-ops-geon-planner"
 	}
-	policy, err := plannerguard.LoadPolicy(guardPolicyPath)
-	if err != nil {
-		return deploymentplanner.Response{}, err
-	}
-	requestGuard := plannerguard.ValidateRequest(plannerguard.Request{
+	run, err := service.CreateControlRunWithDependencies(ctx, CreateControlRunRequest{
 		NaturalLanguageRequest: request.NaturalLanguageRequest,
 		AppVersionID:           request.AppVersionID,
 		CandidateID:            request.CandidateID,
+		TargetProfileID:        request.TargetProfileID,
 		RequestedBy:            request.RequestedBy,
+		AgentName:              request.AgentName,
 		Parameters:             request.Parameters,
-	}, policy)
-	if !requestGuard.Valid {
-		return deploymentplanner.Response{
-			Status:       "REQUEST_REJECTED",
-			RequestGuard: requestGuard,
-		}, fmt.Errorf("go request guard rejected the deployment request: %s", requestGuard.Reason)
-	}
-	candidates, err := llmclient.LoadCandidateConfig(candidatesPath)
+	}, candidatesPath, guardPolicyPath, deploymentplanner.NewGenerator(llmclient.NewClient(nil)))
+	response := plannerResponseFromControlRun(run)
 	if err != nil {
-		return deploymentplanner.Response{}, err
-	}
-	candidate, err := llmclient.FindEnabledCandidate(candidates, request.CandidateID)
-	if err != nil {
-		return deploymentplanner.Response{}, err
+		return response, err
 	}
 	deployer, err := appdeploy.NewClient(appDeployBaseURL, nil)
 	if err != nil {
-		return deploymentplanner.Response{}, err
+		failed, failErr := service.failControlRunSubmission(run.RunID, err)
+		return plannerResponseFromControlRun(failed), failErr
 	}
-	pollInterval := time.Duration(request.PollIntervalMS) * time.Millisecond
-	if request.PollIntervalMS == 0 {
-		pollInterval = time.Second
-	}
-	maxPollAttempts := request.MaxPollAttempts
-	if maxPollAttempts == 0 {
-		maxPollAttempts = 60
-	}
-	planner := deploymentplanner.NewPlanner(
-		deploymentplanner.NewGenerator(llmclient.NewClient(nil)),
-		deployer,
-	)
-	result, err := planner.PlanAndDeploy(ctx, deploymentplanner.Request{
-		Candidate: candidate,
-		GenerateInput: deploymentplanner.GenerateInput{
-			NaturalLanguageRequest: request.NaturalLanguageRequest,
-			AppVersionID:           request.AppVersionID,
-			TargetProfileID:        request.TargetProfileID,
-			RequestedBy:            request.RequestedBy,
-			Parameters:             request.Parameters,
-		},
-		PollInterval:    pollInterval,
-		MaxPollAttempts: maxPollAttempts,
-	})
-	result.RequestGuard = requestGuard
+	submitted, result, err := service.submitControlRunWithDeployerResult(ctx, run.RunID, SubmitControlRunRequest{
+		PollIntervalMS:  request.PollIntervalMS,
+		MaxPollAttempts: request.MaxPollAttempts,
+	}, deployer)
+	result.RunID = submitted.RunID
+	result.RequestGuard = submitted.RequestGuard
+	result.Generation = submitted.Generation
+	result.Manifest = submitted.Manifest
 	return result, err
+}
+
+func plannerResponseFromControlRun(run controlrun.Run) deploymentplanner.Response {
+	result := deploymentplanner.Response{
+		RunID:            run.RunID,
+		Valid:            run.Status == controlrun.StatusDeployed,
+		Status:           string(run.Status),
+		RequestGuard:     run.RequestGuard,
+		Generation:       run.Generation,
+		Manifest:         run.Manifest,
+		Logs:             append([]appdeploy.DeploymentLog(nil), run.Logs...),
+		RetryRecommended: run.RetryRecommended,
+		RetryReason:      run.RetryReason,
+	}
+	if run.Deployment != nil {
+		result.Deployment = *run.Deployment
+		if run.Deployment.Status != "" {
+			result.Status = run.Deployment.Status
+		}
+	}
+	if run.Polling != nil {
+		result.Polling = *run.Polling
+	}
+	if run.Status == controlrun.StatusDeployed {
+		result.Status = "RUNNING"
+	}
+	return result
 }

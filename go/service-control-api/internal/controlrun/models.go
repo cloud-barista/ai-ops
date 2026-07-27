@@ -49,20 +49,22 @@ type Stage struct {
 }
 
 type Run struct {
-	RunID          string                           `json:"run_id"`
-	Status         Status                           `json:"status"`
-	CreatedAt      time.Time                        `json:"created_at"`
-	UpdatedAt      time.Time                        `json:"updated_at"`
-	Request        SafeRequest                      `json:"request"`
-	RequestGuard   plannerguard.Decision            `json:"request_guard"`
-	SelectedAgent  AgentSelection                   `json:"selected_agent"`
-	Generation     deploymentplanner.GenerateResult `json:"generation"`
-	Manifest       appdeploy.DeploymentManifest     `json:"manifest"`
-	Deployment     *appdeploy.DeploymentResponse    `json:"deployment,omitempty"`
-	Polling        *deploymentplanner.PollingResult `json:"polling,omitempty"`
-	Logs           []appdeploy.DeploymentLog        `json:"logs,omitempty"`
-	CorrelationIDs []string                         `json:"correlation_ids,omitempty"`
-	Stages         []Stage                          `json:"stages"`
+	RunID            string                           `json:"run_id"`
+	Status           Status                           `json:"status"`
+	CreatedAt        time.Time                        `json:"created_at"`
+	UpdatedAt        time.Time                        `json:"updated_at"`
+	Request          SafeRequest                      `json:"request"`
+	RequestGuard     plannerguard.Decision            `json:"request_guard"`
+	SelectedAgent    AgentSelection                   `json:"selected_agent"`
+	Generation       deploymentplanner.GenerateResult `json:"generation"`
+	Manifest         appdeploy.DeploymentManifest     `json:"manifest"`
+	Deployment       *appdeploy.DeploymentResponse    `json:"deployment,omitempty"`
+	Polling          *deploymentplanner.PollingResult `json:"polling,omitempty"`
+	Logs             []appdeploy.DeploymentLog        `json:"logs,omitempty"`
+	RetryRecommended bool                             `json:"retry_recommended,omitempty"`
+	RetryReason      string                           `json:"retry_reason,omitempty"`
+	CorrelationIDs   []string                         `json:"correlation_ids,omitempty"`
+	Stages           []Stage                          `json:"stages"`
 }
 
 type CreateInput struct {

@@ -19,6 +19,12 @@ type controlRunManifestGenerator interface {
 	Generate(context.Context, llmclient.Candidate, deploymentplanner.GenerateInput) (deploymentplanner.GenerateResult, error)
 }
 
+type controlRunDeploymentClient interface {
+	CreateDeployment(context.Context, appdeploy.DeploymentManifest) (appdeploy.DeploymentResponse, error)
+	GetDeployment(context.Context, string) (appdeploy.DeploymentResponse, error)
+	GetDeploymentLogs(context.Context, string) (appdeploy.DeploymentLogsResponse, error)
+}
+
 func (service Service) ListControlRuns() []controlrun.Run {
 	return service.controlRuns.List()
 }
@@ -33,6 +39,167 @@ func (service Service) DeleteControlRun(runID string) (controlrun.Run, bool) {
 
 func (service Service) ClearControlRuns() int {
 	return service.controlRuns.Clear()
+}
+
+func (service Service) SubmitControlRun(
+	ctx context.Context,
+	runID string,
+	request SubmitControlRunRequest,
+) (controlrun.Run, error) {
+	client, err := appdeploy.NewClient(service.config.AppDeployBaseURL, nil)
+	if err != nil {
+		return service.failControlRunSubmission(runID, err)
+	}
+	return service.SubmitControlRunWithDeployer(ctx, runID, request, client)
+}
+
+func (service Service) SubmitControlRunWithDeployer(
+	ctx context.Context,
+	runID string,
+	request SubmitControlRunRequest,
+	deployer controlRunDeploymentClient,
+) (controlrun.Run, error) {
+	run, result, err := service.submitControlRunWithDeployerResult(ctx, runID, request, deployer)
+	if err != nil {
+		return run, err
+	}
+	if !result.Valid {
+		return run, fmt.Errorf("AppDeploy did not reach a successful terminal state: %s", result.Status)
+	}
+	return run, nil
+}
+
+func (service Service) submitControlRunWithDeployerResult(
+	ctx context.Context,
+	runID string,
+	request SubmitControlRunRequest,
+	deployer controlRunDeploymentClient,
+) (controlrun.Run, deploymentplanner.Response, error) {
+	if err := ensureContext(ctx); err != nil {
+		return controlrun.Run{}, deploymentplanner.Response{}, err
+	}
+	runID = normalizeControlRunID(runID)
+	run, ok := service.controlRuns.Get(runID)
+	if !ok {
+		return controlrun.Run{}, deploymentplanner.Response{}, fmt.Errorf("ControlRun was not found: %s", runID)
+	}
+	if run.Status != controlrun.StatusManifestApproved && run.Status != controlrun.StatusAppDeployFailed {
+		return run, deploymentplanner.Response{}, fmt.Errorf("ControlRun status %s cannot be submitted", run.Status)
+	}
+
+	registry, err := loadAgentRegistry(service.config.path("config", "agent_registry.json"))
+	if err != nil {
+		return run, deploymentplanner.Response{}, err
+	}
+	selection, err := resolvePlannerAgent(registry, run.SelectedAgent.Name, actionSubmitDeploymentManifest)
+	if err != nil {
+		run, updateErr := service.controlRuns.Update(runID, func(run *controlrun.Run) error {
+			run.Stages = append(run.Stages, completedControlRunStage(
+				"agent_registry_submit",
+				"rejected",
+				err.Error(),
+				map[string]any{"agent": run.SelectedAgent.Name, "action": actionSubmitDeploymentManifest},
+			))
+			return nil
+		})
+		if updateErr != nil {
+			return run, deploymentplanner.Response{}, updateErr
+		}
+		return run, deploymentplanner.Response{}, err
+	}
+	run, err = service.controlRuns.Update(runID, func(run *controlrun.Run) error {
+		run.Status = controlrun.StatusSubmitting
+		run.Stages = append(run.Stages, completedControlRunStage(
+			"agent_registry_submit",
+			"approved",
+			selection.Reason,
+			map[string]any{"agent": selection.Name, "action": selection.Action},
+		))
+		return nil
+	})
+	if err != nil {
+		return run, deploymentplanner.Response{}, err
+	}
+
+	pollInterval := time.Duration(request.PollIntervalMS) * time.Millisecond
+	if request.PollIntervalMS == 0 {
+		pollInterval = time.Second
+	}
+	maxPollAttempts := request.MaxPollAttempts
+	if maxPollAttempts == 0 {
+		maxPollAttempts = 60
+	}
+	planner := deploymentplanner.NewPlanner(nil, deployer)
+	result, deployErr := planner.DeployApprovedManifest(ctx, deploymentplanner.DeployRequest{
+		Manifest:        run.Manifest,
+		PollInterval:    pollInterval,
+		MaxPollAttempts: maxPollAttempts,
+	})
+	success := deployErr == nil && result.Valid
+	stageStatus := "approved"
+	stageReason := "AppDeploy accepted the approved Manifest and reached RUNNING"
+	runStatus := controlrun.StatusDeployed
+	if !success {
+		stageStatus = "rejected"
+		stageReason = result.Status
+		runStatus = controlrun.StatusAppDeployFailed
+		if deployErr != nil {
+			stageReason = deployErr.Error()
+		}
+	}
+	run, err = service.controlRuns.Update(runID, func(run *controlrun.Run) error {
+		run.Status = runStatus
+		run.Polling = &result.Polling
+		run.Logs = append([]appdeploy.DeploymentLog(nil), result.Logs...)
+		run.RetryRecommended = result.RetryRecommended
+		run.RetryReason = result.RetryReason
+		if result.Deployment.DeploymentID != "" || result.Deployment.Status != "" {
+			deployment := result.Deployment
+			run.Deployment = &deployment
+		}
+		run.Stages = append(run.Stages, completedControlRunStage(
+			"appdeploy_submit",
+			stageStatus,
+			stageReason,
+			map[string]any{
+				"deployment_id": result.Deployment.DeploymentID,
+				"status":        result.Status,
+			},
+		))
+		return nil
+	})
+	if err != nil {
+		return run, result, err
+	}
+	if deployErr != nil {
+		return run, result, deployErr
+	}
+	return run, result, nil
+}
+
+func (service Service) failControlRunSubmission(runID string, cause error) (controlrun.Run, error) {
+	runID = normalizeControlRunID(runID)
+	run, ok := service.controlRuns.Get(runID)
+	if !ok {
+		return controlrun.Run{}, fmt.Errorf("ControlRun was not found: %s", runID)
+	}
+	if run.Status != controlrun.StatusManifestApproved && run.Status != controlrun.StatusAppDeployFailed {
+		return run, fmt.Errorf("ControlRun status %s cannot be submitted", run.Status)
+	}
+	run, err := service.controlRuns.Update(runID, func(run *controlrun.Run) error {
+		run.Status = controlrun.StatusAppDeployFailed
+		run.Stages = append(run.Stages, completedControlRunStage(
+			"appdeploy_submit",
+			"rejected",
+			cause.Error(),
+			nil,
+		))
+		return nil
+	})
+	if err != nil {
+		return run, err
+	}
+	return run, cause
 }
 
 func (service Service) CreateControlRun(ctx context.Context, request CreateControlRunRequest) (controlrun.Run, error) {

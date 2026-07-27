@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -17,6 +18,43 @@ type fakeControlRunManifestGenerator struct {
 	calls  int
 	result deploymentplanner.GenerateResult
 	err    error
+}
+
+type fakeControlRunDeploymentClient struct {
+	createResult appdeploy.DeploymentResponse
+	createErr    error
+	statuses     []appdeploy.DeploymentResponse
+	statusIndex  int
+	logs         appdeploy.DeploymentLogsResponse
+}
+
+func (client *fakeControlRunDeploymentClient) CreateDeployment(
+	context.Context,
+	appdeploy.DeploymentManifest,
+) (appdeploy.DeploymentResponse, error) {
+	return client.createResult, client.createErr
+}
+
+func (client *fakeControlRunDeploymentClient) GetDeployment(
+	context.Context,
+	string,
+) (appdeploy.DeploymentResponse, error) {
+	if len(client.statuses) == 0 {
+		return appdeploy.DeploymentResponse{}, errors.New("no status configured")
+	}
+	index := client.statusIndex
+	if index >= len(client.statuses) {
+		index = len(client.statuses) - 1
+	}
+	client.statusIndex++
+	return client.statuses[index], nil
+}
+
+func (client *fakeControlRunDeploymentClient) GetDeploymentLogs(
+	context.Context,
+	string,
+) (appdeploy.DeploymentLogsResponse, error) {
+	return client.logs, nil
 }
 
 func (generator *fakeControlRunManifestGenerator) Generate(
@@ -139,6 +177,127 @@ func TestCreateControlRunRecordsManifestGuardRejection(t *testing.T) {
 	}
 }
 
+func TestSubmitControlRunDeploysApprovedManifest(t *testing.T) {
+	config := NewServerConfig()
+	service := NewService(config)
+	run := createApprovedControlRun(t, service, config)
+	deployer := &fakeControlRunDeploymentClient{
+		createResult: appdeploy.DeploymentResponse{DeploymentID: "dep-001", Status: "REQUESTED"},
+		statuses: []appdeploy.DeploymentResponse{{
+			DeploymentID:    "dep-001",
+			Status:          "RUNNING",
+			TargetProfileID: "target-appdeploy-selected",
+		}},
+		logs: appdeploy.DeploymentLogsResponse{Items: []appdeploy.DeploymentLog{{
+			DeploymentID: "dep-001",
+			Stage:        "RUNNING",
+			Message:      "ready",
+		}}},
+	}
+
+	submitted, err := service.SubmitControlRunWithDeployer(
+		context.Background(),
+		run.RunID,
+		SubmitControlRunRequest{PollIntervalMS: 1, MaxPollAttempts: 2},
+		deployer,
+	)
+	if err != nil {
+		t.Fatalf("submit ControlRun: %v", err)
+	}
+	if submitted.Status != controlrun.StatusDeployed || submitted.Deployment == nil {
+		t.Fatalf("unexpected submitted Run: %#v", submitted)
+	}
+	if submitted.Deployment.DeploymentID != "dep-001" ||
+		submitted.Deployment.TargetProfileID != "target-appdeploy-selected" ||
+		len(submitted.Logs) != 1 {
+		t.Fatalf("AppDeploy result was not attached: %#v", submitted)
+	}
+	if submitted.Manifest.Spec.AppVersionID != "appver-001" {
+		t.Fatalf("approved Manifest was lost: %#v", submitted.Manifest)
+	}
+}
+
+func TestSubmitControlRunRejectsInvalidState(t *testing.T) {
+	config := NewServerConfig()
+	service := NewService(config)
+	run := createApprovedControlRun(t, service, config)
+	deployer := &fakeControlRunDeploymentClient{
+		createResult: appdeploy.DeploymentResponse{DeploymentID: "dep-001", Status: "RUNNING"},
+		logs:         appdeploy.DeploymentLogsResponse{},
+	}
+	submitted, err := service.SubmitControlRunWithDeployer(
+		context.Background(),
+		run.RunID,
+		SubmitControlRunRequest{},
+		deployer,
+	)
+	if err != nil {
+		t.Fatalf("first submit: %v", err)
+	}
+	if _, err := service.SubmitControlRunWithDeployer(
+		context.Background(),
+		submitted.RunID,
+		SubmitControlRunRequest{},
+		deployer,
+	); err == nil {
+		t.Fatal("expected deployed Run resubmission to fail")
+	}
+}
+
+func TestSubmitControlRunRequiresRegistrySubmitPermission(t *testing.T) {
+	config := NewServerConfig()
+	config.RepoRoot = writePlannerRegistryRoot(t, AgentProfile{
+		Name:           "ManifestPlanner",
+		Enabled:        true,
+		Capabilities:   []string{capabilityDeploymentManifestPlanning},
+		BoundedActions: []string{actionGenerateDeploymentManifest},
+	})
+	service := NewService(config)
+	request := validCreateControlRunRequest()
+	request.AgentName = "ManifestPlanner"
+	generator := &fakeControlRunManifestGenerator{result: approvedGenerateResult("appver-001")}
+	run, err := service.CreateControlRunWithDependencies(
+		context.Background(),
+		request,
+		writeAutomationCandidateConfig(t, "http://unused.example.test"),
+		NewServerConfig().PlannerGuardPolicyPath,
+		generator,
+	)
+	if err != nil {
+		t.Fatalf("create approved Run: %v", err)
+	}
+
+	if _, err := service.SubmitControlRunWithDeployer(
+		context.Background(),
+		run.RunID,
+		SubmitControlRunRequest{},
+		&fakeControlRunDeploymentClient{},
+	); err == nil {
+		t.Fatal("expected missing submit_deployment_manifest permission to fail")
+	}
+}
+
+func TestSubmitControlRunPreservesManifestAfterAppDeployFailure(t *testing.T) {
+	config := NewServerConfig()
+	service := NewService(config)
+	run := createApprovedControlRun(t, service, config)
+	deployer := &fakeControlRunDeploymentClient{createErr: errors.New("AppDeploy unavailable")}
+
+	failed, err := service.SubmitControlRunWithDeployer(
+		context.Background(),
+		run.RunID,
+		SubmitControlRunRequest{},
+		deployer,
+	)
+	if err == nil {
+		t.Fatal("expected AppDeploy failure")
+	}
+	if failed.Status != controlrun.StatusAppDeployFailed ||
+		failed.Manifest.Spec.AppVersionID != "appver-001" {
+		t.Fatalf("approved Manifest was not preserved: %#v", failed)
+	}
+}
+
 func validCreateControlRunRequest() CreateControlRunRequest {
 	return CreateControlRunRequest{
 		NaturalLanguageRequest: "Deploy an inference application with CPU 2 and memory 4Gi.",
@@ -173,6 +332,22 @@ func approvedGenerateResult(appVersionID string) deploymentplanner.GenerateResul
 		GuardReason:     "validated",
 		Manifest:        manifest,
 	}
+}
+
+func createApprovedControlRun(t *testing.T, service Service, config ServerConfig) controlrun.Run {
+	t.Helper()
+	generator := &fakeControlRunManifestGenerator{result: approvedGenerateResult("appver-001")}
+	run, err := service.CreateControlRunWithDependencies(
+		context.Background(),
+		validCreateControlRunRequest(),
+		writeAutomationCandidateConfig(t, "http://unused.example.test"),
+		config.PlannerGuardPolicyPath,
+		generator,
+	)
+	if err != nil {
+		t.Fatalf("create approved ControlRun: %v", err)
+	}
+	return run
 }
 
 func writePlannerRegistryRoot(t *testing.T, agents ...AgentProfile) string {

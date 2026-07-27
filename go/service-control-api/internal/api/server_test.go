@@ -604,6 +604,9 @@ func TestAppDeployPlannerEndpointGeneratesValidManifestAndTracksDeployment(t *te
 	if result["valid"] != true || result["status"] != "RUNNING" {
 		t.Fatalf("unexpected planner response: %#v", result)
 	}
+	if runID, _ := result["run_id"].(string); runID == "" {
+		t.Fatalf("compatibility Planner response is missing ControlRun identity: %#v", result)
+	}
 	requestGuard := result["request_guard"].(map[string]any)
 	if requestGuard["valid"] != true || requestGuard["status"] != "approved" {
 		t.Fatalf("expected approved request guard result: %#v", requestGuard)

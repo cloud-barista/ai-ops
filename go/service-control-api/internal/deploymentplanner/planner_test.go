@@ -15,6 +15,12 @@ type fakeManifestGenerator struct {
 	err    error
 }
 
+type panicManifestGenerator struct{}
+
+func (panicManifestGenerator) Generate(context.Context, llmclient.Candidate, GenerateInput) (GenerateResult, error) {
+	panic("approved Manifest submission must not invoke the Generator")
+}
+
 func (generator fakeManifestGenerator) Generate(context.Context, llmclient.Candidate, GenerateInput) (GenerateResult, error) {
 	return generator.result, generator.err
 }
@@ -69,6 +75,43 @@ func TestPlannerSubmitsManifestAndPollsUntilRunning(t *testing.T) {
 	}
 	if result.RetryRecommended {
 		t.Fatalf("successful deployment must not recommend retry: %#v", result)
+	}
+}
+
+func TestDeployApprovedManifestSkipsGenerationAndPollsUntilRunning(t *testing.T) {
+	client := &fakeDeploymentClient{
+		createResult: appdeploy.DeploymentResponse{DeploymentID: "dep-approved", Status: "REQUESTED"},
+		statuses: []appdeploy.DeploymentResponse{
+			{DeploymentID: "dep-approved", Status: "RUNNING", TargetProfileID: "target-selected"},
+		},
+		logs: appdeploy.DeploymentLogsResponse{Items: []appdeploy.DeploymentLog{{
+			DeploymentID: "dep-approved",
+			Stage:        "RUNNING",
+			Message:      "ready",
+		}}},
+	}
+	planner := NewPlanner(panicManifestGenerator{}, client)
+
+	result, err := planner.DeployApprovedManifest(context.Background(), DeployRequest{
+		Manifest:        plannerManifest(),
+		PollInterval:    time.Nanosecond,
+		MaxPollAttempts: 2,
+	})
+	if err != nil {
+		t.Fatalf("deploy approved Manifest: %v", err)
+	}
+	if !result.Valid || result.Status != "RUNNING" || result.Deployment.DeploymentID != "dep-approved" {
+		t.Fatalf("unexpected deployment result: %#v", result)
+	}
+	if result.Manifest.Spec.AppVersionID != "appver-test" || len(result.Logs) != 1 {
+		t.Fatalf("approved Manifest or logs were lost: %#v", result)
+	}
+}
+
+func TestDeployApprovedManifestRequiresDeployer(t *testing.T) {
+	planner := NewPlanner(panicManifestGenerator{}, nil)
+	if _, err := planner.DeployApprovedManifest(context.Background(), DeployRequest{Manifest: plannerManifest()}); err == nil {
+		t.Fatal("expected missing AppDeploy client to fail")
 	}
 }
 

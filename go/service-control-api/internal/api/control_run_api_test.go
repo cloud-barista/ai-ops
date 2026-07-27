@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
@@ -167,6 +168,59 @@ func TestControlRunAPIClearAll(t *testing.T) {
 	cleared := performJSONRequest(t, server, http.MethodDelete, "/api/v1/control-runs", "")
 	if cleared.Code != http.StatusOK || !containsJSONValue(t, cleared.Body.Bytes(), float64(2)) {
 		t.Fatalf("clear ControlRuns: code=%d body=%s", cleared.Code, cleared.Body.String())
+	}
+}
+
+func TestControlRunAPISubmitsApprovedManifest(t *testing.T) {
+	provider, closeProvider := automationProvider(t, validManifestJSON("appver-001"))
+	defer closeProvider()
+	appDeploy := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		writer.Header().Set("content-type", "application/json")
+		switch {
+		case request.Method == http.MethodPost && request.URL.Path == "/api/v1/deployments":
+			writer.WriteHeader(http.StatusAccepted)
+			_, _ = writer.Write([]byte(`{"deployment_id":"dep-control-run","status":"REQUESTED"}`))
+		case request.Method == http.MethodGet && request.URL.Path == "/api/v1/deployments/dep-control-run":
+			_, _ = writer.Write([]byte(`{"deployment_id":"dep-control-run","status":"RUNNING","target_profile_id":"target-selected"}`))
+		case request.Method == http.MethodGet && request.URL.Path == "/api/v1/deployments/dep-control-run/logs":
+			_, _ = writer.Write([]byte(`{"deployment_id":"dep-control-run","items":[{"stage":"RUNNING","message":"ready"}]}`))
+		default:
+			http.NotFound(writer, request)
+		}
+	}))
+	defer appDeploy.Close()
+
+	config := NewServerConfig()
+	config.LLMCandidatesPath = writeAutomationCandidateConfig(t, provider)
+	config.AppDeployBaseURL = appDeploy.URL + "/api/v1"
+	server := NewServer(config)
+	create := performJSONRequest(t, server, http.MethodPost, "/api/v1/control-runs", `{
+		"natural_language_request":"Deploy an inference application.",
+		"app_version_id":"appver-001",
+		"candidate_id":"decision-model",
+		"requested_by":"ai-ops-geon-planner"
+	}`)
+	if create.Code != http.StatusCreated {
+		t.Fatalf("create ControlRun: code=%d body=%s", create.Code, create.Body.String())
+	}
+	runID, _ := decodeObject(t, create.Body.Bytes())["run_id"].(string)
+
+	submit := performJSONRequest(
+		t,
+		server,
+		http.MethodPost,
+		"/api/v1/control-runs/"+runID+"/submit",
+		`{"poll_interval_ms":1,"max_poll_attempts":2}`,
+	)
+	if submit.Code != http.StatusOK {
+		t.Fatalf("submit ControlRun: code=%d body=%s", submit.Code, submit.Body.String())
+	}
+	result := decodeObject(t, submit.Body.Bytes())
+	deployment, _ := result["deployment"].(map[string]any)
+	if result["status"] != "DEPLOYED" ||
+		deployment["deployment_id"] != "dep-control-run" ||
+		deployment["target_profile_id"] != "target-selected" {
+		t.Fatalf("unexpected submitted Run: %#v", result)
 	}
 }
 

@@ -28,6 +28,12 @@ type Request struct {
 	MaxPollAttempts int                 `json:"-"`
 }
 
+type DeployRequest struct {
+	Manifest        appdeploy.DeploymentManifest `json:"-"`
+	PollInterval    time.Duration                `json:"-"`
+	MaxPollAttempts int                          `json:"-"`
+}
+
 type PollingResult struct {
 	Attempts      int    `json:"attempts"`
 	MaxAttempts   int    `json:"max_attempts"`
@@ -37,6 +43,7 @@ type PollingResult struct {
 }
 
 type Response struct {
+	RunID            string                       `json:"run_id,omitempty"`
 	Valid            bool                         `json:"valid"`
 	Status           string                       `json:"status"`
 	RequestGuard     plannerguard.Decision        `json:"request_guard"`
@@ -85,7 +92,32 @@ func (planner Planner) PlanAndDeploy(ctx context.Context, request Request) (Resp
 		return result, err
 	}
 
-	deployment, err := planner.deployer.CreateDeployment(ctx, generation.Manifest)
+	deployed, err := planner.DeployApprovedManifest(ctx, DeployRequest{
+		Manifest:        generation.Manifest,
+		PollInterval:    request.PollInterval,
+		MaxPollAttempts: request.MaxPollAttempts,
+	})
+	deployed.Generation = generation
+	return deployed, err
+}
+
+func (planner Planner) DeployApprovedManifest(ctx context.Context, request DeployRequest) (Response, error) {
+	result := Response{Status: "NOT_EXECUTED", Manifest: request.Manifest}
+	if err := ctx.Err(); err != nil {
+		return result, err
+	}
+	if planner.deployer == nil {
+		return result, fmt.Errorf("AppDeploy client is required")
+	}
+	if request.MaxPollAttempts <= 0 {
+		request.MaxPollAttempts = 60
+	}
+	if request.PollInterval <= 0 {
+		request.PollInterval = time.Second
+	}
+	result.Polling.MaxAttempts = request.MaxPollAttempts
+
+	deployment, err := planner.deployer.CreateDeployment(ctx, request.Manifest)
 	if err != nil {
 		result.Status = "APPDEPLOY_REQUEST_FAILED"
 		setRetryRecommendation(&result, err)

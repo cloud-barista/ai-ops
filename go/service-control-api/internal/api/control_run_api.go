@@ -34,6 +34,45 @@ func (handler restHandler) RestPostControlRun(context echo.Context) error {
 	return context.JSON(http.StatusCreated, run)
 }
 
+// RestPostControlRunSubmit godoc
+// @ID SubmitControlRun
+// @Summary Submit an approved ControlRun Manifest to AppDeploy
+// @Description Revalidate the selected Agent submit permission and send the approved DeploymentManifest to AppDeploy. AppDeploy retains final Target selection and execution responsibility.
+// @Tags AI Application Automation
+// @Accept json
+// @Produce json
+// @Param run_id path string true "ControlRun ID"
+// @Param request body SubmitControlRunRequest true "AppDeploy polling options"
+// @Success 200 {object} controlrun.Run
+// @Failure 403 {object} controlrun.Run
+// @Failure 404 {object} ErrorResponse
+// @Failure 409 {object} controlrun.Run
+// @Failure 502 {object} controlrun.Run
+// @Router /api/v1/control-runs/{run_id}/submit [post]
+func (handler restHandler) RestPostControlRunSubmit(context echo.Context) error {
+	var request SubmitControlRunRequest
+	if message, err := bindAndValidate(context, &request); err != nil {
+		return jsonError(context, http.StatusBadRequest, message, err)
+	}
+	run, err := handler.service.SubmitControlRun(context.Request().Context(), context.Param("run_id"), request)
+	if err == nil {
+		return context.JSON(http.StatusOK, run)
+	}
+	if run.RunID == "" {
+		return context.JSON(http.StatusNotFound, ErrorResponse{Valid: false, Message: "ControlRun was not found"})
+	}
+	if run.Status != controlrun.StatusManifestApproved && run.Status != controlrun.StatusAppDeployFailed {
+		return context.JSON(http.StatusConflict, run)
+	}
+	if len(run.Stages) > 0 {
+		lastStage := run.Stages[len(run.Stages)-1]
+		if lastStage.Name == "agent_registry_submit" && lastStage.Status == "rejected" {
+			return context.JSON(http.StatusForbidden, run)
+		}
+	}
+	return context.JSON(http.StatusBadGateway, run)
+}
+
 // RestGetControlRuns godoc
 // @ID ListControlRuns
 // @Summary List geon ControlRuns
