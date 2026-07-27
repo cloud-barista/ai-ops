@@ -105,7 +105,7 @@ curl http://127.0.0.1:18080/healthz
 
 ### 4. 화면 사용 순서
 
-Overview 상단의 **EXPERIMENT GUIDE**는 다음 실험 순서대로 각 화면을 바로 엽니다.
+Overview에는 geon API·등록 Agent·Qwen 상태, `Agent 확인`, `Manifest 생성`, 최근 ControlRun만 기본으로 표시됩니다. **전체 실험 순서 보기**를 열면 다음 단계가 나타나며, 각 단계를 눌러 해당 화면으로 이동할 수 있습니다.
 
 ```text
 Overview
@@ -116,7 +116,7 @@ Overview
 → Feedback
 ```
 
-1~2단계인 Agent Registry 권한 확인과 DeploymentManifest 생성이 geon의 핵심 Manifest 실험입니다. AppDeploy 제출, 자율 운영, Feedback은 배포 연계가 필요할 때 수행하는 선택 단계이며 Manifest 생성의 필수 조건이 아닙니다.
+실험 순서 안내는 기본적으로 접혀 있습니다. 1~2단계인 Agent Registry 권한 확인과 DeploymentManifest 생성이 geon의 핵심 Manifest 실험입니다. AppDeploy 제출, 자율 운영, Feedback은 배포 연계가 필요할 때 수행하는 선택 단계이며 Manifest 생성의 필수 조건이 아닙니다.
 
 1. 실제 배포 시험이면 AppDeploy에 Target과 App을 등록하고 `app_version_id`를 복사합니다. Manifest-only 시험에서는 형식이 유효한 시험 ID를 사용할 수 있습니다.
 2. **Agents & Guard**에서 `deployment_manifest_planning` capability와 `generate_deployment_manifest` bounded Action을 가진 활성 Agent를 확인합니다.
