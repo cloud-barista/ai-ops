@@ -318,21 +318,60 @@ func (service Service) CreateControlRunWithDependencies(
 		return run, err
 	}
 
-	candidates, err := llmclient.LoadCandidateConfig(candidatesPath)
+	selectedAgent, err := findAgent(registry.Agents, selection.Name)
 	if err != nil {
-		return service.rejectControlRun(run.RunID, controlrun.StatusManifestRejected, "qwen_planner", err.Error(), nil)
+		return service.rejectControlRun(run.RunID, controlrun.StatusManifestRejected, "agent_dispatch", err.Error(), nil)
 	}
-	candidate, err := llmclient.FindEnabledCandidate(candidates, request.CandidateID)
-	if err != nil {
-		return service.rejectControlRun(run.RunID, controlrun.StatusManifestRejected, "qwen_planner", err.Error(), nil)
-	}
-	generation, generationErr := generator.Generate(ctx, candidate, deploymentplanner.GenerateInput{
-		NaturalLanguageRequest: request.NaturalLanguageRequest,
-		AppVersionID:           request.AppVersionID,
-		TargetProfileID:        request.TargetProfileID,
-		RequestedBy:            request.RequestedBy,
-		Parameters:             request.Parameters,
+	selectedAgent.Source = selection.Source
+	dispatcher := newAgentDispatcher(
+		map[string]agentExecutor{
+			"AIApplicationAutomationAgent": newManifestAgentExecutor(candidatesPath, generator),
+		},
+		nil,
+	)
+	execution, generationErr := dispatcher.Dispatch(ctx, selectedAgent, AgentDispatchRequest{
+		RunID:      run.RunID,
+		Agent:      selection.Name,
+		Capability: selection.Capability,
+		Action:     selection.Action,
+		Input: map[string]any{
+			"natural_language_request": request.NaturalLanguageRequest,
+			"app_version_id":           request.AppVersionID,
+			"candidate_id":             request.CandidateID,
+			"target_profile_id":        request.TargetProfileID,
+			"requested_by":             request.RequestedBy,
+			"parameters":               request.Parameters,
+		},
 	})
+	dispatchStatus := "approved"
+	dispatchReason := "Agent Dispatcher completed AIApplicationAutomationAgent"
+	if generationErr != nil {
+		dispatchStatus = "rejected"
+		dispatchReason = generationErr.Error()
+	}
+	run, err = service.controlRuns.Update(run.RunID, func(run *controlrun.Run) error {
+		run.Execution = controlRunAgentExecution(execution, "")
+		run.Stages = append(run.Stages, completedControlRunStage(
+			"agent_dispatch",
+			dispatchStatus,
+			dispatchReason,
+			map[string]any{"agent": selection.Name, "source": selection.Source},
+		))
+		if generationErr != nil {
+			run.Status = controlrun.StatusManifestRejected
+		}
+		return nil
+	})
+	if err != nil {
+		return run, err
+	}
+	if generationErr != nil && execution.Generation == nil {
+		return run, generationErr
+	}
+	generation := deploymentplanner.GenerateResult{}
+	if execution.Generation != nil {
+		generation = *execution.Generation
+	}
 	qwenStatus := "approved"
 	qwenReason := "Qwen generated a DeploymentManifest candidate"
 	if generationErr != nil {
@@ -360,6 +399,10 @@ func (service Service) CreateControlRunWithDependencies(
 	if generationErr != nil {
 		run, updateErr := service.controlRuns.Update(run.RunID, func(run *controlrun.Run) error {
 			run.Status = controlrun.StatusManifestRejected
+			if run.Execution != nil {
+				run.Execution.GuardStatus = "rejected"
+				run.Execution.DomainValidation = "manifest_guard"
+			}
 			if generation.Manifest.Kind != "" {
 				run.Stages = append(run.Stages, completedControlRunStage(
 					"manifest_guard",
@@ -391,6 +434,10 @@ func (service Service) CreateControlRunWithDependencies(
 	}
 	run, err = service.controlRuns.Update(run.RunID, func(run *controlrun.Run) error {
 		run.Status = runStatus
+		if run.Execution != nil {
+			run.Execution.GuardStatus = guardStatus
+			run.Execution.DomainValidation = "manifest_guard"
+		}
 		run.Stages = append(run.Stages, completedControlRunStage(
 			"manifest_guard",
 			guardStatus,

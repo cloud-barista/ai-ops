@@ -89,8 +89,11 @@ func TestCreateControlRunReturnsApprovedManifestWithoutAppDeploy(t *testing.T) {
 	if run.SelectedAgent.Name != "AIApplicationAutomationAgent" || generator.calls != 1 {
 		t.Fatalf("Registry or Qwen stage was not connected: run=%#v calls=%d", run.SelectedAgent, generator.calls)
 	}
+	if run.Execution == nil || run.Execution.Status != "completed" {
+		t.Fatalf("Manifest Agent did not run through Dispatcher: %#v", run.Execution)
+	}
 
-	wantStages := []string{"request_guard", "agent_registry", "qwen_planner", "manifest_guard"}
+	wantStages := []string{"request_guard", "agent_registry", "agent_dispatch", "qwen_planner", "manifest_guard"}
 	if len(run.Stages) != len(wantStages) {
 		t.Fatalf("unexpected stages: %#v", run.Stages)
 	}
@@ -98,6 +101,37 @@ func TestCreateControlRunReturnsApprovedManifestWithoutAppDeploy(t *testing.T) {
 		if run.Stages[index].Name != want || run.Stages[index].Status != "approved" {
 			t.Fatalf("unexpected stage %d: %#v", index, run.Stages[index])
 		}
+	}
+}
+
+func TestCreateControlRunRejectsPlannerWithoutInternalExecutorBeforeQwen(t *testing.T) {
+	config := NewServerConfig()
+	config.RepoRoot = writePlannerRegistryRoot(t, AgentProfile{
+		Name:           "UnimplementedManifestAgent",
+		Enabled:        true,
+		Capabilities:   []string{capabilityDeploymentManifestPlanning},
+		BoundedActions: []string{actionGenerateDeploymentManifest},
+	})
+	service := NewService(config)
+	generator := &fakeControlRunManifestGenerator{result: approvedGenerateResult("appver-001")}
+	request := validCreateControlRunRequest()
+	request.AgentName = "UnimplementedManifestAgent"
+
+	run, err := service.CreateControlRunWithDependencies(
+		context.Background(),
+		request,
+		writeAutomationCandidateConfig(t, "http://unused.example.test"),
+		NewServerConfig().PlannerGuardPolicyPath,
+		generator,
+	)
+	if err == nil {
+		t.Fatal("expected unimplemented internal Agent to be rejected")
+	}
+	if run.Status != controlrun.StatusManifestRejected || generator.calls != 0 {
+		t.Fatalf("unimplemented Agent reached Qwen: run=%#v calls=%d", run, generator.calls)
+	}
+	if got := run.Stages[len(run.Stages)-1]; got.Name != "agent_dispatch" || got.Status != "rejected" {
+		t.Fatalf("Dispatcher rejection was not recorded: %#v", run.Stages)
 	}
 }
 
@@ -248,14 +282,14 @@ func TestSubmitControlRunRejectsInvalidState(t *testing.T) {
 func TestSubmitControlRunRequiresRegistrySubmitPermission(t *testing.T) {
 	config := NewServerConfig()
 	config.RepoRoot = writePlannerRegistryRoot(t, AgentProfile{
-		Name:           "ManifestPlanner",
+		Name:           "AIApplicationAutomationAgent",
 		Enabled:        true,
 		Capabilities:   []string{capabilityDeploymentManifestPlanning},
 		BoundedActions: []string{actionGenerateDeploymentManifest},
 	})
 	service := NewService(config)
 	request := validCreateControlRunRequest()
-	request.AgentName = "ManifestPlanner"
+	request.AgentName = "AIApplicationAutomationAgent"
 	generator := &fakeControlRunManifestGenerator{result: approvedGenerateResult("appver-001")}
 	run, err := service.CreateControlRunWithDependencies(
 		context.Background(),
