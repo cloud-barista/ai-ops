@@ -122,8 +122,21 @@ func (f *File) saveLocked() error {
 	if err := os.MkdirAll(filepath.Dir(f.path), 0o755); err != nil {
 		return err
 	}
-	tmp := f.path + ".tmp"
-	if err := os.WriteFile(tmp, raw, 0o600); err != nil {
+	tmpFile, err := os.CreateTemp(filepath.Dir(f.path), filepath.Base(f.path)+".tmp-*")
+	if err != nil {
+		return err
+	}
+	tmp := tmpFile.Name()
+	defer os.Remove(tmp)
+	if err := tmpFile.Chmod(0o600); err != nil {
+		tmpFile.Close()
+		return err
+	}
+	if _, err := tmpFile.Write(raw); err != nil {
+		tmpFile.Close()
+		return err
+	}
+	if err := tmpFile.Close(); err != nil {
 		return err
 	}
 	return os.Rename(tmp, f.path)
@@ -199,8 +212,17 @@ func (f *File) DeleteApp(ctx context.Context, appID string) (model.AppResponse, 
 func (f *File) CreateTargetProfile(ctx context.Context, profile model.TargetProfile) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
+	previous, existed := f.data.Targets[profile.TargetProfileID]
 	f.data.Targets[profile.TargetProfileID] = profile
-	return f.saveLocked()
+	if err := f.saveLocked(); err != nil {
+		if existed {
+			f.data.Targets[profile.TargetProfileID] = previous
+		} else {
+			delete(f.data.Targets, profile.TargetProfileID)
+		}
+		return fmt.Errorf("persist target profile: %w", err)
+	}
+	return nil
 }
 
 func (f *File) ReserveResources(ctx context.Context, targetProfileID, deploymentID string, allocation model.ResourceAllocation) error {

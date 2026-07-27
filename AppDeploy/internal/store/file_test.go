@@ -3,6 +3,7 @@ package store
 import (
 	"bytes"
 	"context"
+	"os"
 	"path/filepath"
 	"testing"
 	"time"
@@ -35,6 +36,17 @@ func TestFileStorePersistsData(t *testing.T) {
 		CreatedAt: time.Now().UTC(),
 	}
 	if err := first.CreateApp(ctx, app); err != nil {
+		t.Fatal(err)
+	}
+	target := model.TargetProfile{
+		TargetProfileID: "target-gpu-001",
+		CSP:             "local",
+		VM:              model.VMProfile{Host: "127.0.0.1", CredentialRef: "cred://local/gpu-001"},
+		Runtime:         model.TargetRuntime{RuntimeType: "gpu", Accelerator: "nvidia", OperatingMode: "vm_process"},
+		GPU:             &model.GPUProfile{Vendor: "nvidia", Count: 1, DriverRequired: true},
+		Capacity:        model.ResourceCapacity{CPUCores: 4, MemoryBytes: 8 << 30, GPUCount: 1, StorageBytes: 20 << 30},
+	}
+	if err := first.CreateTargetProfile(ctx, target); err != nil {
 		t.Fatal(err)
 	}
 	deployment := model.DeploymentResponse{
@@ -80,6 +92,13 @@ func TestFileStorePersistsData(t *testing.T) {
 	}
 	if gotApp.Name != "sample-app" {
 		t.Fatalf("app name = %s", gotApp.Name)
+	}
+	gotTarget, err := second.GetTargetProfile(ctx, target.TargetProfileID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if gotTarget.Runtime.RuntimeType != "gpu" || gotTarget.GPU == nil || gotTarget.GPU.Count != 1 {
+		t.Fatalf("target profile = %+v", gotTarget)
 	}
 	gotDeployment, err := second.GetDeployment(ctx, "dep-001")
 	if err != nil {
@@ -148,5 +167,32 @@ func TestFileStorePreservesOriginalApplicationBytesAcrossReload(t *testing.T) {
 	}
 	if !bytes.Equal(got.OriginalApplication, raw) {
 		t.Fatalf("original application changed after reload: got %q want %q", got.OriginalApplication, raw)
+	}
+}
+
+func TestFileStoreCreateTargetRollsBackWhenPersistenceFails(t *testing.T) {
+	ctx := context.Background()
+	dir := t.TempDir()
+	path := filepath.Join(dir, "store.json")
+	store, err := NewFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	blocker := filepath.Join(dir, "not-a-directory")
+	if err := os.WriteFile(blocker, []byte("block"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	store.path = filepath.Join(blocker, "store.json")
+
+	err = store.CreateTargetProfile(ctx, model.TargetProfile{
+		TargetProfileID: "target-rollback",
+		CSP:             "mock",
+		Runtime:         model.TargetRuntime{RuntimeType: "mock", OperatingMode: "local_mock"},
+	})
+	if err == nil {
+		t.Fatal("CreateTargetProfile unexpectedly succeeded")
+	}
+	if _, err := store.GetTargetProfile(ctx, "target-rollback"); err == nil {
+		t.Fatal("target profile remained in memory after persistence failure")
 	}
 }

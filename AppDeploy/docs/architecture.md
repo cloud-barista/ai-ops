@@ -85,6 +85,25 @@ records the PID-derived runtime ID, captures stdout/stderr, reports
 stop. Existing CPU VM, GPU VM, Mock, and ETRI AI-Infrastructure adapters are
 unchanged and remain behind the router.
 
+### VM-local scheduler boundary
+
+`internal/scheduler/interfaces.go` defines the next integration boundary for
+multiple applications running on one VM:
+
+- `VMStateAdapter` receives and reads the VM-local scheduler snapshot. The
+  snapshot contains the VM revision, capacity, current allocation, and each
+  workload's deployment ID, status, allocation, and order.
+- `ExecutionOrderAdapter` applies a complete deployment order to the selected
+  VM. `ExpectedRevision` prevents a stale local-scheduler request from
+  overwriting a newer state.
+
+The current change adds contracts and DTOs only. It does not assume an ETRI
+agent transport, add an endpoint, or execute a VM command. When the ETRI agent
+contract is available, its DTO mapper implements `VMStateAdapter`; the VM-side
+agent/SSH/runtime implementation implements `ExecutionOrderAdapter`. The
+orchestrator can then call this boundary without knowing the transport or
+command format.
+
 ## ETRI replacement points
 
 `ResourceInformationProvider` and `PlacementProvider` are defined in

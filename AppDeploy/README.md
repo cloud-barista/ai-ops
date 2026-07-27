@@ -49,6 +49,20 @@ process and releases its reservation.
    target executes the command with `os/exec`; CPU/GPU/ETRI adapters retain
    their existing boundaries.
 
+## VM-local scheduler interface
+
+`internal/scheduler/interfaces.go` reserves the integration boundary for a
+VM-local scheduler that manages multiple application workloads. It defines:
+
+- `VMStateAdapter` for receiving/querying VM capacity, allocation, workload
+  status, and execution order snapshots.
+- `ExecutionOrderAdapter` for applying a complete deployment order on a VM,
+  guarded by `expected_revision`.
+
+Only the Go contracts and DTOs exist today. ETRI agent transport, an external
+API endpoint, and the VM-side order execution command remain intentionally
+unimplemented until their contract is provided.
+
 The stored `original_application` is the exact JSON document received by
 `POST /api/v1/apps`. A local process may finish after creation; the next
 deployment status or log request reconciles `COMPLETED`/`RUNTIME_FAILED` and
