@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -362,6 +363,72 @@ func TestExternalAgentRegistrationAPIFlow(t *testing.T) {
 	}
 	if !strings.Contains(actionResponse.Body.String(), `"valid":false`) {
 		t.Fatalf("expected unbounded action rejection: %s", actionResponse.Body.String())
+	}
+}
+
+func TestExternalAgentExecutionAPIFlow(t *testing.T) {
+	external := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+		var dispatched AgentDispatchRequest
+		if err := json.NewDecoder(request.Body).Decode(&dispatched); err != nil {
+			t.Errorf("decode dispatched Agent request: %v", err)
+		}
+		response.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(response, `{
+			"run_id":%q,
+			"agent":%q,
+			"status":"completed",
+			"proposal":{"action":%q,"parameters":{"decision":"approved"}},
+			"result":{"review":"approved"},
+			"evidence":{"source":"external-test"}
+		}`, dispatched.RunID, dispatched.Agent, dispatched.Action)
+	}))
+	defer external.Close()
+
+	server := NewServer(NewServerConfig())
+	registrationBody := strings.NewReader(fmt.Sprintf(`{
+		"name":"ExternalResearchAgent",
+		"version":"0.1.0",
+		"role":"Review deployment research evidence.",
+		"endpoint":%q,
+		"invocation_path":"/invoke",
+		"capabilities":["deployment_review"],
+		"bounded_actions":["review_deployment_plan"]
+	}`, external.URL))
+	registration := httptest.NewRequest(http.MethodPost, "/api/v1/agents", registrationBody)
+	registration.Header.Set("Content-Type", "application/json")
+	registrationResponse := httptest.NewRecorder()
+	server.ServeHTTP(registrationResponse, registration)
+	if registrationResponse.Code != http.StatusCreated {
+		t.Fatalf("register Agent status=%d body=%s", registrationResponse.Code, registrationResponse.Body.String())
+	}
+
+	executionBody := strings.NewReader(`{
+		"capability":"deployment_review",
+		"action":"review_deployment_plan",
+		"input":{"workload":"llm-chat-inference"}
+	}`)
+	execution := httptest.NewRequest(
+		http.MethodPost,
+		"/api/v1/agents/ExternalResearchAgent/execute",
+		executionBody,
+	)
+	execution.RemoteAddr = "127.0.0.1:12345"
+	execution.Header.Set("Content-Type", "application/json")
+	executionResponse := httptest.NewRecorder()
+	server.ServeHTTP(executionResponse, execution)
+
+	if executionResponse.Code != http.StatusOK {
+		t.Fatalf("execute Agent status=%d body=%s", executionResponse.Code, executionResponse.Body.String())
+	}
+	for _, expected := range []string{
+		`"status":"completed"`,
+		`"status":"approved"`,
+		`"review":"approved"`,
+		`"run_id":"run-`,
+	} {
+		if !strings.Contains(executionResponse.Body.String(), expected) {
+			t.Fatalf("execution response is missing %s: %s", expected, executionResponse.Body.String())
+		}
 	}
 }
 

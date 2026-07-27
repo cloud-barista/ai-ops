@@ -30,6 +30,14 @@ func TestStoreLifecycleReturnsIsolatedCopies(t *testing.T) {
 		}
 		run.CorrelationIDs = append(run.CorrelationIDs, "corr-001")
 		run.Stages = append(run.Stages, Stage{Name: "manifest_guard", Status: "approved"})
+		run.Execution = &AgentExecution{
+			Status:      "completed",
+			LatencyMS:   25,
+			Proposal:    map[string]any{"action": "review_deployment_plan", "parameters": map[string]any{"decision": "approved"}},
+			Result:      map[string]any{"review": map[string]any{"status": "approved"}},
+			Evidence:    map[string]any{"source": "external-test"},
+			GuardStatus: "approved",
+		}
 		return nil
 	})
 	if err != nil {
@@ -39,6 +47,9 @@ func TestStoreLifecycleReturnsIsolatedCopies(t *testing.T) {
 	updated.Manifest.Spec.Parameters["labels"].(map[string]any)["team"] = "mutated"
 	updated.CorrelationIDs[0] = "mutated"
 	updated.Stages[0].Status = "mutated"
+	updated.Execution.Proposal["parameters"].(map[string]any)["decision"] = "mutated"
+	updated.Execution.Result["review"].(map[string]any)["status"] = "mutated"
+	updated.Execution.Evidence["source"] = "mutated"
 
 	loaded, ok := store.Get(created.RunID)
 	if !ok {
@@ -52,6 +63,15 @@ func TestStoreLifecycleReturnsIsolatedCopies(t *testing.T) {
 	}
 	if loaded.Stages[0].Status != "approved" {
 		t.Fatalf("stages leaked mutable state: %#v", loaded.Stages)
+	}
+	if got := loaded.Execution.Proposal["parameters"].(map[string]any)["decision"]; got != "approved" {
+		t.Fatalf("Agent proposal leaked mutable state: %v", got)
+	}
+	if got := loaded.Execution.Result["review"].(map[string]any)["status"]; got != "approved" {
+		t.Fatalf("Agent result leaked mutable state: %v", got)
+	}
+	if got := loaded.Execution.Evidence["source"]; got != "external-test" {
+		t.Fatalf("Agent evidence leaked mutable state: %v", got)
 	}
 }
 

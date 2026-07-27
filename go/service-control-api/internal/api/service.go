@@ -14,6 +14,7 @@ import (
 	"kyunghee-aiops/service-control-api/internal/automation"
 	"kyunghee-aiops/service-control-api/internal/autonomy"
 	"kyunghee-aiops/service-control-api/internal/controlrun"
+	"kyunghee-aiops/service-control-api/internal/deploymentplanner"
 	"kyunghee-aiops/service-control-api/internal/llmclient"
 )
 
@@ -23,6 +24,7 @@ type Service struct {
 	automationFeedback *automationFeedbackStore
 	autonomyManager    *autonomy.Manager
 	controlRuns        *controlrun.Store
+	agentDispatcher    *agentDispatcher
 }
 
 func NewService(config ServerConfig) Service {
@@ -32,6 +34,18 @@ func NewService(config ServerConfig) Service {
 		automationFeedback: newAutomationFeedbackStore(),
 		controlRuns:        controlrun.NewStore(),
 	}
+	service.agentDispatcher = newAgentDispatcher(
+		map[string]agentExecutor{
+			"AIApplicationAutomationAgent": newManifestAgentExecutor(
+				config.LLMCandidatesPath,
+				deploymentplanner.NewGenerator(llmclient.NewClient(nil)),
+			),
+		},
+		newHTTPAgentExecutor(
+			newAgentHTTPClient(config.AgentExecutionTimeout),
+			config.AgentExecutionTimeout,
+		),
+	)
 	var control autonomy.AppDeployControl
 	if strings.TrimSpace(config.AppDeployBaseURL) != "" {
 		client, err := appdeploy.NewClient(config.AppDeployBaseURL, nil)

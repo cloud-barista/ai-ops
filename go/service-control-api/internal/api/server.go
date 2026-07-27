@@ -81,6 +81,7 @@ func NewServer(config ServerConfig) *echo.Echo {
 	server.DELETE(pathAgents+"/:name", handler.requireAutonomyAdmin(handler.RestDeleteAgent))
 	server.POST(pathAgents+"/:name/actions/:action/validate", handler.RestPostAgentActionValidate)
 	server.POST(pathAgents+"/:name/invocations/plan", handler.RestPostAgentInvocationPlan)
+	server.POST(pathAgents+"/:name/execute", handler.requireAutonomyAdmin(handler.RestPostAgentExecute))
 	server.POST(pathOpsLLMSelect, handler.RestPostOpsLLMSelect)
 	server.POST(pathVMSuitability, handler.RestPostVMSuitability)
 	server.POST(pathDeploymentPlan, handler.RestPostDeploymentPlan)
@@ -296,6 +297,48 @@ func (handler restHandler) RestPostAgentInvocationPlan(context echo.Context) err
 	result, err := handler.service.BuildAgentInvocationPlan(context.Request().Context(), context.Param("name"), request)
 	if err != nil {
 		return jsonError(context, http.StatusBadRequest, "Agent invocation plan could not be processed", err)
+	}
+	return context.JSON(http.StatusOK, result)
+}
+
+// RestPostAgentExecute godoc
+// @ID ExecuteAgent
+// @Summary Execute a registered Agent through the guarded Dispatcher
+// @Description Validate Registry capability and bounded action, execute one internal or runtime Agent, validate its result, and record a ControlRun.
+// @Tags Agent Registry
+// @Accept json
+// @Produce json
+// @Param name path string true "Agent name"
+// @Param request body AgentExecutionRequest true "Agent execution request"
+// @Success 200 {object} AgentExecutionResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 403 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Failure 422 {object} ErrorResponse
+// @Failure 502 {object} ErrorResponse
+// @Failure 504 {object} ErrorResponse
+// @Router /api/v1/agents/{name}/execute [post]
+func (handler restHandler) RestPostAgentExecute(context echo.Context) error {
+	var request AgentExecutionRequest
+	if message, err := bindAndValidate(context, &request); err != nil {
+		return jsonError(context, http.StatusBadRequest, message, err)
+	}
+	result, err := handler.service.ExecuteAgent(context.Request().Context(), context.Param("name"), request)
+	if err != nil {
+		switch {
+		case errors.Is(err, errAgentExecutionNotFound):
+			return jsonError(context, http.StatusNotFound, "Agent was not found", err)
+		case errors.Is(err, errAgentExecutionUnauthorized):
+			return jsonError(context, http.StatusForbidden, "Agent execution was not authorized", err)
+		case errors.Is(err, errAgentExecutionNotImplemented):
+			return jsonError(context, http.StatusNotImplemented, "Agent executor is not implemented", err)
+		case errors.Is(err, errAgentExecutionTimeout):
+			return jsonError(context, http.StatusGatewayTimeout, "Agent execution timed out", err)
+		case errors.Is(err, errAgentExecutionResultRejected):
+			return jsonError(context, http.StatusUnprocessableEntity, "Agent result was rejected", err)
+		default:
+			return jsonError(context, http.StatusBadGateway, "Agent execution endpoint failed", err)
+		}
 	}
 	return context.JSON(http.StatusOK, result)
 }

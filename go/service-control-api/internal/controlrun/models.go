@@ -20,6 +20,10 @@ const (
 	StatusSubmitting       Status = "SUBMITTING"
 	StatusAppDeployFailed  Status = "APPDEPLOY_FAILED"
 	StatusDeployed         Status = "DEPLOYED"
+	StatusAgentDispatching Status = "AGENT_DISPATCHING"
+	StatusAgentCompleted   Status = "AGENT_COMPLETED"
+	StatusAgentFailed      Status = "AGENT_FAILED"
+	StatusResultRejected   Status = "RESULT_REJECTED"
 )
 
 type SafeRequest struct {
@@ -29,6 +33,8 @@ type SafeRequest struct {
 	CandidateID            string `json:"candidate_id,omitempty"`
 	RequestedBy            string `json:"requested_by,omitempty"`
 	AgentName              string `json:"agent_name,omitempty"`
+	Capability             string `json:"capability,omitempty"`
+	Action                 string `json:"action,omitempty"`
 }
 
 type AgentSelection struct {
@@ -48,6 +54,17 @@ type Stage struct {
 	Details   map[string]any `json:"details,omitempty"`
 }
 
+type AgentExecution struct {
+	Status           string         `json:"status"`
+	LatencyMS        int64          `json:"latency_ms"`
+	Proposal         map[string]any `json:"proposal,omitempty"`
+	Result           map[string]any `json:"result,omitempty"`
+	Evidence         map[string]any `json:"evidence,omitempty"`
+	GuardStatus      string         `json:"guard_status,omitempty"`
+	Message          string         `json:"message,omitempty"`
+	DomainValidation string         `json:"domain_validation,omitempty"`
+}
+
 type Run struct {
 	RunID            string                           `json:"run_id"`
 	Status           Status                           `json:"status"`
@@ -56,6 +73,7 @@ type Run struct {
 	Request          SafeRequest                      `json:"request"`
 	RequestGuard     plannerguard.Decision            `json:"request_guard"`
 	SelectedAgent    AgentSelection                   `json:"selected_agent"`
+	Execution        *AgentExecution                  `json:"execution,omitempty"`
 	Generation       deploymentplanner.GenerateResult `json:"generation"`
 	Manifest         appdeploy.DeploymentManifest     `json:"manifest"`
 	Deployment       *appdeploy.DeploymentResponse    `json:"deployment,omitempty"`
