@@ -10,13 +10,15 @@
 
 이 저장소는 경희대학교 1차년도 연구 범위 중 **AI 기반 서비스 제어 및 관리 자동화 프레임워크**를 위한 제출용/시연용 패키지입니다.
 
-핵심 구현은 Go 언어로 구성되어 있습니다. Go Request Guard가 자연어 요청의 권한·1차년도 VM 범위·민감정보 유입을 먼저 검사하고, 실제 LLM endpoint가 승인된 요구를 AppDeploy `DeploymentManifest`로 변환합니다. 이어 Go Manifest Guard가 계약·자원 값·보안 정책을 검증한 뒤 AppDeploy에 전달합니다. AppDeploy가 실제 Target과 Runtime Adapter를 선택하며, 본 프로젝트는 배포 상태와 로그를 조회해 결과를 반환합니다.
+핵심 구현은 Go 언어로 구성되어 있습니다. 하나의 `ControlRun` 안에서 Go Request Guard가 자연어 요청을 검사하고, Agent Registry가 `deployment_manifest_planning` capability와 `generate_deployment_manifest` Action을 가진 활성 Planner Agent를 선택합니다. Qwen은 승인된 요구를 `DeploymentManifest`로 변환하고, Go Manifest Guard가 계약·자원 값·권한·보안 정책을 검증합니다.
+
+검증된 Manifest 생성은 AppDeploy 없이도 완료됩니다. 사용자가 별도로 제출을 선택한 경우에만 AppDeploy가 실제 Target과 Runtime Adapter를 선택하고 배포를 실행합니다. 배포 후 Autonomous Loop와 Feedback은 동일한 `run_id`에 연결되는 선택적 후속 경로입니다.
 
 현재 기본 Planner 모델은 **Qwen 3.5 4B (`qwen3.5:4b`)**입니다. Go 구현은 OpenAI-compatible endpoint 계약을 사용하므로 Ollama, vLLM 또는 연구 서버는 Qwen을 제공하는 실행 런타임으로 교체할 수 있습니다. 약 3.4GB의 Ollama 양자화 모델을 사용해 로컬과 AWS NVIDIA L4 24GB VM에서 같은 Planner 설정을 검증합니다.
 
 ## 🚀 geon Control Plane 빠른 실행
 
-geon Control Plane은 자연어 운영 요청을 Qwen으로 계획하고, Go Request Guard와 Go Manifest Guard로 검증한 뒤 AppDeploy에 전달합니다. 세 구성 요소는 별도 프로세스로 실행합니다.
+geon Control Plane은 자연어 운영 요청을 Registry가 승인한 Qwen Planner로 계획하고, 이중 Go Guard로 검증된 Manifest를 생성합니다. AppDeploy 제출은 선택 사항이며 각 구성 요소는 별도 프로세스로 실행합니다.
 
 | 구성 요소 | 역할 | 기본 주소 |
 | --- | --- | --- |
@@ -28,7 +30,8 @@ geon Control Plane은 자연어 운영 요청을 Qwen으로 계획하고, Go Req
 
 - Go 1.25 이상
 - Ollama와 Qwen `qwen3.5:4b`
-- AppDeploy 브랜치 저장소와 geon 브랜치 저장소
+- geon 브랜치 저장소
+- 실제 배포까지 시험할 때만 AppDeploy 브랜치 저장소
 
 Windows Git Bash에서 Go 경로와 Qwen 모델을 확인합니다.
 
@@ -68,6 +71,7 @@ export PATH="/c/Program Files/Go/bin:$PATH"
 export AIOPS_REPO_ROOT="$(git rev-parse --show-toplevel)"
 export AIOPS_LLM_CANDIDATES_PATH="config/ops_llm_eval_candidates.local_ollama.json"
 export AIOPS_PLANNER_GUARD_POLICY_PATH="config/planner_guard_policy.json"
+# Manifest 생성만 시험할 때는 아래 변수를 생략할 수 있습니다.
 export AIOPS_APPDEPLOY_BASE_URL="http://127.0.0.1:8080/api/v1"
 export AIOPS_BIND_ADDRESS="127.0.0.1"
 export PORT=18080
@@ -96,13 +100,13 @@ curl http://127.0.0.1:18080/healthz
 
 ### 5. 첫 사용 순서
 
-1. AppDeploy에서 Mock Target을 등록합니다.
-2. 테스트 App을 등록하고 `app_version_id`를 복사합니다.
-3. geon의 **Agents & Guard**에서 Agent와 허용 Action을 확인합니다.
-4. **Deployment Planner**에 자연어 요청과 `app_version_id`를 입력합니다.
-5. **Generate & Deploy**를 실행합니다.
-6. Request Guard, Qwen 결과, Manifest Guard, AppDeploy 배포 상태와 로그를 확인합니다.
-7. 실행 결과는 **Feedback**, 자율 운영 판단은 **Autonomous Loop**에서 확인합니다.
+1. 실제 배포 시험이면 AppDeploy에서 App과 Target을 등록하고 `app_version_id`를 복사합니다. Manifest-only 시험에서는 형식이 유효한 시험 ID를 사용할 수 있습니다.
+2. geon의 **Agents & Guard**에서 Manifest Planner Agent의 capability와 bounded Action을 확인합니다.
+3. **Deployment Planner**에 자연어 요청과 `app_version_id`를 입력합니다.
+4. **Generate Manifest**를 실행해 Request Guard → Agent Registry → Qwen Planner → Manifest Guard 단계를 확인합니다.
+5. 결과 상태가 `MANIFEST_APPROVED`이면 최종 Manifest를 산출물로 사용할 수 있습니다.
+6. 실제 배포가 필요할 때만 **Submit to AppDeploy**를 눌러 `DEPLOYED` 상태와 `deployment_id`를 확인합니다.
+7. 배포된 Run은 **배포 후 자율 운영 실험**과 Feedback에 같은 `run_id`로 연결할 수 있습니다.
 
 각 서버는 실행한 터미널에서 `Ctrl+C`로 종료합니다. Autonomous Loop, Guarded Auto, 기록 삭제와 문제 해결 절차는 [geon Agent Control 상세 실행 가이드](go/service-control-api/README.md#geon-agent-control-실행-가이드)를 참고합니다.
 
@@ -110,13 +114,14 @@ curl http://127.0.0.1:18080/healthz
 
 - Ops 분석 시험 및 최적 LLM 선정 흐름
 - AI LLM 운영 관리 구조 설계 및 검증
-- `AIApplicationAutomationAgent`를 LLM Deployment Planner로 등록·관리
+- Agent Registry를 실제 Planner 선택·권한 검증 진입점으로 사용
+- `AIApplicationAutomationAgent`를 기본 Manifest Planner 프로필로 등록·관리
 - 자연어 App 요구 분석과 CPU·메모리·GPU·디스크·accelerator 요구량 결정
 - AppDeploy 공식 Deployment Manifest 생성과 요청·Manifest 이중 Go Guard 검증
-- 승인된 Manifest의 AppDeploy 전달, 배포 상태 polling, 로그 조회와 재시도 가능 여부 판단
+- 승인된 Manifest의 선택적 AppDeploy 전달, 배포 상태 polling, 로그 조회와 재시도 가능 여부 판단
 - 인프라 계층이 제공한 실제 CPU/GPU VM snapshot과 workload 요구사항의 보조 적합성 검증
 
-이 저장소는 VM 후보를 임의로 만들거나 VM을 직접 프로비저닝하지 않습니다. 실제 인프라 생성은 인프라 계층이, App Spec 조회·Target 선택·Adapter 선택·배포 실행은 AppDeploy가 담당합니다. LLM 또는 AppDeploy 호출 실패를 가짜 성공 결과로 대체하지 않습니다.
+이 저장소는 VM 후보를 임의로 만들거나 VM을 직접 프로비저닝하지 않습니다. 실제 인프라 생성은 인프라 계층이, App Spec 조회·Target 선택·Adapter 선택·배포 실행은 AppDeploy가 담당합니다. 등록된 외부 Agent endpoint를 직접 호출하는 워크플로 엔진도 현재 범위에 포함하지 않습니다. LLM 또는 AppDeploy 호출 실패를 가짜 성공 결과로 대체하지 않습니다.
 
 ## 🗂️ 코드 구조
 

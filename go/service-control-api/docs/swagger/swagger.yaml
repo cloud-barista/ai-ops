@@ -102,6 +102,9 @@ definitions:
     type: object
   api.AppDeployPlannerRequest:
     properties:
+      agent_name:
+        example: AIApplicationAutomationAgent
+        type: string
       app_version_id:
         example: appver-llm-inference-v1
         type: string
@@ -150,6 +153,8 @@ definitions:
         type: string
       received_at:
         type: string
+      run_id:
+        type: string
       status:
         type: string
       throughput_rps:
@@ -179,6 +184,35 @@ definitions:
     - correlation_id
     - executor
     - status
+    type: object
+  api.CreateControlRunRequest:
+    properties:
+      agent_name:
+        example: AIApplicationAutomationAgent
+        type: string
+      app_version_id:
+        example: appver-llm-inference-v1
+        type: string
+      candidate_id:
+        example: qwen3.5-ops-planner
+        type: string
+      natural_language_request:
+        example: Deploy an inference application with one GPU and 16Gi memory.
+        maxLength: 8000
+        type: string
+      parameters:
+        additionalProperties: {}
+        type: object
+      requested_by:
+        example: ai-ops-geon-planner
+        type: string
+      target_profile_id:
+        example: target-profile-hint
+        type: string
+    required:
+    - app_version_id
+    - candidate_id
+    - natural_language_request
     type: object
   api.DeploymentPlan:
     properties:
@@ -363,6 +397,9 @@ definitions:
       observations:
         additionalProperties: {}
         type: object
+      run_id:
+        example: run-0123456789abcdef
+        type: string
       target_vm:
         $ref: '#/definitions/api.VMResourceSnapshot'
       workload:
@@ -383,6 +420,8 @@ definitions:
         $ref: '#/definitions/api.GuardDecision'
       handoff:
         $ref: '#/definitions/api.AgentInvocationPlan'
+      run_id:
+        type: string
       status:
         type: string
       valid:
@@ -568,6 +607,19 @@ definitions:
       valid:
         type: boolean
     type: object
+  api.SubmitControlRunRequest:
+    properties:
+      max_poll_attempts:
+        example: 60
+        maximum: 600
+        minimum: 1
+        type: integer
+      poll_interval_ms:
+        example: 1000
+        maximum: 60000
+        minimum: 1
+        type: integer
+    type: object
   api.VMCompatibilityCheck:
     properties:
       actual:
@@ -675,6 +727,252 @@ definitions:
     - evidence_status
     - id
     - source
+    type: object
+  appdeploy.DeploymentLog:
+    properties:
+      component:
+        type: string
+      deployment_id:
+        type: string
+      error_code:
+        type: string
+      level:
+        type: string
+      message:
+        type: string
+      request_id:
+        type: string
+      stage:
+        type: string
+      timestamp:
+        type: string
+    type: object
+  appdeploy.DeploymentManifest:
+    properties:
+      kind:
+        type: string
+      metadata:
+        $ref: '#/definitions/appdeploy.DeploymentMetadata'
+      schema_version:
+        type: string
+      spec:
+        $ref: '#/definitions/appdeploy.DeploymentSpec'
+    type: object
+  appdeploy.DeploymentMetadata:
+    properties:
+      name:
+        type: string
+    type: object
+  appdeploy.DeploymentResponse:
+    properties:
+      app_id:
+        type: string
+      app_version_id:
+        type: string
+      created_at:
+        type: string
+      deployment_id:
+        type: string
+      manifest:
+        $ref: '#/definitions/appdeploy.DeploymentManifest'
+      request_id:
+        type: string
+      status:
+        type: string
+      target_profile_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  appdeploy.DeploymentSpec:
+    properties:
+      accelerator:
+        type: string
+      app_version_id:
+        type: string
+      parameters:
+        additionalProperties: {}
+        type: object
+      requested_by:
+        type: string
+      resources:
+        $ref: '#/definitions/appdeploy.ResourceRequirements'
+      target_profile_id:
+        type: string
+    type: object
+  appdeploy.ResourceRequirements:
+    properties:
+      cpu:
+        type: string
+      gpu:
+        type: string
+      memory:
+        type: string
+      storage:
+        type: string
+    type: object
+  controlrun.AgentSelection:
+    properties:
+      action:
+        type: string
+      capability:
+        type: string
+      name:
+        type: string
+      reason:
+        type: string
+      source:
+        type: string
+    type: object
+  controlrun.Run:
+    properties:
+      correlation_ids:
+        items:
+          type: string
+        type: array
+      created_at:
+        type: string
+      deployment:
+        $ref: '#/definitions/appdeploy.DeploymentResponse'
+      generation:
+        $ref: '#/definitions/deploymentplanner.GenerateResult'
+      logs:
+        items:
+          $ref: '#/definitions/appdeploy.DeploymentLog'
+        type: array
+      manifest:
+        $ref: '#/definitions/appdeploy.DeploymentManifest'
+      polling:
+        $ref: '#/definitions/deploymentplanner.PollingResult'
+      request:
+        $ref: '#/definitions/controlrun.SafeRequest'
+      request_guard:
+        $ref: '#/definitions/plannerguard.Decision'
+      retry_reason:
+        type: string
+      retry_recommended:
+        type: boolean
+      run_id:
+        type: string
+      selected_agent:
+        $ref: '#/definitions/controlrun.AgentSelection'
+      stages:
+        items:
+          $ref: '#/definitions/controlrun.Stage'
+        type: array
+      status:
+        $ref: '#/definitions/controlrun.Status'
+      updated_at:
+        type: string
+    type: object
+  controlrun.SafeRequest:
+    properties:
+      agent_name:
+        type: string
+      app_version_id:
+        type: string
+      candidate_id:
+        type: string
+      natural_language_request:
+        type: string
+      requested_by:
+        type: string
+      target_profile_id:
+        type: string
+    type: object
+  controlrun.Stage:
+    properties:
+      details:
+        additionalProperties: {}
+        type: object
+      ended_at:
+        type: string
+      name:
+        type: string
+      reason:
+        type: string
+      started_at:
+        type: string
+      status:
+        type: string
+    type: object
+  controlrun.Status:
+    enum:
+    - RECEIVED
+    - REQUEST_REJECTED
+    - AGENT_REJECTED
+    - PLANNING
+    - MANIFEST_REJECTED
+    - MANIFEST_APPROVED
+    - SUBMITTING
+    - APPDEPLOY_FAILED
+    - DEPLOYED
+    type: string
+    x-enum-varnames:
+    - StatusReceived
+    - StatusRequestRejected
+    - StatusAgentRejected
+    - StatusPlanning
+    - StatusManifestRejected
+    - StatusManifestApproved
+    - StatusSubmitting
+    - StatusAppDeployFailed
+    - StatusDeployed
+  deploymentplanner.GenerateResult:
+    properties:
+      actual_model:
+        type: string
+      candidate_id:
+        type: string
+      execution_status:
+        type: string
+      guard_reason:
+        type: string
+      guard_valid:
+        type: boolean
+      latency_ms:
+        type: integer
+      manifest:
+        $ref: '#/definitions/appdeploy.DeploymentManifest'
+      provider:
+        type: string
+    type: object
+  deploymentplanner.PollingResult:
+    properties:
+      attempts:
+        type: integer
+      final_status:
+        type: string
+      logs_collected:
+        type: boolean
+      max_attempts:
+        type: integer
+      terminal:
+        type: boolean
+    type: object
+  plannerguard.Check:
+    properties:
+      name:
+        type: string
+      passed:
+        type: boolean
+      reason:
+        type: string
+    type: object
+  plannerguard.Decision:
+    properties:
+      checks:
+        items:
+          $ref: '#/definitions/plannerguard.Check'
+        type: array
+      policy_version:
+        type: string
+      reason:
+        type: string
+      status:
+        type: string
+      valid:
+        type: boolean
     type: object
 info:
   contact: {}
@@ -1106,6 +1404,164 @@ paths:
       summary: Delete one guarded autonomous loop event
       tags:
       - Autonomous Loop
+  /api/v1/control-runs:
+    delete:
+      description: Clear only the in-memory geon ControlRun store. This does not delete
+        AppDeploy or cloud resources.
+      operationId: DeleteControlRuns
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete all geon-owned ControlRun records
+      tags:
+      - AI Application Automation
+    get:
+      operationId: ListControlRuns
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List geon ControlRuns
+      tags:
+      - AI Application Automation
+    post:
+      consumes:
+      - application/json
+      description: Create a backend ControlRun, validate the request and Agent Registry
+        authorization, invoke the configured Qwen Planner, and return a Go-validated
+        DeploymentManifest without requiring AppDeploy.
+      operationId: CreateControlRun
+      parameters:
+      - description: Manifest planning request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.CreateControlRunRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+      summary: Generate a guarded DeploymentManifest
+      tags:
+      - AI Application Automation
+  /api/v1/control-runs/{run_id}:
+    delete:
+      description: Delete only the in-memory geon ControlRun. This does not delete
+        AppDeploy or cloud resources.
+      operationId: DeleteControlRun
+      parameters:
+      - description: ControlRun ID
+        in: path
+        name: run_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Delete one geon-owned ControlRun record
+      tags:
+      - AI Application Automation
+    get:
+      operationId: GetControlRun
+      parameters:
+      - description: ControlRun ID
+        in: path
+        name: run_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Get one geon ControlRun
+      tags:
+      - AI Application Automation
+  /api/v1/control-runs/{run_id}/submit:
+    post:
+      consumes:
+      - application/json
+      description: Revalidate the selected Agent submit permission and send the approved
+        DeploymentManifest to AppDeploy. AppDeploy retains final Target selection
+        and execution responsibility.
+      operationId: SubmitControlRun
+      parameters:
+      - description: ControlRun ID
+        in: path
+        name: run_id
+        required: true
+        type: string
+      - description: AppDeploy polling options
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.SubmitControlRunRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+      summary: Submit an approved ControlRun Manifest to AppDeploy
+      tags:
+      - AI Application Automation
   /api/v1/ops-llm/select:
     post:
       consumes:

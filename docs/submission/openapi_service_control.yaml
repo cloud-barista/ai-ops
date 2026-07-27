@@ -266,6 +266,168 @@ paths:
           description: Invalid or missing admin token for an external request
         "403":
           description: External mutations are disabled without an admin token
+  /api/v1/control-runs:
+    post:
+      operationId: CreateControlRun
+      summary: Generate and validate a DeploymentManifest
+      description: >
+        Runs the Go Request Guard, resolves an enabled Manifest Planner through
+        Agent Registry, invokes Qwen, and validates the generated Manifest with
+        the Go Manifest Guard. AppDeploy is not required for this operation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateControlRunRequest"
+      responses:
+        "201":
+          description: Manifest approved and retained as a ControlRun
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ControlRun"
+        "400":
+          description: Request Guard rejected the request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ControlRun"
+        "403":
+          description: Agent Registry rejected the requested Planner Agent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ControlRun"
+        "422":
+          description: Manifest Guard rejected the generated Manifest
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ControlRun"
+    get:
+      operationId: ListControlRuns
+      summary: List backend-owned ControlRuns
+      responses:
+        "200":
+          description: Newest-first ControlRun list
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [count, items]
+                properties:
+                  count: {type: integer, minimum: 0}
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ControlRun"
+                  runs:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ControlRun"
+    delete:
+      operationId: DeleteControlRuns
+      summary: Delete all geon-owned ControlRun records
+      description: This does not delete AppDeploy deployments or cloud resources.
+      security:
+        - {}
+        - AutonomyAdminToken: []
+      responses:
+        "200":
+          description: ControlRun store cleared
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted_count: {type: integer, minimum: 0}
+                  items: {type: array, maxItems: 0, items: {$ref: "#/components/schemas/ControlRun"}}
+  /api/v1/control-runs/{run_id}:
+    get:
+      operationId: GetControlRun
+      summary: Get one ControlRun and all recorded stages
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: ControlRun
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ControlRun"
+        "404":
+          $ref: "#/components/responses/BadRequest"
+    delete:
+      operationId: DeleteControlRun
+      summary: Delete one geon-owned ControlRun record
+      description: This does not delete AppDeploy deployments or cloud resources.
+      security:
+        - {}
+        - AutonomyAdminToken: []
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: Deleted ControlRun record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ControlRun"
+        "404":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/control-runs/{run_id}/submit:
+    post:
+      operationId: SubmitControlRun
+      summary: Submit an approved Manifest to AppDeploy
+      description: >
+        Revalidates submit_deployment_manifest permission through Agent Registry
+        and sends the exact approved Manifest to AppDeploy. This operation is
+        optional and can be retried after APPDEPLOY_FAILED.
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string}
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitControlRunRequest"
+      responses:
+        "200":
+          description: AppDeploy accepted the Manifest and returned deployment state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ControlRun"
+        "403":
+          description: Agent Registry denied Manifest submission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ControlRun"
+        "404":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          description: ControlRun is not in a submittable state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ControlRun"
+        "502":
+          description: AppDeploy submission or polling failed; Manifest remains stored
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ControlRun"
   /api/v1/planner/deployments:
     post:
       summary: Guard a request, generate a DeploymentManifest, and submit it to AppDeploy
@@ -523,6 +685,102 @@ components:
           schema:
             $ref: "#/components/schemas/ErrorResponse"
   schemas:
+    CreateControlRunRequest:
+      type: object
+      required: [natural_language_request, app_version_id, candidate_id]
+      properties:
+        natural_language_request:
+          type: string
+          maxLength: 8000
+          example: GPU 1개와 메모리 16Gi가 필요한 추론 앱의 Manifest를 생성해 주세요.
+        app_version_id: {type: string, example: appver-llm-inference-v1}
+        candidate_id: {type: string, example: qwen3.5-ops-planner}
+        target_profile_id:
+          type: string
+          description: Optional Target hint; AppDeploy still owns final selection.
+        requested_by: {type: string, example: ai-ops-geon-planner}
+        agent_name:
+          type: string
+          description: Optional explicit configuration Agent name.
+          example: AIApplicationAutomationAgent
+        parameters:
+          type: object
+          additionalProperties: true
+    SubmitControlRunRequest:
+      type: object
+      properties:
+        poll_interval_ms:
+          type: integer
+          minimum: 1
+          maximum: 60000
+          default: 1000
+        max_poll_attempts:
+          type: integer
+          minimum: 1
+          maximum: 600
+          default: 60
+    ControlRun:
+      type: object
+      required: [run_id, status, created_at, updated_at, request, request_guard, selected_agent, manifest, stages]
+      properties:
+        run_id: {type: string, example: run-4b53c2c1}
+        status:
+          type: string
+          enum: [RECEIVED, REQUEST_REJECTED, AGENT_REJECTED, PLANNING, MANIFEST_REJECTED, MANIFEST_APPROVED, SUBMITTING, APPDEPLOY_FAILED, DEPLOYED]
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+        request:
+          type: object
+          additionalProperties: true
+        request_guard:
+          $ref: "#/components/schemas/PlannerGuardDecision"
+        selected_agent:
+          type: object
+          properties:
+            name: {type: string}
+            capability: {type: string, example: deployment_manifest_planning}
+            action: {type: string, example: generate_deployment_manifest}
+            source: {type: string, example: configuration}
+            reason: {type: string}
+        generation:
+          type: object
+          additionalProperties: true
+        manifest:
+          $ref: "#/components/schemas/AppDeployDeploymentManifest"
+        deployment:
+          type: object
+          nullable: true
+          additionalProperties: true
+        polling:
+          type: object
+          nullable: true
+          additionalProperties: true
+        logs:
+          type: array
+          items: {type: object, additionalProperties: true}
+        retry_recommended: {type: boolean}
+        retry_reason: {type: string}
+        correlation_ids:
+          type: array
+          items: {type: string}
+        stages:
+          type: array
+          items:
+            $ref: "#/components/schemas/ControlRunStage"
+    ControlRunStage:
+      type: object
+      required: [name, status, started_at]
+      properties:
+        name:
+          type: string
+          example: manifest_guard
+        status: {type: string, example: approved}
+        reason: {type: string}
+        started_at: {type: string, format: date-time}
+        ended_at: {type: string, format: date-time, nullable: true}
+        details:
+          type: object
+          additionalProperties: true
     AppDeployPlannerRequest:
       type: object
       required: [natural_language_request, app_version_id, candidate_id]

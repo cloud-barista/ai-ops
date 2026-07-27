@@ -618,6 +618,233 @@
                 }
             }
         },
+        "/api/v1/control-runs": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "List geon ControlRuns",
+                "operationId": "ListControlRuns",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a backend ControlRun, validate the request and Agent Registry authorization, invoke the configured Qwen Planner, and return a Go-validated DeploymentManifest without requiring AppDeploy.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "Generate a guarded DeploymentManifest",
+                "operationId": "CreateControlRun",
+                "parameters": [
+                    {
+                        "description": "Manifest planning request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.CreateControlRunRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Clear only the in-memory geon ControlRun store. This does not delete AppDeploy or cloud resources.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "Delete all geon-owned ControlRun records",
+                "operationId": "DeleteControlRuns",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/control-runs/{run_id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "Get one geon ControlRun",
+                "operationId": "GetControlRun",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ControlRun ID",
+                        "name": "run_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete only the in-memory geon ControlRun. This does not delete AppDeploy or cloud resources.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "Delete one geon-owned ControlRun record",
+                "operationId": "DeleteControlRun",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ControlRun ID",
+                        "name": "run_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/control-runs/{run_id}/submit": {
+            "post": {
+                "description": "Revalidate the selected Agent submit permission and send the approved DeploymentManifest to AppDeploy. AppDeploy retains final Target selection and execution responsibility.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "Submit an approved ControlRun Manifest to AppDeploy",
+                "operationId": "SubmitControlRun",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ControlRun ID",
+                        "name": "run_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "AppDeploy polling options",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.SubmitControlRunRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/ops-llm/select": {
             "post": {
                 "description": "Rank Ops LLM candidates using the configured service-control benchmark policy.",
@@ -954,6 +1181,10 @@
                 "natural_language_request"
             ],
             "properties": {
+                "agent_name": {
+                    "type": "string",
+                    "example": "AIApplicationAutomationAgent"
+                },
                 "app_version_id": {
                     "type": "string",
                     "example": "appver-llm-inference-v1"
@@ -1019,6 +1250,9 @@
                 "received_at": {
                     "type": "string"
                 },
+                "run_id": {
+                    "type": "string"
+                },
                 "status": {
                     "type": "string"
                 },
@@ -1055,6 +1289,45 @@
                 },
                 "throughput_rps": {
                     "type": "number"
+                }
+            }
+        },
+        "api.CreateControlRunRequest": {
+            "type": "object",
+            "required": [
+                "app_version_id",
+                "candidate_id",
+                "natural_language_request"
+            ],
+            "properties": {
+                "agent_name": {
+                    "type": "string",
+                    "example": "AIApplicationAutomationAgent"
+                },
+                "app_version_id": {
+                    "type": "string",
+                    "example": "appver-llm-inference-v1"
+                },
+                "candidate_id": {
+                    "type": "string",
+                    "example": "qwen3.5-ops-planner"
+                },
+                "natural_language_request": {
+                    "type": "string",
+                    "maxLength": 8000,
+                    "example": "Deploy an inference application with one GPU and 16Gi memory."
+                },
+                "parameters": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "requested_by": {
+                    "type": "string",
+                    "example": "ai-ops-geon-planner"
+                },
+                "target_profile_id": {
+                    "type": "string",
+                    "example": "target-profile-hint"
                 }
             }
         },
@@ -1335,6 +1608,10 @@
                     "type": "object",
                     "additionalProperties": {}
                 },
+                "run_id": {
+                    "type": "string",
+                    "example": "run-0123456789abcdef"
+                },
                 "target_vm": {
                     "$ref": "#/definitions/api.VMResourceSnapshot"
                 },
@@ -1358,6 +1635,9 @@
                 },
                 "handoff": {
                     "$ref": "#/definitions/api.AgentInvocationPlan"
+                },
+                "run_id": {
+                    "type": "string"
                 },
                 "status": {
                     "type": "string"
@@ -1634,6 +1914,23 @@
                 }
             }
         },
+        "api.SubmitControlRunRequest": {
+            "type": "object",
+            "properties": {
+                "max_poll_attempts": {
+                    "type": "integer",
+                    "maximum": 600,
+                    "minimum": 1,
+                    "example": 60
+                },
+                "poll_interval_ms": {
+                    "type": "integer",
+                    "maximum": 60000,
+                    "minimum": 1,
+                    "example": 1000
+                }
+            }
+        },
         "api.VMCompatibilityCheck": {
             "type": "object",
             "properties": {
@@ -1793,6 +2090,373 @@
                 },
                 "source": {
                     "type": "string"
+                }
+            }
+        },
+        "appdeploy.DeploymentLog": {
+            "type": "object",
+            "properties": {
+                "component": {
+                    "type": "string"
+                },
+                "deployment_id": {
+                    "type": "string"
+                },
+                "error_code": {
+                    "type": "string"
+                },
+                "level": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "request_id": {
+                    "type": "string"
+                },
+                "stage": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                }
+            }
+        },
+        "appdeploy.DeploymentManifest": {
+            "type": "object",
+            "properties": {
+                "kind": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/appdeploy.DeploymentMetadata"
+                },
+                "schema_version": {
+                    "type": "string"
+                },
+                "spec": {
+                    "$ref": "#/definitions/appdeploy.DeploymentSpec"
+                }
+            }
+        },
+        "appdeploy.DeploymentMetadata": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "appdeploy.DeploymentResponse": {
+            "type": "object",
+            "properties": {
+                "app_id": {
+                    "type": "string"
+                },
+                "app_version_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deployment_id": {
+                    "type": "string"
+                },
+                "manifest": {
+                    "$ref": "#/definitions/appdeploy.DeploymentManifest"
+                },
+                "request_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "target_profile_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "appdeploy.DeploymentSpec": {
+            "type": "object",
+            "properties": {
+                "accelerator": {
+                    "type": "string"
+                },
+                "app_version_id": {
+                    "type": "string"
+                },
+                "parameters": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "requested_by": {
+                    "type": "string"
+                },
+                "resources": {
+                    "$ref": "#/definitions/appdeploy.ResourceRequirements"
+                },
+                "target_profile_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "appdeploy.ResourceRequirements": {
+            "type": "object",
+            "properties": {
+                "cpu": {
+                    "type": "string"
+                },
+                "gpu": {
+                    "type": "string"
+                },
+                "memory": {
+                    "type": "string"
+                },
+                "storage": {
+                    "type": "string"
+                }
+            }
+        },
+        "controlrun.AgentSelection": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "capability": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                }
+            }
+        },
+        "controlrun.Run": {
+            "type": "object",
+            "properties": {
+                "correlation_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deployment": {
+                    "$ref": "#/definitions/appdeploy.DeploymentResponse"
+                },
+                "generation": {
+                    "$ref": "#/definitions/deploymentplanner.GenerateResult"
+                },
+                "logs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/appdeploy.DeploymentLog"
+                    }
+                },
+                "manifest": {
+                    "$ref": "#/definitions/appdeploy.DeploymentManifest"
+                },
+                "polling": {
+                    "$ref": "#/definitions/deploymentplanner.PollingResult"
+                },
+                "request": {
+                    "$ref": "#/definitions/controlrun.SafeRequest"
+                },
+                "request_guard": {
+                    "$ref": "#/definitions/plannerguard.Decision"
+                },
+                "retry_reason": {
+                    "type": "string"
+                },
+                "retry_recommended": {
+                    "type": "boolean"
+                },
+                "run_id": {
+                    "type": "string"
+                },
+                "selected_agent": {
+                    "$ref": "#/definitions/controlrun.AgentSelection"
+                },
+                "stages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controlrun.Stage"
+                    }
+                },
+                "status": {
+                    "$ref": "#/definitions/controlrun.Status"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "controlrun.SafeRequest": {
+            "type": "object",
+            "properties": {
+                "agent_name": {
+                    "type": "string"
+                },
+                "app_version_id": {
+                    "type": "string"
+                },
+                "candidate_id": {
+                    "type": "string"
+                },
+                "natural_language_request": {
+                    "type": "string"
+                },
+                "requested_by": {
+                    "type": "string"
+                },
+                "target_profile_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "controlrun.Stage": {
+            "type": "object",
+            "properties": {
+                "details": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "ended_at": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "started_at": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "controlrun.Status": {
+            "type": "string",
+            "enum": [
+                "RECEIVED",
+                "REQUEST_REJECTED",
+                "AGENT_REJECTED",
+                "PLANNING",
+                "MANIFEST_REJECTED",
+                "MANIFEST_APPROVED",
+                "SUBMITTING",
+                "APPDEPLOY_FAILED",
+                "DEPLOYED"
+            ],
+            "x-enum-varnames": [
+                "StatusReceived",
+                "StatusRequestRejected",
+                "StatusAgentRejected",
+                "StatusPlanning",
+                "StatusManifestRejected",
+                "StatusManifestApproved",
+                "StatusSubmitting",
+                "StatusAppDeployFailed",
+                "StatusDeployed"
+            ]
+        },
+        "deploymentplanner.GenerateResult": {
+            "type": "object",
+            "properties": {
+                "actual_model": {
+                    "type": "string"
+                },
+                "candidate_id": {
+                    "type": "string"
+                },
+                "execution_status": {
+                    "type": "string"
+                },
+                "guard_reason": {
+                    "type": "string"
+                },
+                "guard_valid": {
+                    "type": "boolean"
+                },
+                "latency_ms": {
+                    "type": "integer"
+                },
+                "manifest": {
+                    "$ref": "#/definitions/appdeploy.DeploymentManifest"
+                },
+                "provider": {
+                    "type": "string"
+                }
+            }
+        },
+        "deploymentplanner.PollingResult": {
+            "type": "object",
+            "properties": {
+                "attempts": {
+                    "type": "integer"
+                },
+                "final_status": {
+                    "type": "string"
+                },
+                "logs_collected": {
+                    "type": "boolean"
+                },
+                "max_attempts": {
+                    "type": "integer"
+                },
+                "terminal": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "plannerguard.Check": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "passed": {
+                    "type": "boolean"
+                },
+                "reason": {
+                    "type": "string"
+                }
+            }
+        },
+        "plannerguard.Decision": {
+            "type": "object",
+            "properties": {
+                "checks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/plannerguard.Check"
+                    }
+                },
+                "policy_version": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
                 }
             }
         }

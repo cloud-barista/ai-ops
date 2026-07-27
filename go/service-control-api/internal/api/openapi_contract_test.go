@@ -23,6 +23,25 @@ func TestSubmissionOpenAPIIsValidYAML(t *testing.T) {
 	}
 }
 
+func TestSubmissionOpenAPIIncludesControlRunWorkflow(t *testing.T) {
+	config := NewServerConfig()
+	content, err := os.ReadFile(config.OpenAPIPath)
+	if err != nil {
+		t.Fatalf("read submission OpenAPI: %v", err)
+	}
+	for _, expected := range []string{
+		"/api/v1/control-runs:",
+		"/api/v1/control-runs/{run_id}:",
+		"/api/v1/control-runs/{run_id}/submit:",
+		"CreateControlRun",
+		"SubmitControlRun",
+	} {
+		if !strings.Contains(string(content), expected) {
+			t.Fatalf("submission OpenAPI is missing %q", expected)
+		}
+	}
+}
+
 func TestGeneratedSwaggerContainsDeletionOperations(t *testing.T) {
 	config := NewServerConfig()
 	for _, path := range []string{
@@ -40,6 +59,31 @@ func TestGeneratedSwaggerContainsDeletionOperations(t *testing.T) {
 			"GetAutomationFeedback",
 			"DeleteAutomationFeedback",
 			"DeleteAllAutomationFeedback",
+		} {
+			if !strings.Contains(string(content), operationID) {
+				t.Fatalf("generated Swagger %s is missing %s", path, operationID)
+			}
+		}
+	}
+}
+
+func TestGeneratedSwaggerIncludesControlRunOperations(t *testing.T) {
+	config := NewServerConfig()
+	for _, path := range []string{
+		config.path("go", "service-control-api", "docs", "swagger", "swagger.json"),
+		config.path("go", "service-control-api", "docs", "swagger", "swagger.yaml"),
+	} {
+		content, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("read generated Swagger %s: %v", path, err)
+		}
+		for _, operationID := range []string{
+			"CreateControlRun",
+			"ListControlRuns",
+			"GetControlRun",
+			"SubmitControlRun",
+			"DeleteControlRun",
+			"DeleteControlRuns",
 		} {
 			if !strings.Contains(string(content), operationID) {
 				t.Fatalf("generated Swagger %s is missing %s", path, operationID)

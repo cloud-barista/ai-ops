@@ -2,7 +2,7 @@
 
 ## geon Agent Control 실행 가이드
 
-geon Agent Control은 Agent Registry, Qwen 기반 Action 및 배포 계획 생성, Go Guard 승인·거부, AppDeploy 전달 결과와 실행 Feedback을 확인하는 웹 화면입니다. AppDeploy 소스는 수정하지 않으며 두 서버를 별도 프로세스로 실행합니다.
+geon Agent Control은 backend `ControlRun`을 중심으로 Agent Registry, Qwen 기반 Manifest 생성, Go Guard 승인·거부, 선택적 AppDeploy 전달, 배포 후 Autonomous Loop와 실행 Feedback을 연결하는 웹 화면입니다. AppDeploy 소스는 수정하지 않으며 두 서버를 별도 프로세스로 실행합니다.
 
 ### 구성과 포트
 
@@ -17,7 +17,8 @@ geon Agent Control은 Agent Registry, Qwen 기반 Action 및 배포 계획 생�
 - Go가 설치되어 있어야 합니다. Go `1.22` 이상을 권장합니다.
 - Ollama가 설치되어 있어야 합니다.
 - `qwen3.5:4b` 모델이 Ollama에 준비되어 있어야 합니다.
-- AppDeploy 저장소와 geon 저장소를 각각 로컬에 준비합니다.
+- geon 저장소를 로컬에 준비합니다.
+- 실제 배포까지 실행할 때만 AppDeploy 저장소를 준비합니다.
 
 Git Bash에서 Go를 찾지 못하면 다음과 같이 PATH를 추가합니다.
 
@@ -40,9 +41,9 @@ Git Bash에서 `ollama: command not found`가 나오면 Windows 설치 경로의
 "$HOME/AppData/Local/Programs/Ollama/ollama.exe" pull qwen3.5:4b
 ```
 
-### 2. AppDeploy 실행
+### 2. AppDeploy 실행(선택)
 
-AppDeploy 저장소 내부에서 첫 번째 터미널을 열고 실행합니다. Git이 실제 저장소 루트를 자동으로 찾습니다.
+Manifest 생성만 시험할 때는 이 단계를 생략할 수 있습니다. 실제 Target 선택과 VM 배포까지 시험할 때 AppDeploy 저장소 내부에서 첫 번째 터미널을 열고 실행합니다.
 
 ```bash
 export PATH="/c/Program Files/Go/bin:$PATH"
@@ -74,6 +75,7 @@ export PATH="/c/Program Files/Go/bin:$PATH"
 export AIOPS_REPO_ROOT="$(git rev-parse --show-toplevel)"
 export AIOPS_LLM_CANDIDATES_PATH="config/ops_llm_eval_candidates.local_ollama.json"
 export AIOPS_PLANNER_GUARD_POLICY_PATH="config/planner_guard_policy.json"
+# Manifest 생성만 시험할 때는 아래 변수를 생략할 수 있습니다.
 export AIOPS_APPDEPLOY_BASE_URL="http://127.0.0.1:8080/api/v1"
 export AIOPS_BIND_ADDRESS="127.0.0.1"
 export PORT=18080
@@ -103,14 +105,14 @@ curl http://127.0.0.1:18080/healthz
 
 ### 4. 화면 사용 순서
 
-1. AppDeploy에서 Mock Target을 등록합니다.
-2. AppDeploy에서 테스트 App을 등록하고 `app_version_id`를 복사합니다.
-3. geon의 **Agents & Guard**에서 Agent Registry와 허용 Action을 확인합니다.
-4. 필요한 경우 **Agent 등록**에서 `AppDeployExecutorAgent`를 등록합니다.
-5. **Deployment Planner**의 자연어 요구와 `app_version_id`를 입력합니다.
-6. Target을 고정하려면 `Target Hint`에 `target-mock-001`과 같은 Target Profile ID를 입력합니다.
-7. **Generate & Deploy**를 실행하고 Request Guard, Qwen 모델, Manifest Guard, 배포 상태와 로그를 확인합니다.
-8. 외부 실행 결과가 있으면 **Feedback**에서 correlation ID와 실행 상태를 기록합니다.
+1. 실제 배포 시험이면 AppDeploy에 Target과 App을 등록하고 `app_version_id`를 복사합니다. Manifest-only 시험에서는 형식이 유효한 시험 ID를 사용할 수 있습니다.
+2. **Agents & Guard**에서 `deployment_manifest_planning` capability와 `generate_deployment_manifest` bounded Action을 가진 활성 Agent를 확인합니다.
+3. **Deployment Planner**의 자연어 요구, `app_version_id`, Qwen candidate를 입력합니다.
+4. **Generate Manifest**를 실행합니다.
+5. 동일한 `run_id` 아래 Request Guard → Agent Registry → Qwen Planner → Manifest Guard가 순서대로 기록되고, 성공 시 `MANIFEST_APPROVED`와 최종 Manifest가 표시됩니다.
+6. 실제 배포가 필요할 때만 **Submit to AppDeploy**를 실행합니다. Target hint는 선택 사항이며 AppDeploy가 최종 Target과 Runtime Adapter를 결정합니다.
+7. `DEPLOYED` Run만 **배포 후 자율 운영 실험**의 선택지에 나타납니다. Run을 선택해도 Loop가 자동 시작되지는 않습니다.
+8. Action Proposal과 Feedback은 동일한 `run_id`와 correlation ID로 배포 후 기록에 연결할 수 있습니다.
 
 자연어 요청 예시는 다음과 같습니다.
 
@@ -124,17 +126,29 @@ Mock 환경에서 CPU 1개, 메모리 1Gi, GPU 0개,
 ```text
 자연어 요청
 → Go Request Guard
+→ Agent Registry에서 Manifest Planner 권한 확인
 → Qwen Deployment Manifest 생성
 → Go Manifest Guard
-→ AppDeploy API 호출
-→ 배포 상태·로그 확인
-→ Feedback 기록
+→ 최종 DeploymentManifest + MANIFEST_APPROVED
+→ (선택) AppDeploy API 호출
+→ (선택) 배포 상태·로그·Autonomous Loop·Feedback
+```
+
+Manifest 전용 API와 선택적 제출 API는 다음처럼 분리됩니다.
+
+```text
+POST /api/v1/control-runs
+GET  /api/v1/control-runs/{run_id}
+POST /api/v1/control-runs/{run_id}/submit
 ```
 
 ### 5. 실행 상태의 의미
 
 - `approved`: Qwen 제안과 Go Guard 검증이 통과했습니다.
 - `rejected`: 정책 또는 Agent bounded Action 검증에서 거부되었습니다.
+- `MANIFEST_APPROVED`: geon의 최종 산출물인 Manifest가 생성·검증됐으며 AppDeploy 제출 전입니다.
+- `APPDEPLOY_FAILED`: Manifest는 보존됐지만 선택적 AppDeploy 제출 또는 조회가 실패했습니다.
+- `DEPLOYED`: AppDeploy가 Manifest를 수락해 `deployment_id`가 Run에 연결됐습니다.
 - `pending_executor`: 판단과 검증은 완료됐지만 실행 Agent가 등록되지 않았습니다.
 - `not_executed`: 실행 계획만 생성했으며 해당 Action을 직접 실행하지 않았습니다.
 - `RUNNING`, `STOPPED`, `FAILED`: AppDeploy가 반환한 실제 배포 상태입니다.
@@ -154,12 +168,12 @@ curl http://127.0.0.1:18080/healthz
 - `connection refused`: 해당 서버가 실행되지 않았거나 포트가 다릅니다.
 - `candidate not found`: Qwen 후보 설정 파일 또는 candidate ID를 확인합니다.
 - `model not found`: Ollama에서 `qwen3.5:4b`를 먼저 pull 합니다.
-- `AppDeploy base URL is required`: `AIOPS_APPDEPLOY_BASE_URL` 환경변수를 설정합니다.
+- `AppDeploy base URL is required`: Manifest 생성은 완료할 수 있지만 제출하려면 `AIOPS_APPDEPLOY_BASE_URL`을 설정해야 합니다.
 - AppDeploy 배포 요청 실패: App과 Target이 등록됐는지 먼저 확인합니다.
 
-### 7. Autonomous Loop 실행
+### 7. 배포 후 자율 운영 실험
 
-**Autonomous Loop**는 AppDeploy의 배포 상태와 추론 지표를 주기적으로 읽고, SLO 위반을 Qwen과 Go Guard로 판단한 뒤 설정된 모드에 따라 Action을 제안하거나 실행합니다.
+**Autonomous Loop**는 Manifest 생성의 필수 단계가 아닌 선택적 배포 후 실험입니다. `DEPLOYED` ControlRun의 AppDeploy 배포 상태와 추론 지표를 주기적으로 읽고, SLO 위반을 Qwen과 Go Guard로 판단한 뒤 설정된 모드에 따라 Action을 제안하거나 실행합니다.
 
 ```text
 AppDeploy 상태·Metric
@@ -244,7 +258,7 @@ Agent Control의 삭제 기능은 geon이 소유한 시험 데이터에만 적�
 - `config/agent_registry.json`에서 읽은 Configuration Agent에는 삭제 버튼이 표시되지 않습니다.
 - **Decision Timeline**의 행 휴지통은 선택한 이벤트만 삭제하고, 헤더 휴지통은 이벤트 전체를 비웁니다. Sequence를 다시 부여하지 않으며 Loop 설정, 상태, cooldown 및 Action budget은 유지됩니다.
 - **Feedback**의 행 휴지통은 선택한 실행 Feedback만 삭제하고, 헤더 휴지통은 Feedback 전체를 비웁니다. 승인된 correlation 등록은 유지되므로 같은 실행의 정상 Feedback을 다시 기록할 수 있습니다.
-- **최근 제어 결과**의 행 휴지통은 브라우저 localStorage의 선택 기록만 삭제하고, `기록 삭제`는 해당 기록 전체를 비웁니다.
+- **최근 Manifest 실행**의 행 휴지통은 geon 프로세스 메모리의 선택 ControlRun만 삭제하고, `Run 기록 삭제`는 ControlRun 전체를 비웁니다. 서버 재시작 시에도 메모리 기록은 초기화됩니다.
 - AppDeploy App·Deployment·Runtime Profile·Target Profile과 CB-Tumblebug Infra·VM은 삭제하지 않습니다.
 
 로컬 API에서 같은 동작을 확인할 수 있습니다.
