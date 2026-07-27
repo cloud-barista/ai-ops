@@ -19,6 +19,7 @@ const (
 )
 
 var agentNamePattern = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_-]{2,63}$`)
+var environmentNamePattern = regexp.MustCompile(`^[A-Z_][A-Z0-9_]{1,127}$`)
 
 var (
 	errRuntimeAgentNotFound     = errors.New("runtime agent was not found")
@@ -111,6 +112,7 @@ func (service Service) RegisterExternalAgent(ctx context.Context, request Extern
 		Enabled:          enabled,
 		Endpoint:         strings.TrimRight(strings.TrimSpace(request.Endpoint), "/"),
 		InvocationPath:   request.InvocationPath,
+		AuthTokenEnv:     strings.TrimSpace(request.AuthTokenEnv),
 		Source:           agentSourceRuntime,
 		RegisteredAt:     time.Now().UTC().Format(time.RFC3339),
 	}
@@ -196,6 +198,9 @@ func validateExternalAgentRegistration(request ExternalAgentRegistrationRequest)
 	}
 	if strings.Contains(request.InvocationPath, "..") {
 		return fmt.Errorf("invocation_path must not contain parent path segments")
+	}
+	if request.AuthTokenEnv != "" && !environmentNamePattern.MatchString(request.AuthTokenEnv) {
+		return fmt.Errorf("auth_token_env must match %s", environmentNamePattern.String())
 	}
 	return nil
 }

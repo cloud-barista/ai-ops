@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/spf13/viper"
 )
@@ -18,6 +19,7 @@ type ServerConfig struct {
 	AppDeployBaseURL       string
 	BindAddress            string
 	AutonomyAdminToken     string
+	AgentExecutionTimeout  time.Duration
 }
 
 func NewServerConfig() ServerConfig {
@@ -48,6 +50,13 @@ func NewServerConfig() ServerConfig {
 	if bindAddress == "" {
 		bindAddress = "127.0.0.1"
 	}
+	agentExecutionTimeoutSeconds := viper.GetInt("AGENT_EXECUTION_TIMEOUT_SECONDS")
+	if agentExecutionTimeoutSeconds <= 0 {
+		agentExecutionTimeoutSeconds = 30
+	}
+	if agentExecutionTimeoutSeconds > 120 {
+		agentExecutionTimeoutSeconds = 120
+	}
 	return ServerConfig{
 		RepoRoot:               repoRoot,
 		OpenAPIPath:            openAPIPath,
@@ -56,6 +65,7 @@ func NewServerConfig() ServerConfig {
 		AppDeployBaseURL:       viper.GetString("APPDEPLOY_BASE_URL"),
 		BindAddress:            bindAddress,
 		AutonomyAdminToken:     viper.GetString("AUTONOMY_ADMIN_TOKEN"),
+		AgentExecutionTimeout:  time.Duration(agentExecutionTimeoutSeconds) * time.Second,
 	}
 }
 

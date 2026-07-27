@@ -85,6 +85,41 @@ func TestRegisterExternalAgentRejectsDuplicateAndUnsafeEndpoint(t *testing.T) {
 	}
 }
 
+func TestRegisterExternalAgentValidatesAuthTokenEnvironmentReference(t *testing.T) {
+	service := NewService(NewServerConfig())
+	ctx := context.Background()
+	registered, err := service.RegisterExternalAgent(ctx, ExternalAgentRegistrationRequest{
+		Name:           "AuthenticatedResearchAgent",
+		Version:        "0.1.0",
+		Role:           "Review deployment research evidence.",
+		Endpoint:       "https://agent.example.com",
+		InvocationPath: "/v1/actions",
+		Capabilities:   []string{"deployment_review"},
+		BoundedActions: []string{"review_deployment_plan"},
+		AuthTokenEnv:   "RESEARCH_AGENT_TOKEN",
+	})
+	if err != nil {
+		t.Fatalf("register authenticated Agent: %v", err)
+	}
+	if registered.AuthTokenEnv != "RESEARCH_AGENT_TOKEN" {
+		t.Fatalf("auth token environment reference was not retained: %#v", registered)
+	}
+
+	_, err = service.RegisterExternalAgent(ctx, ExternalAgentRegistrationRequest{
+		Name:           "UnsafeAuthReferenceAgent",
+		Version:        "0.1.0",
+		Role:           "Invalid authentication reference.",
+		Endpoint:       "https://agent.example.com",
+		InvocationPath: "/v1/actions",
+		Capabilities:   []string{"deployment_review"},
+		BoundedActions: []string{"review_deployment_plan"},
+		AuthTokenEnv:   "value-with-lowercase",
+	})
+	if err == nil {
+		t.Fatal("expected unsafe authentication environment name to be rejected")
+	}
+}
+
 func TestBuildAgentInvocationPlanRejectsUnboundedCapabilityAndAction(t *testing.T) {
 	service := NewService(NewServerConfig())
 	ctx := context.Background()

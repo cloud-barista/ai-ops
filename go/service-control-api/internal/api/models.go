@@ -17,6 +17,7 @@ type AgentProfile struct {
 	Enabled          bool     `json:"enabled"`
 	Endpoint         string   `json:"endpoint,omitempty"`
 	InvocationPath   string   `json:"invocation_path,omitempty"`
+	AuthTokenEnv     string   `json:"auth_token_env,omitempty"`
 	Source           string   `json:"source,omitempty"`
 	RegisteredAt     string   `json:"registered_at,omitempty"`
 }
@@ -29,6 +30,7 @@ type ExternalAgentRegistrationRequest struct {
 	Responsibilities []string `json:"responsibilities"`
 	Endpoint         string   `json:"endpoint" validate:"required"`
 	InvocationPath   string   `json:"invocation_path" validate:"required"`
+	AuthTokenEnv     string   `json:"auth_token_env,omitempty"`
 	Capabilities     []string `json:"capabilities" validate:"required,min=1,dive,required"`
 	BoundedActions   []string `json:"bounded_actions" validate:"required,min=1,dive,required"`
 	RewardSignals    []string `json:"reward_signals"`
