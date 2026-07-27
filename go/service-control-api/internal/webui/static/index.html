@@ -16,20 +16,20 @@
       </div>
 
       <nav class="primary-nav">
-        <button class="nav-item is-active" type="button" data-view-target="overview" aria-label="Overview">
-          <i data-lucide="layout-dashboard" aria-hidden="true"></i><span>Overview</span>
+        <button class="nav-item is-active" type="button" data-view-target="planner" aria-label="Manifest Workflow">
+          <i data-lucide="route" aria-hidden="true"></i><span>Manifest Workflow</span>
         </button>
         <button class="nav-item" type="button" data-view-target="agents" aria-label="Agents &amp; Guard">
           <i data-lucide="shield-check" aria-hidden="true"></i><span>Agents &amp; Guard</span>
         </button>
-        <button class="nav-item" type="button" data-view-target="planner" aria-label="Deployment Planner">
-          <i data-lucide="route" aria-hidden="true"></i><span>Deployment Planner</span>
-        </button>
-        <button class="nav-item" type="button" data-view-target="autonomy" aria-label="Post-deployment Autonomy">
-          <i data-lucide="repeat-2" aria-hidden="true"></i><span>배포 후 자율 운영</span>
+        <button class="nav-item" type="button" data-view-target="autonomy" aria-label="Post-deployment">
+          <i data-lucide="repeat-2" aria-hidden="true"></i><span>Post-deployment</span>
         </button>
         <button class="nav-item" type="button" data-view-target="feedback" aria-label="Feedback">
           <i data-lucide="activity" aria-hidden="true"></i><span>Feedback</span>
+        </button>
+        <button class="nav-item" type="button" data-view-target="overview" aria-label="Guide">
+          <i data-lucide="book-open" aria-hidden="true"></i><span>Guide</span>
         </button>
       </nav>
 
@@ -56,7 +56,55 @@
         </div>
       </header>
 
-      <section class="view is-active" data-view="overview">
+      <section class="view is-active" data-view="planner">
+        <div class="view-heading">
+          <div><p class="section-label">REQUEST GUARD → AGENT REGISTRY → QWEN → MANIFEST GUARD</p><h2>Deployment Planner</h2></div>
+          <span class="scope-badge">DeploymentManifest</span>
+        </div>
+        <div class="split-layout planner-layout">
+          <section class="panel form-panel" aria-labelledby="planner-form-title">
+            <div class="panel-header"><div><p class="section-label">REQUEST</p><h3 id="planner-form-title">배포 요구</h3></div></div>
+            <form id="planner-form" class="form-grid">
+              <label class="field full"><span>자연어 요구</span><textarea name="natural_language_request" rows="5" required>Mock 환경에서 CPU 1, 메모리 1Gi, GPU 0, 스토리지 1Gi로 테스트 앱을 배포해 주세요.</textarea></label>
+              <label class="field full"><span>App Version ID</span><input name="app_version_id" placeholder="appver-..." autocomplete="off" required></label>
+              <label class="field"><span>LLM Candidate</span><input name="candidate_id" value="qwen3.5-ops-planner" required></label>
+              <label class="field"><span>Planner Agent</span><input name="agent_name" value="AIApplicationAutomationAgent" required></label>
+              <label class="field"><span>Target Hint</span><input name="target_profile_id" placeholder="target-mock-001"></label>
+              <label class="field"><span>Polling Interval</span><input name="poll_interval_ms" type="number" min="100" max="60000" value="500"></label>
+              <label class="field"><span>Max Attempts</span><input name="max_poll_attempts" type="number" min="1" max="600" value="60"></label>
+              <div class="form-actions full">
+                <button class="button button-primary" type="submit"><i data-lucide="file-json" aria-hidden="true"></i><span>Generate Manifest</span></button>
+                <button class="button button-secondary" id="planner-submit" type="button" disabled><i data-lucide="send" aria-hidden="true"></i><span>Submit to AppDeploy</span></button>
+              </div>
+            </form>
+          </section>
+
+          <section class="panel result-panel" aria-labelledby="planner-result-title">
+            <div class="panel-header"><div><p class="section-label">RESULT</p><h3 id="planner-result-title">실행 결과</h3></div><button class="icon-button" type="button" data-copy-target="planner-json" title="JSON 복사" aria-label="Planner JSON 복사"><i data-lucide="copy" aria-hidden="true"></i></button></div>
+            <div class="result-empty" id="planner-empty"><i data-lucide="route" aria-hidden="true"></i><strong>대기 중</strong></div>
+            <ol class="manifest-stage-flow" id="manifest-stage-flow" aria-label="Manifest 泥섎━ ?④퀎"></ol>
+            <div id="planner-summary" hidden>
+              <div class="result-status-line"><span class="status-badge" id="planner-status">-</span><span id="planner-deployment-id">Run ID 없음</span></div>
+              <dl class="result-facts">
+                <div><dt>Model</dt><dd id="planner-model">-</dd></div>
+                <div><dt>Agent Registry</dt><dd id="planner-agent">-</dd></div>
+                <div><dt>Request Guard</dt><dd id="planner-request-guard">-</dd></div>
+                <div><dt>Manifest Guard</dt><dd id="planner-manifest-guard">-</dd></div>
+                <div><dt>Target</dt><dd id="planner-target">-</dd></div>
+                <div><dt>Latency</dt><dd id="planner-latency">-</dd></div>
+                <div><dt>Logs</dt><dd id="planner-log-count">-</dd></div>
+              </dl>
+            </div>
+            <pre class="json-output" id="planner-json">아직 실행 결과가 없습니다.</pre>
+          </section>
+        </div>
+        <section class="panel control-run-detail-panel" aria-labelledby="control-run-detail-title">
+          <div class="panel-header"><div><p class="section-label">SELECTED RUN</p><h3 id="control-run-detail-title">ControlRun 단계</h3></div><code id="selected-run-id">선택된 Run 없음</code></div>
+          <ol class="control-run-timeline" id="control-run-timeline"><li class="empty-state">Run을 선택하면 Request Guard부터 Manifest Guard까지의 단계가 표시됩니다.</li></ol>
+        </section>
+      </section>
+
+      <section class="view" data-view="overview" hidden>
         <div class="view-heading">
           <div><p class="section-label">SYSTEM STATE</p><h2>AI 응용 제어 상태</h2></div>
           <time id="last-updated">-</time>
@@ -120,53 +168,6 @@
           </div>
           <p class="experiment-guide-note"><strong>핵심 범위:</strong> 1~2단계만으로 검증된 DeploymentManifest를 확인할 수 있습니다. 3~5단계는 AppDeploy 연결 후 수행하는 선택 실험입니다.</p>
         </details>
-      </section>
-
-      <section class="view" data-view="planner" hidden>
-        <div class="view-heading">
-          <div><p class="section-label">REQUEST GUARD → AGENT REGISTRY → QWEN → MANIFEST GUARD</p><h2>Deployment Planner</h2></div>
-          <span class="scope-badge">DeploymentManifest</span>
-        </div>
-        <div class="split-layout planner-layout">
-          <section class="panel form-panel" aria-labelledby="planner-form-title">
-            <div class="panel-header"><div><p class="section-label">REQUEST</p><h3 id="planner-form-title">배포 요구</h3></div></div>
-            <form id="planner-form" class="form-grid">
-              <label class="field full"><span>자연어 요구</span><textarea name="natural_language_request" rows="5" required>Mock 환경에서 CPU 1, 메모리 1Gi, GPU 0, 스토리지 1Gi로 테스트 앱을 배포해 주세요.</textarea></label>
-              <label class="field full"><span>App Version ID</span><input name="app_version_id" placeholder="appver-..." autocomplete="off" required></label>
-              <label class="field"><span>LLM Candidate</span><input name="candidate_id" value="qwen3.5-ops-planner" required></label>
-              <label class="field"><span>Planner Agent</span><input name="agent_name" value="AIApplicationAutomationAgent" required></label>
-              <label class="field"><span>Target Hint</span><input name="target_profile_id" placeholder="target-mock-001"></label>
-              <label class="field"><span>Polling Interval</span><input name="poll_interval_ms" type="number" min="100" max="60000" value="500"></label>
-              <label class="field"><span>Max Attempts</span><input name="max_poll_attempts" type="number" min="1" max="600" value="60"></label>
-              <div class="form-actions full">
-                <button class="button button-primary" type="submit"><i data-lucide="file-json" aria-hidden="true"></i><span>Generate Manifest</span></button>
-                <button class="button button-secondary" id="planner-submit" type="button" disabled><i data-lucide="send" aria-hidden="true"></i><span>Submit to AppDeploy</span></button>
-              </div>
-            </form>
-          </section>
-
-          <section class="panel result-panel" aria-labelledby="planner-result-title">
-            <div class="panel-header"><div><p class="section-label">RESULT</p><h3 id="planner-result-title">실행 결과</h3></div><button class="icon-button" type="button" data-copy-target="planner-json" title="JSON 복사" aria-label="Planner JSON 복사"><i data-lucide="copy" aria-hidden="true"></i></button></div>
-            <div class="result-empty" id="planner-empty"><i data-lucide="route" aria-hidden="true"></i><strong>대기 중</strong></div>
-            <div id="planner-summary" hidden>
-              <div class="result-status-line"><span class="status-badge" id="planner-status">-</span><span id="planner-deployment-id">Run ID 없음</span></div>
-              <dl class="result-facts">
-                <div><dt>Model</dt><dd id="planner-model">-</dd></div>
-                <div><dt>Agent Registry</dt><dd id="planner-agent">-</dd></div>
-                <div><dt>Request Guard</dt><dd id="planner-request-guard">-</dd></div>
-                <div><dt>Manifest Guard</dt><dd id="planner-manifest-guard">-</dd></div>
-                <div><dt>Target</dt><dd id="planner-target">-</dd></div>
-                <div><dt>Latency</dt><dd id="planner-latency">-</dd></div>
-                <div><dt>Logs</dt><dd id="planner-log-count">-</dd></div>
-              </dl>
-            </div>
-            <pre class="json-output" id="planner-json">아직 실행 결과가 없습니다.</pre>
-          </section>
-        </div>
-        <section class="panel control-run-detail-panel" aria-labelledby="control-run-detail-title">
-          <div class="panel-header"><div><p class="section-label">SELECTED RUN</p><h3 id="control-run-detail-title">ControlRun 단계</h3></div><code id="selected-run-id">선택된 Run 없음</code></div>
-          <ol class="control-run-timeline" id="control-run-timeline"><li class="empty-state">Run을 선택하면 Request Guard부터 Manifest Guard까지의 단계가 표시됩니다.</li></ol>
-        </section>
       </section>
 
       <section class="view" data-view="agents" hidden>

@@ -176,30 +176,56 @@ func TestControlAppContainsOrderedExperimentGuide(t *testing.T) {
 		}
 	}
 
-	navStart := strings.Index(html, `<nav class="primary-nav">`)
-	if navStart == -1 {
-		t.Fatal("expected primary navigation")
+}
+
+func TestControlAppStartsWithManifestWorkflow(t *testing.T) {
+	server := echo.New()
+	Register(server)
+
+	html := requestBody(t, server, "/")
+	plannerNav := strings.Index(html, `data-view-target="planner"`)
+	agentsNav := strings.Index(html, `data-view-target="agents"`)
+	autonomyNav := strings.Index(html, `data-view-target="autonomy"`)
+	feedbackNav := strings.Index(html, `data-view-target="feedback"`)
+	guideNav := strings.Index(html, `data-view-target="overview"`)
+
+	if !(plannerNav < agentsNav && agentsNav < autonomyNav &&
+		autonomyNav < feedbackNav && feedbackNav < guideNav) {
+		t.Fatalf("unexpected user workflow navigation order")
 	}
-	navEnd := strings.Index(html[navStart:], `</nav>`)
-	if navEnd == -1 {
-		t.Fatal("expected primary navigation closing tag")
+	if !strings.Contains(html, `<section class="view is-active" data-view="planner">`) {
+		t.Fatal("Manifest Workflow must be the default view")
 	}
-	nav := html[navStart : navStart+navEnd]
-	orderedTargets := []string{
-		`data-view-target="overview"`,
-		`data-view-target="agents"`,
-		`data-view-target="planner"`,
-		`data-view-target="autonomy"`,
-		`data-view-target="feedback"`,
+	if !strings.Contains(html, `<section class="view" data-view="overview" hidden>`) {
+		t.Fatal("Overview must be a separate Guide view")
 	}
+}
+
+func TestControlAppShowsManifestStagesInExecutionOrder(t *testing.T) {
+	server := echo.New()
+	Register(server)
+
+	html := requestBody(t, server, "/")
+	if !strings.Contains(html, `id="manifest-stage-flow"`) {
+		t.Fatal("expected Manifest stage flow container")
+	}
+
+	javascript := requestBody(t, server, "/assets/app.js")
 	lastIndex := -1
-	for _, target := range orderedTargets {
-		index := strings.Index(nav, target)
+	for _, stage := range []string{
+		"user_request",
+		"request_guard",
+		"agent_registry",
+		"agent_dispatch",
+		"qwen_planner",
+		"manifest_guard",
+	} {
+		index := strings.Index(javascript, stage)
 		if index == -1 {
-			t.Fatalf("expected primary navigation target %q", target)
+			t.Fatalf("expected Manifest stage %q in JavaScript", stage)
 		}
 		if index <= lastIndex {
-			t.Fatalf("expected primary navigation target %q after the previous workflow step", target)
+			t.Fatalf("expected Manifest stage %q after the previous execution stage", stage)
 		}
 		lastIndex = index
 	}
@@ -210,15 +236,19 @@ func TestControlAppContainsSimplifiedOverview(t *testing.T) {
 	Register(server)
 
 	html := requestBody(t, server, "/")
-	overviewStart := strings.Index(html, `<section class="view is-active" data-view="overview">`)
+	overviewStart := strings.Index(html, `<section class="view" data-view="overview" hidden>`)
 	if overviewStart == -1 {
 		t.Fatal("expected Overview view")
 	}
-	plannerStart := strings.Index(html[overviewStart:], `<section class="view" data-view="planner"`)
-	if plannerStart == -1 {
-		t.Fatal("expected Planner view after Overview")
+	plannerStart := strings.Index(html, `<section class="view is-active" data-view="planner">`)
+	if plannerStart == -1 || plannerStart >= overviewStart {
+		t.Fatal("expected active Planner view before Overview")
 	}
-	overview := html[overviewStart : overviewStart+plannerStart]
+	overviewEnd := strings.Index(html[overviewStart+1:], `<section class="view"`)
+	if overviewEnd == -1 {
+		t.Fatal("expected view after Overview")
+	}
+	overview := html[overviewStart : overviewStart+1+overviewEnd]
 
 	for _, expected := range []string{
 		`id="overview-agent-action"`,

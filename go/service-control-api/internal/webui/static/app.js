@@ -18,11 +18,20 @@ const API = Object.freeze({
 
 const APP_VERSION_KEY = "geon-agent-control-app-version-id";
 const VIEW_LABELS = Object.freeze({
-  overview: ["CONTROL PLANE", "운영 개요"],
-  planner: ["QWEN TO APPDEPLOY", "Deployment Planner"],
+  planner: ["USER REQUEST TO GUARDED MANIFEST", "Manifest Workflow"],
   agents: ["AGENT REGISTRY AND GO GUARD", "Agents & Guard"],
-  autonomy: ["POST-DEPLOYMENT EXPERIMENT", "배포 후 자율 운영"],
-  feedback: ["EXECUTION FEEDBACK", "Feedback"],
+  autonomy: ["OPTIONAL POST-DEPLOYMENT EXPERIMENT", "Post-deployment"],
+  feedback: ["AUTOMATIC RUN EVIDENCE", "Feedback"],
+  overview: ["WORKFLOW GUIDE", "Guide"],
+});
+
+const MANIFEST_STAGE_ORDER = Object.freeze([
+  { key: "user_request", label: "?ъ슜???붿껌" },
+  { key: "request_guard", label: "Request Guard" },
+  { key: "agent_registry", label: "Agent Registry" },
+  { key: "agent_dispatch", label: "Agent ?ㅽ뻾" },
+  { key: "qwen_planner", label: "Qwen Planner" },
+  { key: "manifest_guard", label: "Manifest Guard" },
 });
 
 const state = {
@@ -31,7 +40,7 @@ const state = {
   activeRunID: "",
   lastPlannerRun: null,
   feedbackRecords: [],
-  activeView: "overview",
+  activeView: "planner",
   autonomyTimer: null,
   autonomyConfigLoaded: false,
   autonomyBusy: false,
@@ -253,7 +262,29 @@ function controlRunRows(payload) {
   return [];
 }
 
+function renderManifestStageFlow(run) {
+  const flow = byID("manifest-stage-flow");
+  const stages = new Map((run?.stages || []).map((stage) => [stage.name, stage]));
+  const blocked = (run?.stages || []).some((stage) => stage.status === "rejected");
+  flow.replaceChildren();
+
+  MANIFEST_STAGE_ORDER.forEach((definition, index) => {
+    const stage = definition.key === "user_request"
+      ? (run ? { status: "approved", reason: "ControlRun request received" } : null)
+      : stages.get(definition.key);
+    const item = createElement("li", "manifest-stage");
+    item.dataset.status = stage?.status || (blocked ? "blocked" : "pending");
+    item.append(
+      createElement("span", "manifest-stage-index", String(index + 1)),
+      createElement("strong", "", definition.label),
+      createElement("small", "", stage?.reason || (blocked ? "?댁쟾 ?④퀎?먯꽌 以묐떒" : "?湲?以?)),
+    );
+    flow.append(item);
+  });
+}
+
 function renderControlRunTimeline(run) {
+  renderManifestStageFlow(run);
   const timeline = byID("control-run-timeline");
   timeline.replaceChildren();
   byID("selected-run-id").textContent = run?.run_id || "선택된 Run 없음";
@@ -294,6 +325,7 @@ function renderControlRuns(payload = state.controlRuns) {
   list.replaceChildren();
   if (runs.length === 0) {
     list.append(createElement("p", "empty-state", "서버에 저장된 ControlRun이 없습니다."));
+    renderManifestStageFlow(null);
     renderControlRunTimeline(null);
     populateAutonomyRunOptions();
     return;
@@ -393,6 +425,7 @@ async function clearControlRuns() {
 }
 
 function renderPlanner(payload) {
+  renderManifestStageFlow(payload);
   if (payload?.run_id) {
     state.lastPlannerRun = payload;
     state.activeRunID = payload.run_id;

@@ -846,6 +846,71 @@ textarea:focus-visible {
   line-height: 1.45;
 }
 
+.manifest-stage-flow {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--line);
+  background: var(--line);
+}
+
+.manifest-stage {
+  display: grid;
+  min-width: 0;
+  min-height: 92px;
+  align-content: start;
+  gap: 5px;
+  padding: 12px;
+  background: var(--surface);
+}
+
+.manifest-stage[data-status="approved"] {
+  background: var(--green-soft);
+}
+
+.manifest-stage[data-status="rejected"] {
+  background: var(--coral-soft);
+}
+
+.manifest-stage[data-status="blocked"] {
+  background: var(--surface-muted);
+}
+
+.manifest-stage[data-status="pending"] {
+  background: var(--amber-soft);
+}
+
+.manifest-stage-index {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--ink);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.manifest-stage strong,
+.manifest-stage small {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.manifest-stage strong {
+  font-size: 12px;
+}
+
+.manifest-stage small {
+  color: var(--ink-muted);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
 .record-delete-button {
   width: 32px;
   height: 32px;
@@ -1700,6 +1765,16 @@ dialog::backdrop {
     justify-content: flex-start;
   }
 
+}
+
+@media (max-width: 760px) {
+  .manifest-stage-flow {
+    grid-template-columns: 1fr;
+  }
+
+  .manifest-stage {
+    min-height: 0;
+  }
 }
 
 @media (max-width: 580px) {
