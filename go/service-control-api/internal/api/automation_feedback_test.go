@@ -20,7 +20,7 @@ func TestRecordAutomationFeedbackRequiresKnownCorrelationID(t *testing.T) {
 
 func TestRecordAutomationFeedbackStoresExecutionStatusAndMetrics(t *testing.T) {
 	service := NewService(NewServerConfig())
-	service.automationFeedback.register("automation-known", "GenericDeploymentExecutor")
+	service.automationFeedback.register("automation-known", "GenericDeploymentExecutor", "run-001")
 	latency := 87.5
 	throughput := 12.0
 
@@ -38,6 +38,9 @@ func TestRecordAutomationFeedbackStoresExecutionStatusAndMetrics(t *testing.T) {
 	}
 	if record.Status != "succeeded" || record.ExternalExecutionID != "deployment-123" {
 		t.Fatalf("unexpected feedback record: %#v", record)
+	}
+	if record.RunID != "run-001" {
+		t.Fatalf("feedback did not inherit ControlRun identity: %#v", record)
 	}
 	if record.LatencyMS == nil || *record.LatencyMS != latency || record.ThroughputRPS == nil || *record.ThroughputRPS != throughput {
 		t.Fatalf("expected measured performance: %#v", record)

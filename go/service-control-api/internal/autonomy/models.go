@@ -43,6 +43,7 @@ type SLOPolicy struct {
 
 type Config struct {
 	Mode                    Mode      `json:"mode"`
+	RunID                   string    `json:"run_id,omitempty"`
 	PollIntervalSeconds     int       `json:"poll_interval_seconds"`
 	ConsecutiveViolations   int       `json:"consecutive_violations"`
 	CooldownSeconds         int       `json:"cooldown_seconds"`
@@ -91,6 +92,9 @@ func (config Config) Validate() error {
 	}
 	if strings.TrimSpace(config.DeploymentID) == "" || strings.ContainsAny(config.DeploymentID, "\r\n\t ") {
 		return fmt.Errorf("deployment_id must be a non-empty token")
+	}
+	if strings.ContainsAny(config.RunID, "\r\n\t ") {
+		return fmt.Errorf("run_id must be an empty value or a token")
 	}
 	for name, value := range map[string]string{
 		"standby_target_profile_id": config.StandbyTargetProfileID,

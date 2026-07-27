@@ -8,41 +8,53 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"kyunghee-aiops/service-control-api/internal/controlrun"
 )
 
 var errAutomationFeedbackNotFound = errors.New("automation feedback was not found")
 
 type automationFeedbackStore struct {
 	mu       sync.RWMutex
-	expected map[string]string
+	expected map[string]automationFeedbackExpectation
 	records  map[string]AutomationFeedbackRecord
+}
+
+type automationFeedbackExpectation struct {
+	Executor string
+	RunID    string
 }
 
 func newAutomationFeedbackStore() *automationFeedbackStore {
 	return &automationFeedbackStore{
-		expected: map[string]string{},
+		expected: map[string]automationFeedbackExpectation{},
 		records:  map[string]AutomationFeedbackRecord{},
 	}
 }
 
-func (store *automationFeedbackStore) register(correlationID string, executor string) {
+func (store *automationFeedbackStore) register(correlationID string, executor string, runIDs ...string) {
 	store.mu.Lock()
 	defer store.mu.Unlock()
-	store.expected[correlationID] = executor
+	runID := ""
+	if len(runIDs) > 0 {
+		runID = strings.TrimSpace(runIDs[0])
+	}
+	store.expected[correlationID] = automationFeedbackExpectation{Executor: executor, RunID: runID}
 }
 
 func (store *automationFeedbackStore) record(request AutomationFeedbackRequest) (AutomationFeedbackRecord, error) {
 	store.mu.Lock()
 	defer store.mu.Unlock()
-	executor, ok := store.expected[request.CorrelationID]
+	expectation, ok := store.expected[request.CorrelationID]
 	if !ok {
 		return AutomationFeedbackRecord{}, fmt.Errorf("unknown automation correlation id")
 	}
-	if executor != request.Executor {
+	if expectation.Executor != request.Executor {
 		return AutomationFeedbackRecord{}, fmt.Errorf("feedback executor does not match the approved handoff")
 	}
 	record := AutomationFeedbackRecord{
 		AutomationFeedbackRequest: request,
+		RunID:                     expectation.RunID,
 		ReceivedAt:                time.Now().UTC().Format(time.RFC3339),
 	}
 	store.records[request.CorrelationID] = record
@@ -93,7 +105,30 @@ func (service Service) RecordAutomationFeedback(ctx context.Context, request Aut
 	if containsCredentialMarker(request.Message) {
 		return AutomationFeedbackRecord{}, fmt.Errorf("feedback message contains credential-like content")
 	}
-	return service.automationFeedback.record(request)
+	record, err := service.automationFeedback.record(request)
+	if err != nil {
+		return AutomationFeedbackRecord{}, err
+	}
+	if record.RunID != "" {
+		if _, ok := service.controlRuns.Get(record.RunID); ok {
+			if _, err := service.controlRuns.Update(record.RunID, func(run *controlrun.Run) error {
+				run.Stages = append(run.Stages, completedControlRunStage(
+					"execution_feedback",
+					record.Status,
+					record.Message,
+					map[string]any{
+						"correlation_id":        record.CorrelationID,
+						"executor":              record.Executor,
+						"external_execution_id": record.ExternalExecutionID,
+					},
+				))
+				return nil
+			}); err != nil {
+				return AutomationFeedbackRecord{}, err
+			}
+		}
+	}
+	return record, nil
 }
 
 func (service Service) ListAutomationFeedback(ctx context.Context) ([]AutomationFeedbackRecord, error) {

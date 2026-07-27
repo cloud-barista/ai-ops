@@ -292,6 +292,21 @@ func TestManagerStatusDoesNotExposeManifestParametersOrMetricMetadata(t *testing
 	}
 }
 
+func TestManagerEventsCarryConfiguredControlRunID(t *testing.T) {
+	manager := NewManager(nil, nil, nil)
+	config := managerConfig(ModeMonitorOnly)
+	config.RunID = "run-001"
+	if err := manager.Configure(config); err != nil {
+		t.Fatalf("configure manager: %v", err)
+	}
+
+	manager.RunCycle(context.Background())
+	events := manager.Events()
+	if len(events) == 0 || events[len(events)-1].RunID != "run-001" {
+		t.Fatalf("Autonomy Event did not retain ControlRun identity: %#v", events)
+	}
+}
+
 func managerConfig(mode Mode) Config {
 	config := DefaultConfig()
 	config.Mode = mode

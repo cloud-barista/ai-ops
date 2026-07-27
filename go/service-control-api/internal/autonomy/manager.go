@@ -21,6 +21,7 @@ type ActionAuthorizer interface {
 type Event struct {
 	Sequence     uint64           `json:"sequence"`
 	Timestamp    time.Time        `json:"timestamp"`
+	RunID        string           `json:"run_id,omitempty"`
 	CycleID      string           `json:"cycle_id"`
 	DeploymentID string           `json:"deployment_id,omitempty"`
 	Stage        string           `json:"stage"`
@@ -453,6 +454,9 @@ func (manager *Manager) recordEvent(event Event) {
 	}
 	event.Sequence = manager.sequence.Add(1)
 	manager.mu.Lock()
+	if event.RunID == "" {
+		event.RunID = manager.config.RunID
+	}
 	manager.events = append(manager.events, event)
 	if len(manager.events) > 200 {
 		manager.events = append([]Event(nil), manager.events[len(manager.events)-200:]...)

@@ -530,6 +530,9 @@ func (service Service) PlanLLMAutomationActionFromPaths(
 	if err := ensureContext(ctx); err != nil {
 		return LLMAutomationActionResponse{}, err
 	}
+	if err := service.validateOperationalControlRun(request.RunID); err != nil {
+		return LLMAutomationActionResponse{RunID: request.RunID, Status: "run_rejected"}, err
+	}
 	compatibility, err := service.ValidateVMSuitabilityFromPath(ctx, requirementsPath, VMCompatibilityRequest{
 		Workload: request.Workload,
 		TargetVM: request.TargetVM,
@@ -539,6 +542,7 @@ func (service Service) PlanLLMAutomationActionFromPaths(
 	}
 	result := LLMAutomationActionResponse{
 		Status:          "not_executed",
+		RunID:           request.RunID,
 		VMCompatibility: compatibility,
 		Decision: LLMDecisionResult{
 			DecisionExecutionStatus: "not_executed",
@@ -627,8 +631,37 @@ func (service Service) PlanLLMAutomationActionFromPaths(
 	result.Status = "approved"
 	result.CorrelationID = correlationID
 	result.Handoff = handoff
-	service.automationFeedback.register(correlationID, selectedExecutor)
+	service.automationFeedback.register(correlationID, selectedExecutor, request.RunID)
+	if strings.TrimSpace(request.RunID) != "" {
+		if _, err := service.controlRuns.Update(request.RunID, func(run *controlrun.Run) error {
+			run.CorrelationIDs = append(run.CorrelationIDs, correlationID)
+			run.Stages = append(run.Stages, completedControlRunStage(
+				"action_proposal",
+				"approved",
+				"Qwen Action proposal passed Agent Registry and Go Guard validation",
+				map[string]any{"correlation_id": correlationID, "action": proposal.Action},
+			))
+			return nil
+		}); err != nil {
+			return result, err
+		}
+	}
 	return result, nil
+}
+
+func (service Service) validateOperationalControlRun(runID string) error {
+	runID = strings.TrimSpace(runID)
+	if runID == "" {
+		return nil
+	}
+	run, ok := service.controlRuns.Get(runID)
+	if !ok {
+		return fmt.Errorf("ControlRun was not found: %s", runID)
+	}
+	if run.Status != controlrun.StatusDeployed || run.Deployment == nil || strings.TrimSpace(run.Deployment.DeploymentID) == "" {
+		return fmt.Errorf("ControlRun is not linked to a deployed application: %s", runID)
+	}
+	return nil
 }
 
 func automationChecks(checks []VMCompatibilityCheck) []map[string]string {

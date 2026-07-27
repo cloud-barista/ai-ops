@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"kyunghee-aiops/service-control-api/internal/appdeploy"
+	"kyunghee-aiops/service-control-api/internal/autonomy"
 	"kyunghee-aiops/service-control-api/internal/controlrun"
 	"kyunghee-aiops/service-control-api/internal/deploymentplanner"
 	"kyunghee-aiops/service-control-api/internal/llmclient"
@@ -295,6 +296,112 @@ func TestSubmitControlRunPreservesManifestAfterAppDeployFailure(t *testing.T) {
 	if failed.Status != controlrun.StatusAppDeployFailed ||
 		failed.Manifest.Spec.AppVersionID != "appver-001" {
 		t.Fatalf("approved Manifest was not preserved: %#v", failed)
+	}
+}
+
+func TestConfigureAutonomyUsesDeployedControlRun(t *testing.T) {
+	config := NewServerConfig()
+	service := NewService(config)
+	run := createApprovedControlRun(t, service, config)
+	deployer := &fakeControlRunDeploymentClient{
+		createResult: appdeploy.DeploymentResponse{DeploymentID: "dep-linked", Status: "RUNNING"},
+		logs:         appdeploy.DeploymentLogsResponse{},
+	}
+	deployed, err := service.SubmitControlRunWithDeployer(
+		context.Background(),
+		run.RunID,
+		SubmitControlRunRequest{},
+		deployer,
+	)
+	if err != nil {
+		t.Fatalf("submit linked Run: %v", err)
+	}
+
+	autonomyConfig := autonomy.DefaultConfig()
+	autonomyConfig.RunID = deployed.RunID
+	if err := service.ConfigureAutonomy(autonomyConfig); err != nil {
+		t.Fatalf("configure linked Autonomy: %v", err)
+	}
+	status := service.autonomyManager.Status()
+	if status.Config.DeploymentID != "dep-linked" || status.Config.RunID != deployed.RunID {
+		t.Fatalf("Autonomy was not linked to deployed Run: %#v", status.Config)
+	}
+}
+
+func TestConfigureAutonomyRejectsControlRunWithoutDeployment(t *testing.T) {
+	config := NewServerConfig()
+	service := NewService(config)
+	run := createApprovedControlRun(t, service, config)
+	autonomyConfig := autonomy.DefaultConfig()
+	autonomyConfig.RunID = run.RunID
+
+	if err := service.ConfigureAutonomy(autonomyConfig); err == nil {
+		t.Fatal("expected Manifest-only Run to be rejected for Autonomy")
+	}
+}
+
+func TestActionProposalCorrelationIsAttachedToDeployedControlRun(t *testing.T) {
+	config := NewServerConfig()
+	service := NewService(config)
+	run := createApprovedControlRun(t, service, config)
+	deployed, err := service.SubmitControlRunWithDeployer(
+		context.Background(),
+		run.RunID,
+		SubmitControlRunRequest{},
+		&fakeControlRunDeploymentClient{
+			createResult: appdeploy.DeploymentResponse{DeploymentID: "dep-linked", Status: "RUNNING"},
+			logs:         appdeploy.DeploymentLogsResponse{},
+		},
+	)
+	if err != nil {
+		t.Fatalf("submit linked Run: %v", err)
+	}
+	provider, closeProvider := automationProvider(t, `{
+		"action":"observe_status",
+		"reason":"Observe the validated deployment.",
+		"confidence":0.9,
+		"required_capability":"ai_application_deployment_control",
+		"target_vm_id":"aws-us-west-2-g6-xlarge-l4-20260707"
+	}`)
+	defer closeProvider()
+	registerAutomationExecutor(t, service, "observe_status")
+
+	result, err := service.PlanLLMAutomationActionFromPaths(
+		context.Background(),
+		service.config.path("config", "vm_workload_requirements.json"),
+		writeAutomationCandidateConfig(t, provider),
+		LLMAutomationActionRequest{
+			RunID:       deployed.RunID,
+			Workload:    "llm-chat-inference",
+			TargetVM:    recordedL4VM(),
+			CandidateID: "decision-model",
+		},
+	)
+	if err != nil {
+		t.Fatalf("plan linked Action: %v", err)
+	}
+	loaded, ok := service.GetControlRun(deployed.RunID)
+	if !ok || result.CorrelationID == "" ||
+		len(loaded.CorrelationIDs) != 1 ||
+		loaded.CorrelationIDs[0] != result.CorrelationID {
+		t.Fatalf("Action correlation was not attached: result=%#v run=%#v", result, loaded)
+	}
+
+	record, err := service.RecordAutomationFeedback(context.Background(), AutomationFeedbackRequest{
+		CorrelationID: result.CorrelationID,
+		Executor:      "GenericDeploymentExecutor",
+		Status:        "succeeded",
+		Message:       "execution completed",
+	})
+	if err != nil {
+		t.Fatalf("record linked Feedback: %v", err)
+	}
+	loaded, ok = service.GetControlRun(deployed.RunID)
+	lastStage := loaded.Stages[len(loaded.Stages)-1]
+	if !ok || record.RunID != deployed.RunID ||
+		lastStage.Name != "execution_feedback" ||
+		lastStage.Status != "succeeded" {
+		t.Fatalf("Feedback was not attached to the Run timeline: record=%#v run=%#v", record, loaded)
 	}
 }
 

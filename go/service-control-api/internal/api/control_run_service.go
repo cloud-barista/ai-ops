@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"kyunghee-aiops/service-control-api/internal/appdeploy"
+	"kyunghee-aiops/service-control-api/internal/autonomy"
 	"kyunghee-aiops/service-control-api/internal/controlrun"
 	"kyunghee-aiops/service-control-api/internal/deploymentplanner"
 	"kyunghee-aiops/service-control-api/internal/llmclient"
@@ -39,6 +40,25 @@ func (service Service) DeleteControlRun(runID string) (controlrun.Run, bool) {
 
 func (service Service) ClearControlRuns() int {
 	return service.controlRuns.Clear()
+}
+
+func (service Service) ConfigureAutonomy(config autonomy.Config) error {
+	runID := normalizeControlRunID(config.RunID)
+	if runID != "" {
+		run, ok := service.controlRuns.Get(runID)
+		if !ok {
+			return fmt.Errorf("ControlRun was not found: %s", runID)
+		}
+		if run.Status != controlrun.StatusDeployed || run.Deployment == nil || strings.TrimSpace(run.Deployment.DeploymentID) == "" {
+			return fmt.Errorf("ControlRun is not linked to a deployed application: %s", runID)
+		}
+		if strings.TrimSpace(config.DeploymentID) != "" && config.DeploymentID != run.Deployment.DeploymentID {
+			return fmt.Errorf("Autonomy deployment_id does not match the ControlRun deployment")
+		}
+		config.RunID = runID
+		config.DeploymentID = run.Deployment.DeploymentID
+	}
+	return service.autonomyManager.Configure(config)
 }
 
 func (service Service) SubmitControlRun(

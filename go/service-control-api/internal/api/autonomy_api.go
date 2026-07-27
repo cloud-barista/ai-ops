@@ -62,7 +62,7 @@ func (handler restHandler) RestPutAutonomyConfig(context echo.Context) error {
 	if err != nil {
 		return jsonError(context, http.StatusBadRequest, "Autonomy configuration is invalid", err)
 	}
-	if err := handler.service.autonomyManager.Configure(config); err != nil {
+	if err := handler.service.ConfigureAutonomy(config); err != nil {
 		return jsonError(context, http.StatusBadRequest, "Autonomy configuration could not be applied", err)
 	}
 	return context.JSON(http.StatusOK, handler.service.autonomyManager.Status())

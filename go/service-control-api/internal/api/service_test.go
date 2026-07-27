@@ -352,6 +352,33 @@ func TestPlanLLMAutomationActionReturnsPendingWhenExecutorMissing(t *testing.T) 
 	}
 }
 
+func TestPlanLLMAutomationActionRejectsUnknownControlRunBeforeLLM(t *testing.T) {
+	providerCalls := 0
+	server := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+		providerCalls++
+	}))
+	defer server.Close()
+	service := NewService(NewServerConfig())
+
+	_, err := service.PlanLLMAutomationActionFromPaths(
+		context.Background(),
+		service.config.path("config", "vm_workload_requirements.json"),
+		writeAutomationCandidateConfig(t, server.URL),
+		LLMAutomationActionRequest{
+			RunID:       "run-missing",
+			Workload:    "llm-chat-inference",
+			TargetVM:    recordedL4VM(),
+			CandidateID: "decision-model",
+		},
+	)
+	if err == nil {
+		t.Fatal("expected unknown ControlRun to be rejected")
+	}
+	if providerCalls != 0 {
+		t.Fatalf("unknown ControlRun reached Qwen: calls=%d", providerCalls)
+	}
+}
+
 func TestPlanLLMAutomationActionDoesNotFallbackAfterProviderFailure(t *testing.T) {
 	service := NewService(NewServerConfig())
 	result, err := service.PlanLLMAutomationActionFromPaths(

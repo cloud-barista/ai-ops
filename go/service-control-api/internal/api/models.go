@@ -53,6 +53,7 @@ type AgentInvocationPlan struct {
 }
 
 type LLMAutomationActionRequest struct {
+	RunID        string             `json:"run_id,omitempty" example:"run-0123456789abcdef"`
 	Workload     string             `json:"workload" validate:"required" example:"llm-chat-inference"`
 	TargetVM     VMResourceSnapshot `json:"target_vm" validate:"required"`
 	CandidateID  string             `json:"candidate_id" validate:"required" example:"qwen3.5-ops-planner"`
@@ -86,6 +87,7 @@ type GuardDecision struct {
 type LLMAutomationActionResponse struct {
 	Valid           bool                    `json:"valid"`
 	Status          string                  `json:"status"`
+	RunID           string                  `json:"run_id,omitempty"`
 	CorrelationID   string                  `json:"correlation_id,omitempty"`
 	VMCompatibility VMCompatibilityResponse `json:"vm_compatibility"`
 	Decision        LLMDecisionResult       `json:"decision"`
@@ -105,6 +107,7 @@ type AutomationFeedbackRequest struct {
 
 type AutomationFeedbackRecord struct {
 	AutomationFeedbackRequest
+	RunID      string `json:"run_id,omitempty"`
 	ReceivedAt string `json:"received_at"`
 }
 
