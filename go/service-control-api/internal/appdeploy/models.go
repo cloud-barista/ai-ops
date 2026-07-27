@@ -41,12 +41,32 @@ type DeploymentCreateRequest struct {
 	Manifest DeploymentManifest `json:"manifest"`
 }
 
+type ResourceAllocation struct {
+	CPUCores     float64 `json:"cpu_cores,omitempty"`
+	MemoryBytes  int64   `json:"memory_bytes,omitempty"`
+	GPUCount     int     `json:"gpu_count,omitempty"`
+	StorageBytes int64   `json:"storage_bytes,omitempty"`
+}
+
+type PlacementDecision struct {
+	TargetVMID         string             `json:"target_vm_id"`
+	TargetProfileID    string             `json:"target_profile_id,omitempty"`
+	Allocation         ResourceAllocation `json:"allocation"`
+	Source             string             `json:"source"`
+	Score              float64            `json:"score"`
+	Reason             string             `json:"reason"`
+	SelectedAt         time.Time          `json:"selected_at"`
+	ExternalDecisionID string             `json:"external_decision_id,omitempty"`
+}
+
 type DeploymentResponse struct {
 	RequestID       string             `json:"request_id,omitempty"`
 	DeploymentID    string             `json:"deployment_id"`
 	AppID           string             `json:"app_id,omitempty"`
 	AppVersionID    string             `json:"app_version_id,omitempty"`
 	TargetProfileID string             `json:"target_profile_id,omitempty"`
+	Placement       *PlacementDecision `json:"placement,omitempty"`
+	RuntimeID       string             `json:"runtime_id,omitempty"`
 	Status          string             `json:"status"`
 	CreatedAt       string             `json:"created_at,omitempty"`
 	UpdatedAt       string             `json:"updated_at,omitempty"`

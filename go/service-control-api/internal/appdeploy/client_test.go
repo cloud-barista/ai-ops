@@ -42,7 +42,28 @@ func TestClientUsesAppDeployDeploymentContract(t *testing.T) {
 			writer.WriteHeader(http.StatusAccepted)
 			_, _ = writer.Write([]byte(`{"request_id":"req-1","deployment_id":"dep-1","status":"REQUESTED"}`))
 		case request.Method == http.MethodGet && request.URL.Path == "/api/v1/deployments/dep-1":
-			_, _ = writer.Write([]byte(`{"request_id":"req-2","deployment_id":"dep-1","status":"RUNNING","target_profile_id":"target-gpu-001"}`))
+			_, _ = writer.Write([]byte(`{
+				"request_id": "req-2",
+				"deployment_id": "dep-1",
+				"app_version_id": "appver-test",
+				"target_profile_id": "target-gpu-001",
+				"status": "RUNNING",
+				"runtime_id": "runtime-gpu-vm",
+				"placement": {
+					"target_vm_id": "vm-gpu-001",
+					"target_profile_id": "target-gpu-001",
+					"allocation": {
+						"cpu_cores": 2,
+						"memory_bytes": 4294967296,
+						"gpu_count": 1,
+						"storage_bytes": 10737418240
+					},
+					"source": "local",
+					"score": 0.92,
+					"reason": "matched GPU and resource requirements",
+					"selected_at": "2026-07-27T05:00:00Z"
+				}
+			}`))
 		case request.Method == http.MethodGet && request.URL.Path == "/api/v1/deployments/dep-1/logs":
 			_, _ = writer.Write([]byte(`{"request_id":"req-3","deployment_id":"dep-1","items":[{"stage":"RUNNING","message":"ready"}]}`))
 		default:
@@ -64,6 +85,13 @@ func TestClientUsesAppDeployDeploymentContract(t *testing.T) {
 	status, err := client.GetDeployment(context.Background(), "dep-1")
 	if err != nil || status.Status != "RUNNING" || status.TargetProfileID != "target-gpu-001" {
 		t.Fatalf("unexpected status result: %#v err=%v", status, err)
+	}
+	if status.TargetProfileID != "target-gpu-001" ||
+		status.Placement == nil ||
+		status.Placement.TargetVMID != "vm-gpu-001" ||
+		status.Placement.Allocation.GPUCount != 1 ||
+		status.RuntimeID != "runtime-gpu-vm" {
+		t.Fatalf("latest AppDeploy response was not decoded: %#v", status)
 	}
 	logs, err := client.GetDeploymentLogs(context.Background(), "dep-1")
 	if err != nil || len(logs.Items) != 1 || logs.Items[0].Message != "ready" {

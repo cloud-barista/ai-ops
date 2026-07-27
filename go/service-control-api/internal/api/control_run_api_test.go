@@ -181,7 +181,16 @@ func TestControlRunAPISubmitsApprovedManifest(t *testing.T) {
 			writer.WriteHeader(http.StatusAccepted)
 			_, _ = writer.Write([]byte(`{"deployment_id":"dep-control-run","status":"REQUESTED"}`))
 		case request.Method == http.MethodGet && request.URL.Path == "/api/v1/deployments/dep-control-run":
-			_, _ = writer.Write([]byte(`{"deployment_id":"dep-control-run","status":"RUNNING","target_profile_id":"target-selected"}`))
+			_, _ = writer.Write([]byte(`{
+				"deployment_id": "dep-control-run",
+				"status": "RUNNING",
+				"target_profile_id": "target-selected",
+				"runtime_id": "runtime-selected",
+				"placement": {
+					"target_vm_id": "vm-selected",
+					"source": "local"
+				}
+			}`))
 		case request.Method == http.MethodGet && request.URL.Path == "/api/v1/deployments/dep-control-run/logs":
 			_, _ = writer.Write([]byte(`{"deployment_id":"dep-control-run","items":[{"stage":"RUNNING","message":"ready"}]}`))
 		default:
@@ -217,9 +226,13 @@ func TestControlRunAPISubmitsApprovedManifest(t *testing.T) {
 	}
 	result := decodeObject(t, submit.Body.Bytes())
 	deployment, _ := result["deployment"].(map[string]any)
+	placement, _ := deployment["placement"].(map[string]any)
 	if result["status"] != "DEPLOYED" ||
 		deployment["deployment_id"] != "dep-control-run" ||
-		deployment["target_profile_id"] != "target-selected" {
+		deployment["target_profile_id"] != "target-selected" ||
+		placement["target_vm_id"] != "vm-selected" ||
+		placement["source"] != "local" ||
+		deployment["runtime_id"] != "runtime-selected" {
 		t.Fatalf("unexpected submitted Run: %#v", result)
 	}
 }
