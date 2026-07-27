@@ -1,0 +1,15 @@
+﻿{
+    "request_id":  "req-smoke-0727122319",
+    "metric_id":  "metric-4ee5de1e-9408-4bdf-8338-0d56f5b08205",
+    "deployment_id":  "dep-41fb7008-15e0-49d5-9d68-193fd6235d41",
+    "timestamp":  "2026-07-27T03:23:19.1665302Z",
+    "latency_ms":  42.5,
+    "throughput_rps":  12.25,
+    "quality_score":  0.97,
+    "request_count":  100,
+    "error_count":  1,
+    "metadata":  {
+                     "model":  "sample-cpu-model",
+                     "scenario":  "smoke"
+                 }
+}

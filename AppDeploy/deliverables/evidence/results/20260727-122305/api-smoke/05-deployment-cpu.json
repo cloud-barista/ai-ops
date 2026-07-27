@@ -1,0 +1,61 @@
+﻿{
+    "request_id":  "req-smoke-0727122319",
+    "deployment_id":  "dep-41fb7008-15e0-49d5-9d68-193fd6235d41",
+    "app_id":  "app-70a1ee4c-2463-4d9f-b686-f8bb599b409f",
+    "app_version_id":  "appver-4d76087d-a802-41b9-99b9-2dc162a7a3c7",
+    "target_profile_id":  "target-cpu-001",
+    "status":  "RUNNING",
+    "created_at":  "2026-07-27T03:23:19.1033523Z",
+    "updated_at":  "2026-07-27T03:23:19.1552171Z",
+    "manifest":  {
+                     "schema_version":  "deployment.khu.ai/v1alpha1",
+                     "kind":  "DeploymentManifest",
+                     "metadata":  {
+                                      "name":  "dep-41fb7008-15e0-49d5-9d68-193fd6235d41"
+                                  },
+                     "spec":  {
+                                  "app_version_id":  "appver-4d76087d-a802-41b9-99b9-2dc162a7a3c7",
+                                  "target_profile_id":  "target-cpu-001",
+                                  "accelerator":  "none",
+                                  "resources":  {
+                                                    "cpu":  "2",
+                                                    "memory":  "4Gi",
+                                                    "gpu":  "0",
+                                                    "storage":  "5Gi"
+                                                },
+                                  "parameters":  {
+                                                     "port":  18080
+                                                 },
+                                  "requirements":  {
+                                                       "resources":  {
+                                                                         "cpu":  "2",
+                                                                         "memory":  "4Gi",
+                                                                         "gpu":  "0",
+                                                                         "storage":  "5Gi"
+                                                                     },
+                                                       "runtime":  "cpu",
+                                                       "accelerator":  "none",
+                                                       "command":  "bash",
+                                                       "args":  [
+                                                                    "run.sh",
+                                                                    "--port=18080"
+                                                                ],
+                                                       "cost_policy":  "min_cost"
+                                                   }
+                              }
+                 },
+    "placement":  {
+                      "target_vm_id":  "target-cpu-001",
+                      "target_profile_id":  "target-cpu-001",
+                      "allocation":  {
+                                         "cpu_cores":  2,
+                                         "memory_bytes":  4294967296,
+                                         "storage_bytes":  5368709120
+                                     },
+                      "source":  "local",
+                      "score":  0,
+                      "reason":  "min_cost selected cost_weight=0; remaining_capacity_score=0; tie_break=vm_id",
+                      "selected_at":  "2026-07-27T03:23:19.1335883Z"
+                  },
+    "runtime_id":  "cpuvm-dep-41fb7008-15e0-49d5-9d68-193fd6235d41"
+}

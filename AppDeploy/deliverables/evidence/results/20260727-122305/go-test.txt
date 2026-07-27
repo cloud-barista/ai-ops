@@ -1,0 +1,32 @@
+?   	github.com/khu/ai-app-deployer/cmd/appdeployer	[no test files]
+?   	github.com/khu/ai-app-deployer/cmd/server	[no test files]
+ok  	github.com/khu/ai-app-deployer/internal/app	0.722s
+ok  	github.com/khu/ai-app-deployer/internal/artifact	3.108s
+ok  	github.com/khu/ai-app-deployer/internal/cli	1.493s
+ok  	github.com/khu/ai-app-deployer/internal/config	1.185s
+ok  	github.com/khu/ai-app-deployer/internal/credential	2.280s
+ok  	github.com/khu/ai-app-deployer/internal/credentialref	0.783s
+ok  	github.com/khu/ai-app-deployer/internal/deployment	0.976s
+?   	github.com/khu/ai-app-deployer/internal/errors	[no test files]
+ok  	github.com/khu/ai-app-deployer/internal/external	0.789s
+?   	github.com/khu/ai-app-deployer/internal/external/bespin	[no test files]
+?   	github.com/khu/ai-app-deployer/internal/external/etri	[no test files]
+?   	github.com/khu/ai-app-deployer/internal/external/innogrid	[no test files]
+?   	github.com/khu/ai-app-deployer/internal/handler	[no test files]
+ok  	github.com/khu/ai-app-deployer/internal/inference	1.058s
+?   	github.com/khu/ai-app-deployer/internal/model	[no test files]
+?   	github.com/khu/ai-app-deployer/internal/monitoring	[no test files]
+ok  	github.com/khu/ai-app-deployer/internal/profile	0.894s
+ok  	github.com/khu/ai-app-deployer/internal/provider	0.790s
+?   	github.com/khu/ai-app-deployer/internal/requestid	[no test files]
+ok  	github.com/khu/ai-app-deployer/internal/resource	0.812s
+ok  	github.com/khu/ai-app-deployer/internal/runtime	0.926s
+ok  	github.com/khu/ai-app-deployer/internal/runtime/aiinfra	0.701s
+ok  	github.com/khu/ai-app-deployer/internal/runtime/cpuvm	1.482s
+ok  	github.com/khu/ai-app-deployer/internal/runtime/gpuvm	0.834s
+ok  	github.com/khu/ai-app-deployer/internal/runtime/local	1.177s
+?   	github.com/khu/ai-app-deployer/internal/runtime/mock	[no test files]
+?   	github.com/khu/ai-app-deployer/internal/runtime/vmprocess	[no test files]
+ok  	github.com/khu/ai-app-deployer/internal/server	1.575s
+ok  	github.com/khu/ai-app-deployer/internal/store	0.934s
+error acquiring upload token: creating token file: open C:\Users\User\AppData\Roaming\go\telemetry\local\upload.token: Access is denied.

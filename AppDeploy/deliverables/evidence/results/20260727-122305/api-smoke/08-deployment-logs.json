@@ -1,0 +1,170 @@
+﻿{
+    "deployment_id":  "dep-41fb7008-15e0-49d5-9d68-193fd6235d41",
+    "items":  [
+                  {
+                      "timestamp":  "2026-07-27T03:23:19.1073413Z",
+                      "level":  "INFO",
+                      "request_id":  "req-smoke-0727122319",
+                      "deployment_id":  "dep-41fb7008-15e0-49d5-9d68-193fd6235d41",
+                      "component":  "orchestrator",
+                      "stage":  "REQUESTED",
+                      "message":  "deployment created"
+                  },
+                  {
+                      "timestamp":  "2026-07-27T03:23:19.1111955Z",
+                      "level":  "INFO",
+                      "request_id":  "req-smoke-0727122319",
+                      "deployment_id":  "dep-41fb7008-15e0-49d5-9d68-193fd6235d41",
+                      "component":  "orchestrator",
+                      "stage":  "PENDING",
+                      "message":  "deployment request accepted"
+                  },
+                  {
+                      "timestamp":  "2026-07-27T03:23:19.1240096Z",
+                      "level":  "INFO",
+                      "request_id":  "req-smoke-0727122319",
+                      "deployment_id":  "dep-41fb7008-15e0-49d5-9d68-193fd6235d41",
+                      "component":  "target-selector",
+                      "stage":  "VALIDATING",
+                      "message":  "app validation and target selection started"
+                  },
+                  {
+                      "timestamp":  "2026-07-27T03:23:19.1272808Z",
+                      "level":  "INFO",
+                      "request_id":  "req-smoke-0727122319",
+                      "deployment_id":  "dep-41fb7008-15e0-49d5-9d68-193fd6235d41",
+                      "component":  "placement-provider",
+                      "stage":  "PLACING",
+                      "message":  "placement decision requested"
+                  },
+                  {
+                      "timestamp":  "2026-07-27T03:23:19.1392207Z",
+                      "level":  "INFO",
+                      "request_id":  "req-smoke-0727122319",
+                      "deployment_id":  "dep-41fb7008-15e0-49d5-9d68-193fd6235d41",
+                      "component":  "target-selector",
+                      "stage":  "VALIDATED",
+                      "message":  "app and target profile validation passed; target selected"
+                  },
+                  {
+                      "timestamp":  "2026-07-27T03:23:19.1442466Z",
+                      "level":  "INFO",
+                      "request_id":  "req-smoke-0727122319",
+                      "deployment_id":  "dep-41fb7008-15e0-49d5-9d68-193fd6235d41",
+                      "component":  "resource-matcher",
+                      "stage":  "SCHEDULING",
+                      "message":  "resource matching completed for selected target"
+                  },
+                  {
+                      "timestamp":  "2026-07-27T03:23:19.1499441Z",
+                      "level":  "INFO",
+                      "request_id":  "req-smoke-0727122319",
+                      "deployment_id":  "dep-41fb7008-15e0-49d5-9d68-193fd6235d41",
+                      "component":  "orchestrator",
+                      "stage":  "DEPLOYING",
+                      "message":  "runtime deploy requested"
+                  },
+                  {
+                      "timestamp":  "2026-07-27T03:23:19.1579381Z",
+                      "level":  "INFO",
+                      "request_id":  "req-smoke-0727122319",
+                      "deployment_id":  "dep-41fb7008-15e0-49d5-9d68-193fd6235d41",
+                      "component":  "runtime-adapter",
+                      "stage":  "RUNNING",
+                      "message":  "app healthcheck passed"
+                  },
+                  {
+                      "timestamp":  "2026-07-27T03:23:19.1520615Z",
+                      "level":  "INFO",
+                      "request_id":  "req-smoke-0727122319",
+                      "deployment_id":  "dep-41fb7008-15e0-49d5-9d68-193fd6235d41",
+                      "component":  "cpu-vm-adapter",
+                      "stage":  "DEPLOYING",
+                      "message":  "cpu vm command accepted: dry-run bash accepted"
+                  }
+              ],
+    "logs":  [
+                 {
+                     "timestamp":  "2026-07-27T03:23:19.1073413Z",
+                     "level":  "INFO",
+                     "request_id":  "req-smoke-0727122319",
+                     "deployment_id":  "dep-41fb7008-15e0-49d5-9d68-193fd6235d41",
+                     "component":  "orchestrator",
+                     "stage":  "REQUESTED",
+                     "message":  "deployment created"
+                 },
+                 {
+                     "timestamp":  "2026-07-27T03:23:19.1111955Z",
+                     "level":  "INFO",
+                     "request_id":  "req-smoke-0727122319",
+                     "deployment_id":  "dep-41fb7008-15e0-49d5-9d68-193fd6235d41",
+                     "component":  "orchestrator",
+                     "stage":  "PENDING",
+                     "message":  "deployment request accepted"
+                 },
+                 {
+                     "timestamp":  "2026-07-27T03:23:19.1240096Z",
+                     "level":  "INFO",
+                     "request_id":  "req-smoke-0727122319",
+                     "deployment_id":  "dep-41fb7008-15e0-49d5-9d68-193fd6235d41",
+                     "component":  "target-selector",
+                     "stage":  "VALIDATING",
+                     "message":  "app validation and target selection started"
+                 },
+                 {
+                     "timestamp":  "2026-07-27T03:23:19.1272808Z",
+                     "level":  "INFO",
+                     "request_id":  "req-smoke-0727122319",
+                     "deployment_id":  "dep-41fb7008-15e0-49d5-9d68-193fd6235d41",
+                     "component":  "placement-provider",
+                     "stage":  "PLACING",
+                     "message":  "placement decision requested"
+                 },
+                 {
+                     "timestamp":  "2026-07-27T03:23:19.1392207Z",
+                     "level":  "INFO",
+                     "request_id":  "req-smoke-0727122319",
+                     "deployment_id":  "dep-41fb7008-15e0-49d5-9d68-193fd6235d41",
+                     "component":  "target-selector",
+                     "stage":  "VALIDATED",
+                     "message":  "app and target profile validation passed; target selected"
+                 },
+                 {
+                     "timestamp":  "2026-07-27T03:23:19.1442466Z",
+                     "level":  "INFO",
+                     "request_id":  "req-smoke-0727122319",
+                     "deployment_id":  "dep-41fb7008-15e0-49d5-9d68-193fd6235d41",
+                     "component":  "resource-matcher",
+                     "stage":  "SCHEDULING",
+                     "message":  "resource matching completed for selected target"
+                 },
+                 {
+                     "timestamp":  "2026-07-27T03:23:19.1499441Z",
+                     "level":  "INFO",
+                     "request_id":  "req-smoke-0727122319",
+                     "deployment_id":  "dep-41fb7008-15e0-49d5-9d68-193fd6235d41",
+                     "component":  "orchestrator",
+                     "stage":  "DEPLOYING",
+                     "message":  "runtime deploy requested"
+                 },
+                 {
+                     "timestamp":  "2026-07-27T03:23:19.1579381Z",
+                     "level":  "INFO",
+                     "request_id":  "req-smoke-0727122319",
+                     "deployment_id":  "dep-41fb7008-15e0-49d5-9d68-193fd6235d41",
+                     "component":  "runtime-adapter",
+                     "stage":  "RUNNING",
+                     "message":  "app healthcheck passed"
+                 },
+                 {
+                     "timestamp":  "2026-07-27T03:23:19.1520615Z",
+                     "level":  "INFO",
+                     "request_id":  "req-smoke-0727122319",
+                     "deployment_id":  "dep-41fb7008-15e0-49d5-9d68-193fd6235d41",
+                     "component":  "cpu-vm-adapter",
+                     "stage":  "DEPLOYING",
+                     "message":  "cpu vm command accepted: dry-run bash accepted"
+                 }
+             ],
+    "request_id":  "req-smoke-0727122319"
+}

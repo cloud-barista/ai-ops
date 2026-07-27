@@ -1,0 +1,9 @@
+﻿{
+    "request_id":  "req-smoke-0727122319",
+    "status":  "ready",
+    "checks":  {
+                   "external_api":  "provider-configured",
+                   "repository":  "ready",
+                   "runtime_adapter":  "mock,local_process,cpu_vm,gpu_vm,etri_aiinfra"
+               }
+}

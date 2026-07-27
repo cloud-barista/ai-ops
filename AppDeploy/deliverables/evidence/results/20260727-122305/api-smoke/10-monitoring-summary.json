@@ -1,0 +1,29 @@
+﻿{
+    "request_id":  "req-smoke-0727122319",
+    "generated_at":  "2026-07-27T03:23:19.1820838Z",
+    "status":  "ok",
+    "deployments":  {
+                        "total":  1,
+                        "active":  1,
+                        "failed":  0,
+                        "stopped":  0,
+                        "by_status":  {
+                                          "RUNNING":  1
+                                      }
+                    },
+    "runtime_health":  [
+                           {
+                               "target_profile_id":  "target-cpu-001",
+                               "status":  "available",
+                               "runtime_health":  "ok",
+                               "cpu_available":  true,
+                               "memory_available":  true,
+                               "gpu_available":  false,
+                               "storage_available":  true,
+                               "last_checked_at":  "2026-07-27T03:23:19.0937332Z"
+                           }
+                       ],
+    "alarms":  [
+
+               ]
+}

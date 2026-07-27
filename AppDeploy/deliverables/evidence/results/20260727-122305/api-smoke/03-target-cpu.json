@@ -1,0 +1,30 @@
+﻿{
+    "allocated":  {
+
+                  },
+    "capacity":  {
+
+                 },
+    "csp":  "local",
+    "name":  "cpu-vm-target",
+    "profile_id":  "target-cpu-001",
+    "request_id":  "req-smoke-0727122319",
+    "runtime":  {
+                    "accelerator":  "none",
+                    "operating_mode":  "vm_process",
+                    "runtime_type":  "cpu"
+                },
+    "status":  "READY",
+    "storage":  {
+                    "artifact_dir":  "/opt/aiapp/artifacts",
+                    "log_dir":  "/var/log/aiapp",
+                    "model_dir":  "/opt/aiapp/models"
+                },
+    "target_profile_id":  "target-cpu-001",
+    "vm":  {
+               "credential_ref":  "cred://local/cpu-vm-001",
+               "host":  "cpu-vm.example.internal",
+               "ssh_port":  22
+           },
+    "vm_type":  "Local"
+}
