@@ -19,6 +19,22 @@ type controlRunManifestGenerator interface {
 	Generate(context.Context, llmclient.Candidate, deploymentplanner.GenerateInput) (deploymentplanner.GenerateResult, error)
 }
 
+func (service Service) ListControlRuns() []controlrun.Run {
+	return service.controlRuns.List()
+}
+
+func (service Service) GetControlRun(runID string) (controlrun.Run, bool) {
+	return service.controlRuns.Get(normalizeControlRunID(runID))
+}
+
+func (service Service) DeleteControlRun(runID string) (controlrun.Run, bool) {
+	return service.controlRuns.Delete(normalizeControlRunID(runID))
+}
+
+func (service Service) ClearControlRuns() int {
+	return service.controlRuns.Clear()
+}
+
 func (service Service) CreateControlRun(ctx context.Context, request CreateControlRunRequest) (controlrun.Run, error) {
 	return service.CreateControlRunWithDependencies(
 		ctx,

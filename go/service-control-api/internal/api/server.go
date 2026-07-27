@@ -22,6 +22,7 @@ const (
 	pathAutomationPlan = "/api/v1/automation/action-proposals"
 	pathAutomationFeed = "/api/v1/automation/feedback"
 	pathAutonomy       = "/api/v1/autonomy"
+	pathControlRuns    = "/api/v1/control-runs"
 	pathPlannerDeploy  = "/api/v1/planner/deployments"
 	pathServiceOpsRun  = "/api/v1/service-operations/run"
 )
@@ -88,6 +89,11 @@ func NewServer(config ServerConfig) *echo.Echo {
 	server.GET(pathAutomationFeed, handler.RestGetAutomationFeedback)
 	server.DELETE(pathAutomationFeed+"/:correlation_id", handler.requireAutonomyAdmin(handler.RestDeleteAutomationFeedback))
 	server.DELETE(pathAutomationFeed, handler.requireAutonomyAdmin(handler.RestDeleteAllAutomationFeedback))
+	server.POST(pathControlRuns, handler.RestPostControlRun)
+	server.GET(pathControlRuns, handler.RestGetControlRuns)
+	server.GET(pathControlRuns+"/:run_id", handler.RestGetControlRun)
+	server.DELETE(pathControlRuns+"/:run_id", handler.requireAutonomyAdmin(handler.RestDeleteControlRun))
+	server.DELETE(pathControlRuns, handler.requireAutonomyAdmin(handler.RestDeleteControlRuns))
 	server.GET(pathAutonomy+"/status", handler.RestGetAutonomyStatus)
 	server.PUT(pathAutonomy+"/config", handler.requireAutonomyAdmin(handler.RestPutAutonomyConfig))
 	server.POST(pathAutonomy+"/start", handler.requireAutonomyAdmin(handler.RestPostAutonomyStart))
