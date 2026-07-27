@@ -63,6 +63,7 @@
         "runtime_type": {
           "enum": [
             "mock",
+            "local",
             "cpu",
             "gpu",
             "aiinfra"
@@ -77,6 +78,7 @@
         "operating_mode": {
           "enum": [
             "local_mock",
+            "local_process",
             "dry_run",
             "vm_process",
             "remote_api"
@@ -119,6 +121,51 @@
         "service_port_range": {
           "type": "string"
         }
+      }
+    },
+    "vm_type": {
+      "enum": ["Cloud", "Local", "Mock"]
+    },
+    "status": {
+      "enum": ["READY", "BUSY", "UNAVAILABLE"]
+    },
+    "capacity": {
+      "$ref": "#/$defs/resource_capacity"
+    },
+    "allocated": {
+      "$ref": "#/$defs/resource_allocation"
+    },
+    "supported_runtimes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "cost_weight": {
+      "type": "number",
+      "minimum": 0
+    },
+    "labels": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    }
+  },
+  "$defs": {
+    "resource_capacity": {
+      "type": "object",
+      "properties": {
+        "cpu_cores": { "type": "number", "minimum": 0 },
+        "memory_bytes": { "type": "integer", "minimum": 0 },
+        "gpu_count": { "type": "integer", "minimum": 0 },
+        "gpu_type": { "type": "string" },
+        "storage_bytes": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "resource_allocation": {
+      "type": "object",
+      "properties": {
+        "cpu_cores": { "type": "number", "minimum": 0 },
+        "memory_bytes": { "type": "integer", "minimum": 0 },
+        "gpu_count": { "type": "integer", "minimum": 0 },
+        "storage_bytes": { "type": "integer", "minimum": 0 }
       }
     }
   }

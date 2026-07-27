@@ -1164,7 +1164,7 @@ components:
         artifact_uri:
           type: string
           description: CPU/GPU VM SSH Runner가 업로드할 로컬 file URI.
-          example: file:///workspace/tmp/appdeploy-web/packages/aiops-geon-service-control-linux-amd64-123.tar.gz
+          example: file:///workspace/tmp/appdeploy-packages/aiops-geon-service-control-linux-amd64-123.tar.gz
         archive_name:
           type: string
           description: 생성된 tar.gz 파일명.
@@ -1191,6 +1191,10 @@ components:
           example: 3200
         app_spec:
           $ref: '#/components/schemas/AppSpec'
+        original_application:
+          type: object
+          description: Original application document retained without transformation.
+          additionalProperties: true
     AppCreateRequest:
       type: object
       description: AI App 등록 요청.
@@ -1224,6 +1228,10 @@ components:
           example: 0.1.0
         app_spec:
           $ref: '#/components/schemas/AppSpec'
+        original_application:
+          type: object
+          description: Exact application document received from the automation agent. It is retained without transformation.
+          additionalProperties: true
         created_at:
           type: string
           format: date-time
@@ -1553,7 +1561,7 @@ components:
             runtime_type:
               type: string
               description: Target Runtime. Adapter Router가 이 값으로 ValidateTarget/Prepare 경로를 선택한다.
-              enum: [mock, cpu, gpu, aiinfra]
+              enum: [mock, local, cpu, gpu, aiinfra]
               example: cpu
             accelerator:
               type: string
@@ -1563,7 +1571,7 @@ components:
             operating_mode:
               type: string
               description: Target 운영 모드.
-              enum: [local_mock, dry_run, vm_process, remote_api]
+              enum: [local_mock, local_process, dry_run, vm_process, remote_api]
               example: vm_process
         gpu:
           type: object
@@ -1599,6 +1607,29 @@ components:
             service_port_range:
               type: string
               example: 18080-18100
+        vm_type:
+          type: string
+          enum: [Cloud, Local, Mock]
+          description: VM registry type.
+        status:
+          type: string
+          enum: [READY, BUSY, UNAVAILABLE]
+        capacity:
+          $ref: '#/components/schemas/ResourceCapacity'
+        allocated:
+          $ref: '#/components/schemas/ResourceAllocation'
+        supported_runtimes:
+          type: array
+          items:
+            type: string
+        cost_weight:
+          type: number
+          minimum: 0
+          description: Lower is preferred by the default min_cost scheduler.
+        labels:
+          type: object
+          additionalProperties:
+            type: string
       example:
         target_profile_id: target-cpu-001
         name: cpu-vm-target
@@ -1644,6 +1675,8 @@ components:
           additionalProperties: true
           example:
             port: 18080
+        requirements:
+          $ref: '#/components/schemas/DeploymentRequirements'
         manifest:
           $ref: '#/components/schemas/DeploymentManifest'
       example:
@@ -1713,6 +1746,8 @@ components:
               additionalProperties: true
               example:
                 port: 18080
+            requirements:
+              $ref: '#/components/schemas/DeploymentRequirements'
     DeploymentResponse:
       type: object
       description: Deployment 상태 응답.
@@ -1751,10 +1786,110 @@ components:
           example: "2026-06-24T09:00:01Z"
         manifest:
           $ref: '#/components/schemas/DeploymentManifest'
+        placement:
+          $ref: '#/components/schemas/PlacementDecision'
+        runtime_id:
+          type: string
+          description: Runtime execution identifier returned by the selected adapter.
+    DeploymentRequirements:
+      type: object
+      properties:
+        resources:
+          $ref: '#/components/schemas/Resources'
+        runtime:
+          type: string
+        accelerator:
+          type: string
+          enum: [none, nvidia]
+        command:
+          type: string
+        args:
+          type: array
+          items:
+            type: string
+        slo:
+          type: object
+          additionalProperties: true
+        cost_policy:
+          type: string
+          enum: [min_cost]
+          default: min_cost
+        labels:
+          type: object
+          additionalProperties:
+            type: string
+    ResourceCapacity:
+      type: object
+      properties:
+        cpu_cores:
+          type: number
+          minimum: 0
+        memory_bytes:
+          type: integer
+          format: int64
+          minimum: 0
+        gpu_count:
+          type: integer
+          minimum: 0
+        gpu_type:
+          type: string
+        storage_bytes:
+          type: integer
+          format: int64
+          minimum: 0
+    ResourceAllocation:
+      type: object
+      properties:
+        cpu_cores:
+          type: number
+          minimum: 0
+        memory_bytes:
+          type: integer
+          format: int64
+          minimum: 0
+        gpu_count:
+          type: integer
+          minimum: 0
+        storage_bytes:
+          type: integer
+          format: int64
+          minimum: 0
+    Resources:
+      type: object
+      properties:
+        cpu:
+          type: string
+        memory:
+          type: string
+        gpu:
+          type: string
+        storage:
+          type: string
+    PlacementDecision:
+      type: object
+      properties:
+        target_vm_id:
+          type: string
+        target_profile_id:
+          type: string
+        allocation:
+          $ref: '#/components/schemas/ResourceAllocation'
+        source:
+          type: string
+          enum: [local, etri, legacy]
+        score:
+          type: number
+        reason:
+          type: string
+        selected_at:
+          type: string
+          format: date-time
+        external_decision_id:
+          type: string
     DeploymentStatus:
       type: string
       description: 표준 Deployment 상태값.
-      enum: [REQUESTED, VALIDATING, VALIDATED, SCHEDULING, DEPLOYING, RUNNING, STOPPING, STOPPED, VALIDATION_FAILED, SCHEDULING_FAILED, DEPLOYMENT_FAILED, RUNTIME_FAILED, EXTERNAL_API_FAILED, UNKNOWN]
+      enum: [REQUESTED, PENDING, VALIDATING, VALIDATED, SCHEDULING, PLACING, DEPLOYING, RUNNING, COMPLETED, STOPPING, STOPPED, VALIDATION_FAILED, SCHEDULING_FAILED, DEPLOYMENT_FAILED, RUNTIME_FAILED, EXTERNAL_API_FAILED, UNKNOWN]
       example: RUNNING
     DeploymentLog:
       type: object
