@@ -48,3 +48,26 @@ type AgentExecutionResponse struct {
 	Execution     AgentExecutionResult `json:"execution"`
 	ResultGuard   GuardDecision        `json:"result_guard"`
 }
+
+type AgentExecutionErrorResponse struct {
+	AgentExecutionResponse
+	Valid   bool   `json:"valid"`
+	Message string `json:"message"`
+	Reason  string `json:"reason,omitempty"`
+}
+
+func agentExecutionError(
+	message string,
+	result AgentExecutionResponse,
+) AgentExecutionErrorResponse {
+	reason := result.ResultGuard.Reason
+	if reason == "" {
+		reason = result.RequestGuard.Reason
+	}
+	return AgentExecutionErrorResponse{
+		AgentExecutionResponse: result,
+		Valid:                  false,
+		Message:                message,
+		Reason:                 reason,
+	}
+}

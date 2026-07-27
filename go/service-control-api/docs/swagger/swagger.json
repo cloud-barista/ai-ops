@@ -252,7 +252,7 @@
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
+                            "$ref": "#/definitions/api.AgentExecutionErrorResponse"
                         }
                     },
                     "404": {
@@ -264,7 +264,7 @@
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
+                            "$ref": "#/definitions/api.AgentExecutionErrorResponse"
                         }
                     },
                     "501": {
@@ -1106,6 +1106,38 @@
         }
     },
     "definitions": {
+        "api.AgentExecutionErrorResponse": {
+            "type": "object",
+            "properties": {
+                "execution": {
+                    "$ref": "#/definitions/api.AgentExecutionResult"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "request_guard": {
+                    "$ref": "#/definitions/api.GuardDecision"
+                },
+                "request_id": {
+                    "type": "string"
+                },
+                "result_guard": {
+                    "$ref": "#/definitions/api.GuardDecision"
+                },
+                "run_id": {
+                    "type": "string"
+                },
+                "selected_agent": {
+                    "$ref": "#/definitions/api.AgentProfile"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
         "api.AgentExecutionRequest": {
             "type": "object",
             "required": [
@@ -2353,7 +2385,13 @@
                 "manifest": {
                     "$ref": "#/definitions/appdeploy.DeploymentManifest"
                 },
+                "placement": {
+                    "$ref": "#/definitions/appdeploy.PlacementDecision"
+                },
                 "request_id": {
+                    "type": "string"
+                },
+                "runtime_id": {
                     "type": "string"
                 },
                 "status": {
@@ -2388,6 +2426,52 @@
                 },
                 "target_profile_id": {
                     "type": "string"
+                }
+            }
+        },
+        "appdeploy.PlacementDecision": {
+            "type": "object",
+            "properties": {
+                "allocation": {
+                    "$ref": "#/definitions/appdeploy.ResourceAllocation"
+                },
+                "external_decision_id": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "number"
+                },
+                "selected_at": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "target_profile_id": {
+                    "type": "string"
+                },
+                "target_vm_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "appdeploy.ResourceAllocation": {
+            "type": "object",
+            "properties": {
+                "cpu_cores": {
+                    "type": "number"
+                },
+                "gpu_count": {
+                    "type": "integer"
+                },
+                "memory_bytes": {
+                    "type": "integer"
+                },
+                "storage_bytes": {
+                    "type": "integer"
                 }
             }
         },

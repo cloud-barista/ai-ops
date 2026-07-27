@@ -432,6 +432,72 @@ func TestExternalAgentExecutionAPIFlow(t *testing.T) {
 	}
 }
 
+func TestExternalAgentExecutionAPIRejectionReturnsRunAndGuardReason(t *testing.T) {
+	external := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		var dispatched AgentDispatchRequest
+		if err := json.NewDecoder(request.Body).Decode(&dispatched); err != nil {
+			t.Fatalf("decode Agent request: %v", err)
+		}
+		writer.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(writer, `{
+			"run_id":"run-mismatched",
+			"agent":%q,
+			"status":"completed",
+			"proposal":{"action":%q},
+			"result":{"review":"approved"},
+			"domain_validation":"not_registered"
+		}`, dispatched.Agent, dispatched.Action)
+	}))
+	defer external.Close()
+
+	server := NewServer(NewServerConfig())
+	registrationBody := strings.NewReader(fmt.Sprintf(`{
+		"name":"ExternalResearchAgent",
+		"version":"0.1.0",
+		"role":"Review deployment research evidence.",
+		"endpoint":%q,
+		"invocation_path":"/invoke",
+		"capabilities":["deployment_review"],
+		"bounded_actions":["review_deployment_plan"]
+	}`, external.URL))
+	registration := httptest.NewRequest(http.MethodPost, "/api/v1/agents", registrationBody)
+	registration.Header.Set("Content-Type", "application/json")
+	registrationResponse := httptest.NewRecorder()
+	server.ServeHTTP(registrationResponse, registration)
+	if registrationResponse.Code != http.StatusCreated {
+		t.Fatalf("register Agent status=%d body=%s", registrationResponse.Code, registrationResponse.Body.String())
+	}
+
+	executionBody := strings.NewReader(`{
+		"capability":"deployment_review",
+		"action":"review_deployment_plan",
+		"input":{"workload":"llm-chat-inference"}
+	}`)
+	execution := httptest.NewRequest(
+		http.MethodPost,
+		"/api/v1/agents/ExternalResearchAgent/execute",
+		executionBody,
+	)
+	execution.RemoteAddr = "127.0.0.1:12345"
+	execution.Header.Set("Content-Type", "application/json")
+	response := httptest.NewRecorder()
+	server.ServeHTTP(response, execution)
+
+	if response.Code != http.StatusUnprocessableEntity {
+		t.Fatalf("status=%d body=%s", response.Code, response.Body.String())
+	}
+	result := decodeObject(t, response.Body.Bytes())
+	if !strings.HasPrefix(result["run_id"].(string), "run-") {
+		t.Fatalf("missing run_id: %#v", result)
+	}
+	if result["message"] != "Agent result was rejected" {
+		t.Fatalf("unexpected message: %#v", result)
+	}
+	if !strings.Contains(result["reason"].(string), "run_id does not match") {
+		t.Fatalf("missing Guard reason: %#v", result)
+	}
+}
+
 func TestSelectOpsLLM(t *testing.T) {
 	server := NewServer(NewServerConfig())
 	body := strings.NewReader(`{"policy":"quality_first"}`)

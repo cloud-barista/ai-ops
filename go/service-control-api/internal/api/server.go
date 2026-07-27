@@ -312,9 +312,9 @@ func (handler restHandler) RestPostAgentInvocationPlan(context echo.Context) err
 // @Param request body AgentExecutionRequest true "Agent execution request"
 // @Success 200 {object} AgentExecutionResponse
 // @Failure 400 {object} ErrorResponse
-// @Failure 403 {object} ErrorResponse
+// @Failure 403 {object} AgentExecutionErrorResponse
 // @Failure 404 {object} ErrorResponse
-// @Failure 422 {object} ErrorResponse
+// @Failure 422 {object} AgentExecutionErrorResponse
 // @Failure 501 {object} ErrorResponse
 // @Failure 502 {object} ErrorResponse
 // @Failure 504 {object} ErrorResponse
@@ -330,13 +330,19 @@ func (handler restHandler) RestPostAgentExecute(context echo.Context) error {
 		case errors.Is(err, errAgentExecutionNotFound):
 			return jsonError(context, http.StatusNotFound, "Agent was not found", err)
 		case errors.Is(err, errAgentExecutionUnauthorized):
-			return jsonError(context, http.StatusForbidden, "Agent execution was not authorized", err)
+			return context.JSON(
+				http.StatusForbidden,
+				agentExecutionError("Agent execution was not authorized", result),
+			)
 		case errors.Is(err, errAgentExecutionNotImplemented):
 			return jsonError(context, http.StatusNotImplemented, "Agent executor is not implemented", err)
 		case errors.Is(err, errAgentExecutionTimeout):
 			return jsonError(context, http.StatusGatewayTimeout, "Agent execution timed out", err)
 		case errors.Is(err, errAgentExecutionResultRejected):
-			return jsonError(context, http.StatusUnprocessableEntity, "Agent result was rejected", err)
+			return context.JSON(
+				http.StatusUnprocessableEntity,
+				agentExecutionError("Agent result was rejected", result),
+			)
 		default:
 			return jsonError(context, http.StatusBadGateway, "Agent execution endpoint failed", err)
 		}
