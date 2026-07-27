@@ -340,6 +340,17 @@ func TestControlAppContainsGuardedAgentExecution(t *testing.T) {
 			t.Fatalf("expected Agent execution JavaScript contract %q", expected)
 		}
 	}
+
+	stylesheet := requestBody(t, server, "/assets/app.css")
+	buttonStart := strings.Index(stylesheet, ".button {")
+	if buttonStart < 0 {
+		t.Fatal("expected shared button style")
+	}
+	buttonEnd := strings.Index(stylesheet[buttonStart:], "}")
+	if buttonEnd < 0 ||
+		!strings.Contains(stylesheet[buttonStart:buttonStart+buttonEnd], "white-space: nowrap;") {
+		t.Fatal("shared button labels must not wrap on mobile")
+	}
 }
 
 func requestBody(t *testing.T, server *echo.Echo, path string) string {

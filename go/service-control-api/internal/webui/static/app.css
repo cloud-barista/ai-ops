@@ -286,6 +286,7 @@ textarea:focus-visible {
   border-radius: 6px;
   padding: 0 14px;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .button svg,
