@@ -19,14 +19,14 @@
         <button class="nav-item is-active" type="button" data-view-target="overview" aria-label="Overview">
           <i data-lucide="layout-dashboard" aria-hidden="true"></i><span>Overview</span>
         </button>
-        <button class="nav-item" type="button" data-view-target="planner" aria-label="Deployment Planner">
-          <i data-lucide="route" aria-hidden="true"></i><span>Deployment Planner</span>
-        </button>
         <button class="nav-item" type="button" data-view-target="agents" aria-label="Agents &amp; Guard">
           <i data-lucide="shield-check" aria-hidden="true"></i><span>Agents &amp; Guard</span>
         </button>
-        <button class="nav-item" type="button" data-view-target="autonomy" aria-label="Autonomous Loop">
-          <i data-lucide="repeat-2" aria-hidden="true"></i><span>Autonomous Loop</span>
+        <button class="nav-item" type="button" data-view-target="planner" aria-label="Deployment Planner">
+          <i data-lucide="route" aria-hidden="true"></i><span>Deployment Planner</span>
+        </button>
+        <button class="nav-item" type="button" data-view-target="autonomy" aria-label="Post-deployment Autonomy">
+          <i data-lucide="repeat-2" aria-hidden="true"></i><span>배포 후 자율 운영</span>
         </button>
         <button class="nav-item" type="button" data-view-target="feedback" aria-label="Feedback">
           <i data-lucide="activity" aria-hidden="true"></i><span>Feedback</span>
@@ -61,6 +61,64 @@
           <div><p class="section-label">SYSTEM STATE</p><h2>AI 응용 제어 상태</h2></div>
           <time id="last-updated">-</time>
         </div>
+
+        <section class="panel experiment-guide-panel" id="experiment-guide" aria-labelledby="experiment-guide-title">
+          <div class="panel-header experiment-guide-header">
+            <div>
+              <p class="section-label">EXPERIMENT GUIDE</p>
+              <h3 id="experiment-guide-title">geon 실험 순서와 단계별 결과</h3>
+            </div>
+            <span class="scope-badge">Manifest core · optional operations</span>
+          </div>
+          <div class="experiment-guide-track">
+            <button class="experiment-guide-step is-core" type="button" data-guide-step="registry" data-view-target="agents">
+              <span class="experiment-step-number">1</span>
+              <span class="experiment-step-copy">
+                <span class="experiment-step-meta">핵심 Manifest 실험</span>
+                <strong>Agent Registry 확인</strong>
+                <small>활성 Planner Agent의 capability와 bounded actions를 확인합니다.</small>
+                <em>결과: authorized Planner Agent</em>
+              </span>
+            </button>
+            <button class="experiment-guide-step is-core" type="button" data-guide-step="manifest" data-view-target="planner">
+              <span class="experiment-step-number">2</span>
+              <span class="experiment-step-copy">
+                <span class="experiment-step-meta">핵심 Manifest 실험</span>
+                <strong>DeploymentManifest 생성</strong>
+                <small>자연어 요청과 app_version_id를 Qwen Planner와 Go Guard로 처리합니다.</small>
+                <em>결과: MANIFEST_APPROVED · DeploymentManifest</em>
+              </span>
+            </button>
+            <button class="experiment-guide-step is-optional" type="button" data-guide-step="deploy" data-view-target="planner">
+              <span class="experiment-step-number">3</span>
+              <span class="experiment-step-copy">
+                <span class="experiment-step-meta">선택적 외부 배포</span>
+                <strong>AppDeploy 제출</strong>
+                <small>승인된 Manifest를 AppDeploy에 전달해 실제 배포를 요청합니다.</small>
+                <em>결과: deployment_id · status · logs</em>
+              </span>
+            </button>
+            <button class="experiment-guide-step is-optional" type="button" data-guide-step="operate" data-view-target="autonomy">
+              <span class="experiment-step-number">4</span>
+              <span class="experiment-step-copy">
+                <span class="experiment-step-meta">선택적 배포 후 실험</span>
+                <strong>자율 운영 검증</strong>
+                <small>배포 상태와 SLO를 관찰하고 제어 Action을 제안·검증합니다.</small>
+                <em>결과: Action Proposal · Autonomy Event</em>
+              </span>
+            </button>
+            <button class="experiment-guide-step is-optional" type="button" data-guide-step="feedback" data-view-target="feedback">
+              <span class="experiment-step-number">5</span>
+              <span class="experiment-step-copy">
+                <span class="experiment-step-meta">선택적 배포 후 실험</span>
+                <strong>Feedback 기록</strong>
+                <small>실행 결과를 동일한 run_id에 연결해 다음 판단의 근거로 남깁니다.</small>
+                <em>결과: run_id-linked Feedback</em>
+              </span>
+            </button>
+          </div>
+          <p class="experiment-guide-note"><strong>핵심 범위:</strong> 1~2단계만으로 geon의 최종 산출물인 검증된 DeploymentManifest를 확인할 수 있습니다. 3~5단계는 AppDeploy 연결 후 수행하는 선택 실험입니다.</p>
+        </section>
 
         <div class="metric-grid" aria-label="시스템 지표">
           <article class="metric-card"><span>geon API</span><strong id="metric-api">CHECKING</strong><small>service-control</small></article>

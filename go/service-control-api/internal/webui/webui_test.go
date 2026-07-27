@@ -152,6 +152,59 @@ func TestControlAppContainsControlRunManifestWorkflow(t *testing.T) {
 	}
 }
 
+func TestControlAppContainsOrderedExperimentGuide(t *testing.T) {
+	server := echo.New()
+	Register(server)
+
+	html := requestBody(t, server, "/")
+	for _, expected := range []string{
+		`id="experiment-guide"`,
+		`EXPERIMENT GUIDE`,
+		`핵심 Manifest 실험`,
+		`선택적 외부 배포`,
+		`선택적 배포 후 실험`,
+		`data-guide-step="registry"`,
+		`data-guide-step="manifest"`,
+		`data-guide-step="deploy"`,
+		`data-guide-step="operate"`,
+		`data-guide-step="feedback"`,
+		`MANIFEST_APPROVED`,
+		`DeploymentManifest`,
+	} {
+		if !strings.Contains(html, expected) {
+			t.Fatalf("expected experiment guide HTML contract %q", expected)
+		}
+	}
+
+	navStart := strings.Index(html, `<nav class="primary-nav">`)
+	if navStart == -1 {
+		t.Fatal("expected primary navigation")
+	}
+	navEnd := strings.Index(html[navStart:], `</nav>`)
+	if navEnd == -1 {
+		t.Fatal("expected primary navigation closing tag")
+	}
+	nav := html[navStart : navStart+navEnd]
+	orderedTargets := []string{
+		`data-view-target="overview"`,
+		`data-view-target="agents"`,
+		`data-view-target="planner"`,
+		`data-view-target="autonomy"`,
+		`data-view-target="feedback"`,
+	}
+	lastIndex := -1
+	for _, target := range orderedTargets {
+		index := strings.Index(nav, target)
+		if index == -1 {
+			t.Fatalf("expected primary navigation target %q", target)
+		}
+		if index <= lastIndex {
+			t.Fatalf("expected primary navigation target %q after the previous workflow step", target)
+		}
+		lastIndex = index
+	}
+}
+
 func TestControlAppContainsGeonDeletionControls(t *testing.T) {
 	server := echo.New()
 	Register(server)

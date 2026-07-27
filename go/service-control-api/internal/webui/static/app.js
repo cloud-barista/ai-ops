@@ -21,7 +21,7 @@ const VIEW_LABELS = Object.freeze({
   overview: ["CONTROL PLANE", "운영 개요"],
   planner: ["QWEN TO APPDEPLOY", "Deployment Planner"],
   agents: ["AGENT REGISTRY AND GO GUARD", "Agents & Guard"],
-  autonomy: ["SLO TO GUARDED EXECUTION", "Autonomous Loop"],
+  autonomy: ["POST-DEPLOYMENT EXPERIMENT", "배포 후 자율 운영"],
   feedback: ["EXECUTION FEEDBACK", "Feedback"],
 });
 

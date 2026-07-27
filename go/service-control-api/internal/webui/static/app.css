@@ -449,6 +449,120 @@ textarea:focus-visible {
   font-size: 15px;
 }
 
+.experiment-guide-panel {
+  overflow: hidden;
+}
+
+.experiment-guide-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.experiment-guide-track {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--line);
+}
+
+.experiment-guide-step {
+  display: grid;
+  min-width: 0;
+  min-height: 174px;
+  grid-template-columns: 32px minmax(0, 1fr);
+  align-content: start;
+  gap: 10px;
+  padding: 16px 14px;
+  border: 0;
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+}
+
+.experiment-guide-step:hover {
+  background: #f8faf9;
+}
+
+.experiment-guide-step.is-core {
+  box-shadow: inset 0 3px 0 var(--teal);
+}
+
+.experiment-guide-step.is-optional {
+  box-shadow: inset 0 3px 0 var(--blue);
+}
+
+.experiment-step-number {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--teal-soft);
+  color: var(--teal);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.experiment-guide-step.is-optional .experiment-step-number {
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+
+.experiment-step-copy {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+}
+
+.experiment-step-meta {
+  color: var(--teal);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.experiment-guide-step.is-optional .experiment-step-meta {
+  color: var(--blue);
+}
+
+.experiment-step-copy strong {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.experiment-step-copy small,
+.experiment-step-copy em {
+  overflow-wrap: anywhere;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.experiment-step-copy small {
+  color: var(--ink-muted);
+}
+
+.experiment-step-copy em {
+  color: var(--ink);
+  font-style: normal;
+  font-weight: 700;
+}
+
+.experiment-guide-note {
+  margin: 0;
+  padding: 12px 17px;
+  border-top: 1px solid var(--line);
+  background: var(--surface-muted);
+  color: var(--ink-muted);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.experiment-guide-note strong {
+  color: var(--ink);
+}
+
 .workflow-panel {
   overflow: hidden;
 }
@@ -1431,6 +1545,14 @@ dialog::backdrop {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .experiment-guide-track {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .experiment-guide-step {
+    min-height: 154px;
+  }
+
   .split-layout,
   .agent-workspace,
   .autonomy-layout {
@@ -1555,6 +1677,22 @@ dialog::backdrop {
 
   .view-heading .scope-badge {
     display: none;
+  }
+
+  .experiment-guide-header {
+    align-items: flex-start;
+  }
+
+  .experiment-guide-header .scope-badge {
+    display: none;
+  }
+
+  .experiment-guide-track {
+    grid-template-columns: 1fr;
+  }
+
+  .experiment-guide-step {
+    min-height: 0;
   }
 
   .metric-grid,
