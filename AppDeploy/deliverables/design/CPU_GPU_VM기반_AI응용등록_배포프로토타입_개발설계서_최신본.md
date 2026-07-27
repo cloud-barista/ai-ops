@@ -32,7 +32,7 @@
 
 ## 1.1 현재 구현 및 증적 연결
 
-2026-06-25 기준 프로토타입은 현재 구현 기준선을 제출 후보로 고정하고, 문서와 시험 증적을 맞추는 단계이다. 최신 자동 증적은 `deliverables/evidence/results/20260625-173058`에 있으며 `go test`, `go vet`, API smoke가 모두 통과했다.
+2026-07-27 기준 프로토타입은 Local Provider와 실제 local-process Runtime Adapter를 포함한다. 최신 자동 증적은 `deliverables/evidence/results/20260727-122305`에 있으며 `go test`, `go vet`, API smoke가 모두 통과했다.
 
 | 구현 항목 | 현재 상태 | 대표 증적/문서 |
 | --- | --- | --- |

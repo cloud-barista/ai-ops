@@ -33,5 +33,5 @@ Unit/API/Contract/Integration/E2E/Failure Test를 작성하고 시험 가이드�
 
 ## 기본 명령
 - 코드 변경 시 `go test ./...`, `go vet ./...`를 수행한다.
-- OpenAPI 변경 시 `docs/api/openapi.html`을 재생성하고 Redocly lint/build 결과를 기록한다.
+- OpenAPI 변경 시 `contracts/openapi/openapi.yaml`을 검증하고, `/swagger` viewer가 해당 문서를 읽는지 확인한다. Redocly lint는 설치된 경우에만 실행한다.
 - 신규 dependency를 추가한 경우 license/유지보수 지표와 사용자 승인 여부를 기록한다.

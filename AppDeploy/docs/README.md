@@ -1,56 +1,31 @@
-# Documentation Map
+# Documentation map
 
-이 디렉터리는 AI App Deployer 프레임워크를 공유하기 위한 최소 문서만 전면에 둔다.
-제출 산출물, 외부 인터페이스 패키지, 시험 증적 결과는 `../deliverables`에서 관리한다.
+AI App Deployer is a headless Go/Echo service. The automation agent calls the
+REST API; the service owns App validation, placement, runtime execution, state,
+events, and logs.
 
-운영 방향은 다음과 같다.
+## Source of truth
 
-1. 프레임워크 프롬프트를 먼저 공유한다.
-2. 산출물 문서는 최소화한다.
-3. 로그와 에러 메시지를 최대한 남긴다.
+- API: [`contracts/openapi/openapi.yaml`](../contracts/openapi/openapi.yaml)
+- Runtime configuration: [`conf/template-setup.env`](../conf/template-setup.env)
+- Architecture: [`architecture.md`](architecture.md)
+- Local runbook: [`install/설치_활용_가이드_초안.md`](install/설치_활용_가이드_초안.md)
+- Test runbook: [`test/시험_가이드_초안.md`](test/시험_가이드_초안.md)
+- ETRI boundary: [`architecture.md`](architecture.md#etri-replacement-points)
 
-## 먼저 볼 문서
+## Current compatibility rules
 
-| 순서 | 문서 | 목적 |
-| --- | --- | --- |
-| 1 | `prompts/프레임워크_공유_프롬프트.md` | 개발·검증·문서 정리 공통 프롬프트 |
-| 2 | `../agent_md/00_scope_common_contract.md` | 담당 범위, 제외 범위, 상태값, 에러 코드 |
-| 3 | `../contracts/openapi/openapi.yaml` | API source of truth |
-| 4 | `ops/로그_에러_가이드.md` | 로그·에러 메시지 작성 기준 |
-| 5 | `../deliverables/README.md` | 제출 산출물 위치 지도 |
-| 6 | `../deliverables/evidence/증적_패키지_가이드.md` | 제출 증적 구성 기준 |
-| 7 | `../deliverables/release/1차년도_제출_패키지_체크리스트.md` | 최종 제출 전 점검 |
+- Go 1.25 or newer; Go 1.25.0 is verified in this workspace.
+- REST prefix: `/api/v1`.
+- Allowed artifacts: `package`, `git`, `binary`, `script`.
+- Local provider defaults: `RESOURCE_PROVIDER=local`,
+  `PLACEMENT_PROVIDER=local`.
+- ETRI provider mode requires its endpoint settings and never silently falls
+  back to local mode.
+- Docker, Kubernetes, OCI images, and container registries are out of scope.
 
-## 최소 산출물
+## Maintenance rule
 
-| 문서 | 역할 |
-| --- | --- |
-| 구조 설계서 | `../deliverables/design/AI_반도체기반_AI응용배포_및_운용구조설계서_최신본.md` |
-| 프로토타입 개발설계서 | `../deliverables/design/CPU_GPU_VM기반_AI응용등록_배포프로토타입_개발설계서_최신본.md` |
-| API 계약 | `../contracts/openapi/openapi.yaml`, `api/openapi.html` |
-| 실행/시험 | `install/설치_활용_가이드_초안.md`, `test/시험_가이드_초안.md` |
-| 외부 인터페이스 패키지 | `../deliverables/interface/` |
-| 증적/릴리스 | `../deliverables/evidence/`, `../deliverables/release/` |
-
-상태값과 에러 코드는 `../agent_md/00_scope_common_contract.md`와 `../contracts/openapi/openapi.yaml`을 기준으로 관리한다. 새 문서를 늘리기보다 위 문서와 로그·에러 증적을 최신 상태로 유지한다.
-
-## 최신 구현 기준
-
-- API prefix는 `/api/v1`이다.
-- 공식 API 계약은 `contracts/openapi/openapi.yaml`이다.
-- 1차년도 artifact type은 `package`, `git`, `binary`, `script`만 허용한다.
-- CPU/GPU VM 배포는 SSH runner와 `file://` script upload 흐름을 지원한다.
-- 웹 콘솔, `appdeployer` CLI와 HTTP 셸 스크립트는 같은 `/api/v1/artifacts/packages` 계약으로 `ai-ops-geon` 프리셋 또는 Go, Python, Node.js, Linux binary, Shell script 소스를 Linux amd64 package로 생성한다. CLI/셸은 생성된 App Spec 등록과 Target 자원 점검을 연결하고, 점검 결과가 `available`일 때만 배포를 생성한다.
-- 웹의 `등록 삭제`와 CLI `apps delete <app-id> --yes`는 `DELETE /api/v1/apps/{app_id}`로 App 등록을 삭제한다. 참조가 없거나 모든 참조 Deployment가 `STOPPED`이면 삭제하며 STOPPED 이력은 보존한다. `STOPPED` 외 상태가 하나라도 있으면 `APP_SPEC_INVALID`/409로 거부하고 package, git, binary, script 원본과 VM 배포 파일은 항상 유지한다.
-- Runtime/Target Profile 삭제 API는 참조가 없거나 모두 STOPPED일 때 등록만 삭제하고 STOPPED Deployment/Event/Metric 이력을 유지한다. Target의 현재 Inventory만 함께 제거하며 Runtime Credential은 연쇄 삭제하지 않는다.
-- CPU/GPU VM 기반 AI Application 배포 방식은 테스트 완료했다.
-- 배포 stop 요청은 원격 VM의 배포 프로세스를 종료하고 `STOPPING` -> `STOPPED` 전이를 기록한다.
-- Running deployment는 inference proxy API를 통해 `/health`, `/generate` 같은 앱 내부 HTTP endpoint를 호출할 수 있다.
-- 실제 ETRI/Innogrid/Bespin API 호출은 아직 구현하지 않고 mock/fixture와 책임 경계만 유지한다.
-
-## 문서 수정 규칙
-
-- OpenAPI를 바꾸면 `docs/api/openapi.html`을 다시 생성한다.
-- API 동작이 바뀌면 OpenAPI, 프롬프트, 로그·에러 가이드, 시험 증적 기준만 우선 확인한다.
-- 제출 판단이 바뀌면 `deliverables/evidence`, `deliverables/release`를 갱신한다.
-- 완료한 작업은 루트의 `log.md`에 간단히 기록한다.
+Update the OpenAPI document, request examples, tests, and this map together
+when an API contract changes. Keep historical evidence under
+`deliverables/evidence`; do not use it as the current verification result.

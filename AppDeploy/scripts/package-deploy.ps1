@@ -1,4 +1,4 @@
-# 웹 콘솔과 같은 API를 사용해 package 생성부터 App 등록, 자원 점검, 배포까지 실행한다.
+# HTTP API를 사용해 package 생성부터 App 등록, 자원 점검, 배포까지 실행한다.
 # Windows PowerShell 5.1 호환을 위해 multipart 요청은 System.Net.Http로 구성한다.
 param(
     [ValidateSet("build", "deploy")]

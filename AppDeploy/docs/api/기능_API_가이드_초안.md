@@ -144,7 +144,7 @@ curl -X DELETE http://localhost:8080/api/v1/apps/app-001
 go run ./cmd/appdeployer apps delete app-001 --yes
 ```
 
-웹 콘솔에서는 App 목록의 `등록 삭제`를 사용하며 실제 요청 전에 확인 창을 표시한다.
+외부 Console 또는 client는 App 목록의 `등록 삭제`를 호출하기 전에 사용자 확인을 수행한다.
 
 ## 외부 API 연동 골격
 외부 API 명세가 확정되기 전까지 실제 ETRI/이노그리드/베스핀글로벌 API 호출은 구현하지 않는다.

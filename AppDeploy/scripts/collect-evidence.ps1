@@ -13,8 +13,32 @@ $ServerOut = Join-Path $RunDir "server.stdout.txt"
 $ServerErr = Join-Path $RunDir "server.stderr.txt"
 $StorePath = Join-Path $RunDir "aiapp-store.json"
 $SmokeOutDir = Join-Path $RunDir "api-smoke"
+$BinaryPath = Join-Path $RunDir "appdeployer-server.exe"
 
 New-Item -ItemType Directory -Force -Path $RunDir | Out-Null
+
+function Invoke-GoCheck {
+    param(
+        [string[]]$Arguments,
+        [string]$OutputPath
+    )
+
+    $errorPath = "$OutputPath.stderr"
+    $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
+    $startInfo.FileName = "go.exe"
+    $startInfo.Arguments = $Arguments -join " "
+    $startInfo.WorkingDirectory = $Root
+    $startInfo.UseShellExecute = $false
+    $startInfo.CreateNoWindow = $true
+    $startInfo.RedirectStandardOutput = $true
+    $startInfo.RedirectStandardError = $true
+    $process = [System.Diagnostics.Process]::Start($startInfo)
+    $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+    $stderrTask = $process.StandardError.ReadToEndAsync()
+    $null = $process.WaitForExit()
+    [System.IO.File]::WriteAllText($OutputPath, $stdoutTask.Result + $stderrTask.Result)
+    return $process.ExitCode
+}
 
 $ExistingPortOwners = @(Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique)
 if ($ExistingPortOwners.Count -gt 0) {
@@ -23,11 +47,14 @@ if ($ExistingPortOwners.Count -gt 0) {
 
 Push-Location $Root
 try {
-    & go test ./... *> (Join-Path $RunDir "go-test.txt")
-    $GoTestExit = $LASTEXITCODE
+    $GoTestExit = Invoke-GoCheck @("test", "./...") (Join-Path $RunDir "go-test.txt")
 
-    & go vet ./... *> (Join-Path $RunDir "go-vet.txt")
-    $GoVetExit = $LASTEXITCODE
+    $GoVetExit = Invoke-GoCheck @("vet", "./...") (Join-Path $RunDir "go-vet.txt")
+
+    $GoBuildExit = Invoke-GoCheck @("build", "-o", $BinaryPath, "./cmd/server") (Join-Path $RunDir "go-build.txt")
+    if ($GoBuildExit -ne 0) {
+        throw "server build failed; see $RunDir\go-build.txt"
+    }
 
     $oldPort = $env:AIAPP_SERVER_PORT
     $oldStore = $env:AIAPP_STORE_PATH
@@ -39,7 +66,16 @@ try {
     $env:AIAPP_CPUVM_RUNNER = "dry-run"
     $env:AIAPP_GPUVM_RUNNER = "dry-run"
 
-    $Server = Start-Process -FilePath "go" -ArgumentList @("run", "./cmd/server") -WorkingDirectory $Root -PassThru -WindowStyle Hidden -RedirectStandardOutput $ServerOut -RedirectStandardError $ServerErr
+    $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
+    $startInfo.FileName = $BinaryPath
+    $startInfo.WorkingDirectory = $Root
+    $startInfo.UseShellExecute = $false
+    $startInfo.CreateNoWindow = $true
+    $startInfo.RedirectStandardOutput = $true
+    $startInfo.RedirectStandardError = $true
+    $Server = [System.Diagnostics.Process]::Start($startInfo)
+    $serverStdoutTask = $Server.StandardOutput.ReadToEndAsync()
+    $serverStderrTask = $Server.StandardError.ReadToEndAsync()
     try {
         $ready = $false
         for ($i = 0; $i -lt 30; $i++) {
@@ -76,7 +112,15 @@ try {
             Set-Content -Path (Join-Path $RunDir "monitoring-metrics.json") -Encoding utf8
     } finally {
         if ($null -ne $Server -and -not $Server.HasExited) {
-            Stop-Process -Id $Server.Id -Force
+            $Server.Kill()
+        }
+        if ($null -ne $Server) {
+            $null = $Server.WaitForExit(5000)
+            [System.IO.File]::WriteAllText($ServerOut, $serverStdoutTask.Result)
+            [System.IO.File]::WriteAllText($ServerErr, $serverStderrTask.Result)
+        }
+        if (Test-Path -LiteralPath $BinaryPath) {
+            Remove-Item -LiteralPath $BinaryPath -Force -ErrorAction SilentlyContinue
         }
         $PortOwners = @(Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique)
         foreach ($Owner in $PortOwners) {

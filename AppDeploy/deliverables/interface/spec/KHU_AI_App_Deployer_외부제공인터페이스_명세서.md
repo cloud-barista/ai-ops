@@ -409,7 +409,7 @@ POST /api/v1/deployments {app_version_id 또는 manifest, target_profile_id는 �
 
 **Endpoint:** `DELETE /api/v1/apps/{app_id}`
 
-웹 콘솔은 App 목록의 `등록 삭제`, CLI는 `apps delete <app-id> --yes`로 같은 API를 호출한다. 삭제 성공 응답은 다음과 같다.
+외부 Console은 App 목록의 `등록 삭제`, CLI는 `apps delete <app-id> --yes`로 같은 API를 호출한다. 삭제 성공 응답은 다음과 같다.
 
 ```json
 {

@@ -27,7 +27,7 @@
 
 ## 0.1 현재 구현 기준선 및 제출 패키지 연결
 
-2026-06-25 기준 프로토타입은 기능 추가보다 제출 가능한 산출물 패키지 정리를 우선한다. 현재 기준선은 Go/Echo API 서버, App Registry, Target Profile, Deployment Orchestrator, CPU/GPU VM Runtime Adapter, Resource Check, Monitoring, Metric placeholder, ETRI AI-Infra mock/fixture skeleton을 포함한다.
+2026-07-27 기준 프로토타입은 기능 추가보다 제출 가능한 산출물 패키지 정리를 우선한다. 현재 기준선은 Go/Echo API 서버, App Registry, Target Profile, Deployment Orchestrator, Local/CPU/GPU VM Runtime Adapter, Resource Check, Monitoring, Metric placeholder, ETRI AI-Infra mock/fixture skeleton을 포함한다.
 
 | 구분 | 설계 요소 | 현재 구현 상태 | 제출 판단 |
 | --- | --- | --- | --- |
