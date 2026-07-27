@@ -24,11 +24,22 @@ func resolvePlannerAgent(registry AgentRegistry, requestedName string, action st
 		return controlrun.AgentSelection{}, fmt.Errorf("Planner Agent is not registered: %s", requestedName)
 	}
 
+	eligible := make([]controlrun.AgentSelection, 0, 1)
 	for _, agent := range registry.Agents {
 		selection, err := validatePlannerAgent(agent, action)
 		if err == nil {
-			return selection, nil
+			eligible = append(eligible, selection)
 		}
+	}
+	if len(eligible) == 1 {
+		return eligible[0], nil
+	}
+	if len(eligible) > 1 {
+		return controlrun.AgentSelection{}, fmt.Errorf(
+			"multiple enabled configuration Agents authorize capability %s and action %s; agent_name is required",
+			capabilityDeploymentManifestPlanning,
+			action,
+		)
 	}
 	return controlrun.AgentSelection{}, fmt.Errorf(
 		"no enabled configuration Agent authorizes capability %s and action %s",
