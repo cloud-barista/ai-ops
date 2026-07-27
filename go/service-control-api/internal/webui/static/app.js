@@ -31,7 +31,6 @@ const state = {
   activeRunID: "",
   lastPlannerRun: null,
   feedbackRecords: [],
-  lastGuard: null,
   activeView: "overview",
   autonomyTimer: null,
   autonomyConfigLoaded: false,
@@ -173,10 +172,8 @@ function renderAgents() {
   byID("metric-agents").textContent = String(state.agents.length);
   byID("agent-count").textContent = String(state.agents.length);
   const tableBody = byID("agent-table-body");
-  const snapshot = byID("overview-agent-list");
   const validation = byID("validation-agent");
   tableBody.replaceChildren();
-  snapshot.replaceChildren();
   validation.replaceChildren();
 
   if (state.agents.length === 0) {
@@ -185,7 +182,6 @@ function renderAgents() {
     cell.colSpan = 6;
     row.append(cell);
     tableBody.append(row);
-    snapshot.append(createElement("p", "empty-state", "등록된 Agent가 없습니다."));
     validation.append(new Option("등록 Agent 없음", ""));
     return;
   }
@@ -221,12 +217,6 @@ function renderAgents() {
     row.append(manageCell);
     tableBody.append(row);
 
-    const item = createElement("div", "compact-item");
-    const body = createElement("div", "");
-    body.append(createElement("strong", "", text(agent.name)));
-    body.append(createElement("span", "", `${(agent.bounded_actions || []).length} bounded actions`));
-    item.append(body, createElement("span", "source-label", text(agent.source, "config")));
-    snapshot.append(item);
     validation.append(new Option(text(agent.name), text(agent.name)));
   });
   if (window.lucide) window.lucide.createIcons();
@@ -427,9 +417,6 @@ function renderAction(payload) {
   byID("action-target").textContent = text(proposal.target_vm_id, payload.vm_compatibility?.target_vm_id);
   byID("action-handoff").textContent = `${text(handoff.agent, "not registered")} / ${text(handoff.execution_status, payload.status)}`;
   byID("action-json").textContent = pretty(payload);
-  byID("metric-guard").textContent = status.toUpperCase();
-  byID("metric-guard-detail").textContent = text(proposal.action, payload.status);
-  state.lastGuard = guard;
   if (payload.correlation_id) {
     byID("feedback-form").elements.correlation_id.value = payload.correlation_id;
   }

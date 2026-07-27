@@ -158,7 +158,7 @@ func TestControlAppContainsOrderedExperimentGuide(t *testing.T) {
 
 	html := requestBody(t, server, "/")
 	for _, expected := range []string{
-		`id="experiment-guide"`,
+		`id="experiment-guide-disclosure"`,
 		`EXPERIMENT GUIDE`,
 		`핵심 Manifest 실험`,
 		`선택적 외부 배포`,
@@ -202,6 +202,61 @@ func TestControlAppContainsOrderedExperimentGuide(t *testing.T) {
 			t.Fatalf("expected primary navigation target %q after the previous workflow step", target)
 		}
 		lastIndex = index
+	}
+}
+
+func TestControlAppContainsSimplifiedOverview(t *testing.T) {
+	server := echo.New()
+	Register(server)
+
+	html := requestBody(t, server, "/")
+	overviewStart := strings.Index(html, `<section class="view is-active" data-view="overview">`)
+	if overviewStart == -1 {
+		t.Fatal("expected Overview view")
+	}
+	plannerStart := strings.Index(html[overviewStart:], `<section class="view" data-view="planner"`)
+	if plannerStart == -1 {
+		t.Fatal("expected Planner view after Overview")
+	}
+	overview := html[overviewStart : overviewStart+plannerStart]
+
+	for _, expected := range []string{
+		`id="overview-agent-action"`,
+		`id="overview-manifest-action"`,
+		`id="experiment-guide-disclosure"`,
+		`<summary`,
+		`id="control-run-list"`,
+		`id="metric-api"`,
+		`id="metric-agents"`,
+		`Qwen3.5`,
+	} {
+		if !strings.Contains(overview, expected) {
+			t.Fatalf("expected simplified Overview contract %q", expected)
+		}
+	}
+
+	disclosureStart := strings.Index(overview, `<details`)
+	if disclosureStart == -1 {
+		t.Fatal("expected experiment guide disclosure")
+	}
+	disclosureEnd := strings.Index(overview[disclosureStart:], `>`)
+	if disclosureEnd == -1 {
+		t.Fatal("expected experiment guide disclosure opening tag")
+	}
+	openingTag := overview[disclosureStart : disclosureStart+disclosureEnd]
+	if strings.Contains(openingTag, ` open`) {
+		t.Fatal("expected experiment guide disclosure to be collapsed by default")
+	}
+
+	for _, removed := range []string{
+		`id="workflow-title"`,
+		`id="overview-agent-list"`,
+		`id="control-run-timeline"`,
+		`id="metric-guard"`,
+	} {
+		if strings.Contains(overview, removed) {
+			t.Fatalf("expected duplicate Overview element %q to be removed", removed)
+		}
 	}
 }
 

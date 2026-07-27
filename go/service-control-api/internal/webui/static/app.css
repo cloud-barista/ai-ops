@@ -395,8 +395,12 @@ textarea:focus-visible {
 
 .metric-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
+}
+
+.overview-metrics .metric-card {
+  min-height: 92px;
 }
 
 .metric-card {
@@ -449,15 +453,127 @@ textarea:focus-visible {
   font-size: 15px;
 }
 
-.experiment-guide-panel {
+.overview-start-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  padding: 18px;
+}
+
+.overview-start-copy {
+  display: grid;
+  gap: 5px;
+}
+
+.overview-start-copy h3 {
+  font-size: 16px;
+}
+
+.overview-start-copy p:last-child {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.overview-start-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.overview-command {
+  display: grid;
+  min-width: 0;
+  min-height: 64px;
+  grid-template-columns: 30px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+}
+
+.overview-command:hover {
+  border-color: var(--teal);
+  background: #f8faf9;
+}
+
+.overview-command.is-primary {
+  border-color: var(--teal);
+  background: var(--teal-soft);
+}
+
+.overview-command > svg {
+  width: 20px;
+  color: var(--teal);
+}
+
+.overview-command > span {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.overview-command strong {
+  font-size: 13px;
+}
+
+.overview-command small {
+  overflow: hidden;
+  color: var(--ink-muted);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.overview-runs-panel .activity-list {
+  min-height: 132px;
+}
+
+.experiment-guide-disclosure {
   overflow: hidden;
 }
 
-.experiment-guide-header {
+.experiment-guide-disclosure > summary {
   display: flex;
+  min-height: 58px;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  padding: 12px 17px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.experiment-guide-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.experiment-guide-disclosure > summary > span {
+  display: grid;
+  gap: 3px;
+}
+
+.experiment-guide-disclosure > summary strong {
+  font-size: 13px;
+}
+
+.experiment-guide-disclosure > summary svg {
+  width: 18px;
+  color: var(--ink-muted);
+}
+
+.experiment-guide-disclosure[open] > summary {
+  border-bottom: 1px solid var(--line);
+}
+
+.experiment-guide-disclosure[open] > summary svg {
+  transform: rotate(180deg);
 }
 
 .experiment-guide-track {
@@ -563,99 +679,10 @@ textarea:focus-visible {
   color: var(--ink);
 }
 
-.workflow-panel {
-  overflow: hidden;
-}
-
-.flow-track {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 0;
-  margin: 0;
-  padding: 21px 22px 24px;
-  list-style: none;
-}
-
-.flow-track li {
-  position: relative;
-  display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-  padding-right: 20px;
-}
-
-.flow-track li:not(:last-child)::after {
-  position: absolute;
-  top: 16px;
-  right: 8px;
-  width: 18px;
-  height: 1px;
-  background: var(--line-strong);
-  content: "";
-}
-
-.flow-track li > span {
-  display: grid;
-  width: 34px;
-  height: 34px;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--surface-muted);
-  color: var(--ink-muted);
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.flow-track li:nth-child(1) > span,
-.flow-track li:nth-child(2) > span,
-.flow-track li:nth-child(4) > span {
-  background: var(--green-soft);
-  color: var(--green);
-}
-
-.flow-track li:nth-child(3) > span {
-  background: var(--amber-soft);
-  color: var(--amber);
-}
-
-.flow-track li:nth-child(5) > span {
-  background: var(--blue-soft);
-  color: var(--blue);
-}
-
-.flow-track div {
-  display: grid;
-  min-width: 0;
-  gap: 3px;
-}
-
-.flow-track strong,
-.flow-track small {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.flow-track strong {
-  font-size: 13px;
-}
-
-.flow-track small {
-  color: var(--ink-muted);
-  font-size: 11px;
-}
-
-.overview-grid,
 .split-layout,
 .agent-workspace {
   display: grid;
   gap: 16px;
-}
-
-.overview-grid {
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
 }
 
 .split-layout {
@@ -1545,6 +1572,10 @@ dialog::backdrop {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .overview-start-panel {
+    grid-template-columns: 1fr;
+  }
+
   .experiment-guide-track {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1616,10 +1647,6 @@ dialog::backdrop {
     padding: 20px 18px 32px;
   }
 
-  .overview-grid {
-    grid-template-columns: 1fr;
-  }
-
   .autonomy-heading {
     align-items: flex-start;
     flex-direction: column;
@@ -1630,15 +1657,6 @@ dialog::backdrop {
     justify-content: flex-start;
   }
 
-  .flow-track {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px 0;
-  }
-
-  .flow-track li:nth-child(2)::after,
-  .flow-track li:nth-child(4)::after {
-    display: none;
-  }
 }
 
 @media (max-width: 580px) {
@@ -1679,12 +1697,13 @@ dialog::backdrop {
     display: none;
   }
 
-  .experiment-guide-header {
-    align-items: flex-start;
+  .overview-start-panel {
+    gap: 16px;
+    padding: 16px;
   }
 
-  .experiment-guide-header .scope-badge {
-    display: none;
+  .overview-start-actions {
+    grid-template-columns: 1fr;
   }
 
   .experiment-guide-track {
