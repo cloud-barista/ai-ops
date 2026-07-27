@@ -13,6 +13,7 @@ import (
 	"kyunghee-aiops/service-control-api/internal/appdeploy"
 	"kyunghee-aiops/service-control-api/internal/automation"
 	"kyunghee-aiops/service-control-api/internal/autonomy"
+	"kyunghee-aiops/service-control-api/internal/controlrun"
 	"kyunghee-aiops/service-control-api/internal/llmclient"
 )
 
@@ -21,6 +22,7 @@ type Service struct {
 	runtimeAgents      *runtimeAgentStore
 	automationFeedback *automationFeedbackStore
 	autonomyManager    *autonomy.Manager
+	controlRuns        *controlrun.Store
 }
 
 func NewService(config ServerConfig) Service {
@@ -28,6 +30,7 @@ func NewService(config ServerConfig) Service {
 		config:             config,
 		runtimeAgents:      newRuntimeAgentStore(),
 		automationFeedback: newAutomationFeedbackStore(),
+		controlRuns:        controlrun.NewStore(),
 	}
 	var control autonomy.AppDeployControl
 	if strings.TrimSpace(config.AppDeployBaseURL) != "" {
