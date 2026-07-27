@@ -1,5 +1,63 @@
 basePath: /
 definitions:
+  api.AgentExecutionRequest:
+    properties:
+      action:
+        type: string
+      capability:
+        type: string
+      context:
+        additionalProperties: {}
+        type: object
+      input:
+        additionalProperties: {}
+        type: object
+    required:
+    - action
+    - capability
+    type: object
+  api.AgentExecutionResponse:
+    properties:
+      execution:
+        $ref: '#/definitions/api.AgentExecutionResult'
+      request_guard:
+        $ref: '#/definitions/api.GuardDecision'
+      request_id:
+        type: string
+      result_guard:
+        $ref: '#/definitions/api.GuardDecision'
+      run_id:
+        type: string
+      selected_agent:
+        $ref: '#/definitions/api.AgentProfile'
+    type: object
+  api.AgentExecutionResult:
+    properties:
+      agent:
+        type: string
+      domain_validation:
+        type: string
+      evidence:
+        additionalProperties: {}
+        type: object
+      generation:
+        $ref: '#/definitions/deploymentplanner.GenerateResult'
+      latency_ms:
+        type: integer
+      manifest:
+        $ref: '#/definitions/appdeploy.DeploymentManifest'
+      message:
+        type: string
+      proposal:
+        $ref: '#/definitions/api.AgentProposal'
+      result:
+        additionalProperties: {}
+        type: object
+      run_id:
+        type: string
+      status:
+        type: string
+    type: object
   api.AgentInvocationPlan:
     properties:
       action:
@@ -35,6 +93,8 @@ definitions:
     type: object
   api.AgentProfile:
     properties:
+      auth_token_env:
+        type: string
       bounded_actions:
         items:
           type: string
@@ -69,6 +129,14 @@ definitions:
         type: string
       version:
         type: string
+    type: object
+  api.AgentProposal:
+    properties:
+      action:
+        type: string
+      parameters:
+        additionalProperties: {}
+        type: object
     type: object
   api.AgentReview:
     properties:
@@ -300,6 +368,8 @@ definitions:
     type: object
   api.ExternalAgentRegistrationRequest:
     properties:
+      auth_token_env:
+        type: string
       bounded_actions:
         items:
           type: string
@@ -811,6 +881,28 @@ definitions:
       storage:
         type: string
     type: object
+  controlrun.AgentExecution:
+    properties:
+      domain_validation:
+        type: string
+      evidence:
+        additionalProperties: {}
+        type: object
+      guard_status:
+        type: string
+      latency_ms:
+        type: integer
+      message:
+        type: string
+      proposal:
+        additionalProperties: {}
+        type: object
+      result:
+        additionalProperties: {}
+        type: object
+      status:
+        type: string
+    type: object
   controlrun.AgentSelection:
     properties:
       action:
@@ -834,6 +926,8 @@ definitions:
         type: string
       deployment:
         $ref: '#/definitions/appdeploy.DeploymentResponse'
+      execution:
+        $ref: '#/definitions/controlrun.AgentExecution'
       generation:
         $ref: '#/definitions/deploymentplanner.GenerateResult'
       logs:
@@ -867,11 +961,15 @@ definitions:
     type: object
   controlrun.SafeRequest:
     properties:
+      action:
+        type: string
       agent_name:
         type: string
       app_version_id:
         type: string
       candidate_id:
+        type: string
+      capability:
         type: string
       natural_language_request:
         type: string
@@ -907,6 +1005,10 @@ definitions:
     - SUBMITTING
     - APPDEPLOY_FAILED
     - DEPLOYED
+    - AGENT_DISPATCHING
+    - AGENT_COMPLETED
+    - AGENT_FAILED
+    - RESULT_REJECTED
     type: string
     x-enum-varnames:
     - StatusReceived
@@ -918,6 +1020,10 @@ definitions:
     - StatusSubmitting
     - StatusAppDeployFailed
     - StatusDeployed
+    - StatusAgentDispatching
+    - StatusAgentCompleted
+    - StatusAgentFailed
+    - StatusResultRejected
   deploymentplanner.GenerateResult:
     properties:
       actual_model:
@@ -1113,6 +1219,63 @@ paths:
           schema:
             $ref: '#/definitions/api.ErrorResponse'
       summary: Validate an action against an agent boundary
+      tags:
+      - Agent Registry
+  /api/v1/agents/{name}/execute:
+    post:
+      consumes:
+      - application/json
+      description: Validate Registry capability and bounded action, execute one internal
+        or runtime Agent, validate its result, and record a ControlRun.
+      operationId: ExecuteAgent
+      parameters:
+      - description: Agent name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Agent execution request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.AgentExecutionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.AgentExecutionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "501":
+          description: Not Implemented
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "504":
+          description: Gateway Timeout
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Execute a registered Agent through the guarded Dispatcher
       tags:
       - Agent Registry
   /api/v1/agents/{name}/invocations/plan:

@@ -315,6 +315,7 @@ func (handler restHandler) RestPostAgentInvocationPlan(context echo.Context) err
 // @Failure 403 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
 // @Failure 422 {object} ErrorResponse
+// @Failure 501 {object} ErrorResponse
 // @Failure 502 {object} ErrorResponse
 // @Failure 504 {object} ErrorResponse
 // @Router /api/v1/agents/{name}/execute [post]

@@ -18,17 +18,21 @@ English title: AI Application Deployment and Control Optimization Strategy
 | Go Manifest Guard | Manifest 형식, 자원 값, 요청 보존, 비밀정보 유입 검증 |
 | AppDeploy Client | 배포 요청 전달, 상태 polling, 로그 수집 |
 | Agent Registry | 플래너와 연계 에이전트의 역할·capability·허용 Action 관리 |
+| Agent Dispatcher | Registry가 승인한 내장 Planner 또는 Runtime Agent 실행 경로 선택 |
 
 ## 3. 처리 흐름
 
 ```text
 자연어 배포 요구 + app_version_id
   -> Go Request Guard 승인 또는 거부
-  -> 실제 LLM endpoint 호출
+  -> Agent Registry에서 AIApplicationAutomationAgent 선택·권한 확인
+  -> Agent Dispatcher
+  -> 실제 Qwen endpoint 호출
   -> CPU/메모리/GPU/디스크/accelerator 결정
   -> DeploymentManifest 생성
   -> Go Manifest Guard 승인 또는 거부
-  -> AppDeploy POST /api/v1/deployments
+  -> MANIFEST_APPROVED
+  -> (선택) AppDeploy POST /api/v1/deployments
   -> 상태 polling 및 로그 조회
   -> 결과와 재시도 권고 반환
 ```
@@ -106,7 +110,9 @@ REQUESTED -> VALIDATING -> VALIDATED -> SCHEDULING -> DEPLOYING -> RUNNING
 | 요청 Guard·정책 | `go/service-control-api/internal/plannerguard/`, `config/planner_guard_policy.json` |
 | Manifest 모델·Guard | `go/service-control-api/internal/appdeploy/` |
 | LLM 생성·polling orchestration | `go/service-control-api/internal/deploymentplanner/` |
-| Echo API | `POST /api/v1/planner/deployments` |
+| Agent Registry·Dispatcher | `go/service-control-api/internal/api/agent_registry_runtime.go`, `agent_dispatcher.go` |
+| Manifest ControlRun API | `POST /api/v1/control-runs`, `POST /api/v1/agents/{name}/execute` |
+| Manifest와 AppDeploy 호환 API | `POST /api/v1/planner/deployments` |
 | CLI | `run-appdeploy-planner` |
 | 계약 snapshot | `contracts/appdeploy/deployment_manifest.schema.json` |
 | 요청·응답 예시 | `examples/requests/run-appdeploy-planner.json`, `examples/responses/run-appdeploy-planner-success.json` |
@@ -125,11 +131,13 @@ go run ./cmd/aiops-service-control run-appdeploy-planner \
   --appdeploy-base-url http://127.0.0.1:8081/api/v1
 ```
 
-실제 성공 결과를 얻으려면 LLM endpoint와 AppDeploy 서버가 모두 실행 중이고 App Version 및 Target Profile이 AppDeploy에 등록되어 있어야 합니다.
+`MANIFEST_APPROVED` 결과에는 LLM endpoint만 필요하며 AppDeploy 서버는 필요하지 않습니다. 실제 `DEPLOYED` 결과까지 얻으려면 AppDeploy 서버가 실행 중이고 App Version 및 Target Profile이 AppDeploy에 등록되어 있어야 합니다.
 
 ## 10. 범위와 한계
 
 - 현재 구현은 Go 기반 연구 prototype입니다.
 - AppDeploy가 선택한 Target과 배포 상태를 반환하며 플래너가 가상 VM 후보를 만들지 않습니다.
+- 현재 내장 실행 Agent는 `AIApplicationAutomationAgent` 한 개이며 Job Scheduling Agent는 포함하지 않습니다.
+- 외부 Runtime Agent는 등록된 endpoint에 대한 bounded HTTP 요청 한 건으로만 실행하고 범용 multi-agent workflow는 수행하지 않습니다.
 - 실제 운영 인증, TLS, 영속 메시지 큐와 자동 재배포 정책은 후속 통합 항목입니다.
 - 1차년도 범위는 VM 기반이며 Kubernetes 배포를 산출물로 주장하지 않습니다.

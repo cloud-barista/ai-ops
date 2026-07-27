@@ -1,13 +1,14 @@
 openapi: 3.0.3
 info:
   title: AI Service Control API
-  version: "0.4.0"
+  version: "0.5.0"
   description: >
     Go Echo contract for Ops LLM selection, actual LLM-based automation
-    Action proposals, agent registry management, actual CPU/GPU VM
+    Action proposals, executable agent registry management, actual CPU/GPU VM
     suitability validation, Go Request/Manifest Guard checks, and AppDeploy Planner integration.
-    The Planner generates and validates a DeploymentManifest; AppDeploy selects
-    the actual Target and performs deployment execution.
+    The built-in AIApplicationAutomationAgent generates a guarded DeploymentManifest.
+    Registered runtime Agents are invoked through one bounded HTTP call and result
+    validation. AppDeploy selects the actual Target and performs deployment execution.
 servers:
   - url: http://127.0.0.1:18080
 paths:
@@ -136,6 +137,48 @@ paths:
                 $ref: "#/components/schemas/AgentInvocationPlan"
         "400":
           $ref: "#/components/responses/BadRequest"
+  /api/v1/agents/{name}/execute:
+    post:
+      operationId: ExecuteAgent
+      summary: Execute a registered Agent through the guarded Dispatcher
+      description: >
+        Resolves the Agent from Registry, validates its capability and bounded
+        Action, dispatches one internal or runtime Agent execution, validates
+        the returned result, and stores all stages in one ControlRun. The
+        built-in AIApplicationAutomationAgent uses Qwen and Go Manifest Guard;
+        a runtime Agent receives one HTTP POST at its registered endpoint.
+      security:
+        - {}
+        - AutonomyAdminToken: []
+      parameters:
+        - $ref: "#/components/parameters/AgentName"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentExecutionRequest"
+      responses:
+        "200":
+          description: Guarded Agent execution completed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentExecutionResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "403":
+          description: Agent capability or bounded Action was not authorized
+        "404":
+          description: Agent was not found
+        "422":
+          description: Agent result was rejected by the result or Manifest Guard
+        "501":
+          description: The selected internal Agent has no registered executor
+        "502":
+          description: Runtime Agent endpoint or internal Agent execution failed
+        "504":
+          description: Agent execution timed out
   /api/v1/ops-llm/select:
     post:
       summary: Select an Ops LLM policy candidate
@@ -726,7 +769,7 @@ components:
         run_id: {type: string, example: run-4b53c2c1}
         status:
           type: string
-          enum: [RECEIVED, REQUEST_REJECTED, AGENT_REJECTED, PLANNING, MANIFEST_REJECTED, MANIFEST_APPROVED, SUBMITTING, APPDEPLOY_FAILED, DEPLOYED]
+          enum: [RECEIVED, REQUEST_REJECTED, AGENT_REJECTED, PLANNING, MANIFEST_REJECTED, MANIFEST_APPROVED, SUBMITTING, APPDEPLOY_FAILED, DEPLOYED, AGENT_DISPATCHING, AGENT_COMPLETED, AGENT_FAILED, RESULT_REJECTED]
         created_at: {type: string, format: date-time}
         updated_at: {type: string, format: date-time}
         request:
@@ -913,6 +956,9 @@ components:
         enabled: {type: boolean}
         endpoint: {type: string, format: uri}
         invocation_path: {type: string}
+        auth_token_env:
+          type: string
+          description: Environment variable name containing an optional bearer token. The token value is never returned.
         source: {type: string, enum: [configuration, runtime]}
     ExternalAgentRegistrationRequest:
       type: object
@@ -927,6 +973,9 @@ components:
           items: {type: string}
         endpoint: {type: string, format: uri}
         invocation_path: {type: string, example: /v1/actions}
+        auth_token_env:
+          type: string
+          description: Optional environment variable name containing a bearer token.
         capabilities:
           type: array
           minItems: 1
@@ -958,6 +1007,69 @@ components:
           additionalProperties: true
         execution_status: {type: string, enum: [not_executed]}
         reason: {type: string}
+    AgentExecutionRequest:
+      type: object
+      required: [capability, action]
+      properties:
+        capability:
+          type: string
+          example: deployment_manifest_planning
+        action:
+          type: string
+          example: generate_deployment_manifest
+        input:
+          type: object
+          additionalProperties: true
+        context:
+          type: object
+          additionalProperties: true
+    AgentProposal:
+      type: object
+      required: [action]
+      properties:
+        action: {type: string}
+        parameters:
+          type: object
+          additionalProperties: true
+    AgentExecutionResult:
+      type: object
+      required: [run_id, agent, status, proposal, latency_ms, domain_validation]
+      properties:
+        run_id: {type: string, example: run-4b53c2c1}
+        agent: {type: string, example: AIApplicationAutomationAgent}
+        status: {type: string, enum: [completed, rejected, failed]}
+        proposal:
+          $ref: "#/components/schemas/AgentProposal"
+        result:
+          type: object
+          additionalProperties: true
+        evidence:
+          type: object
+          additionalProperties: true
+        message: {type: string}
+        latency_ms: {type: integer, format: int64}
+        manifest:
+          $ref: "#/components/schemas/AppDeployDeploymentManifest"
+        generation:
+          type: object
+          additionalProperties: true
+        domain_validation:
+          type: string
+          enum: [manifest_guard, not_registered]
+    AgentExecutionResponse:
+      type: object
+      required: [request_id, run_id, selected_agent, request_guard, execution, result_guard]
+      properties:
+        request_id: {type: string}
+        run_id: {type: string}
+        selected_agent:
+          $ref: "#/components/schemas/AgentProfile"
+        request_guard:
+          $ref: "#/components/schemas/GuardDecision"
+        execution:
+          $ref: "#/components/schemas/AgentExecutionResult"
+        result_guard:
+          $ref: "#/components/schemas/GuardDecision"
     VMCompatibilityRequest:
       type: object
       required: [workload, target_vm]

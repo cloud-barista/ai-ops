@@ -2,13 +2,13 @@
 
 ## geon Agent Control 실행 가이드
 
-geon Agent Control은 backend `ControlRun`을 중심으로 Agent Registry, Qwen 기반 Manifest 생성, Go Guard 승인·거부, 선택적 AppDeploy 전달, 배포 후 Autonomous Loop와 실행 Feedback을 연결하는 웹 화면입니다. AppDeploy 소스는 수정하지 않으며 두 서버를 별도 프로세스로 실행합니다.
+geon Agent Control은 backend `ControlRun`을 중심으로 Agent Registry, Agent Dispatcher, Qwen 기반 Manifest 생성, Go Guard 승인·거부, 선택적 AppDeploy 전달, 배포 후 Autonomous Loop와 실행 Feedback을 연결하는 웹 화면입니다. 내장 Agent와 외부 Runtime Agent는 같은 실행 계약을 사용합니다. AppDeploy 소스는 수정하지 않으며 두 서버를 별도 프로세스로 실행합니다.
 
 ### 구성과 포트
 
 | 구성 요소 | 역할 | 기본 주소 |
 | --- | --- | --- |
-| AppDeploy | App/Target 등록 및 실제 배포 실행 | `http://127.0.0.1:8080/` |
+| AppDeploy | App/Target 등록 및 실제 배포 실행 | `http://127.0.0.1:8080/swagger` |
 | Ollama | Qwen `qwen3.5:4b` 추론 | `http://127.0.0.1:11434/` |
 | geon Agent Control | Agent 판단·Guard·AppDeploy 연동 | `http://127.0.0.1:18080/` |
 
@@ -64,7 +64,7 @@ fi
 curl http://127.0.0.1:8080/api/v1/healthz
 ```
 
-정상이라면 `http://127.0.0.1:8080/`에서 AppDeploy 웹 화면이 열립니다.
+정상이라면 `http://127.0.0.1:8080/swagger`에서 AppDeploy API 문서를 확인할 수 있습니다. AppDeploy 최신 서버는 geon Agent Control과 같은 관리 웹 화면을 제공하지 않습니다.
 
 ### 3. geon Agent Control 실행
 
@@ -119,7 +119,7 @@ Overview
 실험 순서 안내는 기본적으로 접혀 있습니다. 1~2단계인 Agent Registry 권한 확인과 DeploymentManifest 생성이 geon의 핵심 Manifest 실험입니다. AppDeploy 제출, 자율 운영, Feedback은 배포 연계가 필요할 때 수행하는 선택 단계이며 Manifest 생성의 필수 조건이 아닙니다.
 
 1. 실제 배포 시험이면 AppDeploy에 Target과 App을 등록하고 `app_version_id`를 복사합니다. Manifest-only 시험에서는 형식이 유효한 시험 ID를 사용할 수 있습니다.
-2. **Agents & Guard**에서 `deployment_manifest_planning` capability와 `generate_deployment_manifest` bounded Action을 가진 활성 Agent를 확인합니다.
+2. **Agents & Guard**에서 Agent의 internal/external source, capability와 bounded Action을 확인합니다.
 3. **Deployment Planner**의 자연어 요구, `app_version_id`, Qwen candidate를 입력합니다.
 4. **Generate Manifest**를 실행합니다.
 5. 동일한 `run_id` 아래 Request Guard → Agent Registry → Qwen Planner → Manifest Guard가 순서대로 기록되고, 성공 시 `MANIFEST_APPROVED`와 최종 Manifest가 표시됩니다.
@@ -154,6 +154,38 @@ POST /api/v1/control-runs
 GET  /api/v1/control-runs/{run_id}
 POST /api/v1/control-runs/{run_id}/submit
 ```
+
+### 등록 Agent 실행
+
+**Agents & Guard**의 실행 버튼은 선택 Agent를 다음 공통 경로로 실행합니다.
+
+```text
+Agent Registry
+→ Agent Request Guard
+→ Agent Dispatcher
+   ├─ AIApplicationAutomationAgent → Qwen → DeploymentManifest → Go Manifest Guard
+   └─ Runtime Agent → 등록 endpoint에 HTTP POST 1건 → Go Result Guard
+→ ControlRun 기록
+```
+
+현재 실제 기능을 가진 내장 Agent는 `AIApplicationAutomationAgent` 한 개입니다. 이 Agent의 `generate_deployment_manifest` 실행은 기존 Manifest ControlRun을 사용하므로 성공 결과는 `MANIFEST_APPROVED`와 검증된 `DeploymentManifest`입니다. 외부 Agent는 등록된 `endpoint`, `invocation_path`, capability와 bounded Action만 사용하며 endpoint를 요청마다 바꿀 수 없습니다.
+
+```bash
+curl -X POST http://127.0.0.1:18080/api/v1/agents/AIApplicationAutomationAgent/execute \
+  -H "Content-Type: application/json" \
+  -d '{
+    "capability":"deployment_manifest_planning",
+    "action":"generate_deployment_manifest",
+    "input":{
+      "natural_language_request":"CPU 2, 메모리 4Gi인 추론 앱의 배포 계획을 생성해 주세요.",
+      "app_version_id":"appver-example",
+      "candidate_id":"qwen3.5-ops-planner",
+      "requested_by":"ai-ops-geon-planner"
+    }
+  }'
+```
+
+Runtime Agent의 token이 필요하면 등록 시 token 값이 아니라 `auth_token_env`에 환경 변수 이름만 저장합니다. 서버가 실행 시 해당 환경 변수의 값을 읽어 Bearer token으로 전달하며 응답이나 Registry 목록에는 값을 노출하지 않습니다. 범용 다중 Agent 워크플로와 Job Scheduling Agent는 이번 범위에 포함하지 않습니다.
 
 ### 5. 실행 상태의 의미
 
@@ -357,6 +389,7 @@ go run ./cmd/aiops-service-control run-service-operations \
 | `DELETE` | `/api/v1/agents/:name` |
 | `POST` | `/api/v1/agents/:name/actions/:action/validate` |
 | `POST` | `/api/v1/agents/:name/invocations/plan` |
+| `POST` | `/api/v1/agents/:name/execute` |
 | `POST` | `/api/v1/ops-llm/select` |
 | `POST` | `/api/v1/apps/vm-suitability` |
 | `POST` | `/api/v1/apps/deployment-plan` |
