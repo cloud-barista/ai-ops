@@ -199,6 +199,26 @@ func TestControlAppStartsWithManifestWorkflow(t *testing.T) {
 	if !strings.Contains(html, `<section class="view" data-view="overview" hidden>`) {
 		t.Fatal("Overview must be a separate Guide view")
 	}
+	for _, expected := range []string{
+		`<p class="eyebrow" id="view-eyebrow">USER REQUEST TO GUARDED MANIFEST</p>`,
+		`<h1 id="view-title">Manifest Workflow</h1>`,
+	} {
+		if !strings.Contains(html, expected) {
+			t.Fatalf("expected initial Manifest Workflow heading %q", expected)
+		}
+	}
+
+	javascript := requestBody(t, server, "/assets/app.js")
+	initializeStart := strings.Index(javascript, `async function initialize()`)
+	if initializeStart == -1 {
+		t.Fatal("expected Control App initializer")
+	}
+	initialize := javascript[initializeStart:]
+	activateView := strings.Index(initialize, `switchView(state.activeView);`)
+	refreshDashboard := strings.Index(initialize, `await refreshDashboard();`)
+	if activateView == -1 || refreshDashboard == -1 || activateView > refreshDashboard {
+		t.Fatal("initializer must activate Manifest Workflow before the first dashboard render")
+	}
 }
 
 func TestControlAppShowsManifestStagesInExecutionOrder(t *testing.T) {
@@ -228,6 +248,43 @@ func TestControlAppShowsManifestStagesInExecutionOrder(t *testing.T) {
 			t.Fatalf("expected Manifest stage %q after the previous execution stage", stage)
 		}
 		lastIndex = index
+	}
+}
+
+func TestControlAppRendersManifestStagesFromSelectedControlRun(t *testing.T) {
+	server := echo.New()
+	Register(server)
+
+	javascript := requestBody(t, server, "/assets/app.js")
+	renderStart := strings.Index(javascript, `function renderManifestStageFlow(run)`)
+	if renderStart == -1 {
+		t.Fatal("expected Manifest stage renderer")
+	}
+	renderEnd := strings.Index(javascript[renderStart:], `function renderControlRunTimeline(run)`)
+	if renderEnd == -1 {
+		t.Fatal("expected Manifest stage renderer boundary")
+	}
+	renderer := javascript[renderStart : renderStart+renderEnd]
+
+	for _, expected := range []string{
+		`const stages = new Map((run?.stages || []).map((stage) => [stage.name, stage]));`,
+		`const stage = stages.get(definition.key);`,
+		`item.dataset.status = stage?.status || (blocked ? "blocked" : "pending");`,
+		`stage?.reason || (blocked ?`,
+	} {
+		if !strings.Contains(renderer, expected) {
+			t.Fatalf("expected selected ControlRun stage behavior %q", expected)
+		}
+	}
+
+	for _, forbidden := range []string{
+		`definition.key === "user_request"`,
+		`status: "approved"`,
+		`ControlRun request received`,
+	} {
+		if strings.Contains(renderer, forbidden) {
+			t.Fatalf("Manifest stage renderer must not fabricate ControlRun data %q", forbidden)
+		}
 	}
 }
 

@@ -269,9 +269,7 @@ function renderManifestStageFlow(run) {
   flow.replaceChildren();
 
   MANIFEST_STAGE_ORDER.forEach((definition, index) => {
-    const stage = definition.key === "user_request"
-      ? (run ? { status: "approved", reason: "ControlRun request received" } : null)
-      : stages.get(definition.key);
+    const stage = stages.get(definition.key);
     const item = createElement("li", "manifest-stage");
     item.dataset.status = stage?.status || (blocked ? "blocked" : "pending");
     item.append(
@@ -1158,6 +1156,7 @@ function bindEvents() {
 
 async function initialize() {
   bindEvents();
+  switchView(state.activeView);
   const savedAppVersion = localStorage.getItem(APP_VERSION_KEY);
   if (savedAppVersion) byID("planner-form").elements.app_version_id.value = savedAppVersion;
   if (window.lucide) window.lucide.createIcons();
