@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -35,15 +36,24 @@ func (s *Service) Register(ctx context.Context, req model.AppCreateRequest) (mod
 	}
 
 	now := time.Now().UTC()
+	original := append(json.RawMessage(nil), req.RawApplication...)
+	if len(original) == 0 {
+		encoded, marshalErr := json.Marshal(req.AppSpec)
+		if marshalErr != nil {
+			return model.AppResponse{}, apperrors.New(model.ErrAppSpecInvalid, "application could not be preserved", http.StatusBadRequest, false)
+		}
+		original = encoded
+	}
 	appID := "app-" + uuid.NewString()
 	appVersionID := "appver-" + uuid.NewString()
 	resp := model.AppResponse{
-		AppID:        appID,
-		AppVersionID: appVersionID,
-		Name:         req.AppSpec.Metadata.Name,
-		Version:      req.AppSpec.Metadata.Version,
-		AppSpec:      req.AppSpec,
-		CreatedAt:    now,
+		AppID:               appID,
+		AppVersionID:        appVersionID,
+		Name:                req.AppSpec.Metadata.Name,
+		Version:             req.AppSpec.Metadata.Version,
+		AppSpec:             req.AppSpec,
+		OriginalApplication: original,
+		CreatedAt:           now,
 	}
 	if err := s.repo.CreateApp(ctx, resp); err != nil {
 		return model.AppResponse{}, err

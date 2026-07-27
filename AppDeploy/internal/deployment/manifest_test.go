@@ -106,6 +106,25 @@ func TestCompleteManifestRequirementsFillsAppDefaultsAndKeepsPlannerOverrides(t 
 	}
 }
 
+func TestCompleteManifestRequirementsUsesDeploymentRequirements(t *testing.T) {
+	manifest := model.DeploymentManifest{Spec: model.DeploymentManifestSpec{
+		Requirements: &model.DeploymentRequirements{
+			Resources:   model.Resources{CPU: "4", Memory: "8Gi", GPU: "1"},
+			Accelerator: "nvidia",
+		},
+	}}
+	completeManifestRequirements(&manifest, model.AppSpec{
+		Runtime:   model.AppRuntime{Type: "gpu", Accelerator: "none"},
+		Resources: model.Resources{CPU: "1", Memory: "1Gi", GPU: "0", Storage: "1Gi"},
+	})
+	if manifest.Spec.Accelerator != "nvidia" || manifest.Spec.Resources.CPU != "4" || manifest.Spec.Resources.Memory != "8Gi" || manifest.Spec.Resources.GPU != "1" || manifest.Spec.Resources.Storage != "1Gi" {
+		t.Fatalf("deployment requirements were not applied: %+v", manifest.Spec)
+	}
+	if manifest.Spec.Requirements.Resources != manifest.Spec.Resources {
+		t.Fatalf("effective requirements do not match manifest resources: %+v", manifest.Spec.Requirements.Resources)
+	}
+}
+
 func TestNormalizeManifestRejectsNvidiaWithoutGPU(t *testing.T) {
 	_, err := normalizeManifest(model.DeploymentCreateRequest{
 		Manifest: &model.DeploymentManifest{

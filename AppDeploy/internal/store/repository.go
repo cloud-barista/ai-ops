@@ -22,6 +22,15 @@ type ProfileRepository interface {
 	DeleteTargetProfile(ctx context.Context, id string) (profile model.TargetProfile, inventoryDeleted bool, err error)
 }
 
+// ResourceReservationRepository is implemented by repositories that can
+// atomically reserve and release local-node capacity. It is intentionally
+// separate from ProfileRepository so external profile implementations do not
+// need to know local allocation bookkeeping.
+type ResourceReservationRepository interface {
+	ReserveResources(ctx context.Context, targetProfileID, deploymentID string, allocation model.ResourceAllocation) error
+	ReleaseResources(ctx context.Context, targetProfileID, deploymentID string) error
+}
+
 type DeploymentRepository interface {
 	CreateDeployment(ctx context.Context, deployment model.DeploymentResponse) error
 	UpdateDeployment(ctx context.Context, deployment model.DeploymentResponse) error

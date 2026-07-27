@@ -15,15 +15,16 @@ import (
 	infsvc "github.com/khu/ai-app-deployer/internal/inference"
 	monsvc "github.com/khu/ai-app-deployer/internal/monitoring"
 	profilesvc "github.com/khu/ai-app-deployer/internal/profile"
+	"github.com/khu/ai-app-deployer/internal/provider"
 	"github.com/khu/ai-app-deployer/internal/requestid"
 	ressvc "github.com/khu/ai-app-deployer/internal/resource"
 	"github.com/khu/ai-app-deployer/internal/runtime"
 	"github.com/khu/ai-app-deployer/internal/runtime/aiinfra"
 	"github.com/khu/ai-app-deployer/internal/runtime/cpuvm"
 	"github.com/khu/ai-app-deployer/internal/runtime/gpuvm"
+	localruntime "github.com/khu/ai-app-deployer/internal/runtime/local"
 	mockruntime "github.com/khu/ai-app-deployer/internal/runtime/mock"
 	"github.com/khu/ai-app-deployer/internal/store"
-	"github.com/khu/ai-app-deployer/internal/webui"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/rs/zerolog/log"
@@ -64,12 +65,15 @@ func newWithConfig(settings config.Settings, requestLogging bool) (*echo.Echo, e
 	}
 	credentials := credentialsvc.NewService(config.NewEnvCredentialResolver(), settings.SSHDefaultTimeout)
 	mockAdapter := mockruntime.New()
+	localAdapter := localruntime.New(settings.LocalRuntimeWorkDir)
 	cpuAdapter := cpuvm.New(cpuVMRunner(settings, credentials))
 	gpuAdapter := gpuvm.New(gpuVMRunner(settings, credentials))
 	aiInfraAdapter := aiinfra.New(etri.NewMockClient())
 	adapter := runtime.NewRouter(mockAdapter)
 	adapter.RegisterAdapterType("mock", mockAdapter)
 	adapter.RegisterRuntimeType("mock", mockAdapter)
+	adapter.RegisterAdapterType("local_process", localAdapter)
+	adapter.RegisterRuntimeType("local", localAdapter)
 	adapter.RegisterAdapterType("cpu_vm", cpuAdapter)
 	adapter.RegisterRuntimeType("cpu", cpuAdapter)
 	adapter.RegisterAdapterType("gpu_vm", gpuAdapter)
@@ -85,14 +89,72 @@ func newWithConfig(settings config.Settings, requestLogging bool) (*echo.Echo, e
 	})
 	profiles := profilesvc.NewService(repo)
 	matcher := ressvc.NewMatcher()
-	deployments := depsvc.NewService(repo, repo, repo, matcher, adapter)
+	resourceProvider, placementProvider, err := buildProviders(settings, repo)
+	if err != nil {
+		return nil, err
+	}
+	deployments := depsvc.NewServiceWithProviders(repo, repo, repo, matcher, adapter, resourceProvider, placementProvider)
 	resources := ressvc.NewService(repo, repo, adapter)
 	monitoring := monsvc.NewService(repo)
 	inference := infsvc.NewService(repo, repo, repo, cpuvm.NewSSHRunner(credentials, settings.SSHDefaultTimeout))
 
 	handler.New(apps, packages, profiles, deployments, resources, monitoring, inference, credentials, settings.CredentialRemote).Register(e)
-	webui.Register(e)
 	return e, nil
+}
+
+func buildProviders(settings config.Settings, profiles store.ProfileRepository) (provider.ResourceInformationProvider, provider.PlacementProvider, error) {
+	resourceName := strings.ToLower(strings.TrimSpace(settings.ResourceProvider))
+	if resourceName == "" {
+		resourceName = "local"
+	}
+	placementName := strings.ToLower(strings.TrimSpace(settings.PlacementProvider))
+	if placementName == "" {
+		placementName = "local"
+	}
+	etriConfig := provider.ETRIConfig{
+		ResourceEndpoint:  settings.ETRIResourceEndpoint,
+		PlacementEndpoint: settings.ETRIPlacementEndpoint,
+		CredentialRef:     settings.ETRICredentialRef,
+		Timeout:           settings.ETRITimeout,
+	}
+	if resourceName != "local" && resourceName != "etri" {
+		return nil, nil, fmt.Errorf("unsupported RESOURCE_PROVIDER %q; use local or etri", resourceName)
+	}
+	if placementName != "local" && placementName != "etri" {
+		return nil, nil, fmt.Errorf("unsupported PLACEMENT_PROVIDER %q; use local or etri", placementName)
+	}
+
+	var localProvider *provider.LocalPlacementProvider
+	if resourceName == "local" || placementName == "local" {
+		var err error
+		localProvider, err = provider.NewLocalPlacementProvider(profiles)
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
+	var resourceProvider provider.ResourceInformationProvider
+	if resourceName == "local" {
+		resourceProvider = localProvider
+	} else {
+		remoteProvider, err := provider.NewETRIResourceMetadataAdapter(etriConfig)
+		if err != nil {
+			return nil, nil, err
+		}
+		resourceProvider = remoteProvider
+	}
+
+	var placementProvider provider.PlacementProvider
+	if placementName == "local" {
+		placementProvider = localProvider
+	} else {
+		remoteProvider, err := provider.NewETRIPlacementAdapter(etriConfig)
+		if err != nil {
+			return nil, nil, err
+		}
+		placementProvider = remoteProvider
+	}
+	return resourceProvider, placementProvider, nil
 }
 
 type repository interface {

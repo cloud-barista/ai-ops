@@ -21,14 +21,16 @@ type File struct {
 }
 
 type fileData struct {
-	AppsByID        map[string]model.AppResponse             `json:"apps_by_id"`
-	AppsByVersionID map[string]model.AppResponse             `json:"apps_by_version_id"`
-	AppNameVersion  map[string]string                        `json:"app_name_version"`
-	Targets         map[string]model.TargetProfile           `json:"targets"`
-	Deployments     map[string]model.DeploymentResponse      `json:"deployments"`
-	Events          map[string][]model.DeploymentEvent       `json:"events"`
-	Inventory       map[string]model.ResourceInventory       `json:"inventory"`
-	Metrics         map[string][]model.InferenceMetricRecord `json:"metrics"`
+	AppsByID        map[string]model.AppResponse                   `json:"apps_by_id"`
+	AppsByVersionID map[string]model.AppResponse                   `json:"apps_by_version_id"`
+	AppNameVersion  map[string]string                              `json:"app_name_version"`
+	OriginalApps    map[string]string                              `json:"original_applications,omitempty"`
+	Targets         map[string]model.TargetProfile                 `json:"targets"`
+	Deployments     map[string]model.DeploymentResponse            `json:"deployments"`
+	Events          map[string][]model.DeploymentEvent             `json:"events"`
+	Inventory       map[string]model.ResourceInventory             `json:"inventory"`
+	Metrics         map[string][]model.InferenceMetricRecord       `json:"metrics"`
+	Reservations    map[string]map[string]model.ResourceAllocation `json:"reservations"`
 }
 
 func NewFile(path string) (*File, error) {
@@ -47,11 +49,13 @@ func newFileData() fileData {
 		AppsByID:        map[string]model.AppResponse{},
 		AppsByVersionID: map[string]model.AppResponse{},
 		AppNameVersion:  map[string]string{},
+		OriginalApps:    map[string]string{},
 		Targets:         map[string]model.TargetProfile{},
 		Deployments:     map[string]model.DeploymentResponse{},
 		Events:          map[string][]model.DeploymentEvent{},
 		Inventory:       map[string]model.ResourceInventory{},
 		Metrics:         map[string][]model.InferenceMetricRecord{},
+		Reservations:    map[string]map[string]model.ResourceAllocation{},
 	}
 }
 
@@ -73,6 +77,15 @@ func (f *File) load() error {
 		return err
 	}
 	f.ensureMaps()
+	for appID, raw := range f.data.OriginalApps {
+		app, ok := f.data.AppsByID[appID]
+		if !ok {
+			continue
+		}
+		app.OriginalApplication = json.RawMessage(raw)
+		f.data.AppsByID[appID] = app
+		f.data.AppsByVersionID[app.AppVersionID] = app
+	}
 	for _, target := range f.data.Targets {
 		if !credentialref.Valid(target.VM.CredentialRef) {
 			return errors.New("stored target profile contains an invalid credential_ref")
@@ -85,15 +98,23 @@ func (f *File) ensureMaps() {
 	ensureMap(&f.data.AppsByID)
 	ensureMap(&f.data.AppsByVersionID)
 	ensureMap(&f.data.AppNameVersion)
+	ensureMap(&f.data.OriginalApps)
 	ensureMap(&f.data.Targets)
 	ensureMap(&f.data.Deployments)
 	ensureMap(&f.data.Events)
 	ensureMap(&f.data.Inventory)
 	ensureMap(&f.data.Metrics)
+	ensureMap(&f.data.Reservations)
 }
 
 func (f *File) saveLocked() error {
 	f.ensureMaps()
+	f.data.OriginalApps = make(map[string]string, len(f.data.AppsByID))
+	for appID, app := range f.data.AppsByID {
+		if len(app.OriginalApplication) > 0 {
+			f.data.OriginalApps[appID] = string(app.OriginalApplication)
+		}
+	}
 	raw, err := json.MarshalIndent(f.data, "", "  ")
 	if err != nil {
 		return err
@@ -182,6 +203,51 @@ func (f *File) CreateTargetProfile(ctx context.Context, profile model.TargetProf
 	return f.saveLocked()
 }
 
+func (f *File) ReserveResources(ctx context.Context, targetProfileID, deploymentID string, allocation model.ResourceAllocation) error {
+	if err := contextError(ctx); err != nil {
+		return err
+	}
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	target, err := mapValue(f.data.Targets, targetProfileID, "target profile not found")
+	if err != nil {
+		return err
+	}
+	if f.data.Reservations[targetProfileID] == nil {
+		f.data.Reservations[targetProfileID] = map[string]model.ResourceAllocation{}
+	}
+	if _, exists := f.data.Reservations[targetProfileID][deploymentID]; exists {
+		return nil
+	}
+	if !allocationFits(target, allocation) {
+		return apperrors.New(model.ErrResourceInsufficient, "target profile capacity is already allocated", 409, true)
+	}
+	target.Allocated = addAllocation(target.Allocated, allocation)
+	f.data.Targets[targetProfileID] = target
+	f.data.Reservations[targetProfileID][deploymentID] = allocation
+	return f.saveLocked()
+}
+
+func (f *File) ReleaseResources(ctx context.Context, targetProfileID, deploymentID string) error {
+	if err := contextError(ctx); err != nil {
+		return err
+	}
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	target, err := mapValue(f.data.Targets, targetProfileID, "target profile not found")
+	if err != nil {
+		return err
+	}
+	allocation, exists := f.data.Reservations[targetProfileID][deploymentID]
+	if !exists {
+		return nil
+	}
+	target.Allocated = subtractAllocation(target.Allocated, allocation)
+	f.data.Targets[targetProfileID] = target
+	delete(f.data.Reservations[targetProfileID], deploymentID)
+	return f.saveLocked()
+}
+
 func (f *File) ListTargetProfiles(ctx context.Context) ([]model.TargetProfile, error) {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
@@ -216,12 +282,17 @@ func (f *File) DeleteTargetProfile(ctx context.Context, id string) (model.Target
 	}
 
 	inventory, inventoryDeleted := f.data.Inventory[id]
+	reservations, hadReservations := f.data.Reservations[id]
 	delete(f.data.Targets, id)
 	delete(f.data.Inventory, id)
+	delete(f.data.Reservations, id)
 	if err := f.saveLocked(); err != nil {
 		f.data.Targets[id] = profile
 		if inventoryDeleted {
 			f.data.Inventory[id] = inventory
+		}
+		if hadReservations {
+			f.data.Reservations[id] = reservations
 		}
 		return model.TargetProfile{}, false, fmt.Errorf("persist target profile deletion: %w", err)
 	}

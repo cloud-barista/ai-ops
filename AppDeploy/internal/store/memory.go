@@ -18,6 +18,7 @@ type Memory struct {
 	events          map[string][]model.DeploymentEvent
 	inventory       map[string]model.ResourceInventory
 	metrics         map[string][]model.InferenceMetricRecord
+	reservations    map[string]map[string]model.ResourceAllocation
 }
 
 func NewMemory() *Memory {
@@ -30,6 +31,7 @@ func NewMemory() *Memory {
 		events:          map[string][]model.DeploymentEvent{},
 		inventory:       map[string]model.ResourceInventory{},
 		metrics:         map[string][]model.InferenceMetricRecord{},
+		reservations:    map[string]map[string]model.ResourceAllocation{},
 	}
 }
 
@@ -97,6 +99,51 @@ func (m *Memory) CreateTargetProfile(ctx context.Context, profile model.TargetPr
 	return nil
 }
 
+func (m *Memory) ReserveResources(ctx context.Context, targetProfileID, deploymentID string, allocation model.ResourceAllocation) error {
+	if err := contextError(ctx); err != nil {
+		return err
+	}
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	target, err := mapValue(m.targets, targetProfileID, "target profile not found")
+	if err != nil {
+		return err
+	}
+	if m.reservations[targetProfileID] == nil {
+		m.reservations[targetProfileID] = map[string]model.ResourceAllocation{}
+	}
+	if _, exists := m.reservations[targetProfileID][deploymentID]; exists {
+		return nil
+	}
+	if !allocationFits(target, allocation) {
+		return apperrors.New(model.ErrResourceInsufficient, "target profile capacity is already allocated", 409, true)
+	}
+	target.Allocated = addAllocation(target.Allocated, allocation)
+	m.targets[targetProfileID] = target
+	m.reservations[targetProfileID][deploymentID] = allocation
+	return nil
+}
+
+func (m *Memory) ReleaseResources(ctx context.Context, targetProfileID, deploymentID string) error {
+	if err := contextError(ctx); err != nil {
+		return err
+	}
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	target, err := mapValue(m.targets, targetProfileID, "target profile not found")
+	if err != nil {
+		return err
+	}
+	allocation, exists := m.reservations[targetProfileID][deploymentID]
+	if !exists {
+		return nil
+	}
+	target.Allocated = subtractAllocation(target.Allocated, allocation)
+	m.targets[targetProfileID] = target
+	delete(m.reservations[targetProfileID], deploymentID)
+	return nil
+}
+
 func (m *Memory) ListTargetProfiles(ctx context.Context) ([]model.TargetProfile, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -133,6 +180,7 @@ func (m *Memory) DeleteTargetProfile(ctx context.Context, id string) (model.Targ
 	_, inventoryDeleted := m.inventory[id]
 	delete(m.targets, id)
 	delete(m.inventory, id)
+	delete(m.reservations, id)
 	return profile, inventoryDeleted, nil
 }
 

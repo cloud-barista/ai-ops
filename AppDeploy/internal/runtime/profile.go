@@ -7,6 +7,8 @@ import "github.com/khu/ai-app-deployer/internal/model"
 func ConfigFromTarget(target model.TargetProfile) model.RuntimeConfig {
 	adapterType := target.Runtime.RuntimeType
 	switch target.Runtime.RuntimeType {
+	case "local":
+		adapterType = "local_process"
 	case "cpu":
 		adapterType = "cpu_vm"
 	case "gpu":
@@ -18,6 +20,9 @@ func ConfigFromTarget(target model.TargetProfile) model.RuntimeConfig {
 	}
 	if target.CSP == "mock" {
 		adapterType = "mock"
+	}
+	if target.CSP == "local" && target.Runtime.RuntimeType == "local" {
+		adapterType = "local_process"
 	}
 	return model.RuntimeConfig{
 		RuntimeType:   target.Runtime.RuntimeType,

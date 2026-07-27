@@ -1,6 +1,7 @@
 package store
 
 import (
+	"bytes"
 	"context"
 	"path/filepath"
 	"testing"
@@ -122,5 +123,30 @@ func TestFileStoreRejectsDuplicateAppVersion(t *testing.T) {
 	app.AppVersionID = "appver-002"
 	if err := store.CreateApp(ctx, app); err == nil {
 		t.Fatal("expected duplicate app version error")
+	}
+}
+
+func TestFileStorePreservesOriginalApplicationBytesAcrossReload(t *testing.T) {
+	ctx := context.Background()
+	path := filepath.Join(t.TempDir(), "aiapp-store.json")
+	raw := []byte(`{"kind":"AIApp","schema_version":"appspec.khu.ai/v1alpha1","metadata":{"version":"1","name":"raw-app"},"artifact":{"uri":"file:///tmp/run.sh","type":"script"},"entrypoint":{"command":"sh"},"runtime":{"type":"cpu"},"resources":{"cpu":"1"}}`)
+	first, err := NewFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	app := model.AppResponse{AppID: "app-raw", AppVersionID: "appver-raw", Name: "raw-app", Version: "1", OriginalApplication: raw}
+	if err := first.CreateApp(ctx, app); err != nil {
+		t.Fatal(err)
+	}
+	second, err := NewFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := second.GetApp(ctx, app.AppID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(got.OriginalApplication, raw) {
+		t.Fatalf("original application changed after reload: got %q want %q", got.OriginalApplication, raw)
 	}
 }

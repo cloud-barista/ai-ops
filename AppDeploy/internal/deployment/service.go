@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	apperrors "github.com/khu/ai-app-deployer/internal/errors"
 	"github.com/khu/ai-app-deployer/internal/model"
+	"github.com/khu/ai-app-deployer/internal/provider"
 	"github.com/khu/ai-app-deployer/internal/requestid"
 	"github.com/khu/ai-app-deployer/internal/resource"
 	"github.com/khu/ai-app-deployer/internal/runtime"
@@ -24,6 +25,8 @@ type Service struct {
 	deployments store.DeploymentRepository
 	matcher     *resource.Matcher
 	adapter     runtime.Adapter
+	resources   provider.ResourceInformationProvider
+	placement   provider.PlacementProvider
 }
 
 func NewService(apps store.AppRepository, profiles store.ProfileRepository, deployments store.DeploymentRepository, matcher *resource.Matcher, adapter runtime.Adapter) *Service {
@@ -36,8 +39,16 @@ func NewService(apps store.AppRepository, profiles store.ProfileRepository, depl
 	}
 }
 
+func NewServiceWithProviders(apps store.AppRepository, profiles store.ProfileRepository, deployments store.DeploymentRepository, matcher *resource.Matcher, adapter runtime.Adapter, resources provider.ResourceInformationProvider, placement provider.PlacementProvider) *Service {
+	return &Service{
+		apps: apps, profiles: profiles, deployments: deployments, matcher: matcher,
+		adapter: adapter, resources: resources, placement: placement,
+	}
+}
+
 func (s *Service) Create(ctx context.Context, req model.DeploymentCreateRequest) (model.DeploymentResponse, error) {
 	requestID := requestid.FromContext(ctx)
+	ctx = requestid.WithContext(ctx, requestID)
 	deploymentID := "dep-" + uuid.NewString()
 	manifest, err := normalizeManifest(req, deploymentID)
 	if err != nil {
@@ -45,6 +56,7 @@ func (s *Service) Create(ctx context.Context, req model.DeploymentCreateRequest)
 	}
 	now := time.Now().UTC()
 	deployment := model.DeploymentResponse{
+		RequestID:       requestID,
 		DeploymentID:    deploymentID,
 		AppVersionID:    manifest.Spec.AppVersionID,
 		TargetProfileID: manifest.Spec.TargetProfileID,
@@ -57,6 +69,7 @@ func (s *Service) Create(ctx context.Context, req model.DeploymentCreateRequest)
 		return model.DeploymentResponse{}, err
 	}
 	s.record(ctx, deployment.DeploymentID, model.StatusRequested, "INFO", "orchestrator", "deployment created", "", false)
+	s.record(ctx, deployment.DeploymentID, model.StatusPending, "INFO", "orchestrator", "deployment request accepted", "", false)
 	log.Info().
 		Str("request_id", requestID).
 		Str("deployment_id", deployment.DeploymentID).
@@ -80,7 +93,8 @@ func (s *Service) Create(ctx context.Context, req model.DeploymentCreateRequest)
 			Msg("deployment update failed")
 	}
 	deployment = s.transition(ctx, deployment, model.StatusValidating, "target-selector", "app validation and target selection started")
-	target, runtimeConfig, err := s.selectTarget(ctx, manifest, app)
+	s.record(ctx, deployment.DeploymentID, model.StatusPlacing, "INFO", "placement-provider", "placement decision requested", "", false)
+	target, runtimeConfig, decision, err := s.selectTarget(ctx, manifest, app, deployment.DeploymentID)
 	if err != nil {
 		code := model.ErrResourceInsufficient
 		status := model.StatusSchedulingFailed
@@ -89,11 +103,17 @@ func (s *Service) Create(ctx context.Context, req model.DeploymentCreateRequest)
 			if code == model.ErrTargetProfileInvalid || code == "NOT_FOUND" {
 				status = model.StatusValidationFailed
 			}
+			if isExternalErrorCode(code) {
+				status = model.StatusExternalAPIFailed
+			}
 		}
 		return s.fail(ctx, deployment, status, code, apperrors.PublicMessage(err, "no suitable target profile is ready"), false)
 	}
 	manifest.Spec.TargetProfileID = target.TargetProfileID
 	deployment.TargetProfileID = target.TargetProfileID
+	if decision.TargetVMID != "" {
+		deployment.Placement = &decision
+	}
 	deployment.Manifest = &manifest
 	if err := s.deployments.UpdateDeployment(ctx, deployment); err != nil {
 		log.Error().Err(err).Str("request_id", requestID).Str("deployment_id", deployment.DeploymentID).Msg("selected target update failed")
@@ -105,7 +125,7 @@ func (s *Service) Create(ctx context.Context, req model.DeploymentCreateRequest)
 	if _, err := s.adapter.Prepare(ctx, app, target); err != nil {
 		return s.failFromError(ctx, deployment, model.StatusDeploymentFailed, model.ErrDeploymentFailed, err, false)
 	}
-	_, err = s.adapter.Deploy(ctx, runtime.DeploymentPlan{
+	deployResult, err := s.adapter.Deploy(ctx, runtime.DeploymentPlan{
 		DeploymentID: deployment.DeploymentID,
 		RequestID:    requestID,
 		Manifest:     deployment.Manifest,
@@ -117,12 +137,23 @@ func (s *Service) Create(ctx context.Context, req model.DeploymentCreateRequest)
 	if err != nil {
 		return s.failFromError(ctx, deployment, model.StatusDeploymentFailed, model.ErrDeploymentFailed, err, false)
 	}
+	if deployResult != nil {
+		deployment.RuntimeID = deployResult.RuntimeID
+		if err := s.deployments.UpdateDeployment(ctx, deployment); err != nil {
+			log.Error().Err(err).Str("request_id", requestID).Str("deployment_id", deployment.DeploymentID).Msg("runtime id update failed")
+		}
+	}
 	runtimeStatus, err := s.adapter.GetStatus(ctx, deployment.DeploymentID)
 	if err != nil {
 		return s.fail(ctx, deployment, model.StatusRuntimeFailed, model.ErrRuntimeFailed, apperrors.PublicMessage(err, "runtime status check failed"), true)
 	}
-	if runtimeStatus.Status != model.StatusRunning {
+	if runtimeStatus.Status != model.StatusRunning && runtimeStatus.Status != model.StatusCompleted {
 		return s.fail(ctx, deployment, model.StatusRuntimeFailed, model.ErrRuntimeFailed, runtimeStatus.Message, true)
+	}
+	if runtimeStatus.Status == model.StatusCompleted {
+		deployment = s.transition(ctx, deployment, model.StatusCompleted, "runtime-adapter", "application process completed")
+		s.releaseDeploymentPlacement(ctx, deployment)
+		return deployment, nil
 	}
 	deployment = s.transition(ctx, deployment, model.StatusRunning, "runtime-adapter", "app healthcheck passed")
 	return deployment, nil
@@ -131,14 +162,59 @@ func (s *Service) Create(ctx context.Context, req model.DeploymentCreateRequest)
 // selectTarget lets the App Deployer choose a ready Target Profile from the
 // planner's resource/runtime requirements. A target_profile_id, when present,
 // is treated as a compatibility hint and still goes through the same checks.
-func (s *Service) selectTarget(ctx context.Context, manifest model.DeploymentManifest, app model.AppResponse) (model.TargetProfile, model.RuntimeConfig, error) {
+func (s *Service) selectTarget(ctx context.Context, manifest model.DeploymentManifest, app model.AppResponse, deploymentID string) (model.TargetProfile, model.RuntimeConfig, model.PlacementDecision, error) {
+	if s.placement != nil && s.resources != nil {
+		requirements := manifest.Spec.Requirements
+		runtimeType := app.AppSpec.Runtime.Type
+		costPolicy := model.CostPolicyMinCost
+		var labels map[string]string
+		if requirements != nil {
+			if requirements.Runtime != "" {
+				runtimeType = requirements.Runtime
+			}
+			if requirements.CostPolicy != "" {
+				costPolicy = requirements.CostPolicy
+			}
+			labels = requirements.Labels
+		}
+		decision, err := s.placement.Place(ctx, model.PlacementRequest{
+			RequestID: requestid.FromContext(ctx), DeploymentID: deploymentID, App: app,
+			Resources: manifest.Spec.Resources, Runtime: runtimeType,
+			Accelerator: manifest.Spec.Accelerator, Labels: labels,
+			CostPolicy: costPolicy, TargetVMID: manifest.Spec.TargetProfileID,
+		})
+		if err != nil {
+			return model.TargetProfile{}, model.RuntimeConfig{}, model.PlacementDecision{}, err
+		}
+		node, err := s.resources.GetResource(ctx, decision.TargetVMID)
+		if err != nil {
+			s.releasePlacement(ctx, decision, deploymentID)
+			return model.TargetProfile{}, model.RuntimeConfig{}, model.PlacementDecision{}, err
+		}
+		target := node.Target
+		runtimeConfig := runtime.ConfigFromTarget(target)
+		if err := s.adapter.ValidateTarget(ctx, target); err != nil {
+			s.releasePlacement(ctx, decision, deploymentID)
+			return model.TargetProfile{}, model.RuntimeConfig{}, model.PlacementDecision{}, err
+		}
+		if err := s.adapter.HealthCheck(ctx, runtimeConfig, target); err != nil {
+			s.releasePlacement(ctx, decision, deploymentID)
+			return model.TargetProfile{}, model.RuntimeConfig{}, model.PlacementDecision{}, err
+		}
+		if err := s.matcher.MatchManifest(ctx, manifest, app, runtimeConfig, target); err != nil {
+			s.releasePlacement(ctx, decision, deploymentID)
+			return model.TargetProfile{}, model.RuntimeConfig{}, model.PlacementDecision{}, err
+		}
+		return target, runtimeConfig, decision, nil
+	}
+
 	var candidates []model.TargetProfile
 	var err error
 	if hint := strings.TrimSpace(manifest.Spec.TargetProfileID); hint != "" {
 		var target model.TargetProfile
 		target, err = s.profiles.GetTargetProfile(ctx, hint)
 		if err != nil {
-			return model.TargetProfile{}, model.RuntimeConfig{}, apperrors.WithDetails(
+			return model.TargetProfile{}, model.RuntimeConfig{}, model.PlacementDecision{}, apperrors.WithDetails(
 				model.ErrTargetProfileInvalid,
 				"target profile hint was not found",
 				http.StatusNotFound,
@@ -150,14 +226,14 @@ func (s *Service) selectTarget(ctx context.Context, manifest model.DeploymentMan
 	} else {
 		candidates, err = s.profiles.ListTargetProfiles(ctx)
 		if err != nil {
-			return model.TargetProfile{}, model.RuntimeConfig{}, err
+			return model.TargetProfile{}, model.RuntimeConfig{}, model.PlacementDecision{}, err
 		}
 	}
 	sort.Slice(candidates, func(i, j int) bool {
 		return candidates[i].TargetProfileID < candidates[j].TargetProfileID
 	})
 	if len(candidates) == 0 {
-		return model.TargetProfile{}, model.RuntimeConfig{}, apperrors.New(
+		return model.TargetProfile{}, model.RuntimeConfig{}, model.PlacementDecision{}, apperrors.New(
 			model.ErrTargetProfileInvalid,
 			"no target profiles are registered",
 			http.StatusBadRequest,
@@ -185,9 +261,9 @@ func (s *Service) selectTarget(ctx context.Context, manifest model.DeploymentMan
 			Str("target_profile_id", target.TargetProfileID).
 			Str("component", "target-selector").
 			Msg("ready target profile selected")
-		return target, runtimeConfig, nil
+		return target, runtimeConfig, model.PlacementDecision{TargetVMID: target.TargetProfileID, TargetProfileID: target.TargetProfileID, Source: "legacy", SelectedAt: time.Now().UTC(), Reason: "legacy target profile matcher selected the first ready target"}, nil
 	}
-	return model.TargetProfile{}, model.RuntimeConfig{}, apperrors.WithDetails(
+	return model.TargetProfile{}, model.RuntimeConfig{}, model.PlacementDecision{}, apperrors.WithDetails(
 		model.ErrResourceInsufficient,
 		"no target profile satisfies the app requirements and readiness checks",
 		http.StatusBadRequest,
@@ -201,10 +277,32 @@ func (s *Service) List(ctx context.Context) ([]model.DeploymentResponse, error) 
 }
 
 func (s *Service) Get(ctx context.Context, deploymentID string) (model.DeploymentResponse, error) {
-	return s.deployments.GetDeployment(ctx, deploymentID)
+	deployment, err := s.deployments.GetDeployment(ctx, deploymentID)
+	if err != nil || deployment.Status != model.StatusRunning || deployment.RuntimeID == "" {
+		return deployment, err
+	}
+	runtimeStatus, statusErr := s.adapter.GetStatus(ctx, deploymentID)
+	if statusErr != nil || runtimeStatus == nil || runtimeStatus.Status == model.StatusRunning {
+		return deployment, statusErr
+	}
+	switch runtimeStatus.Status {
+	case model.StatusCompleted:
+		deployment = s.transition(ctx, deployment, model.StatusCompleted, "runtime-adapter", "application process completed")
+		s.releaseDeploymentPlacement(ctx, deployment)
+	case model.StatusRuntimeFailed:
+		deployment = s.transition(ctx, deployment, model.StatusRuntimeFailed, "runtime-adapter", "application process exited with an error")
+		s.releaseDeploymentPlacement(ctx, deployment)
+	case model.StatusStopped:
+		deployment = s.transition(ctx, deployment, model.StatusStopped, "runtime-adapter", "application process stopped")
+		s.releaseDeploymentPlacement(ctx, deployment)
+	}
+	return deployment, nil
 }
 
 func (s *Service) Logs(ctx context.Context, deploymentID, stage string) ([]model.DeploymentLog, error) {
+	if _, err := s.Get(ctx, deploymentID); err != nil {
+		return nil, err
+	}
 	events, err := s.deployments.ListEvents(ctx, deploymentID, stage)
 	if err != nil {
 		return nil, err
@@ -231,11 +329,16 @@ func (s *Service) Logs(ctx context.Context, deploymentID, stage string) ([]model
 }
 
 func (s *Service) Stop(ctx context.Context, deploymentID string) (model.DeploymentResponse, error) {
-	deployment, err := s.deployments.GetDeployment(ctx, deploymentID)
+	deployment, err := s.Get(ctx, deploymentID)
 	if err != nil {
 		return model.DeploymentResponse{}, err
 	}
 	if deployment.Status == model.StatusStopped {
+		return deployment, nil
+	}
+	if deployment.Status == model.StatusCompleted || deployment.Status == model.StatusRuntimeFailed {
+		deployment = s.transition(ctx, deployment, model.StatusStopped, "orchestrator", "terminal runtime state marked stopped")
+		s.releaseDeploymentPlacement(ctx, deployment)
 		return deployment, nil
 	}
 	// Validation and scheduling failures never start a VM process. Do not issue
@@ -245,8 +348,10 @@ func (s *Service) Stop(ctx context.Context, deploymentID string) (model.Deployme
 	if err != nil {
 		return model.DeploymentResponse{}, err
 	}
-	if !runtimeProcessStarted(events) {
-		return s.transition(ctx, deployment, model.StatusStopped, "orchestrator", "no runtime process was started; deployment marked stopped"), nil
+	if deployment.RuntimeID == "" || !runtimeProcessStarted(events) {
+		deployment = s.transition(ctx, deployment, model.StatusStopped, "orchestrator", "no runtime process was started; deployment marked stopped")
+		s.releaseDeploymentPlacement(ctx, deployment)
+		return deployment, nil
 	}
 	app, err := s.apps.GetAppByVersionID(ctx, deployment.AppVersionID)
 	if err != nil {
@@ -269,6 +374,7 @@ func (s *Service) Stop(ctx context.Context, deploymentID string) (model.Deployme
 		return s.fail(ctx, deployment, model.StatusRuntimeFailed, model.ErrRuntimeFailed, apperrors.PublicMessage(err, "runtime stop failed"), true)
 	}
 	deployment = s.transition(ctx, deployment, model.StatusStopped, "runtime-adapter", "app stopped")
+	s.releaseDeploymentPlacement(ctx, deployment)
 	return deployment, nil
 }
 
@@ -316,7 +422,30 @@ func (s *Service) failWithHTTPStatus(ctx context.Context, deployment model.Deplo
 			Msg("deployment failure update failed")
 	}
 	s.record(ctx, deployment.DeploymentID, status, "ERROR", "orchestrator", message, code, retryable)
+	s.releaseDeploymentPlacement(ctx, deployment)
 	return deployment, apperrors.New(code, message, httpStatus, retryable)
+}
+
+func (s *Service) releaseDeploymentPlacement(ctx context.Context, deployment model.DeploymentResponse) {
+	if deployment.Placement == nil {
+		return
+	}
+	s.releasePlacement(ctx, *deployment.Placement, deployment.DeploymentID)
+}
+
+func (s *Service) releasePlacement(ctx context.Context, decision model.PlacementDecision, deploymentID string) {
+	reservations, ok := s.placement.(provider.ResourceReservationProvider)
+	if !ok {
+		return
+	}
+	if err := reservations.ReleaseDeployment(ctx, decision, deploymentID); err != nil {
+		log.Error().Err(err).
+			Str("request_id", requestid.FromContext(ctx)).
+			Str("deployment_id", deploymentID).
+			Str("target_profile_id", decision.TargetProfileID).
+			Str("component", "resource-provider").
+			Msg("resource reservation release failed")
+	}
 }
 
 func (s *Service) failFromError(ctx context.Context, deployment model.DeploymentResponse, defaultStatus, defaultCode string, err error, retryable bool) (model.DeploymentResponse, error) {

@@ -178,8 +178,8 @@ func (a *API) readiness(c echo.Context) error {
 		Status:    "ready",
 		Checks: map[string]string{
 			"repository":      "ready",
-			"runtime_adapter": "mock,cpu_vm,gpu_vm,etri_aiinfra",
-			"external_api":    "etri_mock",
+			"runtime_adapter": "mock,local_process,cpu_vm,gpu_vm,etri_aiinfra",
+			"external_api":    "provider-configured",
 		},
 	})
 }
@@ -454,13 +454,14 @@ func bindAppCreateRequest(c echo.Context) (model.AppCreateRequest, error) {
 		return model.AppCreateRequest{}, err
 	}
 	if wrapped.AppSpec.SchemaVersion != "" || wrapped.AppSpec.Kind != "" {
+		wrapped.RawApplication = append(json.RawMessage(nil), raw...)
 		return wrapped, nil
 	}
 	var direct model.AppSpec
 	if err := json.Unmarshal(raw, &direct); err != nil {
 		return model.AppCreateRequest{}, err
 	}
-	return model.AppCreateRequest{AppSpec: direct}, nil
+	return model.AppCreateRequest{AppSpec: direct, RawApplication: append(json.RawMessage(nil), raw...)}, nil
 }
 
 func requestID(c echo.Context) string {

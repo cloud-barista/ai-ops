@@ -38,6 +38,17 @@ func (m *Matcher) match(ctx context.Context, app model.AppResponse, runtimeConfi
 	if target.CSP == "mock" || target.Runtime.RuntimeType == "mock" {
 		return nil
 	}
+	if target.Runtime.RuntimeType == "local" {
+		for _, supported := range target.SupportedRuntimes {
+			if supported == appRuntime {
+				return nil
+			}
+		}
+		if appRuntime == "cpu" {
+			return nil
+		}
+		return apperrors.New(model.ErrResourceInsufficient, "local process target supports only registered compatible runtimes", http.StatusBadRequest, false)
+	}
 	if accelerator == "nvidia" && appRuntime != "gpu" && appRuntime != "aiinfra" {
 		return apperrors.New(model.ErrResourceInsufficient, "nvidia accelerator requires gpu or aiinfra app runtime", http.StatusBadRequest, false)
 	}

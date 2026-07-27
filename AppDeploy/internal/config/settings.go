@@ -9,30 +9,44 @@ import (
 )
 
 const (
-	KeyConfigPath        = "AIAPP_CONFIG_PATH"
-	KeyServerPort        = "AIAPP_SERVER_PORT"
-	KeyStorePath         = "AIAPP_STORE_PATH"
-	KeyCPUVMRunner       = "AIAPP_CPUVM_RUNNER"
-	KeyGPUVMRunner       = "AIAPP_GPUVM_RUNNER"
-	KeySSHDefaultTimeout = "AIAPP_SSH_DEFAULT_TIMEOUT"
-	KeyCredentialRemote  = "AIAPP_CREDENTIAL_API_ALLOW_REMOTE"
-	KeyAIOpsRoot         = "AIAPP_AIOPS_ROOT"
-	KeyPackageOutputDir  = "AIAPP_PACKAGE_OUTPUT_DIR"
-	KeyPackageTimeout    = "AIAPP_PACKAGE_BUILD_TIMEOUT"
-	KeyPackageMaxUpload  = "AIAPP_PACKAGE_MAX_UPLOAD_BYTES"
+	KeyConfigPath            = "AIAPP_CONFIG_PATH"
+	KeyServerPort            = "AIAPP_SERVER_PORT"
+	KeyStorePath             = "AIAPP_STORE_PATH"
+	KeyCPUVMRunner           = "AIAPP_CPUVM_RUNNER"
+	KeyGPUVMRunner           = "AIAPP_GPUVM_RUNNER"
+	KeySSHDefaultTimeout     = "AIAPP_SSH_DEFAULT_TIMEOUT"
+	KeyCredentialRemote      = "AIAPP_CREDENTIAL_API_ALLOW_REMOTE"
+	KeyAIOpsRoot             = "AIAPP_AIOPS_ROOT"
+	KeyPackageOutputDir      = "AIAPP_PACKAGE_OUTPUT_DIR"
+	KeyPackageTimeout        = "AIAPP_PACKAGE_BUILD_TIMEOUT"
+	KeyPackageMaxUpload      = "AIAPP_PACKAGE_MAX_UPLOAD_BYTES"
+	KeyResourceProvider      = "RESOURCE_PROVIDER"
+	KeyPlacementProvider     = "PLACEMENT_PROVIDER"
+	KeyETRIResourceEndpoint  = "ETRI_RESOURCE_ENDPOINT"
+	KeyETRIPlacementEndpoint = "ETRI_PLACEMENT_ENDPOINT"
+	KeyETRICredentialRef     = "ETRI_CREDENTIAL_REF"
+	KeyETRITimeout           = "ETRI_TIMEOUT"
+	KeyLocalRuntimeWorkDir   = "AIAPP_LOCAL_RUNTIME_WORK_DIR"
 )
 
 type Settings struct {
-	ServerPort        string
-	StorePath         string
-	CPUVMRunner       string
-	GPUVMRunner       string
-	SSHDefaultTimeout time.Duration
-	CredentialRemote  bool
-	AIOpsRoot         string
-	PackageOutputDir  string
-	PackageTimeout    time.Duration
-	PackageMaxUpload  int64
+	ServerPort            string
+	StorePath             string
+	CPUVMRunner           string
+	GPUVMRunner           string
+	SSHDefaultTimeout     time.Duration
+	CredentialRemote      bool
+	AIOpsRoot             string
+	PackageOutputDir      string
+	PackageTimeout        time.Duration
+	PackageMaxUpload      int64
+	ResourceProvider      string
+	PlacementProvider     string
+	ETRIResourceEndpoint  string
+	ETRIPlacementEndpoint string
+	ETRICredentialRef     string
+	ETRITimeout           time.Duration
+	LocalRuntimeWorkDir   string
 }
 
 func Load() (Settings, error) {
@@ -60,18 +74,29 @@ func Load() (Settings, error) {
 	if packageMaxUpload <= 0 {
 		packageMaxUpload = 50 << 20
 	}
+	etriTimeout := values.GetDuration(KeyETRITimeout)
+	if etriTimeout == 0 {
+		etriTimeout = 30 * time.Second
+	}
 
 	return Settings{
-		ServerPort:        serverPort,
-		StorePath:         strings.TrimSpace(values.GetString(KeyStorePath)),
-		CPUVMRunner:       strings.TrimSpace(values.GetString(KeyCPUVMRunner)),
-		GPUVMRunner:       strings.TrimSpace(values.GetString(KeyGPUVMRunner)),
-		SSHDefaultTimeout: timeout,
-		CredentialRemote:  values.GetBool(KeyCredentialRemote),
-		AIOpsRoot:         strings.TrimSpace(values.GetString(KeyAIOpsRoot)),
-		PackageOutputDir:  strings.TrimSpace(values.GetString(KeyPackageOutputDir)),
-		PackageTimeout:    packageTimeout,
-		PackageMaxUpload:  packageMaxUpload,
+		ServerPort:            serverPort,
+		StorePath:             strings.TrimSpace(values.GetString(KeyStorePath)),
+		CPUVMRunner:           strings.TrimSpace(values.GetString(KeyCPUVMRunner)),
+		GPUVMRunner:           strings.TrimSpace(values.GetString(KeyGPUVMRunner)),
+		SSHDefaultTimeout:     timeout,
+		CredentialRemote:      values.GetBool(KeyCredentialRemote),
+		AIOpsRoot:             strings.TrimSpace(values.GetString(KeyAIOpsRoot)),
+		PackageOutputDir:      strings.TrimSpace(values.GetString(KeyPackageOutputDir)),
+		PackageTimeout:        packageTimeout,
+		PackageMaxUpload:      packageMaxUpload,
+		ResourceProvider:      strings.ToLower(strings.TrimSpace(values.GetString(KeyResourceProvider))),
+		PlacementProvider:     strings.ToLower(strings.TrimSpace(values.GetString(KeyPlacementProvider))),
+		ETRIResourceEndpoint:  strings.TrimSpace(values.GetString(KeyETRIResourceEndpoint)),
+		ETRIPlacementEndpoint: strings.TrimSpace(values.GetString(KeyETRIPlacementEndpoint)),
+		ETRICredentialRef:     strings.TrimSpace(values.GetString(KeyETRICredentialRef)),
+		ETRITimeout:           etriTimeout,
+		LocalRuntimeWorkDir:   strings.TrimSpace(values.GetString(KeyLocalRuntimeWorkDir)),
 	}, nil
 }
 
@@ -81,8 +106,12 @@ func newViper() *viper.Viper {
 	values.SetDefault(KeyServerPort, "8080")
 	values.SetDefault(KeySSHDefaultTimeout, 30*time.Second)
 	values.SetDefault(KeyAIOpsRoot, "../ai-ops-geon")
-	values.SetDefault(KeyPackageOutputDir, "tmp/appdeploy-web/packages")
+	values.SetDefault(KeyPackageOutputDir, "tmp/appdeploy-packages")
 	values.SetDefault(KeyPackageTimeout, 2*time.Minute)
 	values.SetDefault(KeyPackageMaxUpload, 50<<20)
+	values.SetDefault(KeyResourceProvider, "local")
+	values.SetDefault(KeyPlacementProvider, "local")
+	values.SetDefault(KeyETRITimeout, 30*time.Second)
+	values.SetDefault(KeyLocalRuntimeWorkDir, "tmp/local-runtime")
 	return values
 }

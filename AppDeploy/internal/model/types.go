@@ -7,13 +7,16 @@ import (
 
 const (
 	StatusRequested         = "REQUESTED"
+	StatusPending           = "PENDING"
 	StatusValidating        = "VALIDATING"
 	StatusValidated         = "VALIDATED"
 	StatusScheduling        = "SCHEDULING"
+	StatusPlacing           = "PLACING"
 	StatusDeploying         = "DEPLOYING"
 	StatusRunning           = "RUNNING"
 	StatusStopping          = "STOPPING"
 	StatusStopped           = "STOPPED"
+	StatusCompleted         = "COMPLETED"
 	StatusValidationFailed  = "VALIDATION_FAILED"
 	StatusSchedulingFailed  = "SCHEDULING_FAILED"
 	StatusDeploymentFailed  = "DEPLOYMENT_FAILED"
@@ -39,6 +42,13 @@ const (
 	ErrBespinAPIFailed      = "BESPIN_API_FAILED"
 	ErrDeploymentFailed     = "DEPLOYMENT_FAILED"
 	ErrRuntimeFailed        = "RUNTIME_FAILED"
+)
+
+const (
+	NodeStatusReady       = "READY"
+	NodeStatusBusy        = "BUSY"
+	NodeStatusUnavailable = "UNAVAILABLE"
+	CostPolicyMinCost     = "min_cost"
 )
 
 type HealthResponse struct {
@@ -76,17 +86,22 @@ type PackageBuildResponse struct {
 }
 
 type AppCreateRequest struct {
-	AppSpec AppSpec `json:"app_spec"`
+	AppSpec        AppSpec         `json:"app_spec"`
+	RawApplication json.RawMessage `json:"-"`
 }
 
 type AppResponse struct {
-	RequestID    string    `json:"request_id,omitempty"`
-	AppID        string    `json:"app_id"`
-	AppVersionID string    `json:"app_version_id"`
-	Name         string    `json:"name"`
-	Version      string    `json:"version"`
-	AppSpec      AppSpec   `json:"app_spec"`
-	CreatedAt    time.Time `json:"created_at"`
+	RequestID    string  `json:"request_id,omitempty"`
+	AppID        string  `json:"app_id"`
+	AppVersionID string  `json:"app_version_id"`
+	Name         string  `json:"name"`
+	Version      string  `json:"version"`
+	AppSpec      AppSpec `json:"app_spec"`
+	// OriginalApplication is the exact application document received from the
+	// agent. It is retained for audit and future provider mapping; deployment
+	// never rewrites this value.
+	OriginalApplication json.RawMessage `json:"original_application,omitempty"`
+	CreatedAt           time.Time       `json:"created_at"`
 }
 
 type AppDeleteResponse struct {
@@ -200,6 +215,15 @@ type TargetProfile struct {
 	GPU             *GPUProfile    `json:"gpu,omitempty"`
 	Storage         *Storage       `json:"storage,omitempty"`
 	Network         *TargetNetwork `json:"network,omitempty"`
+	// The fields below turn the existing Target Profile into the local VM
+	// registry record while remaining backward compatible with older profiles.
+	VMType            string             `json:"vm_type,omitempty"`
+	Status            string             `json:"status,omitempty"`
+	Capacity          ResourceCapacity   `json:"capacity,omitempty"`
+	Allocated         ResourceAllocation `json:"allocated,omitempty"`
+	SupportedRuntimes []string           `json:"supported_runtimes,omitempty"`
+	CostWeight        float64            `json:"cost_weight,omitempty"`
+	Labels            map[string]string  `json:"labels,omitempty"`
 }
 
 type OSProfile struct {
@@ -219,6 +243,21 @@ type TargetRuntime struct {
 	OperatingMode string `json:"operating_mode,omitempty"`
 }
 
+type ResourceCapacity struct {
+	CPUCores     float64 `json:"cpu_cores,omitempty"`
+	MemoryBytes  int64   `json:"memory_bytes,omitempty"`
+	GPUCount     int     `json:"gpu_count,omitempty"`
+	GPUType      string  `json:"gpu_type,omitempty"`
+	StorageBytes int64   `json:"storage_bytes,omitempty"`
+}
+
+type ResourceAllocation struct {
+	CPUCores     float64 `json:"cpu_cores,omitempty"`
+	MemoryBytes  int64   `json:"memory_bytes,omitempty"`
+	GPUCount     int     `json:"gpu_count,omitempty"`
+	StorageBytes int64   `json:"storage_bytes,omitempty"`
+}
+
 type GPUProfile struct {
 	Vendor         string `json:"vendor,omitempty"`
 	Count          int    `json:"count,omitempty"`
@@ -236,12 +275,24 @@ type TargetNetwork struct {
 }
 
 type DeploymentCreateRequest struct {
-	AppID           string              `json:"app_id,omitempty"`
-	AppVersionID    string              `json:"app_version_id,omitempty"`
-	TargetProfileID string              `json:"target_profile_id,omitempty"`
-	RequestedBy     string              `json:"requested_by,omitempty"`
-	Parameters      map[string]any      `json:"parameters,omitempty"`
-	Manifest        *DeploymentManifest `json:"manifest,omitempty"`
+	AppID           string                  `json:"app_id,omitempty"`
+	AppVersionID    string                  `json:"app_version_id,omitempty"`
+	TargetProfileID string                  `json:"target_profile_id,omitempty"`
+	RequestedBy     string                  `json:"requested_by,omitempty"`
+	Parameters      map[string]any          `json:"parameters,omitempty"`
+	Requirements    *DeploymentRequirements `json:"requirements,omitempty"`
+	Manifest        *DeploymentManifest     `json:"manifest,omitempty"`
+}
+
+type DeploymentRequirements struct {
+	Resources   Resources         `json:"resources,omitempty"`
+	Runtime     string            `json:"runtime,omitempty"`
+	Accelerator string            `json:"accelerator,omitempty"`
+	Command     string            `json:"command,omitempty"`
+	Args        []string          `json:"args,omitempty"`
+	SLO         map[string]any    `json:"slo,omitempty"`
+	CostPolicy  string            `json:"cost_policy,omitempty"`
+	Labels      map[string]string `json:"labels,omitempty"`
 }
 
 const (
@@ -265,12 +316,13 @@ type DeploymentManifestMetadata struct {
 }
 
 type DeploymentManifestSpec struct {
-	AppVersionID    string         `json:"app_version_id"`
-	TargetProfileID string         `json:"target_profile_id,omitempty"`
-	Accelerator     string         `json:"accelerator,omitempty"`
-	Resources       Resources      `json:"resources"`
-	RequestedBy     string         `json:"requested_by,omitempty"`
-	Parameters      map[string]any `json:"parameters,omitempty"`
+	AppVersionID    string                  `json:"app_version_id"`
+	TargetProfileID string                  `json:"target_profile_id,omitempty"`
+	Accelerator     string                  `json:"accelerator,omitempty"`
+	Resources       Resources               `json:"resources"`
+	RequestedBy     string                  `json:"requested_by,omitempty"`
+	Parameters      map[string]any          `json:"parameters,omitempty"`
+	Requirements    *DeploymentRequirements `json:"requirements,omitempty"`
 }
 
 type DeploymentResponse struct {
@@ -283,6 +335,52 @@ type DeploymentResponse struct {
 	CreatedAt       time.Time           `json:"created_at"`
 	UpdatedAt       time.Time           `json:"updated_at"`
 	Manifest        *DeploymentManifest `json:"manifest,omitempty"`
+	Placement       *PlacementDecision  `json:"placement,omitempty"`
+	RuntimeID       string              `json:"runtime_id,omitempty"`
+}
+
+type NodeProfile struct {
+	VMID              string             `json:"vm_id"`
+	VMType            string             `json:"vm_type"`
+	Status            string             `json:"status"`
+	Target            TargetProfile      `json:"target"`
+	Capacity          ResourceCapacity   `json:"capacity"`
+	Available         ResourceCapacity   `json:"available"`
+	Allocated         ResourceAllocation `json:"allocated"`
+	SupportedRuntimes []string           `json:"supported_runtimes,omitempty"`
+	CostWeight        float64            `json:"cost_weight"`
+	Labels            map[string]string  `json:"labels,omitempty"`
+}
+
+type ResourceFilter struct {
+	Runtime     string
+	Accelerator string
+	Resources   Resources
+	Labels      map[string]string
+	TargetVMID  string
+}
+
+type PlacementRequest struct {
+	RequestID    string
+	DeploymentID string
+	App          AppResponse
+	Resources    Resources
+	Runtime      string
+	Accelerator  string
+	Labels       map[string]string
+	CostPolicy   string
+	TargetVMID   string
+}
+
+type PlacementDecision struct {
+	TargetVMID         string             `json:"target_vm_id"`
+	TargetProfileID    string             `json:"target_profile_id,omitempty"`
+	Allocation         ResourceAllocation `json:"allocation"`
+	Source             string             `json:"source"`
+	Score              float64            `json:"score"`
+	Reason             string             `json:"reason"`
+	SelectedAt         time.Time          `json:"selected_at"`
+	ExternalDecisionID string             `json:"external_decision_id,omitempty"`
 }
 
 type DeploymentEvent struct {

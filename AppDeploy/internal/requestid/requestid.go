@@ -33,3 +33,10 @@ func FromContext(ctx context.Context) string {
 	}
 	return "req-" + uuid.NewString()
 }
+
+func WithContext(ctx context.Context, id string) context.Context {
+	if id == "" {
+		id = "req-" + uuid.NewString()
+	}
+	return context.WithValue(ctx, key, id)
+}

@@ -67,6 +67,12 @@ func normalizeManifest(req model.DeploymentCreateRequest, deploymentID string) (
 		}
 		manifest.Spec.Parameters = req.Parameters
 	}
+	if req.Requirements != nil {
+		if manifest.Spec.Requirements != nil && !reflect.DeepEqual(manifest.Spec.Requirements, req.Requirements) {
+			return model.DeploymentManifest{}, manifestInvalid("requirements do not match manifest.spec.requirements")
+		}
+		manifest.Spec.Requirements = req.Requirements
+	}
 
 	if manifest.Spec.AppVersionID == "" {
 		if !providedManifest {
@@ -85,7 +91,30 @@ func completeManifestRequirements(manifest *model.DeploymentManifest, app model.
 	if manifest.Spec.Accelerator == "" {
 		manifest.Spec.Accelerator = app.Runtime.Accelerator
 	}
+	if manifest.Spec.Requirements != nil && manifest.Spec.Requirements.Accelerator != "" {
+		manifest.Spec.Accelerator = manifest.Spec.Requirements.Accelerator
+	}
 	manifest.Spec.Resources = mergeResources(manifest.Spec.Resources, app.Resources)
+	if manifest.Spec.Requirements == nil {
+		manifest.Spec.Requirements = &model.DeploymentRequirements{}
+	}
+	manifest.Spec.Resources = mergeResources(manifest.Spec.Requirements.Resources, manifest.Spec.Resources)
+	if manifest.Spec.Requirements.Runtime == "" {
+		manifest.Spec.Requirements.Runtime = app.Runtime.Type
+	}
+	if manifest.Spec.Requirements.Accelerator == "" {
+		manifest.Spec.Requirements.Accelerator = manifest.Spec.Accelerator
+	}
+	manifest.Spec.Requirements.Resources = manifest.Spec.Resources
+	if manifest.Spec.Requirements.Command == "" {
+		manifest.Spec.Requirements.Command = app.Entrypoint.Command
+	}
+	if len(manifest.Spec.Requirements.Args) == 0 && len(app.Entrypoint.Args) > 0 {
+		manifest.Spec.Requirements.Args = append([]string(nil), app.Entrypoint.Args...)
+	}
+	if manifest.Spec.Requirements.CostPolicy == "" {
+		manifest.Spec.Requirements.CostPolicy = model.CostPolicyMinCost
+	}
 }
 
 func mergeResources(requested, fallback model.Resources) model.Resources {
