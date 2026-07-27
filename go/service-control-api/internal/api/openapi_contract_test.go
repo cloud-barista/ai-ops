@@ -1,6 +1,8 @@
 package api
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
@@ -56,6 +58,38 @@ func TestSubmissionOpenAPIIncludesGuardedAgentExecution(t *testing.T) {
 	} {
 		if !strings.Contains(string(content), expected) {
 			t.Fatalf("submission OpenAPI is missing %q", expected)
+		}
+	}
+}
+
+func TestServedOpenAPIIncludesAgentExecutionDiagnosticResponses(t *testing.T) {
+	server := NewServer(NewServerConfig())
+	request := httptest.NewRequest(http.MethodGet, "/openapi.yaml", nil)
+	response := httptest.NewRecorder()
+	server.ServeHTTP(response, request)
+
+	if response.Code != http.StatusOK {
+		t.Fatalf("OpenAPI status=%d body=%s", response.Code, response.Body.String())
+	}
+	var document map[string]any
+	if err := yaml.Unmarshal(response.Body.Bytes(), &document); err != nil {
+		t.Fatalf("parse served OpenAPI: %v", err)
+	}
+	paths := document["paths"].(map[string]any)
+	execute := paths["/api/v1/agents/{name}/execute"].(map[string]any)["post"].(map[string]any)
+	responses := execute["responses"].(map[string]any)
+	for _, status := range []string{"403", "422"} {
+		response := responses[status].(map[string]any)
+		content := response["content"].(map[string]any)
+		schema := content["application/json"].(map[string]any)["schema"].(map[string]any)
+		if schema["$ref"] != "#/components/schemas/AgentExecutionErrorResponse" {
+			t.Fatalf("%s response schema=%#v", status, schema)
+		}
+	}
+	properties := document["components"].(map[string]any)["schemas"].(map[string]any)["AgentExecutionErrorResponse"].(map[string]any)["properties"].(map[string]any)
+	for _, name := range []string{"run_id", "message", "reason", "request_guard", "result_guard"} {
+		if _, ok := properties[name]; !ok {
+			t.Fatalf("diagnostic response is missing %q: %#v", name, properties)
 		}
 	}
 }

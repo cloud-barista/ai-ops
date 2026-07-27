@@ -433,6 +433,7 @@ func TestExternalAgentExecutionAPIFlow(t *testing.T) {
 }
 
 func TestExternalAgentExecutionAPIRejectionReturnsRunAndGuardReason(t *testing.T) {
+	sensitiveMessage := "upstream-secret-token=do-not-expose"
 	external := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		var dispatched AgentDispatchRequest
 		if err := json.NewDecoder(request.Body).Decode(&dispatched); err != nil {
@@ -445,8 +446,9 @@ func TestExternalAgentExecutionAPIRejectionReturnsRunAndGuardReason(t *testing.T
 			"status":"completed",
 			"proposal":{"action":%q},
 			"result":{"review":"approved"},
+			"message":%q,
 			"domain_validation":"not_registered"
-		}`, dispatched.Agent, dispatched.Action)
+		}`, dispatched.Agent, dispatched.Action, sensitiveMessage)
 	}))
 	defer external.Close()
 
@@ -495,6 +497,65 @@ func TestExternalAgentExecutionAPIRejectionReturnsRunAndGuardReason(t *testing.T
 	}
 	if !strings.Contains(result["reason"].(string), "run_id does not match") {
 		t.Fatalf("missing Guard reason: %#v", result)
+	}
+	if strings.Contains(response.Body.String(), sensitiveMessage) {
+		t.Fatalf("response exposed upstream message: %s", response.Body.String())
+	}
+}
+
+func TestExternalAgentExecutionAPIRequestRejectionReturnsRunAndGuardReason(t *testing.T) {
+	server := NewServer(NewServerConfig())
+	registrationBody := strings.NewReader(`{
+		"name":"ExternalResearchAgent",
+		"version":"0.1.0",
+		"role":"Review deployment research evidence.",
+		"endpoint":"http://127.0.0.1:1",
+		"invocation_path":"/invoke",
+		"capabilities":["deployment_review"],
+		"bounded_actions":["review_deployment_plan"]
+	}`)
+	registration := httptest.NewRequest(http.MethodPost, "/api/v1/agents", registrationBody)
+	registration.Header.Set("Content-Type", "application/json")
+	registrationResponse := httptest.NewRecorder()
+	server.ServeHTTP(registrationResponse, registration)
+	if registrationResponse.Code != http.StatusCreated {
+		t.Fatalf("register Agent status=%d body=%s", registrationResponse.Code, registrationResponse.Body.String())
+	}
+
+	executionBody := strings.NewReader(`{
+		"capability":"deployment_review",
+		"action":"restart_application"
+	}`)
+	execution := httptest.NewRequest(
+		http.MethodPost,
+		"/api/v1/agents/ExternalResearchAgent/execute",
+		executionBody,
+	)
+	execution.RemoteAddr = "127.0.0.1:12345"
+	execution.Header.Set("Content-Type", "application/json")
+	response := httptest.NewRecorder()
+	server.ServeHTTP(response, execution)
+
+	if response.Code != http.StatusForbidden {
+		t.Fatalf("status=%d body=%s", response.Code, response.Body.String())
+	}
+	result := decodeObject(t, response.Body.Bytes())
+	if !strings.HasPrefix(result["run_id"].(string), "run-") {
+		t.Fatalf("missing run_id: %#v", result)
+	}
+	if result["message"] != "Agent execution was not authorized" {
+		t.Fatalf("unexpected message: %#v", result)
+	}
+	requestGuard := result["request_guard"].(map[string]any)
+	if requestGuard["valid"] != false {
+		t.Fatalf("request Guard was not rejected: %#v", result)
+	}
+	reason := requestGuard["reason"].(string)
+	if reason == "" || result["reason"] != reason {
+		t.Fatalf("missing request Guard reason: %#v", result)
+	}
+	if strings.Contains(response.Body.String(), errAgentExecutionUnauthorized.Error()) {
+		t.Fatalf("response exposed raw error: %s", response.Body.String())
 	}
 }
 

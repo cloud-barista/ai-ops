@@ -64,8 +64,10 @@ func agentExecutionError(
 	if reason == "" {
 		reason = result.RequestGuard.Reason
 	}
+	safeResult := result
+	safeResult.Execution.Message = ""
 	return AgentExecutionErrorResponse{
-		AgentExecutionResponse: result,
+		AgentExecutionResponse: safeResult,
 		Valid:                  false,
 		Message:                message,
 		Reason:                 reason,

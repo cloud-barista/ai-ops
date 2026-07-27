@@ -169,10 +169,18 @@ paths:
           $ref: "#/components/responses/BadRequest"
         "403":
           description: Agent capability or bounded Action was not authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentExecutionErrorResponse"
         "404":
           description: Agent was not found
         "422":
           description: Agent result was rejected by the result or Manifest Guard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentExecutionErrorResponse"
         "501":
           description: The selected internal Agent has no registered executor
         "502":
@@ -1062,6 +1070,25 @@ components:
       properties:
         request_id: {type: string}
         run_id: {type: string}
+        selected_agent:
+          $ref: "#/components/schemas/AgentProfile"
+        request_guard:
+          $ref: "#/components/schemas/GuardDecision"
+        execution:
+          $ref: "#/components/schemas/AgentExecutionResult"
+        result_guard:
+          $ref: "#/components/schemas/GuardDecision"
+    AgentExecutionErrorResponse:
+      type: object
+      required: [valid, message, run_id, selected_agent, request_guard, execution, result_guard]
+      properties:
+        valid: {type: boolean, enum: [false]}
+        message:
+          type: string
+          enum: [Agent execution was not authorized, Agent result was rejected]
+        reason: {type: string}
+        request_id: {type: string}
+        run_id: {type: string, example: run-4b53c2c1}
         selected_agent:
           $ref: "#/components/schemas/AgentProfile"
         request_guard:
