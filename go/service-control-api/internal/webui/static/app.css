@@ -804,6 +804,10 @@ textarea:focus-visible {
   color: var(--ink-muted);
 }
 
+.result-empty[hidden] {
+  display: none;
+}
+
 .result-empty svg {
   width: 28px;
   height: 28px;

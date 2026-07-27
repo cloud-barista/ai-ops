@@ -145,6 +145,11 @@ func TestControlAppContainsControlRunManifestWorkflow(t *testing.T) {
 			t.Fatalf("expected ControlRun JavaScript contract %q", expected)
 		}
 	}
+
+	stylesheet := requestBody(t, server, "/assets/app.css")
+	if !strings.Contains(stylesheet, `.result-empty[hidden]`) {
+		t.Fatal("expected stylesheet to preserve the result placeholder hidden state")
+	}
 }
 
 func TestControlAppContainsGeonDeletionControls(t *testing.T) {
