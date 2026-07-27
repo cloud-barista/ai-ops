@@ -455,7 +455,7 @@ textarea:focus-visible {
 
 .flow-track {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0;
   margin: 0;
   padding: 21px 22px 24px;
@@ -495,17 +495,18 @@ textarea:focus-visible {
 }
 
 .flow-track li:nth-child(1) > span,
-.flow-track li:nth-child(3) > span {
+.flow-track li:nth-child(2) > span,
+.flow-track li:nth-child(4) > span {
   background: var(--green-soft);
   color: var(--green);
 }
 
-.flow-track li:nth-child(2) > span {
+.flow-track li:nth-child(3) > span {
   background: var(--amber-soft);
   color: var(--amber);
 }
 
-.flow-track li:nth-child(4) > span {
+.flow-track li:nth-child(5) > span {
   background: var(--blue-soft);
   color: var(--blue);
 }
@@ -608,6 +609,99 @@ textarea:focus-visible {
   color: var(--ink-muted);
   font-size: 10px;
   white-space: nowrap;
+}
+
+.run-select-button {
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.run-select-button:hover,
+.run-select-button:focus-visible {
+  color: var(--green);
+  text-decoration: underline;
+}
+
+.control-run-detail-panel {
+  margin-top: 16px;
+}
+
+.control-run-detail-panel code {
+  overflow: hidden;
+  max-width: 46%;
+  color: var(--ink-muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.control-run-timeline {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 16px 18px 18px;
+  list-style: none;
+}
+
+.control-run-stage {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+  padding: 11px;
+  border: 1px solid var(--line);
+  background: #ffffff;
+}
+
+.control-run-stage[data-status="approved"],
+.control-run-stage[data-status="completed"],
+.control-run-stage[data-status="deployed"] {
+  border-color: #a9d3c4;
+  background: var(--green-soft);
+}
+
+.control-run-stage[data-status="rejected"],
+.control-run-stage[data-status="failed"] {
+  border-color: #e1b7b2;
+  background: var(--coral-soft);
+}
+
+.control-run-stage-index {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--ink);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.control-run-stage strong,
+.control-run-stage small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.control-run-stage strong {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.control-run-stage small {
+  color: var(--ink-muted);
+  font-size: 10px;
+  line-height: 1.45;
 }
 
 .record-delete-button {
@@ -1339,6 +1433,10 @@ dialog::backdrop {
     grid-template-columns: 1fr;
   }
 
+  .control-run-timeline {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .json-output.tall {
     min-height: 260px;
   }
@@ -1411,7 +1509,8 @@ dialog::backdrop {
     gap: 18px 0;
   }
 
-  .flow-track li:nth-child(2)::after {
+  .flow-track li:nth-child(2)::after,
+  .flow-track li:nth-child(4)::after {
     display: none;
   }
 }
@@ -1528,6 +1627,10 @@ dialog::backdrop {
   }
 
   .flow-track {
+    grid-template-columns: 1fr;
+  }
+
+  .control-run-timeline {
     grid-template-columns: 1fr;
   }
 

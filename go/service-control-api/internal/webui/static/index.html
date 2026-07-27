@@ -73,9 +73,10 @@
           <div class="panel-header"><div><p class="section-label">CONTROL FLOW</p><h3 id="workflow-title">배포 판단 파이프라인</h3></div><span class="scope-badge">1차년도 VM-only</span></div>
           <ol class="flow-track">
             <li><span>1</span><div><strong>Request Guard</strong><small>권한 · 범위 · 비밀정보</small></div></li>
-            <li><span>2</span><div><strong>Qwen Planner</strong><small>자원 요구 · Action</small></div></li>
-            <li><span>3</span><div><strong>Go Guard</strong><small>Manifest · bounded Action</small></div></li>
-            <li><span>4</span><div><strong>AppDeploy</strong><small>Target · 실행 · 로그</small></div></li>
+            <li><span>2</span><div><strong>Agent Registry</strong><small>capability · bounded action</small></div></li>
+            <li><span>3</span><div><strong>Qwen Planner</strong><small>자원 요구 · Manifest 초안</small></div></li>
+            <li><span>4</span><div><strong>Manifest Guard</strong><small>형식 · 자원 · 권한</small></div></li>
+            <li><span>5</span><div><strong>AppDeploy</strong><small>선택 제출 · 실행 · 로그</small></div></li>
           </ol>
         </section>
 
@@ -85,15 +86,19 @@
             <div class="compact-list" id="overview-agent-list"><p class="empty-state">Agent 정보를 불러오는 중입니다.</p></div>
           </section>
           <section class="panel" aria-labelledby="activity-title">
-            <div class="panel-header"><div><p class="section-label">LOCAL HISTORY</p><h3 id="activity-title">최근 제어 결과</h3></div><button class="text-button danger-text" id="clear-history" type="button">기록 삭제</button></div>
-            <div class="activity-list" id="recent-list"><p class="empty-state">저장된 결과가 없습니다.</p></div>
+            <div class="panel-header"><div><p class="section-label">BACKEND CONTROL RUNS</p><h3 id="activity-title">최근 Manifest 실행</h3></div><button class="text-button danger-text" id="clear-history" type="button">Run 기록 삭제</button></div>
+            <div class="activity-list" id="control-run-list"><p class="empty-state">ControlRun을 불러오는 중입니다.</p></div>
           </section>
         </div>
+        <section class="panel control-run-detail-panel" aria-labelledby="control-run-detail-title">
+          <div class="panel-header"><div><p class="section-label">SELECTED RUN</p><h3 id="control-run-detail-title">ControlRun 단계</h3></div><code id="selected-run-id">선택된 Run 없음</code></div>
+          <ol class="control-run-timeline" id="control-run-timeline"><li class="empty-state">Run을 선택하면 Request Guard부터 Manifest Guard까지의 단계가 표시됩니다.</li></ol>
+        </section>
       </section>
 
       <section class="view" data-view="planner" hidden>
         <div class="view-heading">
-          <div><p class="section-label">QWEN → GO GUARD → APPDEPLOY</p><h2>Deployment Planner</h2></div>
+          <div><p class="section-label">REQUEST GUARD → AGENT REGISTRY → QWEN → MANIFEST GUARD</p><h2>Deployment Planner</h2></div>
           <span class="scope-badge">DeploymentManifest</span>
         </div>
         <div class="split-layout planner-layout">
@@ -103,10 +108,14 @@
               <label class="field full"><span>자연어 요구</span><textarea name="natural_language_request" rows="5" required>Mock 환경에서 CPU 1, 메모리 1Gi, GPU 0, 스토리지 1Gi로 테스트 앱을 배포해 주세요.</textarea></label>
               <label class="field full"><span>App Version ID</span><input name="app_version_id" placeholder="appver-..." autocomplete="off" required></label>
               <label class="field"><span>LLM Candidate</span><input name="candidate_id" value="qwen3.5-ops-planner" required></label>
+              <label class="field"><span>Planner Agent</span><input name="agent_name" value="AIApplicationAutomationAgent" required></label>
               <label class="field"><span>Target Hint</span><input name="target_profile_id" placeholder="target-mock-001"></label>
               <label class="field"><span>Polling Interval</span><input name="poll_interval_ms" type="number" min="100" max="60000" value="500"></label>
               <label class="field"><span>Max Attempts</span><input name="max_poll_attempts" type="number" min="1" max="600" value="60"></label>
-              <div class="form-actions full"><button class="button button-primary" type="submit"><i data-lucide="play" aria-hidden="true"></i><span>Plan &amp; Deploy</span></button></div>
+              <div class="form-actions full">
+                <button class="button button-primary" type="submit"><i data-lucide="file-json" aria-hidden="true"></i><span>Generate Manifest</span></button>
+                <button class="button button-secondary" id="planner-submit" type="button" disabled><i data-lucide="send" aria-hidden="true"></i><span>Submit to AppDeploy</span></button>
+              </div>
             </form>
           </section>
 
@@ -114,9 +123,10 @@
             <div class="panel-header"><div><p class="section-label">RESULT</p><h3 id="planner-result-title">실행 결과</h3></div><button class="icon-button" type="button" data-copy-target="planner-json" title="JSON 복사" aria-label="Planner JSON 복사"><i data-lucide="copy" aria-hidden="true"></i></button></div>
             <div class="result-empty" id="planner-empty"><i data-lucide="route" aria-hidden="true"></i><strong>대기 중</strong></div>
             <div id="planner-summary" hidden>
-              <div class="result-status-line"><span class="status-badge" id="planner-status">-</span><span id="planner-deployment-id">-</span></div>
+              <div class="result-status-line"><span class="status-badge" id="planner-status">-</span><span id="planner-deployment-id">Run ID 없음</span></div>
               <dl class="result-facts">
                 <div><dt>Model</dt><dd id="planner-model">-</dd></div>
+                <div><dt>Agent Registry</dt><dd id="planner-agent">-</dd></div>
                 <div><dt>Request Guard</dt><dd id="planner-request-guard">-</dd></div>
                 <div><dt>Manifest Guard</dt><dd id="planner-manifest-guard">-</dd></div>
                 <div><dt>Target</dt><dd id="planner-target">-</dd></div>
@@ -136,7 +146,10 @@
         </div>
 
         <section class="panel registry-panel" aria-labelledby="registry-title">
-          <div class="panel-header"><div><p class="section-label">REGISTRY</p><h3 id="registry-title">등록 Agent <span class="count-label" id="agent-count">0</span></h3></div><button class="icon-button" id="refresh-agents" type="button" title="Agent 새로고침" aria-label="Agent 새로고침"><i data-lucide="refresh-cw" aria-hidden="true"></i></button></div>
+          <div class="panel-header">
+            <div><p class="section-label">REGISTRY</p><h3 id="registry-title">등록 Agent <span class="count-label" id="agent-count">0</span></h3></div>
+            <div class="panel-header-actions"><span class="connection-label" id="selected-planner-agent">선택된 Planner Agent 없음</span><button class="icon-button" id="refresh-agents" type="button" title="Agent 새로고침" aria-label="Agent 새로고침"><i data-lucide="refresh-cw" aria-hidden="true"></i></button></div>
+          </div>
           <div class="table-wrap">
             <table>
                 <thead><tr><th>Agent</th><th>Role</th><th>Capabilities</th><th>Bounded Actions</th><th>Status</th><th>Manage</th></tr></thead>
@@ -149,6 +162,7 @@
           <section class="panel form-panel" aria-labelledby="action-form-title">
             <div class="panel-header"><div><p class="section-label">LLM ACTION</p><h3 id="action-form-title">Action Proposal</h3></div></div>
             <form id="action-form" class="form-grid compact-fields">
+              <label class="field full"><span>ControlRun ID</span><input name="run_id" placeholder="배포된 run-... (선택)"></label>
               <label class="field"><span>Workload</span><select name="workload"><option value="llm-chat-inference">llm-chat-inference</option><option value="text-classifier">text-classifier</option></select></label>
               <label class="field"><span>Candidate</span><input name="candidate_id" value="qwen3.5-ops-planner" required></label>
               <label class="field full"><span>Target VM ID</span><input name="vm_id" value="aws-us-west-2-g6-xlarge-l4-20260707" required></label>
@@ -190,7 +204,7 @@
 
       <section class="view" data-view="autonomy" hidden>
         <div class="view-heading autonomy-heading">
-          <div><p class="section-label">SLO · QWEN · GO GUARD · APPDEPLOY</p><h2>Autonomous Loop</h2></div>
+          <div><p class="section-label">OPTIONAL POST-DEPLOYMENT EXPERIMENT</p><h2>배포 후 자율 운영 실험</h2></div>
           <div class="autonomy-controls" aria-label="Autonomy loop controls">
             <span class="status-badge" id="autonomy-loop-status" data-status="stopped">STOPPED</span>
             <button class="button button-secondary" id="autonomy-start" type="button"><i data-lucide="play" aria-hidden="true"></i><span>Start</span></button>
@@ -209,6 +223,7 @@
                 <label><input type="radio" name="mode" value="monitor_only" checked><span><i data-lucide="eye" aria-hidden="true"></i>Monitor Only</span></label>
                 <label><input type="radio" name="mode" value="guarded_auto"><span><i data-lucide="shield-check" aria-hidden="true"></i>Guarded Auto</span></label>
               </fieldset>
+              <label class="field full"><span>ControlRun ID</span><select name="run_id" id="autonomy-run-id"><option value="">배포된 Run을 선택하세요</option></select></label>
               <label class="field full"><span>Deployment ID</span><input name="deployment_id" placeholder="dep-..." required autocomplete="off"></label>
               <label class="field"><span>Max Latency (ms)</span><input name="max_latency_ms" type="number" min="0" step="0.01" required></label>
               <label class="field"><span>Min Throughput (RPS)</span><input name="min_throughput_rps" type="number" min="0" step="0.01" required></label>

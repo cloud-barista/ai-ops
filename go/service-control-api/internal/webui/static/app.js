@@ -3,6 +3,7 @@
 const API = Object.freeze({
   health: "/healthz",
   agents: "/api/v1/agents",
+  controlRuns: "/api/v1/control-runs",
   planner: "/api/v1/planner/deployments",
   actionProposals: "/api/v1/automation/action-proposals",
   feedback: "/api/v1/automation/feedback",
@@ -15,7 +16,6 @@ const API = Object.freeze({
   autonomyEvents: "/api/v1/autonomy/events",
 });
 
-const HISTORY_KEY = "geon-agent-control-history-v1";
 const APP_VERSION_KEY = "geon-agent-control-app-version-id";
 const VIEW_LABELS = Object.freeze({
   overview: ["CONTROL PLANE", "운영 개요"],
@@ -27,7 +27,9 @@ const VIEW_LABELS = Object.freeze({
 
 const state = {
   agents: [],
-  history: readHistory(),
+  controlRuns: [],
+  activeRunID: "",
+  lastPlannerRun: null,
   feedbackRecords: [],
   lastGuard: null,
   activeView: "overview",
@@ -60,39 +62,6 @@ function parseList(value) {
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
-}
-
-function readHistory() {
-  try {
-    const parsed = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
-    return Array.isArray(parsed)
-      ? parsed.slice(0, 8).map((entry, index) => ({ ...entry, id: entry.id || `history-${entry.at || "legacy"}-${index}` }))
-      : [];
-  } catch (_error) {
-    return [];
-  }
-}
-
-function writeHistory() {
-  try {
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(state.history.slice(0, 8)));
-  } catch (_error) {
-    // The dashboard remains functional when browser storage is unavailable.
-  }
-}
-
-function addHistory(type, status, title, detail) {
-  state.history.unshift({
-    id: globalThis.crypto?.randomUUID?.() || `history-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-    type,
-    status: text(status, "unknown"),
-    title,
-    detail: text(detail, ""),
-    at: new Date().toISOString(),
-  });
-  state.history = state.history.slice(0, 8);
-  writeHistory();
-  renderHistory();
 }
 
 function createElement(tag, className, content) {
@@ -270,28 +239,77 @@ async function loadAgents() {
   return state.agents;
 }
 
-function renderHistory() {
-  const list = byID("recent-list");
-  list.replaceChildren();
-  if (state.history.length === 0) {
-    list.append(createElement("p", "empty-state", "저장된 결과가 없습니다."));
+function controlRunRows(payload) {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload.runs)) return payload.runs;
+  if (Array.isArray(payload.items)) return payload.items;
+  return [];
+}
+
+function renderControlRunTimeline(run) {
+  const timeline = byID("control-run-timeline");
+  timeline.replaceChildren();
+  byID("selected-run-id").textContent = run?.run_id || "선택된 Run 없음";
+  byID("selected-planner-agent").textContent = run?.selected_agent?.name
+    ? `Manifest Planner: ${run.selected_agent.name}`
+    : "선택된 Planner Agent 없음";
+  if (!run || !Array.isArray(run.stages) || run.stages.length === 0) {
+    timeline.append(createElement("li", "empty-state", "Run을 선택하면 각 검증 단계가 표시됩니다."));
     return;
   }
-  state.history.forEach((entry) => {
+  run.stages.forEach((stage, index) => {
+    const item = createElement("li", "control-run-stage");
+    item.dataset.status = String(stage.status || "unknown").toLowerCase();
+    item.append(
+      createElement("span", "control-run-stage-index", String(index + 1)),
+      createElement("strong", "", text(stage.name)),
+      createElement("small", "", `${text(stage.status)} · ${text(stage.reason, "completed")}`),
+    );
+    timeline.append(item);
+  });
+}
+
+function syncRunLinkedForms(run) {
+  if (!run) return;
+  const actionRunInput = byID("action-form").elements.run_id;
+  if (actionRunInput) actionRunInput.value = run.status === "DEPLOYED" ? run.run_id : "";
+  const autonomyForm = byID("autonomy-form");
+  if (run.status === "DEPLOYED" && run.deployment?.deployment_id) {
+    autonomyForm.elements.run_id.value = run.run_id;
+    autonomyForm.elements.deployment_id.value = run.deployment.deployment_id;
+  }
+}
+
+function renderControlRuns(payload = state.controlRuns) {
+  const list = byID("control-run-list");
+  const runs = Array.isArray(payload) ? payload : controlRunRows(payload);
+  state.controlRuns = runs;
+  list.replaceChildren();
+  if (runs.length === 0) {
+    list.append(createElement("p", "empty-state", "서버에 저장된 ControlRun이 없습니다."));
+    renderControlRunTimeline(null);
+    populateAutonomyRunOptions();
+    return;
+  }
+  runs.forEach((run) => {
     const item = createElement("div", "activity-item");
+    item.setAttribute("data-run-id", text(run.run_id));
     const marker = createElement("span", "activity-marker");
-    marker.dataset.status = entry.status.toLowerCase();
+    marker.dataset.status = String(run.status || "unknown").toLowerCase();
     const body = createElement("div", "");
-    body.append(createElement("strong", "", entry.title));
-    body.append(createElement("span", "", entry.detail));
+    const selectButton = createElement("button", "run-select-button", text(run.run_id));
+    selectButton.type = "button";
+    selectButton.setAttribute("data-select-run", text(run.run_id));
+    body.append(selectButton);
+    body.append(createElement("span", "", `${text(run.status)} · ${text(run.request?.app_version_id)}`));
     const time = document.createElement("time");
-    time.dateTime = entry.at;
-    time.textContent = new Date(entry.at).toLocaleString("ko-KR", { hour12: false });
+    time.dateTime = run.updated_at || "";
+    time.textContent = displayTimestamp(run.updated_at);
     const deleteButton = createElement("button", "icon-button danger-icon record-delete-button");
     deleteButton.type = "button";
-    deleteButton.setAttribute("data-delete-history", entry.id);
-    deleteButton.title = "최근 제어 결과 삭제";
-    deleteButton.setAttribute("aria-label", "최근 제어 결과 삭제");
+    deleteButton.setAttribute("data-delete-run", text(run.run_id));
+    deleteButton.title = `${text(run.run_id)} 삭제`;
+    deleteButton.setAttribute("aria-label", `${text(run.run_id)} ControlRun 삭제`);
     const deleteIcon = document.createElement("i");
     deleteIcon.setAttribute("data-lucide", "trash-2");
     deleteIcon.setAttribute("aria-hidden", "true");
@@ -299,33 +317,99 @@ function renderHistory() {
     item.append(marker, body, time, deleteButton);
     list.append(item);
   });
+  populateAutonomyRunOptions();
+  const selected = runs.find((run) => run.run_id === state.activeRunID) || runs[0];
+  if (selected) {
+    state.activeRunID = selected.run_id;
+    renderControlRunTimeline(selected);
+  }
   if (window.lucide) window.lucide.createIcons();
 }
 
-function deleteHistoryRecord(id) {
-  const record = state.history.find((entry) => entry.id === id);
-  if (!record || !window.confirm(`최근 제어 결과 '${record.title}'을 삭제할까요?`)) return;
-  state.history = state.history.filter((entry) => entry.id !== id);
-  writeHistory();
-  renderHistory();
-  showToast("최근 제어 결과를 삭제했습니다.", "success");
+function populateAutonomyRunOptions() {
+  const select = byID("autonomy-run-id");
+  const current = select.value;
+  select.replaceChildren(new Option("배포된 Run을 선택하세요", ""));
+  state.controlRuns
+    .filter((run) => run.status === "DEPLOYED" && run.deployment?.deployment_id)
+    .forEach((run) => select.append(new Option(`${run.run_id} · ${run.deployment.deployment_id}`, run.run_id)));
+  if ([...select.options].some((option) => option.value === current)) select.value = current;
+}
+
+async function loadControlRuns() {
+  const payload = await apiRequest(API.controlRuns);
+  renderControlRuns(payload);
+  return state.controlRuns;
+}
+
+async function selectControlRun(runID) {
+  const run = await apiRequest(`${API.controlRuns}/${encodeURIComponent(runID)}`);
+  state.activeRunID = run.run_id;
+  state.lastPlannerRun = run;
+  renderControlRunTimeline(run);
+  renderPlanner(run);
+  syncRunLinkedForms(run);
+}
+
+async function deleteControlRun(runID, button) {
+  if (!window.confirm(`ControlRun '${runID}'을 geon에서 삭제할까요? AppDeploy와 VM 자원은 삭제되지 않습니다.`)) return;
+  button.disabled = true;
+  try {
+    await apiRequest(`${API.controlRuns}/${encodeURIComponent(runID)}`, { method: "DELETE" });
+    if (state.activeRunID === runID) {
+      state.activeRunID = "";
+      state.lastPlannerRun = null;
+    }
+    await loadControlRuns();
+    showToast("ControlRun 기록을 삭제했습니다.", "success");
+  } catch (error) {
+    showToast(error.message, "error");
+    button.disabled = false;
+  }
+}
+
+async function clearControlRuns() {
+  if (!window.confirm("geon의 ControlRun 기록을 모두 삭제할까요? AppDeploy와 VM 자원은 유지됩니다.")) return;
+  const button = byID("clear-history");
+  button.disabled = true;
+  try {
+    const payload = await apiRequest(API.controlRuns, { method: "DELETE" });
+    state.activeRunID = "";
+    state.lastPlannerRun = null;
+    renderControlRuns(payload);
+    showToast(`${Number(payload.deleted_count || 0)}개의 ControlRun 기록을 삭제했습니다.`, "success");
+  } catch (error) {
+    showToast(error.message, "error");
+  } finally {
+    button.disabled = false;
+  }
 }
 
 function renderPlanner(payload) {
+  if (payload?.run_id) {
+    state.lastPlannerRun = payload;
+    state.activeRunID = payload.run_id;
+  }
   byID("planner-empty").hidden = true;
   byID("planner-summary").hidden = false;
   const status = text(payload.status, payload.valid ? "COMPLETED" : "NOT_EXECUTED");
   const statusElement = byID("planner-status");
   statusElement.textContent = status;
   statusElement.dataset.status = status.toLowerCase();
-  byID("planner-deployment-id").textContent = text(payload.deployment?.deployment_id, "배포 ID 없음");
+  const deploymentLabel = payload.deployment?.deployment_id ? ` · ${payload.deployment.deployment_id}` : "";
+  byID("planner-deployment-id").textContent = `${text(payload.run_id, "Run ID 없음")}${deploymentLabel}`;
   byID("planner-model").textContent = text(payload.generation?.actual_model);
+  byID("planner-agent").textContent = text(payload.selected_agent?.name);
   byID("planner-request-guard").textContent = text(payload.request_guard?.status);
   byID("planner-manifest-guard").textContent = payload.generation?.guard_valid ? "approved" : text(payload.generation?.guard_reason, "rejected");
   byID("planner-target").textContent = text(payload.deployment?.target_profile_id, payload.manifest?.spec?.target_profile_id);
   byID("planner-latency").textContent = payload.generation?.latency_ms === undefined ? "-" : `${payload.generation.latency_ms} ms`;
   byID("planner-log-count").textContent = String(Array.isArray(payload.logs) ? payload.logs.length : 0);
   byID("planner-json").textContent = pretty(payload);
+  const submitButton = byID("planner-submit");
+  submitButton.disabled = !["MANIFEST_APPROVED", "APPDEPLOY_FAILED"].includes(status);
+  renderControlRunTimeline(payload);
+  syncRunLinkedForms(payload);
 }
 
 function renderAction(payload) {
@@ -359,9 +443,8 @@ async function submitPlanner(event) {
     natural_language_request: data.get("natural_language_request"),
     app_version_id: data.get("app_version_id"),
     candidate_id: data.get("candidate_id"),
-    requested_by: "ai-ops-geon-control-app",
-    poll_interval_ms: Number(data.get("poll_interval_ms")),
-    max_poll_attempts: Number(data.get("max_poll_attempts")),
+    requested_by: "ai-ops-geon-planner",
+    agent_name: data.get("agent_name"),
   };
   const target = String(data.get("target_profile_id") || "").trim();
   if (target) body.target_profile_id = target;
@@ -372,17 +455,52 @@ async function submitPlanner(event) {
   }
   setBusy(form, true, "Qwen 판단 중...");
   try {
-    const payload = await apiRequest(API.planner, { method: "POST", body: JSON.stringify(body) });
+    const payload = await apiRequest(API.controlRuns, { method: "POST", body: JSON.stringify(body) });
     renderPlanner(payload);
-    addHistory("planner", payload.status, "AppDeploy 배포 계획", payload.deployment?.deployment_id || payload.generation?.guard_reason);
-    showToast(`Planner 완료: ${text(payload.status)}`, payload.valid ? "success" : "warning");
+    await loadControlRuns();
+    showToast(`Manifest 생성 완료: ${text(payload.status)}`, payload.status === "MANIFEST_APPROVED" ? "success" : "warning");
   } catch (error) {
     const payload = error.payload || { valid: false, message: error.message };
     renderPlanner(payload);
-    addHistory("planner", "failed", "AppDeploy 배포 계획 실패", error.message);
+    await loadControlRuns().catch(() => {});
     showToast(error.message, "error");
   } finally {
     setBusy(form, false);
+  }
+}
+
+async function submitPlannerRun() {
+  const run = state.lastPlannerRun;
+  if (!run?.run_id) {
+    showToast("먼저 DeploymentManifest를 생성해 주세요.", "warning");
+    return;
+  }
+  const form = byID("planner-form");
+  const data = new FormData(form);
+  const button = byID("planner-submit");
+  const originalLabel = button.textContent.trim();
+  button.disabled = true;
+  button.textContent = "AppDeploy 제출 중...";
+  try {
+    const body = {
+      poll_interval_ms: Number(data.get("poll_interval_ms")),
+      max_poll_attempts: Number(data.get("max_poll_attempts")),
+    };
+    const payload = await apiRequest(`${API.controlRuns}/${encodeURIComponent(run.run_id)}/submit`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    renderPlanner(payload);
+    await loadControlRuns();
+    showToast(`AppDeploy 제출 완료: ${text(payload.deployment?.deployment_id)}`, "success");
+  } catch (error) {
+    if (error.payload?.run_id) renderPlanner(error.payload);
+    await loadControlRuns().catch(() => {});
+    showToast(error.message, "error");
+  } finally {
+    button.textContent = originalLabel;
+    button.disabled = !["MANIFEST_APPROVED", "APPDEPLOY_FAILED"].includes(state.lastPlannerRun?.status);
+    if (window.lucide) window.lucide.createIcons();
   }
 }
 
@@ -399,6 +517,7 @@ async function submitAction(event) {
   }
   const accelerator = data.get("accelerator");
   const body = {
+    run_id: String(data.get("run_id") || "").trim(),
     workload: data.get("workload"),
     candidate_id: data.get("candidate_id"),
     observations,
@@ -420,12 +539,11 @@ async function submitAction(event) {
   try {
     const payload = await apiRequest(API.actionProposals, { method: "POST", body: JSON.stringify(body) });
     renderAction(payload);
-    addHistory("guard", payload.guard?.status, "Qwen Action / Go Guard", payload.decision?.proposal?.action);
+    await loadControlRuns().catch(() => {});
     showToast(`Go Guard: ${text(payload.guard?.status)}`, payload.guard?.valid ? "success" : "warning");
   } catch (error) {
     const payload = error.payload || { valid: false, message: error.message };
     byID("action-json").textContent = pretty(payload);
-    addHistory("guard", "failed", "Action Proposal 실패", error.message);
     showToast(error.message, "error");
   } finally {
     setBusy(form, false);
@@ -454,7 +572,6 @@ async function submitActionValidation(event) {
       handoff: { agent: payload.agent, execution_status: "not_executed" },
     };
     renderAction(synthetic);
-    addHistory("validation", synthetic.status, "Bounded Action 검증", `${payload.agent}: ${payload.action}`);
     showToast(payload.valid ? "허용된 Action입니다." : "허용되지 않은 Action입니다.", payload.valid ? "success" : "warning");
   } catch (error) {
     showToast(error.message, "error");
@@ -484,7 +601,6 @@ async function submitAgentRegistration(event) {
     const payload = await apiRequest(API.agents, { method: "POST", body: JSON.stringify(body) });
     byID("agent-dialog").close();
     await loadAgents();
-    addHistory("registry", "registered", "외부 Agent 등록", payload.name);
     showToast(`${payload.name} 등록 완료`, "success");
   } catch (error) {
     showToast(error.message, "error");
@@ -514,8 +630,8 @@ async function submitFeedback(event) {
   try {
     const payload = await apiRequest(API.feedback, { method: "POST", body: JSON.stringify(body) });
     byID("feedback-json").textContent = pretty(payload);
-    addHistory("feedback", payload.status, "실행 Feedback", payload.external_execution_id || payload.correlation_id);
     await loadAutomationFeedback();
+    await loadControlRuns().catch(() => {});
     showToast("Feedback가 기록되었습니다.", "success");
   } catch (error) {
     byID("feedback-json").textContent = pretty(error.payload || { valid: false, message: error.message });
@@ -539,7 +655,7 @@ function renderAutomationFeedback(payload) {
     marker.dataset.status = String(record.status || "unknown").toLowerCase();
     const body = createElement("div", "");
     body.append(createElement("strong", "", text(record.correlation_id)));
-    body.append(createElement("span", "", `${text(record.status)} · ${text(record.executor)}`));
+    body.append(createElement("span", "", `${text(record.status)} · ${text(record.executor)} · Run ${text(record.run_id)}`));
     const time = document.createElement("time");
     time.dateTime = record.received_at || "";
     time.textContent = displayTimestamp(record.received_at);
@@ -621,6 +737,7 @@ function syncAutonomyForm(config) {
   const mode = form.querySelector(`input[name="mode"][value="${config.mode}"]`);
   if (mode) mode.checked = true;
   const values = {
+    run_id: config.run_id,
     deployment_id: config.deployment_id,
     max_latency_ms: config.slo?.max_latency_ms,
     min_throughput_rps: config.slo?.min_throughput_rps,
@@ -702,7 +819,7 @@ function renderAutonomyEvents(payload) {
     deleteIcon.setAttribute("aria-hidden", "true");
     deleteButton.append(deleteIcon);
     titleRow.append(status, deleteButton);
-    body.append(titleRow, createElement("span", "", text(entry.reason)));
+    body.append(titleRow, createElement("span", "", `${text(entry.reason)} · Run ${text(entry.run_id)}`));
     const details = document.createElement("details");
     details.append(createElement("summary", "", "JSON"), createElement("pre", "", pretty(entry)));
     row.append(timeElement, stage, body, details);
@@ -737,6 +854,7 @@ async function submitAutonomyConfig(event) {
   const form = event.currentTarget;
   const data = new FormData(form);
   const body = {
+    run_id: String(data.get("run_id") || "").trim(),
     mode: data.get("mode"),
     poll_interval_seconds: Number(data.get("poll_interval_seconds")),
     consecutive_violations: Number(data.get("consecutive_violations")),
@@ -811,7 +929,7 @@ async function refreshDashboard() {
   const button = byID("refresh-button");
   button.disabled = true;
   try {
-    const requests = [loadHealth(), loadAgents()];
+    const requests = [loadHealth(), loadAgents(), loadControlRuns()];
     if (state.activeView === "autonomy") requests.push(loadAutonomy());
     if (state.activeView === "feedback") requests.push(loadAutomationFeedback());
     await Promise.all(requests);
@@ -836,16 +954,16 @@ function bindEvents() {
       showToast(error.message, "error");
     }
   });
-  byID("clear-history").addEventListener("click", () => {
-    if (!window.confirm("이 브라우저에 저장된 geon 시험 기록만 삭제할까요?")) return;
-    state.history = [];
-    writeHistory();
-    renderHistory();
-  });
-  byID("recent-list").addEventListener("click", (event) => {
-    const button = event.target.closest("[data-delete-history]");
-    if (!button) return;
-    deleteHistoryRecord(button.dataset.deleteHistory);
+  byID("clear-history").addEventListener("click", () => void clearControlRuns());
+  byID("control-run-list").addEventListener("click", (event) => {
+    const deleteButton = event.target.closest("[data-delete-run]");
+    if (deleteButton) {
+      void deleteControlRun(deleteButton.dataset.deleteRun, deleteButton);
+      return;
+    }
+    const selectButton = event.target.closest("[data-select-run]");
+    if (!selectButton) return;
+    void selectControlRun(selectButton.dataset.selectRun).catch((error) => showToast(error.message, "error"));
   });
   byID("agent-table-body").addEventListener("click", (event) => {
     const button = event.target.closest("[data-delete-agent]");
@@ -853,6 +971,7 @@ function bindEvents() {
     void deleteRuntimeAgent(button.dataset.deleteAgent, button);
   });
   byID("planner-form").addEventListener("submit", submitPlanner);
+  byID("planner-submit").addEventListener("click", () => void submitPlannerRun());
   byID("action-form").addEventListener("submit", submitAction);
   byID("action-validation-form").addEventListener("submit", submitActionValidation);
   byID("feedback-form").addEventListener("submit", submitFeedback);
@@ -863,6 +982,14 @@ function bindEvents() {
   });
   byID("clear-feedback-records").addEventListener("click", () => void clearAutomationFeedback());
   byID("autonomy-form").addEventListener("submit", submitAutonomyConfig);
+  byID("autonomy-run-id").addEventListener("change", (event) => {
+    const run = state.controlRuns.find((entry) => entry.run_id === event.currentTarget.value);
+    if (!run) return;
+    state.activeRunID = run.run_id;
+    byID("autonomy-form").elements.deployment_id.value = run.deployment?.deployment_id || "";
+    byID("action-form").elements.run_id.value = run.run_id;
+    renderControlRunTimeline(run);
+  });
   byID("autonomy-start").addEventListener("click", () => runAutonomyControl(API.autonomyStart, "Autonomy loop를 시작했습니다."));
   byID("autonomy-stop").addEventListener("click", () => runAutonomyControl(API.autonomyStop, "Autonomy loop를 중지했습니다."));
   byID("autonomy-run-cycle").addEventListener("click", () => runAutonomyControl(API.autonomyCycles, "Autonomy cycle을 실행했습니다."));
@@ -906,7 +1033,6 @@ function bindEvents() {
 
 async function initialize() {
   bindEvents();
-  renderHistory();
   const savedAppVersion = localStorage.getItem(APP_VERSION_KEY);
   if (savedAppVersion) byID("planner-form").elements.app_version_id.value = savedAppVersion;
   if (window.lucide) window.lucide.createIcons();

@@ -108,6 +108,45 @@ func TestControlAppContainsAutonomyView(t *testing.T) {
 	}
 }
 
+func TestControlAppContainsControlRunManifestWorkflow(t *testing.T) {
+	server := echo.New()
+	Register(server)
+
+	html := requestBody(t, server, "/")
+	for _, expected := range []string{
+		`Generate Manifest`,
+		`Submit to AppDeploy`,
+		`Request Guard`,
+		`Agent Registry`,
+		`Qwen Planner`,
+		`Manifest Guard`,
+		`배포 후 자율 운영 실험`,
+		`id="control-run-list"`,
+		`id="control-run-timeline"`,
+		`id="planner-submit"`,
+		`name="run_id"`,
+		`id="selected-planner-agent"`,
+	} {
+		if !strings.Contains(html, expected) {
+			t.Fatalf("expected ControlRun HTML contract %q", expected)
+		}
+	}
+
+	javascript := requestBody(t, server, "/assets/app.js")
+	for _, expected := range []string{
+		`controlRuns: "/api/v1/control-runs"`,
+		`loadControlRuns`,
+		`renderControlRuns`,
+		`data-run-id`,
+		`/submit`,
+		`method: "DELETE"`,
+	} {
+		if !strings.Contains(javascript, expected) {
+			t.Fatalf("expected ControlRun JavaScript contract %q", expected)
+		}
+	}
+}
+
 func TestControlAppContainsGeonDeletionControls(t *testing.T) {
 	server := echo.New()
 	Register(server)
@@ -131,8 +170,9 @@ func TestControlAppContainsGeonDeletionControls(t *testing.T) {
 		`clearAutonomyEvents`,
 		`data-delete-event`,
 		`deleteAutonomyEvent`,
-		`data-delete-history`,
-		`deleteHistoryRecord`,
+		`data-delete-run`,
+		`deleteControlRun`,
+		`clearControlRuns`,
 		`data-delete-feedback`,
 		`deleteAutomationFeedback`,
 		`clearAutomationFeedback`,
