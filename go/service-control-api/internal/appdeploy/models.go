@@ -1,7 +1,9 @@
 package appdeploy
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"time"
 )
 
@@ -39,6 +41,37 @@ type ResourceRequirements struct {
 
 type DeploymentCreateRequest struct {
 	Manifest DeploymentManifest `json:"manifest"`
+}
+
+type PackageUpload struct {
+	Source          io.Reader
+	Filename        string
+	PackageType     string
+	AppName         string
+	AppVersion      string
+	Entrypoint      string
+	RuntimeType     string
+	ServicePort     int
+	HealthcheckPath string
+}
+
+type PackageBuildResponse struct {
+	RequestID   string          `json:"request_id,omitempty"`
+	PackageType string          `json:"package_type"`
+	ArtifactURI string          `json:"artifact_uri"`
+	ArchiveName string          `json:"archive_name"`
+	SizeBytes   int64           `json:"size_bytes"`
+	Checksum    string          `json:"checksum"`
+	AppSpec     json.RawMessage `json:"app_spec"`
+}
+
+type AppRegistrationResponse struct {
+	RequestID    string          `json:"request_id,omitempty"`
+	AppID        string          `json:"app_id"`
+	AppVersionID string          `json:"app_version_id"`
+	Name         string          `json:"name"`
+	Version      string          `json:"version"`
+	AppSpec      json.RawMessage `json:"app_spec"`
 }
 
 type ResourceAllocation struct {
