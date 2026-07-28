@@ -72,6 +72,11 @@ func (generator Generator) Generate(ctx context.Context, candidate llmclient.Can
 	if strings.TrimSpace(input.RequestedBy) == "" {
 		input.RequestedBy = "ai-ops-geon-planner"
 	}
+	if err := appdeploy.ValidateRequirementsSecretKeys(input.Requirements); err != nil {
+		result.ExecutionStatus = "rejected"
+		result.GuardReason = err.Error()
+		return result, fmt.Errorf("deployment requirements rejected before Qwen: %w", err)
+	}
 
 	promptInput := map[string]any{
 		"natural_language_request":        input.NaturalLanguageRequest,
@@ -125,6 +130,7 @@ func (generator Generator) Generate(ctx context.Context, candidate llmclient.Can
 		TargetProfileID: input.TargetProfileID,
 		RequestedBy:     input.RequestedBy,
 		RuntimeType:     runtimeType(input.Requirements),
+		Requirements:    input.Requirements,
 	}); err != nil {
 		result.ExecutionStatus = "rejected"
 		result.GuardReason = err.Error()

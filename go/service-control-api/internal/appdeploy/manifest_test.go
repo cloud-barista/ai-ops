@@ -99,6 +99,128 @@ func TestValidateManifestRejectsDeploymentRequirementViolations(t *testing.T) {
 	}
 }
 
+func TestValidateManifestRejectsRequirementsThatDoNotMatchTrustedConstraints(t *testing.T) {
+	trusted := &DeploymentRequirements{
+		Runtime:     "gpu",
+		Resources:   ResourceRequirements{CPU: "4", Memory: "8Gi", GPU: "1", Storage: "20Gi"},
+		Accelerator: "nvidia",
+		CostPolicy:  "min_cost",
+	}
+	tests := []struct {
+		name     string
+		mutate   func(*DeploymentManifest)
+		contains string
+	}{
+		{
+			name: "absent requirements",
+			mutate: func(manifest *DeploymentManifest) {
+				manifest.Spec.Resources = trusted.Resources
+				manifest.Spec.Requirements = nil
+			},
+			contains: "spec.requirements is required",
+		},
+		{
+			name: "resource substitution",
+			mutate: func(manifest *DeploymentManifest) {
+				manifest.Spec.Requirements = &DeploymentRequirements{
+					Runtime: "gpu", Resources: ResourceRequirements{CPU: "8", Memory: "8Gi", GPU: "1", Storage: "20Gi"}, Accelerator: "nvidia", CostPolicy: "min_cost",
+				}
+				manifest.Spec.Resources = manifest.Spec.Requirements.Resources
+			},
+			contains: "trusted resources",
+		},
+		{
+			name: "cost policy substitution",
+			mutate: func(manifest *DeploymentManifest) {
+				manifest.Spec.Resources = trusted.Resources
+				manifest.Spec.Requirements = &DeploymentRequirements{
+					Runtime: "gpu", Resources: trusted.Resources, Accelerator: "nvidia", CostPolicy: "",
+				}
+			},
+			contains: "trusted cost_policy",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			manifest := validManifest()
+			test.mutate(&manifest)
+			err := ValidateManifest(manifest, ManifestConstraints{
+				AppVersionID:    "appver-test",
+				TargetProfileID: "target-gpu-001",
+				RequestedBy:     "ai-ops-geon-planner",
+				Requirements:    trusted,
+			})
+			if err == nil || !strings.Contains(err.Error(), test.contains) {
+				t.Fatalf("expected error containing %q, got %v", test.contains, err)
+			}
+		})
+	}
+}
+
+func TestValidateManifestRejectsSecretLikeRequirementKeys(t *testing.T) {
+	tests := []struct {
+		name         string
+		requirements DeploymentRequirements
+		contains     string
+	}{
+		{
+			name: "nested slo api token",
+			requirements: DeploymentRequirements{
+				Runtime: "gpu", Resources: ResourceRequirements{CPU: "4", Memory: "16Gi", GPU: "1", Storage: "20Gi"},
+				SLO: map[string]any{"routing": map[string]any{"api_token": "must-not-pass"}},
+			},
+			contains: "requirements.slo",
+		},
+		{
+			name: "label private key",
+			requirements: DeploymentRequirements{
+				Runtime: "gpu", Resources: ResourceRequirements{CPU: "4", Memory: "16Gi", GPU: "1", Storage: "20Gi"},
+				Labels: map[string]string{"private_key": "must-not-pass"},
+			},
+			contains: "requirements.labels",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			manifest := validManifest()
+			manifest.Spec.Requirements = &test.requirements
+			err := ValidateManifest(manifest, ManifestConstraints{
+				AppVersionID: "appver-test", TargetProfileID: "target-gpu-001", RequestedBy: "ai-ops-geon-planner",
+			})
+			if err == nil || !strings.Contains(err.Error(), test.contains) {
+				t.Fatalf("expected error containing %q, got %v", test.contains, err)
+			}
+		})
+	}
+}
+
+func TestValidateManifestRejectsInvalidOrConflictingRequirementsAccelerator(t *testing.T) {
+	tests := []struct {
+		name        string
+		accelerator string
+		contains    string
+	}{
+		{name: "invalid accelerator", accelerator: "tpu", contains: "requirements.accelerator"},
+		{name: "conflicting accelerator", accelerator: "none", contains: "requirements.accelerator must match"},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			manifest := validManifest()
+			manifest.Spec.Requirements = &DeploymentRequirements{
+				Runtime: "gpu", Resources: manifest.Spec.Resources, Accelerator: test.accelerator,
+			}
+			err := ValidateManifest(manifest, ManifestConstraints{
+				AppVersionID: "appver-test", TargetProfileID: "target-gpu-001", RequestedBy: "ai-ops-geon-planner",
+			})
+			if err == nil || !strings.Contains(err.Error(), test.contains) {
+				t.Fatalf("expected error containing %q, got %v", test.contains, err)
+			}
+		})
+	}
+}
+
 func TestValidateManifestRejectsContractViolations(t *testing.T) {
 	tests := []struct {
 		name     string

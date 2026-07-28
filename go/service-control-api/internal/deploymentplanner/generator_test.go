@@ -84,6 +84,26 @@ func TestGeneratorPreservesTrustedDeploymentRequirements(t *testing.T) {
 	}
 }
 
+func TestGeneratorRejectsSecretLikeRequirementsBeforePrompt(t *testing.T) {
+	client := &recordingCompletionClient{content: validManifestJSON("appver-test", "target-gpu-001")}
+	_, err := NewGenerator(client).Generate(context.Background(), testCandidate(), GenerateInput{
+		NaturalLanguageRequest: "Deploy the inference service.",
+		AppVersionID:           "appver-test",
+		TargetProfileID:        "target-gpu-001",
+		RequestedBy:            "ai-ops-geon-planner",
+		Requirements: &appdeploy.DeploymentRequirements{
+			Runtime: "gpu", Resources: appdeploy.ResourceRequirements{CPU: "4", Memory: "8Gi", GPU: "1", Storage: "20Gi"},
+			SLO: map[string]any{"nested": map[string]any{"credential": "must-not-pass"}},
+		},
+	})
+	if err == nil || !strings.Contains(err.Error(), "requirements.slo") {
+		t.Fatalf("expected secret-like requirements rejection, got %v", err)
+	}
+	if client.calls != 0 || client.userPrompt != "" {
+		t.Fatalf("secret-like requirements reached Qwen: calls=%d prompt=%q", client.calls, client.userPrompt)
+	}
+}
+
 func TestGeneratorRejectsUntrustedOrMalformedOutput(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -132,12 +152,14 @@ func TestGeneratorRejectsUntrustedOrMalformedOutput(t *testing.T) {
 }
 
 type recordingCompletionClient struct {
+	calls        int
 	content      string
 	systemPrompt string
 	userPrompt   string
 }
 
 func (client *recordingCompletionClient) Complete(_ context.Context, candidate llmclient.Candidate, systemPrompt string, userPrompt string) (llmclient.Completion, error) {
+	client.calls++
 	client.systemPrompt = systemPrompt
 	client.userPrompt = userPrompt
 	return llmclient.Completion{

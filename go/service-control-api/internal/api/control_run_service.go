@@ -255,6 +255,9 @@ func (service Service) CreateControlRunWithDependencies(
 	if strings.TrimSpace(request.RequestedBy) == "" {
 		request.RequestedBy = "ai-ops-geon-planner"
 	}
+	if err := appdeploy.ValidateRequirementsSecretKeys(request.Requirements); err != nil {
+		return controlrun.Run{}, fmt.Errorf("deployment requirements rejected before Qwen: %w", err)
+	}
 	runID, err := newControlRunID()
 	if err != nil {
 		return controlrun.Run{}, err
@@ -380,6 +383,16 @@ func (service Service) CreateControlRunWithDependencies(
 	if execution.Generation != nil {
 		generation = *execution.Generation
 	}
+	requirementsSafe := true
+	if err := appdeploy.ValidateRequirementsSecretKeys(generation.Manifest.Spec.Requirements); err != nil {
+		requirementsSafe = false
+		generation.ExecutionStatus = "rejected"
+		generation.GuardValid = false
+		generation.GuardReason = err.Error()
+		if generationErr == nil {
+			generationErr = fmt.Errorf("deployment manifest Go Guard rejected the proposal: %w", err)
+		}
+	}
 	qwenStatus := "approved"
 	qwenReason := "Qwen generated a DeploymentManifest candidate"
 	if generationErr != nil {
@@ -387,8 +400,10 @@ func (service Service) CreateControlRunWithDependencies(
 		qwenReason = generationErr.Error()
 	}
 	run, err = service.controlRuns.Update(run.RunID, func(run *controlrun.Run) error {
-		run.Generation = generation
-		run.Manifest = generation.Manifest
+		if requirementsSafe {
+			run.Generation = generation
+			run.Manifest = generation.Manifest
+		}
 		run.Stages = append(run.Stages, completedControlRunStage(
 			"qwen_planner",
 			qwenStatus,
@@ -432,6 +447,7 @@ func (service Service) CreateControlRunWithDependencies(
 		TargetProfileID: request.TargetProfileID,
 		RequestedBy:     request.RequestedBy,
 		RuntimeType:     controlRunRuntimeType(request.Requirements),
+		Requirements:    request.Requirements,
 	})
 	guardStatus := "approved"
 	guardReason := "DeploymentManifest matches the AppDeploy contract and trusted request fields"

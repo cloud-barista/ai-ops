@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 
 	"kyunghee-aiops/service-control-api/internal/appdeploy"
@@ -470,7 +471,11 @@ func TestCreateControlRunPassesRequirementsToManifestGenerator(t *testing.T) {
 	}
 	request := validCreateControlRunRequest()
 	request.Requirements = requirements
-	generator := &fakeControlRunManifestGenerator{result: approvedGenerateResult("appver-001")}
+	result := approvedGenerateResult("appver-001")
+	result.Manifest.Spec.Accelerator = "none"
+	result.Manifest.Spec.Resources = requirements.Resources
+	result.Manifest.Spec.Requirements = requirements
+	generator := &fakeControlRunManifestGenerator{result: result}
 
 	if _, err := service.CreateControlRunWithDependencies(
 		context.Background(),
@@ -483,6 +488,109 @@ func TestCreateControlRunPassesRequirementsToManifestGenerator(t *testing.T) {
 	}
 	if generator.input.Requirements == nil || !reflect.DeepEqual(*generator.input.Requirements, *requirements) {
 		t.Fatalf("requirements were not passed to the Manifest generator: %#v", generator.input.Requirements)
+	}
+}
+
+func TestCreateControlRunRejectsTrustedRequirementsSubstitution(t *testing.T) {
+	trusted := &appdeploy.DeploymentRequirements{
+		Runtime: "cpu", Resources: appdeploy.ResourceRequirements{CPU: "2", Memory: "4Gi", GPU: "0", Storage: "20Gi"},
+		Accelerator: "none", CostPolicy: "min_cost",
+	}
+	tests := []struct {
+		name     string
+		mutate   func(*deploymentplanner.GenerateResult)
+		contains string
+	}{
+		{
+			name:     "absent requirements",
+			mutate:   func(*deploymentplanner.GenerateResult) {},
+			contains: "spec.requirements is required",
+		},
+		{
+			name: "resource substitution",
+			mutate: func(result *deploymentplanner.GenerateResult) {
+				result.Manifest.Spec.Resources.Storage = "10Gi"
+				result.Manifest.Spec.Requirements = &appdeploy.DeploymentRequirements{
+					Runtime: "cpu", Resources: result.Manifest.Spec.Resources, Accelerator: "none", CostPolicy: "min_cost",
+				}
+			},
+			contains: "trusted resources",
+		},
+		{
+			name: "cost policy substitution",
+			mutate: func(result *deploymentplanner.GenerateResult) {
+				result.Manifest.Spec.Resources = trusted.Resources
+				result.Manifest.Spec.Requirements = &appdeploy.DeploymentRequirements{
+					Runtime: "cpu", Resources: trusted.Resources, Accelerator: "none", CostPolicy: "",
+				}
+			},
+			contains: "trusted cost_policy",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			config := NewServerConfig()
+			service := NewService(config)
+			request := validCreateControlRunRequest()
+			request.Requirements = trusted
+			result := approvedGenerateResult("appver-001")
+			test.mutate(&result)
+
+			run, err := service.CreateControlRunWithDependencies(
+				context.Background(), request, writeAutomationCandidateConfig(t, "http://unused.example.test"),
+				config.PlannerGuardPolicyPath, &fakeControlRunManifestGenerator{result: result},
+			)
+			if err == nil || !strings.Contains(err.Error(), test.contains) {
+				t.Fatalf("expected error containing %q, got %v", test.contains, err)
+			}
+			if run.Status != controlrun.StatusManifestRejected {
+				t.Fatalf("unexpected run status: %#v", run)
+			}
+		})
+	}
+}
+
+func TestCreateControlRunRejectsSecretLikeRequirementsBeforeQwen(t *testing.T) {
+	config := NewServerConfig()
+	service := NewService(config)
+	request := validCreateControlRunRequest()
+	request.Requirements = &appdeploy.DeploymentRequirements{
+		Runtime: "cpu", Resources: appdeploy.ResourceRequirements{CPU: "2", Memory: "4Gi", GPU: "0", Storage: "20Gi"},
+		Labels: map[string]string{"private_key": "must-not-pass"},
+	}
+	generator := &fakeControlRunManifestGenerator{result: approvedGenerateResult("appver-001")}
+
+	if _, err := service.CreateControlRunWithDependencies(
+		context.Background(), request, writeAutomationCandidateConfig(t, "http://unused.example.test"),
+		config.PlannerGuardPolicyPath, generator,
+	); err == nil || !strings.Contains(err.Error(), "requirements.labels") {
+		t.Fatalf("expected secret-like requirements rejection, got %v", err)
+	}
+	if generator.calls != 0 {
+		t.Fatalf("secret-like requirements reached Qwen: calls=%d", generator.calls)
+	}
+}
+
+func TestCreateControlRunDoesNotPersistSecretLikeGeneratedRequirements(t *testing.T) {
+	config := NewServerConfig()
+	service := NewService(config)
+	result := approvedGenerateResult("appver-001")
+	result.Manifest.Spec.Requirements = &appdeploy.DeploymentRequirements{
+		Runtime: "cpu", Resources: result.Manifest.Spec.Resources,
+		SLO: map[string]any{"nested": map[string]any{"api_token": "must-not-persist"}},
+	}
+
+	run, err := service.CreateControlRunWithDependencies(
+		context.Background(), validCreateControlRunRequest(), writeAutomationCandidateConfig(t, "http://unused.example.test"),
+		config.PlannerGuardPolicyPath,
+		&fakeControlRunManifestGenerator{result: result, err: errors.New("upstream generator rejected manifest")},
+	)
+	if err == nil || !strings.Contains(err.Error(), "upstream generator rejected manifest") {
+		t.Fatalf("expected generator rejection, got %v", err)
+	}
+	if run.Generation.Manifest.Spec.Requirements != nil || run.Manifest.Spec.Requirements != nil {
+		t.Fatalf("secret-like generated requirements were persisted: %#v", run)
 	}
 }
 
