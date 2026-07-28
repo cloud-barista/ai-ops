@@ -91,6 +91,7 @@ func NewServer(config ServerConfig) *echo.Echo {
 	server.DELETE(pathAutomationFeed+"/:correlation_id", handler.requireAutonomyAdmin(handler.RestDeleteAutomationFeedback))
 	server.DELETE(pathAutomationFeed, handler.requireAutonomyAdmin(handler.RestDeleteAllAutomationFeedback))
 	server.POST(pathControlRuns, handler.RestPostControlRun)
+	server.POST(pathControlRuns+"/from-package", handler.RestPostControlRunFromPackage)
 	server.POST(pathControlRuns+"/:run_id/submit", handler.RestPostControlRunSubmit)
 	server.GET(pathControlRuns, handler.RestGetControlRuns)
 	server.GET(pathControlRuns+"/:run_id", handler.RestGetControlRun)

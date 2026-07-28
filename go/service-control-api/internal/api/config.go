@@ -17,6 +17,7 @@ type ServerConfig struct {
 	LLMCandidatesPath      string
 	PlannerGuardPolicyPath string
 	AppDeployBaseURL       string
+	AppUploadMaxBytes      int64
 	BindAddress            string
 	AutonomyAdminToken     string
 	AgentExecutionTimeout  time.Duration
@@ -57,12 +58,20 @@ func NewServerConfig() ServerConfig {
 	if agentExecutionTimeoutSeconds > 120 {
 		agentExecutionTimeoutSeconds = 120
 	}
+	appUploadMaxBytes := viper.GetInt64("APP_UPLOAD_MAX_BYTES")
+	if appUploadMaxBytes <= 0 {
+		appUploadMaxBytes = 50 << 20
+	}
+	if appUploadMaxBytes > 1<<30 {
+		appUploadMaxBytes = 1 << 30
+	}
 	return ServerConfig{
 		RepoRoot:               repoRoot,
 		OpenAPIPath:            openAPIPath,
 		LLMCandidatesPath:      llmCandidatesPath,
 		PlannerGuardPolicyPath: plannerGuardPolicyPath,
 		AppDeployBaseURL:       viper.GetString("APPDEPLOY_BASE_URL"),
+		AppUploadMaxBytes:      appUploadMaxBytes,
 		BindAddress:            bindAddress,
 		AutonomyAdminToken:     viper.GetString("AUTONOMY_ADMIN_TOKEN"),
 		AgentExecutionTimeout:  time.Duration(agentExecutionTimeoutSeconds) * time.Second,
