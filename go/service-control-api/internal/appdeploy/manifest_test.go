@@ -17,6 +17,88 @@ func TestValidateManifestAcceptsAppDeployContract(t *testing.T) {
 	}
 }
 
+func TestValidateManifestAcceptsDeploymentRequirementsContract(t *testing.T) {
+	requirements := DeploymentRequirements{
+		Runtime:    "gpu",
+		Resources:  ResourceRequirements{CPU: "4", Memory: "8Gi", GPU: "1", Storage: "20Gi"},
+		CostPolicy: "min_cost",
+	}
+	manifest := validManifest()
+	manifest.Spec.Resources = requirements.Resources
+	manifest.Spec.Requirements = &requirements
+
+	if err := ValidateManifest(manifest, ManifestConstraints{
+		AppVersionID:    "appver-test",
+		TargetProfileID: "target-gpu-001",
+		RequestedBy:     "ai-ops-geon-planner",
+		RuntimeType:     "gpu",
+	}); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestValidateManifestRejectsDeploymentRequirementViolations(t *testing.T) {
+	tests := []struct {
+		name     string
+		mutate   func(*DeploymentManifest)
+		contains string
+	}{
+		{
+			name: "gpu runtime without gpu",
+			mutate: func(manifest *DeploymentManifest) {
+				manifest.Spec.Requirements = &DeploymentRequirements{
+					Runtime: "gpu", Resources: ResourceRequirements{CPU: "4", Memory: "8Gi", GPU: "0", Storage: "20Gi"}, CostPolicy: "min_cost",
+				}
+				manifest.Spec.Resources = manifest.Spec.Requirements.Resources
+			},
+			contains: "runtime gpu requires at least one GPU",
+		},
+		{
+			name: "cpu runtime with gpu",
+			mutate: func(manifest *DeploymentManifest) {
+				manifest.Spec.Requirements = &DeploymentRequirements{
+					Runtime: "cpu", Resources: ResourceRequirements{CPU: "4", Memory: "8Gi", GPU: "1", Storage: "20Gi"}, CostPolicy: "min_cost",
+				}
+				manifest.Spec.Resources = manifest.Spec.Requirements.Resources
+			},
+			contains: "runtime cpu requires zero GPUs",
+		},
+		{
+			name: "unknown cost policy",
+			mutate: func(manifest *DeploymentManifest) {
+				manifest.Spec.Requirements = &DeploymentRequirements{
+					Runtime: "gpu", Resources: manifest.Spec.Resources, CostPolicy: "unknown",
+				}
+			},
+			contains: "cost_policy",
+		},
+		{
+			name: "conflicting resources",
+			mutate: func(manifest *DeploymentManifest) {
+				manifest.Spec.Requirements = &DeploymentRequirements{
+					Runtime: "gpu", Resources: ResourceRequirements{CPU: "8", Memory: "8Gi", GPU: "1", Storage: "20Gi"}, CostPolicy: "min_cost",
+				}
+			},
+			contains: "requirements.resources",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			manifest := validManifest()
+			test.mutate(&manifest)
+			err := ValidateManifest(manifest, ManifestConstraints{
+				AppVersionID:    "appver-test",
+				TargetProfileID: "target-gpu-001",
+				RequestedBy:     "ai-ops-geon-planner",
+			})
+			if err == nil || !strings.Contains(err.Error(), test.contains) {
+				t.Fatalf("expected error containing %q, got %v", test.contains, err)
+			}
+		})
+	}
+}
+
 func TestValidateManifestRejectsContractViolations(t *testing.T) {
 	tests := []struct {
 		name     string

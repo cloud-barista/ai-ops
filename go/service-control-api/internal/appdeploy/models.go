@@ -24,12 +24,22 @@ type DeploymentMetadata struct {
 }
 
 type DeploymentSpec struct {
-	AppVersionID    string               `json:"app_version_id"`
-	TargetProfileID string               `json:"target_profile_id,omitempty"`
-	Accelerator     string               `json:"accelerator"`
-	Resources       ResourceRequirements `json:"resources"`
-	RequestedBy     string               `json:"requested_by,omitempty"`
-	Parameters      map[string]any       `json:"parameters,omitempty"`
+	AppVersionID    string                  `json:"app_version_id"`
+	TargetProfileID string                  `json:"target_profile_id,omitempty"`
+	Accelerator     string                  `json:"accelerator"`
+	Resources       ResourceRequirements    `json:"resources"`
+	Requirements    *DeploymentRequirements `json:"requirements,omitempty"`
+	RequestedBy     string                  `json:"requested_by,omitempty"`
+	Parameters      map[string]any          `json:"parameters,omitempty"`
+}
+
+type DeploymentRequirements struct {
+	Runtime     string               `json:"runtime,omitempty"`
+	Resources   ResourceRequirements `json:"resources,omitempty"`
+	Accelerator string               `json:"accelerator,omitempty"`
+	SLO         map[string]any       `json:"slo,omitempty"`
+	CostPolicy  string               `json:"cost_policy,omitempty"`
+	Labels      map[string]string    `json:"labels,omitempty"`
 }
 
 type ResourceRequirements struct {

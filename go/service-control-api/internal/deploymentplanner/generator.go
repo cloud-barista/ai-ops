@@ -12,18 +12,19 @@ import (
 	"kyunghee-aiops/service-control-api/internal/llmclient"
 )
 
-const manifestSystemPrompt = `You are the deployment requirement planner for the KHU AppDeploy API. Convert the user's application requirement into exactly one JSON DeploymentManifest. Do not select a VM, runtime adapter, credential, endpoint, command, container, or Kubernetes resource. Use schema_version deployment.khu.ai/v1alpha1 and kind DeploymentManifest. Preserve the supplied app_version_id and optional target_profile_id exactly. Choose accelerator none or nvidia and provide cpu, memory, gpu, and storage as strings. Return JSON only.`
+const manifestSystemPrompt = `You are the deployment requirement planner for the KHU AppDeploy API. Convert the user's application requirement into exactly one JSON DeploymentManifest. Do not select a VM, runtime adapter, credential, endpoint, command, container, or Kubernetes resource. Use schema_version deployment.khu.ai/v1alpha1 and kind DeploymentManifest. Preserve the supplied app_version_id and optional target_profile_id exactly. Preserve the supplied deployment requirements exactly. Qwen may structure metadata and optional safe parameters, but may not alter the App identity, runtime, resource envelope, or cost policy supplied by geon. Choose accelerator none or nvidia and provide cpu, memory, gpu, and storage as strings. Return JSON only.`
 
 type completionClient interface {
 	Complete(context.Context, llmclient.Candidate, string, string) (llmclient.Completion, error)
 }
 
 type GenerateInput struct {
-	NaturalLanguageRequest string         `json:"natural_language_request"`
-	AppVersionID           string         `json:"app_version_id"`
-	TargetProfileID        string         `json:"target_profile_id,omitempty"`
-	RequestedBy            string         `json:"requested_by"`
-	Parameters             map[string]any `json:"parameters,omitempty"`
+	NaturalLanguageRequest string                            `json:"natural_language_request"`
+	AppVersionID           string                            `json:"app_version_id"`
+	TargetProfileID        string                            `json:"target_profile_id,omitempty"`
+	RequestedBy            string                            `json:"requested_by"`
+	Parameters             map[string]any                    `json:"parameters,omitempty"`
+	Requirements           *appdeploy.DeploymentRequirements `json:"requirements,omitempty"`
 }
 
 type GenerateResult struct {
@@ -73,9 +74,10 @@ func (generator Generator) Generate(ctx context.Context, candidate llmclient.Can
 	}
 
 	promptInput := map[string]any{
-		"natural_language_request": input.NaturalLanguageRequest,
-		"app_version_id":           input.AppVersionID,
-		"target_profile_id":        input.TargetProfileID,
+		"natural_language_request":        input.NaturalLanguageRequest,
+		"app_version_id":                  input.AppVersionID,
+		"target_profile_id":               input.TargetProfileID,
+		"trusted_deployment_requirements": input.Requirements,
 		"required_manifest_shape": map[string]any{
 			"schema_version": appdeploy.ManifestSchemaVersion,
 			"kind":           appdeploy.ManifestKind,
@@ -89,6 +91,7 @@ func (generator Generator) Generate(ctx context.Context, candidate llmclient.Can
 					"gpu":     "non-negative integer string",
 					"storage": "Mi|Gi|Ti quantity",
 				},
+				"requirements": input.Requirements,
 			},
 		},
 	}
@@ -109,13 +112,19 @@ func (generator Generator) Generate(ctx context.Context, candidate llmclient.Can
 		result.GuardReason = "LLM output is not a valid DeploymentManifest JSON object"
 		return result, err
 	}
+	manifest.Spec.AppVersionID = input.AppVersionID
 	manifest.Spec.RequestedBy = input.RequestedBy
 	manifest.Spec.Parameters = copyMap(input.Parameters)
+	if input.Requirements != nil {
+		manifest.Spec.Requirements = cloneRequirements(input.Requirements)
+		manifest.Spec.Resources = input.Requirements.Resources
+	}
 	result.Manifest = manifest
 	if err := appdeploy.ValidateManifest(manifest, appdeploy.ManifestConstraints{
 		AppVersionID:    input.AppVersionID,
 		TargetProfileID: input.TargetProfileID,
 		RequestedBy:     input.RequestedBy,
+		RuntimeType:     runtimeType(input.Requirements),
 	}); err != nil {
 		result.ExecutionStatus = "rejected"
 		result.GuardReason = err.Error()
@@ -125,6 +134,13 @@ func (generator Generator) Generate(ctx context.Context, candidate llmclient.Can
 	result.GuardValid = true
 	result.GuardReason = "deployment manifest matches the AppDeploy contract and trusted request fields"
 	return result, nil
+}
+
+func runtimeType(requirements *appdeploy.DeploymentRequirements) string {
+	if requirements == nil {
+		return ""
+	}
+	return requirements.Runtime
 }
 
 func parseManifest(content string) (appdeploy.DeploymentManifest, error) {
@@ -167,4 +183,19 @@ func copyMap(source map[string]any) map[string]any {
 		result[key] = value
 	}
 	return result
+}
+
+func cloneRequirements(source *appdeploy.DeploymentRequirements) *appdeploy.DeploymentRequirements {
+	if source == nil {
+		return nil
+	}
+	clone := *source
+	clone.SLO = copyMap(source.SLO)
+	if source.Labels != nil {
+		clone.Labels = make(map[string]string, len(source.Labels))
+		for key, value := range source.Labels {
+			clone.Labels[key] = value
+		}
+	}
+	return &clone
 }

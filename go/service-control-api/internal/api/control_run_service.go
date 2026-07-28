@@ -26,6 +26,13 @@ type controlRunDeploymentClient interface {
 	GetDeploymentLogs(context.Context, string) (appdeploy.DeploymentLogsResponse, error)
 }
 
+func controlRunRuntimeType(requirements *appdeploy.DeploymentRequirements) string {
+	if requirements == nil {
+		return ""
+	}
+	return requirements.Runtime
+}
+
 func (service Service) ListControlRuns() []controlrun.Run {
 	return service.controlRuns.List()
 }
@@ -341,6 +348,7 @@ func (service Service) CreateControlRunWithDependencies(
 			"target_profile_id":        request.TargetProfileID,
 			"requested_by":             request.RequestedBy,
 			"parameters":               request.Parameters,
+			"requirements":             request.Requirements,
 		},
 	})
 	dispatchStatus := "approved"
@@ -423,6 +431,7 @@ func (service Service) CreateControlRunWithDependencies(
 		AppVersionID:    request.AppVersionID,
 		TargetProfileID: request.TargetProfileID,
 		RequestedBy:     request.RequestedBy,
+		RuntimeType:     controlRunRuntimeType(request.Requirements),
 	})
 	guardStatus := "approved"
 	guardReason := "DeploymentManifest matches the AppDeploy contract and trusted request fields"

@@ -2,9 +2,11 @@ package deploymentplanner
 
 import (
 	"context"
+	"reflect"
 	"strings"
 	"testing"
 
+	"kyunghee-aiops/service-control-api/internal/appdeploy"
 	"kyunghee-aiops/service-control-api/internal/llmclient"
 )
 
@@ -50,17 +52,44 @@ func TestGeneratorCreatesValidatedDeploymentManifest(t *testing.T) {
 	}
 }
 
+func TestGeneratorPreservesTrustedDeploymentRequirements(t *testing.T) {
+	client := &recordingCompletionClient{content: validManifestJSON("appver-other", "target-gpu-001")}
+	requirements := &appdeploy.DeploymentRequirements{
+		Runtime:    "gpu",
+		Resources:  appdeploy.ResourceRequirements{CPU: "4", Memory: "8Gi", GPU: "1", Storage: "20Gi"},
+		CostPolicy: "min_cost",
+	}
+	result, err := NewGenerator(client).Generate(context.Background(), testCandidate(), GenerateInput{
+		NaturalLanguageRequest: "Deploy the inference service.",
+		AppVersionID:           "appver-test",
+		TargetProfileID:        "target-gpu-001",
+		RequestedBy:            "ai-ops-geon-planner",
+		Requirements:           requirements,
+	})
+	if err != nil {
+		t.Fatalf("generate manifest: %v", err)
+	}
+	if result.Manifest.Spec.AppVersionID != "appver-test" {
+		t.Fatalf("untrusted app_version_id survived: %#v", result.Manifest.Spec)
+	}
+	if result.Manifest.Spec.Requirements == nil || !reflect.DeepEqual(*result.Manifest.Spec.Requirements, *requirements) {
+		t.Fatalf("trusted requirements were not preserved: %#v", result.Manifest.Spec.Requirements)
+	}
+	if result.Manifest.Spec.Resources != requirements.Resources {
+		t.Fatalf("spec resources were not normalized from requirements: %#v", result.Manifest.Spec.Resources)
+	}
+	if !strings.Contains(client.systemPrompt, "Preserve the supplied deployment requirements exactly.") ||
+		!strings.Contains(client.userPrompt, `"cost_policy":"min_cost"`) {
+		t.Fatalf("trusted requirements were not supplied to Qwen: system=%q user=%q", client.systemPrompt, client.userPrompt)
+	}
+}
+
 func TestGeneratorRejectsUntrustedOrMalformedOutput(t *testing.T) {
 	tests := []struct {
 		name     string
 		content  string
 		contains string
 	}{
-		{
-			name:     "app version substitution",
-			content:  validManifestJSON("appver-other", "target-gpu-001"),
-			contains: "app_version_id",
-		},
 		{
 			name:     "target substitution",
 			content:  validManifestJSON("appver-test", "target-other"),
@@ -100,6 +129,25 @@ func TestGeneratorRejectsUntrustedOrMalformedOutput(t *testing.T) {
 			}
 		})
 	}
+}
+
+type recordingCompletionClient struct {
+	content      string
+	systemPrompt string
+	userPrompt   string
+}
+
+func (client *recordingCompletionClient) Complete(_ context.Context, candidate llmclient.Candidate, systemPrompt string, userPrompt string) (llmclient.Completion, error) {
+	client.systemPrompt = systemPrompt
+	client.userPrompt = userPrompt
+	return llmclient.Completion{
+		Status:      "executed",
+		Content:     client.content,
+		LatencyMS:   25,
+		Provider:    candidate.Provider,
+		ActualModel: candidate.ActualModel,
+		CandidateID: candidate.CandidateID,
+	}, nil
 }
 
 func testCandidate() llmclient.Candidate {

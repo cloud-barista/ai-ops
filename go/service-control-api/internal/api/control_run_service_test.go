@@ -6,6 +6,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 
 	"kyunghee-aiops/service-control-api/internal/appdeploy"
@@ -17,6 +18,7 @@ import (
 
 type fakeControlRunManifestGenerator struct {
 	calls  int
+	input  deploymentplanner.GenerateInput
 	result deploymentplanner.GenerateResult
 	err    error
 }
@@ -61,9 +63,10 @@ func (client *fakeControlRunDeploymentClient) GetDeploymentLogs(
 func (generator *fakeControlRunManifestGenerator) Generate(
 	_ context.Context,
 	_ llmclient.Candidate,
-	_ deploymentplanner.GenerateInput,
+	input deploymentplanner.GenerateInput,
 ) (deploymentplanner.GenerateResult, error) {
 	generator.calls++
+	generator.input = input
 	return generator.result, generator.err
 }
 
@@ -436,6 +439,50 @@ func TestActionProposalCorrelationIsAttachedToDeployedControlRun(t *testing.T) {
 		lastStage.Name != "execution_feedback" ||
 		lastStage.Status != "succeeded" {
 		t.Fatalf("Feedback was not attached to the Run timeline: record=%#v run=%#v", record, loaded)
+	}
+}
+
+func TestCreateControlRunRequestOmitsNilRequirements(t *testing.T) {
+	request := CreateControlRunRequest{
+		NaturalLanguageRequest: "Deploy an inference application.",
+		AppVersionID:           "appver-001",
+		CandidateID:            "decision-model",
+	}
+	if request.Requirements != nil {
+		t.Fatalf("nil requirements changed the zero-value request: %#v", request)
+	}
+	content, err := json.Marshal(request)
+	if err != nil {
+		t.Fatalf("marshal request: %v", err)
+	}
+	if string(content) != `{"natural_language_request":"Deploy an inference application.","app_version_id":"appver-001","candidate_id":"decision-model"}` {
+		t.Fatalf("nil requirements changed ControlRun JSON: %s", content)
+	}
+}
+
+func TestCreateControlRunPassesRequirementsToManifestGenerator(t *testing.T) {
+	config := NewServerConfig()
+	service := NewService(config)
+	requirements := &appdeploy.DeploymentRequirements{
+		Runtime:    "cpu",
+		Resources:  appdeploy.ResourceRequirements{CPU: "2", Memory: "4Gi", GPU: "0", Storage: "20Gi"},
+		CostPolicy: "min_cost",
+	}
+	request := validCreateControlRunRequest()
+	request.Requirements = requirements
+	generator := &fakeControlRunManifestGenerator{result: approvedGenerateResult("appver-001")}
+
+	if _, err := service.CreateControlRunWithDependencies(
+		context.Background(),
+		request,
+		writeAutomationCandidateConfig(t, "http://unused.example.test"),
+		config.PlannerGuardPolicyPath,
+		generator,
+	); err != nil {
+		t.Fatalf("create ControlRun: %v", err)
+	}
+	if generator.input.Requirements == nil || !reflect.DeepEqual(*generator.input.Requirements, *requirements) {
+		t.Fatalf("requirements were not passed to the Manifest generator: %#v", generator.input.Requirements)
 	}
 }
 

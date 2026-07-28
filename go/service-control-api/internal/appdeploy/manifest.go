@@ -16,6 +16,7 @@ type ManifestConstraints struct {
 	AppVersionID    string
 	TargetProfileID string
 	RequestedBy     string
+	RuntimeType     string
 }
 
 func ValidateManifest(manifest DeploymentManifest, constraints ManifestConstraints) error {
@@ -56,6 +57,9 @@ func ValidateManifest(manifest DeploymentManifest, constraints ManifestConstrain
 	if err != nil {
 		return fmt.Errorf("spec.resources.gpu must be a non-negative integer string")
 	}
+	if err := validateDeploymentRequirements(manifest.Spec, constraints, gpu); err != nil {
+		return err
+	}
 	if manifest.Spec.Accelerator == "nvidia" && gpu < 1 {
 		return fmt.Errorf("nvidia accelerator requires at least one GPU")
 	}
@@ -64,6 +68,32 @@ func ValidateManifest(manifest DeploymentManifest, constraints ManifestConstrain
 	}
 	if secretKey, ok := findSecretLikeKey(manifest.Spec.Parameters); ok {
 		return fmt.Errorf("spec.parameters contains secret-like key %q", secretKey)
+	}
+	return nil
+}
+
+func validateDeploymentRequirements(spec DeploymentSpec, constraints ManifestConstraints, gpu int) error {
+	requirements := spec.Requirements
+	if requirements == nil {
+		return nil
+	}
+	if requirements.Runtime != "cpu" && requirements.Runtime != "gpu" {
+		return fmt.Errorf("spec.requirements.runtime must be cpu or gpu")
+	}
+	if constraints.RuntimeType != "" && requirements.Runtime != constraints.RuntimeType {
+		return fmt.Errorf("spec.requirements.runtime must match the trusted runtime")
+	}
+	if requirements.Resources != spec.Resources {
+		return fmt.Errorf("spec.requirements.resources must match spec.resources")
+	}
+	if requirements.CostPolicy != "" && requirements.CostPolicy != "min_cost" {
+		return fmt.Errorf("spec.requirements.cost_policy must be empty or min_cost")
+	}
+	if requirements.Runtime == "gpu" && gpu < 1 {
+		return fmt.Errorf("spec.requirements.runtime gpu requires at least one GPU")
+	}
+	if requirements.Runtime == "cpu" && gpu != 0 {
+		return fmt.Errorf("spec.requirements.runtime cpu requires zero GPUs")
 	}
 	return nil
 }

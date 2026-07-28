@@ -63,6 +63,7 @@ func (executor *manifestAgentExecutor) Execute(
 		TargetProfileID:        input.TargetProfileID,
 		RequestedBy:            input.RequestedBy,
 		Parameters:             input.Parameters,
+		Requirements:           input.Requirements,
 	})
 	result.Generation = &generation
 	result.Manifest = &generation.Manifest
