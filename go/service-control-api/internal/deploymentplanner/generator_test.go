@@ -53,11 +53,18 @@ func TestGeneratorCreatesValidatedDeploymentManifest(t *testing.T) {
 }
 
 func TestGeneratorPreservesTrustedDeploymentRequirements(t *testing.T) {
-	client := &recordingCompletionClient{content: validManifestJSON("appver-other", "target-gpu-001")}
+	completion := strings.Replace(
+		validManifestJSON("appver-other", "target-gpu-001"),
+		`"accelerator":"nvidia"`,
+		`"accelerator":""`,
+		1,
+	)
+	client := &recordingCompletionClient{content: completion}
 	requirements := &appdeploy.DeploymentRequirements{
-		Runtime:    "gpu",
-		Resources:  appdeploy.ResourceRequirements{CPU: "4", Memory: "8Gi", GPU: "1", Storage: "20Gi"},
-		CostPolicy: "min_cost",
+		Runtime:     "gpu",
+		Resources:   appdeploy.ResourceRequirements{CPU: "4", Memory: "8Gi", GPU: "1", Storage: "20Gi"},
+		Accelerator: "nvidia",
+		CostPolicy:  "min_cost",
 	}
 	result, err := NewGenerator(client).Generate(context.Background(), testCandidate(), GenerateInput{
 		NaturalLanguageRequest: "Deploy the inference service.",
@@ -77,6 +84,9 @@ func TestGeneratorPreservesTrustedDeploymentRequirements(t *testing.T) {
 	}
 	if result.Manifest.Spec.Resources != requirements.Resources {
 		t.Fatalf("spec resources were not normalized from requirements: %#v", result.Manifest.Spec.Resources)
+	}
+	if result.Manifest.Spec.Accelerator != requirements.Accelerator {
+		t.Fatalf("spec accelerator was not normalized from requirements: %#v", result.Manifest.Spec)
 	}
 	if !strings.Contains(client.systemPrompt, "Preserve the supplied deployment requirements exactly.") ||
 		!strings.Contains(client.userPrompt, `"cost_policy":"min_cost"`) {

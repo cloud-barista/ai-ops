@@ -123,6 +123,7 @@ func (generator Generator) Generate(ctx context.Context, candidate llmclient.Can
 	if input.Requirements != nil {
 		manifest.Spec.Requirements = cloneRequirements(input.Requirements)
 		manifest.Spec.Resources = input.Requirements.Resources
+		manifest.Spec.Accelerator = input.Requirements.Accelerator
 	}
 	result.Manifest = manifest
 	if err := appdeploy.ValidateManifest(manifest, appdeploy.ManifestConstraints{
