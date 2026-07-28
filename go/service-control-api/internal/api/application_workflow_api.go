@@ -23,6 +23,13 @@ var (
 	applicationMemoryQuantity     = regexp.MustCompile(`^[1-9][0-9]*(Mi|Gi|Ti)$`)
 )
 
+// PackageControlRunErrorResponse documents the flat fields returned by either
+// an ErrorResponse before Run creation or a persisted Run after creation.
+type PackageControlRunErrorResponse struct {
+	ErrorResponse
+	controlrun.Run
+}
+
 // RestPostControlRunFromPackage godoc
 // @ID CreateControlRunFromPackage
 // @Summary Package and register an application before generating a guarded DeploymentManifest
@@ -50,10 +57,11 @@ var (
 // @Param storage formData string true "Storage requirement"
 // @Param cost_policy formData string false "Cost policy; empty or min_cost" Enums(min_cost)
 // @Success 201 {object} controlrun.Run "Package and App registered; DeploymentManifest approved"
-// @Failure 400 {object} controlrun.Run "Malformed multipart data, invalid fields, or Request Guard rejection"
+// @Failure 400 {object} PackageControlRunErrorResponse "Malformed multipart or field validation returns api.ErrorResponse; Request Guard rejection returns controlrun.Run"
 // @Failure 403 {object} controlrun.Run "Agent Registry or bounded Action rejection"
 // @Failure 413 {object} ErrorResponse "Upload exceeds AIOPS_APP_UPLOAD_MAX_BYTES"
 // @Failure 422 {object} controlrun.Run "Planner or Manifest Guard rejection with partial results preserved"
+// @Failure 500 {object} PackageControlRunErrorResponse "Pre-ControlRun setup failures return api.ErrorResponse; unexpected ControlRun states return controlrun.Run"
 // @Failure 502 {object} controlrun.Run "AppDeploy Package or App registration failure with available partial results preserved"
 // @Router /api/v1/control-runs/from-package [post]
 func (handler restHandler) RestPostControlRunFromPackage(context echo.Context) error {

@@ -14,7 +14,7 @@ geon Agent Control은 backend `ControlRun`을 중심으로 사용자 요청, Age
 
 ### 1. 사전 확인
 
-- Go가 설치되어 있어야 합니다. Go `1.22` 이상을 권장합니다.
+- Go가 설치되어 있어야 합니다. geon과 최신 AppDeploy 모두 Go `1.25` 이상이 필요합니다.
 - Ollama가 설치되어 있어야 합니다.
 - `qwen3.5:4b` 모델이 Ollama에 준비되어 있어야 합니다.
 - geon 저장소를 로컬에 준비합니다.
@@ -52,7 +52,7 @@ export APPDEPLOY_ROOT="$(git rev-parse --show-toplevel)"
 if [[ -f "$APPDEPLOY_ROOT/AppDeploy/go.mod" ]]; then
   cd "$APPDEPLOY_ROOT/AppDeploy"
   go mod download
-  go run ./cmd/web
+  go run ./cmd/server
 else
   echo "오류: AppDeploy 저장소 내부에서 이 명령을 실행하세요."
 fi
@@ -120,8 +120,11 @@ geon           :18080
 → AppDeploy Package 생성
 → App 등록
 → 발급된 app_version_id 자동 연결
+→ Go Request Guard
+→ Agent Registry
+→ Agent Dispatcher
 → Qwen DeploymentManifest 생성
-→ Go Request Guard 및 Manifest Guard 승인
+→ Go Manifest Guard 승인
 → (별도 요청) AppDeploy 제출
 → 배포 상태와 로그 확인
 ```
@@ -151,7 +154,7 @@ curl -X POST http://127.0.0.1:18080/api/v1/control-runs/from-package \
 
 `source`, `package_type`, `app_name`, `app_version`, `entrypoint`, `runtime_type`, `natural_language_request`, `candidate_id`, `cpu`, `memory`, `gpu`, `storage`는 필수입니다. `service_port`, `healthcheck_path`, `requested_by`, `agent_name`, `target_profile_id`, `cost_policy`는 선택 사항이며, `requested_by`를 생략하면 `ai-agent`를 사용합니다. 기본 업로드 한도는 50 MiB이고 `AIOPS_APP_UPLOAD_MAX_BYTES`로 조정할 수 있습니다. geon은 업로드한 소스 바이트를 ControlRun에 저장하지 않습니다.
 
-성공 시 HTTP `201`과 `MANIFEST_APPROVED` Run을 반환합니다. 잘못된 multipart 또는 필드는 `400`, Agent 권한 거부는 `403`, 업로드 한도 초과는 `413`, Planner 또는 Manifest Guard 거부는 `422`, AppDeploy Package 생성 또는 App 등록 실패는 `502`입니다. 발급된 `app_version_id`는 `request.app_version_id`와 `manifest.spec.app_version_id`에 자동 연결되므로 multipart 필드로 받지 않습니다.
+성공 시 HTTP `201`과 `MANIFEST_APPROVED` Run을 반환합니다. 잘못된 multipart 또는 필드 검증은 `400 api.ErrorResponse`, Run 생성 후 Request Guard 거부는 `400 controlrun.Run`을 반환합니다. Agent 권한 거부는 `403`, 업로드 한도 초과는 `413`, Planner 또는 Manifest Guard 거부는 `422`, Run 생성 전 설정 실패 또는 예상하지 않은 내부 상태는 `500`, AppDeploy Package 생성 또는 App 등록 실패는 `502`입니다. 발급된 `app_version_id`는 `request.app_version_id`와 `manifest.spec.app_version_id`에 자동 연결되므로 multipart 필드로 받지 않습니다.
 
 Package 생성이나 App 등록이 성공한 뒤 후속 Planner 또는 Guard가 실패해도 이미 만들어진 AppDeploy Package와 App은 자동 롤백되거나 삭제되지 않습니다. 응답의 `application`과 `partial_result`에 `artifact_uri`, `archive_name`, `checksum`, `app_id`, `app_version_id` 등 성공한 단계의 식별자가 남습니다. 운영자는 이 식별자로 AppDeploy 상태를 확인하고, 필요할 때 AppDeploy의 별도 삭제 절차를 명시적으로 수행해야 합니다.
 

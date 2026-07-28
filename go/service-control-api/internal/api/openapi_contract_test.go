@@ -173,17 +173,28 @@ func TestGeneratedOpenAPIDocumentsPackageControlRunContract(t *testing.T) {
 		Required bool   `yaml:"required"`
 		Type     string `yaml:"type"`
 	}
+	type schema struct {
+		Ref        string            `yaml:"$ref"`
+		Type       string            `yaml:"type"`
+		Items      *schema           `yaml:"items"`
+		Properties map[string]schema `yaml:"properties"`
+	}
+	type response struct {
+		Description string `yaml:"description"`
+		Schema      schema `yaml:"schema"`
+	}
 	type operation struct {
-		Consumes    []string       `yaml:"consumes"`
-		OperationID string         `yaml:"operationId"`
-		Parameters  []parameter    `yaml:"parameters"`
-		Responses   map[string]any `yaml:"responses"`
+		Consumes    []string            `yaml:"consumes"`
+		OperationID string              `yaml:"operationId"`
+		Parameters  []parameter         `yaml:"parameters"`
+		Responses   map[string]response `yaml:"responses"`
 	}
 	type pathItem struct {
 		Post *operation `yaml:"post"`
 	}
 	type swaggerDocument struct {
-		Paths map[string]pathItem `yaml:"paths"`
+		Definitions map[string]schema   `yaml:"definitions"`
+		Paths       map[string]pathItem `yaml:"paths"`
 	}
 
 	requiredFieldsTemplate := map[string]bool{
@@ -271,9 +282,60 @@ func TestGeneratedOpenAPIDocumentsPackageControlRunContract(t *testing.T) {
 		if len(requiredFields) != 0 {
 			t.Fatalf("generated Swagger %s is missing parameters %v", path, requiredFields)
 		}
-		for _, status := range []string{"201", "400", "403", "413", "422", "502"} {
+		for _, status := range []string{"201", "400", "403", "413", "422", "500", "502"} {
 			if _, ok := fromPackage.Responses[status]; !ok {
 				t.Fatalf("generated Swagger %s is missing response %s", path, status)
+			}
+		}
+
+		const polymorphicErrorRef = "#/definitions/api.PackageControlRunErrorResponse"
+		for _, status := range []string{"400", "500"} {
+			errorResponse := fromPackage.Responses[status]
+			if errorResponse.Schema.Ref != polymorphicErrorRef {
+				t.Fatalf(
+					"generated Swagger %s response %s schema=%q",
+					path,
+					status,
+					errorResponse.Schema.Ref,
+				)
+			}
+			for _, payloadType := range []string{"api.ErrorResponse", "controlrun.Run"} {
+				if !strings.Contains(errorResponse.Description, payloadType) {
+					t.Fatalf(
+						"generated Swagger %s response %s does not explain %s",
+						path,
+						status,
+						payloadType,
+					)
+				}
+			}
+		}
+
+		polymorphicError := document.Definitions["api.PackageControlRunErrorResponse"]
+		for _, property := range []string{"valid", "message", "run_id", "status"} {
+			if _, ok := polymorphicError.Properties[property]; !ok {
+				t.Fatalf(
+					"generated Swagger %s polymorphic error is missing %q",
+					path,
+					property,
+				)
+			}
+		}
+
+		for _, definitionName := range []string{
+			"appdeploy.PackageBuildResponse",
+			"appdeploy.AppRegistrationResponse",
+			"controlrun.ApplicationEvidence",
+		} {
+			appSpec := document.Definitions[definitionName].Properties["app_spec"]
+			if appSpec.Type != "object" || appSpec.Items != nil {
+				t.Fatalf(
+					"generated Swagger %s %s.app_spec type=%q items=%#v",
+					path,
+					definitionName,
+					appSpec.Type,
+					appSpec.Items,
+				)
 			}
 		}
 	}

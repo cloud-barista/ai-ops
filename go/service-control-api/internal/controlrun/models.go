@@ -74,7 +74,7 @@ type AgentExecution struct {
 type ApplicationEvidence struct {
 	Package      *appdeploy.PackageBuildResponse    `json:"package,omitempty"`
 	Registration *appdeploy.AppRegistrationResponse `json:"registration,omitempty"`
-	AppSpec      json.RawMessage                    `json:"app_spec,omitempty"`
+	AppSpec      json.RawMessage                    `json:"app_spec,omitempty" swaggertype:"object"`
 }
 
 type PartialResult struct {

@@ -942,9 +942,9 @@
                         }
                     },
                     "400": {
-                        "description": "Malformed multipart data, invalid fields, or Request Guard rejection",
+                        "description": "Malformed multipart or field validation returns api.ErrorResponse; Request Guard rejection returns controlrun.Run",
                         "schema": {
-                            "$ref": "#/definitions/controlrun.Run"
+                            "$ref": "#/definitions/api.PackageControlRunErrorResponse"
                         }
                     },
                     "403": {
@@ -963,6 +963,12 @@
                         "description": "Planner or Manifest Guard rejection with partial results preserved",
                         "schema": {
                             "$ref": "#/definitions/controlrun.Run"
+                        }
+                    },
+                    "500": {
+                        "description": "Pre-ControlRun setup failures return api.ErrorResponse; unexpected ControlRun states return controlrun.Run",
+                        "schema": {
+                            "$ref": "#/definitions/api.PackageControlRunErrorResponse"
                         }
                     },
                     "502": {
@@ -2188,6 +2194,85 @@
                 }
             }
         },
+        "api.PackageControlRunErrorResponse": {
+            "type": "object",
+            "properties": {
+                "application": {
+                    "$ref": "#/definitions/controlrun.ApplicationEvidence"
+                },
+                "correlation_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deployment": {
+                    "$ref": "#/definitions/appdeploy.DeploymentResponse"
+                },
+                "execution": {
+                    "$ref": "#/definitions/controlrun.AgentExecution"
+                },
+                "generation": {
+                    "$ref": "#/definitions/deploymentplanner.GenerateResult"
+                },
+                "logs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/appdeploy.DeploymentLog"
+                    }
+                },
+                "manifest": {
+                    "$ref": "#/definitions/appdeploy.DeploymentManifest"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Malformed request body: check JSON syntax"
+                },
+                "partial_result": {
+                    "$ref": "#/definitions/controlrun.PartialResult"
+                },
+                "polling": {
+                    "$ref": "#/definitions/deploymentplanner.PollingResult"
+                },
+                "request": {
+                    "$ref": "#/definitions/controlrun.SafeRequest"
+                },
+                "request_guard": {
+                    "$ref": "#/definitions/plannerguard.Decision"
+                },
+                "retry_reason": {
+                    "type": "string"
+                },
+                "retry_recommended": {
+                    "type": "boolean"
+                },
+                "run_id": {
+                    "type": "string"
+                },
+                "selected_agent": {
+                    "$ref": "#/definitions/controlrun.AgentSelection"
+                },
+                "stages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controlrun.Stage"
+                    }
+                },
+                "status": {
+                    "$ref": "#/definitions/controlrun.Status"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean",
+                    "example": false
+                }
+            }
+        },
         "api.ServiceOperationsRequest": {
             "type": "object",
             "required": [
@@ -2503,10 +2588,7 @@
                     "type": "string"
                 },
                 "app_spec": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "object"
                 },
                 "app_version_id": {
                     "type": "string"
@@ -2672,10 +2754,7 @@
             "type": "object",
             "properties": {
                 "app_spec": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "object"
                 },
                 "archive_name": {
                     "type": "string"
@@ -2816,10 +2895,7 @@
             "type": "object",
             "properties": {
                 "app_spec": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "object"
                 },
                 "package": {
                     "$ref": "#/definitions/appdeploy.PackageBuildResponse"

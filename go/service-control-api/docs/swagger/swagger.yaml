@@ -611,6 +611,59 @@ definitions:
       valid:
         type: boolean
     type: object
+  api.PackageControlRunErrorResponse:
+    properties:
+      application:
+        $ref: '#/definitions/controlrun.ApplicationEvidence'
+      correlation_ids:
+        items:
+          type: string
+        type: array
+      created_at:
+        type: string
+      deployment:
+        $ref: '#/definitions/appdeploy.DeploymentResponse'
+      execution:
+        $ref: '#/definitions/controlrun.AgentExecution'
+      generation:
+        $ref: '#/definitions/deploymentplanner.GenerateResult'
+      logs:
+        items:
+          $ref: '#/definitions/appdeploy.DeploymentLog'
+        type: array
+      manifest:
+        $ref: '#/definitions/appdeploy.DeploymentManifest'
+      message:
+        example: 'Malformed request body: check JSON syntax'
+        type: string
+      partial_result:
+        $ref: '#/definitions/controlrun.PartialResult'
+      polling:
+        $ref: '#/definitions/deploymentplanner.PollingResult'
+      request:
+        $ref: '#/definitions/controlrun.SafeRequest'
+      request_guard:
+        $ref: '#/definitions/plannerguard.Decision'
+      retry_reason:
+        type: string
+      retry_recommended:
+        type: boolean
+      run_id:
+        type: string
+      selected_agent:
+        $ref: '#/definitions/controlrun.AgentSelection'
+      stages:
+        items:
+          $ref: '#/definitions/controlrun.Stage'
+        type: array
+      status:
+        $ref: '#/definitions/controlrun.Status'
+      updated_at:
+        type: string
+      valid:
+        example: false
+        type: boolean
+    type: object
   api.ServiceOperationsRequest:
     properties:
       guard_backend:
@@ -826,9 +879,7 @@ definitions:
       app_id:
         type: string
       app_spec:
-        items:
-          type: integer
-        type: array
+        type: object
       app_version_id:
         type: string
       name:
@@ -937,9 +988,7 @@ definitions:
   appdeploy.PackageBuildResponse:
     properties:
       app_spec:
-        items:
-          type: integer
-        type: array
+        type: object
       archive_name:
         type: string
       artifact_uri:
@@ -1032,9 +1081,7 @@ definitions:
   controlrun.ApplicationEvidence:
     properties:
       app_spec:
-        items:
-          type: integer
-        type: array
+        type: object
       package:
         $ref: '#/definitions/appdeploy.PackageBuildResponse'
       registration:
@@ -1980,10 +2027,10 @@ paths:
           schema:
             $ref: '#/definitions/controlrun.Run'
         "400":
-          description: Malformed multipart data, invalid fields, or Request Guard
-            rejection
+          description: Malformed multipart or field validation returns api.ErrorResponse;
+            Request Guard rejection returns controlrun.Run
           schema:
-            $ref: '#/definitions/controlrun.Run'
+            $ref: '#/definitions/api.PackageControlRunErrorResponse'
         "403":
           description: Agent Registry or bounded Action rejection
           schema:
@@ -1996,6 +2043,11 @@ paths:
           description: Planner or Manifest Guard rejection with partial results preserved
           schema:
             $ref: '#/definitions/controlrun.Run'
+        "500":
+          description: Pre-ControlRun setup failures return api.ErrorResponse; unexpected
+            ControlRun states return controlrun.Run
+          schema:
+            $ref: '#/definitions/api.PackageControlRunErrorResponse'
         "502":
           description: AppDeploy Package or App registration failure with available
             partial results preserved

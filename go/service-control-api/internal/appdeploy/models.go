@@ -72,7 +72,7 @@ type PackageBuildResponse struct {
 	ArchiveName string          `json:"archive_name"`
 	SizeBytes   int64           `json:"size_bytes"`
 	Checksum    string          `json:"checksum"`
-	AppSpec     json.RawMessage `json:"app_spec"`
+	AppSpec     json.RawMessage `json:"app_spec" swaggertype:"object"`
 }
 
 type AppRegistrationResponse struct {
@@ -81,7 +81,7 @@ type AppRegistrationResponse struct {
 	AppVersionID string          `json:"app_version_id"`
 	Name         string          `json:"name"`
 	Version      string          `json:"version"`
-	AppSpec      json.RawMessage `json:"app_spec"`
+	AppSpec      json.RawMessage `json:"app_spec" swaggertype:"object"`
 }
 
 type ResourceAllocation struct {
