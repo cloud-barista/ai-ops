@@ -103,6 +103,60 @@ curl http://127.0.0.1:18080/healthz
 
 브라우저에서 `http://127.0.0.1:18080/`을 엽니다.
 
+### 소스 업로드 Package-to-Manifest 워크플로
+
+이 워크플로는 다음 세 프로세스를 함께 사용합니다.
+
+```text
+Ollama + Qwen :11434
+AppDeploy      :8080
+geon           :18080
+```
+
+`POST /api/v1/control-runs/from-package`는 애플리케이션 소스를 multipart로 받아 다음 순서로 처리합니다.
+
+```text
+소스 업로드
+→ AppDeploy Package 생성
+→ App 등록
+→ 발급된 app_version_id 자동 연결
+→ Qwen DeploymentManifest 생성
+→ Go Request Guard 및 Manifest Guard 승인
+→ (별도 요청) AppDeploy 제출
+→ 배포 상태와 로그 확인
+```
+
+예를 들어 GPU 스크립트 애플리케이션은 다음과 같이 요청합니다.
+
+```bash
+curl -X POST http://127.0.0.1:18080/api/v1/control-runs/from-package \
+  -H "Accept: application/json" \
+  -F "source=@./run.sh" \
+  -F "package_type=script" \
+  -F "app_name=geon-package-demo" \
+  -F "app_version=0.1.0" \
+  -F "entrypoint=run.sh" \
+  -F "runtime_type=gpu" \
+  -F "service_port=8080" \
+  -F "healthcheck_path=/healthz" \
+  -F "natural_language_request=GPU 1개로 추론 애플리케이션을 배포해 주세요." \
+  -F "candidate_id=qwen3.5-ops-planner" \
+  -F "target_profile_id=target-hint" \
+  -F "cpu=4" \
+  -F "memory=8Gi" \
+  -F "gpu=1" \
+  -F "storage=20Gi" \
+  -F "cost_policy=min_cost"
+```
+
+`source`, `package_type`, `app_name`, `app_version`, `entrypoint`, `runtime_type`, `natural_language_request`, `candidate_id`, `cpu`, `memory`, `gpu`, `storage`는 필수입니다. `service_port`, `healthcheck_path`, `requested_by`, `agent_name`, `target_profile_id`, `cost_policy`는 선택 사항이며, `requested_by`를 생략하면 `ai-agent`를 사용합니다. 기본 업로드 한도는 50 MiB이고 `AIOPS_APP_UPLOAD_MAX_BYTES`로 조정할 수 있습니다. geon은 업로드한 소스 바이트를 ControlRun에 저장하지 않습니다.
+
+성공 시 HTTP `201`과 `MANIFEST_APPROVED` Run을 반환합니다. 잘못된 multipart 또는 필드는 `400`, Agent 권한 거부는 `403`, 업로드 한도 초과는 `413`, Planner 또는 Manifest Guard 거부는 `422`, AppDeploy Package 생성 또는 App 등록 실패는 `502`입니다. 발급된 `app_version_id`는 `request.app_version_id`와 `manifest.spec.app_version_id`에 자동 연결되므로 multipart 필드로 받지 않습니다.
+
+Package 생성이나 App 등록이 성공한 뒤 후속 Planner 또는 Guard가 실패해도 이미 만들어진 AppDeploy Package와 App은 자동 롤백되거나 삭제되지 않습니다. 응답의 `application`과 `partial_result`에 `artifact_uri`, `archive_name`, `checksum`, `app_id`, `app_version_id` 등 성공한 단계의 식별자가 남습니다. 운영자는 이 식별자로 AppDeploy 상태를 확인하고, 필요할 때 AppDeploy의 별도 삭제 절차를 명시적으로 수행해야 합니다.
+
+Manifest 승인과 실제 제출은 분리되어 있습니다. 새 endpoint도 Manifest를 자동 제출하지 않으며, 기존 `POST /api/v1/control-runs/{run_id}/submit` endpoint를 그대로 사용해야 합니다. `target_profile_id`는 힌트일 뿐이며 최종 Target 선택과 배포 실행은 AppDeploy가 담당합니다.
+
 ### 4. 화면 사용 순서
 
 Manifest Workflow가 첫 화면이자 사용자 진입점입니다. Guide에는 최근 ControlRun과 전체 실험 순서가 있으며, 각 단계를 눌러 해당 화면으로 이동할 수 있습니다. Agent Registry는 ControlRun 안에서 관리되는 내부 단계이고 **Agents & Guard**는 그 capability와 bounded Action을 확인하는 보조 화면입니다.
@@ -158,9 +212,12 @@ Manifest 전용 API와 선택적 제출 API는 다음처럼 분리됩니다.
 
 ```text
 POST /api/v1/control-runs
+POST /api/v1/control-runs/from-package
 GET  /api/v1/control-runs/{run_id}
 POST /api/v1/control-runs/{run_id}/submit
 ```
+
+기존 JSON `POST /api/v1/control-runs`와 별도 submit endpoint의 계약은 변경되지 않습니다.
 
 ### 등록 Agent 실행
 
@@ -410,6 +467,10 @@ go run ./cmd/aiops-service-control run-service-operations \
 | `POST` | `/api/v1/autonomy/cycles` |
 | `GET` | `/api/v1/autonomy/events` |
 | `DELETE` | `/api/v1/autonomy/events` |
+| `POST` | `/api/v1/control-runs` |
+| `POST` | `/api/v1/control-runs/from-package` |
+| `GET` | `/api/v1/control-runs/:run_id` |
+| `POST` | `/api/v1/control-runs/:run_id/submit` |
 | `POST` | `/api/v1/planner/deployments` |
 | `POST` | `/api/v1/service-operations/run` |
 

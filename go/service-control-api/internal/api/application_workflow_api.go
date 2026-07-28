@@ -27,6 +27,7 @@ var (
 // @ID CreateControlRunFromPackage
 // @Summary Package and register an application before generating a guarded DeploymentManifest
 // @Description Accept application source as multipart form data, invoke AppDeploy packaging and registration, then run the existing guarded ControlRun planning workflow.
+// @Description Successful Package and App registration results remain in application and partial_result after a later Planner or Guard failure and are not automatically rolled back. AppDeploy submission remains a separate explicit request.
 // @Tags AI Application Automation
 // @Accept multipart/form-data
 // @Produce json
@@ -40,20 +41,20 @@ var (
 // @Param healthcheck_path formData string false "HTTP healthcheck path"
 // @Param natural_language_request formData string true "Deployment planning request"
 // @Param candidate_id formData string true "Configured Planner candidate"
-// @Param requested_by formData string false "Trusted requester"
+// @Param requested_by formData string false "Trusted requester; defaults to ai-agent" default(ai-agent)
 // @Param agent_name formData string false "Manifest Planner Agent"
-// @Param target_profile_id formData string false "AppDeploy Target hint"
+// @Param target_profile_id formData string false "AppDeploy Target hint; AppDeploy performs final Target selection"
 // @Param cpu formData string true "CPU requirement"
 // @Param memory formData string true "Memory requirement"
 // @Param gpu formData string true "GPU requirement"
 // @Param storage formData string true "Storage requirement"
-// @Param cost_policy formData string false "Cost policy"
-// @Success 201 {object} controlrun.Run
-// @Failure 400 {object} controlrun.Run
-// @Failure 403 {object} controlrun.Run
-// @Failure 413 {object} ErrorResponse
-// @Failure 422 {object} controlrun.Run
-// @Failure 502 {object} controlrun.Run
+// @Param cost_policy formData string false "Cost policy; empty or min_cost" Enums(min_cost)
+// @Success 201 {object} controlrun.Run "Package and App registered; DeploymentManifest approved"
+// @Failure 400 {object} controlrun.Run "Malformed multipart data, invalid fields, or Request Guard rejection"
+// @Failure 403 {object} controlrun.Run "Agent Registry or bounded Action rejection"
+// @Failure 413 {object} ErrorResponse "Upload exceeds AIOPS_APP_UPLOAD_MAX_BYTES"
+// @Failure 422 {object} controlrun.Run "Planner or Manifest Guard rejection with partial results preserved"
+// @Failure 502 {object} controlrun.Run "AppDeploy Package or App registration failure with available partial results preserved"
 // @Router /api/v1/control-runs/from-package [post]
 func (handler restHandler) RestPostControlRunFromPackage(context echo.Context) error {
 	request := context.Request()

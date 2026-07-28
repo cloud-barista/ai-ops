@@ -295,6 +295,8 @@ definitions:
       requested_by:
         example: ai-ops-geon-planner
         type: string
+      requirements:
+        $ref: '#/definitions/appdeploy.DeploymentRequirements'
       target_profile_id:
         example: target-profile-hint
         type: string
@@ -819,6 +821,23 @@ definitions:
     - id
     - source
     type: object
+  appdeploy.AppRegistrationResponse:
+    properties:
+      app_id:
+        type: string
+      app_spec:
+        items:
+          type: integer
+        type: array
+      app_version_id:
+        type: string
+      name:
+        type: string
+      request_id:
+        type: string
+      version:
+        type: string
+    type: object
   appdeploy.DeploymentLog:
     properties:
       component:
@@ -853,6 +872,24 @@ definitions:
     properties:
       name:
         type: string
+    type: object
+  appdeploy.DeploymentRequirements:
+    properties:
+      accelerator:
+        type: string
+      cost_policy:
+        type: string
+      labels:
+        additionalProperties:
+          type: string
+        type: object
+      resources:
+        $ref: '#/definitions/appdeploy.ResourceRequirements'
+      runtime:
+        type: string
+      slo:
+        additionalProperties: {}
+        type: object
     type: object
   appdeploy.DeploymentResponse:
     properties:
@@ -890,10 +927,31 @@ definitions:
         type: object
       requested_by:
         type: string
+      requirements:
+        $ref: '#/definitions/appdeploy.DeploymentRequirements'
       resources:
         $ref: '#/definitions/appdeploy.ResourceRequirements'
       target_profile_id:
         type: string
+    type: object
+  appdeploy.PackageBuildResponse:
+    properties:
+      app_spec:
+        items:
+          type: integer
+        type: array
+      archive_name:
+        type: string
+      artifact_uri:
+        type: string
+      checksum:
+        type: string
+      package_type:
+        type: string
+      request_id:
+        type: string
+      size_bytes:
+        type: integer
     type: object
   appdeploy.PlacementDecision:
     properties:
@@ -971,8 +1029,34 @@ definitions:
       source:
         type: string
     type: object
+  controlrun.ApplicationEvidence:
+    properties:
+      app_spec:
+        items:
+          type: integer
+        type: array
+      package:
+        $ref: '#/definitions/appdeploy.PackageBuildResponse'
+      registration:
+        $ref: '#/definitions/appdeploy.AppRegistrationResponse'
+    type: object
+  controlrun.PartialResult:
+    properties:
+      app_id:
+        type: string
+      app_version_id:
+        type: string
+      archive_name:
+        type: string
+      artifact_uri:
+        type: string
+      checksum:
+        type: string
+    type: object
   controlrun.Run:
     properties:
+      application:
+        $ref: '#/definitions/controlrun.ApplicationEvidence'
       correlation_ids:
         items:
           type: string
@@ -991,6 +1075,8 @@ definitions:
         type: array
       manifest:
         $ref: '#/definitions/appdeploy.DeploymentManifest'
+      partial_result:
+        $ref: '#/definitions/controlrun.PartialResult'
       polling:
         $ref: '#/definitions/deploymentplanner.PollingResult'
       request:
@@ -1051,6 +1137,11 @@ definitions:
     type: object
   controlrun.Status:
     enum:
+    - PACKAGING
+    - PACKAGE_FAILED
+    - REGISTERING_APP
+    - APP_REGISTRATION_FAILED
+    - PLANNING_CANCELED
     - RECEIVED
     - REQUEST_REJECTED
     - AGENT_REJECTED
@@ -1066,6 +1157,11 @@ definitions:
     - RESULT_REJECTED
     type: string
     x-enum-varnames:
+    - StatusPackaging
+    - StatusPackageFailed
+    - StatusRegisteringApp
+    - StatusAppRegistrationFailed
+    - StatusPlanningCanceled
     - StatusReceived
     - StatusRequestRejected
     - StatusAgentRejected
@@ -1778,6 +1874,134 @@ paths:
           schema:
             $ref: '#/definitions/controlrun.Run'
       summary: Submit an approved ControlRun Manifest to AppDeploy
+      tags:
+      - AI Application Automation
+  /api/v1/control-runs/from-package:
+    post:
+      consumes:
+      - multipart/form-data
+      description: |-
+        Accept application source as multipart form data, invoke AppDeploy packaging and registration, then run the existing guarded ControlRun planning workflow.
+        Successful Package and App registration results remain in application and partial_result after a later Planner or Guard failure and are not automatically rolled back. AppDeploy submission remains a separate explicit request.
+      operationId: CreateControlRunFromPackage
+      parameters:
+      - description: Application source file or source archive
+        in: formData
+        name: source
+        required: true
+        type: file
+      - description: Package type
+        in: formData
+        name: package_type
+        required: true
+        type: string
+      - description: Application name
+        in: formData
+        name: app_name
+        required: true
+        type: string
+      - description: Application version
+        in: formData
+        name: app_version
+        required: true
+        type: string
+      - description: Application entrypoint
+        in: formData
+        name: entrypoint
+        required: true
+        type: string
+      - description: 'Runtime type: cpu or gpu'
+        in: formData
+        name: runtime_type
+        required: true
+        type: string
+      - description: Application service port
+        in: formData
+        name: service_port
+        type: integer
+      - description: HTTP healthcheck path
+        in: formData
+        name: healthcheck_path
+        type: string
+      - description: Deployment planning request
+        in: formData
+        name: natural_language_request
+        required: true
+        type: string
+      - description: Configured Planner candidate
+        in: formData
+        name: candidate_id
+        required: true
+        type: string
+      - default: ai-agent
+        description: Trusted requester; defaults to ai-agent
+        in: formData
+        name: requested_by
+        type: string
+      - description: Manifest Planner Agent
+        in: formData
+        name: agent_name
+        type: string
+      - description: AppDeploy Target hint; AppDeploy performs final Target selection
+        in: formData
+        name: target_profile_id
+        type: string
+      - description: CPU requirement
+        in: formData
+        name: cpu
+        required: true
+        type: string
+      - description: Memory requirement
+        in: formData
+        name: memory
+        required: true
+        type: string
+      - description: GPU requirement
+        in: formData
+        name: gpu
+        required: true
+        type: string
+      - description: Storage requirement
+        in: formData
+        name: storage
+        required: true
+        type: string
+      - description: Cost policy; empty or min_cost
+        enum:
+        - min_cost
+        in: formData
+        name: cost_policy
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Package and App registered; DeploymentManifest approved
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+        "400":
+          description: Malformed multipart data, invalid fields, or Request Guard
+            rejection
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+        "403":
+          description: Agent Registry or bounded Action rejection
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+        "413":
+          description: Upload exceeds AIOPS_APP_UPLOAD_MAX_BYTES
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "422":
+          description: Planner or Manifest Guard rejection with partial results preserved
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+        "502":
+          description: AppDeploy Package or App registration failure with available
+            partial results preserved
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+      summary: Package and register an application before generating a guarded DeploymentManifest
       tags:
       - AI Application Automation
   /api/v1/ops-llm/select:

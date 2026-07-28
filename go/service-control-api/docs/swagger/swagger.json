@@ -794,6 +794,186 @@
                 }
             }
         },
+        "/api/v1/control-runs/from-package": {
+            "post": {
+                "description": "Accept application source as multipart form data, invoke AppDeploy packaging and registration, then run the existing guarded ControlRun planning workflow.\nSuccessful Package and App registration results remain in application and partial_result after a later Planner or Guard failure and are not automatically rolled back. AppDeploy submission remains a separate explicit request.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "Package and register an application before generating a guarded DeploymentManifest",
+                "operationId": "CreateControlRunFromPackage",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Application source file or source archive",
+                        "name": "source",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Package type",
+                        "name": "package_type",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Application name",
+                        "name": "app_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Application version",
+                        "name": "app_version",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Application entrypoint",
+                        "name": "entrypoint",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Runtime type: cpu or gpu",
+                        "name": "runtime_type",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Application service port",
+                        "name": "service_port",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "HTTP healthcheck path",
+                        "name": "healthcheck_path",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Deployment planning request",
+                        "name": "natural_language_request",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Configured Planner candidate",
+                        "name": "candidate_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "ai-agent",
+                        "description": "Trusted requester; defaults to ai-agent",
+                        "name": "requested_by",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Manifest Planner Agent",
+                        "name": "agent_name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "AppDeploy Target hint; AppDeploy performs final Target selection",
+                        "name": "target_profile_id",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "CPU requirement",
+                        "name": "cpu",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Memory requirement",
+                        "name": "memory",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "GPU requirement",
+                        "name": "gpu",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Storage requirement",
+                        "name": "storage",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "min_cost"
+                        ],
+                        "type": "string",
+                        "description": "Cost policy; empty or min_cost",
+                        "name": "cost_policy",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Package and App registered; DeploymentManifest approved",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    },
+                    "400": {
+                        "description": "Malformed multipart data, invalid fields, or Request Guard rejection",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    },
+                    "403": {
+                        "description": "Agent Registry or bounded Action rejection",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    },
+                    "413": {
+                        "description": "Upload exceeds AIOPS_APP_UPLOAD_MAX_BYTES",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Planner or Manifest Guard rejection with partial results preserved",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    },
+                    "502": {
+                        "description": "AppDeploy Package or App registration failure with available partial results preserved",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/control-runs/{run_id}": {
             "get": {
                 "produces": [
@@ -1541,6 +1721,9 @@
                 "requested_by": {
                     "type": "string",
                     "example": "ai-ops-geon-planner"
+                },
+                "requirements": {
+                    "$ref": "#/definitions/appdeploy.DeploymentRequirements"
                 },
                 "target_profile_id": {
                     "type": "string",
@@ -2313,6 +2496,32 @@
                 }
             }
         },
+        "appdeploy.AppRegistrationResponse": {
+            "type": "object",
+            "properties": {
+                "app_id": {
+                    "type": "string"
+                },
+                "app_spec": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "app_version_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "request_id": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
         "appdeploy.DeploymentLog": {
             "type": "object",
             "properties": {
@@ -2364,6 +2573,33 @@
             "properties": {
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "appdeploy.DeploymentRequirements": {
+            "type": "object",
+            "properties": {
+                "accelerator": {
+                    "type": "string"
+                },
+                "cost_policy": {
+                    "type": "string"
+                },
+                "labels": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "resources": {
+                    "$ref": "#/definitions/appdeploy.ResourceRequirements"
+                },
+                "runtime": {
+                    "type": "string"
+                },
+                "slo": {
+                    "type": "object",
+                    "additionalProperties": {}
                 }
             }
         },
@@ -2421,11 +2657,43 @@
                 "requested_by": {
                     "type": "string"
                 },
+                "requirements": {
+                    "$ref": "#/definitions/appdeploy.DeploymentRequirements"
+                },
                 "resources": {
                     "$ref": "#/definitions/appdeploy.ResourceRequirements"
                 },
                 "target_profile_id": {
                     "type": "string"
+                }
+            }
+        },
+        "appdeploy.PackageBuildResponse": {
+            "type": "object",
+            "properties": {
+                "app_spec": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "archive_name": {
+                    "type": "string"
+                },
+                "artifact_uri": {
+                    "type": "string"
+                },
+                "checksum": {
+                    "type": "string"
+                },
+                "package_type": {
+                    "type": "string"
+                },
+                "request_id": {
+                    "type": "string"
+                },
+                "size_bytes": {
+                    "type": "integer"
                 }
             }
         },
@@ -2544,9 +2812,49 @@
                 }
             }
         },
+        "controlrun.ApplicationEvidence": {
+            "type": "object",
+            "properties": {
+                "app_spec": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "package": {
+                    "$ref": "#/definitions/appdeploy.PackageBuildResponse"
+                },
+                "registration": {
+                    "$ref": "#/definitions/appdeploy.AppRegistrationResponse"
+                }
+            }
+        },
+        "controlrun.PartialResult": {
+            "type": "object",
+            "properties": {
+                "app_id": {
+                    "type": "string"
+                },
+                "app_version_id": {
+                    "type": "string"
+                },
+                "archive_name": {
+                    "type": "string"
+                },
+                "artifact_uri": {
+                    "type": "string"
+                },
+                "checksum": {
+                    "type": "string"
+                }
+            }
+        },
         "controlrun.Run": {
             "type": "object",
             "properties": {
+                "application": {
+                    "$ref": "#/definitions/controlrun.ApplicationEvidence"
+                },
                 "correlation_ids": {
                     "type": "array",
                     "items": {
@@ -2573,6 +2881,9 @@
                 },
                 "manifest": {
                     "$ref": "#/definitions/appdeploy.DeploymentManifest"
+                },
+                "partial_result": {
+                    "$ref": "#/definitions/controlrun.PartialResult"
                 },
                 "polling": {
                     "$ref": "#/definitions/deploymentplanner.PollingResult"
@@ -2665,6 +2976,11 @@
         "controlrun.Status": {
             "type": "string",
             "enum": [
+                "PACKAGING",
+                "PACKAGE_FAILED",
+                "REGISTERING_APP",
+                "APP_REGISTRATION_FAILED",
+                "PLANNING_CANCELED",
                 "RECEIVED",
                 "REQUEST_REJECTED",
                 "AGENT_REJECTED",
@@ -2680,6 +2996,11 @@
                 "RESULT_REJECTED"
             ],
             "x-enum-varnames": [
+                "StatusPackaging",
+                "StatusPackageFailed",
+                "StatusRegisteringApp",
+                "StatusAppRegistrationFailed",
+                "StatusPlanningCanceled",
                 "StatusReceived",
                 "StatusRequestRejected",
                 "StatusAgentRejected",
