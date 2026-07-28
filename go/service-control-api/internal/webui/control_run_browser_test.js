@@ -5,6 +5,7 @@ const fs = require("node:fs/promises");
 const path = require("node:path");
 const test = require("node:test");
 const { chromium } = require("playwright");
+const { MANIFEST_STAGE_ORDER } = require("./static/manifest_stages.js");
 
 const staticDir = path.join(__dirname, "static");
 
@@ -17,7 +18,11 @@ function controlRun(runID, status, deploymentID, agentName) {
     selected_agent: { name: agentName },
     generation: { actual_model: "qwen", guard_valid: true, latency_ms: 1 },
     deployment: deploymentID ? { deployment_id: deploymentID, target_profile_id: "target-001" } : {},
-    manifest: { spec: { target_profile_id: "target-001" } },
+    manifest: {
+      schema_version: "deployment.khu.ai/v1alpha1",
+      kind: "DeploymentManifest",
+      spec: { target_profile_id: "target-001" },
+    },
     stages: [
       "user_request",
       "request_guard",
@@ -386,11 +391,14 @@ test("AppDeploy-unavailable selected ControlRun retains Manifest stages and auto
 
       const manifest = await page.evaluate(() => ({
         labels: [...document.querySelectorAll("#manifest-stage-flow .manifest-stage strong")].map((entry) => entry.textContent),
+        result: JSON.parse(document.getElementById("planner-json").textContent),
         deploymentID: document.querySelector("#autonomy-form [name='deployment_id']").value,
         postDeployment: document.getElementById("post-deployment-readiness").dataset.status,
         selectedAgent: document.querySelector("#agent-table-body tr[data-selected-agent='true'] strong")?.textContent,
       }));
-      assert.equal(manifest.labels.length, 6);
+      assert.deepEqual(manifest.labels, MANIFEST_STAGE_ORDER.map((stage) => stage.label));
+      assert.equal(manifest.result.manifest.kind, "DeploymentManifest");
+      assert.equal(manifest.result.manifest.spec.target_profile_id, "target-001");
       assert.equal(manifest.deploymentID, "");
       assert.equal(manifest.postDeployment, "blocked");
       assert.equal(manifest.selectedAgent, "AIApplicationAutomationAgent");

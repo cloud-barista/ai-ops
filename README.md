@@ -115,7 +115,7 @@ curl http://127.0.0.1:18080/healthz
 
 - Ops 분석 시험 및 최적 LLM 선정 흐름
 - AI LLM 운영 관리 구조 설계 및 검증
-- Agent Registry를 실제 Planner 선택·권한 검증 진입점으로 사용
+- Agent Registry를 실제 Planner 선택·권한 검증을 수행하는 내부 단계로 사용
 - Agent Dispatcher로 내장 Agent와 등록 Runtime Agent의 공통 실행 계약 제공
 - `AIApplicationAutomationAgent`를 기본 Manifest Planner 프로필로 등록·관리
 - 등록 Runtime Agent endpoint를 실행 전·후 Guard와 함께 bounded HTTP 요청 1건으로 호출
