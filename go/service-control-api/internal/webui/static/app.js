@@ -1141,8 +1141,7 @@ function bindEvents() {
   byID("autonomy-form").addEventListener("submit", submitAutonomyConfig);
   byID("autonomy-run-id").addEventListener("change", (event) => {
     const run = state.controlRuns.find((entry) => entry.run_id === event.currentTarget.value);
-    if (!run) return;
-    setActiveControlRun(run);
+    setActiveControlRun(run || null);
   });
   byID("autonomy-start").addEventListener("click", () => runAutonomyControl(API.autonomyStart, "Autonomy loop를 시작했습니다."));
   byID("autonomy-stop").addEventListener("click", () => runAutonomyControl(API.autonomyStop, "Autonomy loop를 중지했습니다."));
