@@ -921,6 +921,56 @@ textarea:focus-visible {
   margin-top: 16px;
 }
 
+.automatic-feedback-summary {
+  padding: 12px 17px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-muted);
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.executor-feedback-disclosure {
+  margin-top: 16px;
+  overflow: hidden;
+}
+
+.executor-feedback-disclosure > summary {
+  display: flex;
+  min-height: 65px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 17px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.executor-feedback-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.executor-feedback-disclosure > summary > span {
+  display: grid;
+  gap: 3px;
+}
+
+.executor-feedback-disclosure > summary > i {
+  transition: transform 140ms ease;
+}
+
+.executor-feedback-disclosure[open] > summary {
+  border-bottom: 1px solid var(--line);
+}
+
+.executor-feedback-disclosure[open] > summary > i {
+  transform: rotate(180deg);
+}
+
+.executor-feedback-disclosure .split-layout {
+  padding: 16px;
+}
+
 .empty-state,
 .empty-cell {
   color: var(--ink-muted);

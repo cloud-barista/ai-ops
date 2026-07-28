@@ -18,7 +18,7 @@ function controlRun(runID, status, deploymentID, agentName) {
     generation: { actual_model: "qwen", guard_valid: true, latency_ms: 1 },
     deployment: deploymentID ? { deployment_id: deploymentID, target_profile_id: "target-001" } : {},
     manifest: { spec: { target_profile_id: "target-001" } },
-    stages: [{ name: "user_request", status: "approved", reason: "accepted" }],
+    stages: [{ name: "user_request", status: "approved", reason: "accepted", started_at: "2026-07-28T00:00:00Z" }],
     logs: [],
   };
 }
@@ -37,6 +37,14 @@ async function browserPage() {
   const agents = [
     { name: "PlannerAgent", source: "internal", role: "planner", capabilities: ["plan"], bounded_actions: [], enabled: true },
     { name: "SafetyAgent", source: "internal", role: "guard", capabilities: ["validate"], bounded_actions: [], enabled: true },
+  ];
+  let feedback = [
+    { correlation_id: "feedback-deployed", run_id: "run-deployed", executor: "AppDeployExecutorAgent", status: "succeeded", message: "deployment completed", received_at: "2026-07-28T00:01:00Z" },
+    { correlation_id: "feedback-other", run_id: "run-approved", executor: "AppDeployExecutorAgent", status: "failed", message: "other run only", received_at: "2026-07-28T00:02:00Z" },
+  ];
+  let autonomyEvents = [
+    { sequence: 1, run_id: "run-deployed", stage: "observe", status: "completed", reason: "healthy", timestamp: "2026-07-28T00:03:00Z" },
+    { sequence: 2, run_id: "run-approved", stage: "observe", status: "failed", reason: "other run only", timestamp: "2026-07-28T00:04:00Z" },
   ];
 
   const browser = await chromium.launch({ headless: true, channel: "chrome" });
@@ -89,7 +97,11 @@ async function browserPage() {
       return;
     }
     if (pathname === "/api/v1/autonomy/events") {
-      await route.fulfill({ contentType: "application/json", body: JSON.stringify({ events: [] }) });
+      await route.fulfill({ contentType: "application/json", body: JSON.stringify({ events: autonomyEvents }) });
+      return;
+    }
+    if (pathname === "/api/v1/automation/feedback" && method === "GET") {
+      await route.fulfill({ contentType: "application/json", body: JSON.stringify({ feedback }) });
       return;
     }
     const match = pathname.match(/^\/api\/v1\/control-runs\/([^/]+)$/);
@@ -237,6 +249,40 @@ test("ControlRun selection clears and gates Post-deployment controls through the
     assert.equal(cleared.readiness, "blocked");
     assert.equal(cleared.deploymentID, "");
     assert.equal(cleared.saveDisabled, true);
+  } finally {
+    await browser.close();
+  }
+});
+
+test("Feedback projects only active ControlRun evidence through the production browser UI", async () => {
+  const { browser, page } = await browserPage();
+  try {
+    await page.locator(".nav-item[data-view-target='feedback']").click();
+    await page.waitForFunction(() => document.querySelector("[data-view='feedback']").hidden === false);
+    await page.waitForFunction(() => {
+      const projection = JSON.parse(document.getElementById("automatic-feedback-json").textContent);
+      return projection.executor_feedback?.length === 1 && projection.autonomy_events?.length === 1;
+    });
+
+    const initial = await page.evaluate(() => ({
+      selectedRunID: document.getElementById("feedback-run-id").value,
+      summary: document.getElementById("automatic-feedback-summary").textContent,
+      entries: [...document.querySelectorAll("#automatic-feedback-list strong")].map((entry) => entry.textContent),
+      projection: JSON.parse(document.getElementById("automatic-feedback-json").textContent),
+    }));
+    assert.equal(initial.selectedRunID, "run-deployed");
+    assert.match(initial.summary, /run-deployed/);
+    assert.deepEqual(initial.entries, ["user_request", "execution_feedback", "observe"]);
+    assert.equal(initial.projection.executor_feedback.length, 1);
+    assert.equal(initial.projection.autonomy_events.length, 1);
+    assert.equal(initial.projection.entries.every((entry) => entry.details.run_id === "run-deployed" || entry.source === "control_run"), true);
+
+    await page.locator("#feedback-run-id").selectOption("run-approved");
+    await page.waitForFunction(() => state.activeRunID === "run-approved");
+    const selected = await page.evaluate(() => JSON.parse(document.getElementById("automatic-feedback-json").textContent));
+    assert.equal(selected.run.run_id, "run-approved");
+    assert.deepEqual(selected.executor_feedback.map((record) => record.correlation_id), ["feedback-other"]);
+    assert.deepEqual(selected.autonomy_events.map((event) => event.sequence), [2]);
   } finally {
     await browser.close();
   }

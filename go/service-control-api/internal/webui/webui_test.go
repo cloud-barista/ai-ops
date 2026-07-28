@@ -251,6 +251,37 @@ func TestControlAppConnectsSelectedRunAcrossRegistryAndPostDeployment(t *testing
 	}
 }
 
+func TestControlAppSeparatesAutomaticFeedbackFromExecutorCallback(t *testing.T) {
+	server := echo.New()
+	Register(server)
+
+	html := requestBody(t, server, "/")
+	for _, expected := range []string{
+		`id="automatic-feedback-summary"`,
+		`id="automatic-feedback-list"`,
+		`id="automatic-feedback-json"`,
+		`id="external-feedback-disclosure"`,
+		`External Executor Callback Test`,
+	} {
+		if !strings.Contains(html, expected) {
+			t.Fatalf("expected automatic Feedback HTML contract %q", expected)
+		}
+	}
+
+	javascript := requestBody(t, server, "/assets/app.js")
+	for _, expected := range []string{
+		`function automaticFeedbackEntries`,
+		`function renderAutomaticRunFeedback`,
+		`function loadFeedbackView`,
+		`record.run_id === run.run_id`,
+		`event.run_id === run.run_id`,
+	} {
+		if !strings.Contains(javascript, expected) {
+			t.Fatalf("expected automatic Feedback JavaScript contract %q", expected)
+		}
+	}
+}
+
 func TestControlAppShowsManifestStagesInExecutionOrder(t *testing.T) {
 	server := echo.New()
 	Register(server)

@@ -34,6 +34,7 @@ const state = {
   activeRunID: "",
   lastPlannerRun: null,
   feedbackRecords: [],
+  autonomyEvents: [],
   activeView: "planner",
   autonomyTimer: null,
   autonomyConfigLoaded: false,
@@ -139,7 +140,7 @@ function switchView(viewName) {
     stopAutonomyPolling();
   }
   if (viewName === "feedback") {
-    void loadAutomationFeedback().catch((error) => showToast(error.message, "error"));
+    void loadFeedbackView().catch((error) => showToast(error.message, "error"));
   }
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -286,6 +287,7 @@ function setActiveControlRun(run) {
   syncRunLinkedForms(run);
   renderAgents();
   renderPostDeploymentReadiness(run);
+  renderAutomaticRunFeedback(run);
 }
 
 function renderManifestStageFlow(run) {
@@ -390,6 +392,15 @@ function populateAutonomyRunOptions() {
     .filter((run) => run.status === "DEPLOYED" && run.deployment?.deployment_id)
     .forEach((run) => select.append(new Option(`${run.run_id} · ${run.deployment.deployment_id}`, run.run_id)));
   if ([...select.options].some((option) => option.value === current)) select.value = current;
+}
+
+function populateFeedbackRunOptions(run) {
+  const select = byID("feedback-run-id");
+  select.replaceChildren(new Option("Select a ControlRun", ""));
+  state.controlRuns.forEach((entry) => {
+    select.append(new Option(`${entry.run_id} | ${text(entry.status)}`, entry.run_id));
+  });
+  select.value = run?.run_id || "";
 }
 
 async function loadControlRuns() {
@@ -506,12 +517,14 @@ async function submitPlanner(event) {
     const payload = await apiRequest(API.controlRuns, { method: "POST", body: JSON.stringify(body) });
     setActiveControlRun(payload);
     await loadControlRuns();
+    await loadFeedbackView().catch(() => {});
     showToast(`Manifest 생성 완료: ${text(payload.status)}`, payload.status === "MANIFEST_APPROVED" ? "success" : "warning");
   } catch (error) {
     const payload = error.payload || { valid: false, message: error.message };
     if (payload.run_id) setActiveControlRun(payload);
     else renderPlanner(payload);
     await loadControlRuns().catch(() => {});
+    await loadFeedbackView().catch(() => {});
     showToast(error.message, "error");
   } finally {
     setBusy(form, false);
@@ -541,10 +554,12 @@ async function submitPlannerRun() {
     });
     setActiveControlRun(payload);
     await loadControlRuns();
+    await loadFeedbackView().catch(() => {});
     showToast(`AppDeploy 제출 완료: ${text(payload.deployment?.deployment_id)}`, "success");
   } catch (error) {
     if (error.payload?.run_id) setActiveControlRun(error.payload);
     await loadControlRuns().catch(() => {});
+    await loadFeedbackView().catch(() => {});
     showToast(error.message, "error");
   } finally {
     button.textContent = originalLabel;
@@ -761,7 +776,7 @@ async function submitFeedback(event) {
   try {
     const payload = await apiRequest(API.feedback, { method: "POST", body: JSON.stringify(body) });
     byID("feedback-json").textContent = pretty(payload);
-    await loadAutomationFeedback();
+    await loadFeedbackView();
     await loadControlRuns().catch(() => {});
     showToast("Feedback가 기록되었습니다.", "success");
   } catch (error) {
@@ -805,10 +820,99 @@ function renderAutomationFeedback(payload) {
   if (window.lucide) window.lucide.createIcons();
 }
 
+function automaticFeedbackEntries(run) {
+  if (!run) return [];
+  const stageEntries = (run.stages || []).map((stage) => ({
+    source: "control_run",
+    stage: stage.name,
+    status: stage.status,
+    reason: stage.reason,
+    timestamp: stage.ended_at || stage.started_at,
+    details: stage.details || {},
+  }));
+  const executorEntries = state.feedbackRecords
+    .filter((record) => record.run_id === run.run_id)
+    .map((record) => ({
+      source: "executor_feedback",
+      stage: "execution_feedback",
+      status: record.status,
+      reason: record.message,
+      timestamp: record.received_at,
+      details: record,
+    }));
+  const autonomyEntries = state.autonomyEvents
+    .filter((event) => event.run_id === run.run_id)
+    .map((event) => ({
+      source: "autonomy",
+      stage: event.stage,
+      status: event.status,
+      reason: event.reason,
+      timestamp: event.timestamp,
+      details: event,
+    }));
+  return [...stageEntries, ...executorEntries, ...autonomyEntries]
+    .sort((left, right) => String(left.timestamp).localeCompare(String(right.timestamp)));
+}
+
+function renderAutomaticRunFeedback(run) {
+  const summary = byID("automatic-feedback-summary");
+  const list = byID("automatic-feedback-list");
+  const output = byID("automatic-feedback-json");
+  populateFeedbackRunOptions(run);
+  list.replaceChildren();
+  if (!run) {
+    summary.textContent = "No ControlRun selected.";
+    list.append(createElement("p", "empty-state", "Select a ControlRun to inspect its evidence."));
+    output.textContent = pretty({});
+    return;
+  }
+
+  const guardState = run.generation?.guard_valid === true ? "approved" : run.generation?.guard_valid === false ? "rejected" : "-";
+  summary.textContent = [
+    `Run ${text(run.run_id)}`,
+    `Status ${text(run.status)}`,
+    `App version ${text(run.request?.app_version_id)}`,
+    `Agent ${text(run.selected_agent?.name)}`,
+    `Model ${text(run.generation?.actual_model)}`,
+    `Manifest Guard ${guardState}`,
+    `Deployment ${text(run.deployment?.deployment_id)}`,
+    `Logs ${(run.logs || []).length}`,
+  ].join(" | ");
+  const executorFeedback = state.feedbackRecords.filter((record) => record.run_id === run.run_id);
+  const autonomyEvents = state.autonomyEvents.filter((event) => event.run_id === run.run_id);
+  const entries = automaticFeedbackEntries(run);
+  entries.forEach((entry) => {
+    const row = createElement("div", "activity-item automatic-feedback-entry");
+    const marker = createElement("span", "activity-marker");
+    marker.dataset.status = String(entry.status || "unknown").toLowerCase();
+    const body = createElement("div", "");
+    body.append(createElement("strong", "", text(entry.stage)));
+    body.append(createElement("span", "", `${text(entry.source)} | ${text(entry.status)} | ${text(entry.reason)}`));
+    const time = document.createElement("time");
+    time.dateTime = entry.timestamp || "";
+    time.textContent = displayTimestamp(entry.timestamp);
+    row.append(marker, body, time);
+    list.append(row);
+  });
+  if (entries.length === 0) list.append(createElement("p", "empty-state", "No evidence is available for this ControlRun."));
+  output.textContent = pretty({ run, executor_feedback: executorFeedback, autonomy_events: autonomyEvents, entries });
+}
+
 async function loadAutomationFeedback() {
   const payload = await apiRequest(API.feedback);
   renderAutomationFeedback(payload);
   return payload;
+}
+
+async function loadFeedbackView() {
+  const [feedbackPayload, autonomyPayload] = await Promise.all([
+    apiRequest(API.feedback),
+    apiRequest(API.autonomyEvents),
+  ]);
+  state.feedbackRecords = Array.isArray(feedbackPayload.feedback) ? feedbackPayload.feedback : [];
+  state.autonomyEvents = Array.isArray(autonomyPayload.events) ? autonomyPayload.events : [];
+  renderAutomationFeedback(feedbackPayload);
+  renderAutomaticRunFeedback(activeControlRun());
 }
 
 async function deleteAutomationFeedback(correlationID, button) {
@@ -816,7 +920,7 @@ async function deleteAutomationFeedback(correlationID, button) {
   button.disabled = true;
   try {
     await apiRequest(`${API.feedback}/${encodeURIComponent(correlationID)}`, { method: "DELETE" });
-    await loadAutomationFeedback();
+    await loadFeedbackView();
     showToast("Feedback 기록을 삭제했습니다.", "success");
   } catch (error) {
     showToast(error.message, "error");
@@ -830,7 +934,7 @@ async function clearAutomationFeedback() {
   button.disabled = true;
   try {
     const payload = await apiRequest(API.feedback, { method: "DELETE" });
-    renderAutomationFeedback(payload);
+    await loadFeedbackView();
     showToast(`${Number(payload.deleted_count || 0)}개의 Feedback 기록을 삭제했습니다.`, "success");
   } catch (error) {
     showToast(error.message, "error");
@@ -945,6 +1049,7 @@ function renderAutonomyStatus(payload, forceFormSync = false) {
 
 function renderAutonomyEvents(payload) {
   const timeline = byID("autonomy-timeline");
+  state.autonomyEvents = Array.isArray(payload.events) ? payload.events : [];
   const events = Array.isArray(payload.events) ? [...payload.events].reverse() : [];
   timeline.replaceChildren();
   if (events.length === 0) {
@@ -1083,7 +1188,7 @@ async function refreshDashboard() {
   try {
     const requests = [loadHealth(), loadAgents(), loadControlRuns()];
     if (state.activeView === "autonomy") requests.push(loadAutonomy());
-    if (state.activeView === "feedback") requests.push(loadAutomationFeedback());
+    if (state.activeView === "feedback") requests.push(loadFeedbackView());
     await Promise.all(requests);
     byID("last-updated").textContent = new Date().toLocaleString("ko-KR", { hour12: false });
   } catch (error) {
@@ -1132,6 +1237,10 @@ function bindEvents() {
   byID("action-form").addEventListener("submit", submitAction);
   byID("action-validation-form").addEventListener("submit", submitActionValidation);
   byID("feedback-form").addEventListener("submit", submitFeedback);
+  byID("feedback-run-id").addEventListener("change", (event) => {
+    const run = state.controlRuns.find((entry) => entry.run_id === event.currentTarget.value);
+    setActiveControlRun(run || null);
+  });
   byID("feedback-record-list").addEventListener("click", (event) => {
     const button = event.target.closest("[data-delete-feedback]");
     if (!button) return;

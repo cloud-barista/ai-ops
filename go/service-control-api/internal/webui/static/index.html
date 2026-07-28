@@ -312,8 +312,22 @@
           <div><p class="section-label">EXECUTION FEEDBACK</p><h2>Feedback</h2></div>
           <span class="scope-badge">correlation based</span>
         </div>
+        <section class="panel automatic-feedback-panel" aria-labelledby="automatic-feedback-title">
+          <div class="panel-header">
+            <div><p class="section-label">CONTROL RUN EVIDENCE</p><h3 id="automatic-feedback-title">Automatic Run Feedback</h3></div>
+            <select id="feedback-run-id" aria-label="Feedback ControlRun"></select>
+          </div>
+          <div class="automatic-feedback-summary" id="automatic-feedback-summary">No ControlRun selected.</div>
+          <div class="activity-list" id="automatic-feedback-list"></div>
+          <pre class="json-output" id="automatic-feedback-json">{}</pre>
+        </section>
+        <details class="panel executor-feedback-disclosure" id="external-feedback-disclosure">
+          <summary>
+            <span><span class="section-label">ADVANCED TEST</span><strong>External Executor Callback Test</strong></span>
+            <i data-lucide="chevron-down" aria-hidden="true"></i>
+          </summary>
         <div class="split-layout feedback-layout">
-          <section class="panel form-panel" aria-labelledby="feedback-form-title">
+          <section class="form-panel" aria-labelledby="feedback-form-title">
             <div class="panel-header"><div><p class="section-label">RECORD</p><h3 id="feedback-form-title">실행 결과 기록</h3></div></div>
             <form id="feedback-form" class="form-grid">
               <label class="field full"><span>Correlation ID</span><input name="correlation_id" placeholder="corr-..." required></label>
@@ -326,14 +340,15 @@
               <div class="form-actions full"><button class="button button-primary" type="submit"><i data-lucide="save" aria-hidden="true"></i><span>Feedback 기록</span></button></div>
             </form>
           </section>
-          <section class="panel result-panel" aria-labelledby="feedback-result-title">
+          <section class="result-panel" aria-labelledby="feedback-result-title">
             <div class="panel-header"><div><p class="section-label">RESPONSE</p><h3 id="feedback-result-title">기록 결과</h3></div><button class="icon-button" type="button" data-copy-target="feedback-json" title="JSON 복사" aria-label="Feedback JSON 복사"><i data-lucide="copy" aria-hidden="true"></i></button></div>
             <pre class="json-output tall" id="feedback-json">아직 Feedback 기록이 없습니다.</pre>
           </section>
         </div>
+        </details>
         <section class="panel feedback-records-panel" aria-labelledby="feedback-records-title">
           <div class="panel-header">
-            <div><p class="section-label">GEON RECORDS</p><h3 id="feedback-records-title">Recorded Feedback</h3></div>
+            <div><p class="section-label">EXTERNAL EXECUTOR</p><h3 id="feedback-records-title">Verified Executor Feedback</h3></div>
             <button class="icon-button danger-icon" id="clear-feedback-records" type="button" title="Feedback 전체 삭제" aria-label="Feedback 전체 삭제"><i data-lucide="trash-2" aria-hidden="true"></i></button>
           </div>
           <div class="activity-list feedback-record-list" id="feedback-record-list"><p class="empty-state">기록된 Feedback이 없습니다.</p></div>
