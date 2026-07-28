@@ -359,6 +359,34 @@ func TestControlAppShowsManifestStagesInExecutionOrder(t *testing.T) {
 	}
 }
 
+func TestControlAppManifestStagesUseReadableKorean(t *testing.T) {
+	server := echo.New()
+	Register(server)
+
+	javascript := requestBody(t, server, "/assets/manifest_stages.js")
+	for _, expected := range []string{
+		"사용자 요청",
+		"Agent 실행",
+		"이전 단계에서 중단",
+		"대기 중",
+	} {
+		if !strings.Contains(javascript, expected) {
+			t.Fatalf("expected readable Korean Manifest stage text %q", expected)
+		}
+	}
+
+	for _, corrupted := range []string{
+		"?ъ슜???붿껌",
+		"Agent ?ㅽ뻾",
+		"?댁쟾 ?④퀎?먯꽌 以묐떒",
+		"?湲?以?",
+	} {
+		if strings.Contains(javascript, corrupted) {
+			t.Fatalf("unexpected corrupted Manifest stage text %q", corrupted)
+		}
+	}
+}
+
 func TestControlAppRendersManifestStagesFromSelectedControlRun(t *testing.T) {
 	server := echo.New()
 	Register(server)

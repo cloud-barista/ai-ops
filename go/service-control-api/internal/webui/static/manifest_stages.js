@@ -2,15 +2,15 @@
 
 (function registerManifestStages(root) {
   const MANIFEST_STAGE_ORDER = Object.freeze([
-    { key: "user_request", label: "?ъ슜???붿껌" },
+    { key: "user_request", label: "사용자 요청" },
     { key: "request_guard", label: "Request Guard" },
     { key: "agent_registry", label: "Agent Registry" },
-    { key: "agent_dispatch", label: "Agent ?ㅽ뻾" },
+    { key: "agent_dispatch", label: "Agent 실행" },
     { key: "qwen_planner", label: "Qwen Planner" },
     { key: "manifest_guard", label: "Manifest Guard" },
   ]);
-  const BLOCKED_STAGE_REASON = "?댁쟾 ?④퀎?먯꽌 以묐떒";
-  const PENDING_STAGE_REASON = "?湲?以?";
+  const BLOCKED_STAGE_REASON = "이전 단계에서 중단";
+  const PENDING_STAGE_REASON = "대기 중";
 
   function buildManifestStageViewModel(run) {
     const stages = new Map((run?.stages || []).map((stage) => [stage.name, stage]));
