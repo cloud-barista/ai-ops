@@ -222,6 +222,35 @@ func TestControlAppStartsWithManifestWorkflow(t *testing.T) {
 	}
 }
 
+func TestControlAppConnectsSelectedRunAcrossRegistryAndPostDeployment(t *testing.T) {
+	server := echo.New()
+	Register(server)
+
+	html := requestBody(t, server, "/")
+	for _, expected := range []string{
+		`id="selected-run-id"`,
+		`id="selected-planner-agent"`,
+		`id="post-deployment-readiness"`,
+	} {
+		if !strings.Contains(html, expected) {
+			t.Fatalf("expected active ControlRun HTML contract %q", expected)
+		}
+	}
+
+	javascript := requestBody(t, server, "/assets/app.js")
+	for _, expected := range []string{
+		`const ACTIVE_RUN_KEY`,
+		`function setActiveControlRun`,
+		`function activeControlRun`,
+		`function renderPostDeploymentReadiness`,
+		`data-selected-agent`,
+	} {
+		if !strings.Contains(javascript, expected) {
+			t.Fatalf("expected active ControlRun JavaScript contract %q", expected)
+		}
+	}
+}
+
 func TestControlAppShowsManifestStagesInExecutionOrder(t *testing.T) {
 	server := echo.New()
 	Register(server)

@@ -1145,6 +1145,23 @@ textarea:focus-visible {
   gap: 8px;
 }
 
+.readiness-banner {
+  margin: 0 0 14px;
+  border-left: 3px solid var(--amber);
+  background: var(--amber-soft);
+  color: #684a12;
+  padding: 9px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.readiness-banner[data-status="ready"] {
+  border-left-color: var(--teal);
+  background: var(--teal-soft);
+  color: var(--teal);
+}
+
 .autonomy-layout {
   display: grid;
   grid-template-columns: minmax(420px, 0.9fr) minmax(440px, 1.1fr);
@@ -1402,6 +1419,18 @@ th {
 
 td {
   font-size: 12px;
+}
+
+tr[data-selected-agent="true"] td {
+  background: var(--teal-soft);
+}
+
+.selected-agent-label {
+  display: block;
+  margin-top: 3px;
+  color: var(--teal);
+  font-size: 10px;
+  font-weight: 750;
 }
 
 th:nth-child(1) { width: 17%; }

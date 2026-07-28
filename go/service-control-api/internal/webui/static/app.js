@@ -17,6 +17,7 @@ const API = Object.freeze({
 });
 
 const APP_VERSION_KEY = "geon-agent-control-app-version-id";
+const ACTIVE_RUN_KEY = "geon-agent-control-active-run-id";
 const VIEW_LABELS = Object.freeze({
   planner: ["USER REQUEST TO GUARDED MANIFEST", "Manifest Workflow"],
   agents: ["AGENT REGISTRY AND GO GUARD", "Agents & Guard"],
@@ -189,11 +190,14 @@ function renderAgents() {
     return;
   }
 
+  const selectedAgent = activeControlRun()?.selected_agent?.name || "";
   state.agents.forEach((agent) => {
     const row = document.createElement("tr");
+    row.setAttribute("data-selected-agent", String(agent.name === selectedAgent));
     const nameCell = document.createElement("td");
     nameCell.append(createElement("strong", "", text(agent.name)));
     if (agent.korean_name) nameCell.append(createElement("small", "table-subtitle", agent.korean_name));
+    if (agent.name === selectedAgent) nameCell.append(createElement("small", "selected-agent-label", "selected by active Run"));
     row.append(nameCell);
     const source = createElement("span", "mini-badge", agent.source === "runtime" ? "external" : "internal");
     const sourceCell = document.createElement("td");
@@ -255,6 +259,35 @@ function controlRunRows(payload) {
   return [];
 }
 
+function activeControlRun() {
+  return state.controlRuns.find((run) => run.run_id === state.activeRunID) || null;
+}
+
+function isDeployedRun(run) {
+  return Boolean(
+    run &&
+    run.status === "DEPLOYED" &&
+    run.deployment?.deployment_id,
+  );
+}
+
+function setActiveControlRun(run) {
+  const existingRunIndex = state.controlRuns.findIndex((entry) => entry.run_id === run?.run_id);
+  if (existingRunIndex >= 0) state.controlRuns[existingRunIndex] = run;
+  state.activeRunID = run?.run_id || "";
+  state.lastPlannerRun = run || null;
+  if (state.activeRunID) {
+    localStorage.setItem(ACTIVE_RUN_KEY, state.activeRunID);
+  } else {
+    localStorage.removeItem(ACTIVE_RUN_KEY);
+  }
+  renderControlRunTimeline(run);
+  renderPlanner(run);
+  syncRunLinkedForms(run);
+  renderAgents();
+  renderPostDeploymentReadiness(run);
+}
+
 function renderManifestStageFlow(run) {
   const flow = byID("manifest-stage-flow");
   flow.replaceChildren();
@@ -296,14 +329,12 @@ function renderControlRunTimeline(run) {
 }
 
 function syncRunLinkedForms(run) {
-  if (!run) return;
+  const ready = isDeployedRun(run);
   const actionRunInput = byID("action-form").elements.run_id;
-  if (actionRunInput) actionRunInput.value = run.status === "DEPLOYED" ? run.run_id : "";
+  if (actionRunInput) actionRunInput.value = ready ? run.run_id : "";
   const autonomyForm = byID("autonomy-form");
-  if (run.status === "DEPLOYED" && run.deployment?.deployment_id) {
-    autonomyForm.elements.run_id.value = run.run_id;
-    autonomyForm.elements.deployment_id.value = run.deployment.deployment_id;
-  }
+  autonomyForm.elements.run_id.value = ready ? run.run_id : "";
+  autonomyForm.elements.deployment_id.value = ready ? run.deployment.deployment_id : "";
 }
 
 function renderControlRuns(payload = state.controlRuns) {
@@ -313,9 +344,8 @@ function renderControlRuns(payload = state.controlRuns) {
   list.replaceChildren();
   if (runs.length === 0) {
     list.append(createElement("p", "empty-state", "서버에 저장된 ControlRun이 없습니다."));
-    renderManifestStageFlow(null);
-    renderControlRunTimeline(null);
     populateAutonomyRunOptions();
+    setActiveControlRun(null);
     return;
   }
   runs.forEach((run) => {
@@ -345,11 +375,10 @@ function renderControlRuns(payload = state.controlRuns) {
     list.append(item);
   });
   populateAutonomyRunOptions();
-  const selected = runs.find((run) => run.run_id === state.activeRunID) || runs[0];
-  if (selected) {
-    state.activeRunID = selected.run_id;
-    renderControlRunTimeline(selected);
-  }
+  const remembered = localStorage.getItem(ACTIVE_RUN_KEY);
+  const selected = runs.find((run) => run.run_id === remembered) || runs[0] || null;
+  if (remembered && !runs.some((run) => run.run_id === remembered)) localStorage.removeItem(ACTIVE_RUN_KEY);
+  setActiveControlRun(selected);
   if (window.lucide) window.lucide.createIcons();
 }
 
@@ -371,11 +400,7 @@ async function loadControlRuns() {
 
 async function selectControlRun(runID) {
   const run = await apiRequest(`${API.controlRuns}/${encodeURIComponent(runID)}`);
-  state.activeRunID = run.run_id;
-  state.lastPlannerRun = run;
-  renderControlRunTimeline(run);
-  renderPlanner(run);
-  syncRunLinkedForms(run);
+  setActiveControlRun(run);
 }
 
 async function deleteControlRun(runID, button) {
@@ -384,8 +409,7 @@ async function deleteControlRun(runID, button) {
   try {
     await apiRequest(`${API.controlRuns}/${encodeURIComponent(runID)}`, { method: "DELETE" });
     if (state.activeRunID === runID) {
-      state.activeRunID = "";
-      state.lastPlannerRun = null;
+      setActiveControlRun(null);
     }
     await loadControlRuns();
     showToast("ControlRun 기록을 삭제했습니다.", "success");
@@ -401,8 +425,7 @@ async function clearControlRuns() {
   button.disabled = true;
   try {
     const payload = await apiRequest(API.controlRuns, { method: "DELETE" });
-    state.activeRunID = "";
-    state.lastPlannerRun = null;
+    setActiveControlRun(null);
     renderControlRuns(payload);
     showToast(`${Number(payload.deleted_count || 0)}개의 ControlRun 기록을 삭제했습니다.`, "success");
   } catch (error) {
@@ -414,9 +437,11 @@ async function clearControlRuns() {
 
 function renderPlanner(payload) {
   renderManifestStageFlow(payload);
-  if (payload?.run_id) {
-    state.lastPlannerRun = payload;
-    state.activeRunID = payload.run_id;
+  if (!payload) {
+    byID("planner-empty").hidden = false;
+    byID("planner-summary").hidden = true;
+    byID("planner-submit").disabled = true;
+    return;
   }
   byID("planner-empty").hidden = true;
   byID("planner-summary").hidden = false;
@@ -436,8 +461,6 @@ function renderPlanner(payload) {
   byID("planner-json").textContent = pretty(payload);
   const submitButton = byID("planner-submit");
   submitButton.disabled = !["MANIFEST_APPROVED", "APPDEPLOY_FAILED"].includes(status);
-  renderControlRunTimeline(payload);
-  syncRunLinkedForms(payload);
 }
 
 function renderAction(payload) {
@@ -481,12 +504,13 @@ async function submitPlanner(event) {
   setBusy(form, true, "Qwen 판단 중...");
   try {
     const payload = await apiRequest(API.controlRuns, { method: "POST", body: JSON.stringify(body) });
-    renderPlanner(payload);
+    setActiveControlRun(payload);
     await loadControlRuns();
     showToast(`Manifest 생성 완료: ${text(payload.status)}`, payload.status === "MANIFEST_APPROVED" ? "success" : "warning");
   } catch (error) {
     const payload = error.payload || { valid: false, message: error.message };
-    renderPlanner(payload);
+    if (payload.run_id) setActiveControlRun(payload);
+    else renderPlanner(payload);
     await loadControlRuns().catch(() => {});
     showToast(error.message, "error");
   } finally {
@@ -495,7 +519,7 @@ async function submitPlanner(event) {
 }
 
 async function submitPlannerRun() {
-  const run = state.lastPlannerRun;
+  const run = activeControlRun() || state.lastPlannerRun;
   if (!run?.run_id) {
     showToast("먼저 DeploymentManifest를 생성해 주세요.", "warning");
     return;
@@ -515,11 +539,11 @@ async function submitPlannerRun() {
       method: "POST",
       body: JSON.stringify(body),
     });
-    renderPlanner(payload);
+    setActiveControlRun(payload);
     await loadControlRuns();
     showToast(`AppDeploy 제출 완료: ${text(payload.deployment?.deployment_id)}`, "success");
   } catch (error) {
-    if (error.payload?.run_id) renderPlanner(error.payload);
+    if (error.payload?.run_id) setActiveControlRun(error.payload);
     await loadControlRuns().catch(() => {});
     showToast(error.message, "error");
   } finally {
@@ -831,11 +855,34 @@ async function deleteRuntimeAgent(name, button) {
 function setAutonomyBusy(busy) {
   state.autonomyBusy = busy;
   const status = state.autonomyStatus || {};
-  byID("autonomy-start").disabled = busy || Boolean(status.running);
-  byID("autonomy-stop").disabled = busy || !status.running;
-  ["autonomy-run-cycle", "autonomy-emergency-stop", "autonomy-refresh", "clear-autonomy-events"].forEach((id) => { byID(id).disabled = busy; });
+  const ready = isDeployedRun(activeControlRun());
+  byID("autonomy-start").disabled = !ready || busy || Boolean(status.running);
+  byID("autonomy-stop").disabled = !ready || busy || !status.running;
+  ["autonomy-run-cycle", "autonomy-emergency-stop", "autonomy-refresh", "clear-autonomy-events"].forEach((id) => { byID(id).disabled = !ready || busy; });
   const submit = byID("autonomy-form").querySelector('button[type="submit"]');
-  submit.disabled = busy || Boolean(status.running);
+  submit.disabled = !ready || busy || Boolean(status.running);
+}
+
+function renderPostDeploymentReadiness(run) {
+  const ready = isDeployedRun(run);
+  const banner = byID("post-deployment-readiness");
+  banner.dataset.status = ready ? "ready" : "blocked";
+  banner.textContent = ready
+    ? `${run.run_id} · ${run.deployment.deployment_id} 연결됨`
+    : "먼저 승인된 Manifest를 AppDeploy에 제출하고 배포 완료 상태를 확인하세요.";
+
+  const form = byID("autonomy-form");
+  form.elements.run_id.value = ready ? run.run_id : "";
+  form.elements.deployment_id.value = ready ? run.deployment.deployment_id : "";
+  form.querySelectorAll("button").forEach((button) => {
+    button.disabled = !ready || state.autonomyBusy;
+  });
+  const status = state.autonomyStatus || {};
+  byID("autonomy-start").disabled = !ready || state.autonomyBusy || Boolean(status.running);
+  byID("autonomy-stop").disabled = !ready || state.autonomyBusy || !status.running;
+  ["autonomy-run-cycle", "autonomy-emergency-stop", "autonomy-refresh", "clear-autonomy-events"].forEach((id) => {
+    byID(id).disabled = !ready || state.autonomyBusy;
+  });
 }
 
 function syncAutonomyForm(config) {
@@ -892,10 +939,8 @@ function renderAutonomyStatus(payload, forceFormSync = false) {
   byID("autonomy-guard-status").textContent = text(guard.status);
   byID("autonomy-execution-status").textContent = text(execution.status);
   byID("autonomy-latest-json").textContent = pretty(payload.latest_event || { status: "no_event" });
-  byID("autonomy-start").disabled = state.autonomyBusy || Boolean(payload.running);
-  byID("autonomy-stop").disabled = state.autonomyBusy || !payload.running;
-  byID("autonomy-form").querySelector('button[type="submit"]').disabled = state.autonomyBusy || Boolean(payload.running);
   if (forceFormSync || !state.autonomyConfigLoaded) syncAutonomyForm(config);
+  renderPostDeploymentReadiness(activeControlRun());
 }
 
 function renderAutonomyEvents(payload) {
@@ -1097,10 +1142,7 @@ function bindEvents() {
   byID("autonomy-run-id").addEventListener("change", (event) => {
     const run = state.controlRuns.find((entry) => entry.run_id === event.currentTarget.value);
     if (!run) return;
-    state.activeRunID = run.run_id;
-    byID("autonomy-form").elements.deployment_id.value = run.deployment?.deployment_id || "";
-    byID("action-form").elements.run_id.value = run.run_id;
-    renderControlRunTimeline(run);
+    setActiveControlRun(run);
   });
   byID("autonomy-start").addEventListener("click", () => runAutonomyControl(API.autonomyStart, "Autonomy loop를 시작했습니다."));
   byID("autonomy-stop").addEventListener("click", () => runAutonomyControl(API.autonomyStop, "Autonomy loop를 중지했습니다."));
