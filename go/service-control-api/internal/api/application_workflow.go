@@ -329,12 +329,12 @@ func projectSafeApplicationAppSpec(appSpec json.RawMessage) (json.RawMessage, er
 	if err := ensureJSONDocumentEnded(decoder); err != nil {
 		return nil, err
 	}
-	if containsUnsafeApplicationAppSpecContent(appSpec) {
-		return nil, fmt.Errorf("app_spec contains credential-like or private-key content")
-	}
 	content, err := json.Marshal(evidence)
 	if err != nil {
 		return nil, fmt.Errorf("encode safe app_spec evidence: %w", err)
+	}
+	if containsUnsafeApplicationAppSpecContent(content) {
+		return nil, fmt.Errorf("app_spec contains credential-like or private-key content")
 	}
 	return json.RawMessage(content), nil
 }
@@ -356,6 +356,8 @@ func containsUnsafeApplicationAppSpecContent(appSpec json.RawMessage) bool {
 		"-----begin private key-----",
 		"-----begin rsa private key-----",
 		"-----begin ec private key-----",
+		"-----begin openssh private key-----",
+		"-----begin encrypted private key-----",
 		"aws_secret_access_key",
 		"authorization: bearer",
 		"api_key=",

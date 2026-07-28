@@ -251,6 +251,28 @@ func TestCreateControlRunFromPackageRejectsUnsafeAppSpecBeforePersistence(t *tes
 			wantStatus:      controlrun.StatusAppRegistrationFailed,
 			wantCalls:       1,
 		},
+		{
+			name:           "JSON-escaped token marker in package response",
+			packageAppSpec: json.RawMessage(`{"kind":"AIApp","metadata":{"description":"token\u003descaped-package-secret"}}`),
+			forbidden:      []string{"token=escaped-package-secret", "escaped-package-secret"},
+			wantStatus:     controlrun.StatusPackageFailed,
+			wantCalls:      0,
+		},
+		{
+			name:            "OpenSSH private key in registration response",
+			packageAppSpec:  json.RawMessage(`{"kind":"AIApp","metadata":{"name":"demo"}}`),
+			registrationApp: json.RawMessage(`{"kind":"AIApp","metadata":{"description":"-----BEGIN OPENSSH PRIVATE KEY-----\nopenssh-registration-secret\n-----END OPENSSH PRIVATE KEY-----"}}`),
+			forbidden:       []string{"BEGIN OPENSSH PRIVATE KEY", "openssh-registration-secret"},
+			wantStatus:      controlrun.StatusAppRegistrationFailed,
+			wantCalls:       1,
+		},
+		{
+			name:           "encrypted private key in package response",
+			packageAppSpec: json.RawMessage(`{"kind":"AIApp","metadata":{"description":"-----BEGIN ENCRYPTED PRIVATE KEY-----\nencrypted-package-secret\n-----END ENCRYPTED PRIVATE KEY-----"}}`),
+			forbidden:      []string{"BEGIN ENCRYPTED PRIVATE KEY", "encrypted-package-secret"},
+			wantStatus:     controlrun.StatusPackageFailed,
+			wantCalls:      0,
+		},
 	}
 
 	for _, test := range tests {
