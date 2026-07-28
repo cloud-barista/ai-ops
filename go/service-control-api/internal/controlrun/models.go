@@ -16,6 +16,7 @@ const (
 	StatusPackageFailed         Status = "PACKAGE_FAILED"
 	StatusRegisteringApp        Status = "REGISTERING_APP"
 	StatusAppRegistrationFailed Status = "APP_REGISTRATION_FAILED"
+	StatusPlanningCanceled      Status = "PLANNING_CANCELED"
 	StatusReceived              Status = "RECEIVED"
 	StatusRequestRejected       Status = "REQUEST_REJECTED"
 	StatusAgentRejected         Status = "AGENT_REJECTED"

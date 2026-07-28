@@ -161,6 +161,23 @@ func cloneRun(source Run) Run {
 func cloneManifest(source appdeploy.DeploymentManifest) appdeploy.DeploymentManifest {
 	result := source
 	result.Spec.Parameters = cloneMap(source.Spec.Parameters)
+	if source.Spec.Requirements != nil {
+		requirements := *source.Spec.Requirements
+		requirements.SLO = cloneMap(source.Spec.Requirements.SLO)
+		requirements.Labels = cloneStringMap(source.Spec.Requirements.Labels)
+		result.Spec.Requirements = &requirements
+	}
+	return result
+}
+
+func cloneStringMap(source map[string]string) map[string]string {
+	if source == nil {
+		return nil
+	}
+	result := make(map[string]string, len(source))
+	for key, value := range source {
+		result[key] = value
+	}
 	return result
 }
 

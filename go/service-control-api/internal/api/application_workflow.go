@@ -1,9 +1,12 @@
 package api
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"strings"
 
 	"kyunghee-aiops/service-control-api/internal/appdeploy"
 	"kyunghee-aiops/service-control-api/internal/controlrun"
@@ -20,6 +23,72 @@ type CreatePackageControlRunInput struct {
 	Package      appdeploy.PackageUpload
 	Planner      CreateControlRunRequest
 	Requirements appdeploy.DeploymentRequirements
+}
+
+type applicationAppSpecEvidence struct {
+	SchemaVersion string                      `json:"schema_version,omitempty"`
+	Kind          string                      `json:"kind,omitempty"`
+	Metadata      *applicationAppSpecMetadata `json:"metadata,omitempty"`
+	Artifact      *applicationAppSpecArtifact `json:"artifact,omitempty"`
+	Entrypoint    *applicationAppEntrypoint   `json:"entrypoint,omitempty"`
+	Runtime       *applicationAppRuntime      `json:"runtime,omitempty"`
+	Resources     *applicationAppResources    `json:"resources,omitempty"`
+	ModelRefs     []applicationAppModelRef    `json:"model_refs,omitempty"`
+	Network       *applicationAppNetwork      `json:"network,omitempty"`
+	Healthcheck   *applicationAppHealthcheck  `json:"healthcheck,omitempty"`
+}
+
+type applicationAppSpecMetadata struct {
+	Name        string `json:"name,omitempty"`
+	Version     string `json:"version,omitempty"`
+	Description string `json:"description,omitempty"`
+}
+
+type applicationAppSpecArtifact struct {
+	Type     string `json:"type,omitempty"`
+	URI      string `json:"uri,omitempty"`
+	Checksum string `json:"checksum,omitempty"`
+}
+
+type applicationAppEntrypoint struct {
+	Command    string   `json:"command,omitempty"`
+	Args       []string `json:"args,omitempty"`
+	WorkingDir string   `json:"working_dir,omitempty"`
+}
+
+type applicationAppRuntime struct {
+	Type        string `json:"type,omitempty"`
+	Accelerator string `json:"accelerator,omitempty"`
+}
+
+type applicationAppResources struct {
+	CPU     string `json:"cpu,omitempty"`
+	Memory  string `json:"memory,omitempty"`
+	GPU     string `json:"gpu,omitempty"`
+	Storage string `json:"storage,omitempty"`
+}
+
+type applicationAppModelRef struct {
+	Name      string `json:"name,omitempty"`
+	Version   string `json:"version,omitempty"`
+	URI       string `json:"uri,omitempty"`
+	MountPath string `json:"mount_path,omitempty"`
+}
+
+type applicationAppNetwork struct {
+	Ports []applicationAppPort `json:"ports,omitempty"`
+}
+
+type applicationAppPort struct {
+	Name     string `json:"name,omitempty"`
+	AppPort  int    `json:"app_port,omitempty"`
+	Protocol string `json:"protocol,omitempty"`
+}
+
+type applicationAppHealthcheck struct {
+	Type    string `json:"type,omitempty"`
+	Path    string `json:"path,omitempty"`
+	Command string `json:"command,omitempty"`
 }
 
 func (service Service) CreateControlRunFromPackage(
@@ -92,8 +161,8 @@ func (service Service) createControlRunFromPackageWithDependencies(
 			run.Stages = append(run.Stages, completedControlRunStage(
 				"package_build",
 				"rejected",
-				packageErr.Error(),
-				nil,
+				"AppDeploy package build failed",
+				map[string]any{"code": "PACKAGE_BUILD_FAILED"},
 			))
 			return nil
 		})
@@ -103,7 +172,31 @@ func (service Service) createControlRunFromPackageWithDependencies(
 		return run, fmt.Errorf("build application package: %w", packageErr)
 	}
 
+	safePackageAppSpec, appSpecErr := projectSafeApplicationAppSpec(packageResult.AppSpec)
 	packageEvidence := clonePackageBuildResponse(packageResult)
+	packageEvidence.AppSpec = safePackageAppSpec
+	if appSpecErr != nil {
+		run, err = service.controlRuns.Update(run.RunID, func(run *controlrun.Run) error {
+			run.Status = controlrun.StatusPackageFailed
+			run.Application = &controlrun.ApplicationEvidence{Package: &packageEvidence}
+			run.PartialResult = &controlrun.PartialResult{
+				ArtifactURI: packageEvidence.ArtifactURI,
+				ArchiveName: packageEvidence.ArchiveName,
+				Checksum:    packageEvidence.Checksum,
+			}
+			run.Stages = append(run.Stages, completedControlRunStage(
+				"package_build",
+				"rejected",
+				"AppDeploy package AppSpec rejected by evidence policy",
+				map[string]any{"code": "PACKAGE_APP_SPEC_REJECTED"},
+			))
+			return nil
+		})
+		if err != nil {
+			return run, err
+		}
+		return run, fmt.Errorf("validate package AppSpec: %w", appSpecErr)
+	}
 	run, err = service.controlRuns.Update(run.RunID, func(run *controlrun.Run) error {
 		run.Status = controlrun.StatusRegisteringApp
 		run.Application = &controlrun.ApplicationEvidence{
@@ -131,15 +224,15 @@ func (service Service) createControlRunFromPackageWithDependencies(
 		return run, err
 	}
 
-	registration, registrationErr := provisioner.RegisterApp(ctx, packageEvidence.AppSpec)
+	registration, registrationErr := provisioner.RegisterApp(ctx, packageResult.AppSpec)
 	if registrationErr != nil {
 		run, err = service.controlRuns.Update(run.RunID, func(run *controlrun.Run) error {
 			run.Status = controlrun.StatusAppRegistrationFailed
 			run.Stages = append(run.Stages, completedControlRunStage(
 				"app_registration",
 				"rejected",
-				registrationErr.Error(),
-				nil,
+				"AppDeploy app registration failed",
+				map[string]any{"code": "APP_REGISTRATION_FAILED"},
 			))
 			return nil
 		})
@@ -149,8 +242,30 @@ func (service Service) createControlRunFromPackageWithDependencies(
 		return run, fmt.Errorf("register application: %w", registrationErr)
 	}
 
+	safeRegistrationAppSpec, registrationAppSpecErr := projectOptionalSafeApplicationAppSpec(registration.AppSpec)
 	registrationEvidence := cloneAppRegistrationResponse(registration)
+	registrationEvidence.AppSpec = safeRegistrationAppSpec
 	input.Planner.AppVersionID = registrationEvidence.AppVersionID
+	if registrationAppSpecErr != nil {
+		run, err = service.controlRuns.Update(run.RunID, func(run *controlrun.Run) error {
+			run.Status = controlrun.StatusAppRegistrationFailed
+			run.Request.AppVersionID = registrationEvidence.AppVersionID
+			run.Application.Registration = &registrationEvidence
+			run.PartialResult.AppID = registrationEvidence.AppID
+			run.PartialResult.AppVersionID = registrationEvidence.AppVersionID
+			run.Stages = append(run.Stages, completedControlRunStage(
+				"app_registration",
+				"rejected",
+				"AppDeploy registration AppSpec rejected by evidence policy",
+				map[string]any{"code": "APP_REGISTRATION_APP_SPEC_REJECTED"},
+			))
+			return nil
+		})
+		if err != nil {
+			return run, err
+		}
+		return run, fmt.Errorf("validate registration AppSpec: %w", registrationAppSpecErr)
+	}
 	run, err = service.controlRuns.Update(run.RunID, func(run *controlrun.Run) error {
 		run.Status = controlrun.StatusReceived
 		run.Request.AppVersionID = registrationEvidence.AppVersionID
@@ -192,4 +307,67 @@ func cloneAppRegistrationResponse(source appdeploy.AppRegistrationResponse) appd
 	result := source
 	result.AppSpec = append(json.RawMessage(nil), source.AppSpec...)
 	return result
+}
+
+func projectOptionalSafeApplicationAppSpec(appSpec json.RawMessage) (json.RawMessage, error) {
+	if len(strings.TrimSpace(string(appSpec))) == 0 {
+		return nil, nil
+	}
+	return projectSafeApplicationAppSpec(appSpec)
+}
+
+func projectSafeApplicationAppSpec(appSpec json.RawMessage) (json.RawMessage, error) {
+	if len(strings.TrimSpace(string(appSpec))) == 0 {
+		return nil, fmt.Errorf("app_spec is required")
+	}
+	decoder := json.NewDecoder(bytes.NewReader(appSpec))
+	decoder.DisallowUnknownFields()
+	var evidence applicationAppSpecEvidence
+	if err := decoder.Decode(&evidence); err != nil {
+		return nil, fmt.Errorf("app_spec contains a field outside the evidence allowlist: %w", err)
+	}
+	if err := ensureJSONDocumentEnded(decoder); err != nil {
+		return nil, err
+	}
+	if containsUnsafeApplicationAppSpecContent(appSpec) {
+		return nil, fmt.Errorf("app_spec contains credential-like or private-key content")
+	}
+	content, err := json.Marshal(evidence)
+	if err != nil {
+		return nil, fmt.Errorf("encode safe app_spec evidence: %w", err)
+	}
+	return json.RawMessage(content), nil
+}
+
+func ensureJSONDocumentEnded(decoder *json.Decoder) error {
+	var trailing any
+	if err := decoder.Decode(&trailing); err != io.EOF {
+		if err == nil {
+			return fmt.Errorf("app_spec must contain one JSON document")
+		}
+		return fmt.Errorf("decode trailing app_spec content: %w", err)
+	}
+	return nil
+}
+
+func containsUnsafeApplicationAppSpecContent(appSpec json.RawMessage) bool {
+	content := strings.ToLower(string(appSpec))
+	markers := []string{
+		"-----begin private key-----",
+		"-----begin rsa private key-----",
+		"-----begin ec private key-----",
+		"aws_secret_access_key",
+		"authorization: bearer",
+		"api_key=",
+		"password=",
+		"private_key=",
+		"secret=",
+		"token=",
+	}
+	for _, marker := range markers {
+		if strings.Contains(content, marker) {
+			return true
+		}
+	}
+	return false
 }

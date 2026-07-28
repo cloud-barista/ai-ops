@@ -269,7 +269,7 @@ func (service Service) CreateControlRunWithDependencies(
 
 func normalizeCreateControlRunRequest(request CreateControlRunRequest) CreateControlRunRequest {
 	if strings.TrimSpace(request.RequestedBy) == "" {
-		request.RequestedBy = "ai-ops-geon-planner"
+		request.RequestedBy = "ai-agent"
 	}
 	return request
 }
@@ -304,17 +304,30 @@ func (service Service) continueGuardedManifestPlanning(
 	guardPolicyPath string,
 	generator controlRunManifestGenerator,
 ) (controlrun.Run, error) {
-	if err := ensureContext(ctx); err != nil {
-		return controlrun.Run{}, err
-	}
-	if generator == nil {
-		return controlrun.Run{}, fmt.Errorf("deployment Manifest generator is required")
-	}
-	request = normalizeCreateControlRunRequest(request)
 	run, ok := service.controlRuns.Get(runID)
 	if !ok {
 		return controlrun.Run{}, fmt.Errorf("ControlRun was not found: %s", runID)
 	}
+	if err := ensureContext(ctx); err != nil {
+		run, updateErr := service.controlRuns.Update(run.RunID, func(run *controlrun.Run) error {
+			run.Status = controlrun.StatusPlanningCanceled
+			run.Stages = append(run.Stages, completedControlRunStage(
+				"guarded_planning",
+				"canceled",
+				"Guarded Manifest planning canceled",
+				map[string]any{"code": "PLANNING_CANCELED"},
+			))
+			return nil
+		})
+		if updateErr != nil {
+			return run, updateErr
+		}
+		return run, fmt.Errorf("guarded Manifest planning canceled: %w", err)
+	}
+	if generator == nil {
+		return run, fmt.Errorf("deployment Manifest generator is required")
+	}
+	request = normalizeCreateControlRunRequest(request)
 	policy, err := plannerguard.LoadPolicy(guardPolicyPath)
 	if err != nil {
 		return service.rejectControlRun(run.RunID, controlrun.StatusRequestRejected, "request_guard", err.Error(), nil)

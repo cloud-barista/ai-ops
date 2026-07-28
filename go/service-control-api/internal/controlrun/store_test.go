@@ -21,12 +21,33 @@ func TestStoreApplicationEvidenceReturnsIsolatedCopies(t *testing.T) {
 
 	updated, err := store.Update(created.RunID, func(run *Run) error {
 		run.Status = StatusManifestApproved
+		manifestRequirements := &appdeploy.DeploymentRequirements{
+			Runtime:    "cpu",
+			CostPolicy: "min_cost",
+			SLO:        map[string]any{"latency": map[string]any{"p99_ms": 250}},
+			Labels:     map[string]string{"team": "aiops"},
+		}
 		run.Manifest = appdeploy.DeploymentManifest{
 			SchemaVersion: appdeploy.ManifestSchemaVersion,
 			Kind:          appdeploy.ManifestKind,
 			Spec: appdeploy.DeploymentSpec{
 				AppVersionID: "appver-001",
 				Parameters:   map[string]any{"labels": map[string]any{"team": "aiops"}},
+				Requirements: manifestRequirements,
+			},
+		}
+		generationRequirements := &appdeploy.DeploymentRequirements{
+			Runtime:    "gpu",
+			CostPolicy: "min_cost",
+			SLO:        map[string]any{"throughput": map[string]any{"rps": 20}},
+			Labels:     map[string]string{"source": "generation"},
+		}
+		run.Generation.Manifest = appdeploy.DeploymentManifest{
+			SchemaVersion: appdeploy.ManifestSchemaVersion,
+			Kind:          appdeploy.ManifestKind,
+			Spec: appdeploy.DeploymentSpec{
+				AppVersionID: "appver-001",
+				Requirements: generationRequirements,
 			},
 		}
 		run.CorrelationIDs = append(run.CorrelationIDs, "corr-001")
@@ -67,6 +88,12 @@ func TestStoreApplicationEvidenceReturnsIsolatedCopies(t *testing.T) {
 	}
 
 	updated.Manifest.Spec.Parameters["labels"].(map[string]any)["team"] = "mutated"
+	updated.Manifest.Spec.Requirements.CostPolicy = "mutated"
+	updated.Manifest.Spec.Requirements.SLO["latency"].(map[string]any)["p99_ms"] = 999
+	updated.Manifest.Spec.Requirements.Labels["team"] = "mutated"
+	updated.Generation.Manifest.Spec.Requirements.CostPolicy = "mutated"
+	updated.Generation.Manifest.Spec.Requirements.SLO["throughput"].(map[string]any)["rps"] = 999
+	updated.Generation.Manifest.Spec.Requirements.Labels["source"] = "mutated"
 	updated.CorrelationIDs[0] = "mutated"
 	updated.Stages[0].Status = "mutated"
 	updated.Execution.Proposal["parameters"].(map[string]any)["decision"] = "mutated"
@@ -86,6 +113,12 @@ func TestStoreApplicationEvidenceReturnsIsolatedCopies(t *testing.T) {
 	if got := loaded.Manifest.Spec.Parameters["labels"].(map[string]any)["team"]; got != "aiops" {
 		t.Fatalf("manifest parameters leaked mutable state: %v", got)
 	}
+	assertStoredRequirementsAreIsolated(t, loaded)
+	listed := store.List()
+	if len(listed) != 1 {
+		t.Fatalf("expected one listed Run, got %#v", listed)
+	}
+	assertStoredRequirementsAreIsolated(t, listed[0])
 	if loaded.CorrelationIDs[0] != "corr-001" {
 		t.Fatalf("correlation IDs leaked mutable state: %#v", loaded.CorrelationIDs)
 	}
@@ -110,6 +143,24 @@ func TestStoreApplicationEvidenceReturnsIsolatedCopies(t *testing.T) {
 	}
 	if loaded.PartialResult.AppVersionID != "appver-001" {
 		t.Fatalf("partial result leaked mutable state: %#v", loaded.PartialResult)
+	}
+}
+
+func assertStoredRequirementsAreIsolated(t *testing.T, run Run) {
+	t.Helper()
+	manifest := run.Manifest.Spec.Requirements
+	if manifest == nil ||
+		manifest.CostPolicy != "min_cost" ||
+		manifest.SLO["latency"].(map[string]any)["p99_ms"] != 250 ||
+		manifest.Labels["team"] != "aiops" {
+		t.Fatalf("Run Manifest requirements leaked mutable state: %#v", manifest)
+	}
+	generation := run.Generation.Manifest.Spec.Requirements
+	if generation == nil ||
+		generation.CostPolicy != "min_cost" ||
+		generation.SLO["throughput"].(map[string]any)["rps"] != 20 ||
+		generation.Labels["source"] != "generation" {
+		t.Fatalf("Generation Manifest requirements leaked mutable state: %#v", generation)
 	}
 }
 
