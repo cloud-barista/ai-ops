@@ -1,6 +1,7 @@
 package controlrun
 
 import (
+	"encoding/json"
 	"fmt"
 	"sync"
 	"testing"
@@ -8,7 +9,7 @@ import (
 	"kyunghee-aiops/service-control-api/internal/appdeploy"
 )
 
-func TestStoreLifecycleReturnsIsolatedCopies(t *testing.T) {
+func TestStoreApplicationEvidenceReturnsIsolatedCopies(t *testing.T) {
 	store := NewStore()
 	created := store.Create(CreateInput{
 		RunID: "run-001",
@@ -38,6 +39,27 @@ func TestStoreLifecycleReturnsIsolatedCopies(t *testing.T) {
 			Evidence:    map[string]any{"source": "external-test"},
 			GuardStatus: "approved",
 		}
+		run.Application = &ApplicationEvidence{
+			Package: &appdeploy.PackageBuildResponse{
+				ArtifactURI: "file:///packages/app.tar.gz",
+				ArchiveName: "app.tar.gz",
+				Checksum:    "sha256:package",
+				AppSpec:     json.RawMessage(`{"kind":"AIApp","source":"package"}`),
+			},
+			Registration: &appdeploy.AppRegistrationResponse{
+				AppID:        "app-001",
+				AppVersionID: "appver-001",
+				AppSpec:      json.RawMessage(`{"kind":"AIApp","source":"registration"}`),
+			},
+			AppSpec: json.RawMessage(`{"kind":"AIApp","source":"workflow"}`),
+		}
+		run.PartialResult = &PartialResult{
+			ArtifactURI:  "file:///packages/app.tar.gz",
+			ArchiveName:  "app.tar.gz",
+			Checksum:     "sha256:package",
+			AppID:        "app-001",
+			AppVersionID: "appver-001",
+		}
 		return nil
 	})
 	if err != nil {
@@ -50,6 +72,12 @@ func TestStoreLifecycleReturnsIsolatedCopies(t *testing.T) {
 	updated.Execution.Proposal["parameters"].(map[string]any)["decision"] = "mutated"
 	updated.Execution.Result["review"].(map[string]any)["status"] = "mutated"
 	updated.Execution.Evidence["source"] = "mutated"
+	updated.Application.Package.ArtifactURI = "mutated"
+	updated.Application.Package.AppSpec[0] = 'x'
+	updated.Application.Registration.AppID = "mutated"
+	updated.Application.Registration.AppSpec[0] = 'x'
+	updated.Application.AppSpec[0] = 'x'
+	updated.PartialResult.AppVersionID = "mutated"
 
 	loaded, ok := store.Get(created.RunID)
 	if !ok {
@@ -72,6 +100,16 @@ func TestStoreLifecycleReturnsIsolatedCopies(t *testing.T) {
 	}
 	if got := loaded.Execution.Evidence["source"]; got != "external-test" {
 		t.Fatalf("Agent evidence leaked mutable state: %v", got)
+	}
+	if loaded.Application.Package.ArtifactURI != "file:///packages/app.tar.gz" ||
+		string(loaded.Application.Package.AppSpec) != `{"kind":"AIApp","source":"package"}` ||
+		loaded.Application.Registration.AppID != "app-001" ||
+		string(loaded.Application.Registration.AppSpec) != `{"kind":"AIApp","source":"registration"}` ||
+		string(loaded.Application.AppSpec) != `{"kind":"AIApp","source":"workflow"}` {
+		t.Fatalf("application evidence leaked mutable state: %#v", loaded.Application)
+	}
+	if loaded.PartialResult.AppVersionID != "appver-001" {
+		t.Fatalf("partial result leaked mutable state: %#v", loaded.PartialResult)
 	}
 }
 

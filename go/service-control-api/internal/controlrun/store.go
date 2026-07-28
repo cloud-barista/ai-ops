@@ -109,6 +109,25 @@ func cloneRun(source Run) Run {
 	result.RequestGuard.Checks = append([]plannerguard.Check(nil), source.RequestGuard.Checks...)
 	result.Generation.Manifest = cloneManifest(source.Generation.Manifest)
 	result.Manifest = cloneManifest(source.Manifest)
+	if source.Application != nil {
+		application := *source.Application
+		application.AppSpec = append([]byte(nil), source.Application.AppSpec...)
+		if source.Application.Package != nil {
+			packageResult := *source.Application.Package
+			packageResult.AppSpec = append([]byte(nil), source.Application.Package.AppSpec...)
+			application.Package = &packageResult
+		}
+		if source.Application.Registration != nil {
+			registration := *source.Application.Registration
+			registration.AppSpec = append([]byte(nil), source.Application.Registration.AppSpec...)
+			application.Registration = &registration
+		}
+		result.Application = &application
+	}
+	if source.PartialResult != nil {
+		partialResult := *source.PartialResult
+		result.PartialResult = &partialResult
+	}
 	if source.Execution != nil {
 		execution := *source.Execution
 		execution.Proposal = cloneMap(source.Execution.Proposal)

@@ -252,9 +252,30 @@ func (service Service) CreateControlRunWithDependencies(
 	if generator == nil {
 		return controlrun.Run{}, fmt.Errorf("deployment Manifest generator is required")
 	}
+	request = normalizeCreateControlRunRequest(request)
+	run, err := service.createEmptyControlRun(request)
+	if err != nil {
+		return controlrun.Run{}, err
+	}
+	return service.continueGuardedManifestPlanning(
+		ctx,
+		run.RunID,
+		request,
+		candidatesPath,
+		guardPolicyPath,
+		generator,
+	)
+}
+
+func normalizeCreateControlRunRequest(request CreateControlRunRequest) CreateControlRunRequest {
 	if strings.TrimSpace(request.RequestedBy) == "" {
 		request.RequestedBy = "ai-ops-geon-planner"
 	}
+	return request
+}
+
+func (service Service) createEmptyControlRun(request CreateControlRunRequest) (controlrun.Run, error) {
+	request = normalizeCreateControlRunRequest(request)
 	if err := appdeploy.ValidateRequirementsSecretKeys(request.Requirements); err != nil {
 		return controlrun.Run{}, fmt.Errorf("deployment requirements rejected before Qwen: %w", err)
 	}
@@ -262,7 +283,7 @@ func (service Service) CreateControlRunWithDependencies(
 	if err != nil {
 		return controlrun.Run{}, err
 	}
-	run := service.controlRuns.Create(controlrun.CreateInput{
+	return service.controlRuns.Create(controlrun.CreateInput{
 		RunID: runID,
 		Request: controlrun.SafeRequest{
 			NaturalLanguageRequest: request.NaturalLanguageRequest,
@@ -272,8 +293,28 @@ func (service Service) CreateControlRunWithDependencies(
 			RequestedBy:            request.RequestedBy,
 			AgentName:              request.AgentName,
 		},
-	})
+	}), nil
+}
 
+func (service Service) continueGuardedManifestPlanning(
+	ctx context.Context,
+	runID string,
+	request CreateControlRunRequest,
+	candidatesPath string,
+	guardPolicyPath string,
+	generator controlRunManifestGenerator,
+) (controlrun.Run, error) {
+	if err := ensureContext(ctx); err != nil {
+		return controlrun.Run{}, err
+	}
+	if generator == nil {
+		return controlrun.Run{}, fmt.Errorf("deployment Manifest generator is required")
+	}
+	request = normalizeCreateControlRunRequest(request)
+	run, ok := service.controlRuns.Get(runID)
+	if !ok {
+		return controlrun.Run{}, fmt.Errorf("ControlRun was not found: %s", runID)
+	}
 	policy, err := plannerguard.LoadPolicy(guardPolicyPath)
 	if err != nil {
 		return service.rejectControlRun(run.RunID, controlrun.StatusRequestRejected, "request_guard", err.Error(), nil)

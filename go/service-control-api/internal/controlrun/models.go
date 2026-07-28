@@ -1,6 +1,7 @@
 package controlrun
 
 import (
+	"encoding/json"
 	"time"
 
 	"kyunghee-aiops/service-control-api/internal/appdeploy"
@@ -11,19 +12,23 @@ import (
 type Status string
 
 const (
-	StatusReceived         Status = "RECEIVED"
-	StatusRequestRejected  Status = "REQUEST_REJECTED"
-	StatusAgentRejected    Status = "AGENT_REJECTED"
-	StatusPlanning         Status = "PLANNING"
-	StatusManifestRejected Status = "MANIFEST_REJECTED"
-	StatusManifestApproved Status = "MANIFEST_APPROVED"
-	StatusSubmitting       Status = "SUBMITTING"
-	StatusAppDeployFailed  Status = "APPDEPLOY_FAILED"
-	StatusDeployed         Status = "DEPLOYED"
-	StatusAgentDispatching Status = "AGENT_DISPATCHING"
-	StatusAgentCompleted   Status = "AGENT_COMPLETED"
-	StatusAgentFailed      Status = "AGENT_FAILED"
-	StatusResultRejected   Status = "RESULT_REJECTED"
+	StatusPackaging             Status = "PACKAGING"
+	StatusPackageFailed         Status = "PACKAGE_FAILED"
+	StatusRegisteringApp        Status = "REGISTERING_APP"
+	StatusAppRegistrationFailed Status = "APP_REGISTRATION_FAILED"
+	StatusReceived              Status = "RECEIVED"
+	StatusRequestRejected       Status = "REQUEST_REJECTED"
+	StatusAgentRejected         Status = "AGENT_REJECTED"
+	StatusPlanning              Status = "PLANNING"
+	StatusManifestRejected      Status = "MANIFEST_REJECTED"
+	StatusManifestApproved      Status = "MANIFEST_APPROVED"
+	StatusSubmitting            Status = "SUBMITTING"
+	StatusAppDeployFailed       Status = "APPDEPLOY_FAILED"
+	StatusDeployed              Status = "DEPLOYED"
+	StatusAgentDispatching      Status = "AGENT_DISPATCHING"
+	StatusAgentCompleted        Status = "AGENT_COMPLETED"
+	StatusAgentFailed           Status = "AGENT_FAILED"
+	StatusResultRejected        Status = "RESULT_REJECTED"
 )
 
 type SafeRequest struct {
@@ -65,12 +70,28 @@ type AgentExecution struct {
 	DomainValidation string         `json:"domain_validation,omitempty"`
 }
 
+type ApplicationEvidence struct {
+	Package      *appdeploy.PackageBuildResponse    `json:"package,omitempty"`
+	Registration *appdeploy.AppRegistrationResponse `json:"registration,omitempty"`
+	AppSpec      json.RawMessage                    `json:"app_spec,omitempty"`
+}
+
+type PartialResult struct {
+	ArtifactURI  string `json:"artifact_uri,omitempty"`
+	ArchiveName  string `json:"archive_name,omitempty"`
+	Checksum     string `json:"checksum,omitempty"`
+	AppID        string `json:"app_id,omitempty"`
+	AppVersionID string `json:"app_version_id,omitempty"`
+}
+
 type Run struct {
 	RunID            string                           `json:"run_id"`
 	Status           Status                           `json:"status"`
 	CreatedAt        time.Time                        `json:"created_at"`
 	UpdatedAt        time.Time                        `json:"updated_at"`
 	Request          SafeRequest                      `json:"request"`
+	Application      *ApplicationEvidence             `json:"application,omitempty"`
+	PartialResult    *PartialResult                   `json:"partial_result,omitempty"`
 	RequestGuard     plannerguard.Decision            `json:"request_guard"`
 	SelectedAgent    AgentSelection                   `json:"selected_agent"`
 	Execution        *AgentExecution                  `json:"execution,omitempty"`
