@@ -154,6 +154,68 @@ func TestControlAppContainsControlRunManifestWorkflow(t *testing.T) {
 	}
 }
 
+func TestControlAppContainsUserFirstApplicationWorkflow(t *testing.T) {
+	server := echo.New()
+	Register(server)
+
+	html := requestBody(t, server, "/")
+	for _, expected := range []string{
+		`id="input-mode-upload"`,
+		`id="input-mode-existing"`,
+		`id="application-source"`,
+		`id="package-type"`,
+		`id="app-name"`,
+		`id="app-version"`,
+		`id="entrypoint"`,
+		`id="runtime-type"`,
+		`id="cost-policy"`,
+		`id="application-package-result"`,
+		`id="application-registration-result"`,
+	} {
+		if !strings.Contains(html, expected) {
+			t.Fatalf("expected application workflow HTML contract %q", expected)
+		}
+	}
+}
+
+func TestControlAppApplicationWorkflowUsesReadableKorean(t *testing.T) {
+	server := echo.New()
+	Register(server)
+
+	html := requestBody(t, server, "/")
+	for _, expected := range []string{
+		"앱 입력 방식",
+		"새 앱 업로드",
+		"등록된 앱 사용",
+		"앱 소스",
+		"패키지 유형",
+		"앱 이름",
+		"앱 버전",
+		"진입점",
+		"런타임",
+		"비용 정책",
+		"패키지 증적",
+		"앱 등록 증적",
+		`aria-label="Manifest 처리 단계"`,
+	} {
+		if !strings.Contains(html, expected) {
+			t.Fatalf("expected readable Korean application workflow text %q", expected)
+		}
+	}
+
+	for _, corrupted := range []string{
+		"?ъ슜???붿껌",
+		"???낅젰 諛⑹떇",
+		"?????낅줈??",
+		"?깅줉?????ъ슜",
+		"泥섎━ ?④퀎",
+	} {
+		if strings.Contains(html, corrupted) {
+			t.Fatalf("unexpected corrupted application workflow text %q", corrupted)
+		}
+	}
+}
+
 func TestControlAppContainsOrderedExperimentGuide(t *testing.T) {
 	server := echo.New()
 	Register(server)
@@ -341,6 +403,9 @@ func TestControlAppShowsManifestStagesInExecutionOrder(t *testing.T) {
 	javascript := requestBody(t, server, "/assets/manifest_stages.js")
 	lastIndex := -1
 	for _, stage := range []string{
+		"app_upload",
+		"package_build",
+		"app_registration",
 		"user_request",
 		"request_guard",
 		"agent_registry",
@@ -365,8 +430,12 @@ func TestControlAppManifestStagesUseReadableKorean(t *testing.T) {
 
 	javascript := requestBody(t, server, "/assets/manifest_stages.js")
 	for _, expected := range []string{
+		"앱 업로드",
+		"패키지 생성",
+		"앱 등록",
 		"사용자 요청",
 		"Agent 실행",
+		"기존 앱 사용",
 		"이전 단계에서 중단",
 		"대기 중",
 	} {

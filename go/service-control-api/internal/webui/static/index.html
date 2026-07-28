@@ -66,8 +66,38 @@
           <section class="panel form-panel" aria-labelledby="planner-form-title">
             <div class="panel-header"><div><p class="section-label">REQUEST</p><h3 id="planner-form-title">배포 요구</h3></div></div>
             <form id="planner-form" class="form-grid">
+              <fieldset class="input-mode-control full">
+                <legend>앱 입력 방식</legend>
+                <div class="input-mode-options">
+                  <label class="input-mode-option">
+                    <input id="input-mode-upload" type="radio" name="input_mode" value="upload" checked>
+                    <span>새 앱 업로드</span>
+                  </label>
+                  <label class="input-mode-option">
+                    <input id="input-mode-existing" type="radio" name="input_mode" value="existing">
+                    <span>등록된 앱 사용</span>
+                  </label>
+                </div>
+              </fieldset>
+              <div class="application-input-fields full" data-input-mode-section="upload">
+                <label class="field full"><span>앱 소스</span><input id="application-source" name="source" type="file" data-mode-required required></label>
+                <label class="field"><span>패키지 유형</span><select id="package-type" name="package_type" data-mode-required required><option value="script">script</option><option value="python">python</option><option value="node">node</option><option value="go">go</option><option value="binary">binary</option></select></label>
+                <label class="field"><span>앱 이름</span><input id="app-name" name="app_name" placeholder="demo-app" autocomplete="off" data-mode-required required></label>
+                <label class="field"><span>앱 버전</span><input id="app-version" name="app_version" value="1.0.0" autocomplete="off" data-mode-required required></label>
+                <label class="field"><span>진입점</span><input id="entrypoint" name="entrypoint" value="run.sh" autocomplete="off" data-mode-required required></label>
+                <label class="field"><span>런타임</span><select id="runtime-type" name="runtime_type" data-mode-required required><option value="cpu">CPU</option><option value="gpu">GPU</option></select></label>
+                <label class="field"><span>서비스 포트</span><input name="service_port" type="number" min="1" max="65535" placeholder="8080"></label>
+                <label class="field"><span>Health 경로</span><input name="healthcheck_path" value="/healthz" autocomplete="off"></label>
+                <label class="field"><span>CPU</span><input name="cpu" value="1" inputmode="numeric" data-mode-required required></label>
+                <label class="field"><span>메모리</span><input name="memory" value="1Gi" autocomplete="off" data-mode-required required></label>
+                <label class="field"><span>GPU</span><input name="gpu" value="0" inputmode="numeric" data-mode-required required></label>
+                <label class="field"><span>스토리지</span><input name="storage" value="1Gi" autocomplete="off" data-mode-required required></label>
+                <label class="field full"><span>비용 정책</span><select id="cost-policy" name="cost_policy"><option value="">지정 안 함</option><option value="min_cost" selected>min_cost</option></select></label>
+              </div>
+              <div class="application-input-fields full" data-input-mode-section="existing" hidden>
+                <label class="field full"><span>App Version ID</span><input name="app_version_id" placeholder="appver-..." autocomplete="off" data-mode-required disabled></label>
+              </div>
               <label class="field full"><span>자연어 요구</span><textarea name="natural_language_request" rows="5" required>Mock 환경에서 CPU 1, 메모리 1Gi, GPU 0, 스토리지 1Gi로 테스트 앱을 배포해 주세요.</textarea></label>
-              <label class="field full"><span>App Version ID</span><input name="app_version_id" placeholder="appver-..." autocomplete="off" required></label>
               <label class="field"><span>LLM Candidate</span><input name="candidate_id" value="qwen3.5-ops-planner" required></label>
               <label class="field"><span>Planner Agent</span><input name="agent_name" value="AIApplicationAutomationAgent" required></label>
               <label class="field"><span>Target Hint</span><input name="target_profile_id" placeholder="target-mock-001"></label>
@@ -83,9 +113,23 @@
           <section class="panel result-panel" aria-labelledby="planner-result-title">
             <div class="panel-header"><div><p class="section-label">RESULT</p><h3 id="planner-result-title">실행 결과</h3></div><button class="icon-button" type="button" data-copy-target="planner-json" title="JSON 복사" aria-label="Planner JSON 복사"><i data-lucide="copy" aria-hidden="true"></i></button></div>
             <div class="result-empty" id="planner-empty"><i data-lucide="route" aria-hidden="true"></i><strong>대기 중</strong></div>
-            <ol class="manifest-stage-flow" id="manifest-stage-flow" aria-label="Manifest 泥섎━ ?④퀎"></ol>
+            <ol class="manifest-stage-flow" id="manifest-stage-flow" aria-label="Manifest 처리 단계"></ol>
             <div id="planner-summary" hidden>
               <div class="result-status-line"><span class="status-badge" id="planner-status">-</span><span id="planner-deployment-id">Run ID 없음</span></div>
+              <div class="application-result" id="application-package-result" hidden>
+                <strong>패키지 증적</strong>
+                <dl class="application-result-rows">
+                  <div><dt>Package URI</dt><dd id="planner-package-uri">-</dd></div>
+                  <div><dt>Checksum</dt><dd id="planner-package-checksum">-</dd></div>
+                </dl>
+              </div>
+              <div class="application-result" id="application-registration-result" hidden>
+                <strong>앱 등록 증적</strong>
+                <dl class="application-result-rows">
+                  <div><dt>App ID</dt><dd id="planner-app-id">-</dd></div>
+                  <div><dt>App Version ID</dt><dd id="planner-app-version-id">-</dd></div>
+                </dl>
+              </div>
               <dl class="result-facts">
                 <div><dt>Model</dt><dd id="planner-model">-</dd></div>
                 <div><dt>Agent Registry</dt><dd id="planner-agent">-</dd></div>

@@ -9,8 +9,8 @@ const { MANIFEST_STAGE_ORDER } = require("./static/manifest_stages.js");
 
 const staticDir = path.join(__dirname, "static");
 
-function controlRun(runID, status, deploymentID, agentName) {
-  return {
+function controlRun(runID, status, deploymentID, agentName, overrides = {}) {
+  const run = {
     run_id: runID,
     status,
     updated_at: "2026-07-28T00:00:00Z",
@@ -38,6 +38,53 @@ function controlRun(runID, status, deploymentID, agentName) {
     })),
     logs: [],
   };
+  return { ...run, ...overrides };
+}
+
+function uploadedControlRun() {
+  return controlRun("run-uploaded", "MANIFEST_APPROVED", "", "AIApplicationAutomationAgent", {
+    request: {
+      natural_language_request: "업로드한 앱을 CPU 환경에 배포해 주세요.",
+      app_version_id: "appver-issued",
+      candidate_id: "qwen3.5-ops-planner",
+    },
+    application: {
+      package: {
+        package_type: "script",
+        artifact_uri: "file:///packages/demo.tar.gz",
+        archive_name: "demo.tar.gz",
+        checksum: "sha256:test-package",
+      },
+      registration: {
+        app_id: "app-issued",
+        app_version_id: "appver-issued",
+        name: "demo-app",
+        version: "1.0.0",
+      },
+    },
+    partial_result: {
+      artifact_uri: "file:///packages/demo.tar.gz",
+      checksum: "sha256:test-package",
+      app_id: "app-issued",
+      app_version_id: "appver-issued",
+    },
+    stages: [
+      "app_upload",
+      "package_build",
+      "app_registration",
+      "user_request",
+      "request_guard",
+      "agent_registry",
+      "agent_dispatch",
+      "qwen_planner",
+      "manifest_guard",
+    ].map((name, index) => ({
+      name,
+      status: "approved",
+      reason: "accepted",
+      started_at: `2026-07-27T00:00:${String(index).padStart(2, "0")}Z`,
+    })),
+  });
 }
 
 async function browserPage({ appdeployConfigured = true, viewport } = {}) {
@@ -50,7 +97,9 @@ async function browserPage({ appdeployConfigured = true, viewport } = {}) {
   let runs = [
     controlRun("run-deployed", "DEPLOYED", "dep-001", "PlannerAgent"),
     controlRun("run-approved", "MANIFEST_APPROVED", "", "AIApplicationAutomationAgent"),
+    controlRun("run-appdeploy-failed", "APPDEPLOY_FAILED", "", "AIApplicationAutomationAgent"),
   ];
+  const requests = [];
   const agents = [
     { name: "PlannerAgent", source: "internal", role: "planner", capabilities: ["plan"], bounded_actions: [], enabled: true },
     { name: "AIApplicationAutomationAgent", source: "internal", role: "planner", capabilities: ["deployment_manifest_planning"], bounded_actions: ["generate_deployment_manifest"], enabled: true },
@@ -100,6 +149,28 @@ async function browserPage({ appdeployConfigured = true, viewport } = {}) {
     }
     if (pathname === "/api/v1/agents") {
       await route.fulfill({ contentType: "application/json", body: JSON.stringify({ agents }) });
+      return;
+    }
+    if (pathname === "/api/v1/control-runs/from-package" && method === "POST") {
+      requests.push({
+        method,
+        pathname,
+        headers: await request.allHeaders(),
+        body: (await request.postDataBuffer())?.toString("utf8") || "",
+      });
+      const run = uploadedControlRun();
+      runs = [run, ...runs.filter((entry) => entry.run_id !== run.run_id)];
+      await route.fulfill({ status: 201, contentType: "application/json", body: JSON.stringify(run) });
+      return;
+    }
+    if (pathname === "/api/v1/control-runs" && method === "POST") {
+      const body = request.postDataJSON();
+      requests.push({ method, pathname, headers: await request.allHeaders(), body });
+      const run = controlRun("run-existing", "MANIFEST_APPROVED", "", "AIApplicationAutomationAgent", {
+        request: body,
+      });
+      runs = [run, ...runs.filter((entry) => entry.run_id !== run.run_id)];
+      await route.fulfill({ status: 201, contentType: "application/json", body: JSON.stringify(run) });
       return;
     }
     if (pathname === "/api/v1/control-runs" && method === "GET") {
@@ -161,7 +232,7 @@ async function browserPage({ appdeployConfigured = true, viewport } = {}) {
   });
   await page.goto("http://webui.test/");
   await page.waitForFunction(() => document.getElementById("refresh-button").disabled === false);
-  return { browser, page, consoleErrors };
+  return { browser, page, consoleErrors, requests };
 }
 
 async function assertNoLayoutOverlap(page) {
@@ -171,6 +242,8 @@ async function assertNoLayoutOverlap(page) {
       "#automatic-feedback-list > *",
       "#autonomy-timeline > *",
       ".form-actions > button",
+      ".input-mode-control > label",
+      "#planner-form [data-input-mode-section]:not([hidden]) > .field",
     ];
     const intersect = (left, right) => left.left < right.right && right.left < left.right && left.top < right.bottom && right.top < left.bottom;
     return groups.flatMap((selector) => {
@@ -191,6 +264,45 @@ async function assertNoLayoutOverlap(page) {
     });
   });
   assert.deepEqual(overlaps, []);
+}
+
+async function assertNoHorizontalOverflow(page, viewport) {
+  const horizontalLayout = await page.evaluate(() => {
+    const clientWidth = document.documentElement.clientWidth;
+    return {
+      clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+      overflowing: [...document.querySelectorAll("body *")]
+        .filter((element) => {
+          const style = window.getComputedStyle(element);
+          const rect = element.getBoundingClientRect();
+          return style.display !== "none" && rect.width > 0 && rect.right > clientWidth + 1;
+        })
+        .slice(0, 8)
+        .map((element) => ({
+          selector: element.id ? `#${element.id}` : element.className,
+          right: Math.round(element.getBoundingClientRect().right),
+          width: Math.round(element.getBoundingClientRect().width),
+        })),
+    };
+  });
+  assert.equal(
+    horizontalLayout.scrollWidth <= horizontalLayout.clientWidth,
+    true,
+    JSON.stringify({ viewport, horizontalLayout }),
+  );
+}
+
+async function assertApplicationWorkflowDOM(page) {
+  const missing = await page.evaluate(() => [
+    "input-mode-upload",
+    "input-mode-existing",
+    "application-source",
+    "app-name",
+    "application-package-result",
+    "application-registration-result",
+  ].filter((id) => !document.getElementById(id)));
+  assert.deepEqual(missing, [], `missing application workflow DOM: ${missing.join(", ")}`);
 }
 
 async function postDeploymentState(page) {
@@ -214,6 +326,180 @@ async function postDeploymentState(page) {
     saveDisabled: document.querySelector("#autonomy-form button[type='submit']").disabled,
   }));
 }
+
+test("upload mode is default and existing-App mode preserves the JSON ControlRun contract", async () => {
+  const { browser, page, requests } = await browserPage();
+  try {
+    await assertApplicationWorkflowDOM(page);
+    const initial = await page.evaluate(() => ({
+      uploadChecked: document.getElementById("input-mode-upload").checked,
+      existingChecked: document.getElementById("input-mode-existing").checked,
+      uploadHidden: document.querySelector("[data-input-mode-section='upload']").hidden,
+      existingHidden: document.querySelector("[data-input-mode-section='existing']").hidden,
+      sourceRequired: document.getElementById("application-source").required,
+      appVersionRequired: document.querySelector("[name='app_version_id']").required,
+      appVersionDisabled: document.querySelector("[name='app_version_id']").disabled,
+    }));
+    assert.deepEqual(initial, {
+      uploadChecked: true,
+      existingChecked: false,
+      uploadHidden: false,
+      existingHidden: true,
+      sourceRequired: true,
+      appVersionRequired: false,
+      appVersionDisabled: true,
+    });
+
+    await page.locator("#input-mode-existing").check();
+    const existing = await page.evaluate(() => ({
+      uploadHidden: document.querySelector("[data-input-mode-section='upload']").hidden,
+      existingHidden: document.querySelector("[data-input-mode-section='existing']").hidden,
+      sourceRequired: document.getElementById("application-source").required,
+      sourceDisabled: document.getElementById("application-source").disabled,
+      appVersionRequired: document.querySelector("[name='app_version_id']").required,
+      appVersionDisabled: document.querySelector("[name='app_version_id']").disabled,
+    }));
+    assert.deepEqual(existing, {
+      uploadHidden: true,
+      existingHidden: false,
+      sourceRequired: false,
+      sourceDisabled: true,
+      appVersionRequired: true,
+      appVersionDisabled: false,
+    });
+
+    await page.locator("[name='app_version_id']").fill("appver-existing");
+    await page.locator("#planner-form button[type='submit']").click();
+    await page.waitForFunction(() => state.activeRunID === "run-existing");
+
+    const request = requests.find((entry) => entry.pathname === "/api/v1/control-runs" && entry.method === "POST");
+    assert.deepEqual(request.body, {
+      natural_language_request: "Mock 환경에서 CPU 1, 메모리 1Gi, GPU 0, 스토리지 1Gi로 테스트 앱을 배포해 주세요.",
+      app_version_id: "appver-existing",
+      candidate_id: "qwen3.5-ops-planner",
+      requested_by: "ai-ops-geon-planner",
+      agent_name: "AIApplicationAutomationAgent",
+    });
+  } finally {
+    await browser.close();
+  }
+});
+
+test("upload mode sends browser-owned multipart data and renders issued application evidence", async () => {
+  const { browser, page, requests } = await browserPage();
+  try {
+    await assertApplicationWorkflowDOM(page);
+    await page.locator("#application-source").setInputFiles({
+      name: "demo-app.zip",
+      mimeType: "application/zip",
+      buffer: Buffer.from("package-source"),
+    });
+    await page.locator("#app-name").fill("demo-app");
+    await page.locator("#planner-form button[type='submit']").click();
+    await page.waitForFunction(() => state.activeRunID === "run-uploaded");
+
+    const request = requests.find((entry) => entry.pathname === "/api/v1/control-runs/from-package");
+    assert.ok(request, "expected multipart ControlRun request");
+    assert.match(request.headers["content-type"], /^multipart\/form-data; boundary=/);
+    assert.doesNotMatch(request.headers["content-type"], /application\/json/);
+    assert.match(request.body, /name="source"; filename="demo-app.zip"/);
+    assert.match(request.body, /name="package_type"\r\n\r\nscript/);
+    assert.match(request.body, /name="app_name"\r\n\r\ndemo-app/);
+    assert.doesNotMatch(request.body, /name="app_version_id"/);
+
+    const result = await page.evaluate(() => ({
+      packageHidden: document.getElementById("application-package-result").hidden,
+      registrationHidden: document.getElementById("application-registration-result").hidden,
+      packageURI: document.getElementById("planner-package-uri").textContent,
+      checksum: document.getElementById("planner-package-checksum").textContent,
+      appID: document.getElementById("planner-app-id").textContent,
+      appVersionID: document.getElementById("planner-app-version-id").textContent,
+      rememberedAppVersionID: localStorage.getItem("geon-agent-control-app-version-id"),
+      stageLabels: [...document.querySelectorAll("#manifest-stage-flow .manifest-stage strong")].map((entry) => entry.textContent),
+      submitDisabled: document.getElementById("planner-submit").disabled,
+    }));
+    assert.deepEqual(result, {
+      packageHidden: false,
+      registrationHidden: false,
+      packageURI: "file:///packages/demo.tar.gz",
+      checksum: "sha256:test-package",
+      appID: "app-issued",
+      appVersionID: "appver-issued",
+      rememberedAppVersionID: "appver-issued",
+      stageLabels: MANIFEST_STAGE_ORDER.map((stage) => stage.label),
+      submitDisabled: false,
+    });
+    assert.ok(result.stageLabels.indexOf("앱 등록") < result.stageLabels.indexOf("사용자 요청"));
+    assert.doesNotMatch(
+      await page.locator("[aria-labelledby='planner-result-title']").textContent(),
+      /demo-app\.zip|package-source/,
+    );
+  } finally {
+    await browser.close();
+  }
+});
+
+test("existing-App stages are skipped and AppDeploy submit requires MANIFEST_APPROVED", async () => {
+  const { browser, page } = await browserPage();
+  try {
+    assert.equal(await page.locator("#manifest-stage-flow .manifest-stage").count(), 9);
+    assert.deepEqual(
+      await page.locator("#manifest-stage-flow .manifest-stage").evaluateAll((entries) => (
+        entries.slice(0, 3).map((entry) => entry.dataset.status)
+      )),
+      ["skipped", "skipped", "skipped"],
+    );
+    assert.equal(await page.locator("#planner-submit").isDisabled(), true);
+
+    await page.locator("[data-select-run='run-appdeploy-failed']").dispatchEvent("click");
+    await page.waitForFunction(() => state.activeRunID === "run-appdeploy-failed");
+    assert.equal(await page.locator("#planner-submit").isDisabled(), true);
+
+    await page.locator("[data-select-run='run-approved']").dispatchEvent("click");
+    await page.waitForFunction(() => state.activeRunID === "run-approved");
+    assert.equal(await page.locator("#planner-submit").isEnabled(), true);
+  } finally {
+    await browser.close();
+  }
+});
+
+test("application workflow controls do not overlap on desktop or mobile", async () => {
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+    const { browser, page, consoleErrors } = await browserPage({ viewport });
+    try {
+      await assertApplicationWorkflowDOM(page);
+      await page.locator("#application-source").setInputFiles({
+        name: "very-long-application-package-name-that-must-not-resize-controls.zip",
+        mimeType: "application/zip",
+        buffer: Buffer.from("package-source"),
+      });
+      await page.locator("#app-name").fill("responsive-demo");
+      await page.locator("#planner-form button[type='submit']").click();
+      await page.waitForFunction(() => (
+        state.activeRunID === "run-uploaded" &&
+        document.getElementById("application-registration-result").hidden === false
+      ));
+      await assertNoHorizontalOverflow(page, viewport);
+      await assertNoLayoutOverlap(page);
+      assert.deepEqual(consoleErrors, []);
+
+      if (process.env.TASK5_SCREENSHOT_DIR) {
+        await page.locator("#toast-region .toast").waitFor({ state: "detached", timeout: 6000 });
+        await page.evaluate(() => {
+          document.documentElement.scrollTop = 0;
+          document.body.scrollTop = 0;
+        });
+        await fs.mkdir(process.env.TASK5_SCREENSHOT_DIR, { recursive: true });
+        await page.screenshot({
+          path: path.join(process.env.TASK5_SCREENSHOT_DIR, `task-5-${viewport.width}x${viewport.height}.png`),
+          fullPage: true,
+        });
+      }
+    } finally {
+      await browser.close();
+    }
+  }
+});
 
 test("ControlRun selection clears and gates Post-deployment controls through the production browser UI", async () => {
   const { browser, page } = await browserPage();
@@ -387,7 +673,7 @@ test("AppDeploy-unavailable selected ControlRun retains Manifest stages and auto
       await page.waitForFunction(() => state.activeRunID === "run-approved");
       await page.locator(".nav-item[data-view-target='planner']").click();
       await page.waitForFunction(() => document.querySelector("[data-view='planner']").hidden === false);
-      await page.waitForFunction(() => document.querySelectorAll("#manifest-stage-flow .manifest-stage").length === 6);
+      await page.waitForFunction(() => document.querySelectorAll("#manifest-stage-flow .manifest-stage").length === 9);
 
       const manifest = await page.evaluate(() => ({
         labels: [...document.querySelectorAll("#manifest-stage-flow .manifest-stage strong")].map((entry) => entry.textContent),
@@ -419,7 +705,7 @@ test("AppDeploy-unavailable selected ControlRun retains Manifest stages and auto
         "user_request", "request_guard", "agent_registry", "agent_dispatch", "qwen_planner", "manifest_guard",
       ]);
       assert.equal(feedbackProjection.executor_feedback.length, 1);
-      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), true);
+      await assertNoHorizontalOverflow(page, viewport);
       await assertNoLayoutOverlap(page);
       assert.deepEqual(consoleErrors, []);
     } finally {

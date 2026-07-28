@@ -4,6 +4,7 @@ const API = Object.freeze({
   health: "/healthz",
   agents: "/api/v1/agents",
   controlRuns: "/api/v1/control-runs",
+  controlRunsFromPackage: "/api/v1/control-runs/from-package",
   planner: "/api/v1/planner/deployments",
   actionProposals: "/api/v1/automation/action-proposals",
   feedback: "/api/v1/automation/feedback",
@@ -95,11 +96,12 @@ function showToast(message, tone = "info") {
 }
 
 async function apiRequest(path, options = {}) {
+  const { rawBody = false, ...requestOptions } = options;
   const response = await fetch(path, {
-    ...options,
+    ...requestOptions,
     headers: {
       Accept: "application/json",
-      ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...(!rawBody && options.body ? { "Content-Type": "application/json" } : {}),
       ...(options.headers || {}),
     },
   });
@@ -119,6 +121,29 @@ async function apiRequest(path, options = {}) {
     throw error;
   }
   return payload;
+}
+
+function setPlannerInputMode(mode) {
+  const activeMode = mode === "existing" ? "existing" : "upload";
+  document.querySelectorAll("[data-input-mode-section]").forEach((section) => {
+    const active = section.dataset.inputModeSection === activeMode;
+    section.hidden = !active;
+    section.querySelectorAll("input, select, textarea").forEach((control) => {
+      control.disabled = !active;
+      if (control.hasAttribute("data-mode-required")) control.required = active;
+    });
+  });
+}
+
+function rememberAppVersion(appVersionID) {
+  if (!appVersionID) return;
+  const input = byID("planner-form").elements.app_version_id;
+  if (input) input.value = appVersionID;
+  try {
+    localStorage.setItem(APP_VERSION_KEY, appVersionID);
+  } catch (_error) {
+    // Saving the convenience value is optional.
+  }
 }
 
 function switchView(viewName) {
@@ -446,8 +471,29 @@ async function clearControlRuns() {
   }
 }
 
+function renderApplicationEvidence(payload) {
+  const packageEvidence = payload?.application?.package || {};
+  const registrationEvidence = payload?.application?.registration || {};
+  const partialResult = payload?.partial_result || {};
+  const packageURI = packageEvidence.artifact_uri || partialResult.artifact_uri || "";
+  const checksum = packageEvidence.checksum || partialResult.checksum || "";
+  const appID = registrationEvidence.app_id || partialResult.app_id || "";
+  const appVersionID = registrationEvidence.app_version_id || partialResult.app_version_id || "";
+
+  const packageResult = byID("application-package-result");
+  packageResult.hidden = !packageURI && !checksum;
+  byID("planner-package-uri").textContent = text(packageURI);
+  byID("planner-package-checksum").textContent = text(checksum);
+
+  const registrationResult = byID("application-registration-result");
+  registrationResult.hidden = !appID && !appVersionID;
+  byID("planner-app-id").textContent = text(appID);
+  byID("planner-app-version-id").textContent = text(appVersionID);
+}
+
 function renderPlanner(payload) {
   renderManifestStageFlow(payload);
+  renderApplicationEvidence(payload);
   if (!payload) {
     byID("planner-empty").hidden = false;
     byID("planner-summary").hidden = true;
@@ -470,8 +516,9 @@ function renderPlanner(payload) {
   byID("planner-latency").textContent = payload.generation?.latency_ms === undefined ? "-" : `${payload.generation.latency_ms} ms`;
   byID("planner-log-count").textContent = String(Array.isArray(payload.logs) ? payload.logs.length : 0);
   byID("planner-json").textContent = pretty(payload);
+  rememberAppVersion(payload.request?.app_version_id || payload.application?.registration?.app_version_id);
   const submitButton = byID("planner-submit");
-  submitButton.disabled = !["MANIFEST_APPROVED", "APPDEPLOY_FAILED"].includes(status);
+  submitButton.disabled = status !== "MANIFEST_APPROVED";
 }
 
 function renderAction(payload) {
@@ -498,23 +545,30 @@ async function submitPlanner(event) {
   event.preventDefault();
   const form = event.currentTarget;
   const data = new FormData(form);
-  const body = {
-    natural_language_request: data.get("natural_language_request"),
-    app_version_id: data.get("app_version_id"),
-    candidate_id: data.get("candidate_id"),
-    requested_by: "ai-ops-geon-planner",
-    agent_name: data.get("agent_name"),
-  };
-  const target = String(data.get("target_profile_id") || "").trim();
-  if (target) body.target_profile_id = target;
-  try {
-    localStorage.setItem(APP_VERSION_KEY, body.app_version_id);
-  } catch (_error) {
-    // Saving the convenience value is optional.
-  }
+  const inputMode = data.get("input_mode") === "existing" ? "existing" : "upload";
   setBusy(form, true, "Qwen 판단 중...");
   try {
-    const payload = await apiRequest(API.controlRuns, { method: "POST", body: JSON.stringify(body) });
+    let payload;
+    if (inputMode === "upload") {
+      payload = await apiRequest(API.controlRunsFromPackage, {
+        method: "POST",
+        body: data,
+        rawBody: true,
+      });
+    } else {
+      const body = {
+        natural_language_request: data.get("natural_language_request"),
+        app_version_id: data.get("app_version_id"),
+        candidate_id: data.get("candidate_id"),
+        requested_by: "ai-ops-geon-planner",
+        agent_name: data.get("agent_name"),
+      };
+      const target = String(data.get("target_profile_id") || "").trim();
+      if (target) body.target_profile_id = target;
+      rememberAppVersion(body.app_version_id);
+      payload = await apiRequest(API.controlRuns, { method: "POST", body: JSON.stringify(body) });
+    }
+    rememberAppVersion(payload.request?.app_version_id || payload.application?.registration?.app_version_id);
     setActiveControlRun(payload);
     await loadControlRuns();
     await loadFeedbackView().catch(() => {});
@@ -563,7 +617,7 @@ async function submitPlannerRun() {
     showToast(error.message, "error");
   } finally {
     button.textContent = originalLabel;
-    button.disabled = !["MANIFEST_APPROVED", "APPDEPLOY_FAILED"].includes(state.lastPlannerRun?.status);
+    button.disabled = state.lastPlannerRun?.status !== "MANIFEST_APPROVED";
     if (window.lucide) window.lucide.createIcons();
   }
 }
@@ -1204,6 +1258,9 @@ function bindEvents() {
   document.querySelectorAll("[data-view-target]").forEach((button) => {
     button.addEventListener("click", () => switchView(button.dataset.viewTarget));
   });
+  document.querySelectorAll('input[name="input_mode"]').forEach((input) => {
+    input.addEventListener("change", (event) => setPlannerInputMode(event.currentTarget.value));
+  });
   byID("refresh-button").addEventListener("click", refreshDashboard);
   byID("refresh-agents").addEventListener("click", async () => {
     try {
@@ -1298,6 +1355,7 @@ function bindEvents() {
 
 async function initialize() {
   bindEvents();
+  setPlannerInputMode(byID("input-mode-existing").checked ? "existing" : "upload");
   switchView(state.activeView);
   const savedAppVersion = localStorage.getItem(APP_VERSION_KEY);
   if (savedAppVersion) byID("planner-form").elements.app_version_id.value = savedAppVersion;

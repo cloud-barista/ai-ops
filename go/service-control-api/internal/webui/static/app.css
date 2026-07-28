@@ -848,7 +848,7 @@ textarea:focus-visible {
 
 .manifest-stage-flow {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1px;
   margin: 0;
   padding: 0;
@@ -877,6 +877,10 @@ textarea:focus-visible {
 
 .manifest-stage[data-status="blocked"] {
   background: var(--surface-muted);
+}
+
+.manifest-stage[data-status="skipped"] {
+  background: var(--blue-soft);
 }
 
 .manifest-stage[data-status="pending"] {
@@ -928,6 +932,11 @@ textarea:focus-visible {
   font-size: 11px;
   line-height: 1.5;
   overflow-wrap: anywhere;
+}
+
+#feedback-run-id {
+  width: min(320px, 100%);
+  min-width: 0;
 }
 
 .executor-feedback-disclosure {
@@ -994,6 +1003,83 @@ textarea:focus-visible {
   padding: 18px;
 }
 
+.input-mode-control {
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.input-mode-control.full {
+  grid-column: 1 / -1;
+}
+
+.input-mode-control legend {
+  margin-bottom: 7px;
+  color: #34423e;
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.input-mode-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: var(--line-strong);
+}
+
+.input-mode-option {
+  position: relative;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.input-mode-option input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.input-mode-option span {
+  display: grid;
+  min-height: 38px;
+  place-items: center;
+  background: #ffffff;
+  padding: 0 12px;
+  color: var(--ink-muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.input-mode-option input:checked + span {
+  background: var(--teal-soft);
+  color: var(--teal);
+}
+
+.input-mode-option input:focus-visible + span {
+  outline: 2px solid rgba(8, 119, 110, 0.28);
+  outline-offset: -2px;
+}
+
+.application-input-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.application-input-fields.full {
+  grid-column: 1 / -1;
+}
+
+.application-input-fields[hidden] {
+  display: none;
+}
+
 .field {
   display: grid;
   min-width: 0;
@@ -1026,6 +1112,24 @@ textarea:focus-visible {
 .field input,
 .field select {
   min-height: 39px;
+}
+
+.field input[type="file"] {
+  overflow: hidden;
+  padding: 6px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.field input[type="file"]::file-selector-button {
+  min-height: 25px;
+  margin-right: 9px;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  background: var(--surface-muted);
+  padding: 0 9px;
+  color: var(--ink);
+  font-weight: 700;
 }
 
 .field textarea {
@@ -1158,6 +1262,58 @@ textarea:focus-visible {
   overflow: hidden;
   margin: 0;
   font-size: 12px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.application-result {
+  display: grid;
+  grid-template-columns: 116px minmax(0, 1fr);
+  align-items: stretch;
+  margin: 0 18px;
+  border: 1px solid var(--line);
+  border-bottom: 0;
+}
+
+.application-result[hidden] {
+  display: none;
+}
+
+.application-result > strong {
+  display: flex;
+  align-items: center;
+  background: var(--surface-muted);
+  padding: 10px;
+  font-size: 11px;
+}
+
+.application-result-rows {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.application-result-rows > div {
+  min-width: 0;
+  border-left: 1px solid var(--line);
+  padding: 8px 10px;
+}
+
+.application-result-rows dt {
+  margin-bottom: 3px;
+  color: var(--ink-muted);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.application-result-rows dd {
+  overflow: hidden;
+  margin: 0;
+  font-family: Consolas, "SFMono-Regular", monospace;
+  font-size: 10px;
   font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1847,6 +2003,42 @@ dialog::backdrop {
 }
 
 @media (max-width: 760px) {
+  .automatic-feedback-panel .panel-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  #feedback-run-id {
+    width: 100%;
+  }
+
+  .form-grid,
+  .application-input-fields,
+  .application-result,
+  .application-result-rows {
+    grid-template-columns: 1fr;
+  }
+
+  .application-result > strong,
+  .application-result-rows > div {
+    border: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .application-result-rows > div:last-child {
+    border-bottom: 0;
+  }
+
+  .form-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions .button {
+    width: 100%;
+    min-width: 0;
+  }
+
   .manifest-stage-flow {
     grid-template-columns: 1fr;
   }
