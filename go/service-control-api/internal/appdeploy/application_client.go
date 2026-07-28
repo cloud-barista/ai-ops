@@ -50,7 +50,12 @@ func (client Client) RegisterApp(ctx context.Context, appSpec json.RawMessage) (
 	return response, nil
 }
 
-func (client Client) doMultipart(ctx context.Context, path string, upload PackageUpload, output any) error {
+func (client Client) doMultipart(
+	ctx context.Context,
+	path string,
+	upload PackageUpload,
+	output any,
+) (resultErr error) {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -69,12 +74,17 @@ func (client Client) doMultipart(ctx context.Context, path string, upload Packag
 		}
 		writeErr <- err
 	}()
+	defer func() {
+		_ = reader.Close()
+		if err := <-writeErr; resultErr == nil && err != nil {
+			resultErr = err
+		}
+	}()
 
 	endpoint := *client.baseURL
 	endpoint.Path = strings.TrimRight(client.baseURL.Path, "/") + path
 	request, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint.String(), reader)
 	if err != nil {
-		_ = reader.Close()
 		return err
 	}
 	request.Header.Set("accept", "application/json")
@@ -82,7 +92,6 @@ func (client Client) doMultipart(ctx context.Context, path string, upload Packag
 
 	response, err := client.httpClient.Do(request)
 	if err != nil {
-		_ = reader.Close()
 		return err
 	}
 	defer func() {
@@ -90,9 +99,6 @@ func (client Client) doMultipart(ctx context.Context, path string, upload Packag
 	}()
 	content, err := io.ReadAll(io.LimitReader(response.Body, maxResponseBytes+1))
 	if err != nil {
-		return err
-	}
-	if err := <-writeErr; err != nil {
 		return err
 	}
 	if len(content) > maxResponseBytes {

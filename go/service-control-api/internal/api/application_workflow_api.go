@@ -3,7 +3,9 @@ package api
 import (
 	"errors"
 	"fmt"
+	"mime/multipart"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -14,6 +16,12 @@ import (
 )
 
 const applicationUploadMemoryBytes int64 = 8 << 20
+
+var (
+	applicationPositiveInteger    = regexp.MustCompile(`^[1-9][0-9]*$`)
+	applicationNonNegativeInteger = regexp.MustCompile(`^[0-9]+$`)
+	applicationMemoryQuantity     = regexp.MustCompile(`^[1-9][0-9]*(Mi|Gi|Ti)$`)
+)
 
 // RestPostControlRunFromPackage godoc
 // @ID CreateControlRunFromPackage
@@ -120,6 +128,14 @@ func (handler restHandler) RestPostControlRunFromPackage(context echo.Context) e
 			CostPolicy: strings.TrimSpace(request.FormValue("cost_policy")),
 		},
 	}
+	if err := validatePackageControlRunInput(input); err != nil {
+		return jsonError(
+			context,
+			http.StatusBadRequest,
+			"Application workflow fields are invalid",
+			err,
+		)
+	}
 
 	run, workflowErr := handler.service.CreateControlRunFromPackage(
 		request.Context(),
@@ -134,6 +150,57 @@ func (handler restHandler) RestPostControlRunFromPackage(context echo.Context) e
 		)
 	}
 	return context.JSON(controlRunFromPackageHTTPStatus(run.Status), run)
+}
+
+func validatePackageControlRunInput(input CreatePackageControlRunInput) error {
+	requiredFields := []struct {
+		name  string
+		value string
+	}{
+		{name: "package_type", value: input.Package.PackageType},
+		{name: "app_name", value: input.Package.AppName},
+		{name: "app_version", value: input.Package.AppVersion},
+		{name: "entrypoint", value: input.Package.Entrypoint},
+		{name: "runtime_type", value: input.Package.RuntimeType},
+		{name: "natural_language_request", value: input.Planner.NaturalLanguageRequest},
+		{name: "candidate_id", value: input.Planner.CandidateID},
+		{name: "cpu", value: input.Requirements.Resources.CPU},
+		{name: "memory", value: input.Requirements.Resources.Memory},
+		{name: "gpu", value: input.Requirements.Resources.GPU},
+		{name: "storage", value: input.Requirements.Resources.Storage},
+	}
+	for _, field := range requiredFields {
+		if field.value == "" {
+			return fmt.Errorf("%s is required", field.name)
+		}
+	}
+
+	if input.Requirements.Runtime != "cpu" && input.Requirements.Runtime != "gpu" {
+		return fmt.Errorf("runtime_type must be cpu or gpu")
+	}
+	if !applicationPositiveInteger.MatchString(input.Requirements.Resources.CPU) {
+		return fmt.Errorf("cpu must be a positive integer")
+	}
+	if !applicationMemoryQuantity.MatchString(input.Requirements.Resources.Memory) {
+		return fmt.Errorf("memory must use Mi, Gi, or Ti")
+	}
+	if !applicationNonNegativeInteger.MatchString(input.Requirements.Resources.GPU) {
+		return fmt.Errorf("gpu must be a non-negative integer")
+	}
+	if !applicationMemoryQuantity.MatchString(input.Requirements.Resources.Storage) {
+		return fmt.Errorf("storage must use Mi, Gi, or Ti")
+	}
+	gpu, err := strconv.Atoi(input.Requirements.Resources.GPU)
+	if err != nil {
+		return fmt.Errorf("gpu must be a non-negative integer: %w", err)
+	}
+	if input.Requirements.Runtime == "cpu" && gpu != 0 {
+		return fmt.Errorf("cpu runtime requires zero GPUs")
+	}
+	if input.Requirements.Runtime == "gpu" && gpu < 1 {
+		return fmt.Errorf("gpu runtime requires at least one GPU")
+	}
+	return nil
 }
 
 func parseOptionalServicePort(request *http.Request) (int, error) {
@@ -160,7 +227,7 @@ func applicationAccelerator(runtimeType string) string {
 
 func isApplicationUploadTooLarge(err error) bool {
 	var maxBytesError *http.MaxBytesError
-	return errors.As(err, &maxBytesError)
+	return errors.As(err, &maxBytesError) || errors.Is(err, multipart.ErrMessageTooLarge)
 }
 
 func controlRunFromPackageHTTPStatus(status controlrun.Status) int {

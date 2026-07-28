@@ -3,12 +3,35 @@ package appdeploy
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync/atomic"
 	"testing"
+	"time"
 )
+
+type roundTripFunc func(*http.Request) (*http.Response, error)
+
+func (function roundTripFunc) RoundTrip(request *http.Request) (*http.Response, error) {
+	return function(request)
+}
+
+type blockingTrackedPackageReader struct {
+	entered chan struct{}
+	release chan struct{}
+	active  atomic.Bool
+}
+
+func (reader *blockingTrackedPackageReader) Read([]byte) (int, error) {
+	reader.active.Store(true)
+	close(reader.entered)
+	<-reader.release
+	reader.active.Store(false)
+	return 0, io.EOF
+}
 
 func TestClientBuildPackageStreamsMultipartContract(t *testing.T) {
 	var gotFile string
@@ -71,6 +94,82 @@ func TestClientBuildPackageStreamsMultipartContract(t *testing.T) {
 	})
 	if err != nil || gotFile != "#!/bin/bash\n" || string(response.AppSpec) != `{"kind":"AIApp"}` {
 		t.Fatalf("BuildPackage() response=%#v err=%v file=%q", response, err, gotFile)
+	}
+}
+
+func TestClientBuildPackageWaitsForMultipartWriterAfterTransportFailure(t *testing.T) {
+	source := &blockingTrackedPackageReader{
+		entered: make(chan struct{}),
+		release: make(chan struct{}),
+	}
+	drainDone := make(chan struct{})
+	transportErr := errors.New("AppDeploy transport failed")
+	httpClient := &http.Client{Transport: roundTripFunc(func(request *http.Request) (*http.Response, error) {
+		go func() {
+			defer close(drainDone)
+			_, _ = io.Copy(io.Discard, request.Body)
+		}()
+		select {
+		case <-source.entered:
+			return nil, transportErr
+		case <-time.After(time.Second):
+			return nil, errors.New("multipart writer did not reach source")
+		}
+	})}
+	client, err := NewClient("http://appdeploy.example.test/api/v1", httpClient)
+	if err != nil {
+		t.Fatalf("new client: %v", err)
+	}
+
+	buildDone := make(chan error, 1)
+	go func() {
+		_, buildErr := client.BuildPackage(context.Background(), PackageUpload{
+			Source:      source,
+			Filename:    "run.sh",
+			PackageType: "script",
+			AppName:     "demo",
+			AppVersion:  "0.1.0",
+			Entrypoint:  "run.sh",
+			RuntimeType: "cpu",
+		})
+		buildDone <- buildErr
+	}()
+
+	select {
+	case <-source.entered:
+	case <-time.After(time.Second):
+		t.Fatal("multipart writer did not claim source")
+	}
+
+	var buildErr error
+	returnedBeforeRelease := false
+	select {
+	case buildErr = <-buildDone:
+		returnedBeforeRelease = true
+	case <-time.After(100 * time.Millisecond):
+	}
+	close(source.release)
+	if !returnedBeforeRelease {
+		select {
+		case buildErr = <-buildDone:
+		case <-time.After(time.Second):
+			t.Fatal("BuildPackage did not return after source release")
+		}
+	}
+	select {
+	case <-drainDone:
+	case <-time.After(time.Second):
+		t.Fatal("transport body drain did not terminate")
+	}
+
+	if returnedBeforeRelease {
+		t.Fatal("BuildPackage returned while multipart writer retained source")
+	}
+	if !errors.Is(buildErr, transportErr) {
+		t.Fatalf("BuildPackage error=%v want transport error", buildErr)
+	}
+	if source.active.Load() {
+		t.Fatal("multipart writer still retains source after BuildPackage returned")
 	}
 }
 

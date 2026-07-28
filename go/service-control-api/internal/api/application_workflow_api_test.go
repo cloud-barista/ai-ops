@@ -236,6 +236,36 @@ func TestControlRunFromPackageOversizedSourceReturnsContentTooLarge(t *testing.T
 	}
 }
 
+func TestControlRunFromPackageMultipartMessageTooLargeReturnsContentTooLarge(t *testing.T) {
+	server, fake, closeServer := newApplicationWorkflowAPIServer(
+		t,
+		http.StatusCreated,
+		http.StatusCreated,
+	)
+	defer closeServer()
+	fields := defaultApplicationWorkflowFields()
+	fields["natural_language_request"] = strings.Repeat("x", 19<<20)
+
+	response := performMultipartControlRunFromPackage(
+		t,
+		server,
+		fields,
+		"run.sh",
+		"echo ok",
+	)
+
+	if response.Code != http.StatusRequestEntityTooLarge {
+		t.Fatalf(
+			"multipart message too large: code=%d body=%s",
+			response.Code,
+			response.Body.String(),
+		)
+	}
+	if fake.packageCalls != 0 || fake.registrationCalls != 0 {
+		t.Fatalf("multipart message too large reached AppDeploy: %#v", fake)
+	}
+}
+
 func TestControlRunFromPackageInvalidServicePortReturnsBadRequest(t *testing.T) {
 	server, fake, closeServer := newApplicationWorkflowAPIServer(
 		t,
@@ -253,6 +283,125 @@ func TestControlRunFromPackageInvalidServicePortReturnsBadRequest(t *testing.T) 
 	}
 	if fake.packageCalls != 0 || fake.registrationCalls != 0 {
 		t.Fatalf("invalid service_port reached AppDeploy: %#v", fake)
+	}
+}
+
+func TestControlRunFromPackageRejectsMissingRequiredFieldsBeforeAppDeploy(t *testing.T) {
+	server, fake, closeServer := newApplicationWorkflowAPIServer(
+		t,
+		http.StatusCreated,
+		http.StatusCreated,
+	)
+	defer closeServer()
+
+	requiredFields := []string{
+		"package_type",
+		"app_name",
+		"app_version",
+		"entrypoint",
+		"runtime_type",
+		"natural_language_request",
+		"candidate_id",
+		"cpu",
+		"memory",
+		"gpu",
+		"storage",
+	}
+	for _, field := range requiredFields {
+		t.Run(field, func(t *testing.T) {
+			fields := defaultApplicationWorkflowFields()
+			fields[field] = "   "
+
+			response := performMultipartControlRunFromPackage(
+				t,
+				server,
+				fields,
+				"run.sh",
+				"echo ok",
+			)
+
+			if response.Code != http.StatusBadRequest {
+				t.Fatalf(
+					"missing %s: code=%d body=%s",
+					field,
+					response.Code,
+					response.Body.String(),
+				)
+			}
+			if fake.packageCalls != 0 || fake.registrationCalls != 0 {
+				t.Fatalf("missing %s reached AppDeploy: %#v", field, fake)
+			}
+		})
+	}
+}
+
+func TestControlRunFromPackageRejectsInconsistentResourcesBeforeAppDeploy(t *testing.T) {
+	server, fake, closeServer := newApplicationWorkflowAPIServer(
+		t,
+		http.StatusCreated,
+		http.StatusCreated,
+	)
+	defer closeServer()
+
+	tests := []struct {
+		name   string
+		fields map[string]string
+	}{
+		{
+			name:   "unknown runtime",
+			fields: map[string]string{"runtime_type": "tpu"},
+		},
+		{
+			name:   "non-positive cpu",
+			fields: map[string]string{"cpu": "0"},
+		},
+		{
+			name:   "invalid memory quantity",
+			fields: map[string]string{"memory": "4GB"},
+		},
+		{
+			name:   "negative gpu",
+			fields: map[string]string{"gpu": "-1"},
+		},
+		{
+			name:   "invalid storage quantity",
+			fields: map[string]string{"storage": "10GB"},
+		},
+		{
+			name:   "cpu runtime with gpu",
+			fields: map[string]string{"runtime_type": "cpu", "gpu": "1"},
+		},
+		{
+			name:   "gpu runtime without gpu",
+			fields: map[string]string{"runtime_type": "gpu", "gpu": "0"},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			fields := defaultApplicationWorkflowFields()
+			for name, value := range test.fields {
+				fields[name] = value
+			}
+
+			response := performMultipartControlRunFromPackage(
+				t,
+				server,
+				fields,
+				"run.sh",
+				"echo ok",
+			)
+
+			if response.Code != http.StatusBadRequest {
+				t.Fatalf(
+					"inconsistent input: code=%d body=%s",
+					response.Code,
+					response.Body.String(),
+				)
+			}
+			if fake.packageCalls != 0 || fake.registrationCalls != 0 {
+				t.Fatalf("inconsistent input reached AppDeploy: %#v", fake)
+			}
+		})
 	}
 }
 
