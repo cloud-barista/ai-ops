@@ -24,7 +24,6 @@ function controlRun(runID, status, deploymentID, agentName, overrides = {}) {
       spec: { target_profile_id: "target-001" },
     },
     stages: [
-      "user_request",
       "request_guard",
       "agent_registry",
       "agent_dispatch",
@@ -72,7 +71,6 @@ function uploadedControlRun() {
       "app_upload",
       "package_build",
       "app_registration",
-      "user_request",
       "request_guard",
       "agent_registry",
       "agent_dispatch",
@@ -87,6 +85,22 @@ function uploadedControlRun() {
   });
 }
 
+function requestRejectedControlRun() {
+  return controlRun("run-request-rejected", "REQUEST_REJECTED", "", "AIApplicationAutomationAgent", {
+    request: {
+      natural_language_request: "허용되지 않은 범위의 앱을 배포해 주세요.",
+      app_version_id: "appver-rejected",
+      candidate_id: "qwen3.5-ops-planner",
+    },
+    stages: [{
+      name: "request_guard",
+      status: "rejected",
+      reason: "request scope is not allowed",
+      started_at: "2026-07-27T00:00:00Z",
+    }],
+  });
+}
+
 async function browserPage({ appdeployConfigured = true, viewport } = {}) {
   const assets = Object.fromEntries(await Promise.all([
     "index.html",
@@ -98,6 +112,7 @@ async function browserPage({ appdeployConfigured = true, viewport } = {}) {
     controlRun("run-deployed", "DEPLOYED", "dep-001", "PlannerAgent"),
     controlRun("run-approved", "MANIFEST_APPROVED", "", "AIApplicationAutomationAgent"),
     controlRun("run-appdeploy-failed", "APPDEPLOY_FAILED", "", "AIApplicationAutomationAgent"),
+    requestRejectedControlRun(),
   ];
   const requests = [];
   const agents = [
@@ -242,7 +257,7 @@ async function assertNoLayoutOverlap(page) {
       "#automatic-feedback-list > *",
       "#autonomy-timeline > *",
       ".form-actions > button",
-      ".input-mode-control > label",
+      ".input-mode-options > label",
       "#planner-form [data-input-mode-section]:not([hidden]) > .field",
     ];
     const intersect = (left, right) => left.left < right.right && right.left < left.right && left.top < right.bottom && right.top < left.bottom;
@@ -430,6 +445,29 @@ test("upload mode sends browser-owned multipart data and renders issued applicat
       submitDisabled: false,
     });
     assert.ok(result.stageLabels.indexOf("앱 등록") < result.stageLabels.indexOf("사용자 요청"));
+    const userRequestProjection = await page.evaluate(() => {
+      const stage = [...document.querySelectorAll("#manifest-stage-flow .manifest-stage")]
+        .find((entry) => entry.querySelector("strong").textContent === "사용자 요청");
+      return {
+        backendStages: state.lastPlannerRun.stages.map((entry) => entry.name),
+        status: stage.dataset.status,
+        reason: stage.querySelector("small").textContent,
+      };
+    });
+    assert.deepEqual(userRequestProjection, {
+      backendStages: [
+        "app_upload",
+        "package_build",
+        "app_registration",
+        "request_guard",
+        "agent_registry",
+        "agent_dispatch",
+        "qwen_planner",
+        "manifest_guard",
+      ],
+      status: "approved",
+      reason: "요청 접수 완료",
+    });
     assert.doesNotMatch(
       await page.locator("[aria-labelledby='planner-result-title']").textContent(),
       /demo-app\.zip|package-source/,
@@ -449,7 +487,27 @@ test("existing-App stages are skipped and AppDeploy submit requires MANIFEST_APP
       )),
       ["skipped", "skipped", "skipped"],
     );
+    const approvedUserRequest = page.locator("#manifest-stage-flow .manifest-stage").nth(3);
+    assert.equal(await approvedUserRequest.getAttribute("data-status"), "approved");
+    assert.equal(await approvedUserRequest.locator("small").textContent(), "요청 접수 완료");
     assert.equal(await page.locator("#planner-submit").isDisabled(), true);
+
+    await page.locator("[data-select-run='run-request-rejected']").dispatchEvent("click");
+    await page.waitForFunction(() => state.activeRunID === "run-request-rejected");
+    const rejectedProjection = await page.locator("#manifest-stage-flow .manifest-stage").evaluateAll((entries) => (
+      entries.map((entry) => ({
+        label: entry.querySelector("strong").textContent,
+        status: entry.dataset.status,
+        reason: entry.querySelector("small").textContent,
+      }))
+    ));
+    assert.deepEqual(rejectedProjection.slice(0, 5), [
+      { label: "앱 업로드", status: "skipped", reason: "기존 앱 사용" },
+      { label: "패키지 생성", status: "skipped", reason: "기존 앱 사용" },
+      { label: "앱 등록", status: "skipped", reason: "기존 앱 사용" },
+      { label: "사용자 요청", status: "approved", reason: "요청 접수 완료" },
+      { label: "Request Guard", status: "rejected", reason: "request scope is not allowed" },
+    ]);
 
     await page.locator("[data-select-run='run-appdeploy-failed']").dispatchEvent("click");
     await page.waitForFunction(() => state.activeRunID === "run-appdeploy-failed");
@@ -479,6 +537,7 @@ test("application workflow controls do not overlap on desktop or mobile", async 
         state.activeRunID === "run-uploaded" &&
         document.getElementById("application-registration-result").hidden === false
       ));
+      assert.equal(await page.locator(".input-mode-options > label").count(), 2);
       await assertNoHorizontalOverflow(page, viewport);
       await assertNoLayoutOverlap(page);
       assert.deepEqual(consoleErrors, []);
@@ -626,7 +685,7 @@ test("Feedback projects only active ControlRun evidence through the production b
     }));
     assert.equal(initial.selectedRunID, "run-deployed");
     assert.match(initial.summary, /run-deployed/);
-    assert.deepEqual(initial.entries, ["user_request", "request_guard", "agent_registry", "agent_dispatch", "qwen_planner", "manifest_guard", "execution_feedback", "observe"]);
+    assert.deepEqual(initial.entries, ["request_guard", "agent_registry", "agent_dispatch", "qwen_planner", "manifest_guard", "execution_feedback", "observe"]);
     assert.equal(initial.projection.executor_feedback.length, 1);
     assert.equal(initial.projection.autonomy_events.length, 1);
     assert.equal(initial.projection.entries.every((entry) => entry.details.run_id === "run-deployed" || entry.source === "control_run"), true);
@@ -698,11 +757,11 @@ test("AppDeploy-unavailable selected ControlRun retains Manifest stages and auto
       await page.waitForFunction(() => document.querySelector("[data-view='feedback']").hidden === false);
       await page.waitForFunction(() => {
         const projection = JSON.parse(document.getElementById("automatic-feedback-json").textContent);
-        return projection.run?.run_id === "run-approved" && projection.entries?.length >= 6 && projection.executor_feedback?.length === 1;
+        return projection.run?.run_id === "run-approved" && projection.entries?.length >= 5 && projection.executor_feedback?.length === 1;
       });
       const feedbackProjection = await page.evaluate(() => JSON.parse(document.getElementById("automatic-feedback-json").textContent));
-      assert.deepEqual(feedbackProjection.entries.slice(0, 6).map((entry) => entry.stage), [
-        "user_request", "request_guard", "agent_registry", "agent_dispatch", "qwen_planner", "manifest_guard",
+      assert.deepEqual(feedbackProjection.entries.slice(0, 5).map((entry) => entry.stage), [
+        "request_guard", "agent_registry", "agent_dispatch", "qwen_planner", "manifest_guard",
       ]);
       assert.equal(feedbackProjection.executor_feedback.length, 1);
       await assertNoHorizontalOverflow(page, viewport);

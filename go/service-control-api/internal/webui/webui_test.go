@@ -436,6 +436,7 @@ func TestControlAppManifestStagesUseReadableKorean(t *testing.T) {
 		"사용자 요청",
 		"Agent 실행",
 		"기존 앱 사용",
+		"요청 접수 완료",
 		"이전 단계에서 중단",
 		"대기 중",
 	} {

@@ -15,6 +15,7 @@
   const BLOCKED_STAGE_REASON = "이전 단계에서 중단";
   const PENDING_STAGE_REASON = "대기 중";
   const SKIPPED_STAGE_REASON = "기존 앱 사용";
+  const RECEIVED_STAGE_REASON = "요청 접수 완료";
   const APPLICATION_STAGE_KEYS = new Set(["app_upload", "package_build", "app_registration"]);
 
   function buildManifestStageViewModel(run) {
@@ -30,12 +31,25 @@
     return MANIFEST_STAGE_ORDER.map((definition, index) => {
       const stage = stages.get(definition.key);
       const skipped = !stage && existingAppRun && APPLICATION_STAGE_KEYS.has(definition.key);
+      const requestReceived = !stage &&
+        definition.key === "user_request" &&
+        Boolean(run?.run_id && run?.request);
+      let fallbackStatus = blocked ? "blocked" : "pending";
+      let fallbackReason = blocked ? BLOCKED_STAGE_REASON : PENDING_STAGE_REASON;
+      if (requestReceived) {
+        fallbackStatus = "approved";
+        fallbackReason = RECEIVED_STAGE_REASON;
+      }
+      if (skipped) {
+        fallbackStatus = "skipped";
+        fallbackReason = SKIPPED_STAGE_REASON;
+      }
       return {
         index: index + 1,
         key: definition.key,
         label: definition.label,
-        status: stage?.status || (skipped ? "skipped" : (blocked ? "blocked" : "pending")),
-        reason: stage?.reason || (skipped ? SKIPPED_STAGE_REASON : (blocked ? BLOCKED_STAGE_REASON : PENDING_STAGE_REASON)),
+        status: stage?.status || fallbackStatus,
+        reason: stage?.reason || fallbackReason,
       };
     });
   }
@@ -45,6 +59,7 @@
     BLOCKED_STAGE_REASON,
     PENDING_STAGE_REASON,
     SKIPPED_STAGE_REASON,
+    RECEIVED_STAGE_REASON,
     buildManifestStageViewModel,
   });
 
