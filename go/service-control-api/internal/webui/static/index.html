@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>geon Agent Control</title>
+  <link rel="icon" href="data:,">
   <link rel="stylesheet" href="/assets/app.css">
 </head>
 <body>
@@ -145,17 +146,17 @@
             <i data-lucide="chevron-down" aria-hidden="true"></i>
           </summary>
           <div class="experiment-guide-track">
-            <button class="experiment-guide-step is-core" type="button" data-guide-step="registry" data-view-target="agents">
-              <span class="experiment-step-number">1</span>
-              <span class="experiment-step-copy"><span class="experiment-step-meta">핵심 Manifest 실험</span><strong>Agent Registry 확인</strong><small>활성 Planner Agent의 capability와 bounded actions를 확인합니다.</small><em>결과: authorized Planner Agent</em></span>
-            </button>
             <button class="experiment-guide-step is-core" type="button" data-guide-step="manifest" data-view-target="planner">
+              <span class="experiment-step-number">1</span>
+              <span class="experiment-step-copy"><span class="experiment-step-meta">핵심 Manifest 실험</span><strong>사용자 요청으로 ControlRun 생성</strong><small>자연어 요청과 app_version_id를 입력해 Request Guard → Agent Registry → Agent Dispatcher → Qwen Planner → Manifest Guard 순서로 처리합니다.</small><em>결과: MANIFEST_APPROVED · DeploymentManifest</em></span>
+            </button>
+            <button class="experiment-guide-step is-core" type="button" data-guide-step="registry" data-view-target="agents">
               <span class="experiment-step-number">2</span>
-              <span class="experiment-step-copy"><span class="experiment-step-meta">핵심 Manifest 실험</span><strong>DeploymentManifest 생성</strong><small>자연어 요청과 app_version_id를 Qwen Planner와 Go Guard로 처리합니다.</small><em>결과: MANIFEST_APPROVED · DeploymentManifest</em></span>
+              <span class="experiment-step-copy"><span class="experiment-step-meta">관리형 내부 단계</span><strong>Agent Registry 확인</strong><small>Registry는 사용자 진입점이 아니라 ControlRun 중 Agent capability와 bounded action을 확인하는 내부 단계이며, Agents &amp; Guard 화면은 그 근거를 확인하는 보조 화면입니다.</small><em>결과: selected Planner Agent</em></span>
             </button>
             <button class="experiment-guide-step is-optional" type="button" data-guide-step="deploy" data-view-target="planner">
               <span class="experiment-step-number">3</span>
-              <span class="experiment-step-copy"><span class="experiment-step-meta">선택적 외부 배포</span><strong>AppDeploy 제출</strong><small>승인된 Manifest를 AppDeploy에 전달해 실제 배포를 요청합니다.</small><em>결과: deployment_id · status · logs</em></span>
+              <span class="experiment-step-copy"><span class="experiment-step-meta">선택적 AppDeploy 제출</span><strong>AppDeploy 제출</strong><small>승인된 Manifest를 별도 AppDeploy 서버에 전달해 실제 배포를 요청합니다.</small><em>결과: deployment_id · status · logs</em></span>
             </button>
             <button class="experiment-guide-step is-optional" type="button" data-guide-step="operate" data-view-target="autonomy">
               <span class="experiment-step-number">4</span>
@@ -163,10 +164,10 @@
             </button>
             <button class="experiment-guide-step is-optional" type="button" data-guide-step="feedback" data-view-target="feedback">
               <span class="experiment-step-number">5</span>
-              <span class="experiment-step-copy"><span class="experiment-step-meta">선택적 배포 후 실험</span><strong>Feedback 기록</strong><small>실행 결과를 동일한 run_id에 연결해 다음 판단의 근거로 남깁니다.</small><em>결과: run_id-linked Feedback</em></span>
+              <span class="experiment-step-copy"><span class="experiment-step-meta">Automatic Run Feedback</span><strong>동일 run_id의 자동 증적 확인</strong><small>Request Guard, Registry, Dispatcher, Qwen, Manifest Guard와 기존 실행 증적을 읽기 전용으로 표시합니다. Qwen을 재학습하지 않습니다.</small><em>선택: External Executor Callback Test는 승인된 correlation_id가 있을 때만 기록합니다.</em></span>
             </button>
           </div>
-          <p class="experiment-guide-note"><strong>핵심 범위:</strong> 1~2단계만으로 검증된 DeploymentManifest를 확인할 수 있습니다. 3~5단계는 AppDeploy 연결 후 수행하는 선택 실험입니다.</p>
+          <p class="experiment-guide-note"><strong>핵심 범위:</strong> 1~2단계만으로 검증된 DeploymentManifest와 자동 Feedback을 확인할 수 있습니다. AppDeploy는 별도 서버·저장소이며, 3단계 제출과 4단계 배포 후 실험은 실제 배포가 필요할 때만 수행합니다.</p>
         </details>
       </section>
 

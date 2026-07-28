@@ -2,7 +2,7 @@
 
 ## geon Agent Control 실행 가이드
 
-geon Agent Control은 backend `ControlRun`을 중심으로 Agent Registry, Agent Dispatcher, Qwen 기반 Manifest 생성, Go Guard 승인·거부, 선택적 AppDeploy 전달, 배포 후 Autonomous Loop와 실행 Feedback을 연결하는 웹 화면입니다. 내장 Agent와 외부 Runtime Agent는 같은 실행 계약을 사용합니다. AppDeploy 소스는 수정하지 않으며 두 서버를 별도 프로세스로 실행합니다.
+geon Agent Control은 backend `ControlRun`을 중심으로 사용자 요청, Agent Registry, Agent Dispatcher, Qwen 기반 Manifest 생성, Go Guard 승인·거부, 선택적 AppDeploy 전달, 배포 후 Autonomous Loop와 실행 Feedback을 연결하는 웹 화면입니다. 내장 Agent와 외부 Runtime Agent는 같은 실행 계약을 사용합니다. AppDeploy는 별도 서버와 저장소이며 geon이 그 소스를 수정하지 않고 두 서버를 별도 프로세스로 실행합니다.
 
 ### 구성과 포트
 
@@ -105,27 +105,32 @@ curl http://127.0.0.1:18080/healthz
 
 ### 4. 화면 사용 순서
 
-Overview에는 geon API·등록 Agent·Qwen 상태, `Agent 확인`, `Manifest 생성`, 최근 ControlRun만 기본으로 표시됩니다. **전체 실험 순서 보기**를 열면 다음 단계가 나타나며, 각 단계를 눌러 해당 화면으로 이동할 수 있습니다.
+Manifest Workflow가 첫 화면이자 사용자 진입점입니다. Guide에는 최근 ControlRun과 전체 실험 순서가 있으며, 각 단계를 눌러 해당 화면으로 이동할 수 있습니다. Agent Registry는 ControlRun 안에서 관리되는 내부 단계이고 **Agents & Guard**는 그 capability와 bounded Action을 확인하는 보조 화면입니다.
 
 ```text
-Overview
-→ Agents & Guard
-→ Deployment Planner
+Manifest Workflow
+→ 사용자 요청
+→ Request Guard
+→ Agent Registry
+→ Agent Dispatcher
+→ Qwen Planner
+→ Manifest Guard
+→ DeploymentManifest
 → (선택) AppDeploy 제출
 → (선택) 배포 후 자율 운영
-→ Feedback
+→ Automatic Run Feedback
 ```
 
-실험 순서 안내는 기본적으로 접혀 있습니다. 1~2단계인 Agent Registry 권한 확인과 DeploymentManifest 생성이 geon의 핵심 Manifest 실험입니다. AppDeploy 제출, 자율 운영, Feedback은 배포 연계가 필요할 때 수행하는 선택 단계이며 Manifest 생성의 필수 조건이 아닙니다.
+실험 순서 안내는 기본적으로 접혀 있습니다. 자연어 요청부터 승인된 DeploymentManifest까지가 geon의 핵심 Manifest 실험이며 AppDeploy 제출은 필수 조건이 아닙니다. Automatic Run Feedback은 같은 `run_id`의 기존 Guard·Planner·Manifest 증적을 읽기 전용으로 보여 주며 Qwen을 재학습하지 않습니다. External Executor Callback Test는 승인된 `correlation_id`가 있는 경우에만 별도로 기록하는 선택 테스트입니다.
 
-1. 실제 배포 시험이면 AppDeploy에 Target과 App을 등록하고 `app_version_id`를 복사합니다. Manifest-only 시험에서는 형식이 유효한 시험 ID를 사용할 수 있습니다.
-2. **Agents & Guard**에서 Agent의 internal/external source, capability와 bounded Action을 확인합니다.
-3. **Deployment Planner**의 자연어 요구, `app_version_id`, Qwen candidate를 입력합니다.
-4. **Generate Manifest**를 실행합니다.
-5. 동일한 `run_id` 아래 Request Guard → Agent Registry → Qwen Planner → Manifest Guard가 순서대로 기록되고, 성공 시 `MANIFEST_APPROVED`와 최종 Manifest가 표시됩니다.
-6. 실제 배포가 필요할 때만 **Submit to AppDeploy**를 실행합니다. Target hint는 선택 사항이며 AppDeploy가 최종 Target과 Runtime Adapter를 결정합니다.
-7. `DEPLOYED` Run만 **배포 후 자율 운영 실험**의 선택지에 나타납니다. Run을 선택해도 Loop가 자동 시작되지는 않습니다.
-8. Action Proposal과 Feedback은 동일한 `run_id`와 correlation ID로 배포 후 기록에 연결할 수 있습니다.
+1. **Manifest Workflow**를 엽니다.
+2. 자연어 요청과 `app_version_id`를 입력합니다. Qwen candidate가 필요한 경우 선택합니다.
+3. **Generate Manifest**로 ControlRun을 생성합니다.
+4. Request Guard → Agent Registry → Agent Dispatcher → Qwen Planner → Manifest Guard를 관찰합니다.
+5. `MANIFEST_APPROVED`의 승인된 `DeploymentManifest`를 확인합니다.
+6. 실제 배포가 필요할 때만 **Submit to AppDeploy**를 선택합니다. Target hint는 선택 사항이며 별도 AppDeploy 서버가 최종 Target과 Runtime Adapter를 결정합니다.
+7. `DEPLOYED`와 `deployment_id`가 확인된 뒤에만 **Post-deployment**를 사용합니다. Run을 선택해도 Loop가 자동 시작되지는 않습니다.
+8. **Feedback**에서 같은 `run_id`의 Automatic Run Feedback을 확인합니다. 외부 실행기 결과를 수동으로 남기는 **External Executor Callback Test**는 선택 사항이며 승인된 `correlation_id`가 있어야 합니다.
 
 자연어 요청 예시는 다음과 같습니다.
 
@@ -137,14 +142,16 @@ Mock 환경에서 CPU 1개, 메모리 1Gi, GPU 0개,
 처리 흐름은 다음과 같습니다.
 
 ```text
-자연어 요청
-→ Go Request Guard
-→ Agent Registry에서 Manifest Planner 권한 확인
-→ Qwen Deployment Manifest 생성
-→ Go Manifest Guard
-→ 최종 DeploymentManifest + MANIFEST_APPROVED
+사용자 요청
+→ Request Guard
+→ Agent Registry
+→ Agent Dispatcher
+→ Qwen Planner
+→ Manifest Guard
+→ DeploymentManifest + MANIFEST_APPROVED
 → (선택) AppDeploy API 호출
-→ (선택) 배포 상태·로그·Autonomous Loop·Feedback
+→ (DEPLOYED 후 선택) 배포 상태·로그·Autonomous Loop
+→ Automatic Run Feedback
 ```
 
 Manifest 전용 API와 선택적 제출 API는 다음처럼 분리됩니다.

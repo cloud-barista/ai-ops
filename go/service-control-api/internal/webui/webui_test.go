@@ -19,6 +19,7 @@ func TestRegisterServesEmbeddedControlApp(t *testing.T) {
 		contains    string
 	}{
 		{path: "/", contentType: "text/html", contains: "geon Agent Control"},
+		{path: "/", contentType: "text/html", contains: `rel="icon" href="data:,"`},
 		{path: "/assets/app.css", contentType: "text/css", contains: ":root"},
 		{path: "/assets/manifest_stages.js", contentType: "text/javascript", contains: "buildManifestStageViewModel"},
 		{path: "/assets/app.js", contentType: "text/javascript", contains: "loadAgents"},
@@ -162,7 +163,7 @@ func TestControlAppContainsOrderedExperimentGuide(t *testing.T) {
 		`id="experiment-guide-disclosure"`,
 		`EXPERIMENT GUIDE`,
 		`핵심 Manifest 실험`,
-		`선택적 외부 배포`,
+		`선택적 AppDeploy 제출`,
 		`선택적 배포 후 실험`,
 		`data-guide-step="registry"`,
 		`data-guide-step="manifest"`,
@@ -177,6 +178,52 @@ func TestControlAppContainsOrderedExperimentGuide(t *testing.T) {
 		}
 	}
 
+}
+
+func TestControlAppGuideMatchesUserRequestFirstWorkflow(t *testing.T) {
+	server := echo.New()
+	Register(server)
+
+	html := requestBody(t, server, "/")
+	guideStart := strings.Index(html, `id="experiment-guide-disclosure"`)
+	if guideStart == -1 {
+		t.Fatal("expected experiment Guide disclosure")
+	}
+	guideEnd := strings.Index(html[guideStart:], `</details>`)
+	if guideEnd == -1 {
+		t.Fatal("expected experiment Guide boundary")
+	}
+	guide := html[guideStart : guideStart+guideEnd]
+	lastIndex := -1
+	for _, expected := range []string{
+		`사용자 요청`,
+		`Request Guard`,
+		`Agent Registry`,
+		`Agent Dispatcher`,
+		`Qwen Planner`,
+		`Manifest Guard`,
+		`DeploymentManifest`,
+	} {
+		index := strings.Index(guide, expected)
+		if index == -1 {
+			t.Fatalf("expected user-first Guide step %q", expected)
+		}
+		if index <= lastIndex {
+			t.Fatalf("expected user-first Guide step %q after the previous step", expected)
+		}
+		lastIndex = index
+	}
+
+	for _, expected := range []string{
+		`핵심 Manifest 실험`,
+		`선택적 AppDeploy 제출`,
+		`선택적 배포 후 실험`,
+		`Automatic Run Feedback`,
+	} {
+		if !strings.Contains(guide, expected) {
+			t.Fatalf("expected Guide boundary label %q", expected)
+		}
+	}
 }
 
 func TestControlAppStartsWithManifestWorkflow(t *testing.T) {

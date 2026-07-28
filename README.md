@@ -12,7 +12,7 @@
 
 핵심 구현은 Go 언어로 구성되어 있습니다. 하나의 `ControlRun` 안에서 Go Request Guard가 자연어 요청을 검사하고, Agent Registry가 capability와 bounded Action을 기준으로 Agent를 승인합니다. Agent Dispatcher는 내장 `AIApplicationAutomationAgent`를 Qwen Planner로 실행하거나 등록된 Runtime Agent endpoint를 한 번 호출합니다. Qwen은 승인된 요구를 `DeploymentManifest`로 변환하고, Go Manifest Guard가 계약·자원 값·권한·보안 정책을 검증합니다.
 
-검증된 Manifest 생성은 AppDeploy 없이도 완료됩니다. 사용자가 별도로 제출을 선택한 경우에만 AppDeploy가 실제 Target과 Runtime Adapter를 선택하고 배포를 실행합니다. 배포 후 Autonomous Loop와 Feedback은 동일한 `run_id`에 연결되는 선택적 후속 경로입니다.
+검증된 Manifest 생성은 AppDeploy 없이도 완료됩니다. 사용자가 별도로 제출을 선택한 경우에만 별도 AppDeploy 서버와 저장소가 실제 Target과 Runtime Adapter를 선택하고 배포를 실행합니다. Automatic Feedback은 같은 `run_id`에 이미 있는 Guard·Planner·Manifest 증적을 읽기 전용으로 투영하며 Qwen을 재학습하지 않습니다. 배포 후 Autonomous Loop는 `DEPLOYED` 이후에만 사용하는 선택 경로입니다.
 
 현재 기본 Planner 모델은 **Qwen 3.5 4B (`qwen3.5:4b`)**입니다. Go 구현은 OpenAI-compatible endpoint 계약을 사용하므로 Ollama, vLLM 또는 연구 서버는 Qwen을 제공하는 실행 런타임으로 교체할 수 있습니다. 약 3.4GB의 Ollama 양자화 모델을 사용해 로컬과 AWS NVIDIA L4 24GB VM에서 같은 Planner 설정을 검증합니다.
 
@@ -100,13 +100,14 @@ curl http://127.0.0.1:18080/healthz
 
 ### 5. 첫 사용 순서
 
-1. 실제 배포 시험이면 AppDeploy에서 App과 Target을 등록하고 `app_version_id`를 복사합니다. Manifest-only 시험에서는 형식이 유효한 시험 ID를 사용할 수 있습니다.
-2. geon의 **Agents & Guard**에서 Agent의 source, capability와 bounded Action을 확인합니다. 행의 실행 버튼으로 내장 Agent 또는 등록 Runtime Agent를 Guarded Dispatcher를 통해 직접 시험할 수 있습니다.
-3. **Deployment Planner**에 자연어 요청과 `app_version_id`를 입력합니다.
-4. **Generate Manifest**를 실행해 Request Guard → Agent Registry → Qwen Planner → Manifest Guard 단계를 확인합니다.
-5. 결과 상태가 `MANIFEST_APPROVED`이면 최종 Manifest를 산출물로 사용할 수 있습니다.
-6. 실제 배포가 필요할 때만 **Submit to AppDeploy**를 눌러 `DEPLOYED` 상태와 `deployment_id`를 확인합니다.
-7. 배포된 Run은 **배포 후 자율 운영 실험**과 Feedback에 같은 `run_id`로 연결할 수 있습니다.
+1. **Manifest Workflow**를 엽니다.
+2. 자연어 요청과 `app_version_id`를 입력합니다. Manifest-only 시험에는 형식이 유효한 시험 ID를 사용할 수 있습니다.
+3. **Generate Manifest**로 ControlRun을 생성합니다.
+4. 같은 `run_id`에 기록된 Request Guard → Agent Registry → Agent Dispatcher → Qwen Planner → Manifest Guard를 확인합니다. Agent Registry는 관리형 내부 단계이고 **Agents & Guard**는 capability와 bounded Action을 확인하는 보조 화면이며, 사용자 진입점이 아닙니다.
+5. 승인된 `DeploymentManifest`를 확인합니다.
+6. 실제 배포가 필요할 때만 **Submit to AppDeploy**를 선택합니다. AppDeploy는 별도 서버·저장소이며 geon Manifest 생성의 필수 조건이 아닙니다.
+7. `DEPLOYED`와 `deployment_id`가 확인된 뒤에만 **Post-deployment**를 사용합니다.
+8. **Feedback**에서 같은 `run_id`의 Automatic Run Feedback을 확인합니다. 이는 기존 Run 증적의 읽기 전용 투영이며 Qwen을 재학습하지 않습니다. **External Executor Callback Test**는 선택 사항이고 승인된 `correlation_id`가 있을 때만 사용합니다.
 
 각 서버는 실행한 터미널에서 `Ctrl+C`로 종료합니다. Autonomous Loop, Guarded Auto, 기록 삭제와 문제 해결 절차는 [geon Agent Control 상세 실행 가이드](go/service-control-api/README.md#geon-agent-control-실행-가이드)를 참고합니다.
 

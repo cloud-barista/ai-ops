@@ -746,9 +746,11 @@ async function submitAgentExecution(event) {
     await loadControlRuns();
     showToast(`Agent 실행 완료: ${executionStatus}`, executionStatus === "completed" ? "success" : "warning");
   } catch (error) {
+    const payload = error.payload || { message: error.message };
     status.textContent = "FAILED";
     status.dataset.status = "failed";
-    byID("agent-execution-result").textContent = pretty(error.payload || { message: error.message });
+    byID("agent-execution-run-id").textContent = text(payload.run_id);
+    byID("agent-execution-result").textContent = pretty(payload);
     showToast(error.message, "error");
   } finally {
     setBusy(form, false);

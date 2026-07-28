@@ -18,12 +18,24 @@ function controlRun(runID, status, deploymentID, agentName) {
     generation: { actual_model: "qwen", guard_valid: true, latency_ms: 1 },
     deployment: deploymentID ? { deployment_id: deploymentID, target_profile_id: "target-001" } : {},
     manifest: { spec: { target_profile_id: "target-001" } },
-    stages: [{ name: "user_request", status: "approved", reason: "accepted", started_at: "2026-07-28T00:00:00Z" }],
+    stages: [
+      "user_request",
+      "request_guard",
+      "agent_registry",
+      "agent_dispatch",
+      "qwen_planner",
+      "manifest_guard",
+    ].map((name, index) => ({
+      name,
+      status: "approved",
+      reason: "accepted",
+      started_at: `2026-07-27T00:00:0${index}Z`,
+    })),
     logs: [],
   };
 }
 
-async function browserPage() {
+async function browserPage({ appdeployConfigured = true, viewport } = {}) {
   const assets = Object.fromEntries(await Promise.all([
     "index.html",
     "app.css",
@@ -32,11 +44,11 @@ async function browserPage() {
   ].map(async (name) => [name, await fs.readFile(path.join(staticDir, name), "utf8")])));
   let runs = [
     controlRun("run-deployed", "DEPLOYED", "dep-001", "PlannerAgent"),
-    controlRun("run-approved", "MANIFEST_APPROVED", "", "SafetyAgent"),
+    controlRun("run-approved", "MANIFEST_APPROVED", "", "AIApplicationAutomationAgent"),
   ];
   const agents = [
     { name: "PlannerAgent", source: "internal", role: "planner", capabilities: ["plan"], bounded_actions: [], enabled: true },
-    { name: "SafetyAgent", source: "internal", role: "guard", capabilities: ["validate"], bounded_actions: [], enabled: true },
+    { name: "AIApplicationAutomationAgent", source: "internal", role: "planner", capabilities: ["deployment_manifest_planning"], bounded_actions: ["generate_deployment_manifest"], enabled: true },
   ];
   let feedback = [
     { correlation_id: "feedback-deployed", run_id: "run-deployed", executor: "AppDeployExecutorAgent", status: "succeeded", message: "deployment completed", received_at: "2026-07-28T00:01:00Z" },
@@ -48,7 +60,11 @@ async function browserPage() {
   ];
 
   const browser = await chromium.launch({ headless: true, channel: "chrome" });
-  const page = await browser.newPage();
+  const page = await browser.newPage({ viewport });
+  const consoleErrors = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
   await page.addInitScript(() => {
     localStorage.setItem("geon-agent-control-active-run-id", "missing-run");
     window.confirm = () => true;
@@ -59,6 +75,10 @@ async function browserPage() {
     const url = new URL(request.url());
     const pathname = url.pathname;
     const method = request.method();
+    if (url.hostname === "unpkg.com" && pathname === "/lucide@0.468.0/dist/umd/lucide.min.js") {
+      await route.fulfill({ contentType: "text/javascript; charset=utf-8", body: "window.lucide = { createIcons() {} };" });
+      return;
+    }
     const asset = {
       "/": ["text/html; charset=utf-8", assets["index.html"]],
       "/assets/app.css": ["text/css; charset=utf-8", assets["app.css"]],
@@ -90,7 +110,7 @@ async function browserPage() {
     if (pathname === "/api/v1/autonomy/status") {
       await route.fulfill({ contentType: "application/json", body: JSON.stringify({
         running: false,
-        appdeploy_configured: true,
+        appdeploy_configured: appdeployConfigured,
         state: {},
         config: { mode: "monitor_only", slo: {} },
       }) });
@@ -102,6 +122,20 @@ async function browserPage() {
     }
     if (pathname === "/api/v1/automation/feedback" && method === "GET") {
       await route.fulfill({ contentType: "application/json", body: JSON.stringify({ feedback }) });
+      return;
+    }
+    if (pathname === "/api/v1/agents/AIApplicationAutomationAgent/execute" && method === "POST") {
+      await route.fulfill({
+        status: 422,
+        contentType: "application/json",
+        body: JSON.stringify({
+          valid: false,
+          message: "Agent result was rejected",
+          reason: "Agent result run_id does not match the dispatched run",
+          run_id: "run-rejected",
+          result_guard: { valid: false, status: "rejected", reason: "Agent result run_id does not match the dispatched run" },
+        }),
+      });
       return;
     }
     const match = pathname.match(/^\/api\/v1\/control-runs\/([^/]+)$/);
@@ -122,7 +156,36 @@ async function browserPage() {
   });
   await page.goto("http://webui.test/");
   await page.waitForFunction(() => document.getElementById("refresh-button").disabled === false);
-  return { browser, page };
+  return { browser, page, consoleErrors };
+}
+
+async function assertNoLayoutOverlap(page) {
+  const overlaps = await page.evaluate(() => {
+    const groups = [
+      "#manifest-stage-flow > *",
+      "#automatic-feedback-list > *",
+      "#autonomy-timeline > *",
+      ".form-actions > button",
+    ];
+    const intersect = (left, right) => left.left < right.right && right.left < left.right && left.top < right.bottom && right.top < left.bottom;
+    return groups.flatMap((selector) => {
+      const elements = [...document.querySelectorAll(selector)].filter((element) => {
+        const style = window.getComputedStyle(element);
+        const rect = element.getBoundingClientRect();
+        return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
+      });
+      const collisions = [];
+      for (let index = 0; index < elements.length; index += 1) {
+        for (let next = index + 1; next < elements.length; next += 1) {
+          if (intersect(elements[index].getBoundingClientRect(), elements[next].getBoundingClientRect())) {
+            collisions.push(selector);
+          }
+        }
+      }
+      return collisions;
+    });
+  });
+  assert.deepEqual(overlaps, []);
 }
 
 async function postDeploymentState(page) {
@@ -183,7 +246,7 @@ test("ControlRun selection clears and gates Post-deployment controls through the
       autonomyRunID: "",
       deploymentID: "",
       readiness: "blocked",
-      plannerSelected: "SafetyAgent",
+      plannerSelected: "AIApplicationAutomationAgent",
       selectedLabel: "selected by active Run",
       disabled: {
         "autonomy-start": true,
@@ -272,7 +335,7 @@ test("Feedback projects only active ControlRun evidence through the production b
     }));
     assert.equal(initial.selectedRunID, "run-deployed");
     assert.match(initial.summary, /run-deployed/);
-    assert.deepEqual(initial.entries, ["user_request", "execution_feedback", "observe"]);
+    assert.deepEqual(initial.entries, ["user_request", "request_guard", "agent_registry", "agent_dispatch", "qwen_planner", "manifest_guard", "execution_feedback", "observe"]);
     assert.equal(initial.projection.executor_feedback.length, 1);
     assert.equal(initial.projection.autonomy_events.length, 1);
     assert.equal(initial.projection.entries.every((entry) => entry.details.run_id === "run-deployed" || entry.source === "control_run"), true);
@@ -285,5 +348,74 @@ test("Feedback projects only active ControlRun evidence through the production b
     assert.deepEqual(selected.autonomy_events.map((event) => event.sequence), [2]);
   } finally {
     await browser.close();
+  }
+});
+
+test("Rejected Agent results display their ControlRun and Guard reason through the production browser UI", async () => {
+  const { browser, page } = await browserPage();
+  try {
+    await page.locator(".nav-item[data-view-target='agents']").click();
+    await page.waitForFunction(() => document.querySelector("[data-view='agents']").hidden === false);
+    await page.locator("[data-execute-agent='AIApplicationAutomationAgent']").click();
+    await page.locator("#agent-execution-dialog").waitFor({ state: "visible" });
+    await page.locator("#agent-execution-form button[type='submit']").click();
+    await page.waitForFunction(() => document.getElementById("agent-execution-status").textContent === "FAILED");
+
+    const rejected = await page.evaluate(() => ({
+      runID: document.getElementById("agent-execution-run-id").textContent,
+      result: document.getElementById("agent-execution-result").textContent,
+    }));
+    assert.equal(rejected.runID, "run-rejected");
+    assert.match(rejected.result, /Agent result run_id does not match the dispatched run/);
+  } finally {
+    await browser.close();
+  }
+});
+
+test("AppDeploy-unavailable selected ControlRun retains Manifest stages and automatic Feedback on desktop and mobile", async () => {
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+    const { browser, page, consoleErrors } = await browserPage({ appdeployConfigured: false, viewport });
+    try {
+      await page.locator(".nav-item[data-view-target='overview']").click();
+      await page.waitForFunction(() => document.querySelector("[data-view='overview']").hidden === false);
+      await page.locator("[data-select-run='run-approved']").click();
+      await page.waitForFunction(() => state.activeRunID === "run-approved");
+      await page.locator(".nav-item[data-view-target='planner']").click();
+      await page.waitForFunction(() => document.querySelector("[data-view='planner']").hidden === false);
+      await page.waitForFunction(() => document.querySelectorAll("#manifest-stage-flow .manifest-stage").length === 6);
+
+      const manifest = await page.evaluate(() => ({
+        labels: [...document.querySelectorAll("#manifest-stage-flow .manifest-stage strong")].map((entry) => entry.textContent),
+        deploymentID: document.querySelector("#autonomy-form [name='deployment_id']").value,
+        postDeployment: document.getElementById("post-deployment-readiness").dataset.status,
+        selectedAgent: document.querySelector("#agent-table-body tr[data-selected-agent='true'] strong")?.textContent,
+      }));
+      assert.equal(manifest.labels.length, 6);
+      assert.equal(manifest.deploymentID, "");
+      assert.equal(manifest.postDeployment, "blocked");
+      assert.equal(manifest.selectedAgent, "AIApplicationAutomationAgent");
+
+      await page.locator(".nav-item[data-view-target='autonomy']").click();
+      await page.waitForFunction(() => document.querySelector("[data-view='autonomy']").hidden === false);
+      await page.waitForFunction(() => document.getElementById("autonomy-connection").textContent === "AppDeploy not configured");
+      assert.equal(await page.locator("#post-deployment-readiness").getAttribute("data-status"), "blocked");
+
+      await page.locator(".nav-item[data-view-target='feedback']").click();
+      await page.waitForFunction(() => document.querySelector("[data-view='feedback']").hidden === false);
+      await page.waitForFunction(() => {
+        const projection = JSON.parse(document.getElementById("automatic-feedback-json").textContent);
+        return projection.run?.run_id === "run-approved" && projection.entries?.length >= 6 && projection.executor_feedback?.length === 1;
+      });
+      const feedbackProjection = await page.evaluate(() => JSON.parse(document.getElementById("automatic-feedback-json").textContent));
+      assert.deepEqual(feedbackProjection.entries.slice(0, 6).map((entry) => entry.stage), [
+        "user_request", "request_guard", "agent_registry", "agent_dispatch", "qwen_planner", "manifest_guard",
+      ]);
+      assert.equal(feedbackProjection.executor_feedback.length, 1);
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), true);
+      await assertNoLayoutOverlap(page);
+      assert.deepEqual(consoleErrors, []);
+    } finally {
+      await browser.close();
+    }
   }
 });
