@@ -31,6 +31,13 @@ const (
 
 	ReasoningModeRuleBased = "rule_based"
 
+	InputTypeNaturalLanguage = "natural_language"
+	InputTypeStructured      = "structured"
+
+	AnalysisModeLocalRule  = "local_rule"
+	AnalysisModeStructured = "structured"
+	AnalysisModeQwen       = "qwen"
+
 	CorrectionTargetApplicationProfile     = "application_profile"
 	CorrectionTargetResourceRecommendation = "resource_recommendation"
 
@@ -60,6 +67,40 @@ const (
 type Endpoint struct {
 	System    string `json:"system"`
 	Component string `json:"component"`
+}
+
+type AutomationRunInput struct {
+	InputType   string             `json:"input_type"`
+	Request     string             `json:"request,omitempty"`
+	RequestedBy string             `json:"requested_by,omitempty"`
+	AppSpec     *StructuredAppSpec `json:"app_spec,omitempty"`
+}
+
+type StructuredAppSpec struct {
+	AppID                string `json:"app_id,omitempty"`
+	AppVersion           string `json:"app_version,omitempty"`
+	WorkloadType         string `json:"workload_type,omitempty"`
+	CPUCores             int    `json:"cpu_cores"`
+	MemoryMiB            int    `json:"memory_mib"`
+	StorageGiB           int    `json:"storage_gib"`
+	AcceleratorType      string `json:"accelerator_type,omitempty"`
+	AcceleratorCount     int    `json:"accelerator_count,omitempty"`
+	AcceleratorMemoryMiB int    `json:"accelerator_memory_mib,omitempty"`
+	ReplicasMin          int    `json:"replicas_min,omitempty"`
+	ReplicasMax          int    `json:"replicas_max,omitempty"`
+}
+
+type RequirementAnalysisEvidence struct {
+	Mode        string   `json:"mode"`
+	SourceInput string   `json:"source_input,omitempty"`
+	Assumptions []string `json:"assumptions,omitempty"`
+}
+
+type RequirementAnalysisResult struct {
+	ApplicationProfile  ApplicationProfile          `json:"application_profile"`
+	ModelRecommendation ModelRecommendation         `json:"model_recommendation"`
+	Mode                string                      `json:"mode"`
+	Evidence            RequirementAnalysisEvidence `json:"evidence"`
 }
 
 type Envelope struct {
