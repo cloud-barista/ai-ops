@@ -3,6 +3,7 @@ package webui
 import (
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -22,11 +23,11 @@ func TestRegisterServesEmbeddedControlApp(t *testing.T) {
 		{path: "/", contentType: "text/html", contains: `rel="icon" href="data:,"`},
 		{path: "/assets/app.css", contentType: "text/css", contains: ":root"},
 		{path: "/assets/manifest_stages.js", contentType: "text/javascript", contains: "buildManifestStageViewModel"},
-		{path: "/assets/app.js", contentType: "text/javascript", contains: "loadAgents"},
+		{path: "/assets/app.js", contentType: "text/javascript", contains: "submitAutomationFlow"},
 	}
 
 	for _, test := range tests {
-		t.Run(test.path, func(t *testing.T) {
+		t.Run(test.path+"/"+test.contains, func(t *testing.T) {
 			request := httptest.NewRequest(http.MethodGet, test.path, nil)
 			response := httptest.NewRecorder()
 			server.ServeHTTP(response, request)
@@ -44,640 +45,205 @@ func TestRegisterServesEmbeddedControlApp(t *testing.T) {
 	}
 }
 
-func TestControlAppContainsOperationalViewsAndAPIContracts(t *testing.T) {
+func TestControlAppContainsExactlyThreeResearchViews(t *testing.T) {
 	server := echo.New()
 	Register(server)
-
 	html := requestBody(t, server, "/")
+
 	for _, expected := range []string{
-		`data-view="overview"`,
-		`data-view="planner"`,
-		`data-view="agents"`,
-		`data-view="feedback"`,
-		`id="planner-form"`,
-		`id="agent-registration-form"`,
-		`id="action-form"`,
-		`id="feedback-form"`,
-		`<option value="succeeded">succeeded</option>`,
-		`aria-label="Agents &amp; Guard"`,
-		`data-close-dialog`,
+		`data-view-target="agent-control"`,
+		`data-view-target="agents"`,
+		`data-view-target="results"`,
+		`<span>자동화 에이전트</span>`,
+		`<span>Agent 및 정책</span>`,
+		`<span>실험 결과</span>`,
+		`<section class="view is-active" data-view="agent-control">`,
+		`<section class="view" data-view="agents" hidden>`,
+		`<section class="view" data-view="results" hidden>`,
 	} {
 		if !strings.Contains(html, expected) {
-			t.Fatalf("expected dashboard HTML to contain %q", expected)
+			t.Fatalf("missing simplified web contract %q", expected)
 		}
 	}
 
-	javascript := requestBody(t, server, "/assets/app.js")
-	for _, expected := range []string{
-		`/healthz`,
-		`/api/v1/agents`,
-		`/api/v1/planner/deployments`,
-		`/api/v1/automation/action-proposals`,
-		`/api/v1/automation/feedback`,
-		`[data-close-dialog]`,
+	navTargets := regexp.MustCompile(`data-view-target="[^"]+"`).FindAllString(html, -1)
+	if len(navTargets) != 3 {
+		t.Fatalf("primary navigation targets = %v, want exactly 3", navTargets)
+	}
+	views := regexp.MustCompile(`data-view="[^"]+"`).FindAllString(html, -1)
+	if len(views) != 3 {
+		t.Fatalf("view containers = %v, want exactly 3", views)
+	}
+
+	for _, removed := range []string{
+		`data-view="overview"`,
+		`data-view="planner"`,
+		`data-view="autonomy"`,
+		`data-view="feedback"`,
+		`id="planner-form"`,
+		`id="action-form"`,
+		`id="autonomy-form"`,
+		`id="feedback-form"`,
+		`id="agent-execution-dialog"`,
+		`고급 PoC 도구`,
+		`Submit to AppDeploy`,
 	} {
-		if !strings.Contains(javascript, expected) {
-			t.Fatalf("expected dashboard JavaScript to contain API route %q", expected)
+		if strings.Contains(html, removed) {
+			t.Fatalf("platform-oriented web element remains %q", removed)
 		}
 	}
 }
 
-func TestControlAppContainsApplicationAutomationAgentWorkflow(t *testing.T) {
+func TestControlAppContainsSingleAutomationWorkflow(t *testing.T) {
 	server := echo.New()
 	Register(server)
-
 	html := requestBody(t, server, "/")
+
 	for _, expected := range []string{
-		`data-view="agent-control"`,
-		`AI 응용 자동화 에이전트`,
-		`id="application-context-form"`,
+		`id="automation-flow-form"`,
 		`id="application-context-json"`,
-		`id="resource-recommendation-form"`,
 		`id="resource-recommendation-json"`,
+		`id="load-agent-control-sample"`,
+		`id="run-automation-flow"`,
 		`id="agent-control-stage-flow"`,
+		`data-agent-control-stage="application"`,
+		`data-agent-control-stage="resource"`,
+		`data-agent-control-stage="authorization"`,
+		`data-agent-control-stage="planner"`,
+		`data-agent-control-stage="guard"`,
+		`data-agent-control-stage="manifest"`,
 		`id="agent-control-result-json"`,
-		`Application Context`,
-		`Resource Recommendation`,
-		`Safe Guard · Repair`,
-		`deployment.create.request`,
-		`id="reasoning-comparison-form"`,
-		`id="reasoning-comparison-json"`,
-		`id="deployment-status-form"`,
-		`id="optimization-feedback-form"`,
-		`id="agent-control-feedback-summary"`,
+		`Desired Deployment Spec`,
 	} {
 		if !strings.Contains(html, expected) {
-			t.Fatalf("expected automation Agent HTML contract %q", expected)
+			t.Fatalf("missing automation workflow contract %q", expected)
 		}
 	}
 
-	javascript := requestBody(t, server, "/assets/app.js")
+	if strings.Contains(html, `id="application-context-form"`) ||
+		strings.Contains(html, `id="resource-recommendation-form"`) {
+		t.Fatal("core inputs must use one joined execution form")
+	}
+}
+
+func TestControlAppContainsPolicyRegistryAndExperimentResults(t *testing.T) {
+	server := echo.New()
+	Register(server)
+	html := requestBody(t, server, "/")
+
 	for _, expected := range []string{
+		`id="core-policy-summary"`,
+		`AIApplicationAutomationAgent`,
+		`ai_application_automation`,
+		`generate_deployment_decision`,
+		`id="agent-table-body"`,
+		`id="open-agent-dialog"`,
+		`id="agent-registration-form"`,
+		`id="experiment-flow-list"`,
+		`id="experiment-decision-summary"`,
+		`id="experiment-scaling-summary"`,
+		`id="experiment-flow-json"`,
+		`id="clear-experiment-flows"`,
+		`id="reasoning-comparison-form"`,
+		`id="deployment-status-form"`,
+		`id="optimization-feedback-form"`,
+	} {
+		if !strings.Contains(html, expected) {
+			t.Fatalf("missing policy or experiment contract %q", expected)
+		}
+	}
+}
+
+func TestControlAppJavaScriptUsesOnlyFocusedWebAPIs(t *testing.T) {
+	server := echo.New()
+	Register(server)
+	javascript := requestBody(t, server, "/assets/app.js")
+
+	for _, expected := range []string{
+		`agents: "/api/v1/agents"`,
 		`applicationContexts: "/api/v1/agent-control/application-contexts"`,
 		`resourceRecommendations: "/api/v1/agent-control/resource-recommendations"`,
 		`deploymentStatus: "/api/v1/agent-control/deployment-status"`,
 		`optimizationFeedback: "/api/v1/agent-control/optimization-feedback"`,
 		`agentControlFlows: "/api/v1/agent-control/flows"`,
-		`submitApplicationContext`,
-		`submitResourceRecommendation`,
-		`runReasoningComparison`,
-		`submitDeploymentStatus`,
-		`submitOptimizationFeedback`,
+		`submitAutomationFlow`,
 		`renderAgentControlFlow`,
+		`renderExperimentFlows`,
+		`deleteAgentControlFlow`,
+		`clearAgentControlFlows`,
 	} {
 		if !strings.Contains(javascript, expected) {
-			t.Fatalf("expected automation Agent JavaScript contract %q", expected)
+			t.Fatalf("missing focused JavaScript contract %q", expected)
 		}
-	}
-}
-
-func TestControlAppContainsAutonomyView(t *testing.T) {
-	server := echo.New()
-	Register(server)
-
-	html := requestBody(t, server, "/")
-	for _, expected := range []string{
-		`data-view="autonomy"`, `id="autonomy-form"`, `name="mode"`,
-		`id="autonomy-start"`, `id="autonomy-stop"`, `id="autonomy-emergency-stop"`, `id="autonomy-run-cycle"`,
-		`id="autonomy-latency"`, `id="autonomy-throughput"`, `id="autonomy-error-rate"`,
-		`id="autonomy-qwen-action"`, `id="autonomy-guard-status"`, `id="autonomy-execution-status"`,
-		`id="autonomy-timeline"`,
-	} {
-		if !strings.Contains(html, expected) {
-			t.Fatalf("expected autonomy HTML contract %q", expected)
-		}
-	}
-
-	javascript := requestBody(t, server, "/assets/app.js")
-	for _, expected := range []string{
-		`/api/v1/autonomy/status`, `/api/v1/autonomy/config`, `/api/v1/autonomy/start`,
-		`/api/v1/autonomy/stop`, `/api/v1/autonomy/emergency-stop`, `/api/v1/autonomy/cycles`, `/api/v1/autonomy/events`,
-	} {
-		if !strings.Contains(javascript, expected) {
-			t.Fatalf("expected autonomy JavaScript route %q", expected)
-		}
-	}
-}
-
-func TestControlAppContainsControlRunManifestWorkflow(t *testing.T) {
-	server := echo.New()
-	Register(server)
-
-	html := requestBody(t, server, "/")
-	for _, expected := range []string{
-		`Generate Manifest`,
-		`Submit to AppDeploy`,
-		`Request Guard`,
-		`Agent Registry`,
-		`Qwen Planner`,
-		`Manifest Guard`,
-		`배포 후 자율 운영 실험`,
-		`id="control-run-list"`,
-		`id="control-run-timeline"`,
-		`id="planner-submit"`,
-		`name="run_id"`,
-		`id="selected-planner-agent"`,
-	} {
-		if !strings.Contains(html, expected) {
-			t.Fatalf("expected ControlRun HTML contract %q", expected)
-		}
-	}
-
-	javascript := requestBody(t, server, "/assets/app.js")
-	for _, expected := range []string{
-		`controlRuns: "/api/v1/control-runs"`,
-		`loadControlRuns`,
-		`renderControlRuns`,
-		`data-run-id`,
-		`/submit`,
-		`method: "DELETE"`,
-	} {
-		if !strings.Contains(javascript, expected) {
-			t.Fatalf("expected ControlRun JavaScript contract %q", expected)
-		}
-	}
-
-	stylesheet := requestBody(t, server, "/assets/app.css")
-	if !strings.Contains(stylesheet, `.result-empty[hidden]`) {
-		t.Fatal("expected stylesheet to preserve the result placeholder hidden state")
-	}
-}
-
-func TestControlAppContainsUserFirstApplicationWorkflow(t *testing.T) {
-	server := echo.New()
-	Register(server)
-
-	html := requestBody(t, server, "/")
-	for _, expected := range []string{
-		`id="input-mode-upload"`,
-		`id="input-mode-existing"`,
-		`id="application-source"`,
-		`id="package-type"`,
-		`id="app-name"`,
-		`id="app-version"`,
-		`id="entrypoint"`,
-		`id="runtime-type"`,
-		`id="cost-policy"`,
-		`id="application-package-result"`,
-		`id="application-registration-result"`,
-	} {
-		if !strings.Contains(html, expected) {
-			t.Fatalf("expected application workflow HTML contract %q", expected)
-		}
-	}
-}
-
-func TestControlAppApplicationWorkflowUsesReadableKorean(t *testing.T) {
-	server := echo.New()
-	Register(server)
-
-	html := requestBody(t, server, "/")
-	for _, expected := range []string{
-		"앱 입력 방식",
-		"새 앱 업로드",
-		"등록된 앱 사용",
-		"앱 소스",
-		"패키지 유형",
-		"앱 이름",
-		"앱 버전",
-		"진입점",
-		"런타임",
-		"비용 정책",
-		"패키지 증적",
-		"앱 등록 증적",
-		`aria-label="Manifest 처리 단계"`,
-	} {
-		if !strings.Contains(html, expected) {
-			t.Fatalf("expected readable Korean application workflow text %q", expected)
-		}
-	}
-
-	for _, corrupted := range []string{
-		"?ъ슜???붿껌",
-		"???낅젰 諛⑹떇",
-		"?????낅줈??",
-		"?깅줉?????ъ슜",
-		"泥섎━ ?④퀎",
-	} {
-		if strings.Contains(html, corrupted) {
-			t.Fatalf("unexpected corrupted application workflow text %q", corrupted)
-		}
-	}
-}
-
-func TestControlAppContainsOrderedExperimentGuide(t *testing.T) {
-	server := echo.New()
-	Register(server)
-
-	html := requestBody(t, server, "/")
-	for _, expected := range []string{
-		`id="experiment-guide-disclosure"`,
-		`EXPERIMENT GUIDE`,
-		`핵심 Manifest 실험`,
-		`선택적 AppDeploy 제출`,
-		`선택적 배포 후 실험`,
-		`data-guide-step="registry"`,
-		`data-guide-step="manifest"`,
-		`data-guide-step="deploy"`,
-		`data-guide-step="operate"`,
-		`data-guide-step="feedback"`,
-		`MANIFEST_APPROVED`,
-		`DeploymentManifest`,
-	} {
-		if !strings.Contains(html, expected) {
-			t.Fatalf("expected experiment guide HTML contract %q", expected)
-		}
-	}
-
-}
-
-func TestControlAppGuideMatchesUserRequestFirstWorkflow(t *testing.T) {
-	server := echo.New()
-	Register(server)
-
-	html := requestBody(t, server, "/")
-	guideStart := strings.Index(html, `id="experiment-guide-disclosure"`)
-	if guideStart == -1 {
-		t.Fatal("expected experiment Guide disclosure")
-	}
-	guideEnd := strings.Index(html[guideStart:], `</details>`)
-	if guideEnd == -1 {
-		t.Fatal("expected experiment Guide boundary")
-	}
-	guide := html[guideStart : guideStart+guideEnd]
-	lastIndex := -1
-	for _, expected := range []string{
-		`사용자 요청`,
-		`Request Guard`,
-		`Agent Registry`,
-		`Agent Dispatcher`,
-		`Qwen Planner`,
-		`Manifest Guard`,
-		`DeploymentManifest`,
-	} {
-		index := strings.Index(guide, expected)
-		if index == -1 {
-			t.Fatalf("expected user-first Guide step %q", expected)
-		}
-		if index <= lastIndex {
-			t.Fatalf("expected user-first Guide step %q after the previous step", expected)
-		}
-		lastIndex = index
-	}
-
-	for _, expected := range []string{
-		`핵심 Manifest 실험`,
-		`선택적 AppDeploy 제출`,
-		`선택적 배포 후 실험`,
-		`Automatic Run Feedback`,
-	} {
-		if !strings.Contains(guide, expected) {
-			t.Fatalf("expected Guide boundary label %q", expected)
-		}
-	}
-}
-
-func TestControlAppStartsWithApplicationAutomationWorkflow(t *testing.T) {
-	server := echo.New()
-	Register(server)
-
-	html := requestBody(t, server, "/")
-	agentControlNav := strings.Index(html, `data-view-target="agent-control"`)
-	plannerNav := strings.Index(html, `data-view-target="planner"`)
-	agentsNav := strings.Index(html, `data-view-target="agents"`)
-	autonomyNav := strings.Index(html, `data-view-target="autonomy"`)
-	feedbackNav := strings.Index(html, `data-view-target="feedback"`)
-	guideNav := strings.Index(html, `data-view-target="overview"`)
-
-	if !(agentControlNav < plannerNav && plannerNav < agentsNav && agentsNav < autonomyNav &&
-		autonomyNav < feedbackNav && feedbackNav < guideNav) {
-		t.Fatalf("unexpected user workflow navigation order")
-	}
-	if !strings.Contains(html, `<section class="view is-active" data-view="agent-control">`) {
-		t.Fatal("AI application automation workflow must be the default view")
-	}
-	if !strings.Contains(html, `<section class="view" data-view="overview" hidden>`) {
-		t.Fatal("Overview must be a separate Guide view")
-	}
-	for _, expected := range []string{
-		`<p class="eyebrow" id="view-eyebrow">APPLICATION PROFILE TO GUARDED MANIFEST</p>`,
-		`<h1 id="view-title">AI 응용 자동화 에이전트</h1>`,
-	} {
-		if !strings.Contains(html, expected) {
-			t.Fatalf("expected initial automation Agent heading %q", expected)
-		}
-	}
-
-	javascript := requestBody(t, server, "/assets/app.js")
-	initializeStart := strings.Index(javascript, `async function initialize()`)
-	if initializeStart == -1 {
-		t.Fatal("expected Control App initializer")
-	}
-	initialize := javascript[initializeStart:]
-	activateView := strings.Index(initialize, `switchView(state.activeView);`)
-	refreshDashboard := strings.Index(initialize, `await refreshDashboard();`)
-	if activateView == -1 || refreshDashboard == -1 || activateView > refreshDashboard {
-		t.Fatal("initializer must activate Manifest Workflow before the first dashboard render")
-	}
-}
-
-func TestControlAppConnectsSelectedRunAcrossRegistryAndPostDeployment(t *testing.T) {
-	server := echo.New()
-	Register(server)
-
-	html := requestBody(t, server, "/")
-	for _, expected := range []string{
-		`id="selected-run-id"`,
-		`id="selected-planner-agent"`,
-		`id="post-deployment-readiness"`,
-	} {
-		if !strings.Contains(html, expected) {
-			t.Fatalf("expected active ControlRun HTML contract %q", expected)
-		}
-	}
-
-	javascript := requestBody(t, server, "/assets/app.js")
-	for _, expected := range []string{
-		`const ACTIVE_RUN_KEY`,
-		`function setActiveControlRun`,
-		`function activeControlRun`,
-		`function renderPostDeploymentReadiness`,
-		`data-selected-agent`,
-	} {
-		if !strings.Contains(javascript, expected) {
-			t.Fatalf("expected active ControlRun JavaScript contract %q", expected)
-		}
-	}
-}
-
-func TestControlAppSeparatesAutomaticFeedbackFromExecutorCallback(t *testing.T) {
-	server := echo.New()
-	Register(server)
-
-	html := requestBody(t, server, "/")
-	for _, expected := range []string{
-		`id="automatic-feedback-summary"`,
-		`id="automatic-feedback-list"`,
-		`id="automatic-feedback-json"`,
-		`id="external-feedback-disclosure"`,
-		`External Executor Callback Test`,
-	} {
-		if !strings.Contains(html, expected) {
-			t.Fatalf("expected automatic Feedback HTML contract %q", expected)
-		}
-	}
-
-	javascript := requestBody(t, server, "/assets/app.js")
-	for _, expected := range []string{
-		`function automaticFeedbackEntries`,
-		`function renderAutomaticRunFeedback`,
-		`function loadFeedbackView`,
-		`record.run_id === run.run_id`,
-		`event.run_id === run.run_id`,
-	} {
-		if !strings.Contains(javascript, expected) {
-			t.Fatalf("expected automatic Feedback JavaScript contract %q", expected)
-		}
-	}
-}
-
-func TestControlAppShowsManifestStagesInExecutionOrder(t *testing.T) {
-	server := echo.New()
-	Register(server)
-
-	html := requestBody(t, server, "/")
-	if !strings.Contains(html, `id="manifest-stage-flow"`) {
-		t.Fatal("expected Manifest stage flow container")
-	}
-
-	javascript := requestBody(t, server, "/assets/manifest_stages.js")
-	lastIndex := -1
-	for _, stage := range []string{
-		"app_upload",
-		"package_build",
-		"app_registration",
-		"user_request",
-		"request_guard",
-		"agent_registry",
-		"agent_dispatch",
-		"qwen_planner",
-		"manifest_guard",
-	} {
-		index := strings.Index(javascript, stage)
-		if index == -1 {
-			t.Fatalf("expected Manifest stage %q in JavaScript", stage)
-		}
-		if index <= lastIndex {
-			t.Fatalf("expected Manifest stage %q after the previous execution stage", stage)
-		}
-		lastIndex = index
-	}
-}
-
-func TestControlAppManifestStagesUseReadableKorean(t *testing.T) {
-	server := echo.New()
-	Register(server)
-
-	javascript := requestBody(t, server, "/assets/manifest_stages.js")
-	for _, expected := range []string{
-		"앱 업로드",
-		"패키지 생성",
-		"앱 등록",
-		"사용자 요청",
-		"Agent 실행",
-		"기존 앱 사용",
-		"요청 접수 완료",
-		"이전 단계에서 중단",
-		"대기 중",
-	} {
-		if !strings.Contains(javascript, expected) {
-			t.Fatalf("expected readable Korean Manifest stage text %q", expected)
-		}
-	}
-
-	for _, corrupted := range []string{
-		"?ъ슜???붿껌",
-		"Agent ?ㅽ뻾",
-		"?댁쟾 ?④퀎?먯꽌 以묐떒",
-		"?湲?以?",
-	} {
-		if strings.Contains(javascript, corrupted) {
-			t.Fatalf("unexpected corrupted Manifest stage text %q", corrupted)
-		}
-	}
-}
-
-func TestControlAppRendersManifestStagesFromSelectedControlRun(t *testing.T) {
-	server := echo.New()
-	Register(server)
-
-	html := requestBody(t, server, "/")
-	stageModule := strings.Index(html, `<script src="/assets/manifest_stages.js"></script>`)
-	appModule := strings.Index(html, `<script src="/assets/app.js"></script>`)
-	if stageModule == -1 || appModule == -1 || stageModule > appModule {
-		t.Fatal("Manifest stage mapper must load before the Control App")
-	}
-
-	mapper := requestBody(t, server, "/assets/manifest_stages.js")
-	if !strings.Contains(mapper, `buildManifestStageViewModel`) {
-		t.Fatal("expected embedded Manifest stage mapper")
-	}
-
-	app := requestBody(t, server, "/assets/app.js")
-	if !strings.Contains(app, `window.ManifestStages`) || !strings.Contains(app, `buildManifestStageViewModel(run)`) {
-		t.Fatal("expected Control App renderer to use the embedded Manifest stage mapper")
-	}
-}
-
-func TestControlAppContainsSimplifiedOverview(t *testing.T) {
-	server := echo.New()
-	Register(server)
-
-	html := requestBody(t, server, "/")
-	overviewStart := strings.Index(html, `<section class="view" data-view="overview" hidden>`)
-	if overviewStart == -1 {
-		t.Fatal("expected Overview view")
-	}
-	agentControlStart := strings.Index(html, `<section class="view is-active" data-view="agent-control">`)
-	if agentControlStart == -1 || agentControlStart >= overviewStart {
-		t.Fatal("expected active automation Agent view before Overview")
-	}
-	overviewEnd := strings.Index(html[overviewStart+1:], `<section class="view"`)
-	if overviewEnd == -1 {
-		t.Fatal("expected view after Overview")
-	}
-	overview := html[overviewStart : overviewStart+1+overviewEnd]
-
-	for _, expected := range []string{
-		`id="overview-agent-action"`,
-		`id="overview-manifest-action"`,
-		`id="experiment-guide-disclosure"`,
-		`<summary`,
-		`id="control-run-list"`,
-		`id="metric-api"`,
-		`id="metric-agents"`,
-		`Qwen3.5`,
-	} {
-		if !strings.Contains(overview, expected) {
-			t.Fatalf("expected simplified Overview contract %q", expected)
-		}
-	}
-
-	disclosureStart := strings.Index(overview, `<details`)
-	if disclosureStart == -1 {
-		t.Fatal("expected experiment guide disclosure")
-	}
-	disclosureEnd := strings.Index(overview[disclosureStart:], `>`)
-	if disclosureEnd == -1 {
-		t.Fatal("expected experiment guide disclosure opening tag")
-	}
-	openingTag := overview[disclosureStart : disclosureStart+disclosureEnd]
-	if strings.Contains(openingTag, ` open`) {
-		t.Fatal("expected experiment guide disclosure to be collapsed by default")
 	}
 
 	for _, removed := range []string{
-		`id="workflow-title"`,
-		`id="overview-agent-list"`,
-		`id="control-run-timeline"`,
-		`id="metric-guard"`,
+		`/api/v1/control-runs`,
+		`/api/v1/planner/deployments`,
+		`/api/v1/automation/action-proposals`,
+		`/api/v1/automation/feedback`,
+		`/api/v1/autonomy/`,
+		`submitPlanner`,
+		`submitAction`,
+		`startAutonomyPolling`,
+		`loadFeedbackView`,
 	} {
-		if strings.Contains(overview, removed) {
-			t.Fatalf("expected duplicate Overview element %q to be removed", removed)
+		if strings.Contains(javascript, removed) {
+			t.Fatalf("legacy browser API or function remains %q", removed)
 		}
 	}
 }
 
-func TestControlAppContainsGeonDeletionControls(t *testing.T) {
+func TestControlAppUsesReadableKorean(t *testing.T) {
 	server := echo.New()
 	Register(server)
-
 	html := requestBody(t, server, "/")
+
 	for _, expected := range []string{
-		`id="clear-history"`,
-		`id="clear-autonomy-events"`,
-		`id="clear-feedback-records"`,
-		`id="feedback-record-list"`,
+		"배포 판단 실행",
+		"요구 분석 결과",
+		"인프라 추천 결과",
+		"Agent 권한 검증",
+		"배포 판단",
+		"안전 검증",
+		"배포 요구 스펙",
+		"전체 기록 삭제",
+		"스케일링 판단",
 	} {
 		if !strings.Contains(html, expected) {
-			t.Fatalf("expected deletion HTML contract %q", expected)
+			t.Fatalf("missing readable Korean text %q", expected)
 		}
 	}
 
-	javascript := requestBody(t, server, "/assets/app.js")
-	for _, expected := range []string{
-		`data-delete-agent`,
-		`deleteRuntimeAgent`,
-		`clearAutonomyEvents`,
-		`data-delete-event`,
-		`deleteAutonomyEvent`,
-		`data-delete-run`,
-		`deleteControlRun`,
-		`clearControlRuns`,
-		`data-delete-feedback`,
-		`deleteAutomationFeedback`,
-		`clearAutomationFeedback`,
-		`loadAutomationFeedback`,
-		`method: "DELETE"`,
-		`agent.source === "runtime"`,
-		`window.confirm`,
+	for _, corrupted := range []string{
+		"?ъ슜???붿껌",
+		"泥섎━ ?④퀎",
+		"?먮룞???먯씠?꾪듃",
+		"諛고룷",
 	} {
-		if !strings.Contains(javascript, expected) {
-			t.Fatalf("expected deletion JavaScript contract %q", expected)
-		}
-	}
-	for _, forbidden := range []string{`설정 보호`, `protected-label`} {
-		if strings.Contains(javascript, forbidden) {
-			t.Fatalf("configuration Agents must not render protection label %q", forbidden)
+		if strings.Contains(html, corrupted) {
+			t.Fatalf("unexpected corrupted text %q", corrupted)
 		}
 	}
 }
 
-func TestControlAppContainsGuardedAgentExecution(t *testing.T) {
+func TestControlAppResponsiveStylesProtectFixedWorkflowElements(t *testing.T) {
 	server := echo.New()
 	Register(server)
-
-	html := requestBody(t, server, "/")
-	for _, expected := range []string{
-		`id="agent-execution-dialog"`,
-		`id="agent-execution-form"`,
-		`id="agent-execution-agent"`,
-		`id="agent-execution-capability"`,
-		`id="agent-execution-action"`,
-		`id="agent-execution-input"`,
-		`id="agent-execution-result"`,
-		`id="agent-execution-run-id"`,
-		`name="auth_token_env"`,
-		`>Source</th>`,
-	} {
-		if !strings.Contains(html, expected) {
-			t.Fatalf("expected Agent execution HTML contract %q", expected)
-		}
-	}
-
-	javascript := requestBody(t, server, "/assets/app.js")
-	for _, expected := range []string{
-		`data-execute-agent`,
-		`openAgentExecution`,
-		`submitAgentExecution`,
-		`/execute`,
-		`auth_token_env`,
-		`loadControlRuns`,
-	} {
-		if !strings.Contains(javascript, expected) {
-			t.Fatalf("expected Agent execution JavaScript contract %q", expected)
-		}
-	}
-
 	stylesheet := requestBody(t, server, "/assets/app.css")
-	buttonStart := strings.Index(stylesheet, ".button {")
-	if buttonStart < 0 {
-		t.Fatal("expected shared button style")
-	}
-	buttonEnd := strings.Index(stylesheet[buttonStart:], "}")
-	if buttonEnd < 0 ||
-		!strings.Contains(stylesheet[buttonStart:buttonStart+buttonEnd], "white-space: nowrap;") {
-		t.Fatal("shared button labels must not wrap on mobile")
+
+	for _, expected := range []string{
+		`.automation-input-grid`,
+		`.results-layout`,
+		`.agent-control-stage-flow`,
+		`grid-template-columns: repeat(6, minmax(0, 1fr));`,
+		`@media (max-width: 900px)`,
+		`grid-template-columns: minmax(0, 1fr);`,
+		`min-width: 0;`,
+	} {
+		if !strings.Contains(stylesheet, expected) {
+			t.Fatalf("missing responsive style contract %q", expected)
+		}
 	}
 }
 
