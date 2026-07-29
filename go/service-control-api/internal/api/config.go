@@ -15,6 +15,7 @@ type ServerConfig struct {
 	RepoRoot               string
 	OpenAPIPath            string
 	LLMCandidatesPath      string
+	ResourceCatalogPath    string
 	PlannerGuardPolicyPath string
 	AppDeployBaseURL       string
 	AppUploadMaxBytes      int64
@@ -40,6 +41,12 @@ func NewServerConfig() ServerConfig {
 		llmCandidatesPath = filepath.Join(repoRoot, "config", "ops_llm_eval_candidates.json")
 	} else if !filepath.IsAbs(llmCandidatesPath) {
 		llmCandidatesPath = filepath.Join(repoRoot, llmCandidatesPath)
+	}
+	resourceCatalogPath := viper.GetString("RESOURCE_CATALOG_PATH")
+	if resourceCatalogPath == "" {
+		resourceCatalogPath = filepath.Join(repoRoot, "config", "mock_resource_catalog.json")
+	} else if !filepath.IsAbs(resourceCatalogPath) {
+		resourceCatalogPath = filepath.Join(repoRoot, resourceCatalogPath)
 	}
 	plannerGuardPolicyPath := viper.GetString("PLANNER_GUARD_POLICY_PATH")
 	if plannerGuardPolicyPath == "" {
@@ -69,6 +76,7 @@ func NewServerConfig() ServerConfig {
 		RepoRoot:               repoRoot,
 		OpenAPIPath:            openAPIPath,
 		LLMCandidatesPath:      llmCandidatesPath,
+		ResourceCatalogPath:    resourceCatalogPath,
 		PlannerGuardPolicyPath: plannerGuardPolicyPath,
 		AppDeployBaseURL:       viper.GetString("APPDEPLOY_BASE_URL"),
 		AppUploadMaxBytes:      appUploadMaxBytes,
