@@ -3,6 +3,7 @@
 const API = Object.freeze({
   health: "/healthz",
   agents: "/api/v1/agents",
+  automationRuns: "/api/v1/agent-control/automation-runs",
   applicationContexts: "/api/v1/agent-control/application-contexts",
   resourceRecommendations: "/api/v1/agent-control/resource-recommendations",
   deploymentStatus: "/api/v1/agent-control/deployment-status",
@@ -136,10 +137,25 @@ const RESOURCE_RECOMMENDATION_SAMPLE = Object.freeze({
   },
 });
 
+const STRUCTURED_APP_SPEC_SAMPLE = Object.freeze({
+  app_id: "structured-ai-service",
+  app_version: "1.0.0",
+  workload_type: "LLM_INFERENCE",
+  cpu_cores: 4,
+  memory_mib: 8192,
+  storage_gib: 20,
+  accelerator_type: "GPU",
+  accelerator_count: 1,
+  accelerator_memory_mib: 16384,
+  replicas_min: 1,
+  replicas_max: 1,
+});
+
 const state = {
   flows: [],
   agents: [],
   activeFlowID: "",
+  activeAutomationRun: null,
   activeView: "agent-control",
 };
 
@@ -254,35 +270,80 @@ function loadAgentControlSamples() {
   byID("resource-recommendation-json").value = pretty(RESOURCE_RECOMMENDATION_SAMPLE);
 }
 
+function setAutomationInputMode(mode) {
+  document
+    .querySelectorAll("[data-automation-input-section]")
+    .forEach((section) => {
+      const active = section.dataset.automationInputSection === mode;
+      section.hidden = !active;
+      section.querySelectorAll("textarea, input").forEach((field) => {
+        field.disabled = !active;
+        field.required = active;
+      });
+    });
+}
+
+function buildAutomationRunPayload() {
+  const mode = document.querySelector(
+    'input[name="automation_input_mode"]:checked',
+  )?.value;
+  if (mode === "structured") {
+    return {
+      input_type: "structured",
+      requested_by: "geon-web",
+      app_spec: parseProtocolMessage(
+        "automation-app-spec-json",
+        "구조화 App Spec",
+      ),
+    };
+  }
+  const request = byID("automation-request").value.trim();
+  if (!request) {
+    throw new Error("배포·운영 요구사항을 입력하세요.");
+  }
+  return {
+    input_type: "natural_language",
+    request,
+    requested_by: "geon-web",
+  };
+}
+
 function activeFlow() {
   return state.flows.find((flow) => flow.correlation_id === state.activeFlowID) || null;
 }
 
 function desiredDeploymentSpec(flow) {
   return (
+    flow?.desired_deployment_spec ||
     flow?.deployment_request?.data?.deployment_request?.deployment_manifest ||
     null
   );
 }
 
-function renderAgentControlStages(flow) {
+function renderAgentControlStages(record) {
+  const flow = record?.flow || record;
   const complete = {
-    application: Boolean(flow?.application_context),
-    resource: Boolean(flow?.resource_recommendation),
-    authorization: Boolean(flow?.agent_authorization),
-    planner: Boolean(flow?.decision),
-    guard: Boolean(flow?.guard),
-    manifest: Boolean(flow?.deployment_request),
+    requirement: Boolean(
+      record?.requirement_analysis || flow?.application_context,
+    ),
+    recommendation: Boolean(
+      record?.resource_recommendation || flow?.resource_recommendation,
+    ),
+    decision: Boolean(
+      flow?.decision ||
+      flow?.agent_authorization?.authorized === false ||
+      record?.status === "COMPLETED",
+    ),
   };
   const blocked = new Set();
-  if (flow?.state === "AGENT_AUTHORIZATION_REJECTED") {
-    ["authorization", "planner", "guard", "manifest"].forEach((stage) =>
+  if (record?.status === "FAILED" && !complete.requirement) {
+    ["requirement", "recommendation", "decision"].forEach((stage) =>
       blocked.add(stage),
     );
-  } else if (flow?.state === "REJECTED") {
-    ["guard", "manifest"].forEach((stage) => blocked.add(stage));
-  } else if (flow?.state === "RETRY_REQUIRED") {
-    blocked.add("manifest");
+  } else if (record?.status === "FAILED" && !complete.recommendation) {
+    ["recommendation", "decision"].forEach((stage) => blocked.add(stage));
+  } else if (flow?.state === "AGENT_AUTHORIZATION_REJECTED") {
+    blocked.add("decision");
   }
 
   document.querySelectorAll("[data-agent-control-stage]").forEach((item) => {
@@ -381,12 +442,13 @@ function renderAgentControlFlow(flow) {
   if (!flow) {
     byID("agent-control-flow-id").textContent = "실행 대기";
     byID("agent-control-status").textContent = "WAITING";
+    byID("automation-analysis-mode").textContent = "-";
     byID("agent-control-authorization").textContent = "-";
     byID("agent-control-action").textContent = "-";
     byID("agent-control-guard").textContent = "-";
     byID("agent-control-candidate").textContent = "-";
     byID("agent-control-reason").textContent =
-      "두 입력을 확인한 뒤 배포 판단을 실행하세요.";
+      "요청을 입력한 뒤 자동 분석 및 판단을 실행하세요.";
     byID("agent-control-result-json").textContent =
       "아직 실행 결과가 없습니다.";
     renderAgentControlStages(null);
@@ -436,6 +498,83 @@ function renderAgentControlFlow(flow) {
   renderExperimentDetail(flow);
 }
 
+function renderAutomationRun(run) {
+  state.activeAutomationRun = run || null;
+  if (!run) {
+    byID("automation-analysis-mode").textContent = "-";
+    byID("automation-application-profile-json").textContent =
+      "아직 생성되지 않았습니다.";
+    byID("automation-resource-recommendation-json").textContent =
+      "아직 생성되지 않았습니다.";
+    renderAgentControlStages(null);
+    return;
+  }
+
+  const flow = run.flow || null;
+  renderAgentControlFlow(flow);
+  const analysis = run.requirement_analysis || {};
+  const recommendation = run.resource_recommendation || {};
+  const mode = analysis.evidence?.mode || analysis.mode || "-";
+  byID("agent-control-flow-id").textContent = run.run_id || run.correlation_id;
+  byID("agent-control-status").textContent = text(
+    flow?.state,
+    run.status,
+  );
+  byID("automation-analysis-mode").textContent = text(mode);
+  byID("agent-control-candidate").textContent = text(
+    flow?.decision?.selected_candidate_id ||
+      recommendation.resource_recommendation?.selected_candidate_id,
+  );
+  byID("automation-application-profile-json").textContent = pretty(
+    analysis.application_profile || {},
+  );
+  byID("automation-resource-recommendation-json").textContent = pretty(
+    recommendation,
+  );
+  byID("agent-control-result-json").textContent = pretty({
+    run_id: run.run_id,
+    correlation_id: run.correlation_id,
+    trace_id: run.trace_id,
+    status: run.status,
+    analyzer: analysis.evidence || { mode: analysis.mode },
+    agent_authorization: flow?.agent_authorization,
+    decision: flow?.decision,
+    guard: flow?.guard,
+    desired_deployment_spec:
+      run.desired_deployment_spec || desiredDeploymentSpec(flow),
+  });
+  renderAgentControlStages(run);
+}
+
+async function submitAutomationRun(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  setBusy(form, true, "자동 실행 중...");
+  try {
+    const run = await apiRequest(API.automationRuns, {
+      method: "POST",
+      body: JSON.stringify(buildAutomationRunPayload()),
+    });
+    if (run.flow) {
+      upsertFlow(run.flow);
+    }
+    renderAutomationRun(run);
+    renderExperimentFlows();
+    const action = run.flow?.decision?.action || run.flow?.state || run.status;
+    showToast(
+      `${text(action)} 결정과 배포 요구 스펙이 생성되었습니다.`,
+      action === "DEPLOY" ? "success" : "warning",
+    );
+  } catch (error) {
+    byID("agent-control-result-json").textContent = pretty(
+      error.payload || { message: error.message },
+    );
+    showToast(error.message, "error");
+  } finally {
+    setBusy(form, false);
+  }
+}
+
 function validateJoinedInputs(applicationContext, resourceRecommendation) {
   if (applicationContext.correlation_id !== resourceRecommendation.correlation_id) {
     throw new Error("두 입력의 correlation_id가 같아야 합니다.");
@@ -449,7 +588,7 @@ function validateJoinedInputs(applicationContext, resourceRecommendation) {
   }
 }
 
-async function submitAutomationFlow(event) {
+async function submitProtocolFlow(event) {
   event.preventDefault();
   const form = event.currentTarget;
   setBusy(form, true, "판단 중...");
@@ -940,9 +1079,20 @@ function bindEvents() {
     button.addEventListener("click", () => switchView(button.dataset.viewTarget));
   });
   byID("refresh-button").addEventListener("click", refreshCurrentView);
+  byID("automation-run-form").addEventListener(
+    "submit",
+    submitAutomationRun,
+  );
+  document
+    .querySelectorAll('input[name="automation_input_mode"]')
+    .forEach((radio) => {
+      radio.addEventListener("change", () => {
+        if (radio.checked) setAutomationInputMode(radio.value);
+      });
+    });
   byID("automation-flow-form").addEventListener(
     "submit",
-    submitAutomationFlow,
+    submitProtocolFlow,
   );
   byID("load-agent-control-sample").addEventListener("click", () => {
     loadAgentControlSamples();
@@ -1015,9 +1165,12 @@ function bindEvents() {
 
 async function initialize() {
   bindEvents();
+  byID("automation-app-spec-json").value = pretty(STRUCTURED_APP_SPEC_SAMPLE);
+  setAutomationInputMode("natural_language");
   loadAgentControlSamples();
   loadFeedbackSamples();
   renderAgentControlFlow(null);
+  renderAutomationRun(null);
   switchView("agent-control");
   window.lucide?.createIcons();
   await Promise.all([refreshHealth(), loadAgentControlFlows(), loadAgents()]);

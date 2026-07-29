@@ -60,30 +60,110 @@
         <div class="view-heading">
           <div>
             <p class="section-label">CORE WORKFLOW</p>
-            <h2>배포 판단 실행</h2>
-            <p>요구 분석 결과와 인프라 추천 결과를 결합해 검증된 배포 요구 스펙을 생성합니다.</p>
+            <h2>자동 분석 및 판단</h2>
+            <p>요청을 한 번 입력하면 요구사항 분석, 인프라 추천, Agent 배포 판단을 순서대로 실행합니다.</p>
           </div>
           <span class="scope-badge">AppDeploy 없이 실행 가능</span>
         </div>
 
         <ol class="agent-control-stage-flow" id="agent-control-stage-flow" aria-label="자동화 에이전트 처리 단계">
-          <li data-agent-control-stage="application"><span>1</span><strong>요구 분석 결과</strong><small>ApplicationProfile</small></li>
-          <li data-agent-control-stage="resource"><span>2</span><strong>인프라 추천 결과</strong><small>Resource Recommendation</small></li>
-          <li data-agent-control-stage="authorization"><span>3</span><strong>Agent 권한 검증</strong><small>Registry policy</small></li>
-          <li data-agent-control-stage="planner"><span>4</span><strong>배포 판단</strong><small>DEPLOY · REJECT · RETRY</small></li>
-          <li data-agent-control-stage="guard"><span>5</span><strong>안전 검증</strong><small>Go Guard</small></li>
-          <li data-agent-control-stage="manifest"><span>6</span><strong>배포 요구 스펙</strong><small>Desired Deployment Spec</small></li>
+          <li data-agent-control-stage="requirement"><span>1</span><strong>요구사항 분석</strong><small>ApplicationProfile 생성</small></li>
+          <li data-agent-control-stage="recommendation"><span>2</span><strong>인프라 추천</strong><small>Mock 자원 후보 비교</small></li>
+          <li data-agent-control-stage="decision"><span>3</span><strong>Agent 배포 판단</strong><small>Registry · Guard · Desired Spec</small></li>
         </ol>
 
         <section class="panel automation-panel" aria-labelledby="automation-input-title">
           <div class="panel-header">
             <div>
               <p class="section-label">INPUT</p>
-              <h3 id="automation-input-title">두 입력을 한 번에 실행</h3>
+              <h3 id="automation-input-title">어플리케이션 요청</h3>
             </div>
-            <span class="contract-label">Common JSON v1.0</span>
+            <span class="contract-label">One-shot Agent Run</span>
           </div>
 
+          <form id="automation-run-form">
+            <fieldset class="input-mode-switch">
+              <legend class="sr-only">입력 방식</legend>
+              <label>
+                <input id="automation-input-mode-natural" type="radio" name="automation_input_mode" value="natural_language" checked>
+                <span>자연어 요청</span>
+              </label>
+              <label>
+                <input id="automation-input-mode-structured" type="radio" name="automation_input_mode" value="structured">
+                <span>구조화 App Spec</span>
+              </label>
+            </fieldset>
+
+            <div class="automation-primary-input" data-automation-input-section="natural_language">
+              <label class="json-input-block" for="automation-request">
+                <span class="input-label"><strong>배포·운영 요구사항</strong><small>한국어 또는 영어</small></span>
+                <textarea id="automation-request" rows="7" spellcheck="true" required>GPU 1개, CPU 4코어, 메모리 8GiB, 스토리지 20GiB로 AI 추론 서비스를 배포해 주세요.</textarea>
+              </label>
+            </div>
+
+            <div class="automation-primary-input" data-automation-input-section="structured" hidden>
+              <label class="json-input-block" for="automation-app-spec-json">
+                <span class="input-label"><strong>구조화 App Spec</strong><small>자원 요구사항 JSON</small></span>
+                <textarea id="automation-app-spec-json" rows="15" spellcheck="false"></textarea>
+              </label>
+            </div>
+
+            <div class="workflow-actions workflow-actions-primary">
+              <button class="button button-primary" id="automation-run-submit" type="submit">
+                <i data-lucide="play" aria-hidden="true"></i><span>자동 분석 및 판단</span>
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel result-panel" aria-labelledby="agent-control-result-title">
+          <div class="panel-header">
+            <div>
+              <p class="section-label">DECISION EVIDENCE</p>
+              <h3 id="agent-control-result-title">자동화 실행 결과</h3>
+            </div>
+            <div class="panel-header-actions">
+              <span class="contract-label">Desired Deployment Spec</span>
+              <code id="agent-control-flow-id">실행 대기</code>
+              <button class="icon-button" type="button" data-copy-target="agent-control-result-json" title="JSON 복사" aria-label="결과 JSON 복사">
+                <i data-lucide="copy" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+          <div class="decision-summary">
+            <div><span>실행 상태</span><strong id="agent-control-status">WAITING</strong></div>
+            <div><span>분석 방식</span><strong id="automation-analysis-mode">-</strong></div>
+            <div><span>선택 후보</span><strong id="agent-control-candidate">-</strong></div>
+            <div><span>Registry 권한</span><strong id="agent-control-authorization">-</strong></div>
+            <div><span>배포 결정</span><strong id="agent-control-action">-</strong></div>
+            <div><span>Go Guard</span><strong id="agent-control-guard">-</strong></div>
+          </div>
+          <p class="decision-reason" id="agent-control-reason">요청을 입력한 뒤 자동 분석 및 판단을 실행하세요.</p>
+          <pre class="json-output" id="agent-control-result-json">아직 실행 결과가 없습니다.</pre>
+        </section>
+
+        <details class="panel experiment-disclosure automation-evidence" id="automation-evidence">
+          <summary>
+            <span><small>GENERATED EVIDENCE</small><strong>자동 생성된 중간 결과</strong></span>
+            <i data-lucide="chevron-down" aria-hidden="true"></i>
+          </summary>
+          <div class="automation-evidence-grid">
+            <section>
+              <h3>ApplicationProfile</h3>
+              <pre class="json-output" id="automation-application-profile-json">아직 생성되지 않았습니다.</pre>
+            </section>
+            <section>
+              <h3>ResourceRecommendation</h3>
+              <pre class="json-output" id="automation-resource-recommendation-json">아직 생성되지 않았습니다.</pre>
+            </section>
+          </div>
+        </details>
+
+        <details class="panel experiment-disclosure advanced-protocol-inputs" id="advanced-protocol-inputs">
+          <summary>
+            <span><small>ADVANCED TEST</small><strong>고급 프로토콜 검증</strong></span>
+            <i data-lucide="chevron-down" aria-hidden="true"></i>
+          </summary>
           <form id="automation-flow-form">
             <div class="automation-input-grid">
               <label class="json-input-block">
@@ -97,38 +177,14 @@
             </div>
             <div class="workflow-actions">
               <button class="button button-secondary" id="load-agent-control-sample" type="button">
-                <i data-lucide="file-input" aria-hidden="true"></i><span>샘플 불러오기</span>
+                <i data-lucide="file-input" aria-hidden="true"></i><span>프로토콜 샘플</span>
               </button>
-              <button class="button button-primary" id="run-automation-flow" type="submit">
-                <i data-lucide="play" aria-hidden="true"></i><span>배포 판단 실행</span>
+              <button class="button button-secondary" id="run-protocol-flow" type="submit">
+                <i data-lucide="flask-conical" aria-hidden="true"></i><span>고급 검증 실행</span>
               </button>
             </div>
           </form>
-        </section>
-
-        <section class="panel result-panel" aria-labelledby="agent-control-result-title">
-          <div class="panel-header">
-            <div>
-              <p class="section-label">DECISION EVIDENCE</p>
-              <h3 id="agent-control-result-title">자동화 실행 결과</h3>
-            </div>
-            <div class="panel-header-actions">
-              <code id="agent-control-flow-id">실행 대기</code>
-              <button class="icon-button" type="button" data-copy-target="agent-control-result-json" title="JSON 복사" aria-label="결과 JSON 복사">
-                <i data-lucide="copy" aria-hidden="true"></i>
-              </button>
-            </div>
-          </div>
-          <div class="decision-summary">
-            <div><span>Flow 상태</span><strong id="agent-control-status">WAITING</strong></div>
-            <div><span>Agent 권한</span><strong id="agent-control-authorization">-</strong></div>
-            <div><span>배포 결정</span><strong id="agent-control-action">-</strong></div>
-            <div><span>Guard</span><strong id="agent-control-guard">-</strong></div>
-            <div><span>선택 후보</span><strong id="agent-control-candidate">-</strong></div>
-          </div>
-          <p class="decision-reason" id="agent-control-reason">두 입력을 확인한 뒤 배포 판단을 실행하세요.</p>
-          <pre class="json-output" id="agent-control-result-json">아직 실행 결과가 없습니다.</pre>
-        </section>
+        </details>
       </section>
 
       <section class="view" data-view="agents" hidden>

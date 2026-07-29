@@ -23,7 +23,7 @@ func TestRegisterServesEmbeddedControlApp(t *testing.T) {
 		{path: "/", contentType: "text/html", contains: `rel="icon" href="data:,"`},
 		{path: "/assets/app.css", contentType: "text/css", contains: ":root"},
 		{path: "/assets/manifest_stages.js", contentType: "text/javascript", contains: "buildManifestStageViewModel"},
-		{path: "/assets/app.js", contentType: "text/javascript", contains: "submitAutomationFlow"},
+		{path: "/assets/app.js", contentType: "text/javascript", contains: "submitAutomationRun"},
 	}
 
 	for _, test := range tests {
@@ -100,18 +100,29 @@ func TestControlAppContainsSingleAutomationWorkflow(t *testing.T) {
 	html := requestBody(t, server, "/")
 
 	for _, expected := range []string{
+		`id="automation-run-form"`,
+		`id="automation-input-mode-natural"`,
+		`id="automation-input-mode-structured"`,
+		`id="automation-request"`,
+		`id="automation-app-spec-json"`,
+		`id="automation-run-submit"`,
+		`자동 분석 및 판단`,
+		`data-agent-control-stage="requirement"`,
+		`data-agent-control-stage="recommendation"`,
+		`data-agent-control-stage="decision"`,
+		`요구사항 분석`,
+		`인프라 추천`,
+		`Agent 배포 판단`,
+		`id="automation-analysis-mode"`,
+		`id="automation-evidence"`,
+		`id="automation-application-profile-json"`,
+		`id="automation-resource-recommendation-json"`,
+		`id="advanced-protocol-inputs"`,
 		`id="automation-flow-form"`,
 		`id="application-context-json"`,
 		`id="resource-recommendation-json"`,
 		`id="load-agent-control-sample"`,
-		`id="run-automation-flow"`,
-		`id="agent-control-stage-flow"`,
-		`data-agent-control-stage="application"`,
-		`data-agent-control-stage="resource"`,
-		`data-agent-control-stage="authorization"`,
-		`data-agent-control-stage="planner"`,
-		`data-agent-control-stage="guard"`,
-		`data-agent-control-stage="manifest"`,
+		`id="run-protocol-flow"`,
 		`id="agent-control-result-json"`,
 		`Desired Deployment Spec`,
 	} {
@@ -161,12 +172,16 @@ func TestControlAppJavaScriptUsesOnlyFocusedWebAPIs(t *testing.T) {
 
 	for _, expected := range []string{
 		`agents: "/api/v1/agents"`,
+		`automationRuns: "/api/v1/agent-control/automation-runs"`,
 		`applicationContexts: "/api/v1/agent-control/application-contexts"`,
 		`resourceRecommendations: "/api/v1/agent-control/resource-recommendations"`,
 		`deploymentStatus: "/api/v1/agent-control/deployment-status"`,
 		`optimizationFeedback: "/api/v1/agent-control/optimization-feedback"`,
 		`agentControlFlows: "/api/v1/agent-control/flows"`,
-		`submitAutomationFlow`,
+		`buildAutomationRunPayload`,
+		`submitAutomationRun`,
+		`submitProtocolFlow`,
+		`renderAutomationRun`,
 		`renderAgentControlFlow`,
 		`renderExperimentFlows`,
 		`deleteAgentControlFlow`,
@@ -200,13 +215,15 @@ func TestControlAppUsesReadableKorean(t *testing.T) {
 	html := requestBody(t, server, "/")
 
 	for _, expected := range []string{
-		"배포 판단 실행",
-		"요구 분석 결과",
-		"인프라 추천 결과",
-		"Agent 권한 검증",
-		"배포 판단",
-		"안전 검증",
-		"배포 요구 스펙",
+		"자동 분석 및 판단",
+		"요구사항 분석",
+		"인프라 추천",
+		"Agent 배포 판단",
+		"분석 방식",
+		"Registry 권한",
+		"Go Guard",
+		"Desired Deployment Spec",
+		"고급 프로토콜 검증",
 		"전체 기록 삭제",
 		"스케일링 판단",
 	} {
@@ -233,11 +250,14 @@ func TestControlAppResponsiveStylesProtectFixedWorkflowElements(t *testing.T) {
 	stylesheet := requestBody(t, server, "/assets/app.css")
 
 	for _, expected := range []string{
+		`.input-mode-switch`,
+		`.automation-primary-input`,
+		`.automation-evidence-grid`,
 		`.automation-input-grid`,
 		`.results-layout`,
 		`.agent-control-stage-flow`,
 		`.table-wrap`,
-		`grid-template-columns: repeat(6, minmax(0, 1fr));`,
+		`grid-template-columns: repeat(3, minmax(0, 1fr));`,
 		`@media (max-width: 900px)`,
 		`grid-template-columns: minmax(0, 1fr);`,
 		`min-width: 0;`,
