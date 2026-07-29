@@ -104,6 +104,9 @@ func (recommender CatalogResourceRecommender) Recommend(
 		}
 		return candidates[left].Scores.Total > candidates[right].Scores.Total
 	})
+	for index := range candidates {
+		candidates[index].Rank = index + 1
+	}
 
 	status := "FOUND"
 	if feasibleCount == 0 {

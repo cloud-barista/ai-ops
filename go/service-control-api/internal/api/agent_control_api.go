@@ -13,6 +13,58 @@ type AgentControlReasoningComparisonRequest struct {
 	CandidateID string `json:"candidate_id" validate:"required"`
 }
 
+// RestPostAutomationRun godoc
+// @ID PostAgentControlAutomationRun
+// @Summary Run requirement analysis, resource recommendation, and Agent decision
+// @Description Accept one natural-language request or structured App Spec and automatically execute Requirement Analyzer, mock Resource Recommender, Agent Registry authorization, AIApplicationAutomationAgent decision, and Go Guard validation.
+// @Tags AI Application Automation Agent
+// @Accept json
+// @Produce json
+// @Param request body agentcontrol.AutomationRunInput true "One-shot automation request"
+// @Success 201 {object} agentcontrol.AutomationRun
+// @Failure 400 {object} ErrorResponse
+// @Router /api/v1/agent-control/automation-runs [post]
+func (handler restHandler) RestPostAutomationRun(context echo.Context) error {
+	var request agentcontrol.AutomationRunInput
+	if message, err := bindAndValidate(context, &request); err != nil {
+		return jsonError(context, http.StatusBadRequest, message, err)
+	}
+	run, err := handler.service.automationRunner.Run(context.Request().Context(), request)
+	if err != nil {
+		return jsonError(
+			context,
+			http.StatusBadRequest,
+			"Automatic Agent Control flow could not be completed",
+			err,
+		)
+	}
+	return context.JSON(http.StatusCreated, run)
+}
+
+// RestGetAutomationRun godoc
+// @ID GetAgentControlAutomationRun
+// @Summary Get one automatic three-stage Agent run
+// @Description Return requirement analysis, resource recommendation, Agent decision, Guard evidence, and Desired Deployment Spec for one run_id.
+// @Tags AI Application Automation Agent
+// @Produce json
+// @Param run_id path string true "Automation run ID"
+// @Success 200 {object} agentcontrol.AutomationRun
+// @Failure 404 {object} ErrorResponse
+// @Router /api/v1/agent-control/automation-runs/{run_id} [get]
+func (handler restHandler) RestGetAutomationRun(context echo.Context) error {
+	runID := context.Param("run_id")
+	run, ok := handler.service.automationRunner.Get(runID)
+	if !ok {
+		return jsonError(
+			context,
+			http.StatusNotFound,
+			"Automation run was not found",
+			fmt.Errorf("run_id %q was not found", runID),
+		)
+	}
+	return context.JSON(http.StatusOK, run)
+}
+
 // RestPostApplicationContext godoc
 // @ID PostAgentControlApplicationContext
 // @Summary Receive an Application Context message

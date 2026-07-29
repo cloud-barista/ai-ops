@@ -27,17 +27,25 @@ type Service struct {
 	controlRuns        *controlrun.Store
 	agentDispatcher    *agentDispatcher
 	agentControl       *agentcontrol.Service
+	automationRunner   *agentcontrol.AutomationRunner
 }
 
 func NewService(config ServerConfig) Service {
 	reasoner := newAgentControlReasoner(config, llmclient.NewClient(nil))
 	authorizer := newAgentControlRegistryAuthorizer(config)
+	agentControlService := agentcontrol.NewServiceWithDependencies(reasoner, authorizer)
+	resourceCatalog, _ := agentcontrol.LoadResourceCatalog(config.ResourceCatalogPath)
 	service := Service{
 		config:             config,
 		runtimeAgents:      newRuntimeAgentStore(),
 		automationFeedback: newAutomationFeedbackStore(),
 		controlRuns:        controlrun.NewStore(),
-		agentControl:       agentcontrol.NewServiceWithDependencies(reasoner, authorizer),
+		agentControl:       agentControlService,
+		automationRunner: agentcontrol.NewAutomationRunner(
+			newAgentControlRequirementAnalyzer(config, llmclient.NewClient(nil)),
+			agentcontrol.CatalogResourceRecommender{Catalog: resourceCatalog},
+			agentControlService,
+		),
 	}
 	service.agentDispatcher = newAgentDispatcher(
 		map[string]agentExecutor{

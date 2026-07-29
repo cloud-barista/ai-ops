@@ -9,6 +9,62 @@ import (
 	"kyunghee-aiops/service-control-api/internal/agentcontrol"
 )
 
+func TestAutomationRunAPIExecutesAllThreeStagesFromOneRequest(t *testing.T) {
+	server := NewServer(NewServerConfig())
+	response := performJSONRequest(
+		t,
+		server,
+		http.MethodPost,
+		"/api/v1/agent-control/automation-runs",
+		`{
+			"input_type":"natural_language",
+			"request":"Qwen 추론 서비스를 CPU 4코어, 메모리 16GiB, GPU 1개, VRAM 16GiB, 스토리지 20GiB로 배포해 주세요.",
+			"requested_by":"api-test"
+		}`,
+	)
+	if response.Code != http.StatusCreated {
+		t.Fatalf("automation run: code=%d body=%s", response.Code, response.Body.String())
+	}
+	var run agentcontrol.AutomationRun
+	if err := json.Unmarshal(response.Body.Bytes(), &run); err != nil {
+		t.Fatalf("decode automation run: %v", err)
+	}
+	if run.RequirementAnalysis == nil ||
+		run.ResourceRecommendation == nil ||
+		run.Flow == nil ||
+		run.Flow.Decision == nil ||
+		run.Flow.Decision.Action != agentcontrol.ActionDeploy ||
+		run.DesiredDeploymentSpec == nil {
+		t.Fatalf("automation stages are incomplete: %#v", run)
+	}
+
+	detail := performJSONRequest(
+		t,
+		server,
+		http.MethodGet,
+		"/api/v1/agent-control/automation-runs/"+run.RunID,
+		"",
+	)
+	if detail.Code != http.StatusOK ||
+		!strings.Contains(detail.Body.String(), `"run_id":"`+run.RunID+`"`) {
+		t.Fatalf("automation run detail: code=%d body=%s", detail.Code, detail.Body.String())
+	}
+}
+
+func TestAutomationRunAPIRejectsMalformedInput(t *testing.T) {
+	server := NewServer(NewServerConfig())
+	response := performJSONRequest(
+		t,
+		server,
+		http.MethodPost,
+		"/api/v1/agent-control/automation-runs",
+		`{"input_type":"natural_language","request":""}`,
+	)
+	if response.Code != http.StatusBadRequest {
+		t.Fatalf("malformed automation run: code=%d body=%s", response.Code, response.Body.String())
+	}
+}
+
 func TestAgentControlInputJoinAPI(t *testing.T) {
 	server := NewServer(NewServerConfig())
 

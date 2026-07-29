@@ -94,6 +94,10 @@ type RequirementAnalysisEvidence struct {
 	Mode        string   `json:"mode"`
 	SourceInput string   `json:"source_input,omitempty"`
 	Assumptions []string `json:"assumptions,omitempty"`
+	CandidateID string   `json:"candidate_id,omitempty"`
+	Provider    string   `json:"provider,omitempty"`
+	ActualModel string   `json:"actual_model,omitempty"`
+	LatencyMS   int64    `json:"latency_ms,omitempty"`
 }
 
 type RequirementAnalysisResult struct {
