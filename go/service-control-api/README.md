@@ -103,6 +103,33 @@ curl http://127.0.0.1:18080/healthz
 
 브라우저에서 `http://127.0.0.1:18080/`을 엽니다.
 
+### AI 응용 자동화 에이전트 MVP 실험
+
+첫 화면 **자동화 실행**은 다음 담당 범위를 하나의 `correlation_id` Flow로 연결합니다.
+
+```text
+Application Context 요구 분석 결과
++ Resource Recommendation 인프라 추천 결과
+→ 배포 계획 생성
+→ DEPLOY / REJECT / RETRY 결정
+→ Safe Guard · Repair
+→ deployment.create.request + DeploymentManifest
+→ 선택형 Qwen 추론 비교
+→ deployment.status.changed
+→ optimization.feedback.created
+→ 성공·실패 원인과 SLO 결과 요약
+```
+
+기본 샘플은 화면에 미리 입력되어 있습니다. **요구 분석 결과 전송**, **인프라 추천 결과 전송** 순서로 실행합니다. Manifest가 생성된 후 **추론 비교 · 배포 Feedback 실험**을 펼치면 다음을 확인할 수 있습니다.
+
+- 규칙 기반 기준 결정
+- Qwen `qwen3.5-ops-planner`의 원시 제안
+- 동일 제안에 Go Guard를 적용한 최종 결정
+- 배포 상태와 자원·추론·비용 지표
+- 성공·실패 및 SLO 위반 원인 요약
+
+Feedback 샘플은 현재 Flow의 `correlation_id`, `trace_id`, `decision_id`에 맞춰 자동 생성됩니다. 먼저 **배포 상태 전송**, 다음으로 **성능 Feedback 전송**을 실행합니다. AppDeploy와 실제 VM은 이 MVP의 Manifest 생성 및 비교 실험에는 필수가 아닙니다.
+
 ### 소스 업로드 Package-to-Manifest 워크플로
 
 이 워크플로는 다음 세 프로세스를 함께 사용합니다.

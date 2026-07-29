@@ -31,6 +31,140 @@ paths:
       responses:
         "200":
           description: OpenAPI YAML
+  /api/v1/agent-control/application-contexts:
+    post:
+      summary: Receive an Application Context message
+      description: Stores an application.context.created Common JSON v1.0 message and waits for its matching Resource Recommendation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationContextEnvelope"
+      responses:
+        "202":
+          description: Application Context accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentControlFlow"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/agent-control/resource-recommendations:
+    post:
+      summary: Receive a Resource Recommendation message
+      description: Stores a resource.recommendation.created Common JSON v1.0 message and joins it by correlation_id, trace_id, and profile_id.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResourceRecommendationEnvelope"
+      responses:
+        "202":
+          description: Resource Recommendation accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentControlFlow"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/agent-control/deployment-status:
+    post:
+      summary: Receive a deployment status message
+      description: Attaches a deployment.status.changed Common JSON v1.0 message to its correlation flow and summarizes the current outcome.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeploymentStatusEnvelope"
+      responses:
+        "202":
+          description: Deployment status accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentControlFlow"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/agent-control/optimization-feedback:
+    post:
+      summary: Receive optimization feedback
+      description: Attaches an optimization.feedback.created Common JSON v1.0 message and summarizes success, failure, metrics, and SLO violations.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OptimizationFeedbackEnvelope"
+      responses:
+        "202":
+          description: Optimization feedback accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentControlFlow"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/agent-control/flows:
+    get:
+      summary: List Agent Control input flows
+      responses:
+        "200":
+          description: Correlated input flows
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [count, flows]
+                properties:
+                  count: {type: integer, minimum: 0}
+                  flows:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AgentControlFlow"
+  /api/v1/agent-control/flows/{correlation_id}:
+    get:
+      summary: Get one Agent Control input flow
+      parameters:
+        - name: correlation_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: Correlated input flow
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentControlFlow"
+        "404":
+          description: Flow not found
+  /api/v1/agent-control/flows/{correlation_id}/reasoning-comparisons:
+    post:
+      summary: Compare simple and validated Qwen reasoning
+      description: Returns the deterministic rule result, raw Qwen proposal, and the final proposal after Go Guard validation.
+      parameters:
+        - name: correlation_id
+          in: path
+          required: true
+          schema: {type: string}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentControlReasoningComparisonRequest"
+      responses:
+        "200":
+          description: Reasoning comparison, including provider_unavailable when the configured LLM cannot be reached
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReasoningComparison"
+        "400":
+          $ref: "#/components/responses/BadRequest"
   /api/v1/agents:
     get:
       summary: List configured and runtime agents
@@ -736,6 +870,602 @@ components:
           schema:
             $ref: "#/components/schemas/ErrorResponse"
   schemas:
+    CommonMessageEndpoint:
+      type: object
+      required: [system, component]
+      properties:
+        system: {type: string}
+        component: {type: string}
+    CommonMessageEnvelope:
+      type: object
+      required:
+        - contract_version
+        - message_id
+        - message_type
+        - occurred_at
+        - correlation_id
+        - trace_id
+        - source
+        - target
+      properties:
+        contract_version: {type: string, enum: ["1.0"]}
+        message_id: {type: string}
+        message_type: {type: string}
+        occurred_at: {type: string, format: date-time}
+        correlation_id: {type: string}
+        trace_id: {type: string}
+        causation_id: {type: string}
+        source:
+          $ref: "#/components/schemas/CommonMessageEndpoint"
+        target:
+          $ref: "#/components/schemas/CommonMessageEndpoint"
+    ApplicationContextEnvelope:
+      allOf:
+        - $ref: "#/components/schemas/CommonMessageEnvelope"
+        - type: object
+          required: [data]
+          properties:
+            message_type:
+              type: string
+              enum: [application.context.created]
+            data:
+              type: object
+              required: [application_profile, model_recommendation]
+              properties:
+                application_profile:
+                  $ref: "#/components/schemas/ApplicationProfile"
+                model_recommendation:
+                  $ref: "#/components/schemas/ApplicationModelRecommendation"
+    ApplicationProfile:
+      type: object
+      required: [profile_id, app_id, app_version, requirements]
+      properties:
+        profile_id: {type: string}
+        app_id: {type: string}
+        app_version: {type: string}
+        artifact:
+          type: object
+          properties:
+            type: {type: string}
+            uri: {type: string}
+            entrypoint:
+              type: array
+              items: {type: string}
+        workload:
+          type: object
+          properties:
+            task_type: {type: string}
+            request_pattern: {type: string}
+            expected_rps: {type: number, minimum: 0}
+        requirements:
+          $ref: "#/components/schemas/ApplicationRequirements"
+        analysis:
+          type: object
+          properties:
+            confidence: {type: number, minimum: 0, maximum: 1}
+            assumptions: {type: array, items: {type: string}}
+            missing_fields: {type: array, items: {type: string}}
+            warnings: {type: array, items: {type: string}}
+    ApplicationRequirements:
+      type: object
+      required: [compute, accelerator, deployment]
+      properties:
+        compute:
+          type: object
+          required: [cpu_cores_min, memory_mib_min, storage_gib_min]
+          properties:
+            cpu_cores_min: {type: integer, minimum: 1}
+            memory_mib_min: {type: integer, minimum: 1}
+            storage_gib_min: {type: integer, minimum: 0}
+        accelerator:
+          type: object
+          required: [required]
+          properties:
+            required: {type: boolean}
+            type: {type: string, example: GPU}
+            count_min: {type: integer, minimum: 0}
+            memory_mib_min_per_device: {type: integer, minimum: 0}
+        deployment:
+          type: object
+          required: [replicas_min, replicas_max, isolation]
+          properties:
+            replicas_min: {type: integer, minimum: 1}
+            replicas_max: {type: integer, minimum: 1}
+            isolation: {type: string}
+        slo:
+          type: object
+          properties:
+            latency_p95_ms_max: {type: number, minimum: 0}
+            throughput_rps_min: {type: number, minimum: 0}
+        cost:
+          type: object
+          properties:
+            currency: {type: string}
+            cost_per_hour_max: {type: number, minimum: 0}
+    ApplicationModelRecommendation:
+      type: object
+      required: [selected_model, inference_configuration]
+      properties:
+        recommendation_id: {type: string}
+        selected_model:
+          type: object
+          required: [model_id, model_version, source]
+          properties:
+            model_id: {type: string}
+            model_version: {type: string}
+            source: {type: string}
+        inference_configuration:
+          type: object
+          required:
+            - runtime_engine
+            - precision
+            - max_batch_size
+            - max_concurrency
+            - tensor_parallel_size
+            - replicas
+          properties:
+            runtime_engine: {type: string}
+            precision: {type: string}
+            max_batch_size: {type: integer, minimum: 1}
+            max_concurrency: {type: integer, minimum: 1}
+            tensor_parallel_size: {type: integer, minimum: 1}
+            replicas: {type: integer, minimum: 1}
+    ResourceRecommendationEnvelope:
+      allOf:
+        - $ref: "#/components/schemas/CommonMessageEnvelope"
+        - type: object
+          required: [data]
+          properties:
+            message_type:
+              type: string
+              enum: [resource.recommendation.created]
+            data:
+              type: object
+              required: [resource_recommendation]
+              properties:
+                resource_recommendation:
+                  $ref: "#/components/schemas/ResourceRecommendation"
+    ResourceRecommendation:
+      type: object
+      required:
+        - recommendation_id
+        - profile_id
+        - snapshot_id
+        - status
+        - selected_candidate_id
+        - candidates
+      properties:
+        recommendation_id: {type: string}
+        profile_id: {type: string}
+        snapshot_id: {type: string}
+        status: {type: string}
+        selected_candidate_id: {type: string}
+        candidates:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/ResourceCandidate"
+    DeploymentStatusEnvelope:
+      allOf:
+        - $ref: "#/components/schemas/CommonMessageEnvelope"
+        - type: object
+          required: [data]
+          properties:
+            message_type:
+              type: string
+              enum: [deployment.status.changed]
+            data:
+              type: object
+              required: [deployment_status]
+              properties:
+                deployment_status:
+                  $ref: "#/components/schemas/DeploymentStatus"
+    DeploymentStatus:
+      type: object
+      required: [deployment_id, decision_id, state, updated_at]
+      properties:
+        deployment_id: {type: string}
+        decision_id: {type: string}
+        state:
+          type: string
+          enum: [QUEUED, PROVISIONING, DEPLOYING, RUNNING, FAILED, STOPPING, STOPPED]
+        actual_infrastructure:
+          type: object
+          properties:
+            provider: {type: string}
+            region: {type: string}
+            resource_ids: {type: array, items: {type: string}}
+        message: {type: string}
+        updated_at: {type: string, format: date-time}
+    OptimizationFeedbackEnvelope:
+      allOf:
+        - $ref: "#/components/schemas/CommonMessageEnvelope"
+        - type: object
+          required: [data]
+          properties:
+            message_type:
+              type: string
+              enum: [optimization.feedback.created]
+            data:
+              type: object
+              required: [optimization_feedback]
+              properties:
+                optimization_feedback:
+                  $ref: "#/components/schemas/OptimizationFeedback"
+    OptimizationFeedback:
+      type: object
+      required:
+        - feedback_id
+        - decision_id
+        - deployment_id
+        - outcome
+        - observation_window
+        - metrics
+        - created_at
+      properties:
+        feedback_id: {type: string}
+        decision_id: {type: string}
+        deployment_id: {type: string}
+        outcome: {type: string, example: SUCCEEDED}
+        observation_window:
+          type: object
+          required: [started_at, ended_at]
+          properties:
+            started_at: {type: string, format: date-time}
+            ended_at: {type: string, format: date-time}
+        metrics:
+          $ref: "#/components/schemas/OptimizationMetrics"
+        slo_violations: {type: array, items: {type: string}}
+        created_at: {type: string, format: date-time}
+    OptimizationMetrics:
+      type: object
+      required: [resource, inference, cost]
+      properties:
+        resource:
+          type: object
+          properties:
+            cpu_average_percent: {type: number, minimum: 0, maximum: 100}
+            memory_peak_mib: {type: number, minimum: 0}
+            accelerator_average_percent: {type: number, minimum: 0, maximum: 100}
+            accelerator_memory_peak_mib: {type: number, minimum: 0}
+        inference:
+          type: object
+          properties:
+            latency_p95_ms: {type: number, minimum: 0}
+            throughput_rps: {type: number, minimum: 0}
+            error_rate_percent: {type: number, minimum: 0, maximum: 100}
+        cost:
+          type: object
+          properties:
+            currency: {type: string}
+            estimated_cost: {type: number, minimum: 0}
+    ResourceCandidate:
+      type: object
+      required: [candidate_id, rank, feasible, desired_infrastructure, scores]
+      properties:
+        candidate_id: {type: string}
+        rank: {type: integer, minimum: 1}
+        feasible: {type: boolean}
+        desired_infrastructure:
+          $ref: "#/components/schemas/DesiredInfrastructure"
+        resource_hints: {type: array, items: {type: string}}
+        scores:
+          type: object
+          required: [resource_fit, slo_headroom, cost_efficiency, availability, total]
+          properties:
+            resource_fit: {type: number, minimum: 0, maximum: 1}
+            slo_headroom: {type: number, minimum: 0, maximum: 1}
+            cost_efficiency: {type: number, minimum: 0, maximum: 1}
+            availability: {type: number, minimum: 0, maximum: 1}
+            total: {type: number, minimum: 0, maximum: 1}
+        rejection_reasons: {type: array, items: {type: string}}
+    DesiredInfrastructure:
+      type: object
+      required:
+        - node_count
+        - cpu_cores_per_node
+        - memory_mib_per_node
+        - storage_gib_per_node
+        - isolation
+      properties:
+        node_count: {type: integer, minimum: 1}
+        cpu_cores_per_node: {type: integer, minimum: 1}
+        memory_mib_per_node: {type: integer, minimum: 1}
+        storage_gib_per_node: {type: integer, minimum: 0}
+        accelerator:
+          type: object
+          properties:
+            type: {type: string}
+            count: {type: integer, minimum: 0}
+            memory_mib_min_per_device: {type: integer, minimum: 0}
+        isolation: {type: string}
+    AgentControlFlow:
+      type: object
+      required: [correlation_id, trace_id, state, updated_at]
+      properties:
+        correlation_id: {type: string}
+        trace_id: {type: string}
+        profile_id: {type: string}
+        state:
+          type: string
+          enum:
+            - WAITING_FOR_APPLICATION_CONTEXT
+            - WAITING_FOR_RESOURCE_RECOMMENDATION
+            - READY
+            - DEPLOY_APPROVED
+            - REJECTED
+            - RETRY_REQUIRED
+        application_context:
+          $ref: "#/components/schemas/ApplicationContextEnvelope"
+        resource_recommendation:
+          $ref: "#/components/schemas/ResourceRecommendationEnvelope"
+        decision:
+          $ref: "#/components/schemas/AutomationDecision"
+        deployment_plan:
+          $ref: "#/components/schemas/AgentControlDeploymentPlan"
+        guard:
+          $ref: "#/components/schemas/AgentControlGuardResult"
+        deployment_request:
+          $ref: "#/components/schemas/DeploymentCreateRequestEnvelope"
+        deployment_status:
+          $ref: "#/components/schemas/DeploymentStatusEnvelope"
+        optimization_feedback:
+          $ref: "#/components/schemas/OptimizationFeedbackEnvelope"
+        feedback_summary:
+          $ref: "#/components/schemas/FeedbackSummary"
+        reasoning_comparison:
+          $ref: "#/components/schemas/ReasoningComparison"
+        updated_at: {type: string, format: date-time}
+    ValidationIssue:
+      type: object
+      required: [field, code, reason]
+      properties:
+        field: {type: string}
+        code: {type: string}
+        reason: {type: string}
+        expected: {}
+        actual: {}
+    CorrectionRequest:
+      type: object
+      required: [target, reason, issues]
+      properties:
+        target:
+          type: string
+          enum: [application_profile, resource_recommendation]
+        reason: {type: string}
+        issues:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValidationIssue"
+    AutomationDecision:
+      type: object
+      required:
+        - decision_id
+        - action
+        - reason
+        - reasoning_mode
+        - confidence
+        - created_at
+      properties:
+        decision_id: {type: string}
+        action: {type: string, enum: [DEPLOY, REJECT, RETRY]}
+        reason: {type: string}
+        reasoning_mode: {type: string, enum: [rule_based]}
+        confidence: {type: number, minimum: 0, maximum: 1}
+        selected_candidate_id: {type: string}
+        correction_request:
+          $ref: "#/components/schemas/CorrectionRequest"
+        created_at: {type: string, format: date-time}
+    AgentControlDeploymentPlan:
+      type: object
+      required:
+        - plan_id
+        - profile_id
+        - app_id
+        - app_version
+        - selected_candidate_id
+        - target_runtime
+        - desired_infrastructure
+        - inference_configuration
+        - reasoning_mode
+        - created_at
+      properties:
+        plan_id: {type: string}
+        profile_id: {type: string}
+        app_id: {type: string}
+        app_version: {type: string}
+        selected_candidate_id: {type: string}
+        target_runtime: {type: string, enum: [VM]}
+        desired_infrastructure:
+          $ref: "#/components/schemas/DesiredInfrastructure"
+        inference_configuration:
+          type: object
+          additionalProperties: true
+        resource_hints: {type: array, items: {type: string}}
+        reasoning_mode: {type: string, enum: [rule_based]}
+        created_at: {type: string, format: date-time}
+    AgentControlGuardResult:
+      type: object
+      required: [status, checks]
+      properties:
+        status:
+          type: string
+          enum: [APPROVED, REJECTED, RETRY_REQUIRED]
+        checks:
+          type: array
+          items:
+            type: object
+            required: [name, passed, reason]
+            properties:
+              name: {type: string}
+              passed: {type: boolean}
+              reason: {type: string}
+        issues:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValidationIssue"
+    DeploymentCreateRequestEnvelope:
+      allOf:
+        - $ref: "#/components/schemas/CommonMessageEnvelope"
+        - type: object
+          required: [data]
+          properties:
+            message_type:
+              type: string
+              enum: [deployment.create.request]
+            data:
+              type: object
+              required: [deployment_request]
+              properties:
+                deployment_request:
+                  $ref: "#/components/schemas/AgentControlDeploymentRequest"
+    AgentControlDeploymentRequest:
+      type: object
+      required: [request_id, decision_id, application, deployment_manifest]
+      properties:
+        request_id:
+          type: string
+          description: Idempotency key for deployment execution.
+        decision_id: {type: string}
+        application:
+          $ref: "#/components/schemas/AgentControlDeploymentApplication"
+        deployment_manifest:
+          $ref: "#/components/schemas/AgentControlDeploymentManifest"
+    AgentControlDeploymentApplication:
+      type: object
+      required: [app_id, app_version]
+      properties:
+        app_id: {type: string}
+        app_version: {type: string}
+        artifact:
+          type: object
+          required: [type, uri]
+          properties:
+            type: {type: string}
+            uri: {type: string}
+            entrypoint:
+              type: array
+              items: {type: string}
+    AgentControlDeploymentManifest:
+      type: object
+      required:
+        - manifest_id
+        - manifest_version
+        - decision_id
+        - application
+        - target_runtime
+        - desired_infrastructure
+        - inference_configuration
+        - metadata
+      properties:
+        manifest_id: {type: string}
+        manifest_version: {type: string, enum: ["1.0"]}
+        decision_id: {type: string}
+        application:
+          type: object
+          required: [app_id, app_version]
+          properties:
+            app_id: {type: string}
+            app_version: {type: string}
+        target_runtime: {type: string, enum: [VM]}
+        desired_infrastructure:
+          $ref: "#/components/schemas/DesiredInfrastructure"
+        inference_configuration:
+          type: object
+          additionalProperties: true
+        runtime:
+          type: object
+          properties:
+            command: {type: array, items: {type: string}}
+            args: {type: array, items: {type: string}}
+            environment:
+              type: object
+              additionalProperties: {type: string}
+            ports:
+              type: array
+              items:
+                type: object
+                required: [name, port, protocol]
+                properties:
+                  name: {type: string}
+                  port: {type: integer, minimum: 1, maximum: 65535}
+                  protocol: {type: string}
+            restart_policy: {type: string}
+        resource_hints:
+          type: array
+          items: {type: string}
+        metadata:
+          type: object
+          required: [profile_id]
+          properties:
+            profile_id: {type: string}
+    FeedbackSummary:
+      type: object
+      required: [deployment_id, decision_id, deployment_state, success, cause, updated_at]
+      properties:
+        deployment_id: {type: string}
+        decision_id: {type: string}
+        deployment_state: {type: string}
+        outcome: {type: string}
+        success: {type: boolean}
+        cause: {type: string}
+        slo_violations: {type: array, items: {type: string}}
+        metrics:
+          $ref: "#/components/schemas/OptimizationMetrics"
+        updated_at: {type: string, format: date-time}
+    AgentControlReasoningComparisonRequest:
+      type: object
+      required: [candidate_id]
+      properties:
+        candidate_id: {type: string, example: qwen3.5-ops-planner}
+    ReasoningComparison:
+      type: object
+      required:
+        - correlation_id
+        - candidate_id
+        - rule_based
+        - simple_inference
+        - validated_inference
+        - agreement
+        - created_at
+      properties:
+        correlation_id: {type: string}
+        candidate_id: {type: string}
+        rule_based:
+          $ref: "#/components/schemas/ReasoningTrial"
+        simple_inference:
+          $ref: "#/components/schemas/ReasoningTrial"
+        validated_inference:
+          $ref: "#/components/schemas/ReasoningTrial"
+        agreement:
+          type: object
+          required: [action_match, candidate_match]
+          properties:
+            action_match: {type: boolean}
+            candidate_match: {type: boolean}
+        created_at: {type: string, format: date-time}
+    ReasoningTrial:
+      type: object
+      required: [mode, execution_status, latency_ms, guard_status]
+      properties:
+        mode:
+          type: string
+          enum: [rule_based, simple_inference, validated_inference]
+        execution_status:
+          type: string
+          enum: [executed, skipped, provider_unavailable, rejected]
+        candidate_id: {type: string}
+        provider: {type: string}
+        actual_model: {type: string}
+        latency_ms: {type: integer, format: int64, minimum: 0}
+        action: {type: string, enum: [DEPLOY, REJECT, RETRY]}
+        proposed_action: {type: string, enum: [DEPLOY, REJECT, RETRY]}
+        selected_candidate_id: {type: string}
+        reason: {type: string}
+        confidence: {type: number, minimum: 0, maximum: 1}
+        guard_status: {type: string, enum: [APPROVED, REJECTED, RETRY_REQUIRED, NOT_APPLIED]}
+        guard_reason: {type: string}
+        error: {type: string}
     CreateControlRunRequest:
       type: object
       required: [natural_language_request, app_version_id, candidate_id]

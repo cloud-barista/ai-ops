@@ -25,6 +25,7 @@ const (
 	pathControlRuns    = "/api/v1/control-runs"
 	pathPlannerDeploy  = "/api/v1/planner/deployments"
 	pathServiceOpsRun  = "/api/v1/service-operations/run"
+	pathAgentControl   = "/api/v1/agent-control"
 )
 
 type restHandler struct {
@@ -108,6 +109,16 @@ func NewServer(config ServerConfig) *echo.Echo {
 	server.DELETE(pathAutonomy+"/events", handler.requireAutonomyAdmin(handler.RestDeleteAutonomyEvents))
 	server.POST(pathPlannerDeploy, handler.RestPostAppDeployPlanner)
 	server.POST(pathServiceOpsRun, handler.RestPostServiceOperationsRun)
+	server.POST(pathAgentControl+"/application-contexts", handler.RestPostApplicationContext)
+	server.POST(pathAgentControl+"/resource-recommendations", handler.RestPostResourceRecommendation)
+	server.POST(pathAgentControl+"/deployment-status", handler.RestPostDeploymentStatus)
+	server.POST(pathAgentControl+"/optimization-feedback", handler.RestPostOptimizationFeedback)
+	server.GET(pathAgentControl+"/flows", handler.RestGetAgentControlFlows)
+	server.GET(pathAgentControl+"/flows/:correlation_id", handler.RestGetAgentControlFlow)
+	server.POST(
+		pathAgentControl+"/flows/:correlation_id/reasoning-comparisons",
+		handler.RestPostAgentControlReasoningComparison,
+	)
 
 	return server
 }

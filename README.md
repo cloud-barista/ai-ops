@@ -100,14 +100,14 @@ curl http://127.0.0.1:18080/healthz
 
 ### 5. 첫 사용 순서
 
-1. **Manifest Workflow**를 엽니다.
-2. 자연어 요청과 `app_version_id`를 입력합니다. Manifest-only 시험에는 형식이 유효한 시험 ID를 사용할 수 있습니다.
-3. **Generate Manifest**로 ControlRun을 생성합니다.
-4. 같은 `run_id`에 기록된 Request Guard → Agent Registry → Agent Dispatcher → Qwen Planner → Manifest Guard를 확인합니다. Agent Registry는 관리형 내부 단계이고 **Agents & Guard**는 capability와 bounded Action을 확인하는 보조 화면이며, 사용자 진입점이 아닙니다.
-5. 승인된 `DeploymentManifest`를 확인합니다.
-6. 실제 배포가 필요할 때만 **Submit to AppDeploy**를 선택합니다. AppDeploy는 별도 서버·저장소이며 geon Manifest 생성의 필수 조건이 아닙니다.
-7. `DEPLOYED`와 `deployment_id`가 확인된 뒤에만 **Post-deployment**를 사용합니다.
-8. **Feedback**에서 같은 `run_id`의 Automatic Run Feedback을 확인합니다. 이는 기존 Run 증적의 읽기 전용 투영이며 Qwen을 재학습하지 않습니다. **External Executor Callback Test**는 선택 사항이고 승인된 `correlation_id`가 있을 때만 사용합니다.
+1. 첫 화면인 **자동화 실행**에서 `application.context.created` 요구 분석 결과를 전송합니다.
+2. 같은 `correlation_id`, `trace_id`, `profile_id`의 `resource.recommendation.created` 인프라 추천 결과를 전송합니다.
+3. 에이전트가 두 입력을 결합해 `DEPLOY`, `REJECT`, `RETRY` 중 하나를 결정하고 Go Guard 검증 결과를 생성합니다.
+4. `DEPLOY`가 승인되면 Common JSON v1.0 `deployment.create.request`와 `DeploymentManifest`를 확인합니다.
+5. 선택형 **추론 비교 · 배포 Feedback 실험**을 열면 규칙 기반 결정, Qwen 원시 제안, Go Guard 적용 결과를 비교할 수 있습니다. 이 비교에만 실행 중인 Ollama가 필요합니다.
+6. `deployment.status.changed`와 `optimization.feedback.created`를 전송하면 성공·실패 원인, 성능·비용 지표, SLO 위반이 같은 Flow에 자동 요약됩니다.
+7. **기존 ControlRun**은 자연어 요청·`app_version_id` 기반 Manifest 생성과 선택적 AppDeploy 제출을 시험하는 별도 호환 경로입니다.
+8. **Agent Registry**, **Post-deployment**, **Feedback**은 권한 관리와 배포 후 운영 시험을 위한 보조 화면입니다.
 
 각 서버는 실행한 터미널에서 `Ctrl+C`로 종료합니다. Autonomous Loop, Guarded Auto, 기록 삭제와 문제 해결 절차는 [geon Agent Control 상세 실행 가이드](go/service-control-api/README.md#geon-agent-control-실행-가이드)를 참고합니다.
 

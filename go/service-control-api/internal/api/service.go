@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strings"
 
+	"kyunghee-aiops/service-control-api/internal/agentcontrol"
 	"kyunghee-aiops/service-control-api/internal/appdeploy"
 	"kyunghee-aiops/service-control-api/internal/automation"
 	"kyunghee-aiops/service-control-api/internal/autonomy"
@@ -25,14 +26,17 @@ type Service struct {
 	autonomyManager    *autonomy.Manager
 	controlRuns        *controlrun.Store
 	agentDispatcher    *agentDispatcher
+	agentControl       *agentcontrol.Service
 }
 
 func NewService(config ServerConfig) Service {
+	reasoner := newAgentControlReasoner(config, llmclient.NewClient(nil))
 	service := Service{
 		config:             config,
 		runtimeAgents:      newRuntimeAgentStore(),
 		automationFeedback: newAutomationFeedbackStore(),
 		controlRuns:        controlrun.NewStore(),
+		agentControl:       agentcontrol.NewServiceWithReasoner(reasoner),
 	}
 	service.agentDispatcher = newAgentDispatcher(
 		map[string]agentExecutor{

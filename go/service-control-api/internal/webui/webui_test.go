@@ -82,6 +82,55 @@ func TestControlAppContainsOperationalViewsAndAPIContracts(t *testing.T) {
 	}
 }
 
+func TestControlAppContainsApplicationAutomationAgentWorkflow(t *testing.T) {
+	server := echo.New()
+	Register(server)
+
+	html := requestBody(t, server, "/")
+	for _, expected := range []string{
+		`data-view="agent-control"`,
+		`AI 응용 자동화 에이전트`,
+		`id="application-context-form"`,
+		`id="application-context-json"`,
+		`id="resource-recommendation-form"`,
+		`id="resource-recommendation-json"`,
+		`id="agent-control-stage-flow"`,
+		`id="agent-control-result-json"`,
+		`Application Context`,
+		`Resource Recommendation`,
+		`Safe Guard · Repair`,
+		`deployment.create.request`,
+		`id="reasoning-comparison-form"`,
+		`id="reasoning-comparison-json"`,
+		`id="deployment-status-form"`,
+		`id="optimization-feedback-form"`,
+		`id="agent-control-feedback-summary"`,
+	} {
+		if !strings.Contains(html, expected) {
+			t.Fatalf("expected automation Agent HTML contract %q", expected)
+		}
+	}
+
+	javascript := requestBody(t, server, "/assets/app.js")
+	for _, expected := range []string{
+		`applicationContexts: "/api/v1/agent-control/application-contexts"`,
+		`resourceRecommendations: "/api/v1/agent-control/resource-recommendations"`,
+		`deploymentStatus: "/api/v1/agent-control/deployment-status"`,
+		`optimizationFeedback: "/api/v1/agent-control/optimization-feedback"`,
+		`agentControlFlows: "/api/v1/agent-control/flows"`,
+		`submitApplicationContext`,
+		`submitResourceRecommendation`,
+		`runReasoningComparison`,
+		`submitDeploymentStatus`,
+		`submitOptimizationFeedback`,
+		`renderAgentControlFlow`,
+	} {
+		if !strings.Contains(javascript, expected) {
+			t.Fatalf("expected automation Agent JavaScript contract %q", expected)
+		}
+	}
+}
+
 func TestControlAppContainsAutonomyView(t *testing.T) {
 	server := echo.New()
 	Register(server)
@@ -288,33 +337,34 @@ func TestControlAppGuideMatchesUserRequestFirstWorkflow(t *testing.T) {
 	}
 }
 
-func TestControlAppStartsWithManifestWorkflow(t *testing.T) {
+func TestControlAppStartsWithApplicationAutomationWorkflow(t *testing.T) {
 	server := echo.New()
 	Register(server)
 
 	html := requestBody(t, server, "/")
+	agentControlNav := strings.Index(html, `data-view-target="agent-control"`)
 	plannerNav := strings.Index(html, `data-view-target="planner"`)
 	agentsNav := strings.Index(html, `data-view-target="agents"`)
 	autonomyNav := strings.Index(html, `data-view-target="autonomy"`)
 	feedbackNav := strings.Index(html, `data-view-target="feedback"`)
 	guideNav := strings.Index(html, `data-view-target="overview"`)
 
-	if !(plannerNav < agentsNav && agentsNav < autonomyNav &&
+	if !(agentControlNav < plannerNav && plannerNav < agentsNav && agentsNav < autonomyNav &&
 		autonomyNav < feedbackNav && feedbackNav < guideNav) {
 		t.Fatalf("unexpected user workflow navigation order")
 	}
-	if !strings.Contains(html, `<section class="view is-active" data-view="planner">`) {
-		t.Fatal("Manifest Workflow must be the default view")
+	if !strings.Contains(html, `<section class="view is-active" data-view="agent-control">`) {
+		t.Fatal("AI application automation workflow must be the default view")
 	}
 	if !strings.Contains(html, `<section class="view" data-view="overview" hidden>`) {
 		t.Fatal("Overview must be a separate Guide view")
 	}
 	for _, expected := range []string{
-		`<p class="eyebrow" id="view-eyebrow">USER REQUEST TO GUARDED MANIFEST</p>`,
-		`<h1 id="view-title">Manifest Workflow</h1>`,
+		`<p class="eyebrow" id="view-eyebrow">APPLICATION PROFILE TO GUARDED MANIFEST</p>`,
+		`<h1 id="view-title">AI 응용 자동화 에이전트</h1>`,
 	} {
 		if !strings.Contains(html, expected) {
-			t.Fatalf("expected initial Manifest Workflow heading %q", expected)
+			t.Fatalf("expected initial automation Agent heading %q", expected)
 		}
 	}
 
@@ -488,9 +538,9 @@ func TestControlAppContainsSimplifiedOverview(t *testing.T) {
 	if overviewStart == -1 {
 		t.Fatal("expected Overview view")
 	}
-	plannerStart := strings.Index(html, `<section class="view is-active" data-view="planner">`)
-	if plannerStart == -1 || plannerStart >= overviewStart {
-		t.Fatal("expected active Planner view before Overview")
+	agentControlStart := strings.Index(html, `<section class="view is-active" data-view="agent-control">`)
+	if agentControlStart == -1 || agentControlStart >= overviewStart {
+		t.Fatal("expected active automation Agent view before Overview")
 	}
 	overviewEnd := strings.Index(html[overviewStart+1:], `<section class="view"`)
 	if overviewEnd == -1 {

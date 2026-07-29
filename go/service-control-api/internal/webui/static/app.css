@@ -1910,7 +1910,300 @@ dialog::backdrop {
   line-height: 1.4;
 }
 
+.agent-control-stage-flow {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0;
+  margin: 0 0 16px;
+  list-style: none;
+}
+
+.agent-control-stage-flow li {
+  position: relative;
+  display: grid;
+  min-height: 92px;
+  grid-template-columns: 28px minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  gap: 3px 9px;
+  align-content: center;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+}
+
+.agent-control-stage-flow li > span {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  grid-row: 1 / span 2;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--surface-muted);
+  color: var(--ink-muted);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.agent-control-stage-flow strong {
+  align-self: end;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+
+.agent-control-stage-flow small {
+  color: var(--ink-muted);
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.agent-control-stage-flow li.is-complete {
+  border-color: rgba(47, 123, 75, 0.4);
+  background: var(--green-soft);
+}
+
+.agent-control-stage-flow li.is-complete > span {
+  background: var(--green);
+  color: #ffffff;
+}
+
+.agent-control-stage-flow li.is-blocked {
+  border-color: rgba(200, 82, 61, 0.4);
+  background: var(--coral-soft);
+}
+
+.agent-control-stage-flow li.is-blocked > span {
+  background: var(--coral);
+  color: #ffffff;
+}
+
+.agent-control-input-layout {
+  align-items: stretch;
+}
+
+.protocol-form {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+}
+
+#load-agent-control-sample {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.protocol-form .field {
+  display: grid;
+  gap: 7px;
+}
+
+.protocol-form textarea {
+  min-height: 360px;
+  resize: vertical;
+  font-family: "Cascadia Code", Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  tab-size: 2;
+}
+
+.agent-control-result-panel {
+  margin-top: 16px;
+}
+
+.agent-control-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-bottom: 1px solid var(--line);
+}
+
+.agent-control-summary > div {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+  padding: 14px 16px;
+  border-right: 1px solid var(--line);
+}
+
+.agent-control-summary > div:last-child {
+  border-right: 0;
+}
+
+.agent-control-summary span {
+  color: var(--ink-muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.agent-control-summary strong {
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+
+.agent-control-reason {
+  margin: 0;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-muted);
+  line-height: 1.5;
+}
+
+.agent-control-json {
+  max-height: 480px;
+  margin: 0;
+  border-radius: 0 0 6px 6px;
+}
+
+.agent-control-experiment-panel {
+  margin-top: 16px;
+}
+
+.agent-control-experiment-panel > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.agent-control-experiment-panel > summary::-webkit-details-marker {
+  display: none;
+}
+
+.agent-control-experiment-panel > summary > span {
+  display: grid;
+  gap: 3px;
+}
+
+.agent-control-experiment-panel > summary small {
+  color: var(--teal);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.agent-control-experiment-panel > summary i {
+  width: 18px;
+  height: 18px;
+  transition: transform 160ms ease;
+}
+
+.agent-control-experiment-panel[open] > summary {
+  border-bottom: 1px solid var(--line);
+}
+
+.agent-control-experiment-panel[open] > summary i {
+  transform: rotate(180deg);
+}
+
+.agent-control-experiment-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+}
+
+.agent-control-experiment-section {
+  min-width: 0;
+}
+
+.agent-control-experiment-section + .agent-control-experiment-section {
+  border-left: 1px solid var(--line);
+}
+
+.inline-experiment-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.reasoning-comparison-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-bottom: 1px solid var(--line);
+}
+
+.reasoning-comparison-summary > div {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+  padding: 12px;
+  border-right: 1px solid var(--line);
+}
+
+.reasoning-comparison-summary > div:last-child {
+  border-right: 0;
+}
+
+.reasoning-comparison-summary span,
+.agent-control-feedback-summary span {
+  color: var(--ink-muted);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.reasoning-comparison-summary strong,
+.agent-control-feedback-summary strong {
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+
+.feedback-protocol-layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-bottom: 1px solid var(--line);
+}
+
+.feedback-protocol-layout .protocol-form + .protocol-form {
+  border-left: 1px solid var(--line);
+}
+
+.feedback-protocol-layout .protocol-form textarea {
+  min-height: 230px;
+}
+
+.feedback-protocol-layout .button {
+  justify-self: end;
+}
+
+.agent-control-feedback-summary {
+  display: grid;
+  gap: 4px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.agent-control-experiment-section .json-output.compact {
+  max-height: 360px;
+  margin: 0;
+  border-radius: 0;
+}
+
 @media (max-width: 1120px) {
+  .agent-control-stage-flow {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .agent-control-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .agent-control-summary > div:nth-child(2) {
+    border-right: 0;
+  }
+
+  .agent-control-experiment-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .agent-control-experiment-section + .agent-control-experiment-section {
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+
   .metric-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2003,6 +2296,45 @@ dialog::backdrop {
 }
 
 @media (max-width: 760px) {
+  .agent-control-stage-flow,
+  .agent-control-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .agent-control-stage-flow li {
+    min-height: 76px;
+  }
+
+  .agent-control-summary > div {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .agent-control-summary > div:last-child {
+    border-bottom: 0;
+  }
+
+  .protocol-form textarea {
+    min-height: 280px;
+  }
+
+  .reasoning-comparison-summary,
+  .feedback-protocol-layout,
+  .inline-experiment-form {
+    grid-template-columns: 1fr;
+  }
+
+  .reasoning-comparison-summary > div,
+  .feedback-protocol-layout .protocol-form + .protocol-form {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    border-left: 0;
+  }
+
+  .reasoning-comparison-summary > div:last-child {
+    border-bottom: 0;
+  }
+
   .automatic-feedback-panel .panel-header {
     align-items: stretch;
     flex-direction: column;

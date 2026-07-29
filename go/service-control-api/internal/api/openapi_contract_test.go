@@ -44,6 +44,38 @@ func TestSubmissionOpenAPIIncludesControlRunWorkflow(t *testing.T) {
 	}
 }
 
+func TestSubmissionOpenAPIIncludesAgentControlInputJoinWorkflow(t *testing.T) {
+	config := NewServerConfig()
+	content, err := os.ReadFile(config.OpenAPIPath)
+	if err != nil {
+		t.Fatalf("read submission OpenAPI: %v", err)
+	}
+	for _, expected := range []string{
+		"/api/v1/agent-control/application-contexts:",
+		"/api/v1/agent-control/resource-recommendations:",
+		"/api/v1/agent-control/deployment-status:",
+		"/api/v1/agent-control/optimization-feedback:",
+		"/api/v1/agent-control/flows:",
+		"/api/v1/agent-control/flows/{correlation_id}:",
+		"/api/v1/agent-control/flows/{correlation_id}/reasoning-comparisons:",
+		"ApplicationContextEnvelope:",
+		"ResourceRecommendationEnvelope:",
+		"DeploymentStatusEnvelope:",
+		"OptimizationFeedbackEnvelope:",
+		"AgentControlFlow:",
+		"AutomationDecision:",
+		"AgentControlDeploymentPlan:",
+		"AgentControlGuardResult:",
+		"DeploymentCreateRequestEnvelope:",
+		"AgentControlDeploymentManifest:",
+		"ReasoningComparison:",
+	} {
+		if !strings.Contains(string(content), expected) {
+			t.Fatalf("submission OpenAPI is missing %q", expected)
+		}
+	}
+}
+
 func TestSubmissionOpenAPIIncludesGuardedAgentExecution(t *testing.T) {
 	config := NewServerConfig()
 	content, err := os.ReadFile(config.OpenAPIPath)

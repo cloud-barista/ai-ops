@@ -15,11 +15,17 @@ const API = Object.freeze({
   autonomyEmergencyStop: "/api/v1/autonomy/emergency-stop",
   autonomyCycles: "/api/v1/autonomy/cycles",
   autonomyEvents: "/api/v1/autonomy/events",
+  applicationContexts: "/api/v1/agent-control/application-contexts",
+  resourceRecommendations: "/api/v1/agent-control/resource-recommendations",
+  deploymentStatus: "/api/v1/agent-control/deployment-status",
+  optimizationFeedback: "/api/v1/agent-control/optimization-feedback",
+  agentControlFlows: "/api/v1/agent-control/flows",
 });
 
 const APP_VERSION_KEY = "geon-agent-control-app-version-id";
 const ACTIVE_RUN_KEY = "geon-agent-control-active-run-id";
 const VIEW_LABELS = Object.freeze({
+  "agent-control": ["APPLICATION PROFILE TO GUARDED MANIFEST", "AI 응용 자동화 에이전트"],
   planner: ["USER REQUEST TO GUARDED MANIFEST", "Manifest Workflow"],
   agents: ["AGENT REGISTRY AND GO GUARD", "Agents & Guard"],
   autonomy: ["OPTIONAL POST-DEPLOYMENT EXPERIMENT", "Post-deployment"],
@@ -27,16 +33,123 @@ const VIEW_LABELS = Object.freeze({
   overview: ["WORKFLOW GUIDE", "Guide"],
 });
 
+const APPLICATION_CONTEXT_SAMPLE = Object.freeze({
+  contract_version: "1.0",
+  message_id: "msg-context-demo-001",
+  message_type: "application.context.created",
+  occurred_at: "2026-07-29T03:00:00Z",
+  correlation_id: "flow-demo-001",
+  trace_id: "trace-demo-001",
+  source: { system: "khu-ai-app", component: "application-profile-generator" },
+  target: { system: "khu-agent-control", component: "automation-agent" },
+  data: {
+    application_profile: {
+      profile_id: "profile-demo-001",
+      app_id: "chat-service",
+      app_version: "1.0.0",
+      workload: {
+        task_type: "LLM_INFERENCE",
+        request_pattern: "ONLINE",
+        expected_rps: 5,
+      },
+      requirements: {
+        compute: { cpu_cores_min: 8, memory_mib_min: 32768, storage_gib_min: 100 },
+        accelerator: {
+          required: true,
+          type: "GPU",
+          count_min: 1,
+          memory_mib_min_per_device: 24576,
+        },
+        deployment: {
+          replicas_min: 1,
+          replicas_max: 2,
+          isolation: "ONE_MAJOR_APP_PER_VM",
+        },
+        slo: { latency_p95_ms_max: 2000, throughput_rps_min: 5 },
+        cost: { currency: "KRW", cost_per_hour_max: 3000 },
+      },
+      analysis: { confidence: 0.91, assumptions: [], missing_fields: [], warnings: [] },
+    },
+    model_recommendation: {
+      recommendation_id: "model-rec-demo-001",
+      selected_model: {
+        model_id: "qwen2.5-7b-instruct",
+        model_version: "1",
+        source: "HUGGING_FACE",
+      },
+      inference_configuration: {
+        runtime_engine: "VLLM",
+        precision: "FP16",
+        max_batch_size: 8,
+        max_concurrency: 20,
+        tensor_parallel_size: 1,
+        replicas: 1,
+      },
+    },
+  },
+});
+
+const RESOURCE_RECOMMENDATION_SAMPLE = Object.freeze({
+  contract_version: "1.0",
+  message_id: "msg-resource-demo-001",
+  message_type: "resource.recommendation.created",
+  occurred_at: "2026-07-29T03:01:00Z",
+  correlation_id: "flow-demo-001",
+  trace_id: "trace-demo-001",
+  causation_id: "msg-context-demo-001",
+  source: { system: "khu-resource-service", component: "resource-recommender" },
+  target: { system: "khu-agent-control", component: "automation-agent" },
+  data: {
+    resource_recommendation: {
+      recommendation_id: "resource-rec-demo-001",
+      profile_id: "profile-demo-001",
+      snapshot_id: "snapshot-demo-001",
+      status: "FOUND",
+      selected_candidate_id: "candidate-demo-001",
+      candidates: [
+        {
+          candidate_id: "candidate-demo-001",
+          rank: 1,
+          feasible: true,
+          desired_infrastructure: {
+            node_count: 1,
+            cpu_cores_per_node: 8,
+            memory_mib_per_node: 32768,
+            storage_gib_per_node: 100,
+            accelerator: {
+              type: "GPU",
+              count: 1,
+              memory_mib_min_per_device: 24576,
+            },
+            isolation: "ONE_MAJOR_APP_PER_VM",
+          },
+          resource_hints: ["vm-gpu-01"],
+          scores: {
+            resource_fit: 0.96,
+            slo_headroom: 0.84,
+            cost_efficiency: 0.83,
+            availability: 0.98,
+            total: 0.9,
+          },
+          rejection_reasons: [],
+        },
+      ],
+    },
+  },
+});
+
 const { buildManifestStageViewModel } = window.ManifestStages;
 
 const state = {
+  agentControlFlows: [],
+  activeAgentControlFlow: null,
   agents: [],
   controlRuns: [],
   activeRunID: "",
   lastPlannerRun: null,
   feedbackRecords: [],
   autonomyEvents: [],
-  activeView: "planner",
+  activeView: "agent-control",
   autonomyTimer: null,
   autonomyConfigLoaded: false,
   autonomyBusy: false,
@@ -121,6 +234,329 @@ async function apiRequest(path, options = {}) {
     throw error;
   }
   return payload;
+}
+
+function loadAgentControlSamples() {
+  byID("application-context-json").value = pretty(APPLICATION_CONTEXT_SAMPLE);
+  byID("resource-recommendation-json").value = pretty(RESOURCE_RECOMMENDATION_SAMPLE);
+}
+
+function buildAgentControlFeedbackSamples(flow = state.activeAgentControlFlow) {
+  const correlationID = flow?.correlation_id || "flow-demo-001";
+  const traceID = flow?.trace_id || "trace-demo-001";
+  const decisionID = flow?.decision?.decision_id || `decision-${correlationID}`;
+  const deploymentID = flow?.deployment_status?.data?.deployment_status?.deployment_id || `deployment-${correlationID}`;
+  const now = new Date();
+  const startedAt = new Date(now.getTime() - 20 * 60 * 1000).toISOString();
+  const endedAt = now.toISOString();
+  const statusMessageID = `msg-deployment-status-${correlationID}`;
+  const status = {
+    contract_version: "1.0",
+    message_id: statusMessageID,
+    message_type: "deployment.status.changed",
+    occurred_at: startedAt,
+    correlation_id: correlationID,
+    trace_id: traceID,
+    causation_id: flow?.deployment_request?.message_id || `msg-deploy-request-${correlationID}`,
+    source: { system: "deployment-orchestrator", component: "runtime-adapter" },
+    target: { system: "khu-agent-control", component: "automation-agent" },
+    data: {
+      deployment_status: {
+        deployment_id: deploymentID,
+        decision_id: decisionID,
+        state: "RUNNING",
+        actual_infrastructure: {
+          provider: "MOCK",
+          region: "kr-central-1",
+          resource_ids: ["vm-gpu-01"],
+        },
+        message: "응용이 정상적으로 실행 중입니다.",
+        updated_at: startedAt,
+      },
+    },
+  };
+  const feedback = {
+    contract_version: "1.0",
+    message_id: `msg-optimization-feedback-${correlationID}`,
+    message_type: "optimization.feedback.created",
+    occurred_at: endedAt,
+    correlation_id: correlationID,
+    trace_id: traceID,
+    causation_id: statusMessageID,
+    source: { system: "deployment-orchestrator", component: "monitoring" },
+    target: { system: "khu-agent-control", component: "automation-agent" },
+    data: {
+      optimization_feedback: {
+        feedback_id: `feedback-${correlationID}`,
+        decision_id: decisionID,
+        deployment_id: deploymentID,
+        outcome: "SUCCEEDED",
+        observation_window: { started_at: startedAt, ended_at: endedAt },
+        metrics: {
+          resource: {
+            cpu_average_percent: 48.2,
+            memory_peak_mib: 26800,
+            accelerator_average_percent: 72.5,
+            accelerator_memory_peak_mib: 21800,
+          },
+          inference: {
+            latency_p95_ms: 1480,
+            throughput_rps: 6.2,
+            error_rate_percent: 0.2,
+          },
+          cost: { currency: "KRW", estimated_cost: 833.33 },
+        },
+        slo_violations: [],
+        created_at: endedAt,
+      },
+    },
+  };
+  return { status, feedback };
+}
+
+function loadAgentControlFeedbackSamples() {
+  const samples = buildAgentControlFeedbackSamples();
+  byID("deployment-status-json").value = pretty(samples.status);
+  byID("optimization-feedback-json").value = pretty(samples.feedback);
+}
+
+function parseProtocolMessage(inputID, label) {
+  const raw = byID(inputID).value.trim();
+  if (!raw) throw new Error(`${label} JSON을 입력하세요.`);
+  try {
+    return JSON.parse(raw);
+  } catch (error) {
+    throw new Error(`${label} JSON 형식이 올바르지 않습니다: ${error.message}`);
+  }
+}
+
+function renderAgentControlStages(flow) {
+  const complete = {
+    application: Boolean(flow?.application_context),
+    resource: Boolean(flow?.resource_recommendation),
+    planner: Boolean(flow?.decision),
+    guard: Boolean(flow?.guard),
+    manifest: Boolean(flow?.deployment_request),
+  };
+  const blocked = new Set();
+  if (flow?.state === "REJECTED") {
+    blocked.add("guard");
+    blocked.add("manifest");
+  }
+  if (flow?.state === "RETRY_REQUIRED") blocked.add("manifest");
+
+  document.querySelectorAll("[data-agent-control-stage]").forEach((item) => {
+    const stage = item.dataset.agentControlStage;
+    item.classList.toggle("is-complete", complete[stage]);
+    item.classList.toggle("is-blocked", blocked.has(stage));
+    item.classList.toggle("is-waiting", !complete[stage] && !blocked.has(stage));
+  });
+}
+
+function renderReasoningComparison(comparison) {
+  if (!comparison) {
+    byID("reasoning-rule-action").textContent = "-";
+    byID("reasoning-simple-action").textContent = "-";
+    byID("reasoning-validated-action").textContent = "-";
+    byID("reasoning-comparison-json").textContent =
+      "Manifest 생성 후 비교 실험을 실행할 수 있습니다.";
+    return;
+  }
+  const rule = comparison.rule_based || {};
+  const simple = comparison.simple_inference || {};
+  const validated = comparison.validated_inference || {};
+  byID("reasoning-rule-action").textContent = text(rule.action);
+  byID("reasoning-simple-action").textContent = simple.action
+    ? `${simple.action} · ${text(simple.execution_status)}`
+    : text(simple.execution_status);
+  byID("reasoning-validated-action").textContent = validated.action
+    ? `${validated.action} · ${text(validated.guard_status)}`
+    : text(validated.execution_status);
+  byID("reasoning-comparison-json").textContent = pretty(comparison);
+}
+
+function renderAgentControlFeedback(flow) {
+  const summary = flow?.feedback_summary;
+  const summaryElement = byID("agent-control-feedback-summary");
+  if (!summary) {
+    summaryElement.innerHTML = "<span>배포 결과</span><strong>아직 수신되지 않았습니다.</strong>";
+    byID("agent-control-feedback-json").textContent =
+      "배포 상태와 성능 Feedback이 같은 Flow에 기록됩니다.";
+    return;
+  }
+  const result = summary.success ? "성공" : "확인 필요";
+  summaryElement.innerHTML = "";
+  summaryElement.append(
+    createElement("span", "", `${result} · ${text(summary.deployment_state)}`),
+    createElement("strong", "", text(summary.cause)),
+  );
+  byID("agent-control-feedback-json").textContent = pretty({
+    deployment_status: flow.deployment_status,
+    optimization_feedback: flow.optimization_feedback,
+    feedback_summary: summary,
+  });
+}
+
+function renderAgentControlFlow(flow) {
+  if (!flow) {
+    state.activeAgentControlFlow = null;
+    byID("agent-control-flow-id").textContent = "실행 대기";
+    byID("agent-control-status").textContent = "WAITING";
+    byID("agent-control-action").textContent = "-";
+    byID("agent-control-guard").textContent = "-";
+    byID("agent-control-candidate").textContent = "-";
+    byID("agent-control-reason").textContent =
+      "Application Context와 Resource Recommendation을 차례로 전송하세요.";
+    byID("agent-control-result-json").textContent = "아직 실행 결과가 없습니다.";
+    renderReasoningComparison(null);
+    renderAgentControlFeedback(null);
+    renderAgentControlStages(null);
+    return;
+  }
+
+  state.activeAgentControlFlow = flow;
+  const decision = flow.decision || {};
+  const guard = flow.guard || {};
+  const correction = decision.correction_request;
+  byID("agent-control-flow-id").textContent = flow.correlation_id || "ID 없음";
+  byID("agent-control-status").textContent = text(flow.state);
+  byID("agent-control-status").dataset.status = String(flow.state || "").toLowerCase();
+  byID("agent-control-action").textContent = text(decision.action);
+  byID("agent-control-guard").textContent = text(guard.status);
+  byID("agent-control-candidate").textContent = text(decision.selected_candidate_id);
+  byID("agent-control-reason").textContent = correction
+    ? `${text(decision.reason)} 수정 대상: ${text(correction.target)}`
+    : text(decision.reason, "두 입력을 기다리고 있습니다.");
+  byID("agent-control-result-json").textContent = pretty(flow.deployment_request || flow);
+  renderReasoningComparison(flow.reasoning_comparison);
+  renderAgentControlFeedback(flow);
+  renderAgentControlStages(flow);
+}
+
+async function submitApplicationContext(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  setBusy(form, true, "전송 중...");
+  try {
+    const body = parseProtocolMessage("application-context-json", "Application Context");
+    const flow = await apiRequest(API.applicationContexts, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    renderAgentControlFlow(flow);
+    showToast("Application Context를 수신했습니다.", "success");
+  } catch (error) {
+    byID("agent-control-result-json").textContent = pretty(error.payload || { message: error.message });
+    showToast(error.message, "error");
+  } finally {
+    setBusy(form, false);
+  }
+}
+
+async function submitResourceRecommendation(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  setBusy(form, true, "전송 중...");
+  try {
+    const body = parseProtocolMessage("resource-recommendation-json", "Resource Recommendation");
+    const flow = await apiRequest(API.resourceRecommendations, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    renderAgentControlFlow(flow);
+    showToast(`${text(flow.decision?.action, flow.state)} 결정이 생성되었습니다.`, "success");
+  } catch (error) {
+    byID("agent-control-result-json").textContent = pretty(error.payload || { message: error.message });
+    showToast(error.message, "error");
+  } finally {
+    setBusy(form, false);
+  }
+}
+
+async function runReasoningComparison(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const flow = state.activeAgentControlFlow;
+  if (!flow?.correlation_id || !flow?.decision) {
+    showToast("먼저 두 입력을 전송해 배포 결정을 생성하세요.", "warning");
+    return;
+  }
+  setBusy(form, true, "비교 중...");
+  try {
+    const candidateID = form.elements.candidate_id.value.trim();
+    const comparison = await apiRequest(
+      `${API.agentControlFlows}/${encodeURIComponent(flow.correlation_id)}/reasoning-comparisons`,
+      {
+        method: "POST",
+        body: JSON.stringify({ candidate_id: candidateID }),
+      },
+    );
+    renderReasoningComparison(comparison);
+    const providerUnavailable = comparison.simple_inference?.execution_status === "provider_unavailable";
+    showToast(
+      providerUnavailable
+        ? "Qwen 연결을 확인하세요. 규칙 기반 결과는 정상 기록되었습니다."
+        : "규칙 기반·Qwen·Go Guard 비교가 기록되었습니다.",
+      providerUnavailable ? "warning" : "success",
+    );
+    await loadAgentControlFlows();
+  } catch (error) {
+    byID("reasoning-comparison-json").textContent = pretty(error.payload || { message: error.message });
+    showToast(error.message, "error");
+  } finally {
+    setBusy(form, false);
+  }
+}
+
+async function submitDeploymentStatus(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  setBusy(form, true, "전송 중...");
+  try {
+    const body = parseProtocolMessage("deployment-status-json", "Deployment Status");
+    const flow = await apiRequest(API.deploymentStatus, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    renderAgentControlFlow(flow);
+    showToast("배포 상태와 현재 원인이 Flow에 기록되었습니다.", "success");
+  } catch (error) {
+    byID("agent-control-feedback-json").textContent = pretty(error.payload || { message: error.message });
+    showToast(error.message, "error");
+  } finally {
+    setBusy(form, false);
+  }
+}
+
+async function submitOptimizationFeedback(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  setBusy(form, true, "전송 중...");
+  try {
+    const body = parseProtocolMessage("optimization-feedback-json", "Optimization Feedback");
+    const flow = await apiRequest(API.optimizationFeedback, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    renderAgentControlFlow(flow);
+    showToast("성능·비용·SLO 결과가 자동 요약되었습니다.", "success");
+  } catch (error) {
+    byID("agent-control-feedback-json").textContent = pretty(error.payload || { message: error.message });
+    showToast(error.message, "error");
+  } finally {
+    setBusy(form, false);
+  }
+}
+
+async function loadAgentControlFlows() {
+  const payload = await apiRequest(API.agentControlFlows);
+  state.agentControlFlows = Array.isArray(payload.flows) ? payload.flows : [];
+  if (state.agentControlFlows.length === 0) return state.agentControlFlows;
+  const latest = [...state.agentControlFlows].sort(
+    (left, right) => new Date(right.updated_at).getTime() - new Date(left.updated_at).getTime(),
+  )[0];
+  renderAgentControlFlow(latest);
+  return state.agentControlFlows;
 }
 
 function setPlannerInputMode(mode) {
@@ -1242,7 +1678,7 @@ async function refreshDashboard() {
   const button = byID("refresh-button");
   button.disabled = true;
   try {
-    const requests = [loadHealth(), loadAgents(), loadControlRuns()];
+    const requests = [loadHealth(), loadAgents(), loadControlRuns(), loadAgentControlFlows()];
     if (state.activeView === "autonomy") requests.push(loadAutonomy());
     if (state.activeView === "feedback") requests.push(loadFeedbackView());
     await Promise.all(requests);
@@ -1257,6 +1693,20 @@ async function refreshDashboard() {
 function bindEvents() {
   document.querySelectorAll("[data-view-target]").forEach((button) => {
     button.addEventListener("click", () => switchView(button.dataset.viewTarget));
+  });
+  byID("application-context-form").addEventListener("submit", submitApplicationContext);
+  byID("resource-recommendation-form").addEventListener("submit", submitResourceRecommendation);
+  byID("reasoning-comparison-form").addEventListener("submit", runReasoningComparison);
+  byID("deployment-status-form").addEventListener("submit", submitDeploymentStatus);
+  byID("optimization-feedback-form").addEventListener("submit", submitOptimizationFeedback);
+  byID("load-agent-control-sample").addEventListener("click", () => {
+    loadAgentControlSamples();
+    renderAgentControlFlow(null);
+    showToast("통신 규약 샘플을 다시 불러왔습니다.", "info");
+  });
+  byID("load-agent-control-feedback-sample").addEventListener("click", () => {
+    loadAgentControlFeedbackSamples();
+    showToast("현재 Flow ID에 맞춘 Feedback 샘플을 불러왔습니다.", "info");
   });
   document.querySelectorAll('input[name="input_mode"]').forEach((input) => {
     input.addEventListener("change", (event) => setPlannerInputMode(event.currentTarget.value));
@@ -1355,6 +1805,9 @@ function bindEvents() {
 
 async function initialize() {
   bindEvents();
+  loadAgentControlSamples();
+  loadAgentControlFeedbackSamples();
+  renderAgentControlFlow(null);
   setPlannerInputMode(byID("input-mode-existing").checked ? "existing" : "upload");
   switchView(state.activeView);
   const savedAppVersion = localStorage.getItem(APP_VERSION_KEY);
