@@ -139,14 +139,6 @@ SLO 위반 샘플은 다음 값을 사용했다.
 | Agent 표 | 문서 폭을 늘리지 않고 표 내부에서만 가로 스크롤 |
 | 브라우저 콘솔 오류 | 없음 |
 
-브라우저 QA 이미지는 로컬 `tmp/simplified-web-qa/`에 생성했다.
-
-- `desktop-flow.png`
-- `desktop-results-final.png`
-- `mobile-core.png`
-- `mobile-agents-fixed.png`
-- `mobile-results.png`
-
 ## 7. 코드 검증
 
 ```bash
