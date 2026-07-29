@@ -183,6 +183,8 @@ func TestControlAppContainsPolicyRegistryAndExperimentResults(t *testing.T) {
 		`id="reasoning-comparison-form"`,
 		`id="deployment-status-form"`,
 		`id="optimization-feedback-form"`,
+		`application.analysis.request`,
+		`/api/v1/agent-control/application-analysis-requests`,
 	} {
 		if !strings.Contains(html, expected) {
 			t.Fatalf("missing policy or experiment contract %q", expected)

@@ -44,6 +44,23 @@ definitions:
       reason:
         type: string
     type: object
+  agentcontrol.AnalysisRequestApplication:
+    properties:
+      app_id:
+        type: string
+      app_version:
+        type: string
+      artifact:
+        $ref: '#/definitions/agentcontrol.Artifact'
+      declared_spec:
+        $ref: '#/definitions/agentcontrol.DeclaredApplicationSpec'
+      labels:
+        additionalProperties:
+          type: string
+        type: object
+      user_request:
+        type: string
+    type: object
   agentcontrol.AnalysisSummary:
     properties:
       assumptions:
@@ -60,6 +77,34 @@ definitions:
         items:
           type: string
         type: array
+    type: object
+  agentcontrol.ApplicationAnalysisRequestData:
+    properties:
+      application:
+        $ref: '#/definitions/agentcontrol.AnalysisRequestApplication'
+    type: object
+  agentcontrol.ApplicationAnalysisRequestEnvelope:
+    properties:
+      causation_id:
+        type: string
+      contract_version:
+        type: string
+      correlation_id:
+        type: string
+      data:
+        $ref: '#/definitions/agentcontrol.ApplicationAnalysisRequestData'
+      message_id:
+        type: string
+      message_type:
+        type: string
+      occurred_at:
+        type: string
+      source:
+        $ref: '#/definitions/agentcontrol.Endpoint'
+      target:
+        $ref: '#/definitions/agentcontrol.Endpoint'
+      trace_id:
+        type: string
     type: object
   agentcontrol.ApplicationContextData:
     properties:
@@ -224,6 +269,13 @@ definitions:
         type: number
       currency:
         type: string
+    type: object
+  agentcontrol.DeclaredApplicationSpec:
+    properties:
+      expected_rps:
+        type: number
+      max_input_tokens:
+        type: integer
     type: object
   agentcontrol.DeploymentApplication:
     properties:
@@ -884,7 +936,17 @@ definitions:
         type: string
       app_version:
         type: string
+      artifact:
+        $ref: '#/definitions/agentcontrol.Artifact'
       cpu_cores:
+        type: integer
+      expected_rps:
+        type: number
+      labels:
+        additionalProperties:
+          type: string
+        type: object
+      max_input_tokens:
         type: integer
       memory_mib:
         type: integer
@@ -2212,6 +2274,43 @@ info:
   title: AI-Ops Service Control API
   version: "0.1"
 paths:
+  /api/v1/agent-control/application-analysis-requests:
+    post:
+      consumes:
+      - application/json
+      description: Accept application.analysis.request, preserve its correlation and
+        trace identifiers, and execute requirement analysis, resource recommendation,
+        Agent decision, and Go Guard exactly once per message_id.
+      operationId: PostApplicationAnalysisRequest
+      parameters:
+      - description: Common JSON v1.0 application analysis request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/agentcontrol.ApplicationAnalysisRequestEnvelope'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Idempotent replay
+          schema:
+            $ref: '#/definitions/agentcontrol.AutomationRun'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/agentcontrol.AutomationRun'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Start the geon automation flow from a Common JSON analysis request
+      tags:
+      - AI Application Automation Agent
   /api/v1/agent-control/application-contexts:
     post:
       consumes:

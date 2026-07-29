@@ -33,6 +33,46 @@ paths:
       responses:
         "200":
           description: OpenAPI YAML
+  /api/v1/agent-control/application-analysis-requests:
+    post:
+      operationId: PostApplicationAnalysisRequest
+      summary: Start the Agent flow from a Common JSON analysis request
+      description: >
+        Accepts application.analysis.request, preserves correlation_id and
+        trace_id, and executes Requirement Analyzer, Resource Recommender,
+        Agent Registry authorization, deployment decision, and Go Guard.
+        message_id is the idempotency key. An identical replay returns the
+        original run without generating another deployment.create.request.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationAnalysisRequestEnvelope"
+      responses:
+        "201":
+          description: Analysis request processed for the first time
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutomationRun"
+        "200":
+          description: Existing AutomationRun returned for an idempotent replay
+          headers:
+            Idempotent-Replayed:
+              schema: {type: string, enum: ["true"]}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutomationRun"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          description: The message_id already exists with a different payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /api/v1/agent-control/automation-runs:
     post:
       operationId: PostAgentControlAutomationRun
@@ -988,6 +1028,13 @@ components:
         accelerator_memory_mib: {type: integer, minimum: 0}
         replicas_min: {type: integer, minimum: 0}
         replicas_max: {type: integer, minimum: 0}
+        artifact:
+          $ref: "#/components/schemas/ApplicationArtifact"
+        expected_rps: {type: number, minimum: 0}
+        max_input_tokens: {type: integer, minimum: 0}
+        labels:
+          type: object
+          additionalProperties: {type: string}
     AutomationRun:
       type: object
       required: [run_id, correlation_id, trace_id, status, input, created_at, updated_at]
@@ -1111,6 +1158,53 @@ components:
           $ref: "#/components/schemas/CommonMessageEndpoint"
         target:
           $ref: "#/components/schemas/CommonMessageEndpoint"
+    ApplicationArtifact:
+      type: object
+      required: [type, uri]
+      properties:
+        type: {type: string, example: OCI_IMAGE}
+        uri:
+          type: string
+          example: docker://registry.example.org/chat-service:1.0.0
+        entrypoint:
+          type: array
+          items: {type: string}
+    ApplicationAnalysisRequestEnvelope:
+      allOf:
+        - $ref: "#/components/schemas/CommonMessageEnvelope"
+        - type: object
+          required: [data]
+          properties:
+            message_type:
+              type: string
+              enum: [application.analysis.request]
+            data:
+              type: object
+              required: [application]
+              properties:
+                application:
+                  type: object
+                  required:
+                    - app_id
+                    - app_version
+                    - artifact
+                    - user_request
+                  properties:
+                    app_id: {type: string, example: chat-service}
+                    app_version: {type: string, example: 1.0.0}
+                    artifact:
+                      $ref: "#/components/schemas/ApplicationArtifact"
+                    user_request:
+                      type: string
+                      example: 동시 사용자 20명, p95 지연시간 2초 이하로 배포
+                    declared_spec:
+                      type: object
+                      properties:
+                        expected_rps: {type: number, minimum: 0, example: 5}
+                        max_input_tokens: {type: integer, minimum: 0, example: 4096}
+                    labels:
+                      type: object
+                      additionalProperties: {type: string}
     ApplicationContextEnvelope:
       allOf:
         - $ref: "#/components/schemas/CommonMessageEnvelope"

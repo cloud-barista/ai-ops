@@ -65,6 +65,92 @@ func TestAutomationRunAPIRejectsMalformedInput(t *testing.T) {
 	}
 }
 
+func TestApplicationAnalysisRequestAPIIsIdempotent(t *testing.T) {
+	server := NewServer(NewServerConfig())
+	body := marshalAgentControlMessage(t, apiApplicationAnalysisRequest())
+
+	first := performJSONRequest(
+		t,
+		server,
+		http.MethodPost,
+		"/api/v1/agent-control/application-analysis-requests",
+		body,
+	)
+	if first.Code != http.StatusCreated {
+		t.Fatalf("first analysis request: code=%d body=%s", first.Code, first.Body.String())
+	}
+	var created agentcontrol.AutomationRun
+	if err := json.Unmarshal(first.Body.Bytes(), &created); err != nil {
+		t.Fatalf("decode first analysis request: %v", err)
+	}
+	if created.CorrelationID != "flow-analysis-api-001" ||
+		created.TraceID != "trace-analysis-api-001" ||
+		created.Flow == nil ||
+		created.Flow.DeploymentRequest == nil {
+		t.Fatalf("analysis request did not complete the protocol flow: %#v", created)
+	}
+
+	second := performJSONRequest(
+		t,
+		server,
+		http.MethodPost,
+		"/api/v1/agent-control/application-analysis-requests",
+		body,
+	)
+	if second.Code != http.StatusOK {
+		t.Fatalf("replayed analysis request: code=%d body=%s", second.Code, second.Body.String())
+	}
+	if second.Header().Get("Idempotent-Replayed") != "true" {
+		t.Fatalf("replay header = %q", second.Header().Get("Idempotent-Replayed"))
+	}
+	var replayed agentcontrol.AutomationRun
+	if err := json.Unmarshal(second.Body.Bytes(), &replayed); err != nil {
+		t.Fatalf("decode replayed analysis request: %v", err)
+	}
+	if replayed.RunID != created.RunID {
+		t.Fatalf("replay run_id = %q, want %q", replayed.RunID, created.RunID)
+	}
+}
+
+func TestApplicationAnalysisRequestAPIRejectsMalformedAndConflictingMessages(t *testing.T) {
+	server := NewServer(NewServerConfig())
+	malformed := apiApplicationAnalysisRequest()
+	malformed.MessageType = "invalid.message"
+	response := performJSONRequest(
+		t,
+		server,
+		http.MethodPost,
+		"/api/v1/agent-control/application-analysis-requests",
+		marshalAgentControlMessage(t, malformed),
+	)
+	if response.Code != http.StatusBadRequest {
+		t.Fatalf("malformed analysis request: code=%d body=%s", response.Code, response.Body.String())
+	}
+
+	original := apiApplicationAnalysisRequest()
+	first := performJSONRequest(
+		t,
+		server,
+		http.MethodPost,
+		"/api/v1/agent-control/application-analysis-requests",
+		marshalAgentControlMessage(t, original),
+	)
+	if first.Code != http.StatusCreated {
+		t.Fatalf("first analysis request: code=%d body=%s", first.Code, first.Body.String())
+	}
+	original.Data.Application.UserRequest = "Deploy a different application."
+	conflict := performJSONRequest(
+		t,
+		server,
+		http.MethodPost,
+		"/api/v1/agent-control/application-analysis-requests",
+		marshalAgentControlMessage(t, original),
+	)
+	if conflict.Code != http.StatusConflict {
+		t.Fatalf("conflicting analysis request: code=%d body=%s", conflict.Code, conflict.Body.String())
+	}
+}
+
 func TestAgentControlInputJoinAPI(t *testing.T) {
 	server := NewServer(NewServerConfig())
 
@@ -133,6 +219,44 @@ func TestAgentControlInputJoinAPI(t *testing.T) {
 		!strings.Contains(list.Body.String(), `"count":1`) ||
 		!strings.Contains(list.Body.String(), `"correlation_id":"flow-api-001"`) {
 		t.Fatalf("flow list: code=%d body=%s", list.Code, list.Body.String())
+	}
+}
+
+func apiApplicationAnalysisRequest() agentcontrol.ApplicationAnalysisRequestEnvelope {
+	return agentcontrol.ApplicationAnalysisRequestEnvelope{
+		Envelope: agentcontrol.Envelope{
+			ContractVersion: agentcontrol.ContractVersionV1,
+			MessageID:       "msg-analysis-api-001",
+			MessageType:     agentcontrol.MessageApplicationAnalysisRequest,
+			OccurredAt:      "2026-07-30T01:00:00Z",
+			CorrelationID:   "flow-analysis-api-001",
+			TraceID:         "trace-analysis-api-001",
+			Source: agentcontrol.Endpoint{
+				System:    "khu-ai-app",
+				Component: "application-request-api",
+			},
+			Target: agentcontrol.Endpoint{
+				System:    "khu-agent-control",
+				Component: "requirement-analyzer",
+			},
+		},
+		Data: agentcontrol.ApplicationAnalysisRequestData{
+			Application: agentcontrol.AnalysisRequestApplication{
+				AppID:      "chat-service",
+				AppVersion: "1.0.0",
+				Artifact: agentcontrol.Artifact{
+					Type:       "OCI_IMAGE",
+					URI:        "docker://registry.example.org/chat-service:1.0.0",
+					Entrypoint: []string{"/opt/app/start-server"},
+				},
+				UserRequest: "GPU 1, CPU 8 cores, memory 32GiB, storage 100GiB.",
+				DeclaredSpec: agentcontrol.DeclaredApplicationSpec{
+					ExpectedRPS:    5,
+					MaxInputTokens: 4096,
+				},
+				Labels: map[string]string{"project": "ai-mcmp"},
+			},
+		},
 	}
 }
 

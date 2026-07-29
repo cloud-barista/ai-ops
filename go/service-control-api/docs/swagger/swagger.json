@@ -12,6 +12,59 @@
     },
     "basePath": "/",
     "paths": {
+        "/api/v1/agent-control/application-analysis-requests": {
+            "post": {
+                "description": "Accept application.analysis.request, preserve its correlation and trace identifiers, and execute requirement analysis, resource recommendation, Agent decision, and Go Guard exactly once per message_id.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "Start the geon automation flow from a Common JSON analysis request",
+                "operationId": "PostApplicationAnalysisRequest",
+                "parameters": [
+                    {
+                        "description": "Common JSON v1.0 application analysis request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.ApplicationAnalysisRequestEnvelope"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Idempotent replay",
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.AutomationRun"
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.AutomationRun"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/agent-control/application-contexts": {
             "post": {
                 "description": "Validate and store a Common JSON v1.0 application.context.created message.",
@@ -1762,6 +1815,32 @@
                 }
             }
         },
+        "agentcontrol.AnalysisRequestApplication": {
+            "type": "object",
+            "properties": {
+                "app_id": {
+                    "type": "string"
+                },
+                "app_version": {
+                    "type": "string"
+                },
+                "artifact": {
+                    "$ref": "#/definitions/agentcontrol.Artifact"
+                },
+                "declared_spec": {
+                    "$ref": "#/definitions/agentcontrol.DeclaredApplicationSpec"
+                },
+                "labels": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "user_request": {
+                    "type": "string"
+                }
+            }
+        },
         "agentcontrol.AnalysisSummary": {
             "type": "object",
             "properties": {
@@ -1785,6 +1864,49 @@
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "agentcontrol.ApplicationAnalysisRequestData": {
+            "type": "object",
+            "properties": {
+                "application": {
+                    "$ref": "#/definitions/agentcontrol.AnalysisRequestApplication"
+                }
+            }
+        },
+        "agentcontrol.ApplicationAnalysisRequestEnvelope": {
+            "type": "object",
+            "properties": {
+                "causation_id": {
+                    "type": "string"
+                },
+                "contract_version": {
+                    "type": "string"
+                },
+                "correlation_id": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/agentcontrol.ApplicationAnalysisRequestData"
+                },
+                "message_id": {
+                    "type": "string"
+                },
+                "message_type": {
+                    "type": "string"
+                },
+                "occurred_at": {
+                    "type": "string"
+                },
+                "source": {
+                    "$ref": "#/definitions/agentcontrol.Endpoint"
+                },
+                "target": {
+                    "$ref": "#/definitions/agentcontrol.Endpoint"
+                },
+                "trace_id": {
+                    "type": "string"
                 }
             }
         },
@@ -2037,6 +2159,17 @@
                 },
                 "currency": {
                     "type": "string"
+                }
+            }
+        },
+        "agentcontrol.DeclaredApplicationSpec": {
+            "type": "object",
+            "properties": {
+                "expected_rps": {
+                    "type": "number"
+                },
+                "max_input_tokens": {
+                    "type": "integer"
                 }
             }
         },
@@ -3051,7 +3184,22 @@
                 "app_version": {
                     "type": "string"
                 },
+                "artifact": {
+                    "$ref": "#/definitions/agentcontrol.Artifact"
+                },
                 "cpu_cores": {
+                    "type": "integer"
+                },
+                "expected_rps": {
+                    "type": "number"
+                },
+                "labels": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "max_input_tokens": {
                     "type": "integer"
                 },
                 "memory_mib": {

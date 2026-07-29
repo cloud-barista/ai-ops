@@ -109,6 +109,10 @@ func NewServer(config ServerConfig) *echo.Echo {
 	server.DELETE(pathAutonomy+"/events", handler.requireAutonomyAdmin(handler.RestDeleteAutonomyEvents))
 	server.POST(pathPlannerDeploy, handler.RestPostAppDeployPlanner)
 	server.POST(pathServiceOpsRun, handler.RestPostServiceOperationsRun)
+	server.POST(
+		pathAgentControl+"/application-analysis-requests",
+		handler.RestPostApplicationAnalysisRequest,
+	)
 	server.POST(pathAgentControl+"/application-contexts", handler.RestPostApplicationContext)
 	server.POST(pathAgentControl+"/resource-recommendations", handler.RestPostResourceRecommendation)
 	server.POST(pathAgentControl+"/automation-runs", handler.RestPostAutomationRun)

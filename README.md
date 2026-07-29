@@ -131,6 +131,7 @@ Qwen 서버가 꺼져 있어도 핵심 결정적 배포 판단은 실행됩니�
 
 | Method | Endpoint | 역할 |
 | --- | --- | --- |
+| `POST` | `/api/v1/agent-control/application-analysis-requests` | 통신 규약의 `application.analysis.request` 수신 및 중복 없는 자동 실행 |
 | `POST` | `/api/v1/agent-control/automation-runs` | 입력 한 번으로 요구 분석·추천·Agent 판단 자동 실행 |
 | `GET` | `/api/v1/agent-control/automation-runs/{run_id}` | 자동 실행 전체 증거 조회 |
 | `POST` | `/api/v1/agent-control/application-contexts` | 요구 분석 결과 수신 |
@@ -146,6 +147,8 @@ Qwen 서버가 꺼져 있어도 핵심 결정적 배포 판단은 실행됩니�
 | `DELETE` | `/api/v1/agents/{name}` | Runtime Agent 삭제 |
 
 OpenAPI 계약은 [docs/submission/openapi_service_control.yaml](docs/submission/openapi_service_control.yaml)에서 확인합니다.
+
+외부 시스템은 Common JSON v1.0 Envelope의 `message_id`를 요청 고유 키로 사용합니다. 동일한 메시지를 다시 보내면 `Idempotent-Replayed: true` 헤더와 기존 `run_id`가 반환됩니다. 같은 `message_id`에 다른 내용을 보내면 `409 Conflict`로 거부합니다. 실제 배포 시스템은 geon이 생성한 `deployment.create.request.data.deployment_request.request_id`를 멱등성 키로 사용합니다.
 
 ## 검증
 

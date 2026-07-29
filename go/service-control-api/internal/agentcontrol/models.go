@@ -3,6 +3,7 @@ package agentcontrol
 const (
 	ContractVersionV1 = "1.0"
 
+	MessageApplicationAnalysisRequest    = "application.analysis.request"
 	MessageApplicationContextCreated     = "application.context.created"
 	MessageResourceRecommendationCreated = "resource.recommendation.created"
 	MessageDeploymentCreateRequest       = "deployment.create.request"
@@ -77,17 +78,21 @@ type AutomationRunInput struct {
 }
 
 type StructuredAppSpec struct {
-	AppID                string `json:"app_id,omitempty"`
-	AppVersion           string `json:"app_version,omitempty"`
-	WorkloadType         string `json:"workload_type,omitempty"`
-	CPUCores             int    `json:"cpu_cores"`
-	MemoryMiB            int    `json:"memory_mib"`
-	StorageGiB           int    `json:"storage_gib"`
-	AcceleratorType      string `json:"accelerator_type,omitempty"`
-	AcceleratorCount     int    `json:"accelerator_count,omitempty"`
-	AcceleratorMemoryMiB int    `json:"accelerator_memory_mib,omitempty"`
-	ReplicasMin          int    `json:"replicas_min,omitempty"`
-	ReplicasMax          int    `json:"replicas_max,omitempty"`
+	AppID                string            `json:"app_id,omitempty"`
+	AppVersion           string            `json:"app_version,omitempty"`
+	WorkloadType         string            `json:"workload_type,omitempty"`
+	CPUCores             int               `json:"cpu_cores"`
+	MemoryMiB            int               `json:"memory_mib"`
+	StorageGiB           int               `json:"storage_gib"`
+	AcceleratorType      string            `json:"accelerator_type,omitempty"`
+	AcceleratorCount     int               `json:"accelerator_count,omitempty"`
+	AcceleratorMemoryMiB int               `json:"accelerator_memory_mib,omitempty"`
+	ReplicasMin          int               `json:"replicas_min,omitempty"`
+	ReplicasMax          int               `json:"replicas_max,omitempty"`
+	Artifact             *Artifact         `json:"artifact,omitempty"`
+	ExpectedRPS          float64           `json:"expected_rps,omitempty"`
+	MaxInputTokens       int               `json:"max_input_tokens,omitempty"`
+	Labels               map[string]string `json:"labels,omitempty"`
 }
 
 type RequirementAnalysisEvidence struct {
@@ -123,6 +128,29 @@ type Artifact struct {
 	Type       string   `json:"type"`
 	URI        string   `json:"uri"`
 	Entrypoint []string `json:"entrypoint,omitempty"`
+}
+
+type ApplicationAnalysisRequestEnvelope struct {
+	Envelope
+	Data ApplicationAnalysisRequestData `json:"data"`
+}
+
+type ApplicationAnalysisRequestData struct {
+	Application AnalysisRequestApplication `json:"application"`
+}
+
+type AnalysisRequestApplication struct {
+	AppID        string                  `json:"app_id"`
+	AppVersion   string                  `json:"app_version"`
+	Artifact     Artifact                `json:"artifact"`
+	UserRequest  string                  `json:"user_request"`
+	DeclaredSpec DeclaredApplicationSpec `json:"declared_spec,omitempty"`
+	Labels       map[string]string       `json:"labels,omitempty"`
+}
+
+type DeclaredApplicationSpec struct {
+	ExpectedRPS    float64 `json:"expected_rps,omitempty"`
+	MaxInputTokens int     `json:"max_input_tokens,omitempty"`
 }
 
 type ApplicationContextEnvelope struct {

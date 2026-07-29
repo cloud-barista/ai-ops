@@ -33,7 +33,7 @@ func (LocalRequirementAnalyzer) Analyze(
 	}
 	switch input.InputType {
 	case InputTypeNaturalLanguage:
-		return analyzeNaturalLanguage(input.Request)
+		return analyzeNaturalLanguage(input)
 	case InputTypeStructured:
 		if input.AppSpec == nil {
 			return RequirementAnalysisResult{}, fmt.Errorf("app_spec is required for structured input")
@@ -44,8 +44,8 @@ func (LocalRequirementAnalyzer) Analyze(
 	}
 }
 
-func analyzeNaturalLanguage(request string) (RequirementAnalysisResult, error) {
-	request = strings.TrimSpace(request)
+func analyzeNaturalLanguage(input AutomationRunInput) (RequirementAnalysisResult, error) {
+	request := strings.TrimSpace(input.Request)
 	if request == "" {
 		return RequirementAnalysisResult{}, fmt.Errorf("request is required for natural_language input")
 	}
@@ -102,6 +102,7 @@ func analyzeNaturalLanguage(request string) (RequirementAnalysisResult, error) {
 	}
 
 	appID := "ai-application"
+	appVersion := "1.0.0"
 	modelID := "unspecified-model"
 	if strings.Contains(normalized, "qwen") {
 		appID = "qwen-service"
@@ -111,14 +112,35 @@ func analyzeNaturalLanguage(request string) (RequirementAnalysisResult, error) {
 	if strings.Contains(normalized, "llm") || strings.Contains(normalized, "qwen") {
 		taskType = "LLM_INFERENCE"
 	}
+	var artifact *Artifact
+	var expectedRPS float64
+	if input.AppSpec != nil {
+		if value := strings.TrimSpace(input.AppSpec.AppID); value != "" {
+			appID = value
+		}
+		if value := strings.TrimSpace(input.AppSpec.AppVersion); value != "" {
+			appVersion = value
+		}
+		if value := strings.TrimSpace(input.AppSpec.WorkloadType); value != "" {
+			taskType = value
+		}
+		expectedRPS = input.AppSpec.ExpectedRPS
+		if input.AppSpec.Artifact != nil {
+			copy := *input.AppSpec.Artifact
+			copy.Entrypoint = append([]string(nil), input.AppSpec.Artifact.Entrypoint...)
+			artifact = &copy
+		}
+	}
 
 	profile := ApplicationProfile{
-		ProfileID:  "profile-" + appID,
+		ProfileID:  "profile-" + sanitizeIdentifier(appID),
 		AppID:      appID,
-		AppVersion: "1.0.0",
+		AppVersion: appVersion,
+		Artifact:   artifact,
 		Workload: WorkloadProfile{
 			TaskType:       taskType,
 			RequestPattern: "ONLINE",
+			ExpectedRPS:    expectedRPS,
 		},
 		Requirements: ApplicationRequirements{
 			Compute: ComputeRequirements{

@@ -4,7 +4,10 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 )
@@ -12,6 +15,10 @@ import (
 const (
 	AutomationRunStatusCompleted = "COMPLETED"
 	AutomationRunStatusFailed    = "FAILED"
+)
+
+var ErrAnalysisRequestIdempotencyConflict = errors.New(
+	"application analysis request message_id already exists with a different payload",
 )
 
 type AutomationRun struct {
@@ -31,13 +38,27 @@ type AutomationRun struct {
 }
 
 type AutomationRunner struct {
-	mu           sync.RWMutex
-	runs         map[string]AutomationRun
-	analyzer     RequirementAnalyzer
-	recommender  ResourceRecommender
-	agentControl *Service
-	Now          func() time.Time
-	IDGenerator  func(string) string
+	mu               sync.RWMutex
+	protocolMu       sync.Mutex
+	runs             map[string]AutomationRun
+	protocolRequests map[string]analysisRequestRecord
+	analyzer         RequirementAnalyzer
+	recommender      ResourceRecommender
+	agentControl     *Service
+	Now              func() time.Time
+	IDGenerator      func(string) string
+}
+
+type analysisRequestRecord struct {
+	Fingerprint string
+	RunID       string
+	Error       string
+}
+
+type automationRunIdentity struct {
+	CorrelationID string
+	TraceID       string
+	CausationID   string
 }
 
 func NewAutomationRunner(
@@ -46,18 +67,77 @@ func NewAutomationRunner(
 	agentControl *Service,
 ) *AutomationRunner {
 	return &AutomationRunner{
-		runs:         map[string]AutomationRun{},
-		analyzer:     analyzer,
-		recommender:  recommender,
-		agentControl: agentControl,
-		Now:          func() time.Time { return time.Now().UTC() },
-		IDGenerator:  randomAutomationID,
+		runs:             map[string]AutomationRun{},
+		protocolRequests: map[string]analysisRequestRecord{},
+		analyzer:         analyzer,
+		recommender:      recommender,
+		agentControl:     agentControl,
+		Now:              func() time.Time { return time.Now().UTC() },
+		IDGenerator:      randomAutomationID,
 	}
 }
 
 func (runner *AutomationRunner) Run(
 	ctx context.Context,
 	input AutomationRunInput,
+) (AutomationRun, error) {
+	return runner.run(ctx, input, automationRunIdentity{})
+}
+
+func (runner *AutomationRunner) RunAnalysisRequest(
+	ctx context.Context,
+	request ApplicationAnalysisRequestEnvelope,
+) (AutomationRun, bool, error) {
+	if err := validateApplicationAnalysisRequest(request); err != nil {
+		return AutomationRun{}, false, err
+	}
+	encoded, err := json.Marshal(request)
+	if err != nil {
+		return AutomationRun{}, false, fmt.Errorf("encode application analysis request: %w", err)
+	}
+	fingerprint := string(encoded)
+
+	runner.protocolMu.Lock()
+	defer runner.protocolMu.Unlock()
+
+	if record, ok := runner.protocolRequests[request.MessageID]; ok {
+		if record.Fingerprint != fingerprint {
+			return AutomationRun{}, false, ErrAnalysisRequestIdempotencyConflict
+		}
+		run, found := runner.Get(record.RunID)
+		if !found {
+			return AutomationRun{}, false, fmt.Errorf(
+				"idempotency record references missing run_id %q",
+				record.RunID,
+			)
+		}
+		if record.Error != "" {
+			return run, true, errors.New(record.Error)
+		}
+		return run, true, nil
+	}
+
+	run, runErr := runner.run(
+		ctx,
+		automationInputFromAnalysisRequest(request),
+		automationRunIdentity{
+			CorrelationID: request.CorrelationID,
+			TraceID:       request.TraceID,
+			CausationID:   request.MessageID,
+		},
+	)
+	record := analysisRequestRecord{Fingerprint: fingerprint, RunID: run.RunID}
+	if runErr != nil {
+		record.Error = runErr.Error()
+	}
+	runner.protocolRequests[request.MessageID] = record
+	return run, false, runErr
+}
+
+func (runner *AutomationRunner) run(
+	ctx context.Context,
+	input AutomationRunInput,
+	identity automationRunIdentity,
 ) (AutomationRun, error) {
 	if err := ctx.Err(); err != nil {
 		return AutomationRun{}, err
@@ -74,10 +154,18 @@ func (runner *AutomationRunner) Run(
 		idGenerator = randomAutomationID
 	}
 	createdAt := now().UTC()
+	correlationID := strings.TrimSpace(identity.CorrelationID)
+	if correlationID == "" {
+		correlationID = idGenerator("flow")
+	}
+	traceID := strings.TrimSpace(identity.TraceID)
+	if traceID == "" {
+		traceID = idGenerator("trace")
+	}
 	run := AutomationRun{
 		RunID:         idGenerator("run"),
-		CorrelationID: idGenerator("flow"),
-		TraceID:       idGenerator("trace"),
+		CorrelationID: correlationID,
+		TraceID:       traceID,
 		Status:        AutomationRunStatusFailed,
 		Input:         input,
 		CreatedAt:     createdAt.Format(time.RFC3339Nano),
@@ -106,6 +194,7 @@ func (runner *AutomationRunner) Run(
 			OccurredAt:      occurredAt,
 			CorrelationID:   run.CorrelationID,
 			TraceID:         run.TraceID,
+			CausationID:     identity.CausationID,
 			Source: Endpoint{
 				System:    "khu-requirements",
 				Component: "requirement-analyzer",
@@ -156,6 +245,59 @@ func (runner *AutomationRunner) Run(
 	run.UpdatedAt = now().UTC().Format(time.RFC3339Nano)
 	runner.store(run)
 	return run, nil
+}
+
+func automationInputFromAnalysisRequest(
+	request ApplicationAnalysisRequestEnvelope,
+) AutomationRunInput {
+	application := request.Data.Application
+	artifact := application.Artifact
+	artifact.Entrypoint = append([]string(nil), application.Artifact.Entrypoint...)
+	labels := make(map[string]string, len(application.Labels))
+	for key, value := range application.Labels {
+		labels[key] = value
+	}
+	requestedBy := strings.TrimSpace(request.Source.System)
+	if component := strings.TrimSpace(request.Source.Component); component != "" {
+		requestedBy += "/" + component
+	}
+	return AutomationRunInput{
+		InputType:   InputTypeNaturalLanguage,
+		Request:     application.UserRequest,
+		RequestedBy: requestedBy,
+		AppSpec: &StructuredAppSpec{
+			AppID:          application.AppID,
+			AppVersion:     application.AppVersion,
+			Artifact:       &artifact,
+			ExpectedRPS:    application.DeclaredSpec.ExpectedRPS,
+			MaxInputTokens: application.DeclaredSpec.MaxInputTokens,
+			Labels:         labels,
+		},
+	}
+}
+
+func validateApplicationAnalysisRequest(request ApplicationAnalysisRequestEnvelope) error {
+	if err := validateEnvelope(request.Envelope, MessageApplicationAnalysisRequest); err != nil {
+		return err
+	}
+	application := request.Data.Application
+	switch {
+	case strings.TrimSpace(application.AppID) == "":
+		return fmt.Errorf("application.app_id is required")
+	case strings.TrimSpace(application.AppVersion) == "":
+		return fmt.Errorf("application.app_version is required")
+	case strings.TrimSpace(application.Artifact.Type) == "":
+		return fmt.Errorf("application.artifact.type is required")
+	case strings.TrimSpace(application.Artifact.URI) == "":
+		return fmt.Errorf("application.artifact.uri is required")
+	case strings.TrimSpace(application.UserRequest) == "":
+		return fmt.Errorf("application.user_request is required")
+	case application.DeclaredSpec.ExpectedRPS < 0:
+		return fmt.Errorf("application.declared_spec.expected_rps must not be negative")
+	case application.DeclaredSpec.MaxInputTokens < 0:
+		return fmt.Errorf("application.declared_spec.max_input_tokens must not be negative")
+	}
+	return nil
 }
 
 func (runner *AutomationRunner) Get(runID string) (AutomationRun, bool) {

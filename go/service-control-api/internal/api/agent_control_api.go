@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -8,6 +9,51 @@ import (
 
 	"kyunghee-aiops/service-control-api/internal/agentcontrol"
 )
+
+// RestPostApplicationAnalysisRequest godoc
+// @ID PostApplicationAnalysisRequest
+// @Summary Start the geon automation flow from a Common JSON analysis request
+// @Description Accept application.analysis.request, preserve its correlation and trace identifiers, and execute requirement analysis, resource recommendation, Agent decision, and Go Guard exactly once per message_id.
+// @Tags AI Application Automation Agent
+// @Accept json
+// @Produce json
+// @Param request body agentcontrol.ApplicationAnalysisRequestEnvelope true "Common JSON v1.0 application analysis request"
+// @Success 201 {object} agentcontrol.AutomationRun
+// @Success 200 {object} agentcontrol.AutomationRun "Idempotent replay"
+// @Failure 400 {object} ErrorResponse
+// @Failure 409 {object} ErrorResponse
+// @Router /api/v1/agent-control/application-analysis-requests [post]
+func (handler restHandler) RestPostApplicationAnalysisRequest(context echo.Context) error {
+	var request agentcontrol.ApplicationAnalysisRequestEnvelope
+	if message, err := bindAndValidate(context, &request); err != nil {
+		return jsonError(context, http.StatusBadRequest, message, err)
+	}
+	run, replayed, err := handler.service.automationRunner.RunAnalysisRequest(
+		context.Request().Context(),
+		request,
+	)
+	if err != nil {
+		if errors.Is(err, agentcontrol.ErrAnalysisRequestIdempotencyConflict) {
+			return jsonError(
+				context,
+				http.StatusConflict,
+				"message_id was already used for a different analysis request",
+				err,
+			)
+		}
+		return jsonError(
+			context,
+			http.StatusBadRequest,
+			"Application analysis request could not be processed",
+			err,
+		)
+	}
+	if replayed {
+		context.Response().Header().Set("Idempotent-Replayed", "true")
+		return context.JSON(http.StatusOK, run)
+	}
+	return context.JSON(http.StatusCreated, run)
+}
 
 type AgentControlReasoningComparisonRequest struct {
 	CandidateID string `json:"candidate_id" validate:"required"`

@@ -93,8 +93,10 @@ func TestOpenAPIDocumentsAutomaticThreeStageAgentFlow(t *testing.T) {
 			t.Fatalf("read OpenAPI %s: %v", path, err)
 		}
 		for _, expected := range []string{
+			"/api/v1/agent-control/application-analysis-requests",
 			"/api/v1/agent-control/automation-runs",
 			"/api/v1/agent-control/automation-runs/{run_id}",
+			"ApplicationAnalysisRequestEnvelope",
 			"AutomationRun",
 			"AutomationRunInput",
 			"RequirementAnalysisResult",
