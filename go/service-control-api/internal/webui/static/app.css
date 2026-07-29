@@ -678,7 +678,8 @@ input:focus {
   font-size: 10px;
 }
 
-.table-scroll {
+.table-wrap {
+  width: 100%;
   min-width: 0;
   overflow: auto;
 }

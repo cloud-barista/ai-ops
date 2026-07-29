@@ -236,6 +236,7 @@ func TestControlAppResponsiveStylesProtectFixedWorkflowElements(t *testing.T) {
 		`.automation-input-grid`,
 		`.results-layout`,
 		`.agent-control-stage-flow`,
+		`.table-wrap`,
 		`grid-template-columns: repeat(6, minmax(0, 1fr));`,
 		`@media (max-width: 900px)`,
 		`grid-template-columns: minmax(0, 1fr);`,
