@@ -21,6 +21,10 @@ const (
 	ActionReject = "REJECT"
 	ActionRetry  = "RETRY"
 
+	ScalingActionNoAction = "NO_ACTION"
+	ScalingActionScaleOut = "SCALE_OUT"
+	ScalingActionScaleIn  = "SCALE_IN"
+
 	AutomationAgentName      = "AIApplicationAutomationAgent"
 	AutomationCapability     = "ai_application_automation"
 	AutomationDecisionAction = "generate_deployment_decision"
@@ -426,6 +430,15 @@ type FeedbackSummary struct {
 	UpdatedAt       string               `json:"updated_at"`
 }
 
+type ScalingDecision struct {
+	Action          string   `json:"action"`
+	Reason          string   `json:"reason"`
+	CurrentReplicas int      `json:"current_replicas"`
+	DesiredReplicas int      `json:"desired_replicas"`
+	Evidence        []string `json:"evidence,omitempty"`
+	CreatedAt       string   `json:"created_at"`
+}
+
 type ReasoningInput struct {
 	ApplicationProfile     ApplicationProfile     `json:"application_profile"`
 	ResourceRecommendation ResourceRecommendation `json:"resource_recommendation"`
@@ -494,6 +507,7 @@ type Flow struct {
 	DeploymentStatus       *DeploymentStatusEnvelope        `json:"deployment_status,omitempty"`
 	OptimizationFeedback   *OptimizationFeedbackEnvelope    `json:"optimization_feedback,omitempty"`
 	FeedbackSummary        *FeedbackSummary                 `json:"feedback_summary,omitempty"`
+	ScalingDecision        *ScalingDecision                 `json:"scaling_decision,omitempty"`
 	ReasoningComparison    *ReasoningComparison             `json:"reasoning_comparison,omitempty"`
 	UpdatedAt              string                           `json:"updated_at"`
 }

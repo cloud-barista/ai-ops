@@ -256,6 +256,44 @@ func TestServiceSummarizesSuccessfulDeploymentFeedback(t *testing.T) {
 	if !strings.Contains(flow.FeedbackSummary.Cause, "SLO") {
 		t.Fatalf("cause = %q, want an SLO result", flow.FeedbackSummary.Cause)
 	}
+	if flow.ScalingDecision == nil {
+		t.Fatal("scaling decision was not created")
+	}
+	if flow.ScalingDecision.Action != ScalingActionNoAction {
+		t.Fatalf("scaling action = %q, want %q", flow.ScalingDecision.Action, ScalingActionNoAction)
+	}
+}
+
+func TestServicePersistsScaleOutDecisionForSLOViolation(t *testing.T) {
+	service := NewService()
+	createApprovedFlow(t, service)
+	if _, err := service.ReceiveDeploymentStatus(
+		context.Background(),
+		validDeploymentStatusEnvelope(),
+	); err != nil {
+		t.Fatalf("receive deployment status: %v", err)
+	}
+	feedback := validOptimizationFeedbackEnvelope()
+	feedback.Data.OptimizationFeedback.SLOViolations = []string{"latency_p95_ms"}
+
+	flow, err := service.ReceiveOptimizationFeedback(context.Background(), feedback)
+	if err != nil {
+		t.Fatalf("receive optimization feedback: %v", err)
+	}
+	if flow.ScalingDecision == nil {
+		t.Fatal("scaling decision was not created")
+	}
+	if flow.ScalingDecision.Action != ScalingActionScaleOut {
+		t.Fatalf("scaling action = %q, want %q", flow.ScalingDecision.Action, ScalingActionScaleOut)
+	}
+	if flow.ScalingDecision.CurrentReplicas != 1 || flow.ScalingDecision.DesiredReplicas != 2 {
+		t.Fatalf("scaling replicas = %#v, want 1 -> 2", flow.ScalingDecision)
+	}
+	stored, ok := service.GetFlow("flow-001")
+	if !ok || stored.ScalingDecision == nil ||
+		stored.ScalingDecision.Action != ScalingActionScaleOut {
+		t.Fatalf("stored Flow scaling decision = %#v, ok=%v", stored.ScalingDecision, ok)
+	}
 }
 
 func TestServiceSummarizesFailedDeploymentStatus(t *testing.T) {

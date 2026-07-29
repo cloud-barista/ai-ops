@@ -140,6 +140,7 @@ func (service *Service) ReceiveDeploymentStatus(
 	messageCopy := cloneDeploymentStatusEnvelope(message)
 	flow.DeploymentStatus = &messageCopy
 	flow.FeedbackSummary = summarizeFeedback(flow)
+	flow.ScalingDecision = evaluateScalingDecision(flow, service.now())
 	flow.UpdatedAt = service.now().Format(time.RFC3339Nano)
 	service.flows[message.CorrelationID] = cloneFlow(flow)
 	return cloneFlow(flow), nil
@@ -181,6 +182,7 @@ func (service *Service) ReceiveOptimizationFeedback(
 	messageCopy := cloneOptimizationFeedbackEnvelope(message)
 	flow.OptimizationFeedback = &messageCopy
 	flow.FeedbackSummary = summarizeFeedback(flow)
+	flow.ScalingDecision = evaluateScalingDecision(flow, service.now())
 	flow.UpdatedAt = service.now().Format(time.RFC3339Nano)
 	service.flows[message.CorrelationID] = cloneFlow(flow)
 	return cloneFlow(flow), nil
@@ -1039,6 +1041,11 @@ func cloneFlow(flow Flow) Flow {
 			value.Metrics = &metrics
 		}
 		result.FeedbackSummary = &value
+	}
+	if flow.ScalingDecision != nil {
+		value := *flow.ScalingDecision
+		value.Evidence = append([]string(nil), flow.ScalingDecision.Evidence...)
+		result.ScalingDecision = &value
 	}
 	if flow.ReasoningComparison != nil {
 		value := *flow.ReasoningComparison
