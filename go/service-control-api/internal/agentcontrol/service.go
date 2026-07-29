@@ -623,6 +623,8 @@ func (service *Service) evaluateFlow(ctx context.Context, flow Flow) Flow {
 			},
 		},
 	}
+	spec := buildDesiredDeploymentSpec(flow)
+	flow.DesiredDeploymentSpec = &spec
 	request := buildDeploymentCreateRequest(flow, createdAt)
 	flow.DeploymentRequest = &request
 	return flow
@@ -747,19 +749,40 @@ func selectRecommendedCandidate(
 	return selected, issues
 }
 
-func buildDeploymentCreateRequest(flow Flow, createdAt string) DeploymentCreateRequestEnvelope {
+func buildDesiredDeploymentSpec(flow Flow) DesiredDeploymentSpec {
 	profile := flow.ApplicationContext.Data.ApplicationProfile
 	plan := flow.DeploymentPlan
 	decision := flow.Decision
+
+	runtime := RuntimeConfiguration{RestartPolicy: "ON_FAILURE"}
+	if profile.Artifact != nil {
+		runtime.Command = append([]string(nil), profile.Artifact.Entrypoint...)
+	}
+
+	return DesiredDeploymentSpec{
+		SpecVersion:            ContractVersionV1,
+		DecisionID:             decision.DecisionID,
+		Application:            ManifestApplication{AppID: profile.AppID, AppVersion: profile.AppVersion},
+		TargetRuntime:          plan.TargetRuntime,
+		DesiredInfrastructure:  plan.DesiredInfrastructure,
+		InferenceConfiguration: plan.InferenceConfiguration,
+		Runtime:                runtime,
+		PolicyHints:            append([]string(nil), plan.ResourceHints...),
+		Metadata:               ManifestMetadata{ProfileID: profile.ProfileID},
+	}
+}
+
+func buildDeploymentCreateRequest(flow Flow, createdAt string) DeploymentCreateRequestEnvelope {
+	profile := flow.ApplicationContext.Data.ApplicationProfile
+	decision := flow.Decision
+	spec := flow.DesiredDeploymentSpec
 	requestID := "deploy-request-" + flow.CorrelationID
 
 	var artifact *Artifact
-	runtime := RuntimeConfiguration{RestartPolicy: "ON_FAILURE"}
 	if profile.Artifact != nil {
 		artifactCopy := *profile.Artifact
 		artifactCopy.Entrypoint = append([]string(nil), profile.Artifact.Entrypoint...)
 		artifact = &artifactCopy
-		runtime.Command = append([]string(nil), profile.Artifact.Entrypoint...)
 	}
 
 	return DeploymentCreateRequestEnvelope{
@@ -791,15 +814,15 @@ func buildDeploymentCreateRequest(flow Flow, createdAt string) DeploymentCreateR
 				},
 				DeploymentManifest: DeploymentManifest{
 					ManifestID:             "manifest-" + flow.CorrelationID,
-					ManifestVersion:        ContractVersionV1,
-					DecisionID:             decision.DecisionID,
-					Application:            ManifestApplication{AppID: profile.AppID, AppVersion: profile.AppVersion},
-					TargetRuntime:          plan.TargetRuntime,
-					DesiredInfrastructure:  plan.DesiredInfrastructure,
-					InferenceConfiguration: plan.InferenceConfiguration,
-					Runtime:                runtime,
-					ResourceHints:          append([]string(nil), plan.ResourceHints...),
-					Metadata:               ManifestMetadata{ProfileID: profile.ProfileID},
+					ManifestVersion:        spec.SpecVersion,
+					DecisionID:             spec.DecisionID,
+					Application:            spec.Application,
+					TargetRuntime:          spec.TargetRuntime,
+					DesiredInfrastructure:  spec.DesiredInfrastructure,
+					InferenceConfiguration: spec.InferenceConfiguration,
+					Runtime:                spec.Runtime,
+					ResourceHints:          append([]string(nil), spec.PolicyHints...),
+					Metadata:               spec.Metadata,
 				},
 			},
 		},

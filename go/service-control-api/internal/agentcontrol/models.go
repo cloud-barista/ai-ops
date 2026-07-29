@@ -296,6 +296,18 @@ type DeploymentCreateRequestData struct {
 	DeploymentRequest DeploymentRequest `json:"deployment_request"`
 }
 
+type DesiredDeploymentSpec struct {
+	SpecVersion            string                 `json:"spec_version"`
+	DecisionID             string                 `json:"decision_id"`
+	Application            ManifestApplication    `json:"application"`
+	TargetRuntime          string                 `json:"target_runtime"`
+	DesiredInfrastructure  DesiredInfrastructure  `json:"desired_infrastructure"`
+	InferenceConfiguration InferenceConfiguration `json:"inference_configuration"`
+	Runtime                RuntimeConfiguration   `json:"runtime,omitempty"`
+	PolicyHints            []string               `json:"policy_hints,omitempty"`
+	Metadata               ManifestMetadata       `json:"metadata"`
+}
+
 type DeploymentRequest struct {
 	RequestID          string                `json:"request_id"`
 	DecisionID         string                `json:"decision_id"`
@@ -503,6 +515,7 @@ type Flow struct {
 	Decision               *AutomationDecision              `json:"decision,omitempty"`
 	DeploymentPlan         *DeploymentPlan                  `json:"deployment_plan,omitempty"`
 	Guard                  *GuardResult                     `json:"guard,omitempty"`
+	DesiredDeploymentSpec  *DesiredDeploymentSpec           `json:"desired_deployment_spec,omitempty"`
 	DeploymentRequest      *DeploymentCreateRequestEnvelope `json:"deployment_request,omitempty"`
 	DeploymentStatus       *DeploymentStatusEnvelope        `json:"deployment_status,omitempty"`
 	OptimizationFeedback   *OptimizationFeedbackEnvelope    `json:"optimization_feedback,omitempty"`

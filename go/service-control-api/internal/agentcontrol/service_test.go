@@ -137,6 +137,50 @@ func TestServiceCreatesDeployPlanForFeasibleRecommendation(t *testing.T) {
 	}
 }
 
+func TestServiceCreatesPlatformNeutralDesiredDeploymentSpec(t *testing.T) {
+	service := NewService()
+	if _, err := service.ReceiveApplicationContext(
+		context.Background(),
+		validApplicationContextEnvelope(),
+	); err != nil {
+		t.Fatalf("receive application context: %v", err)
+	}
+	flow, err := service.ReceiveResourceRecommendation(
+		context.Background(),
+		validResourceRecommendationEnvelope(),
+	)
+	if err != nil {
+		t.Fatalf("receive resource recommendation: %v", err)
+	}
+
+	if flow.DesiredDeploymentSpec == nil {
+		t.Fatal("approved flow must expose a DesiredDeploymentSpec")
+	}
+	spec := flow.DesiredDeploymentSpec
+	if spec.SpecVersion != ContractVersionV1 {
+		t.Fatalf("spec version = %q, want %q", spec.SpecVersion, ContractVersionV1)
+	}
+	if flow.DeploymentRequest == nil {
+		t.Fatal("compatibility deployment request was not created")
+	}
+	manifest := flow.DeploymentRequest.Data.DeploymentRequest.DeploymentManifest
+	if spec.DesiredInfrastructure != manifest.DesiredInfrastructure {
+		t.Fatalf("spec and compatibility manifest infrastructure differ: %#v %#v", spec, manifest)
+	}
+	if spec.InferenceConfiguration != manifest.InferenceConfiguration {
+		t.Fatalf("spec and compatibility manifest inference configuration differ: %#v %#v", spec, manifest)
+	}
+	encoded, err := json.Marshal(spec)
+	if err != nil {
+		t.Fatalf("marshal DesiredDeploymentSpec: %v", err)
+	}
+	for _, forbidden := range []string{"actual_vm_id", "target_profile_id", "credential", "secret"} {
+		if strings.Contains(strings.ToLower(string(encoded)), forbidden) {
+			t.Fatalf("DesiredDeploymentSpec contains forbidden platform field %q: %s", forbidden, encoded)
+		}
+	}
+}
+
 func TestServiceRequestsResourceRetryForInsufficientCandidate(t *testing.T) {
 	service := NewService()
 	if _, err := service.ReceiveApplicationContext(context.Background(), validApplicationContextEnvelope()); err != nil {
