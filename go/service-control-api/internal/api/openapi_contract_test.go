@@ -80,6 +80,53 @@ func TestSubmissionOpenAPIIncludesAgentControlInputJoinWorkflow(t *testing.T) {
 	}
 }
 
+func TestSubmissionOpenAPIIncludesAgentControlDeletionAndScalingDecision(t *testing.T) {
+	config := NewServerConfig()
+	content, err := os.ReadFile(config.OpenAPIPath)
+	if err != nil {
+		t.Fatalf("read submission OpenAPI: %v", err)
+	}
+	var document map[string]any
+	if err := yaml.Unmarshal(content, &document); err != nil {
+		t.Fatalf("parse submission OpenAPI: %v", err)
+	}
+
+	paths := document["paths"].(map[string]any)
+	for _, path := range []string{
+		"/api/v1/agent-control/flows",
+		"/api/v1/agent-control/flows/{correlation_id}",
+	} {
+		operations := paths[path].(map[string]any)
+		if _, ok := operations["delete"]; !ok {
+			t.Fatalf("submission OpenAPI path %s is missing DELETE", path)
+		}
+	}
+
+	schemas := document["components"].(map[string]any)["schemas"].(map[string]any)
+	flowProperties := schemas["AgentControlFlow"].(map[string]any)["properties"].(map[string]any)
+	scalingReference := flowProperties["scaling_decision"].(map[string]any)["$ref"]
+	if scalingReference != "#/components/schemas/ScalingDecision" {
+		t.Fatalf("scaling_decision schema reference=%#v", scalingReference)
+	}
+
+	scaling := schemas["ScalingDecision"].(map[string]any)
+	properties := scaling["properties"].(map[string]any)
+	action := properties["action"].(map[string]any)
+	actionValues := action["enum"].([]any)
+	for _, expected := range []string{"NO_ACTION", "SCALE_OUT", "SCALE_IN"} {
+		found := false
+		for _, value := range actionValues {
+			if value == expected {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Fatalf("ScalingDecision action enum is missing %q: %#v", expected, actionValues)
+		}
+	}
+}
+
 func TestSubmissionOpenAPIIncludesGuardedAgentExecution(t *testing.T) {
 	config := NewServerConfig()
 	content, err := os.ReadFile(config.OpenAPIPath)
@@ -142,6 +189,8 @@ func TestGeneratedSwaggerContainsDeletionOperations(t *testing.T) {
 		}
 		for _, operationID := range []string{
 			"DeleteAgent",
+			"DeleteAgentControlFlow",
+			"DeleteAgentControlFlows",
 			"DeleteAutonomyEvent",
 			"DeleteAutonomyEvents",
 			"GetAutomationFeedback",
@@ -150,6 +199,14 @@ func TestGeneratedSwaggerContainsDeletionOperations(t *testing.T) {
 		} {
 			if !strings.Contains(string(content), operationID) {
 				t.Fatalf("generated Swagger %s is missing %s", path, operationID)
+			}
+		}
+		for _, schema := range []string{
+			"agentcontrol.ScalingDecision",
+			"scaling_decision",
+		} {
+			if !strings.Contains(string(content), schema) {
+				t.Fatalf("generated Swagger %s is missing %s", path, schema)
 			}
 		}
 	}

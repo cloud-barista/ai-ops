@@ -126,6 +126,23 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/AgentControlFlow"
+    delete:
+      summary: Delete all Agent Control experiment flows
+      description: Clears the in-memory Agent Control experiment records.
+      responses:
+        "200":
+          description: All experiment flows deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [deleted, flows]
+                properties:
+                  deleted: {type: integer, minimum: 0}
+                  flows:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AgentControlFlow"
   /api/v1/agent-control/flows/{correlation_id}:
     get:
       summary: Get one Agent Control input flow
@@ -141,6 +158,27 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AgentControlFlow"
+        "404":
+          description: Flow not found
+    delete:
+      summary: Delete one Agent Control experiment flow
+      description: Deletes one in-memory experiment record by correlation_id.
+      parameters:
+        - name: correlation_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: Experiment flow deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [deleted, correlation_id]
+                properties:
+                  deleted: {type: integer, enum: [1]}
+                  correlation_id: {type: string}
         "404":
           description: Flow not found
   /api/v1/agent-control/flows/{correlation_id}/reasoning-comparisons:
@@ -1218,6 +1256,8 @@ components:
           $ref: "#/components/schemas/OptimizationFeedbackEnvelope"
         feedback_summary:
           $ref: "#/components/schemas/FeedbackSummary"
+        scaling_decision:
+          $ref: "#/components/schemas/ScalingDecision"
         reasoning_comparison:
           $ref: "#/components/schemas/ReasoningComparison"
         updated_at: {type: string, format: date-time}
@@ -1433,6 +1473,20 @@ components:
         metrics:
           $ref: "#/components/schemas/OptimizationMetrics"
         updated_at: {type: string, format: date-time}
+    ScalingDecision:
+      type: object
+      required: [action, reason, current_replicas, desired_replicas, created_at]
+      properties:
+        action:
+          type: string
+          enum: [NO_ACTION, SCALE_OUT, SCALE_IN]
+        reason: {type: string}
+        current_replicas: {type: integer, minimum: 1}
+        desired_replicas: {type: integer, minimum: 1}
+        evidence:
+          type: array
+          items: {type: string}
+        created_at: {type: string, format: date-time}
     AgentControlReasoningComparisonRequest:
       type: object
       required: [candidate_id]

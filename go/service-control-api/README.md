@@ -1,525 +1,203 @@
 # Service Control API
 
-## geon Agent Control 실행 가이드
+## 역할
 
-geon Agent Control은 backend `ControlRun`을 중심으로 사용자 요청, Agent Registry, Agent Dispatcher, Qwen 기반 Manifest 생성, Go Guard 승인·거부, 선택적 AppDeploy 전달, 배포 후 Autonomous Loop와 실행 Feedback을 연결하는 웹 화면입니다. 내장 Agent와 외부 Runtime Agent는 같은 실행 계약을 사용합니다. AppDeploy는 별도 서버와 저장소이며 geon이 그 소스를 수정하지 않고 두 서버를 별도 프로세스로 실행합니다.
+이 서비스는 경희대학교 AI 어플리케이션 자동화 에이전트 PoC의 Go 실행 모듈입니다.
 
-### 구성과 포트
-
-| 구성 요소 | 역할 | 기본 주소 |
-| --- | --- | --- |
-| AppDeploy | App/Target 등록 및 실제 배포 실행 | `http://127.0.0.1:8080/swagger` |
-| Ollama | Qwen `qwen3.5:4b` 추론 | `http://127.0.0.1:11434/` |
-| geon Agent Control | Agent 판단·Guard·AppDeploy 연동 | `http://127.0.0.1:18080/` |
-
-### 1. 사전 확인
-
-- Go가 설치되어 있어야 합니다. geon과 최신 AppDeploy 모두 Go `1.25` 이상이 필요합니다.
-- Ollama가 설치되어 있어야 합니다.
-- `qwen3.5:4b` 모델이 Ollama에 준비되어 있어야 합니다.
-- geon 저장소를 로컬에 준비합니다.
-- 실제 배포까지 실행할 때만 AppDeploy 저장소를 준비합니다.
-
-Git Bash에서 Go를 찾지 못하면 다음과 같이 PATH를 추가합니다.
-
-```bash
-export PATH="/c/Program Files/Go/bin:$PATH"
-go version
+```text
+Application Context
++ Resource Recommendation
+→ Agent Registry authorization
+→ DEPLOY / REJECT / RETRY
+→ Go Guard
+→ Desired Deployment Spec
+→ deployment.status.changed
+→ optimization.feedback.created
+→ NO_ACTION / SCALE_OUT / SCALE_IN
 ```
 
-Ollama와 Qwen 모델을 확인합니다.
+핵심 Flow는 AppDeploy, VM, Kubernetes 없이 로컬에서 독립 실행할 수 있습니다. 실제 배포와 플랫폼 전용 변환은 외부 시스템의 책임입니다.
 
-```bash
-ollama list
-ollama pull qwen3.5:4b   # 목록에 모델이 없을 때만 실행
-```
+## 실행
 
-Git Bash에서 `ollama: command not found`가 나오면 Windows 설치 경로의 실행 파일을 직접 사용합니다.
-
-```bash
-"$HOME/AppData/Local/Programs/Ollama/ollama.exe" list
-"$HOME/AppData/Local/Programs/Ollama/ollama.exe" pull qwen3.5:4b
-```
-
-### 2. AppDeploy 실행(선택)
-
-Manifest 생성만 시험할 때는 이 단계를 생략할 수 있습니다. 실제 Target 선택과 VM 배포까지 시험할 때 AppDeploy 저장소 내부에서 첫 번째 터미널을 열고 실행합니다.
-
-```bash
-export PATH="/c/Program Files/Go/bin:$PATH"
-export APPDEPLOY_ROOT="$(git rev-parse --show-toplevel)"
-
-if [[ -f "$APPDEPLOY_ROOT/AppDeploy/go.mod" ]]; then
-  cd "$APPDEPLOY_ROOT/AppDeploy"
-  go mod download
-  go run ./cmd/server
-else
-  echo "오류: AppDeploy 저장소 내부에서 이 명령을 실행하세요."
-fi
-```
-
-다른 터미널에서 상태를 확인합니다.
-
-```bash
-curl http://127.0.0.1:8080/api/v1/healthz
-```
-
-정상이라면 `http://127.0.0.1:8080/swagger`에서 AppDeploy API 문서를 확인할 수 있습니다. AppDeploy 최신 서버는 geon Agent Control과 같은 관리 웹 화면을 제공하지 않습니다.
-
-### 3. geon Agent Control 실행
-
-geon 저장소 내부에서 두 번째 터미널을 열고 다음 명령을 실행합니다.
+Windows Git Bash에서 저장소 내부로 이동한 뒤 실행합니다.
 
 ```bash
 export PATH="/c/Program Files/Go/bin:$PATH"
 export AIOPS_REPO_ROOT="$(git rev-parse --show-toplevel)"
-export AIOPS_LLM_CANDIDATES_PATH="config/ops_llm_eval_candidates.local_ollama.json"
-export AIOPS_PLANNER_GUARD_POLICY_PATH="config/planner_guard_policy.json"
-# Manifest 생성만 시험할 때는 아래 변수를 생략할 수 있습니다.
-export AIOPS_APPDEPLOY_BASE_URL="http://127.0.0.1:8080/api/v1"
 export AIOPS_BIND_ADDRESS="127.0.0.1"
 export PORT=18080
 
-if [[ -f "$AIOPS_REPO_ROOT/go/service-control-api/go.mod" ]]; then
-  cd "$AIOPS_REPO_ROOT/go/service-control-api"
-  go mod download
-  go run ./cmd/service-control-api
-else
-  echo "오류: geon 저장소 내부에서 이 명령을 실행하세요."
-fi
-```
-
-상태를 확인합니다.
-
-```bash
-curl http://127.0.0.1:18080/healthz
-```
-
-정상 응답 예시는 다음과 같습니다.
-
-```json
-{"service":"service-control-api","status":"ok"}
-```
-
-브라우저에서 `http://127.0.0.1:18080/`을 엽니다.
-
-### AI 응용 자동화 에이전트 MVP 실험
-
-첫 화면 **자동화 실행**은 다음 담당 범위를 하나의 `correlation_id` Flow로 연결합니다.
-
-```text
-Application Context 요구 분석 결과
-+ Resource Recommendation 인프라 추천 결과
-→ 배포 계획 생성
-→ DEPLOY / REJECT / RETRY 결정
-→ Safe Guard · Repair
-→ deployment.create.request + DeploymentManifest
-→ 선택형 Qwen 추론 비교
-→ deployment.status.changed
-→ optimization.feedback.created
-→ 성공·실패 원인과 SLO 결과 요약
-```
-
-기본 샘플은 화면에 미리 입력되어 있습니다. **요구 분석 결과 전송**, **인프라 추천 결과 전송** 순서로 실행합니다. Manifest가 생성된 후 **추론 비교 · 배포 Feedback 실험**을 펼치면 다음을 확인할 수 있습니다.
-
-- 규칙 기반 기준 결정
-- Qwen `qwen3.5-ops-planner`의 원시 제안
-- 동일 제안에 Go Guard를 적용한 최종 결정
-- 배포 상태와 자원·추론·비용 지표
-- 성공·실패 및 SLO 위반 원인 요약
-
-Feedback 샘플은 현재 Flow의 `correlation_id`, `trace_id`, `decision_id`에 맞춰 자동 생성됩니다. 먼저 **배포 상태 전송**, 다음으로 **성능 Feedback 전송**을 실행합니다. AppDeploy와 실제 VM은 이 MVP의 Manifest 생성 및 비교 실험에는 필수가 아닙니다.
-
-### 소스 업로드 Package-to-Manifest 워크플로
-
-이 워크플로는 다음 세 프로세스를 함께 사용합니다.
-
-```text
-Ollama + Qwen :11434
-AppDeploy      :8080
-geon           :18080
-```
-
-`POST /api/v1/control-runs/from-package`는 애플리케이션 소스를 multipart로 받아 다음 순서로 처리합니다.
-
-```text
-소스 업로드
-→ AppDeploy Package 생성
-→ App 등록
-→ 발급된 app_version_id 자동 연결
-→ Go Request Guard
-→ Agent Registry
-→ Agent Dispatcher
-→ Qwen DeploymentManifest 생성
-→ Go Manifest Guard 승인
-→ (별도 요청) AppDeploy 제출
-→ 배포 상태와 로그 확인
-```
-
-예를 들어 GPU 스크립트 애플리케이션은 다음과 같이 요청합니다.
-
-```bash
-curl -X POST http://127.0.0.1:18080/api/v1/control-runs/from-package \
-  -H "Accept: application/json" \
-  -F "source=@./run.sh" \
-  -F "package_type=script" \
-  -F "app_name=geon-package-demo" \
-  -F "app_version=0.1.0" \
-  -F "entrypoint=run.sh" \
-  -F "runtime_type=gpu" \
-  -F "service_port=8080" \
-  -F "healthcheck_path=/healthz" \
-  -F "natural_language_request=GPU 1개로 추론 애플리케이션을 배포해 주세요." \
-  -F "candidate_id=qwen3.5-ops-planner" \
-  -F "target_profile_id=target-hint" \
-  -F "cpu=4" \
-  -F "memory=8Gi" \
-  -F "gpu=1" \
-  -F "storage=20Gi" \
-  -F "cost_policy=min_cost"
-```
-
-`source`, `package_type`, `app_name`, `app_version`, `entrypoint`, `runtime_type`, `natural_language_request`, `candidate_id`, `cpu`, `memory`, `gpu`, `storage`는 필수입니다. `service_port`, `healthcheck_path`, `requested_by`, `agent_name`, `target_profile_id`, `cost_policy`는 선택 사항이며, `requested_by`를 생략하면 `ai-agent`를 사용합니다. 기본 업로드 한도는 50 MiB이고 `AIOPS_APP_UPLOAD_MAX_BYTES`로 조정할 수 있습니다. geon은 업로드한 소스 바이트를 ControlRun에 저장하지 않습니다.
-
-성공 시 HTTP `201`과 `MANIFEST_APPROVED` Run을 반환합니다. 잘못된 multipart 또는 필드 검증은 `400 api.ErrorResponse`, Run 생성 후 Request Guard 거부는 `400 controlrun.Run`을 반환합니다. Agent 권한 거부는 `403`, 업로드 한도 초과는 `413`, Planner 또는 Manifest Guard 거부는 `422`, Run 생성 전 설정 실패 또는 예상하지 않은 내부 상태는 `500`, AppDeploy Package 생성 또는 App 등록 실패는 `502`입니다. 발급된 `app_version_id`는 `request.app_version_id`와 `manifest.spec.app_version_id`에 자동 연결되므로 multipart 필드로 받지 않습니다.
-
-Package 생성이나 App 등록이 성공한 뒤 후속 Planner 또는 Guard가 실패해도 이미 만들어진 AppDeploy Package와 App은 자동 롤백되거나 삭제되지 않습니다. 응답의 `application`과 `partial_result`에 `artifact_uri`, `archive_name`, `checksum`, `app_id`, `app_version_id` 등 성공한 단계의 식별자가 남습니다. 운영자는 이 식별자로 AppDeploy 상태를 확인하고, 필요할 때 AppDeploy의 별도 삭제 절차를 명시적으로 수행해야 합니다.
-
-Manifest 승인과 실제 제출은 분리되어 있습니다. 새 endpoint도 Manifest를 자동 제출하지 않으며, 기존 `POST /api/v1/control-runs/{run_id}/submit` endpoint를 그대로 사용해야 합니다. `target_profile_id`는 힌트일 뿐이며 최종 Target 선택과 배포 실행은 AppDeploy가 담당합니다.
-
-### 4. 화면 사용 순서
-
-Manifest Workflow가 첫 화면이자 사용자 진입점입니다. Guide에는 최근 ControlRun과 전체 실험 순서가 있으며, 각 단계를 눌러 해당 화면으로 이동할 수 있습니다. Agent Registry는 ControlRun 안에서 관리되는 내부 단계이고 **Agents & Guard**는 그 capability와 bounded Action을 확인하는 보조 화면입니다.
-
-```text
-Manifest Workflow
-→ 사용자 요청
-→ Request Guard
-→ Agent Registry
-→ Agent Dispatcher
-→ Qwen Planner
-→ Manifest Guard
-→ DeploymentManifest
-→ (선택) AppDeploy 제출
-→ (선택) 배포 후 자율 운영
-→ Automatic Run Feedback
-```
-
-실험 순서 안내는 기본적으로 접혀 있습니다. 자연어 요청부터 승인된 DeploymentManifest까지가 geon의 핵심 Manifest 실험이며 AppDeploy 제출은 필수 조건이 아닙니다. Automatic Run Feedback은 같은 `run_id`의 기존 Guard·Planner·Manifest 증적을 읽기 전용으로 보여 주며 Qwen을 재학습하지 않습니다. External Executor Callback Test는 승인된 `correlation_id`가 있는 경우에만 별도로 기록하는 선택 테스트입니다.
-
-1. **Manifest Workflow**를 엽니다.
-2. 자연어 요청과 `app_version_id`를 입력합니다. Qwen candidate가 필요한 경우 선택합니다.
-3. **Generate Manifest**로 ControlRun을 생성합니다.
-4. Request Guard → Agent Registry → Agent Dispatcher → Qwen Planner → Manifest Guard를 관찰합니다.
-5. `MANIFEST_APPROVED`의 승인된 `DeploymentManifest`를 확인합니다.
-6. 실제 배포가 필요할 때만 **Submit to AppDeploy**를 선택합니다. Target hint는 선택 사항이며 별도 AppDeploy 서버가 최종 Target과 Runtime Adapter를 결정합니다.
-7. `DEPLOYED`와 `deployment_id`가 확인된 뒤에만 **Post-deployment**를 사용합니다. Run을 선택해도 Loop가 자동 시작되지는 않습니다.
-8. **Feedback**에서 같은 `run_id`의 Automatic Run Feedback을 확인합니다. 외부 실행기 결과를 수동으로 남기는 **External Executor Callback Test**는 선택 사항이며 승인된 `correlation_id`가 있어야 합니다.
-
-자연어 요청 예시는 다음과 같습니다.
-
-```text
-Mock 환경에서 CPU 1개, 메모리 1Gi, GPU 0개,
-스토리지 1Gi를 사용하는 테스트 앱을 배포해 주세요.
-```
-
-처리 흐름은 다음과 같습니다.
-
-```text
-사용자 요청
-→ Request Guard
-→ Agent Registry
-→ Agent Dispatcher
-→ Qwen Planner
-→ Manifest Guard
-→ DeploymentManifest + MANIFEST_APPROVED
-→ (선택) AppDeploy API 호출
-→ (DEPLOYED 후 선택) 배포 상태·로그·Autonomous Loop
-→ Automatic Run Feedback
-```
-
-Manifest 전용 API와 선택적 제출 API는 다음처럼 분리됩니다.
-
-```text
-POST /api/v1/control-runs
-POST /api/v1/control-runs/from-package
-GET  /api/v1/control-runs/{run_id}
-POST /api/v1/control-runs/{run_id}/submit
-```
-
-기존 JSON `POST /api/v1/control-runs`와 별도 submit endpoint의 계약은 변경되지 않습니다.
-
-### 등록 Agent 실행
-
-**Agents & Guard**의 실행 버튼은 선택 Agent를 다음 공통 경로로 실행합니다.
-
-```text
-Agent Registry
-→ Agent Request Guard
-→ Agent Dispatcher
-   ├─ AIApplicationAutomationAgent → Qwen → DeploymentManifest → Go Manifest Guard
-   └─ Runtime Agent → 등록 endpoint에 HTTP POST 1건 → Go Result Guard
-→ ControlRun 기록
-```
-
-현재 실제 기능을 가진 내장 Agent는 `AIApplicationAutomationAgent` 한 개입니다. 이 Agent의 `generate_deployment_manifest` 실행은 기존 Manifest ControlRun을 사용하므로 성공 결과는 `MANIFEST_APPROVED`와 검증된 `DeploymentManifest`입니다. 외부 Agent는 등록된 `endpoint`, `invocation_path`, capability와 bounded Action만 사용하며 endpoint를 요청마다 바꿀 수 없습니다.
-
-```bash
-curl -X POST http://127.0.0.1:18080/api/v1/agents/AIApplicationAutomationAgent/execute \
-  -H "Content-Type: application/json" \
-  -d '{
-    "capability":"deployment_manifest_planning",
-    "action":"generate_deployment_manifest",
-    "input":{
-      "natural_language_request":"CPU 2, 메모리 4Gi인 추론 앱의 배포 계획을 생성해 주세요.",
-      "app_version_id":"appver-example",
-      "candidate_id":"qwen3.5-ops-planner",
-      "requested_by":"ai-ops-geon-planner"
-    }
-  }'
-```
-
-Runtime Agent의 token이 필요하면 등록 시 token 값이 아니라 `auth_token_env`에 환경 변수 이름만 저장합니다. 서버가 실행 시 해당 환경 변수의 값을 읽어 Bearer token으로 전달하며 응답이나 Registry 목록에는 값을 노출하지 않습니다. 범용 다중 Agent 워크플로와 Job Scheduling Agent는 이번 범위에 포함하지 않습니다.
-
-### 5. 실행 상태의 의미
-
-- `approved`: Qwen 제안과 Go Guard 검증이 통과했습니다.
-- `rejected`: 정책 또는 Agent bounded Action 검증에서 거부되었습니다.
-- `MANIFEST_APPROVED`: geon의 최종 산출물인 Manifest가 생성·검증됐으며 AppDeploy 제출 전입니다.
-- `APPDEPLOY_FAILED`: Manifest는 보존됐지만 선택적 AppDeploy 제출 또는 조회가 실패했습니다.
-- `DEPLOYED`: AppDeploy가 Manifest를 수락해 `deployment_id`가 Run에 연결됐습니다.
-- `pending_executor`: 판단과 검증은 완료됐지만 실행 Agent가 등록되지 않았습니다.
-- `not_executed`: 실행 계획만 생성했으며 해당 Action을 직접 실행하지 않았습니다.
-- `RUNNING`, `STOPPED`, `FAILED`: AppDeploy가 반환한 실제 배포 상태입니다.
-
-`AppDeployExecutorAgent`는 프로세스 메모리에 등록되므로 geon 서버를 재시작하면 다시 등록해야 합니다. 실제 배포를 실행하려면 AppDeploy에 유효한 App Version과 Target Profile이 먼저 등록되어 있어야 합니다.
-
-### 6. 종료와 문제 확인
-
-각 서버를 실행한 터미널에서 `Ctrl+C`를 누르면 종료됩니다.
-
-```bash
-curl http://127.0.0.1:8080/api/v1/healthz
-curl http://127.0.0.1:11434/api/tags
-curl http://127.0.0.1:18080/healthz
-```
-
-- `connection refused`: 해당 서버가 실행되지 않았거나 포트가 다릅니다.
-- `candidate not found`: Qwen 후보 설정 파일 또는 candidate ID를 확인합니다.
-- `model not found`: Ollama에서 `qwen3.5:4b`를 먼저 pull 합니다.
-- `AppDeploy base URL is required`: Manifest 생성은 완료할 수 있지만 제출하려면 `AIOPS_APPDEPLOY_BASE_URL`을 설정해야 합니다.
-- AppDeploy 배포 요청 실패: App과 Target이 등록됐는지 먼저 확인합니다.
-
-### 7. 배포 후 자율 운영 실험
-
-**Autonomous Loop**는 Manifest 생성의 필수 단계가 아닌 선택적 배포 후 실험입니다. `DEPLOYED` ControlRun의 AppDeploy 배포 상태와 추론 지표를 주기적으로 읽고, SLO 위반을 Qwen과 Go Guard로 판단한 뒤 설정된 모드에 따라 Action을 제안하거나 실행합니다.
-
-```text
-AppDeploy 상태·Metric
-→ SLO Evaluator
-→ Qwen bounded Action
-→ Agent Registry
-→ Go Guard
-→ Monitor Only: would_execute
-→ Guarded Auto: AppDeploy Action 1건
-→ cooldown · 다음 주기 재평가
-```
-
-서버를 재시작하면 Loop는 항상 `STOPPED`, 모드는 항상 `Monitor Only`로 초기화됩니다. Credential이나 Secret은 설정·프롬프트·이벤트에 포함할 수 없습니다.
-
-geon 서버는 기본적으로 `127.0.0.1`에만 bind됩니다. 공동 VM 등에서 외부 접속을 명시적으로 허용할 때는 관리자 토큰도 함께 설정해야 하며, 외부의 상태 변경 API 요청은 Bearer 토큰 없이는 거부됩니다.
-
-```bash
-export AIOPS_BIND_ADDRESS="0.0.0.0"
-export AIOPS_AUTONOMY_ADMIN_TOKEN="충분히-긴-임의-토큰"
-
-curl -X POST http://SERVER:18080/api/v1/autonomy/emergency-stop \
-  -H "Authorization: Bearer $AIOPS_AUTONOMY_ADMIN_TOKEN"
-```
-
-토큰은 웹페이지나 설정 JSON에 입력하지 않습니다. 원격 운영에서는 TLS reverse proxy와 접근 제어를 함께 사용하고, Agent Control 웹의 상태 변경 버튼은 loopback 접속에서 사용합니다.
-
-#### Monitor Only 안전 데모
-
-1. Agent Control에서 **Autonomous Loop**를 엽니다.
-2. 실행 중인 AppDeploy `deployment_id`와 SLO를 입력합니다.
-3. `Monitor Only`를 선택하고 **Save Policy**를 누릅니다.
-4. AppDeploy에 위반 Metric을 기록합니다.
-
-```bash
-curl -X POST http://127.0.0.1:8080/api/v1/deployments/DEPLOYMENT_ID/metrics \
-  -H "Content-Type: application/json" \
-  -d '{"latency_ms":900,"throughput_rps":0.5,"request_count":100,"error_count":8}'
-```
-
-5. 같은 조건을 확인할 수 있도록 새 Metric을 한 번 더 기록하고 **Run Cycle**을 두 번 실행합니다.
-6. Timeline에서 `violated → proposed → would_execute`를 확인합니다. Monitor Only에서는 AppDeploy 상태 변경 API를 호출하지 않습니다.
-
-REST API로 같은 정책을 등록할 수도 있습니다.
-
-```bash
-curl -X PUT http://127.0.0.1:18080/api/v1/autonomy/config \
-  -H "Content-Type: application/json" \
-  -d '{
-    "mode":"monitor_only",
-    "poll_interval_seconds":10,
-    "consecutive_violations":2,
-    "cooldown_seconds":120,
-    "max_actions_per_deployment":3,
-    "max_metric_age_seconds":60,
-    "deployment_id":"DEPLOYMENT_ID",
-    "standby_target_profile_id":"",
-    "rollback_app_version_id":"",
-    "slo":{"max_latency_ms":500,"min_throughput_rps":1,"max_error_rate":0.05}
-  }'
-
-curl -X POST http://127.0.0.1:18080/api/v1/autonomy/cycles
-curl http://127.0.0.1:18080/api/v1/autonomy/events
-```
-
-#### Guarded Auto 데모
-
-실제 비용이나 서비스 영향이 없는 AppDeploy Mock App·Mock Target으로 먼저 실행합니다. **Guarded Auto**를 저장한 뒤 Loop를 시작하거나 **Run Cycle**을 누르면, 신선한 증거·연속 위반·Agent Registry·Go Guard·cooldown·Action budget을 모두 통과한 Action 하나만 실행됩니다.
-
-- `restart_application`: 현재 Deployment를 중지하고 동일 Manifest로 새 Deployment를 요청합니다.
-- `rollback_application`: 명시한 `rollback_app_version_id`로만 교체합니다.
-- `scale_out_application`: 명시한 `standby_target_profile_id`에 추가 VM Deployment를 요청합니다.
-- `stop_application`: 현재 Deployment의 stop API를 호출합니다.
-- `observe_status`: 상태와 Metric만 다시 조회합니다.
-
-VM-only `scale_out_application`은 추가 Deployment 생성까지만 수행합니다. Load Balancer나 트래픽 분산은 포함하지 않으며 결과에 `traffic_handoff_required: true`가 표시됩니다. 중지 후 재생성에 실패한 `partial_failure`가 발생하면 자동 실행이 잠기고 모드는 Monitor Only로 돌아갑니다.
-
-#### geon 기록 삭제
-
-Agent Control의 삭제 기능은 geon이 소유한 시험 데이터에만 적용됩니다.
-
-- **Agents & Guard**의 휴지통 버튼은 웹/API로 등록한 `source=runtime` Agent만 삭제합니다.
-- `config/agent_registry.json`에서 읽은 Configuration Agent에는 삭제 버튼이 표시되지 않습니다.
-- **Decision Timeline**의 행 휴지통은 선택한 이벤트만 삭제하고, 헤더 휴지통은 이벤트 전체를 비웁니다. Sequence를 다시 부여하지 않으며 Loop 설정, 상태, cooldown 및 Action budget은 유지됩니다.
-- **Feedback**의 행 휴지통은 선택한 실행 Feedback만 삭제하고, 헤더 휴지통은 Feedback 전체를 비웁니다. 승인된 correlation 등록은 유지되므로 같은 실행의 정상 Feedback을 다시 기록할 수 있습니다.
-- **최근 Manifest 실행**의 행 휴지통은 geon 프로세스 메모리의 선택 ControlRun만 삭제하고, `Run 기록 삭제`는 ControlRun 전체를 비웁니다. 서버 재시작 시에도 메모리 기록은 초기화됩니다.
-- AppDeploy App·Deployment·Runtime Profile·Target Profile과 CB-Tumblebug Infra·VM은 삭제하지 않습니다.
-
-로컬 API에서 같은 동작을 확인할 수 있습니다.
-
-```bash
-curl -X DELETE http://127.0.0.1:18080/api/v1/agents/RUNTIME_AGENT_NAME
-curl -X DELETE http://127.0.0.1:18080/api/v1/autonomy/events/SEQUENCE
-curl -X DELETE http://127.0.0.1:18080/api/v1/autonomy/events
-curl http://127.0.0.1:18080/api/v1/automation/feedback
-curl -X DELETE http://127.0.0.1:18080/api/v1/automation/feedback/CORRELATION_ID
-curl -X DELETE http://127.0.0.1:18080/api/v1/automation/feedback
-```
-
-외부 bind 환경에서는 모든 DELETE 요청에 `AIOPS_AUTONOMY_ADMIN_TOKEN` Bearer token이 필요합니다.
-
-AI service-control prototype의 Go 구현 모듈입니다. 이 모듈은 LLM 호출 전 Go Request Guard, 실제 LLM 기반 Deployment Manifest 생성, Go Manifest Guard, AppDeploy 요청·상태 추적, agent 등록과 bounded Action 검증을 제공합니다.
-
-## 테스트 실행
-
-```bash
-go test ./...
-```
-
-## API 실행
-
-```bash
+cd "$AIOPS_REPO_ROOT/go/service-control-api"
+go mod download
 go run ./cmd/service-control-api
 ```
 
-## CLI 실행
+상태 확인:
 
 ```bash
-go run ./cmd/aiops-service-control select-ops-llm \
-  --config ../../config/ops_llm_benchmark.json \
-  --policy quality_first
-
-go run ./cmd/aiops-service-control validate-vm-suitability \
-  --requirements ../../config/vm_workload_requirements.json \
-  --vm-snapshot ../../docs/evidence/artifacts/vm_20260707_resource_snapshot.json \
-  --workload llm-chat-inference
-
-go run ./cmd/aiops-service-control plan-ai-application-control \
-  --requirements ../../config/vm_workload_requirements.json \
-  --vm-snapshot ../../docs/evidence/artifacts/vm_20260707_resource_snapshot.json \
-  --workload llm-chat-inference
-
-go run ./cmd/aiops-service-control plan-llm-automation-action \
-  --requirements ../../config/vm_workload_requirements.json \
-  --vm-snapshot ../../docs/evidence/artifacts/vm_20260707_resource_snapshot.json \
-  --candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
-  --candidate-id qwen3.5-ops-planner \
-  --workload llm-chat-inference
-
-go run ./cmd/aiops-service-control run-appdeploy-planner \
-  --request "GPU 1개와 메모리 16Gi가 필요한 추론 앱을 배포해 주세요." \
-  --app-version-id appver-llm-inference-v1 \
-  --candidate-id qwen3.5-ops-planner \
-  --candidates ../../config/ops_llm_eval_candidates.local_ollama.json \
-  --guard-policy ../../config/planner_guard_policy.json \
-  --appdeploy-base-url http://127.0.0.1:8080/api/v1
-
-go run ./cmd/aiops-service-control run-service-operations \
-  --llm-config ../../config/ops_llm_benchmark.json \
-  --llm-policy quality_first \
-  --vm-requirements ../../config/vm_workload_requirements.json \
-  --vm-snapshot ../../docs/evidence/artifacts/vm_20260707_resource_snapshot.json \
-  --workload llm-chat-inference \
-  --operation-service llm-chat-inference \
-  --operation-resource aws-us-west-2-g6-xlarge-l4-20260707 \
-  --mode plan_only \
-  --guard-backend go
+curl http://127.0.0.1:18080/healthz
 ```
 
-## API Endpoint
-
-| Method | Path |
-| --- | --- |
-| `GET` | `/healthz` |
-| `GET` | `/openapi.yaml` |
-| `GET` | `/api/v1/agents` |
-| `POST` | `/api/v1/agents` |
-| `GET` | `/api/v1/agents/:name` |
-| `DELETE` | `/api/v1/agents/:name` |
-| `POST` | `/api/v1/agents/:name/actions/:action/validate` |
-| `POST` | `/api/v1/agents/:name/invocations/plan` |
-| `POST` | `/api/v1/agents/:name/execute` |
-| `POST` | `/api/v1/ops-llm/select` |
-| `POST` | `/api/v1/apps/vm-suitability` |
-| `POST` | `/api/v1/apps/deployment-plan` |
-| `POST` | `/api/v1/automation/action-proposals` |
-| `POST` | `/api/v1/automation/feedback` |
-| `GET` | `/api/v1/autonomy/status` |
-| `PUT` | `/api/v1/autonomy/config` |
-| `POST` | `/api/v1/autonomy/start` |
-| `POST` | `/api/v1/autonomy/stop` |
-| `POST` | `/api/v1/autonomy/emergency-stop` |
-| `POST` | `/api/v1/autonomy/cycles` |
-| `GET` | `/api/v1/autonomy/events` |
-| `DELETE` | `/api/v1/autonomy/events` |
-| `POST` | `/api/v1/control-runs` |
-| `POST` | `/api/v1/control-runs/from-package` |
-| `GET` | `/api/v1/control-runs/:run_id` |
-| `POST` | `/api/v1/control-runs/:run_id/submit` |
-| `POST` | `/api/v1/planner/deployments` |
-| `POST` | `/api/v1/service-operations/run` |
-
-## 응답 신호
-
-통합 pipeline은 다음 값을 반환합니다.
+웹:
 
 ```text
-selected_llm
-decision_execution_status
-llm_automation_action
-runtime_model
-selected_resource (입력된 실제 VM snapshot ID)
-deployment_plan
-deployment_validation
-agent_reviews
-operation_pipeline_ready
-guard_backend
-guard_validation
+http://127.0.0.1:18080/
 ```
 
-`deployment_plan.executor_type`은 `registered_external_agent`입니다. 특정 팀 도구를 고정하지 않으며, registry에 등록된 에이전트 중 `ai_application_deployment_control` capability와 요청 Action을 모두 허용한 실행 주체를 선택합니다. 연결된 실행 주체가 없으면 `register_executor_agent`를 precondition으로 남기고 실행하지 않습니다.
+OpenAPI:
+
+```text
+http://127.0.0.1:18080/openapi.yaml
+```
+
+## 3개 화면
+
+### 자동화 에이전트
+
+핵심 실험의 시작 화면입니다. `Application Context`와 `Resource Recommendation`을 하나의 폼에서 실행합니다.
+
+1. 요구 분석 결과 수신
+2. 인프라 추천 결과 수신
+3. `AIApplicationAutomationAgent` 권한 확인
+4. `DEPLOY`, `REJECT`, `RETRY` 판단
+5. Go Guard 검증
+6. Desired Deployment Spec 생성
+
+기본 샘플은 같은 `flow-demo-001` correlation ID와 `profile-demo-001` profile ID를 사용합니다. **배포 판단 실행**을 한 번 누르면 여섯 단계가 순서대로 연결됩니다.
+
+정상 샘플의 핵심 결과:
+
+```json
+{
+  "state": "DEPLOY_APPROVED",
+  "agent_authorization": {
+    "agent_name": "AIApplicationAutomationAgent",
+    "capability": "ai_application_automation",
+    "action": "generate_deployment_decision",
+    "authorized": true
+  },
+  "decision": {
+    "action": "DEPLOY",
+    "selected_candidate_id": "candidate-demo-001"
+  },
+  "guard": {
+    "status": "APPROVED"
+  },
+  "desired_deployment_spec": {
+    "manifest_version": "1.0"
+  }
+}
+```
+
+### Agent 및 정책
+
+Agent Registry의 현재 정책을 조회합니다.
+
+| 항목 | 기본 값 |
+| --- | --- |
+| Agent | `AIApplicationAutomationAgent` |
+| Capability | `ai_application_automation` |
+| Bounded Action | `generate_deployment_decision` |
+| 상태 | `enabled` |
+
+Runtime Agent 등록은 capability와 bounded action 정책을 시험하기 위한 보조 기능입니다. 설정 파일의 기본 Agent는 웹에서 삭제할 수 없고, 현재 프로세스에 등록한 Runtime Agent만 삭제할 수 있습니다.
+
+### 실험 결과
+
+모든 Agent Control Flow를 시간순으로 보여 줍니다.
+
+- 판단과 Guard 근거 조회
+- Desired Deployment Spec 조회
+- 규칙 기반·Qwen·Qwen+Guard 추론 비교
+- 배포 상태와 성능 Feedback 연결
+- SLO 기반 스케일링 판단
+- 개별 Flow 삭제와 전체 Flow 삭제
+
+SLO 위반 샘플은 p95 지연시간을 `2600 ms`로 설정합니다. 기본 SLO `2000 ms`를 초과하고 최대 replica가 2이므로 다음 결과를 확인할 수 있습니다.
+
+```json
+{
+  "action": "SCALE_OUT",
+  "current_replicas": 1,
+  "desired_replicas": 2,
+  "evidence": ["latency_p95_ms"]
+}
+```
+
+## Qwen 비교 실험
+
+핵심 결정적 판단에는 Ollama가 필수가 아닙니다. **실험 결과 → 추론 방식 비교**에서만 Qwen endpoint를 호출합니다.
+
+```bash
+ollama pull qwen3.5:4b
+ollama list
+export AIOPS_LLM_CANDIDATES_PATH="config/ops_llm_eval_candidates.local_ollama.json"
+```
+
+기본 후보 설정:
+
+```text
+config/ops_llm_eval_candidates.local_ollama.json
+```
+
+환경 변수 없이 서버를 시작하면 제출용 기본 후보 설정을 사용하므로 로컬 후보가 비활성화될 수 있습니다. 로컬 비교 실험에서는 위 환경 변수를 설정한 뒤 서버를 시작합니다. Ollama가 꺼져 있으면 규칙 기반 결과는 유지되고 Qwen 실행 상태만 `provider_unavailable`로 기록됩니다. 이를 성공 결과로 위장하지 않습니다.
+
+## API 순서
+
+### 핵심 배포 판단
+
+```text
+POST /api/v1/agent-control/application-contexts
+POST /api/v1/agent-control/resource-recommendations
+GET  /api/v1/agent-control/flows/{correlation_id}
+```
+
+두 POST 요청의 `correlation_id`, `trace_id`, `profile_id`가 일치해야 합니다.
+
+### 배포 후 Feedback
+
+```text
+POST /api/v1/agent-control/deployment-status
+POST /api/v1/agent-control/optimization-feedback
+GET  /api/v1/agent-control/flows/{correlation_id}
+```
+
+`deployment.status.changed`가 `RUNNING`이고 최적화 Feedback에 SLO 위반이 있으면 replica 상한 안에서 `SCALE_OUT`을 판단합니다. 판단만 생성하며 실제 스케일링 명령은 실행하지 않습니다.
+
+### 실험 기록 삭제
+
+```text
+DELETE /api/v1/agent-control/flows/{correlation_id}
+DELETE /api/v1/agent-control/flows
+```
+
+Flow는 현재 프로세스 메모리에 저장됩니다. 서버를 재시작하면 초기화됩니다.
+
+### Agent Registry
+
+```text
+GET    /api/v1/agents
+POST   /api/v1/agents
+DELETE /api/v1/agents/{name}
+```
+
+## 호환 API
+
+기존 연구·통합 시험을 위한 ControlRun, AppDeploy 제출, Agent Dispatcher, Autonomous Loop API는 백엔드 호환성을 위해 유지합니다. 간소화된 웹에서는 노출하지 않으며 핵심 Agent Control Flow의 필수 단계도 아닙니다.
+
+## 테스트
+
+```bash
+go test ./... -count=1
+go vet ./...
+```
+
+Swagger 재생성:
+
+```bash
+cd ../..
+make swag
+```
+
+Windows에서 `make`가 없으면 저장소 루트 Makefile의 `swag` 명령을 동일하게 실행합니다.

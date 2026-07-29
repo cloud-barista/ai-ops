@@ -1,177 +1,171 @@
-# 🏛️ Kyung Hee AIOps 🦁
+# Kyung Hee AIOps
 
-> AI 기반 서비스 제어 및 관리 자동화 프레임워크
-> 1차년도 Go 기반 service-control prototype
+> AI 어플리케이션 자동화 에이전트와 배포·스케일링 판단 메커니즘을 검증하는 1차년도 Go PoC
 
 [![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go&logoColor=white)](go/service-control-api/go.mod)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-## 🧭 개요
+## 연구 목표
 
-이 저장소는 경희대학교 1차년도 연구 범위 중 **AI 기반 서비스 제어 및 관리 자동화 프레임워크**를 위한 제출용/시연용 패키지입니다.
+`geon`은 경희대학교 담당 범위인 다음 연구 기능을 독립적으로 검증합니다.
 
-핵심 구현은 Go 언어로 구성되어 있습니다. 하나의 `ControlRun` 안에서 Go Request Guard가 자연어 요청을 검사하고, Agent Registry가 capability와 bounded Action을 기준으로 Agent를 승인합니다. Agent Dispatcher는 내장 `AIApplicationAutomationAgent`를 Qwen Planner로 실행하거나 등록된 Runtime Agent endpoint를 한 번 호출합니다. Qwen은 승인된 요구를 `DeploymentManifest`로 변환하고, Go Manifest Guard가 계약·자원 값·권한·보안 정책을 검증합니다.
+1. 외부의 어플리케이션 요구 분석 결과를 수신합니다.
+2. 외부의 인프라 추천 결과를 수신합니다.
+3. Agent Registry에서 자동화 Agent의 capability와 bounded action을 검증합니다.
+4. 두 입력을 결합해 `DEPLOY`, `REJECT`, `RETRY` 중 하나를 결정합니다.
+5. Go Guard로 결정과 배포 요구 스펙을 검증합니다.
+6. 플랫폼 독립적인 Desired Deployment Spec을 출력합니다.
+7. 배포 상태와 성능 Feedback을 받으면 원인과 최소 스케일링 동작을 판단합니다.
 
-검증된 Manifest 생성은 AppDeploy 없이도 완료됩니다. 사용자가 별도로 제출을 선택한 경우에만 별도 AppDeploy 서버와 저장소가 실제 Target과 Runtime Adapter를 선택하고 배포를 실행합니다. Automatic Feedback은 같은 `run_id`에 이미 있는 Guard·Planner·Manifest 증적을 읽기 전용으로 투영하며 Qwen을 재학습하지 않습니다. 배포 후 Autonomous Loop는 `DEPLOYED` 이후에만 사용하는 선택 경로입니다.
+핵심 산출물은 특정 배포 플랫폼의 실행 명령이 아니라 **검증 근거가 포함된 배포 결정과 Desired Deployment Spec**입니다.
 
-현재 기본 Planner 모델은 **Qwen 3.5 4B (`qwen3.5:4b`)**입니다. Go 구현은 OpenAI-compatible endpoint 계약을 사용하므로 Ollama, vLLM 또는 연구 서버는 Qwen을 제공하는 실행 런타임으로 교체할 수 있습니다. 약 3.4GB의 Ollama 양자화 모델을 사용해 로컬과 AWS NVIDIA L4 24GB VM에서 같은 Planner 설정을 검증합니다.
+```text
+ApplicationProfile
++ ResourceRecommendation
+→ Agent Registry 권한 확인
+→ AIApplicationAutomationAgent
+→ DEPLOY / REJECT / RETRY
+→ Go Guard
+→ Desired Deployment Spec
+→ 선택적 Feedback
+→ NO_ACTION / SCALE_OUT / SCALE_IN
+```
 
-## 🚀 geon Control Plane 빠른 실행
+## 책임 경계
 
-geon Control Plane은 자연어 운영 요청을 Registry가 승인한 Qwen Planner로 계획하고, 이중 Go Guard로 검증된 Manifest를 생성합니다. AppDeploy 제출은 선택 사항이며 각 구성 요소는 별도 프로세스로 실행합니다.
+| geon이 담당하는 기능 | 외부 시스템이 담당하는 기능 |
+| --- | --- |
+| 요구 분석·추천 결과 결합 | 어플리케이션 원본 분석 |
+| Agent 권한과 허용 Action 검증 | 클라우드 자원 수집·추천 |
+| 배포 가능 여부와 최소 동작 결정 | VM 생성과 실제 배포 실행 |
+| 플랫폼 독립적 배포 요구 스펙 생성 | 플랫폼 전용 Manifest 변환 |
+| Feedback 원인·SLO·스케일링 판단 | 실제 Scale-out·Scale-in 실행 |
 
-| 구성 요소 | 역할 | 기본 주소 |
-| --- | --- | --- |
-| Ollama | Qwen `qwen3.5:4b` 추론 | `http://127.0.0.1:11434/` |
-| AppDeploy | App/Target 등록과 실제 배포 실행 | `http://127.0.0.1:8080/swagger` |
-| geon Agent Control | Agent Registry, Qwen 계획, Go Guard, 자동화 제어 | `http://127.0.0.1:18080/` |
+기존 AppDeploy, ControlRun, Autonomous Loop 호환 API는 백엔드에 유지하지만, 핵심 연구 웹의 기본 흐름에는 포함하지 않습니다.
+
+## 빠른 실행
 
 ### 1. 사전 준비
 
 - Go 1.25 이상
-- Ollama와 Qwen `qwen3.5:4b`
-- geon 브랜치 저장소
-- 실제 배포까지 시험할 때만 AppDeploy 브랜치 저장소
+- `geon` 브랜치 저장소
+- Qwen 추론 비교를 실행할 때만 Ollama와 `qwen3.5:4b`
 
-Windows Git Bash에서 Go 경로와 Qwen 모델을 확인합니다.
+Windows Git Bash:
 
 ```bash
 export PATH="/c/Program Files/Go/bin:$PATH"
 go version
-
-ollama list
-ollama pull qwen3.5:4b  # 목록에 없을 때만 실행
 ```
 
-Git Bash에서 `ollama`를 찾지 못하면 `"$HOME/AppData/Local/Programs/Ollama/ollama.exe"`를 사용합니다.
-
-### 2. AppDeploy 실행
-
-AppDeploy 저장소 내부에서 첫 번째 터미널을 엽니다. Git이 실제 저장소 루트를 자동으로 찾으므로 복제 위치나 폴더 이름을 수정할 필요가 없습니다.
+Qwen 비교 실험을 함께 실행할 경우:
 
 ```bash
-export PATH="/c/Program Files/Go/bin:$PATH"
-export APPDEPLOY_ROOT="$(git rev-parse --show-toplevel)"
-
-if [[ -f "$APPDEPLOY_ROOT/AppDeploy/go.mod" ]]; then
-  cd "$APPDEPLOY_ROOT/AppDeploy"
-  go mod download
-  go run ./cmd/web
-else
-  echo "오류: AppDeploy 저장소 내부에서 이 명령을 실행하세요."
-fi
+ollama list
+ollama pull qwen3.5:4b  # 없을 때만 실행
+export AIOPS_LLM_CANDIDATES_PATH="config/ops_llm_eval_candidates.local_ollama.json"
 ```
 
-### 3. geon Agent Control 실행
+### 2. geon 실행
 
-geon 저장소 내부에서 두 번째 터미널을 엽니다. 현재 Git 저장소 루트를 기준으로 설정과 Go 모듈을 찾습니다.
+저장소 내부에서 실행합니다.
 
 ```bash
 export PATH="/c/Program Files/Go/bin:$PATH"
 export AIOPS_REPO_ROOT="$(git rev-parse --show-toplevel)"
-export AIOPS_LLM_CANDIDATES_PATH="config/ops_llm_eval_candidates.local_ollama.json"
-export AIOPS_PLANNER_GUARD_POLICY_PATH="config/planner_guard_policy.json"
-# Manifest 생성만 시험할 때는 아래 변수를 생략할 수 있습니다.
-export AIOPS_APPDEPLOY_BASE_URL="http://127.0.0.1:8080/api/v1"
 export AIOPS_BIND_ADDRESS="127.0.0.1"
 export PORT=18080
 
-if [[ -f "$AIOPS_REPO_ROOT/go/service-control-api/go.mod" ]]; then
-  cd "$AIOPS_REPO_ROOT/go/service-control-api"
-  go mod download
-  go run ./cmd/service-control-api
-else
-  echo "오류: geon 저장소 내부에서 이 명령을 실행하세요."
-fi
+cd "$AIOPS_REPO_ROOT/go/service-control-api"
+go mod download
+go run ./cmd/service-control-api
 ```
 
-### 4. 상태와 웹 화면 확인
-
-세 번째 터미널에서 확인합니다.
+다른 터미널에서 확인합니다.
 
 ```bash
-curl http://127.0.0.1:11434/api/tags
-curl http://127.0.0.1:8080/api/v1/healthz
 curl http://127.0.0.1:18080/healthz
 ```
 
-- AppDeploy Swagger: `http://127.0.0.1:8080/swagger`
-- geon Agent Control: `http://127.0.0.1:18080/`
+브라우저에서 [http://127.0.0.1:18080/](http://127.0.0.1:18080/)을 엽니다.
 
-### 5. 첫 사용 순서
+## 웹 사용 순서
 
-1. 첫 화면인 **자동화 실행**에서 `application.context.created` 요구 분석 결과를 전송합니다.
-2. 같은 `correlation_id`, `trace_id`, `profile_id`의 `resource.recommendation.created` 인프라 추천 결과를 전송합니다.
-3. 에이전트가 두 입력을 결합해 `DEPLOY`, `REJECT`, `RETRY` 중 하나를 결정하고 Go Guard 검증 결과를 생성합니다.
-4. `DEPLOY`가 승인되면 Common JSON v1.0 `deployment.create.request`와 `DeploymentManifest`를 확인합니다.
-5. 선택형 **추론 비교 · 배포 Feedback 실험**을 열면 규칙 기반 결정, Qwen 원시 제안, Go Guard 적용 결과를 비교할 수 있습니다. 이 비교에만 실행 중인 Ollama가 필요합니다.
-6. `deployment.status.changed`와 `optimization.feedback.created`를 전송하면 성공·실패 원인, 성능·비용 지표, SLO 위반이 같은 Flow에 자동 요약됩니다.
-7. **기존 ControlRun**은 자연어 요청·`app_version_id` 기반 Manifest 생성과 선택적 AppDeploy 제출을 시험하는 별도 호환 경로입니다.
-8. **Agent Registry**, **Post-deployment**, **Feedback**은 권한 관리와 배포 후 운영 시험을 위한 보조 화면입니다.
+웹은 연구 흐름에 맞춰 3개 화면만 제공합니다.
 
-각 서버는 실행한 터미널에서 `Ctrl+C`로 종료합니다. Autonomous Loop, Guarded Auto, 기록 삭제와 문제 해결 절차는 [geon Agent Control 상세 실행 가이드](go/service-control-api/README.md#geon-agent-control-실행-가이드)를 참고합니다.
+### 1. 자동화 에이전트
 
-## 🎯 담당 범위
+1. 기본 `Application Context` 샘플을 확인합니다.
+2. 기본 `Resource Recommendation` 샘플을 확인합니다.
+3. **배포 판단 실행**을 누릅니다.
+4. Agent 권한, 배포 결정, Guard, 선택 후보를 확인합니다.
+5. 결과 JSON의 `desired_deployment_spec`을 확인합니다.
 
-- Ops 분석 시험 및 최적 LLM 선정 흐름
-- AI LLM 운영 관리 구조 설계 및 검증
-- Agent Registry를 실제 Planner 선택·권한 검증을 수행하는 내부 단계로 사용
-- Agent Dispatcher로 내장 Agent와 등록 Runtime Agent의 공통 실행 계약 제공
-- `AIApplicationAutomationAgent`를 기본 Manifest Planner 프로필로 등록·관리
-- 등록 Runtime Agent endpoint를 실행 전·후 Guard와 함께 bounded HTTP 요청 1건으로 호출
-- 자연어 App 요구 분석과 CPU·메모리·GPU·디스크·accelerator 요구량 결정
-- AppDeploy 공식 Deployment Manifest 생성과 요청·Manifest 이중 Go Guard 검증
-- 승인된 Manifest의 선택적 AppDeploy 전달, 배포 상태 polling, 로그 조회와 재시도 가능 여부 판단
-- 인프라 계층이 제공한 실제 CPU/GPU VM snapshot과 workload 요구사항의 보조 적합성 검증
+두 입력은 같은 `correlation_id`와 `profile_id`를 사용해야 합니다. 한 번의 실행으로 두 입력 수신부터 최종 배포 요구 스펙까지 연결됩니다.
 
-이 저장소는 VM 후보를 임의로 만들거나 VM을 직접 프로비저닝하지 않습니다. 실제 인프라 생성은 인프라 계층이, App Spec 조회·Target 선택·Adapter 선택·배포 실행은 AppDeploy가 담당합니다. Runtime Agent 호출은 등록된 endpoint에 대한 단일 요청으로 제한하며 범용 다중 Agent 워크플로 엔진과 Job Scheduling Agent는 포함하지 않습니다. LLM, Runtime Agent 또는 AppDeploy 호출 실패를 가짜 성공 결과로 대체하지 않습니다.
+### 2. Agent 및 정책
 
-## 🗂️ 코드 구조
+- 기본 Agent `AIApplicationAutomationAgent`를 확인합니다.
+- 핵심 capability `ai_application_automation`을 확인합니다.
+- 허용 Action `generate_deployment_decision`을 확인합니다.
+- 필요하면 시험용 Runtime Agent를 등록하거나 삭제합니다.
+
+등록만으로 외부 Agent가 핵심 자동화 흐름을 대체하지 않습니다. 현재 기본 자동화 판단은 설정 Agent인 `AIApplicationAutomationAgent`가 담당합니다.
+
+### 3. 실험 결과
+
+- 저장된 Flow별 판단·Guard·Desired Deployment Spec을 확인합니다.
+- 선택적으로 규칙 기반, Qwen, Qwen+Guard 추론 결과를 비교합니다.
+- SLO 위반 Feedback 샘플로 `SCALE_OUT` 판단을 검증합니다.
+- 개별 기록 또는 전체 기록을 삭제합니다.
+
+Qwen 서버가 꺼져 있어도 핵심 결정적 배포 판단은 실행됩니다. Qwen 비교 결과만 `provider_unavailable`로 기록됩니다.
+
+## 핵심 API
+
+| Method | Endpoint | 역할 |
+| --- | --- | --- |
+| `POST` | `/api/v1/agent-control/application-contexts` | 요구 분석 결과 수신 |
+| `POST` | `/api/v1/agent-control/resource-recommendations` | 추천 결과 수신 및 자동화 판단 |
+| `GET` | `/api/v1/agent-control/flows` | 실험 Flow 목록 |
+| `GET` | `/api/v1/agent-control/flows/{correlation_id}` | 단일 Flow 조회 |
+| `DELETE` | `/api/v1/agent-control/flows/{correlation_id}` | 단일 Flow 삭제 |
+| `DELETE` | `/api/v1/agent-control/flows` | 전체 Flow 삭제 |
+| `POST` | `/api/v1/agent-control/deployment-status` | 배포 상태 연결 |
+| `POST` | `/api/v1/agent-control/optimization-feedback` | 성능 Feedback과 스케일링 판단 |
+| `POST` | `/api/v1/agent-control/flows/{correlation_id}/reasoning-comparisons` | 추론 방식 비교 |
+| `GET/POST` | `/api/v1/agents` | Agent 조회·등록 |
+| `DELETE` | `/api/v1/agents/{name}` | Runtime Agent 삭제 |
+
+OpenAPI 계약은 [docs/submission/openapi_service_control.yaml](docs/submission/openapi_service_control.yaml)에서 확인합니다.
+
+## 검증
+
+```bash
+cd go/service-control-api
+go test ./... -count=1
+go vet ./...
+```
+
+## 코드 구조
 
 | 경로 | 설명 |
 | --- | --- |
-| [`go/service-control-api/`](go/service-control-api/) | LLM Deployment Planner, Agent Registry, 이중 Go Guard, AppDeploy 연계를 제공하는 Go API/CLI |
-| [`contracts/appdeploy/`](contracts/appdeploy/) | 최신 Target 자동 선택 방식과 호환되는 AppDeploy Deployment Manifest 계약 snapshot |
-| [`go/aiops-guard/`](go/aiops-guard/) | 서비스 제어 action의 허용 범위를 검증하는 Go guard |
-| [`config/`](config/) | LLM 후보, 에이전트 registry, workload별 VM 요구사항 설정 |
-| [`data/`](data/) | Ops LLM 평가 scenario |
-| [`docs/`](docs/) | 산출물, 실행 가이드, 검증 문서, 구조도 |
-| [`examples/`](examples/) | API 요청/응답 예제 |
+| [`go/service-control-api/internal/agentcontrol/`](go/service-control-api/internal/agentcontrol/) | 입력 결합, 배포 결정, Guard, Feedback, 스케일링 판단 |
+| [`go/service-control-api/internal/api/`](go/service-control-api/internal/api/) | Agent Registry와 REST API |
+| [`go/service-control-api/internal/webui/`](go/service-control-api/internal/webui/) | 3개 화면 연구용 Control Web |
+| [`config/agent_registry.json`](config/agent_registry.json) | Agent capability와 bounded action 정책 |
+| [`docs/submission/openapi_service_control.yaml`](docs/submission/openapi_service_control.yaml) | API 통신 계약 |
+| [`docs/evidence/`](docs/evidence/) | 실험 결과와 검증 증적 |
 
-## 📦 공식 산출물
+## 공식 산출물
 
-| 산출물 | 원본 | DOCX |
-| --- | --- | --- |
-| 요구사항 정의서 | [Markdown](docs/submission/requirements_definition.md) | [DOCX](docs/submission/requirements_definition.docx) |
-| LLM 운영 관리 구조 설계서 | [Markdown](docs/deliverables/01_llm_operation_management_design.md) | [DOCX](docs/deliverables/docx/01_LLM_Operation_Management_Design.docx) |
-| 에이전트 등록 관리 프로토타입 | [Markdown](docs/deliverables/02_agent_registration_management_prototype.md) | [DOCX](docs/deliverables/docx/02_Agent_Registration_Management_Prototype.docx) |
-| AI 응용 배포·제어 추론 최적화 전략 설계서 | [Markdown](docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md) | [DOCX](docs/deliverables/docx/03_AI_Application_Deployment_Control_Optimization_Strategy.docx) |
-
-## 📚 문서 바로가기
-
-| 문서 | 설명 |
+| 산출물 | 문서 |
 | --- | --- |
-| [문서 지도](docs/README.md) | 전체 문서와 산출물 진입점 |
-| [설치 및 실행 가이드](docs/submission/install_and_run_guide.md) | 로컬/VM 실행 절차 |
-| [테스트 가이드](docs/submission/test_guide.md) | Go 테스트와 검증 명령 |
-| [기능/API 가이드](docs/submission/functional_api_guide.md) | API 기능과 응답 구조 |
-| [OpenAPI 계약](docs/submission/openapi_service_control.yaml) | Swagger/OpenAPI 산출물 |
-| [LLM Deployment Planner·Go Guard 흐름](docs/design/main_llm_go_guard_control_flow.md) | 자연어 요구 분석, Manifest 검증, AppDeploy 전달과 상태 조회 구조 |
-| [플래너·AppDeploy 책임 경계](docs/design/integration_boundary.md) | 최신 AppDeploy 계약, 통합 준비 순서와 Planner·배포 실행 책임 구분 |
-| [Ops LLM 평가 방법](docs/submission/ops_llm_benchmark_method.md) | dry-run과 실제 endpoint 실행 기준 |
-| [1차년도 VM 통합·개별 동작 시나리오](docs/design/year1_vm_operation_scenarios.md) | 컨테이너를 제외한 VM-only 통합 흐름과 개별 시험 초안 |
-| [검증 증적 가이드](docs/evidence/증적_패키지_가이드.md) | 실행 결과와 증적 정리 기준 |
-| [AWS GPU VM 검증 결과](docs/evidence/vm_validation_20260707.md) | `validate-system --target vm` 실행 결과와 GPU 증적 |
-
-## 🛠️ 개발 환경
-
-- 개발 언어: Go
-- Go 기준 버전: Go 1.25+
-- 검증 기준: `geon` 브랜치는 Go 1.25 기준으로 검증됨
-- 백엔드 프레임워크: Echo
-- 소스 코드 관리: GitHub
-- 라이선스: Apache 2.0
+| LLM 운영 관리 구조 설계서 | [Markdown](docs/deliverables/01_llm_operation_management_design.md) |
+| 에이전트 등록 관리 프로토타입 | [Markdown](docs/deliverables/02_agent_registration_management_prototype.md) |
+| AI 응용 배포·제어 추론 최적화 전략 설계서 | [Markdown](docs/deliverables/03_ai_application_deployment_control_optimization_strategy.md) |
 
 ## License
 
-ai-ops는 [Apache License 2.0](./LICENSE)에 따라 배포됩니다.
+ai-ops는 [Apache License 2.0](LICENSE)에 따라 배포됩니다.

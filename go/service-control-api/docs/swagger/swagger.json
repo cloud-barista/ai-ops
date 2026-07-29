@@ -12,6 +12,331 @@
     },
     "basePath": "/",
     "paths": {
+        "/api/v1/agent-control/application-contexts": {
+            "post": {
+                "description": "Validate and store a Common JSON v1.0 application.context.created message.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "Receive an Application Context message",
+                "operationId": "PostAgentControlApplicationContext",
+                "parameters": [
+                    {
+                        "description": "Application Context message",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.ApplicationContextEnvelope"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.Flow"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agent-control/deployment-status": {
+            "post": {
+                "description": "Validate and attach a Common JSON v1.0 deployment.status.changed message to an Agent Control flow.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "Receive a deployment status message",
+                "operationId": "PostAgentControlDeploymentStatus",
+                "parameters": [
+                    {
+                        "description": "Deployment status message",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.DeploymentStatusEnvelope"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.Flow"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agent-control/flows": {
+            "get": {
+                "description": "Return Application Context and Resource Recommendation correlation flows.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "List joined Agent Control inputs",
+                "operationId": "GetAgentControlFlows",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Clear the in-memory Agent Control experiment records.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "Delete all generated Agent Control flows",
+                "operationId": "DeleteAgentControlFlows",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agent-control/flows/{correlation_id}": {
+            "get": {
+                "description": "Return one correlation flow by correlation_id.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "Get a joined Agent Control input",
+                "operationId": "GetAgentControlFlow",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Common JSON correlation ID",
+                        "name": "correlation_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.Flow"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete one in-memory Agent Control experiment record by correlation_id.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "Delete one generated Agent Control flow",
+                "operationId": "DeleteAgentControlFlow",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Common JSON correlation ID",
+                        "name": "correlation_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agent-control/flows/{correlation_id}/reasoning-comparisons": {
+            "post": {
+                "description": "Compare the deterministic rule-based decision, the raw Qwen proposal, and the same proposal after Go Guard validation.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "Compare simple and validated Qwen reasoning",
+                "operationId": "PostAgentControlReasoningComparison",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Common JSON correlation ID",
+                        "name": "correlation_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Reasoning candidate",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.AgentControlReasoningComparisonRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.ReasoningComparison"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agent-control/optimization-feedback": {
+            "post": {
+                "description": "Validate and attach a Common JSON v1.0 optimization.feedback.created message to an Agent Control flow.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "Receive optimization feedback",
+                "operationId": "PostAgentControlOptimizationFeedback",
+                "parameters": [
+                    {
+                        "description": "Optimization feedback message",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.OptimizationFeedbackEnvelope"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.Flow"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agent-control/resource-recommendations": {
+            "post": {
+                "description": "Validate and store a Common JSON v1.0 resource.recommendation.created message.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "Receive a Resource Recommendation message",
+                "operationId": "PostAgentControlResourceRecommendation",
+                "parameters": [
+                    {
+                        "description": "Resource Recommendation message",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.ResourceRecommendationEnvelope"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.Flow"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/agents": {
             "get": {
                 "description": "Return the configured bounded-action agent registry.",
@@ -1292,6 +1617,1213 @@
         }
     },
     "definitions": {
+        "agentcontrol.AcceleratorAllocation": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "memory_mib_min_per_device": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.AcceleratorRequirements": {
+            "type": "object",
+            "properties": {
+                "count_min": {
+                    "type": "integer"
+                },
+                "memory_mib_min_per_device": {
+                    "type": "integer"
+                },
+                "required": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.ActualInfrastructure": {
+            "type": "object",
+            "properties": {
+                "provider": {
+                    "type": "string"
+                },
+                "region": {
+                    "type": "string"
+                },
+                "resource_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "agentcontrol.AgentAuthorization": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "agent_name": {
+                    "type": "string"
+                },
+                "authorized": {
+                    "type": "boolean"
+                },
+                "capability": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.AnalysisSummary": {
+            "type": "object",
+            "properties": {
+                "assumptions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "confidence": {
+                    "type": "number"
+                },
+                "missing_fields": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "warnings": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "agentcontrol.ApplicationContextData": {
+            "type": "object",
+            "properties": {
+                "application_profile": {
+                    "$ref": "#/definitions/agentcontrol.ApplicationProfile"
+                },
+                "model_recommendation": {
+                    "$ref": "#/definitions/agentcontrol.ModelRecommendation"
+                }
+            }
+        },
+        "agentcontrol.ApplicationContextEnvelope": {
+            "type": "object",
+            "properties": {
+                "causation_id": {
+                    "type": "string"
+                },
+                "contract_version": {
+                    "type": "string"
+                },
+                "correlation_id": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/agentcontrol.ApplicationContextData"
+                },
+                "message_id": {
+                    "type": "string"
+                },
+                "message_type": {
+                    "type": "string"
+                },
+                "occurred_at": {
+                    "type": "string"
+                },
+                "source": {
+                    "$ref": "#/definitions/agentcontrol.Endpoint"
+                },
+                "target": {
+                    "$ref": "#/definitions/agentcontrol.Endpoint"
+                },
+                "trace_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.ApplicationProfile": {
+            "type": "object",
+            "properties": {
+                "analysis": {
+                    "$ref": "#/definitions/agentcontrol.AnalysisSummary"
+                },
+                "app_id": {
+                    "type": "string"
+                },
+                "app_version": {
+                    "type": "string"
+                },
+                "artifact": {
+                    "$ref": "#/definitions/agentcontrol.Artifact"
+                },
+                "profile_id": {
+                    "type": "string"
+                },
+                "requirements": {
+                    "$ref": "#/definitions/agentcontrol.ApplicationRequirements"
+                },
+                "workload": {
+                    "$ref": "#/definitions/agentcontrol.WorkloadProfile"
+                }
+            }
+        },
+        "agentcontrol.ApplicationRequirements": {
+            "type": "object",
+            "properties": {
+                "accelerator": {
+                    "$ref": "#/definitions/agentcontrol.AcceleratorRequirements"
+                },
+                "compute": {
+                    "$ref": "#/definitions/agentcontrol.ComputeRequirements"
+                },
+                "cost": {
+                    "$ref": "#/definitions/agentcontrol.CostRequirements"
+                },
+                "deployment": {
+                    "$ref": "#/definitions/agentcontrol.DeploymentRequirements"
+                },
+                "slo": {
+                    "$ref": "#/definitions/agentcontrol.SLORequirements"
+                }
+            }
+        },
+        "agentcontrol.Artifact": {
+            "type": "object",
+            "properties": {
+                "entrypoint": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "type": {
+                    "type": "string"
+                },
+                "uri": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.AutomationDecision": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "confidence": {
+                    "type": "number"
+                },
+                "correction_request": {
+                    "$ref": "#/definitions/agentcontrol.CorrectionRequest"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "decision_id": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "reasoning_mode": {
+                    "type": "string"
+                },
+                "selected_candidate_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.ComputeRequirements": {
+            "type": "object",
+            "properties": {
+                "cpu_cores_min": {
+                    "type": "integer"
+                },
+                "memory_mib_min": {
+                    "type": "integer"
+                },
+                "storage_gib_min": {
+                    "type": "integer"
+                }
+            }
+        },
+        "agentcontrol.CorrectionRequest": {
+            "type": "object",
+            "properties": {
+                "issues": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/agentcontrol.ValidationIssue"
+                    }
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "target": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.CostMetrics": {
+            "type": "object",
+            "properties": {
+                "currency": {
+                    "type": "string"
+                },
+                "estimated_cost": {
+                    "type": "number"
+                }
+            }
+        },
+        "agentcontrol.CostRequirements": {
+            "type": "object",
+            "properties": {
+                "cost_per_hour_max": {
+                    "type": "number"
+                },
+                "currency": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.DeploymentApplication": {
+            "type": "object",
+            "properties": {
+                "app_id": {
+                    "type": "string"
+                },
+                "app_version": {
+                    "type": "string"
+                },
+                "artifact": {
+                    "$ref": "#/definitions/agentcontrol.Artifact"
+                }
+            }
+        },
+        "agentcontrol.DeploymentCreateRequestData": {
+            "type": "object",
+            "properties": {
+                "deployment_request": {
+                    "$ref": "#/definitions/agentcontrol.DeploymentRequest"
+                }
+            }
+        },
+        "agentcontrol.DeploymentCreateRequestEnvelope": {
+            "type": "object",
+            "properties": {
+                "causation_id": {
+                    "type": "string"
+                },
+                "contract_version": {
+                    "type": "string"
+                },
+                "correlation_id": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/agentcontrol.DeploymentCreateRequestData"
+                },
+                "message_id": {
+                    "type": "string"
+                },
+                "message_type": {
+                    "type": "string"
+                },
+                "occurred_at": {
+                    "type": "string"
+                },
+                "source": {
+                    "$ref": "#/definitions/agentcontrol.Endpoint"
+                },
+                "target": {
+                    "$ref": "#/definitions/agentcontrol.Endpoint"
+                },
+                "trace_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.DeploymentManifest": {
+            "type": "object",
+            "properties": {
+                "application": {
+                    "$ref": "#/definitions/agentcontrol.ManifestApplication"
+                },
+                "decision_id": {
+                    "type": "string"
+                },
+                "desired_infrastructure": {
+                    "$ref": "#/definitions/agentcontrol.DesiredInfrastructure"
+                },
+                "inference_configuration": {
+                    "$ref": "#/definitions/agentcontrol.InferenceConfiguration"
+                },
+                "manifest_id": {
+                    "type": "string"
+                },
+                "manifest_version": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/agentcontrol.ManifestMetadata"
+                },
+                "resource_hints": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "runtime": {
+                    "$ref": "#/definitions/agentcontrol.RuntimeConfiguration"
+                },
+                "target_runtime": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.DeploymentPlan": {
+            "type": "object",
+            "properties": {
+                "app_id": {
+                    "type": "string"
+                },
+                "app_version": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "desired_infrastructure": {
+                    "$ref": "#/definitions/agentcontrol.DesiredInfrastructure"
+                },
+                "inference_configuration": {
+                    "$ref": "#/definitions/agentcontrol.InferenceConfiguration"
+                },
+                "plan_id": {
+                    "type": "string"
+                },
+                "profile_id": {
+                    "type": "string"
+                },
+                "reasoning_mode": {
+                    "type": "string"
+                },
+                "resource_hints": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "selected_candidate_id": {
+                    "type": "string"
+                },
+                "target_runtime": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.DeploymentRequest": {
+            "type": "object",
+            "properties": {
+                "application": {
+                    "$ref": "#/definitions/agentcontrol.DeploymentApplication"
+                },
+                "decision_id": {
+                    "type": "string"
+                },
+                "deployment_manifest": {
+                    "$ref": "#/definitions/agentcontrol.DeploymentManifest"
+                },
+                "request_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.DeploymentRequirements": {
+            "type": "object",
+            "properties": {
+                "isolation": {
+                    "type": "string"
+                },
+                "replicas_max": {
+                    "type": "integer"
+                },
+                "replicas_min": {
+                    "type": "integer"
+                }
+            }
+        },
+        "agentcontrol.DeploymentStatus": {
+            "type": "object",
+            "properties": {
+                "actual_infrastructure": {
+                    "$ref": "#/definitions/agentcontrol.ActualInfrastructure"
+                },
+                "decision_id": {
+                    "type": "string"
+                },
+                "deployment_id": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.DeploymentStatusData": {
+            "type": "object",
+            "properties": {
+                "deployment_status": {
+                    "$ref": "#/definitions/agentcontrol.DeploymentStatus"
+                }
+            }
+        },
+        "agentcontrol.DeploymentStatusEnvelope": {
+            "type": "object",
+            "properties": {
+                "causation_id": {
+                    "type": "string"
+                },
+                "contract_version": {
+                    "type": "string"
+                },
+                "correlation_id": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/agentcontrol.DeploymentStatusData"
+                },
+                "message_id": {
+                    "type": "string"
+                },
+                "message_type": {
+                    "type": "string"
+                },
+                "occurred_at": {
+                    "type": "string"
+                },
+                "source": {
+                    "$ref": "#/definitions/agentcontrol.Endpoint"
+                },
+                "target": {
+                    "$ref": "#/definitions/agentcontrol.Endpoint"
+                },
+                "trace_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.DesiredInfrastructure": {
+            "type": "object",
+            "properties": {
+                "accelerator": {
+                    "$ref": "#/definitions/agentcontrol.AcceleratorAllocation"
+                },
+                "cpu_cores_per_node": {
+                    "type": "integer"
+                },
+                "isolation": {
+                    "type": "string"
+                },
+                "memory_mib_per_node": {
+                    "type": "integer"
+                },
+                "node_count": {
+                    "type": "integer"
+                },
+                "storage_gib_per_node": {
+                    "type": "integer"
+                }
+            }
+        },
+        "agentcontrol.Endpoint": {
+            "type": "object",
+            "properties": {
+                "component": {
+                    "type": "string"
+                },
+                "system": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.FeedbackSummary": {
+            "type": "object",
+            "properties": {
+                "cause": {
+                    "type": "string"
+                },
+                "decision_id": {
+                    "type": "string"
+                },
+                "deployment_id": {
+                    "type": "string"
+                },
+                "deployment_state": {
+                    "type": "string"
+                },
+                "metrics": {
+                    "$ref": "#/definitions/agentcontrol.OptimizationMetrics"
+                },
+                "outcome": {
+                    "type": "string"
+                },
+                "slo_violations": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "success": {
+                    "type": "boolean"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.Flow": {
+            "type": "object",
+            "properties": {
+                "agent_authorization": {
+                    "$ref": "#/definitions/agentcontrol.AgentAuthorization"
+                },
+                "application_context": {
+                    "$ref": "#/definitions/agentcontrol.ApplicationContextEnvelope"
+                },
+                "correlation_id": {
+                    "type": "string"
+                },
+                "decision": {
+                    "$ref": "#/definitions/agentcontrol.AutomationDecision"
+                },
+                "deployment_plan": {
+                    "$ref": "#/definitions/agentcontrol.DeploymentPlan"
+                },
+                "deployment_request": {
+                    "$ref": "#/definitions/agentcontrol.DeploymentCreateRequestEnvelope"
+                },
+                "deployment_status": {
+                    "$ref": "#/definitions/agentcontrol.DeploymentStatusEnvelope"
+                },
+                "feedback_summary": {
+                    "$ref": "#/definitions/agentcontrol.FeedbackSummary"
+                },
+                "guard": {
+                    "$ref": "#/definitions/agentcontrol.GuardResult"
+                },
+                "optimization_feedback": {
+                    "$ref": "#/definitions/agentcontrol.OptimizationFeedbackEnvelope"
+                },
+                "profile_id": {
+                    "type": "string"
+                },
+                "reasoning_comparison": {
+                    "$ref": "#/definitions/agentcontrol.ReasoningComparison"
+                },
+                "resource_recommendation": {
+                    "$ref": "#/definitions/agentcontrol.ResourceRecommendationEnvelope"
+                },
+                "scaling_decision": {
+                    "$ref": "#/definitions/agentcontrol.ScalingDecision"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "trace_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.GuardCheck": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "passed": {
+                    "type": "boolean"
+                },
+                "reason": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.GuardResult": {
+            "type": "object",
+            "properties": {
+                "checks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/agentcontrol.GuardCheck"
+                    }
+                },
+                "issues": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/agentcontrol.ValidationIssue"
+                    }
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.InferenceConfiguration": {
+            "type": "object",
+            "properties": {
+                "max_batch_size": {
+                    "type": "integer"
+                },
+                "max_concurrency": {
+                    "type": "integer"
+                },
+                "precision": {
+                    "type": "string"
+                },
+                "replicas": {
+                    "type": "integer"
+                },
+                "runtime_engine": {
+                    "type": "string"
+                },
+                "tensor_parallel_size": {
+                    "type": "integer"
+                }
+            }
+        },
+        "agentcontrol.InferenceMetrics": {
+            "type": "object",
+            "properties": {
+                "error_rate_percent": {
+                    "type": "number"
+                },
+                "latency_p95_ms": {
+                    "type": "number"
+                },
+                "throughput_rps": {
+                    "type": "number"
+                }
+            }
+        },
+        "agentcontrol.ManifestApplication": {
+            "type": "object",
+            "properties": {
+                "app_id": {
+                    "type": "string"
+                },
+                "app_version": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.ManifestMetadata": {
+            "type": "object",
+            "properties": {
+                "profile_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.ModelRecommendation": {
+            "type": "object",
+            "properties": {
+                "inference_configuration": {
+                    "$ref": "#/definitions/agentcontrol.InferenceConfiguration"
+                },
+                "recommendation_id": {
+                    "type": "string"
+                },
+                "selected_model": {
+                    "$ref": "#/definitions/agentcontrol.SelectedModel"
+                }
+            }
+        },
+        "agentcontrol.ObservationWindow": {
+            "type": "object",
+            "properties": {
+                "ended_at": {
+                    "type": "string"
+                },
+                "started_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.OptimizationFeedback": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "decision_id": {
+                    "type": "string"
+                },
+                "deployment_id": {
+                    "type": "string"
+                },
+                "feedback_id": {
+                    "type": "string"
+                },
+                "metrics": {
+                    "$ref": "#/definitions/agentcontrol.OptimizationMetrics"
+                },
+                "observation_window": {
+                    "$ref": "#/definitions/agentcontrol.ObservationWindow"
+                },
+                "outcome": {
+                    "type": "string"
+                },
+                "slo_violations": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "agentcontrol.OptimizationFeedbackData": {
+            "type": "object",
+            "properties": {
+                "optimization_feedback": {
+                    "$ref": "#/definitions/agentcontrol.OptimizationFeedback"
+                }
+            }
+        },
+        "agentcontrol.OptimizationFeedbackEnvelope": {
+            "type": "object",
+            "properties": {
+                "causation_id": {
+                    "type": "string"
+                },
+                "contract_version": {
+                    "type": "string"
+                },
+                "correlation_id": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/agentcontrol.OptimizationFeedbackData"
+                },
+                "message_id": {
+                    "type": "string"
+                },
+                "message_type": {
+                    "type": "string"
+                },
+                "occurred_at": {
+                    "type": "string"
+                },
+                "source": {
+                    "$ref": "#/definitions/agentcontrol.Endpoint"
+                },
+                "target": {
+                    "$ref": "#/definitions/agentcontrol.Endpoint"
+                },
+                "trace_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.OptimizationMetrics": {
+            "type": "object",
+            "properties": {
+                "cost": {
+                    "$ref": "#/definitions/agentcontrol.CostMetrics"
+                },
+                "inference": {
+                    "$ref": "#/definitions/agentcontrol.InferenceMetrics"
+                },
+                "resource": {
+                    "$ref": "#/definitions/agentcontrol.ResourceMetrics"
+                }
+            }
+        },
+        "agentcontrol.ReasoningAgreement": {
+            "type": "object",
+            "properties": {
+                "action_match": {
+                    "type": "boolean"
+                },
+                "candidate_match": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "agentcontrol.ReasoningComparison": {
+            "type": "object",
+            "properties": {
+                "agreement": {
+                    "$ref": "#/definitions/agentcontrol.ReasoningAgreement"
+                },
+                "candidate_id": {
+                    "type": "string"
+                },
+                "correlation_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "rule_based": {
+                    "$ref": "#/definitions/agentcontrol.ReasoningTrial"
+                },
+                "simple_inference": {
+                    "$ref": "#/definitions/agentcontrol.ReasoningTrial"
+                },
+                "validated_inference": {
+                    "$ref": "#/definitions/agentcontrol.ReasoningTrial"
+                }
+            }
+        },
+        "agentcontrol.ReasoningTrial": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "actual_model": {
+                    "type": "string"
+                },
+                "candidate_id": {
+                    "type": "string"
+                },
+                "confidence": {
+                    "type": "number"
+                },
+                "error": {
+                    "type": "string"
+                },
+                "execution_status": {
+                    "type": "string"
+                },
+                "guard_reason": {
+                    "type": "string"
+                },
+                "guard_status": {
+                    "type": "string"
+                },
+                "latency_ms": {
+                    "type": "integer"
+                },
+                "mode": {
+                    "type": "string"
+                },
+                "proposed_action": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "selected_candidate_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.ResourceCandidate": {
+            "type": "object",
+            "properties": {
+                "candidate_id": {
+                    "type": "string"
+                },
+                "desired_infrastructure": {
+                    "$ref": "#/definitions/agentcontrol.DesiredInfrastructure"
+                },
+                "feasible": {
+                    "type": "boolean"
+                },
+                "rank": {
+                    "type": "integer"
+                },
+                "rejection_reasons": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "resource_hints": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "scores": {
+                    "$ref": "#/definitions/agentcontrol.ResourceScores"
+                }
+            }
+        },
+        "agentcontrol.ResourceMetrics": {
+            "type": "object",
+            "properties": {
+                "accelerator_average_percent": {
+                    "type": "number"
+                },
+                "accelerator_memory_peak_mib": {
+                    "type": "number"
+                },
+                "cpu_average_percent": {
+                    "type": "number"
+                },
+                "memory_peak_mib": {
+                    "type": "number"
+                }
+            }
+        },
+        "agentcontrol.ResourceRecommendation": {
+            "type": "object",
+            "properties": {
+                "candidates": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/agentcontrol.ResourceCandidate"
+                    }
+                },
+                "profile_id": {
+                    "type": "string"
+                },
+                "recommendation_id": {
+                    "type": "string"
+                },
+                "selected_candidate_id": {
+                    "type": "string"
+                },
+                "snapshot_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.ResourceRecommendationData": {
+            "type": "object",
+            "properties": {
+                "resource_recommendation": {
+                    "$ref": "#/definitions/agentcontrol.ResourceRecommendation"
+                }
+            }
+        },
+        "agentcontrol.ResourceRecommendationEnvelope": {
+            "type": "object",
+            "properties": {
+                "causation_id": {
+                    "type": "string"
+                },
+                "contract_version": {
+                    "type": "string"
+                },
+                "correlation_id": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/agentcontrol.ResourceRecommendationData"
+                },
+                "message_id": {
+                    "type": "string"
+                },
+                "message_type": {
+                    "type": "string"
+                },
+                "occurred_at": {
+                    "type": "string"
+                },
+                "source": {
+                    "$ref": "#/definitions/agentcontrol.Endpoint"
+                },
+                "target": {
+                    "$ref": "#/definitions/agentcontrol.Endpoint"
+                },
+                "trace_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.ResourceScores": {
+            "type": "object",
+            "properties": {
+                "availability": {
+                    "type": "number"
+                },
+                "cost_efficiency": {
+                    "type": "number"
+                },
+                "resource_fit": {
+                    "type": "number"
+                },
+                "slo_headroom": {
+                    "type": "number"
+                },
+                "total": {
+                    "type": "number"
+                }
+            }
+        },
+        "agentcontrol.RuntimeConfiguration": {
+            "type": "object",
+            "properties": {
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "command": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "environment": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "ports": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/agentcontrol.RuntimePort"
+                    }
+                },
+                "restart_policy": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.RuntimePort": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "protocol": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.SLORequirements": {
+            "type": "object",
+            "properties": {
+                "latency_p95_ms_max": {
+                    "type": "number"
+                },
+                "throughput_rps_min": {
+                    "type": "number"
+                }
+            }
+        },
+        "agentcontrol.ScalingDecision": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "current_replicas": {
+                    "type": "integer"
+                },
+                "desired_replicas": {
+                    "type": "integer"
+                },
+                "evidence": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "reason": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.SelectedModel": {
+            "type": "object",
+            "properties": {
+                "model_id": {
+                    "type": "string"
+                },
+                "model_version": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.ValidationIssue": {
+            "type": "object",
+            "properties": {
+                "actual": {},
+                "code": {
+                    "type": "string"
+                },
+                "expected": {},
+                "field": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.WorkloadProfile": {
+            "type": "object",
+            "properties": {
+                "expected_rps": {
+                    "type": "number"
+                },
+                "request_pattern": {
+                    "type": "string"
+                },
+                "task_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.AgentControlReasoningComparisonRequest": {
+            "type": "object",
+            "required": [
+                "candidate_id"
+            ],
+            "properties": {
+                "candidate_id": {
+                    "type": "string"
+                }
+            }
+        },
         "api.AgentExecutionErrorResponse": {
             "type": "object",
             "properties": {
