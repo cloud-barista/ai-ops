@@ -4,18 +4,25 @@
     {
       "name": "AIApplicationAutomationAgent",
       "korean_name": "AI 응용 자동화 에이전트",
-      "role": "Act as the LLM Deployment Planner that converts application requirements into a guarded AppDeploy DeploymentManifest.",
+      "role": "Act as the KHU AI application automation decision Agent that joins an ApplicationProfile with a ResourceRecommendation and produces a guarded, platform-neutral deployment request.",
       "responsibilities": [
-        "Analyze natural-language application requirements.",
-        "Decide the CPU, memory, GPU, storage, and accelerator requirement envelope.",
-        "Generate an AppDeploy DeploymentManifest and request deterministic Go Guard validation.",
-        "Submit an approved manifest to AppDeploy and observe deployment status without selecting the final Target."
+        "Join application.context.created and resource.recommendation.created using correlation_id and profile_id.",
+        "Decide DEPLOY, REJECT, or RETRY from validated application requirements and resource candidates.",
+        "Generate a platform-neutral Desired Deployment Spec inside deployment.create.request.",
+        "Validate decisions with deterministic Go Guard checks and request corrected upstream input when required.",
+        "Summarize deployment.status.changed and optimization.feedback.created without executing infrastructure control."
       ],
       "capabilities": [
+        "ai_application_automation",
         "ai_application_deployment_control",
         "deployment_manifest_planning"
       ],
       "bounded_actions": [
+        "generate_deployment_decision",
+        "generate_desired_deployment_spec",
+        "request_application_correction",
+        "request_resource_recommendation",
+        "summarize_deployment_feedback",
         "generate_deployment_manifest",
         "submit_deployment_manifest",
         "observe_deployment_status",

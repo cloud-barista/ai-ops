@@ -8,6 +8,61 @@ import (
 	"testing"
 )
 
+type stubAuthorizer struct {
+	result AgentAuthorization
+	err    error
+}
+
+func (stub stubAuthorizer) Authorize(
+	_ context.Context,
+	request AgentAuthorizationRequest,
+) (AgentAuthorization, error) {
+	result := stub.result
+	result.AgentName = request.AgentName
+	result.Capability = request.Capability
+	result.Action = request.Action
+	return result, stub.err
+}
+
+func TestServiceRejectsFlowWhenAutomationAgentIsNotAuthorized(t *testing.T) {
+	service := NewServiceWithDependencies(
+		nil,
+		stubAuthorizer{
+			result: AgentAuthorization{
+				Authorized: false,
+				Reason:     "required bounded action is not registered",
+			},
+		},
+	)
+
+	if _, err := service.ReceiveApplicationContext(
+		context.Background(),
+		validApplicationContextEnvelope(),
+	); err != nil {
+		t.Fatalf("receive application context: %v", err)
+	}
+	flow, err := service.ReceiveResourceRecommendation(
+		context.Background(),
+		validResourceRecommendationEnvelope(),
+	)
+	if err != nil {
+		t.Fatalf("receive resource recommendation: %v", err)
+	}
+
+	if flow.State != StateAgentAuthorizationRejected {
+		t.Fatalf("state = %q, want %q", flow.State, StateAgentAuthorizationRejected)
+	}
+	if flow.AgentAuthorization == nil || flow.AgentAuthorization.Authorized {
+		t.Fatalf("agent authorization = %#v, want rejected", flow.AgentAuthorization)
+	}
+	if flow.DeploymentPlan != nil || flow.DeploymentRequest != nil {
+		t.Fatal("unauthorized Agent must not create a deployment plan or request")
+	}
+	if flow.Guard == nil || flow.Guard.Status != GuardRejected {
+		t.Fatalf("guard = %#v, want REJECTED", flow.Guard)
+	}
+}
+
 func TestServiceCreatesDeployPlanForFeasibleRecommendation(t *testing.T) {
 	service := NewService()
 

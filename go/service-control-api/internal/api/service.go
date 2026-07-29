@@ -31,12 +31,13 @@ type Service struct {
 
 func NewService(config ServerConfig) Service {
 	reasoner := newAgentControlReasoner(config, llmclient.NewClient(nil))
+	authorizer := newAgentControlRegistryAuthorizer(config)
 	service := Service{
 		config:             config,
 		runtimeAgents:      newRuntimeAgentStore(),
 		automationFeedback: newAutomationFeedbackStore(),
 		controlRuns:        controlrun.NewStore(),
-		agentControl:       agentcontrol.NewServiceWithReasoner(reasoner),
+		agentControl:       agentcontrol.NewServiceWithDependencies(reasoner, authorizer),
 	}
 	service.agentDispatcher = newAgentDispatcher(
 		map[string]agentExecutor{

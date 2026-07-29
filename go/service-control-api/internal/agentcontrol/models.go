@@ -9,16 +9,21 @@ const (
 	MessageDeploymentStatusChanged       = "deployment.status.changed"
 	MessageOptimizationFeedbackCreated   = "optimization.feedback.created"
 
-	StateWaitingForContext        = "WAITING_FOR_APPLICATION_CONTEXT"
-	StateWaitingForRecommendation = "WAITING_FOR_RESOURCE_RECOMMENDATION"
-	StateReady                    = "READY"
-	StateDecisionApproved         = "DEPLOY_APPROVED"
-	StateDecisionRejected         = "REJECTED"
-	StateRetryRequired            = "RETRY_REQUIRED"
+	StateWaitingForContext          = "WAITING_FOR_APPLICATION_CONTEXT"
+	StateWaitingForRecommendation   = "WAITING_FOR_RESOURCE_RECOMMENDATION"
+	StateReady                      = "READY"
+	StateDecisionApproved           = "DEPLOY_APPROVED"
+	StateDecisionRejected           = "REJECTED"
+	StateRetryRequired              = "RETRY_REQUIRED"
+	StateAgentAuthorizationRejected = "AGENT_AUTHORIZATION_REJECTED"
 
 	ActionDeploy = "DEPLOY"
 	ActionReject = "REJECT"
 	ActionRetry  = "RETRY"
+
+	AutomationAgentName      = "AIApplicationAutomationAgent"
+	AutomationCapability     = "ai_application_automation"
+	AutomationDecisionAction = "generate_deployment_decision"
 
 	ReasoningModeRuleBased = "rule_based"
 
@@ -236,6 +241,20 @@ type AutomationDecision struct {
 	SelectedCandidateID string             `json:"selected_candidate_id,omitempty"`
 	CorrectionRequest   *CorrectionRequest `json:"correction_request,omitempty"`
 	CreatedAt           string             `json:"created_at"`
+}
+
+type AgentAuthorizationRequest struct {
+	AgentName  string `json:"agent_name"`
+	Capability string `json:"capability"`
+	Action     string `json:"action"`
+}
+
+type AgentAuthorization struct {
+	AgentName  string `json:"agent_name"`
+	Capability string `json:"capability"`
+	Action     string `json:"action"`
+	Authorized bool   `json:"authorized"`
+	Reason     string `json:"reason"`
 }
 
 type DeploymentPlan struct {
@@ -467,6 +486,7 @@ type Flow struct {
 	State                  string                           `json:"state"`
 	ApplicationContext     *ApplicationContextEnvelope      `json:"application_context,omitempty"`
 	ResourceRecommendation *ResourceRecommendationEnvelope  `json:"resource_recommendation,omitempty"`
+	AgentAuthorization     *AgentAuthorization              `json:"agent_authorization,omitempty"`
 	Decision               *AutomationDecision              `json:"decision,omitempty"`
 	DeploymentPlan         *DeploymentPlan                  `json:"deployment_plan,omitempty"`
 	Guard                  *GuardResult                     `json:"guard,omitempty"`

@@ -3,12 +3,14 @@ info:
   title: AI Service Control API
   version: "0.5.0"
   description: >
-    Go Echo contract for Ops LLM selection, actual LLM-based automation
-    Action proposals, executable agent registry management, actual CPU/GPU VM
-    suitability validation, Go Request/Manifest Guard checks, and AppDeploy Planner integration.
-    The built-in AIApplicationAutomationAgent generates a guarded DeploymentManifest.
-    Registered runtime Agents are invoked through one bounded HTTP call and result
-    validation. AppDeploy selects the actual Target and performs deployment execution.
+    Go Echo contract for the KHU AI application automation Agent. The core flow
+    joins ApplicationProfile and ResourceRecommendation messages, authorizes the
+    built-in AIApplicationAutomationAgent through Agent Registry capability and
+    bounded Action policy, decides DEPLOY, REJECT, or RETRY, applies deterministic
+    Go Guard checks, and emits a platform-neutral Desired Deployment Spec inside
+    deployment.create.request. Deployment execution and platform-specific Manifest
+    conversion remain external responsibilities. Legacy ControlRun, runtime Agent
+    execution, and post-deployment controls are retained as optional PoC tools.
 servers:
   - url: http://127.0.0.1:18080
 paths:
@@ -53,7 +55,7 @@ paths:
   /api/v1/agent-control/resource-recommendations:
     post:
       summary: Receive a Resource Recommendation message
-      description: Stores a resource.recommendation.created Common JSON v1.0 message and joins it by correlation_id, trace_id, and profile_id.
+      description: Stores a resource.recommendation.created Common JSON v1.0 message, joins it by correlation_id, trace_id, and profile_id, verifies the automation Agent against Agent Registry, and then performs decision and Guard processing.
       requestBody:
         required: true
         content:
@@ -1192,6 +1194,7 @@ components:
             - WAITING_FOR_APPLICATION_CONTEXT
             - WAITING_FOR_RESOURCE_RECOMMENDATION
             - READY
+            - AGENT_AUTHORIZATION_REJECTED
             - DEPLOY_APPROVED
             - REJECTED
             - RETRY_REQUIRED
@@ -1199,6 +1202,8 @@ components:
           $ref: "#/components/schemas/ApplicationContextEnvelope"
         resource_recommendation:
           $ref: "#/components/schemas/ResourceRecommendationEnvelope"
+        agent_authorization:
+          $ref: "#/components/schemas/AgentAuthorization"
         decision:
           $ref: "#/components/schemas/AutomationDecision"
         deployment_plan:
@@ -1216,6 +1221,21 @@ components:
         reasoning_comparison:
           $ref: "#/components/schemas/ReasoningComparison"
         updated_at: {type: string, format: date-time}
+    AgentAuthorization:
+      type: object
+      required: [agent_name, capability, action, authorized, reason]
+      properties:
+        agent_name:
+          type: string
+          enum: [AIApplicationAutomationAgent]
+        capability:
+          type: string
+          enum: [ai_application_automation]
+        action:
+          type: string
+          enum: [generate_deployment_decision]
+        authorized: {type: boolean}
+        reason: {type: string}
     ValidationIssue:
       type: object
       required: [field, code, reason]

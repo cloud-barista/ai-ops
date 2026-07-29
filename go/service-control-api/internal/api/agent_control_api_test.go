@@ -48,7 +48,15 @@ func TestAgentControlInputJoinAPI(t *testing.T) {
 	}
 	if !strings.Contains(recommendationResponse.Body.String(), `"state":"DEPLOY_APPROVED"`) ||
 		!strings.Contains(recommendationResponse.Body.String(), `"action":"DEPLOY"`) ||
-		!strings.Contains(recommendationResponse.Body.String(), `"plan_id":"plan-flow-api-001"`) {
+		!strings.Contains(recommendationResponse.Body.String(), `"plan_id":"plan-flow-api-001"`) ||
+		!strings.Contains(
+			recommendationResponse.Body.String(),
+			`"agent_authorization":{"agent_name":"AIApplicationAutomationAgent","capability":"ai_application_automation","action":"generate_deployment_decision","authorized":true`,
+		) ||
+		!strings.Contains(
+			recommendationResponse.Body.String(),
+			`"reason":"Agent Registry authorizes the required capability and bounded action."`,
+		) {
 		t.Fatalf("unexpected resource recommendation response: %s", recommendationResponse.Body.String())
 	}
 

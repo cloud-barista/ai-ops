@@ -13,11 +13,16 @@ type Reasoner interface {
 	Propose(context.Context, string, ReasoningInput) (ModelReasoningResult, error)
 }
 
+type Authorizer interface {
+	Authorize(context.Context, AgentAuthorizationRequest) (AgentAuthorization, error)
+}
+
 type Service struct {
-	mu       sync.RWMutex
-	flows    map[string]Flow
-	now      func() time.Time
-	reasoner Reasoner
+	mu         sync.RWMutex
+	flows      map[string]Flow
+	now        func() time.Time
+	reasoner   Reasoner
+	authorizer Authorizer
 }
 
 func NewService() *Service {
@@ -25,10 +30,15 @@ func NewService() *Service {
 }
 
 func NewServiceWithReasoner(reasoner Reasoner) *Service {
+	return NewServiceWithDependencies(reasoner, nil)
+}
+
+func NewServiceWithDependencies(reasoner Reasoner, authorizer Authorizer) *Service {
 	return &Service{
-		flows:    map[string]Flow{},
-		now:      func() time.Time { return time.Now().UTC() },
-		reasoner: reasoner,
+		flows:      map[string]Flow{},
+		now:        func() time.Time { return time.Now().UTC() },
+		reasoner:   reasoner,
+		authorizer: authorizer,
 	}
 }
 
@@ -60,7 +70,7 @@ func (service *Service) ReceiveApplicationContext(
 	flow.ApplicationContext = &messageCopy
 	flow.State = inputJoinState(flow)
 	flow.UpdatedAt = service.now().Format(time.RFC3339Nano)
-	flow = service.evaluateFlow(flow)
+	flow = service.evaluateFlow(ctx, flow)
 	service.flows[message.CorrelationID] = cloneFlow(flow)
 	return cloneFlow(flow), nil
 }
@@ -93,7 +103,7 @@ func (service *Service) ReceiveResourceRecommendation(
 	flow.ResourceRecommendation = &messageCopy
 	flow.State = inputJoinState(flow)
 	flow.UpdatedAt = service.now().Format(time.RFC3339Nano)
-	flow = service.evaluateFlow(flow)
+	flow = service.evaluateFlow(ctx, flow)
 	service.flows[message.CorrelationID] = cloneFlow(flow)
 	return cloneFlow(flow), nil
 }
@@ -435,8 +445,46 @@ func inputJoinState(flow Flow) string {
 	}
 }
 
-func (service *Service) evaluateFlow(flow Flow) Flow {
+func (service *Service) evaluateFlow(ctx context.Context, flow Flow) Flow {
 	if flow.State != StateReady {
+		return flow
+	}
+
+	authorization := AgentAuthorization{
+		AgentName:  AutomationAgentName,
+		Capability: AutomationCapability,
+		Action:     AutomationDecisionAction,
+		Authorized: true,
+		Reason:     "Agent Registry authorization is not configured for this in-process service.",
+	}
+	if service.authorizer != nil {
+		result, err := service.authorizer.Authorize(ctx, AgentAuthorizationRequest{
+			AgentName:  AutomationAgentName,
+			Capability: AutomationCapability,
+			Action:     AutomationDecisionAction,
+		})
+		if err != nil {
+			result.Authorized = false
+			result.Reason = "Agent Registry authorization failed: " + err.Error()
+		}
+		authorization = result
+	}
+	flow.AgentAuthorization = &authorization
+	if !authorization.Authorized {
+		flow.State = StateAgentAuthorizationRejected
+		flow.Decision = nil
+		flow.DeploymentPlan = nil
+		flow.DeploymentRequest = nil
+		flow.Guard = &GuardResult{
+			Status: GuardRejected,
+			Checks: []GuardCheck{
+				{
+					Name:   "agent_registry_authorization",
+					Passed: false,
+					Reason: authorization.Reason,
+				},
+			},
+		}
 		return flow
 	}
 
@@ -946,6 +994,10 @@ func cloneFlow(flow Flow) Flow {
 	if flow.ResourceRecommendation != nil {
 		value := cloneResourceRecommendationEnvelope(*flow.ResourceRecommendation)
 		result.ResourceRecommendation = &value
+	}
+	if flow.AgentAuthorization != nil {
+		value := *flow.AgentAuthorization
+		result.AgentAuthorization = &value
 	}
 	if flow.Decision != nil {
 		value := *flow.Decision
