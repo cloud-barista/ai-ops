@@ -10,7 +10,7 @@ const staticDir = path.join(__dirname, "static");
 
 function completedRun(input) {
   const desiredDeploymentSpec = {
-    spec_version: "desired-deployment.khu.ai/v1alpha1",
+    spec_version: "1.0",
     decision_id: "decision-web-001",
     application: { app_id: "demo-app", app_version: "1.0.0" },
     target_runtime: "GPU_VM",

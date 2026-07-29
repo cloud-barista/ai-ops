@@ -5,12 +5,15 @@
 이 서비스는 경희대학교 AI 어플리케이션 자동화 에이전트 PoC의 Go 실행 모듈입니다.
 
 ```text
-Application Context
-+ Resource Recommendation
+Natural-language request or Structured App Spec
+→ Requirement Analyzer
+→ ApplicationProfile
+→ Mock Resource Recommender
+→ ResourceRecommendation
 → Agent Registry authorization
 → DEPLOY / REJECT / RETRY
 → Go Guard
-→ Desired Deployment Spec
+→ DesiredDeploymentSpec
 → deployment.status.changed
 → optimization.feedback.created
 → NO_ACTION / SCALE_OUT / SCALE_IN
@@ -55,37 +58,39 @@ http://127.0.0.1:18080/openapi.yaml
 
 ### 자동화 에이전트
 
-핵심 실험의 시작 화면입니다. `Application Context`와 `Resource Recommendation`을 하나의 폼에서 실행합니다.
+핵심 실험의 시작 화면입니다. 자연어 요청 또는 구조화 App Spec 하나를 입력합니다.
 
-1. 요구 분석 결과 수신
-2. 인프라 추천 결과 수신
-3. `AIApplicationAutomationAgent` 권한 확인
+1. Requirement Analyzer가 `ApplicationProfile` 생성
+2. Mock Resource Recommender가 `ResourceRecommendation` 생성
+3. `AIApplicationAutomationAgent` Registry 권한 확인
 4. `DEPLOY`, `REJECT`, `RETRY` 판단
 5. Go Guard 검증
-6. Desired Deployment Spec 생성
+6. `DesiredDeploymentSpec` 생성
 
-기본 샘플은 같은 `flow-demo-001` correlation ID와 `profile-demo-001` profile ID를 사용합니다. **배포 판단 실행**을 한 번 누르면 여섯 단계가 순서대로 연결됩니다.
+**자동 분석 및 판단**을 한 번 누르면 세 단계가 같은 `run_id`, `correlation_id`, `trace_id`로 연결됩니다. 생성된 `ApplicationProfile`과 `ResourceRecommendation`은 고급 증거 영역에서 확인합니다. 기존 Common JSON 입력은 고급 프로토콜 검증용으로만 유지됩니다.
 
 정상 샘플의 핵심 결과:
 
 ```json
 {
-  "state": "DEPLOY_APPROVED",
-  "agent_authorization": {
-    "agent_name": "AIApplicationAutomationAgent",
-    "capability": "ai_application_automation",
-    "action": "generate_deployment_decision",
-    "authorized": true
+  "run_id": "run-...",
+  "status": "COMPLETED",
+  "requirement_analysis": {
+    "mode": "local_rule",
+    "application_profile": {}
   },
-  "decision": {
-    "action": "DEPLOY",
-    "selected_candidate_id": "candidate-demo-001"
+  "resource_recommendation": {
+    "resource_recommendation": {
+      "selected_candidate_id": "mock-gpu-l4"
+    }
   },
-  "guard": {
-    "status": "APPROVED"
+  "flow": {
+    "state": "DEPLOY_APPROVED",
+    "decision": {"action": "DEPLOY"},
+    "guard": {"status": "APPROVED"}
   },
   "desired_deployment_spec": {
-    "manifest_version": "1.0"
+    "spec_version": "1.0"
   }
 }
 ```
@@ -146,6 +151,27 @@ config/ops_llm_eval_candidates.local_ollama.json
 ## API 순서
 
 ### 핵심 배포 판단
+
+```text
+POST /api/v1/agent-control/automation-runs
+GET  /api/v1/agent-control/automation-runs/{run_id}
+```
+
+자연어 입력 예:
+
+```bash
+curl -s -X POST http://127.0.0.1:18080/api/v1/agent-control/automation-runs \
+  -H "Content-Type: application/json" \
+  -d '{
+    "input_type": "natural_language",
+    "request": "GPU 1개, CPU 4코어, 메모리 8GiB로 AI 추론 서비스를 배포해 주세요.",
+    "requested_by": "researcher"
+  }'
+```
+
+구조화 입력은 `input_type`을 `structured`로 지정하고 `app_spec`에 CPU, 메모리, 스토리지, GPU 요구량을 전달합니다.
+
+### 고급 Common JSON 검증
 
 ```text
 POST /api/v1/agent-control/application-contexts

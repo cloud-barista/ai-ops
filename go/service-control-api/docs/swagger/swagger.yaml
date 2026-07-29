@@ -151,6 +151,46 @@ definitions:
       selected_candidate_id:
         type: string
     type: object
+  agentcontrol.AutomationRun:
+    properties:
+      correlation_id:
+        type: string
+      created_at:
+        type: string
+      desired_deployment_spec:
+        $ref: '#/definitions/agentcontrol.DesiredDeploymentSpec'
+      error_code:
+        type: string
+      error_message:
+        type: string
+      flow:
+        $ref: '#/definitions/agentcontrol.Flow'
+      input:
+        $ref: '#/definitions/agentcontrol.AutomationRunInput'
+      requirement_analysis:
+        $ref: '#/definitions/agentcontrol.RequirementAnalysisResult'
+      resource_recommendation:
+        $ref: '#/definitions/agentcontrol.RecommendationResult'
+      run_id:
+        type: string
+      status:
+        type: string
+      trace_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  agentcontrol.AutomationRunInput:
+    properties:
+      app_spec:
+        $ref: '#/definitions/agentcontrol.StructuredAppSpec'
+      input_type:
+        type: string
+      request:
+        type: string
+      requested_by:
+        type: string
+    type: object
   agentcontrol.ComputeRequirements:
     properties:
       cpu_cores_min:
@@ -337,6 +377,29 @@ definitions:
       trace_id:
         type: string
     type: object
+  agentcontrol.DesiredDeploymentSpec:
+    properties:
+      application:
+        $ref: '#/definitions/agentcontrol.ManifestApplication'
+      decision_id:
+        type: string
+      desired_infrastructure:
+        $ref: '#/definitions/agentcontrol.DesiredInfrastructure'
+      inference_configuration:
+        $ref: '#/definitions/agentcontrol.InferenceConfiguration'
+      metadata:
+        $ref: '#/definitions/agentcontrol.ManifestMetadata'
+      policy_hints:
+        items:
+          type: string
+        type: array
+      runtime:
+        $ref: '#/definitions/agentcontrol.RuntimeConfiguration'
+      spec_version:
+        type: string
+      target_runtime:
+        type: string
+    type: object
   agentcontrol.DesiredInfrastructure:
     properties:
       accelerator:
@@ -398,6 +461,8 @@ definitions:
         $ref: '#/definitions/agentcontrol.DeploymentCreateRequestEnvelope'
       deployment_status:
         $ref: '#/definitions/agentcontrol.DeploymentStatusEnvelope'
+      desired_deployment_spec:
+        $ref: '#/definitions/agentcontrol.DesiredDeploymentSpec'
       feedback_summary:
         $ref: '#/definitions/agentcontrol.FeedbackSummary'
       guard:
@@ -606,6 +671,54 @@ definitions:
       selected_candidate_id:
         type: string
     type: object
+  agentcontrol.RecommendationEvidence:
+    properties:
+      candidate_count:
+        type: integer
+      catalog_version:
+        type: string
+      feasible_count:
+        type: integer
+      mode:
+        type: string
+    type: object
+  agentcontrol.RecommendationResult:
+    properties:
+      evidence:
+        $ref: '#/definitions/agentcontrol.RecommendationEvidence'
+      resource_recommendation:
+        $ref: '#/definitions/agentcontrol.ResourceRecommendation'
+    type: object
+  agentcontrol.RequirementAnalysisEvidence:
+    properties:
+      actual_model:
+        type: string
+      assumptions:
+        items:
+          type: string
+        type: array
+      candidate_id:
+        type: string
+      latency_ms:
+        type: integer
+      mode:
+        type: string
+      provider:
+        type: string
+      source_input:
+        type: string
+    type: object
+  agentcontrol.RequirementAnalysisResult:
+    properties:
+      application_profile:
+        $ref: '#/definitions/agentcontrol.ApplicationProfile'
+      evidence:
+        $ref: '#/definitions/agentcontrol.RequirementAnalysisEvidence'
+      mode:
+        type: string
+      model_recommendation:
+        $ref: '#/definitions/agentcontrol.ModelRecommendation'
+    type: object
   agentcontrol.ResourceCandidate:
     properties:
       candidate_id:
@@ -757,6 +870,31 @@ definitions:
       model_version:
         type: string
       source:
+        type: string
+    type: object
+  agentcontrol.StructuredAppSpec:
+    properties:
+      accelerator_count:
+        type: integer
+      accelerator_memory_mib:
+        type: integer
+      accelerator_type:
+        type: string
+      app_id:
+        type: string
+      app_version:
+        type: string
+      cpu_cores:
+        type: integer
+      memory_mib:
+        type: integer
+      replicas_max:
+        type: integer
+      replicas_min:
+        type: integer
+      storage_gib:
+        type: integer
+      workload_type:
         type: string
     type: object
   agentcontrol.ValidationIssue:
@@ -2100,6 +2238,61 @@ paths:
           schema:
             $ref: '#/definitions/api.ErrorResponse'
       summary: Receive an Application Context message
+      tags:
+      - AI Application Automation Agent
+  /api/v1/agent-control/automation-runs:
+    post:
+      consumes:
+      - application/json
+      description: Accept one natural-language request or structured App Spec and
+        automatically execute Requirement Analyzer, mock Resource Recommender, Agent
+        Registry authorization, AIApplicationAutomationAgent decision, and Go Guard
+        validation.
+      operationId: PostAgentControlAutomationRun
+      parameters:
+      - description: One-shot automation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/agentcontrol.AutomationRunInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/agentcontrol.AutomationRun'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Run requirement analysis, resource recommendation, and Agent decision
+      tags:
+      - AI Application Automation Agent
+  /api/v1/agent-control/automation-runs/{run_id}:
+    get:
+      description: Return requirement analysis, resource recommendation, Agent decision,
+        Guard evidence, and Desired Deployment Spec for one run_id.
+      operationId: GetAgentControlAutomationRun
+      parameters:
+      - description: Automation run ID
+        in: path
+        name: run_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/agentcontrol.AutomationRun'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Get one automatic three-stage Agent run
       tags:
       - AI Application Automation Agent
   /api/v1/agent-control/deployment-status:

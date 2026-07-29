@@ -9,24 +9,27 @@
 
 `geon`은 경희대학교 담당 범위인 다음 연구 기능을 독립적으로 검증합니다.
 
-1. 외부의 어플리케이션 요구 분석 결과를 수신합니다.
-2. 외부의 인프라 추천 결과를 수신합니다.
-3. Agent Registry에서 자동화 Agent의 capability와 bounded action을 검증합니다.
-4. 두 입력을 결합해 `DEPLOY`, `REJECT`, `RETRY` 중 하나를 결정합니다.
-5. Go Guard로 결정과 배포 요구 스펙을 검증합니다.
-6. 플랫폼 독립적인 Desired Deployment Spec을 출력합니다.
+1. 자연어 요청 또는 구조화 App Spec 하나를 받습니다.
+2. Requirement Analyzer가 `ApplicationProfile`을 생성합니다.
+3. Mock Resource Recommender가 로컬 자원 카탈로그를 비교해 `ResourceRecommendation`을 생성합니다.
+4. Agent Registry에서 자동화 Agent의 capability와 bounded action을 검증합니다.
+5. `DEPLOY`, `REJECT`, `RETRY` 중 하나를 결정하고 Go Guard로 검증합니다.
+6. 플랫폼 독립적인 `DesiredDeploymentSpec`을 출력합니다.
 7. 배포 상태와 성능 Feedback을 받으면 원인과 최소 스케일링 동작을 판단합니다.
 
 핵심 산출물은 특정 배포 플랫폼의 실행 명령이 아니라 **검증 근거가 포함된 배포 결정과 Desired Deployment Spec**입니다.
 
 ```text
-ApplicationProfile
-+ ResourceRecommendation
+자연어 요청 또는 구조화 App Spec
+→ Requirement Analyzer
+→ ApplicationProfile
+→ Mock Resource Recommender
+→ ResourceRecommendation
 → Agent Registry 권한 확인
 → AIApplicationAutomationAgent
 → DEPLOY / REJECT / RETRY
 → Go Guard
-→ Desired Deployment Spec
+→ DesiredDeploymentSpec
 → 선택적 Feedback
 → NO_ACTION / SCALE_OUT / SCALE_IN
 ```
@@ -35,8 +38,9 @@ ApplicationProfile
 
 | geon이 담당하는 기능 | 외부 시스템이 담당하는 기능 |
 | --- | --- |
-| 요구 분석·추천 결과 결합 | 어플리케이션 원본 분석 |
-| Agent 권한과 허용 Action 검증 | 클라우드 자원 수집·추천 |
+| 자연어·App Spec 요구 분석과 ApplicationProfile 생성 | 운영 플랫폼의 최종 App Registry |
+| 로컬 Mock 카탈로그 기반 자원 추천 | 실시간 클라우드 자원 수집·추천 |
+| Agent 권한과 허용 Action 검증 | 외부 실행기와 플랫폼 권한 관리 |
 | 배포 가능 여부와 최소 동작 결정 | VM 생성과 실제 배포 실행 |
 | 플랫폼 독립적 배포 요구 스펙 생성 | 플랫폼 전용 Manifest 변환 |
 | Feedback 원인·SLO·스케일링 판단 | 실제 Scale-out·Scale-in 실행 |
@@ -95,13 +99,15 @@ curl http://127.0.0.1:18080/healthz
 
 ### 1. 자동화 에이전트
 
-1. 기본 `Application Context` 샘플을 확인합니다.
-2. 기본 `Resource Recommendation` 샘플을 확인합니다.
-3. **배포 판단 실행**을 누릅니다.
-4. Agent 권한, 배포 결정, Guard, 선택 후보를 확인합니다.
-5. 결과 JSON의 `desired_deployment_spec`을 확인합니다.
+1. 기본 입력 방식인 **자연어 요청**을 선택합니다.
+2. 배포·운영 요구사항을 한 번 입력합니다.
+3. **자동 분석 및 판단**을 누릅니다.
+4. `요구사항 분석 → 인프라 추천 → Agent 배포 판단` 3단계 완료 상태를 확인합니다.
+5. 분석 방식, 선택 후보, Registry 권한, 배포 결정, Go Guard를 확인합니다.
+6. 결과 JSON의 `desired_deployment_spec`을 확인합니다.
+7. 필요하면 **자동 생성된 중간 결과**에서 `ApplicationProfile`과 `ResourceRecommendation`을 확인합니다.
 
-두 입력은 같은 `correlation_id`와 `profile_id`를 사용해야 합니다. 한 번의 실행으로 두 입력 수신부터 최종 배포 요구 스펙까지 연결됩니다.
+구조화 입력 시험에서는 **구조화 App Spec**을 선택합니다. 기존 Common JSON v1.0 메시지를 직접 시험하는 화면은 **고급 프로토콜 검증**에 보존되어 있습니다.
 
 ### 2. Agent 및 정책
 
@@ -125,6 +131,8 @@ Qwen 서버가 꺼져 있어도 핵심 결정적 배포 판단은 실행됩니�
 
 | Method | Endpoint | 역할 |
 | --- | --- | --- |
+| `POST` | `/api/v1/agent-control/automation-runs` | 입력 한 번으로 요구 분석·추천·Agent 판단 자동 실행 |
+| `GET` | `/api/v1/agent-control/automation-runs/{run_id}` | 자동 실행 전체 증거 조회 |
 | `POST` | `/api/v1/agent-control/application-contexts` | 요구 분석 결과 수신 |
 | `POST` | `/api/v1/agent-control/resource-recommendations` | 추천 결과 수신 및 자동화 판단 |
 | `GET` | `/api/v1/agent-control/flows` | 실험 Flow 목록 |
@@ -152,6 +160,7 @@ go vet ./...
 | 경로 | 설명 |
 | --- | --- |
 | [`go/service-control-api/internal/agentcontrol/`](go/service-control-api/internal/agentcontrol/) | 입력 결합, 배포 결정, Guard, Feedback, 스케일링 판단 |
+| [`config/mock_resource_catalog.json`](config/mock_resource_catalog.json) | 독립 PoC용 CPU/GPU Mock 자원 후보 |
 | [`go/service-control-api/internal/api/`](go/service-control-api/internal/api/) | Agent Registry와 REST API |
 | [`go/service-control-api/internal/webui/`](go/service-control-api/internal/webui/) | 3개 화면 연구용 Control Web |
 | [`config/agent_registry.json`](config/agent_registry.json) | Agent capability와 bounded action 정책 |

@@ -5,12 +5,15 @@
 2026-07-29에 `geon`의 다음 독립 연구 흐름을 실제 API와 브라우저에서 검증했다.
 
 ```text
-Application Context
-+ Resource Recommendation
+자연어 요청 또는 구조화 App Spec
+→ Requirement Analyzer
+→ ApplicationProfile
+→ Mock Resource Recommender
+→ ResourceRecommendation
 → Agent Registry 권한 검증
 → DEPLOY / REJECT / RETRY
 → Go Guard
-→ Desired Deployment Spec
+→ DesiredDeploymentSpec
 → Qwen 추론 비교
 → 배포 상태와 성능 Feedback
 → 최소 스케일링 판단
@@ -22,16 +25,19 @@ AppDeploy, 실제 VM, Kubernetes는 사용하지 않았다. 이번 시험은 경
 
 | 항목 | 값 |
 | --- | --- |
-| 검증 서버 | `http://127.0.0.1:18081/` |
+| 검증 서버 | `http://127.0.0.1:18083/` |
 | 공식 기본 포트 | `18080` |
-| 검증 포트를 분리한 이유 | `18080`에 이전 사용자 프로세스가 실행 중이어서 해당 프로세스를 중단하지 않음 |
+| 검증 포트를 분리한 이유 | `18080`~`18082`의 기존 사용자·WSL 프로세스를 중단하지 않음 |
+| 기본 Requirement Analyzer | `local_rule` |
+| Resource Recommender | `mock_catalog` |
+| Mock Catalog | `config/mock_resource_catalog.json` |
 | Qwen Provider | Ollama OpenAI-compatible API |
 | Qwen Model | `qwen3.5:4b` |
 | Candidate ID | `qwen3.5-ops-planner` |
 | Common JSON | `1.0` |
 | 브라우저 | Playwright + 로컬 Chrome |
 
-서버 시작 시 다음 로컬 후보 설정을 사용했다.
+자동 3단계 Flow는 Ollama 없이 `local_rule`로 검증했다. 별도 추론 비교 시험에서는 다음 로컬 후보 설정을 사용했다.
 
 ```bash
 export AIOPS_LLM_CANDIDATES_PATH="config/ops_llm_eval_candidates.local_ollama.json"
@@ -41,45 +47,64 @@ export AIOPS_LLM_CANDIDATES_PATH="config/ops_llm_eval_candidates.local_ollama.js
 
 | 검증 항목 | 실제 결과 |
 | --- | --- |
-| correlation_id | `flow-demo-001` |
-| profile_id | `profile-demo-001` |
-| Application Context 수신 | 성공 |
-| Resource Recommendation 수신 | 성공 |
+| run_id | `run-099c1a4be7d8fa0d` |
+| correlation_id | `flow-c26b6f994dd59d3d` |
+| trace_id | `trace-9df05ef3a4cf99a6` |
+| profile_id | `profile-ai-application` |
+| 단일 자연어 입력 | 성공 |
+| Requirement Analyzer | `local_rule` |
+| ApplicationProfile 자동 생성 | 성공 |
+| ResourceRecommendation 자동 생성 | 성공 |
 | Automation Agent | `AIApplicationAutomationAgent` |
 | Registry capability | `ai_application_automation` |
 | Registry bounded action | `generate_deployment_decision` |
 | Agent Registry 권한 | 승인 |
 | 최소 동작 결정 | `DEPLOY` |
 | Flow 상태 | `DEPLOY_APPROVED` |
-| 선택 후보 | `candidate-demo-001` |
+| 선택 후보 | `mock-gpu-l4` |
 | Go Guard | `APPROVED` |
-| 완료 단계 | `6 / 6` |
-| 출력 | 플랫폼 독립적 Desired Deployment Spec |
+| 완료 단계 | `3 / 3` |
+| 출력 | 플랫폼 독립적 `DesiredDeploymentSpec` |
 
 핵심 결과 구조:
 
 ```json
 {
-  "correlation_id": "flow-demo-001",
-  "state": "DEPLOY_APPROVED",
-  "agent_authorization": {
-    "agent_name": "AIApplicationAutomationAgent",
-    "capability": "ai_application_automation",
-    "action": "generate_deployment_decision",
-    "authorized": true
+  "run_id": "run-099c1a4be7d8fa0d",
+  "status": "COMPLETED",
+  "requirement_analysis": {
+    "mode": "local_rule",
+    "application_profile": {
+      "profile_id": "profile-ai-application"
+    }
   },
-  "decision": {
-    "action": "DEPLOY",
-    "selected_candidate_id": "candidate-demo-001"
+  "resource_recommendation": {
+    "resource_recommendation": {
+      "selected_candidate_id": "mock-gpu-l4"
+    }
   },
-  "guard": {
-    "status": "APPROVED"
+  "flow": {
+    "state": "DEPLOY_APPROVED",
+    "agent_authorization": {"authorized": true},
+    "decision": {"action": "DEPLOY"},
+    "guard": {"status": "APPROVED"}
   },
   "desired_deployment_spec": {
-    "manifest_version": "1.0"
+    "spec_version": "1.0",
+    "target_runtime": "VM"
   }
 }
 ```
+
+### 최소 동작 분기
+
+| 입력 조건 | 실제 상태 | 실제 결정 | Guard | DesiredDeploymentSpec |
+| --- | --- | --- | --- | --- |
+| 충족 가능한 GPU 요구 | `DEPLOY_APPROVED` | `DEPLOY` | `APPROVED` | 생성 |
+| `replicas_min=3`, `replicas_max=1` | `REJECTED` | `REJECT` | `REJECTED` | 미생성 |
+| Mock 카탈로그를 초과하는 CPU/GPU 요구 | `RETRY_REQUIRED` | `RETRY` | `RETRY_REQUIRED` | 미생성 |
+
+`REJECT`는 `application_profile` 수정 요청을, `RETRY`는 `resource_recommendation` 재생성 요청을 포함했다.
 
 ## 4. 추론 비교
 
@@ -129,6 +154,12 @@ SLO 위반 샘플은 다음 값을 사용했다.
 | --- | --- |
 | 기본 화면 수 | `3` |
 | 사이드 메뉴 | 자동화 에이전트, Agent 및 정책, 실험 결과 |
+| 기본 입력 | 자연어 요청 |
+| 대체 입력 | 구조화 App Spec |
+| 기본 실행 API 호출 | `POST /api/v1/agent-control/automation-runs` 1회 |
+| 3단계 표시 | 요구사항 분석, 인프라 추천, Agent 배포 판단 |
+| 중간 결과 | 접힌 증거 영역에서 ApplicationProfile과 ResourceRecommendation 조회 |
+| 고급 입력 | Common JSON v1.0 직접 검증 유지 |
 | 개별 Flow 삭제 전 | `1` |
 | 개별 Flow 삭제 후 | `0` |
 | 삭제 후 안내 | `저장된 실험 결과가 없습니다.` |
@@ -155,4 +186,4 @@ go vet ./...            PASS
 JavaScript syntax       PASS
 ```
 
-Swagger는 `internal/agentcontrol` 모델 경로를 포함해 다시 생성했고, Flow 삭제 operation과 `ScalingDecision` schema를 확인했다.
+Swagger는 `internal/agentcontrol` 모델 경로를 포함해 다시 생성했고, AutomationRun 입력·응답, RequirementAnalysisResult, RecommendationResult, DesiredDeploymentSpec schema를 확인했다.

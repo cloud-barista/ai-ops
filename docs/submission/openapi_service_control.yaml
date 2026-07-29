@@ -33,6 +33,49 @@ paths:
       responses:
         "200":
           description: OpenAPI YAML
+  /api/v1/agent-control/automation-runs:
+    post:
+      operationId: PostAgentControlAutomationRun
+      summary: Run the automatic three-stage AI application Agent flow
+      description: >
+        Accepts one natural-language request or structured App Spec and
+        automatically executes Requirement Analyzer, mock Resource Recommender,
+        Agent Registry authorization, AIApplicationAutomationAgent decision,
+        and Go Guard validation. This endpoint produces a platform-neutral
+        DesiredDeploymentSpec and does not execute a real deployment.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AutomationRunInput"
+      responses:
+        "201":
+          description: Automatic Agent run completed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutomationRun"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/agent-control/automation-runs/{run_id}:
+    get:
+      operationId: GetAgentControlAutomationRun
+      summary: Get one automatic three-stage Agent run
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: Requirement analysis, resource recommendation, Agent decision, Guard evidence, and Desired Deployment Spec
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutomationRun"
+        "404":
+          $ref: "#/components/responses/NotFound"
   /api/v1/agent-control/application-contexts:
     post:
       summary: Receive an Application Context message
@@ -909,7 +952,136 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: Requested record was not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
   schemas:
+    AutomationRunInput:
+      type: object
+      required: [input_type]
+      properties:
+        input_type:
+          type: string
+          enum: [natural_language, structured]
+        request:
+          type: string
+          description: Natural-language deployment and operation request
+        requested_by: {type: string}
+        app_spec:
+          $ref: "#/components/schemas/StructuredAppSpec"
+      description: natural_language requires request; structured requires app_spec.
+    StructuredAppSpec:
+      type: object
+      required: [cpu_cores, memory_mib, storage_gib]
+      properties:
+        app_id: {type: string}
+        app_version: {type: string}
+        workload_type: {type: string}
+        cpu_cores: {type: integer, minimum: 1}
+        memory_mib: {type: integer, minimum: 1}
+        storage_gib: {type: integer, minimum: 1}
+        accelerator_type: {type: string}
+        accelerator_count: {type: integer, minimum: 0}
+        accelerator_memory_mib: {type: integer, minimum: 0}
+        replicas_min: {type: integer, minimum: 0}
+        replicas_max: {type: integer, minimum: 0}
+    AutomationRun:
+      type: object
+      required: [run_id, correlation_id, trace_id, status, input, created_at, updated_at]
+      properties:
+        run_id: {type: string}
+        correlation_id: {type: string}
+        trace_id: {type: string}
+        status: {type: string, enum: [COMPLETED, FAILED]}
+        input:
+          $ref: "#/components/schemas/AutomationRunInput"
+        requirement_analysis:
+          $ref: "#/components/schemas/RequirementAnalysisResult"
+        resource_recommendation:
+          $ref: "#/components/schemas/RecommendationResult"
+        flow:
+          $ref: "#/components/schemas/AgentControlFlow"
+        desired_deployment_spec:
+          $ref: "#/components/schemas/DesiredDeploymentSpec"
+        error_code: {type: string}
+        error_message: {type: string}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+    RequirementAnalysisResult:
+      type: object
+      required: [application_profile, model_recommendation, mode, evidence]
+      properties:
+        application_profile:
+          $ref: "#/components/schemas/ApplicationProfile"
+        model_recommendation:
+          $ref: "#/components/schemas/ApplicationModelRecommendation"
+        mode: {type: string, enum: [local_rule, structured, qwen]}
+        evidence:
+          $ref: "#/components/schemas/RequirementAnalysisEvidence"
+    RequirementAnalysisEvidence:
+      type: object
+      required: [mode]
+      properties:
+        mode: {type: string, enum: [local_rule, structured, qwen]}
+        source_input: {type: string}
+        assumptions: {type: array, items: {type: string}}
+        candidate_id: {type: string}
+        provider: {type: string}
+        actual_model: {type: string}
+        latency_ms: {type: integer, format: int64, minimum: 0}
+    RecommendationResult:
+      type: object
+      required: [resource_recommendation, evidence]
+      properties:
+        resource_recommendation:
+          $ref: "#/components/schemas/ResourceRecommendation"
+        evidence:
+          $ref: "#/components/schemas/RecommendationEvidence"
+    RecommendationEvidence:
+      type: object
+      required: [catalog_version, candidate_count, feasible_count, mode]
+      properties:
+        catalog_version: {type: string}
+        candidate_count: {type: integer, minimum: 0}
+        feasible_count: {type: integer, minimum: 0}
+        mode: {type: string, enum: [mock_catalog]}
+    DesiredDeploymentSpec:
+      type: object
+      required:
+        - spec_version
+        - decision_id
+        - application
+        - target_runtime
+        - desired_infrastructure
+        - inference_configuration
+        - metadata
+      properties:
+        spec_version: {type: string, enum: ["1.0"]}
+        decision_id: {type: string}
+        application:
+          type: object
+          required: [app_id, app_version]
+          properties:
+            app_id: {type: string}
+            app_version: {type: string}
+        target_runtime: {type: string, enum: [VM]}
+        desired_infrastructure:
+          $ref: "#/components/schemas/DesiredInfrastructure"
+        inference_configuration:
+          type: object
+          additionalProperties: true
+        runtime:
+          type: object
+          additionalProperties: true
+        policy_hints: {type: array, items: {type: string}}
+        metadata:
+          type: object
+          required: [profile_id]
+          properties:
+            profile_id: {type: string}
     CommonMessageEndpoint:
       type: object
       required: [system, component]
