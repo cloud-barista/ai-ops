@@ -148,6 +148,30 @@ async function browserPage(viewport = { width: 1280, height: 900 }) {
   return { browser, page, requests, consoleErrors };
 }
 
+test("experiment guide starts collapsed and can be opened without horizontal overflow", async () => {
+  for (const viewport of [{ width: 1280, height: 900 }, { width: 390, height: 844 }]) {
+    const { browser, page, consoleErrors } = await browserPage(viewport);
+    try {
+      const guide = page.locator("#experiment-guide");
+      assert.equal(await guide.getAttribute("open"), null);
+      assert.equal(await page.locator(".experiment-guide-steps").isVisible(), false);
+
+      await page.locator("#experiment-guide > summary").click();
+
+      assert.equal(await page.locator(".experiment-guide-steps").isVisible(), true);
+      assert.equal(await page.locator(".experiment-guide-step").count(), 4);
+      const layout = await page.evaluate(() => ({
+        clientWidth: document.documentElement.clientWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+      }));
+      assert.equal(layout.scrollWidth <= layout.clientWidth, true, JSON.stringify({ viewport, layout }));
+      assert.deepEqual(consoleErrors, []);
+    } finally {
+      await browser.close();
+    }
+  }
+});
+
 test("one natural-language input automatically completes all three stages", async () => {
   const { browser, page, requests, consoleErrors } = await browserPage();
   try {

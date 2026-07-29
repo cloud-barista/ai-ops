@@ -317,6 +317,153 @@ summary:focus-visible {
   line-height: 1.65;
 }
 
+.experiment-guide {
+  min-width: 0;
+  margin: 0 0 16px;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.experiment-guide > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 58px;
+  padding: 13px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.experiment-guide > summary::-webkit-details-marker {
+  display: none;
+}
+
+.experiment-guide-heading {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.experiment-guide-heading > svg {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  color: var(--teal);
+}
+
+.experiment-guide-heading > span {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.experiment-guide-heading strong,
+.experiment-guide-heading small {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.experiment-guide-heading strong {
+  font-size: 14px;
+}
+
+.experiment-guide-heading small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.experiment-guide-chevron {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  transition: transform 160ms ease;
+}
+
+.experiment-guide[open] > summary {
+  border-bottom: 1px solid var(--line);
+}
+
+.experiment-guide[open] .experiment-guide-chevron {
+  transform: rotate(180deg);
+}
+
+.experiment-guide-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.experiment-guide-step {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 10px;
+  min-width: 0;
+  padding: 16px;
+}
+
+.experiment-guide-step + .experiment-guide-step {
+  border-left: 1px solid var(--line);
+}
+
+.experiment-guide-step > span {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border-radius: 50%;
+  color: #ffffff;
+  background: var(--teal);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.experiment-guide-step > div {
+  min-width: 0;
+}
+
+.experiment-guide-step strong,
+.experiment-guide-step p {
+  overflow-wrap: anywhere;
+}
+
+.experiment-guide-step strong {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.experiment-guide-step p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.experiment-guide-step b {
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.experiment-guide-note {
+  margin: 0;
+  padding: 11px 16px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  background: var(--surface-soft);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.experiment-guide-note strong {
+  color: var(--teal-dark);
+}
+
 .agent-control-stage-flow {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1200,6 +1347,18 @@ dialog::backdrop {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .experiment-guide-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .experiment-guide-step:nth-child(odd) {
+    border-left: 0;
+  }
+
+  .experiment-guide-step:nth-child(n + 3) {
+    border-top: 1px solid var(--line);
+  }
+
   .automation-evidence-grid > section + section {
     border-top: 1px solid var(--line);
     border-left: 0;
@@ -1235,6 +1394,15 @@ dialog::backdrop {
   .scope-badge {
     justify-self: start;
     white-space: normal;
+  }
+
+  .experiment-guide-steps {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .experiment-guide-step + .experiment-guide-step {
+    border-top: 1px solid var(--line);
+    border-left: 0;
   }
 
   .agent-control-stage-flow {

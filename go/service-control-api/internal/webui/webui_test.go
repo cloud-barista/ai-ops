@@ -137,6 +137,31 @@ func TestControlAppContainsSingleAutomationWorkflow(t *testing.T) {
 	}
 }
 
+func TestControlAppContainsCollapsibleExperimentGuide(t *testing.T) {
+	server := echo.New()
+	Register(server)
+	html := requestBody(t, server, "/")
+
+	for _, expected := range []string{
+		`<details class="experiment-guide" id="experiment-guide">`,
+		`실험 진행 방법`,
+		`입력 방식 선택`,
+		`자동 분석 및 판단 실행`,
+		`판단 결과 확인`,
+		`선택 실험`,
+		`DesiredDeploymentSpec`,
+		`Feedback`,
+	} {
+		if !strings.Contains(html, expected) {
+			t.Fatalf("missing collapsible experiment guide contract %q", expected)
+		}
+	}
+
+	if strings.Contains(html, `<details class="experiment-guide" id="experiment-guide" open>`) {
+		t.Fatal("experiment guide must be collapsed by default")
+	}
+}
+
 func TestControlAppContainsPolicyRegistryAndExperimentResults(t *testing.T) {
 	server := echo.New()
 	Register(server)
@@ -256,8 +281,11 @@ func TestControlAppResponsiveStylesProtectFixedWorkflowElements(t *testing.T) {
 		`.automation-input-grid`,
 		`.results-layout`,
 		`.agent-control-stage-flow`,
+		`.experiment-guide`,
+		`.experiment-guide-steps`,
 		`.table-wrap`,
 		`grid-template-columns: repeat(3, minmax(0, 1fr));`,
+		`grid-template-columns: repeat(4, minmax(0, 1fr));`,
 		`@media (max-width: 900px)`,
 		`grid-template-columns: minmax(0, 1fr);`,
 		`min-width: 0;`,
