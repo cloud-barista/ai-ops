@@ -436,6 +436,28 @@ func (service *Service) ListFlows() []Flow {
 	return flows
 }
 
+func (service *Service) DeleteFlow(correlationID string) (Flow, bool) {
+	service.mu.Lock()
+	defer service.mu.Unlock()
+
+	key := strings.TrimSpace(correlationID)
+	flow, ok := service.flows[key]
+	if !ok {
+		return Flow{}, false
+	}
+	delete(service.flows, key)
+	return cloneFlow(flow), true
+}
+
+func (service *Service) ClearFlows() int {
+	service.mu.Lock()
+	defer service.mu.Unlock()
+
+	count := len(service.flows)
+	service.flows = map[string]Flow{}
+	return count
+}
+
 func inputJoinState(flow Flow) string {
 	switch {
 	case flow.ApplicationContext == nil:

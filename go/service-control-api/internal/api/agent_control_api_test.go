@@ -170,6 +170,79 @@ func TestAgentControlFeedbackAPI(t *testing.T) {
 	}
 }
 
+func TestAgentControlDeletesFlowAPI(t *testing.T) {
+	server := NewServer(NewServerConfig())
+	postAgentControlInputPair(t, server)
+
+	deleted := performJSONRequest(
+		t,
+		server,
+		http.MethodDelete,
+		"/api/v1/agent-control/flows/flow-api-001",
+		"",
+	)
+	if deleted.Code != http.StatusOK ||
+		!strings.Contains(deleted.Body.String(), `"deleted":1`) ||
+		!strings.Contains(deleted.Body.String(), `"correlation_id":"flow-api-001"`) {
+		t.Fatalf("delete Flow: code=%d body=%s", deleted.Code, deleted.Body.String())
+	}
+
+	missing := performJSONRequest(
+		t,
+		server,
+		http.MethodGet,
+		"/api/v1/agent-control/flows/flow-api-001",
+		"",
+	)
+	if missing.Code != http.StatusNotFound {
+		t.Fatalf("deleted Flow GET: code=%d body=%s", missing.Code, missing.Body.String())
+	}
+
+	deleteAgain := performJSONRequest(
+		t,
+		server,
+		http.MethodDelete,
+		"/api/v1/agent-control/flows/flow-api-001",
+		"",
+	)
+	if deleteAgain.Code != http.StatusNotFound {
+		t.Fatalf("missing Flow delete: code=%d body=%s", deleteAgain.Code, deleteAgain.Body.String())
+	}
+}
+
+func TestAgentControlClearsFlowsAPI(t *testing.T) {
+	server := NewServer(NewServerConfig())
+	postAgentControlInputPair(t, server)
+
+	second := apiApplicationContextEnvelope()
+	second.CorrelationID = "flow-api-002"
+	second.TraceID = "trace-api-002"
+	second.Data.ApplicationProfile.ProfileID = "profile-api-002"
+	response := performJSONRequest(
+		t,
+		server,
+		http.MethodPost,
+		"/api/v1/agent-control/application-contexts",
+		marshalAgentControlMessage(t, second),
+	)
+	if response.Code != http.StatusAccepted {
+		t.Fatalf("second Flow: code=%d body=%s", response.Code, response.Body.String())
+	}
+
+	cleared := performJSONRequest(
+		t,
+		server,
+		http.MethodDelete,
+		"/api/v1/agent-control/flows",
+		"",
+	)
+	if cleared.Code != http.StatusOK ||
+		!strings.Contains(cleared.Body.String(), `"deleted":2`) ||
+		!strings.Contains(cleared.Body.String(), `"flows":[]`) {
+		t.Fatalf("clear Flows: code=%d body=%s", cleared.Code, cleared.Body.String())
+	}
+}
+
 func TestAgentControlReasoningComparisonAPI(t *testing.T) {
 	provider, closeProvider := automationProvider(t, `{
 		"action":"DEPLOY",

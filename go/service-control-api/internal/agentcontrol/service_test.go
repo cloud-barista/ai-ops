@@ -329,6 +329,42 @@ func TestServiceRejectsFeedbackForAnotherDecision(t *testing.T) {
 	}
 }
 
+func TestServiceDeletesGeneratedFlows(t *testing.T) {
+	service := NewService()
+	createApprovedFlow(t, service)
+
+	deleted, ok := service.DeleteFlow("  flow-001  ")
+	if !ok || deleted.CorrelationID != "flow-001" {
+		t.Fatalf("deleted = %#v ok=%v", deleted, ok)
+	}
+	if _, ok := service.GetFlow("flow-001"); ok {
+		t.Fatal("deleted Flow remains available")
+	}
+	if count := service.ClearFlows(); count != 0 {
+		t.Fatalf("cleared = %d, want 0", count)
+	}
+}
+
+func TestServiceClearsAllGeneratedFlows(t *testing.T) {
+	service := NewService()
+	createApprovedFlow(t, service)
+
+	secondContext := validApplicationContextEnvelope()
+	secondContext.CorrelationID = "flow-002"
+	secondContext.TraceID = "trace-002"
+	secondContext.Data.ApplicationProfile.ProfileID = "profile-002"
+	if _, err := service.ReceiveApplicationContext(context.Background(), secondContext); err != nil {
+		t.Fatalf("receive second application context: %v", err)
+	}
+
+	if count := service.ClearFlows(); count != 2 {
+		t.Fatalf("cleared = %d, want 2", count)
+	}
+	if flows := service.ListFlows(); len(flows) != 0 {
+		t.Fatalf("flows after clear = %#v", flows)
+	}
+}
+
 func TestServiceComparesSimpleAndGuardedReasoning(t *testing.T) {
 	reasoner := stubReasoner{
 		result: ModelReasoningResult{

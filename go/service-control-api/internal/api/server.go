@@ -114,7 +114,9 @@ func NewServer(config ServerConfig) *echo.Echo {
 	server.POST(pathAgentControl+"/deployment-status", handler.RestPostDeploymentStatus)
 	server.POST(pathAgentControl+"/optimization-feedback", handler.RestPostOptimizationFeedback)
 	server.GET(pathAgentControl+"/flows", handler.RestGetAgentControlFlows)
+	server.DELETE(pathAgentControl+"/flows", handler.RestDeleteAgentControlFlows)
 	server.GET(pathAgentControl+"/flows/:correlation_id", handler.RestGetAgentControlFlow)
+	server.DELETE(pathAgentControl+"/flows/:correlation_id", handler.RestDeleteAgentControlFlow)
 	server.POST(
 		pathAgentControl+"/flows/:correlation_id/reasoning-comparisons",
 		handler.RestPostAgentControlReasoningComparison,

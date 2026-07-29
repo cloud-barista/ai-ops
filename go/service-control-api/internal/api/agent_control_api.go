@@ -157,6 +157,49 @@ func (handler restHandler) RestGetAgentControlFlow(context echo.Context) error {
 	return context.JSON(http.StatusOK, flow)
 }
 
+// RestDeleteAgentControlFlows godoc
+// @ID DeleteAgentControlFlows
+// @Summary Delete all generated Agent Control flows
+// @Description Clear the in-memory Agent Control experiment records.
+// @Tags AI Application Automation Agent
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/agent-control/flows [delete]
+func (handler restHandler) RestDeleteAgentControlFlows(context echo.Context) error {
+	deleted := handler.service.agentControl.ClearFlows()
+	return context.JSON(http.StatusOK, map[string]any{
+		"deleted": deleted,
+		"flows":   []agentcontrol.Flow{},
+	})
+}
+
+// RestDeleteAgentControlFlow godoc
+// @ID DeleteAgentControlFlow
+// @Summary Delete one generated Agent Control flow
+// @Description Delete one in-memory Agent Control experiment record by correlation_id.
+// @Tags AI Application Automation Agent
+// @Produce json
+// @Param correlation_id path string true "Common JSON correlation ID"
+// @Success 200 {object} map[string]interface{}
+// @Failure 404 {object} ErrorResponse
+// @Router /api/v1/agent-control/flows/{correlation_id} [delete]
+func (handler restHandler) RestDeleteAgentControlFlow(context echo.Context) error {
+	correlationID := context.Param("correlation_id")
+	flow, ok := handler.service.agentControl.DeleteFlow(correlationID)
+	if !ok {
+		return jsonError(
+			context,
+			http.StatusNotFound,
+			"Agent Control flow was not found",
+			fmt.Errorf("correlation_id %q was not found", correlationID),
+		)
+	}
+	return context.JSON(http.StatusOK, map[string]any{
+		"deleted":        1,
+		"correlation_id": flow.CorrelationID,
+	})
+}
+
 // RestPostAgentControlReasoningComparison godoc
 // @ID PostAgentControlReasoningComparison
 // @Summary Compare simple and validated Qwen reasoning
