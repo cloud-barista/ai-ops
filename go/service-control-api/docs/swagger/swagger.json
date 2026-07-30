@@ -2057,6 +2057,9 @@
                 "created_at": {
                     "type": "string"
                 },
+                "deployment_submission": {
+                    "$ref": "#/definitions/agentcontrol.DeploymentSubmission"
+                },
                 "desired_deployment_spec": {
                     "$ref": "#/definitions/agentcontrol.DesiredDeploymentSpec"
                 },
@@ -2402,6 +2405,32 @@
                     "$ref": "#/definitions/agentcontrol.Endpoint"
                 },
                 "trace_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.DeploymentSubmission": {
+            "type": "object",
+            "properties": {
+                "adapter": {
+                    "type": "string"
+                },
+                "error_code": {
+                    "type": "string"
+                },
+                "error_message": {
+                    "type": "string"
+                },
+                "request_id": {
+                    "type": "string"
+                },
+                "simulated": {
+                    "type": "boolean"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "submitted_at": {
                     "type": "string"
                 }
             }

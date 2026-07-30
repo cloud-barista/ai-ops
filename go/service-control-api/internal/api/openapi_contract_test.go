@@ -102,6 +102,8 @@ func TestOpenAPIDocumentsAutomaticThreeStageAgentFlow(t *testing.T) {
 			"RequirementAnalysisResult",
 			"RecommendationResult",
 			"DesiredDeploymentSpec",
+			"DeploymentSubmission",
+			"deployment_submission",
 		} {
 			if !strings.Contains(string(content), expected) {
 				t.Fatalf("OpenAPI %s is missing %q", path, expected)

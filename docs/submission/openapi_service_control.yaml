@@ -1053,10 +1053,33 @@ components:
           $ref: "#/components/schemas/AgentControlFlow"
         desired_deployment_spec:
           $ref: "#/components/schemas/DesiredDeploymentSpec"
+        deployment_submission:
+          $ref: "#/components/schemas/DeploymentSubmission"
         error_code: {type: string}
         error_message: {type: string}
         created_at: {type: string, format: date-time}
         updated_at: {type: string, format: date-time}
+    DeploymentSubmission:
+      type: object
+      required: [adapter, status, simulated, request_id, submitted_at]
+      properties:
+        adapter:
+          type: string
+          enum: [mock, handoff]
+        status:
+          type: string
+          enum: [SIMULATED, READY, FAILED]
+        simulated:
+          type: boolean
+        request_id:
+          type: string
+        submitted_at:
+          type: string
+          format: date-time
+        error_code:
+          type: string
+        error_message:
+          type: string
     RequirementAnalysisResult:
       type: object
       required: [application_profile, model_recommendation, mode, evidence]
