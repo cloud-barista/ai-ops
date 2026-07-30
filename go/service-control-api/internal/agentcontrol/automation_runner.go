@@ -268,7 +268,7 @@ func (runner *AutomationRunner) run(
 		)
 		if submitErr != nil {
 			if strings.TrimSpace(submission.Adapter) == "" {
-				submission.Adapter = "configured"
+				submission.Adapter = runner.deploymentAdapter.Name()
 			}
 			submission.Status = DeploymentSubmissionFailed
 			submission.RequestID = flow.DeploymentRequest.Data.DeploymentRequest.RequestID

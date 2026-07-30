@@ -17,6 +17,7 @@ const (
 )
 
 type DeploymentAdapter interface {
+	Name() string
 	Submit(context.Context, DeploymentCreateRequestEnvelope) (DeploymentSubmission, error)
 }
 
@@ -32,6 +33,10 @@ type DeploymentSubmission struct {
 
 type MockDeploymentAdapter struct {
 	Now func() time.Time
+}
+
+func (MockDeploymentAdapter) Name() string {
+	return DeploymentAdapterMock
 }
 
 func (adapter MockDeploymentAdapter) Submit(
@@ -50,6 +55,10 @@ func (adapter MockDeploymentAdapter) Submit(
 
 type HandoffDeploymentAdapter struct {
 	Now func() time.Time
+}
+
+func (HandoffDeploymentAdapter) Name() string {
+	return DeploymentAdapterHandoff
 }
 
 func (adapter HandoffDeploymentAdapter) Submit(

@@ -51,6 +51,15 @@ func TestHandoffDeploymentAdapterMarksRequestReady(t *testing.T) {
 	}
 }
 
+func TestDeploymentAdaptersExposeStableNames(t *testing.T) {
+	if got := (MockDeploymentAdapter{}).Name(); got != DeploymentAdapterMock {
+		t.Fatalf("mock adapter name = %q", got)
+	}
+	if got := (HandoffDeploymentAdapter{}).Name(); got != DeploymentAdapterHandoff {
+		t.Fatalf("handoff adapter name = %q", got)
+	}
+}
+
 func TestDeploymentAdaptersRejectMissingRequestID(t *testing.T) {
 	for name, adapter := range map[string]DeploymentAdapter{
 		"mock":    MockDeploymentAdapter{},

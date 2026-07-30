@@ -413,6 +413,13 @@ func TestAutomationRunnerRecordsSanitizedAdapterFailure(t *testing.T) {
 		run.DeploymentSubmission.Status != DeploymentSubmissionFailed {
 		t.Fatalf("failure submission = %#v", run.DeploymentSubmission)
 	}
+	if run.DeploymentSubmission.Adapter != DeploymentAdapterMock {
+		t.Fatalf(
+			"failure adapter = %q, want %q",
+			run.DeploymentSubmission.Adapter,
+			DeploymentAdapterMock,
+		)
+	}
 	if strings.Contains(run.DeploymentSubmission.ErrorMessage, "secret") ||
 		strings.Contains(run.DeploymentSubmission.ErrorMessage, "token") {
 		t.Fatalf(
@@ -522,6 +529,13 @@ type recordingDeploymentAdapter struct {
 	requests []DeploymentCreateRequestEnvelope
 	result   DeploymentSubmission
 	err      error
+}
+
+func (adapter *recordingDeploymentAdapter) Name() string {
+	if adapter.result.Adapter != "" {
+		return adapter.result.Adapter
+	}
+	return DeploymentAdapterMock
 }
 
 func (adapter *recordingDeploymentAdapter) Submit(
