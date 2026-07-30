@@ -31,6 +31,7 @@ type AutomationRun struct {
 	ResourceRecommendation *RecommendationResult      `json:"resource_recommendation,omitempty"`
 	Flow                   *Flow                      `json:"flow,omitempty"`
 	DesiredDeploymentSpec  *DesiredDeploymentSpec     `json:"desired_deployment_spec,omitempty"`
+	DeploymentSubmission   *DeploymentSubmission      `json:"deployment_submission,omitempty"`
 	ErrorCode              string                     `json:"error_code,omitempty"`
 	ErrorMessage           string                     `json:"error_message,omitempty"`
 	CreatedAt              string                     `json:"created_at"`
@@ -38,15 +39,16 @@ type AutomationRun struct {
 }
 
 type AutomationRunner struct {
-	mu               sync.RWMutex
-	protocolMu       sync.Mutex
-	runs             map[string]AutomationRun
-	protocolRequests map[string]analysisRequestRecord
-	analyzer         RequirementAnalyzer
-	recommender      ResourceRecommender
-	agentControl     *Service
-	Now              func() time.Time
-	IDGenerator      func(string) string
+	mu                sync.RWMutex
+	protocolMu        sync.Mutex
+	runs              map[string]AutomationRun
+	protocolRequests  map[string]analysisRequestRecord
+	analyzer          RequirementAnalyzer
+	recommender       ResourceRecommender
+	agentControl      *Service
+	deploymentAdapter DeploymentAdapter
+	Now               func() time.Time
+	IDGenerator       func(string) string
 }
 
 type analysisRequestRecord struct {
@@ -66,14 +68,29 @@ func NewAutomationRunner(
 	recommender ResourceRecommender,
 	agentControl *Service,
 ) *AutomationRunner {
+	return NewAutomationRunnerWithAdapter(
+		analyzer,
+		recommender,
+		agentControl,
+		MockDeploymentAdapter{},
+	)
+}
+
+func NewAutomationRunnerWithAdapter(
+	analyzer RequirementAnalyzer,
+	recommender ResourceRecommender,
+	agentControl *Service,
+	deploymentAdapter DeploymentAdapter,
+) *AutomationRunner {
 	return &AutomationRunner{
-		runs:             map[string]AutomationRun{},
-		protocolRequests: map[string]analysisRequestRecord{},
-		analyzer:         analyzer,
-		recommender:      recommender,
-		agentControl:     agentControl,
-		Now:              func() time.Time { return time.Now().UTC() },
-		IDGenerator:      randomAutomationID,
+		runs:              map[string]AutomationRun{},
+		protocolRequests:  map[string]analysisRequestRecord{},
+		analyzer:          analyzer,
+		recommender:       recommender,
+		agentControl:      agentControl,
+		deploymentAdapter: deploymentAdapter,
+		Now:               func() time.Time { return time.Now().UTC() },
+		IDGenerator:       randomAutomationID,
 	}
 }
 
@@ -142,7 +159,10 @@ func (runner *AutomationRunner) run(
 	if err := ctx.Err(); err != nil {
 		return AutomationRun{}, err
 	}
-	if runner.analyzer == nil || runner.recommender == nil || runner.agentControl == nil {
+	if runner.analyzer == nil ||
+		runner.recommender == nil ||
+		runner.agentControl == nil ||
+		runner.deploymentAdapter == nil {
 		return AutomationRun{}, fmt.Errorf("automation runner dependencies are not configured")
 	}
 	now := runner.Now
@@ -239,9 +259,32 @@ func (runner *AutomationRunner) run(
 	if err != nil {
 		return runner.failAndStore(run, "RESOURCE_RECOMMENDATION_REJECTED", "Resource Recommendation was rejected"), err
 	}
-	run.Status = AutomationRunStatusCompleted
 	run.Flow = &flow
 	run.DesiredDeploymentSpec = flow.DesiredDeploymentSpec
+	if flow.DeploymentRequest != nil && run.DesiredDeploymentSpec != nil {
+		submission, submitErr := runner.deploymentAdapter.Submit(
+			ctx,
+			*flow.DeploymentRequest,
+		)
+		if submitErr != nil {
+			if strings.TrimSpace(submission.Adapter) == "" {
+				submission.Adapter = "configured"
+			}
+			submission.Status = DeploymentSubmissionFailed
+			submission.RequestID = flow.DeploymentRequest.Data.DeploymentRequest.RequestID
+			submission.SubmittedAt = now().UTC().Format(time.RFC3339Nano)
+			submission.ErrorCode = "DEPLOYMENT_ADAPTER_FAILED"
+			submission.ErrorMessage = "Deployment adapter could not accept the approved request."
+			run.DeploymentSubmission = &submission
+			return runner.failAndStore(
+				run,
+				"DEPLOYMENT_ADAPTER_FAILED",
+				"Deployment adapter could not accept the approved request.",
+			), submitErr
+		}
+		run.DeploymentSubmission = &submission
+	}
+	run.Status = AutomationRunStatusCompleted
 	run.UpdatedAt = now().UTC().Format(time.RFC3339Nano)
 	runner.store(run)
 	return run, nil

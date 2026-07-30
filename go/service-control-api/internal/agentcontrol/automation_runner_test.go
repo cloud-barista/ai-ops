@@ -3,6 +3,7 @@ package agentcontrol
 import (
 	"context"
 	"errors"
+	"strings"
 	"testing"
 	"time"
 )
@@ -273,6 +274,158 @@ func TestAutomationRunnerRejectsChangedPayloadForExistingMessageID(t *testing.T)
 	}
 }
 
+func TestAutomationRunnerSubmitsApprovedRequestOnce(t *testing.T) {
+	adapter := &recordingDeploymentAdapter{
+		result: DeploymentSubmission{
+			Adapter:     DeploymentAdapterMock,
+			Status:      DeploymentSubmissionSimulated,
+			Simulated:   true,
+			RequestID:   "deploy-request-test",
+			SubmittedAt: "2026-07-30T02:00:00Z",
+		},
+	}
+	runner := testAutomationRunnerWithAdapter(t, NewService(), adapter)
+
+	run, err := runner.Run(context.Background(), approvedAutomationInput())
+	if err != nil {
+		t.Fatalf("run approved automation: %v", err)
+	}
+	if adapter.calls != 1 {
+		t.Fatalf("adapter calls = %d, want 1", adapter.calls)
+	}
+	if run.DeploymentSubmission == nil {
+		t.Fatalf("approved run has no deployment submission: %#v", run)
+	}
+	if run.DeploymentSubmission.Status != DeploymentSubmissionSimulated {
+		t.Fatalf("submission = %#v", run.DeploymentSubmission)
+	}
+	if len(adapter.requests) != 1 ||
+		adapter.requests[0].Data.DeploymentRequest.RequestID == "" {
+		t.Fatalf("adapter requests = %#v", adapter.requests)
+	}
+}
+
+func TestAutomationRunnerDoesNotSubmitRejectOrRetry(t *testing.T) {
+	tests := []struct {
+		name  string
+		input AutomationRunInput
+	}{
+		{
+			name: "reject",
+			input: AutomationRunInput{
+				InputType: InputTypeStructured,
+				AppSpec: &StructuredAppSpec{
+					AppID:       "invalid-service",
+					CPUCores:    2,
+					MemoryMiB:   4096,
+					StorageGiB:  20,
+					ReplicasMin: 3,
+					ReplicasMax: 1,
+				},
+			},
+		},
+		{
+			name: "retry",
+			input: AutomationRunInput{
+				InputType: InputTypeStructured,
+				AppSpec: &StructuredAppSpec{
+					AppID:                "oversized-service",
+					CPUCores:             32,
+					MemoryMiB:            131072,
+					StorageGiB:           1000,
+					AcceleratorType:      "GPU",
+					AcceleratorCount:     4,
+					AcceleratorMemoryMiB: 98304,
+					ReplicasMin:          1,
+					ReplicasMax:          2,
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			adapter := &recordingDeploymentAdapter{}
+			runner := testAutomationRunnerWithAdapter(t, NewService(), adapter)
+
+			run, err := runner.Run(context.Background(), test.input)
+			if err != nil {
+				t.Fatalf("run %s automation: %v", test.name, err)
+			}
+			if adapter.calls != 0 {
+				t.Fatalf("adapter calls = %d, want 0", adapter.calls)
+			}
+			if run.DeploymentSubmission != nil {
+				t.Fatalf("%s run has submission: %#v", test.name, run.DeploymentSubmission)
+			}
+		})
+	}
+}
+
+func TestAutomationRunnerDoesNotResubmitIdempotentReplay(t *testing.T) {
+	adapter := &recordingDeploymentAdapter{
+		result: DeploymentSubmission{
+			Adapter:   DeploymentAdapterMock,
+			Status:    DeploymentSubmissionSimulated,
+			Simulated: true,
+		},
+	}
+	runner := testAutomationRunnerWithAdapter(t, NewService(), adapter)
+	request := testApplicationAnalysisRequest()
+
+	first, replayed, err := runner.RunAnalysisRequest(context.Background(), request)
+	if err != nil || replayed {
+		t.Fatalf("first request: replayed=%v err=%v", replayed, err)
+	}
+	second, replayed, err := runner.RunAnalysisRequest(context.Background(), request)
+	if err != nil || !replayed {
+		t.Fatalf("replayed request: replayed=%v err=%v", replayed, err)
+	}
+	if adapter.calls != 1 {
+		t.Fatalf("adapter calls = %d, want 1", adapter.calls)
+	}
+	if first.RunID != second.RunID {
+		t.Fatalf("replay run_id = %q, want %q", second.RunID, first.RunID)
+	}
+}
+
+func TestAutomationRunnerRecordsSanitizedAdapterFailure(t *testing.T) {
+	adapter := &recordingDeploymentAdapter{
+		err: errors.New("upstream secret token was rejected"),
+	}
+	runner := testAutomationRunnerWithAdapter(t, NewService(), adapter)
+
+	run, err := runner.Run(context.Background(), approvedAutomationInput())
+	if err == nil {
+		t.Fatal("adapter failure was not returned")
+	}
+	if run.Status != AutomationRunStatusFailed {
+		t.Fatalf("status = %q, want %q", run.Status, AutomationRunStatusFailed)
+	}
+	if run.ErrorCode != "DEPLOYMENT_ADAPTER_FAILED" {
+		t.Fatalf("error_code = %q", run.ErrorCode)
+	}
+	if strings.Contains(run.ErrorMessage, "secret") ||
+		strings.Contains(run.ErrorMessage, "token") {
+		t.Fatalf("run exposed adapter error: %q", run.ErrorMessage)
+	}
+	if run.DeploymentSubmission == nil ||
+		run.DeploymentSubmission.Status != DeploymentSubmissionFailed {
+		t.Fatalf("failure submission = %#v", run.DeploymentSubmission)
+	}
+	if strings.Contains(run.DeploymentSubmission.ErrorMessage, "secret") ||
+		strings.Contains(run.DeploymentSubmission.ErrorMessage, "token") {
+		t.Fatalf(
+			"submission exposed adapter error: %q",
+			run.DeploymentSubmission.ErrorMessage,
+		)
+	}
+	stored, ok := runner.Get(run.RunID)
+	if !ok || stored.ErrorCode != run.ErrorCode {
+		t.Fatalf("failed run was not stored: %#v", stored)
+	}
+}
+
 func testApplicationAnalysisRequest() ApplicationAnalysisRequestEnvelope {
 	return ApplicationAnalysisRequestEnvelope{
 		Envelope: Envelope{
@@ -313,7 +466,24 @@ func testApplicationAnalysisRequest() ApplicationAnalysisRequestEnvelope {
 
 func testAutomationRunner(t *testing.T, service *Service) *AutomationRunner {
 	t.Helper()
-	runner := NewAutomationRunner(
+	return testAutomationRunnerWithAdapter(
+		t,
+		service,
+		MockDeploymentAdapter{
+			Now: func() time.Time {
+				return time.Date(2026, 7, 29, 8, 0, 0, 0, time.UTC)
+			},
+		},
+	)
+}
+
+func testAutomationRunnerWithAdapter(
+	t *testing.T,
+	service *Service,
+	adapter DeploymentAdapter,
+) *AutomationRunner {
+	t.Helper()
+	runner := NewAutomationRunnerWithAdapter(
 		LocalRequirementAnalyzer{},
 		CatalogResourceRecommender{
 			Catalog: testResourceCatalog(),
@@ -322,6 +492,7 @@ func testAutomationRunner(t *testing.T, service *Service) *AutomationRunner {
 			},
 		},
 		service,
+		adapter,
 	)
 	runner.Now = func() time.Time {
 		return time.Date(2026, 7, 29, 8, 0, 0, 0, time.UTC)
@@ -330,4 +501,38 @@ func testAutomationRunner(t *testing.T, service *Service) *AutomationRunner {
 		return prefix + "-test"
 	}
 	return runner
+}
+
+func approvedAutomationInput() AutomationRunInput {
+	return AutomationRunInput{
+		InputType: InputTypeStructured,
+		AppSpec: &StructuredAppSpec{
+			AppID:       "approved-service",
+			CPUCores:    2,
+			MemoryMiB:   4096,
+			StorageGiB:  20,
+			ReplicasMin: 1,
+			ReplicasMax: 2,
+		},
+	}
+}
+
+type recordingDeploymentAdapter struct {
+	calls    int
+	requests []DeploymentCreateRequestEnvelope
+	result   DeploymentSubmission
+	err      error
+}
+
+func (adapter *recordingDeploymentAdapter) Submit(
+	_ context.Context,
+	request DeploymentCreateRequestEnvelope,
+) (DeploymentSubmission, error) {
+	adapter.calls++
+	adapter.requests = append(adapter.requests, request)
+	result := adapter.result
+	if result.RequestID == "" {
+		result.RequestID = request.Data.DeploymentRequest.RequestID
+	}
+	return result, adapter.err
 }
