@@ -35,16 +35,18 @@ func NewService(config ServerConfig) Service {
 	authorizer := newAgentControlRegistryAuthorizer(config)
 	agentControlService := agentcontrol.NewServiceWithDependencies(reasoner, authorizer)
 	resourceCatalog, _ := agentcontrol.LoadResourceCatalog(config.ResourceCatalogPath)
+	deploymentAdapter, _ := agentcontrol.NewDeploymentAdapter(config.DeploymentAdapterMode)
 	service := Service{
 		config:             config,
 		runtimeAgents:      newRuntimeAgentStore(),
 		automationFeedback: newAutomationFeedbackStore(),
 		controlRuns:        controlrun.NewStore(),
 		agentControl:       agentControlService,
-		automationRunner: agentcontrol.NewAutomationRunner(
+		automationRunner: agentcontrol.NewAutomationRunnerWithAdapter(
 			newAgentControlRequirementAnalyzer(config, llmclient.NewClient(nil)),
 			agentcontrol.CatalogResourceRecommender{Catalog: resourceCatalog},
 			agentControlService,
+			deploymentAdapter,
 		),
 	}
 	service.agentDispatcher = newAgentDispatcher(

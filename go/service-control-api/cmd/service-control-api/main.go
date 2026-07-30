@@ -22,6 +22,9 @@ func main() {
 	port := viper.GetString("PORT")
 
 	config := api.NewServerConfig()
+	if err := api.ValidateServerConfig(config); err != nil {
+		log.Fatal().Err(err).Msg("invalid service-control-api configuration")
+	}
 	address := net.JoinHostPort(config.BindAddress, port)
 	server := api.NewServer(config)
 	log.Info().Str("address", address).Msg("starting service-control-api")

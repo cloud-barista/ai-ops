@@ -18,6 +18,7 @@ type ServerConfig struct {
 	ResourceCatalogPath    string
 	PlannerGuardPolicyPath string
 	AppDeployBaseURL       string
+	DeploymentAdapterMode  string
 	AppUploadMaxBytes      int64
 	BindAddress            string
 	AutonomyAdminToken     string
@@ -72,6 +73,12 @@ func NewServerConfig() ServerConfig {
 	if appUploadMaxBytes > 1<<30 {
 		appUploadMaxBytes = 1 << 30
 	}
+	deploymentAdapterMode := strings.ToLower(
+		strings.TrimSpace(viper.GetString("DEPLOYMENT_ADAPTER")),
+	)
+	if deploymentAdapterMode == "" {
+		deploymentAdapterMode = "mock"
+	}
 	return ServerConfig{
 		RepoRoot:               repoRoot,
 		OpenAPIPath:            openAPIPath,
@@ -79,10 +86,20 @@ func NewServerConfig() ServerConfig {
 		ResourceCatalogPath:    resourceCatalogPath,
 		PlannerGuardPolicyPath: plannerGuardPolicyPath,
 		AppDeployBaseURL:       viper.GetString("APPDEPLOY_BASE_URL"),
+		DeploymentAdapterMode:  deploymentAdapterMode,
 		AppUploadMaxBytes:      appUploadMaxBytes,
 		BindAddress:            bindAddress,
 		AutonomyAdminToken:     viper.GetString("AUTONOMY_ADMIN_TOKEN"),
 		AgentExecutionTimeout:  time.Duration(agentExecutionTimeoutSeconds) * time.Second,
+	}
+}
+
+func ValidateServerConfig(config ServerConfig) error {
+	switch config.DeploymentAdapterMode {
+	case "mock", "handoff":
+		return nil
+	default:
+		return fmt.Errorf("deployment adapter mode must be mock or handoff")
 	}
 }
 
