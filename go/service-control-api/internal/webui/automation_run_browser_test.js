@@ -81,6 +81,13 @@ function completedRun(input) {
       desired_deployment_spec: desiredDeploymentSpec,
     },
     desired_deployment_spec: desiredDeploymentSpec,
+    deployment_submission: {
+      adapter: "mock",
+      status: "SIMULATED",
+      simulated: true,
+      request_id: "deploy-request-web-001",
+      submitted_at: "2026-07-29T00:00:01Z",
+    },
     created_at: "2026-07-29T00:00:00Z",
     updated_at: "2026-07-29T00:00:01Z",
   };
@@ -172,7 +179,7 @@ test("experiment guide starts collapsed and can be opened without horizontal ove
   }
 });
 
-test("one natural-language input automatically completes all three stages", async () => {
+test("one natural-language input automatically completes all four stages", async () => {
   const { browser, page, requests, consoleErrors } = await browserPage();
   try {
     assert.equal(await page.locator("#automation-input-mode-natural").isChecked(), true);
@@ -197,13 +204,24 @@ test("one natural-language input automatically completes all three stages", asyn
       await page.locator("#agent-control-stage-flow > li").evaluateAll((items) => (
         items.map((item) => [item.dataset.agentControlStage, item.classList.contains("is-complete")])
       )),
-      [["requirement", true], ["recommendation", true], ["decision", true]],
+      [
+        ["requirement", true],
+        ["recommendation", true],
+        ["decision", true],
+        ["adapter", true],
+      ],
     );
     assert.equal(await page.locator("#automation-analysis-mode").textContent(), "local_rule");
     assert.equal(await page.locator("#agent-control-candidate").textContent(), "mock-gpu-l4");
     assert.equal(await page.locator("#agent-control-authorization").textContent(), "승인");
     assert.equal(await page.locator("#agent-control-guard").textContent(), "APPROVED");
+    assert.equal(await page.locator("#agent-control-adapter").textContent(), "mock");
+    assert.equal(
+      await page.locator("#agent-control-adapter-status").textContent(),
+      "SIMULATED",
+    );
     assert.match(await page.locator("#agent-control-result-json").textContent(), /desired_infrastructure/);
+    assert.match(await page.locator("#agent-control-result-json").textContent(), /deployment_submission/);
     assert.match(await page.locator("#automation-application-profile-json").textContent(), /profile-web-001/);
     assert.match(await page.locator("#automation-resource-recommendation-json").textContent(), /mock-gpu-l4/);
     assert.deepEqual(consoleErrors, []);

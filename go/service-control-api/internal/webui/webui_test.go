@@ -110,10 +110,14 @@ func TestControlAppContainsSingleAutomationWorkflow(t *testing.T) {
 		`data-agent-control-stage="requirement"`,
 		`data-agent-control-stage="recommendation"`,
 		`data-agent-control-stage="decision"`,
+		`data-agent-control-stage="adapter"`,
 		`요구사항 분석`,
 		`인프라 추천`,
 		`Agent 배포 판단`,
+		`Adapter 전달`,
 		`id="automation-analysis-mode"`,
+		`id="agent-control-adapter"`,
+		`id="agent-control-adapter-status"`,
 		`id="automation-evidence"`,
 		`id="automation-application-profile-json"`,
 		`id="automation-resource-recommendation-json"`,
@@ -125,6 +129,8 @@ func TestControlAppContainsSingleAutomationWorkflow(t *testing.T) {
 		`id="run-protocol-flow"`,
 		`id="agent-control-result-json"`,
 		`Desired Deployment Spec`,
+		`Mock simulation`,
+		`External handoff ready`,
 	} {
 		if !strings.Contains(html, expected) {
 			t.Fatalf("missing automation workflow contract %q", expected)

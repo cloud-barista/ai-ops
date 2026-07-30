@@ -334,16 +334,29 @@ function renderAgentControlStages(record) {
       flow?.agent_authorization?.authorized === false ||
       record?.status === "COMPLETED",
     ),
+    adapter: ["SIMULATED", "READY"].includes(
+      record?.deployment_submission?.status,
+    ),
   };
   const blocked = new Set();
   if (record?.status === "FAILED" && !complete.requirement) {
-    ["requirement", "recommendation", "decision"].forEach((stage) =>
+    ["requirement", "recommendation", "decision", "adapter"].forEach((stage) =>
       blocked.add(stage),
     );
   } else if (record?.status === "FAILED" && !complete.recommendation) {
-    ["recommendation", "decision"].forEach((stage) => blocked.add(stage));
+    ["recommendation", "decision", "adapter"].forEach((stage) =>
+      blocked.add(stage),
+    );
   } else if (flow?.state === "AGENT_AUTHORIZATION_REJECTED") {
     blocked.add("decision");
+    blocked.add("adapter");
+  } else if (
+    flow?.decision?.action &&
+    flow.decision.action !== "DEPLOY"
+  ) {
+    blocked.add("adapter");
+  } else if (record?.deployment_submission?.status === "FAILED") {
+    blocked.add("adapter");
   }
 
   document.querySelectorAll("[data-agent-control-stage]").forEach((item) => {
@@ -446,6 +459,8 @@ function renderAgentControlFlow(flow) {
     byID("agent-control-authorization").textContent = "-";
     byID("agent-control-action").textContent = "-";
     byID("agent-control-guard").textContent = "-";
+    byID("agent-control-adapter").textContent = "-";
+    byID("agent-control-adapter-status").textContent = "-";
     byID("agent-control-candidate").textContent = "-";
     byID("agent-control-reason").textContent =
       "요청을 입력한 뒤 자동 분석 및 판단을 실행하세요.";
@@ -502,6 +517,8 @@ function renderAutomationRun(run) {
   state.activeAutomationRun = run || null;
   if (!run) {
     byID("automation-analysis-mode").textContent = "-";
+    byID("agent-control-adapter").textContent = "-";
+    byID("agent-control-adapter-status").textContent = "-";
     byID("automation-application-profile-json").textContent =
       "아직 생성되지 않았습니다.";
     byID("automation-resource-recommendation-json").textContent =
@@ -514,6 +531,7 @@ function renderAutomationRun(run) {
   renderAgentControlFlow(flow);
   const analysis = run.requirement_analysis || {};
   const recommendation = run.resource_recommendation || {};
+  const submission = run.deployment_submission || {};
   const mode = analysis.evidence?.mode || analysis.mode || "-";
   byID("agent-control-flow-id").textContent = run.run_id || run.correlation_id;
   byID("agent-control-status").textContent = text(
@@ -521,6 +539,8 @@ function renderAutomationRun(run) {
     run.status,
   );
   byID("automation-analysis-mode").textContent = text(mode);
+  byID("agent-control-adapter").textContent = text(submission.adapter);
+  byID("agent-control-adapter-status").textContent = text(submission.status);
   byID("agent-control-candidate").textContent = text(
     flow?.decision?.selected_candidate_id ||
       recommendation.resource_recommendation?.selected_candidate_id,
@@ -542,6 +562,7 @@ function renderAutomationRun(run) {
     guard: flow?.guard,
     desired_deployment_spec:
       run.desired_deployment_spec || desiredDeploymentSpec(flow),
+    deployment_submission: run.deployment_submission,
   });
   renderAgentControlStages(run);
 }

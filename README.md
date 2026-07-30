@@ -15,7 +15,8 @@
 4. Agent Registry에서 자동화 Agent의 capability와 bounded action을 검증합니다.
 5. `DEPLOY`, `REJECT`, `RETRY` 중 하나를 결정하고 Go Guard로 검증합니다.
 6. 플랫폼 독립적인 `DesiredDeploymentSpec`을 출력합니다.
-7. 배포 상태와 성능 Feedback을 받으면 원인과 최소 스케일링 동작을 판단합니다.
+7. Mock 또는 외부 handoff Adapter가 전달 증거를 기록합니다.
+8. 배포 상태와 성능 Feedback을 받으면 원인과 최소 스케일링 동작을 판단합니다.
 
 핵심 산출물은 특정 배포 플랫폼의 실행 명령이 아니라 **검증 근거가 포함된 배포 결정과 Desired Deployment Spec**입니다.
 
@@ -30,6 +31,7 @@
 → DEPLOY / REJECT / RETRY
 → Go Guard
 → DesiredDeploymentSpec
+→ Mock simulation 또는 External handoff ready
 → 선택적 Feedback
 → NO_ACTION / SCALE_OUT / SCALE_IN
 ```
@@ -43,6 +45,7 @@
 | Agent 권한과 허용 Action 검증 | 외부 실행기와 플랫폼 권한 관리 |
 | 배포 가능 여부와 최소 동작 결정 | VM 생성과 실제 배포 실행 |
 | 플랫폼 독립적 배포 요구 스펙 생성 | 플랫폼 전용 Manifest 변환 |
+| Mock/Handoff Adapter 전달 증거 생성 | 실제 배포 요청 처리와 실행 |
 | Feedback 원인·SLO·스케일링 판단 | 실제 Scale-out·Scale-in 실행 |
 
 기존 AppDeploy, ControlRun, Autonomous Loop 호환 API는 백엔드에 유지하지만, 핵심 연구 웹의 기본 흐름에는 포함하지 않습니다.
@@ -78,6 +81,7 @@ export AIOPS_LLM_CANDIDATES_PATH="config/ops_llm_eval_candidates.local_ollama.js
 export PATH="/c/Program Files/Go/bin:$PATH"
 export AIOPS_REPO_ROOT="$(git rev-parse --show-toplevel)"
 export AIOPS_BIND_ADDRESS="127.0.0.1"
+export AIOPS_DEPLOYMENT_ADAPTER="mock"
 export PORT=18080
 
 cd "$AIOPS_REPO_ROOT/go/service-control-api"
@@ -93,6 +97,8 @@ curl http://127.0.0.1:18080/healthz
 
 브라우저에서 [http://127.0.0.1:18080/](http://127.0.0.1:18080/)을 엽니다.
 
+`AIOPS_DEPLOYMENT_ADAPTER=mock`은 실제 VM을 생성하지 않고 `SIMULATED` 증거를 기록합니다. `handoff`로 바꾸면 Common JSON 배포 요청을 외부 전달 준비 상태인 `READY`로 기록하지만, 실제 네트워크 전송이나 배포 성공을 의미하지 않습니다.
+
 ## 웹 사용 순서
 
 웹은 연구 흐름에 맞춰 3개 화면만 제공합니다.
@@ -102,10 +108,11 @@ curl http://127.0.0.1:18080/healthz
 1. 기본 입력 방식인 **자연어 요청**을 선택합니다.
 2. 배포·운영 요구사항을 한 번 입력합니다.
 3. **자동 분석 및 판단**을 누릅니다.
-4. `요구사항 분석 → 인프라 추천 → Agent 배포 판단` 3단계 완료 상태를 확인합니다.
+4. `요구사항 분석 → 인프라 추천 → Agent 배포 판단 → Adapter 전달` 4단계 상태를 확인합니다.
 5. 분석 방식, 선택 후보, Registry 권한, 배포 결정, Go Guard를 확인합니다.
-6. 결과 JSON의 `desired_deployment_spec`을 확인합니다.
-7. 필요하면 **자동 생성된 중간 결과**에서 `ApplicationProfile`과 `ResourceRecommendation`을 확인합니다.
+6. 결과 JSON의 `desired_deployment_spec`과 `deployment_submission`을 확인합니다.
+7. `mock / SIMULATED`는 독립 PoC 모의실험이며 실제 VM 배포가 아님을 확인합니다.
+8. 필요하면 **자동 생성된 중간 결과**에서 `ApplicationProfile`과 `ResourceRecommendation`을 확인합니다.
 
 구조화 입력 시험에서는 **구조화 App Spec**을 선택합니다. 기존 Common JSON v1.0 메시지를 직접 시험하는 화면은 **고급 프로토콜 검증**에 보존되어 있습니다.
 

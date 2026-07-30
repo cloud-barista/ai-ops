@@ -466,7 +466,7 @@ summary:focus-visible {
 
 .agent-control-stage-flow {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
   margin: 0 0 16px;
   padding: 0;
@@ -792,7 +792,12 @@ input:focus {
   overflow: hidden;
 }
 
-.decision-summary,
+.decision-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-bottom: 1px solid var(--line);
+}
+
 .comparison-summary {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -1269,7 +1274,7 @@ dialog::backdrop {
 
 @media (max-width: 1180px) {
   .agent-control-stage-flow {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .results-layout {
@@ -1277,10 +1282,10 @@ dialog::backdrop {
   }
 
   .decision-summary {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .decision-summary > div:nth-child(3) {
+  .decision-summary > div:nth-child(even) {
     border-right: 0;
   }
 }
