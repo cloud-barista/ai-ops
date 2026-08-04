@@ -5,6 +5,70 @@
 [![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go&logoColor=white)](go/service-control-api/go.mod)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
+## 처음 실행하기: VS Code
+
+가장 간단한 실행 방법입니다. 저장소 **루트 폴더**를 VS Code로 열어야 `.vscode` 실행 구성이 인식됩니다.
+
+### 1. 저장소 받기
+
+```bash
+git clone --branch geon --single-branch https://github.com/cloud-barista/ai-ops.git
+cd ai-ops
+code .
+```
+
+### 2. 준비 확인
+
+1. [Go](https://go.dev/dl/) 1.25 이상을 설치합니다.
+2. VS Code가 권장하는 **Go 확장(`golang.go`)**을 설치합니다.
+3. VS Code를 다시 시작한 뒤 터미널에서 `go version`을 확인합니다.
+
+### 3. F5로 실행
+
+1. VS Code 왼쪽의 **Run and Debug**를 엽니다.
+2. `geon: Agent Control (18080)`을 선택합니다.
+3. `F5`를 누릅니다.
+4. 아래 주소를 확인합니다.
+
+| 확인 대상 | 주소 |
+| --- | --- |
+| Health | [http://127.0.0.1:18080/healthz](http://127.0.0.1:18080/healthz) |
+| Agent Control 웹 | [http://127.0.0.1:18080/](http://127.0.0.1:18080/) |
+| OpenAPI | [http://127.0.0.1:18080/openapi.yaml](http://127.0.0.1:18080/openapi.yaml) |
+
+`F5` 실행은 다음 환경을 자동으로 적용합니다.
+
+```text
+AIOPS_REPO_ROOT=<열어 둔 저장소 루트>
+AIOPS_BIND_ADDRESS=127.0.0.1
+AIOPS_DEPLOYMENT_ADAPTER=mock
+PORT=18080
+```
+
+### 4. VS Code Task 사용
+
+`Ctrl+Shift+P`를 누르고 **Tasks: Run Task**를 선택하면 다음 작업을 실행할 수 있습니다.
+
+- `geon: 서버 실행 (18080)`: 디버거 없이 서버 실행
+- `geon: 전체 테스트`: `go test ./... -count=1`
+- `geon: Go Vet`: `go vet ./...`
+
+### 실행 전에 알아둘 것
+
+| 항목 | 현재 동작 |
+| --- | --- |
+| 기본 Adapter | `mock` |
+| 배포 결과 | `SIMULATED`이며 실제 VM 배포가 아님 |
+| Ollama | 핵심 실행에는 불필요, 선택적 Qwen 비교에서만 필요 |
+| Internal Agent | 별도 프로세스 없이 실행 가능 |
+| Runtime Agent | 등록한 `endpoint + invocation_path` 서버를 별도로 실행해야 함 |
+
+`go`를 찾지 못하면 Go 설치 후 VS Code를 완전히 종료했다가 다시 실행합니다. 18080 포트 충돌이 발생하면 PowerShell에서 다음 명령으로 사용 중인 프로세스를 확인합니다.
+
+```powershell
+Get-NetTCPConnection -LocalPort 18080 -State Listen
+```
+
 ## 연구 목표
 
 `geon`은 경희대학교 담당 범위인 다음 연구 기능을 독립적으로 검증합니다.
@@ -51,7 +115,7 @@
 
 기존 AppDeploy, ControlRun, Autonomous Loop 호환 API는 백엔드에 유지하지만, 핵심 연구 웹의 기본 흐름에는 포함하지 않습니다.
 
-## 빠른 실행
+## CLI로 실행
 
 ### 1. 사전 준비
 

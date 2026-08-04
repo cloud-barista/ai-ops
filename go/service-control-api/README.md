@@ -23,7 +23,43 @@ Natural-language request or Structured App Spec
 
 핵심 Flow는 AppDeploy, VM, Kubernetes 없이 로컬에서 독립 실행할 수 있습니다. 실제 배포와 플랫폼 전용 변환은 외부 시스템의 책임입니다.
 
-## 실행
+## VS Code 실행
+
+저장소 루트에 포함된 VS Code 구성으로 실행하는 방법을 권장합니다.
+
+1. `ai-ops` 저장소 루트를 VS Code로 엽니다. `go/service-control-api` 폴더만 따로 열지 않습니다.
+2. 권장 확장 `golang.go`를 설치하고 VS Code를 다시 시작합니다.
+3. **Run and Debug**에서 `geon: Agent Control (18080)`을 선택합니다.
+4. `F5`를 누릅니다.
+5. [http://127.0.0.1:18080/healthz](http://127.0.0.1:18080/healthz)가 `status=ok`인지 확인합니다.
+6. [http://127.0.0.1:18080/](http://127.0.0.1:18080/)에서 실험을 시작합니다.
+
+F5 구성은 저장소 루트, 18080 포트와 Mock Adapter를 자동으로 설정합니다.
+
+```text
+AIOPS_REPO_ROOT=${workspaceFolder}
+AIOPS_BIND_ADDRESS=127.0.0.1
+AIOPS_DEPLOYMENT_ADAPTER=mock
+PORT=18080
+```
+
+VS Code의 **Terminal > Run Task**에서는 다음 작업을 제공합니다.
+
+| Task | 역할 |
+| --- | --- |
+| `geon: 서버 실행 (18080)` | 디버거 없이 Agent Control 서버 실행 |
+| `geon: 전체 테스트` | 전체 Go 테스트 실행 |
+| `geon: Go Vet` | Go 정적 검사 실행 |
+
+Go 확장이 실행되지 않으면 터미널에서 `go version`을 확인하고 VS Code를 다시 시작합니다. 포트 충돌은 PowerShell에서 확인할 수 있습니다.
+
+```powershell
+Get-NetTCPConnection -LocalPort 18080 -State Listen
+```
+
+Runtime Agent는 Registry에 등록하는 것만으로 실행되지 않습니다. Runtime Agent를 선택하려면 등록한 `endpoint + invocation_path`에 응답하는 별도 HTTP 서버가 먼저 실행 중이어야 합니다.
+
+## CLI 실행
 
 Windows Git Bash에서 저장소 내부로 이동한 뒤 실행합니다.
 
