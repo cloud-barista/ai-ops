@@ -41,6 +41,7 @@ body {
 
 button,
 input,
+select,
 textarea {
   font: inherit;
 }
@@ -53,6 +54,7 @@ a {
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
+select:focus-visible,
 textarea:focus-visible,
 summary:focus-visible {
   outline: 3px solid rgb(8 125 112 / 25%);
@@ -623,6 +625,23 @@ summary:focus-visible {
   min-width: 0;
 }
 
+.decision-agent-picker {
+  display: grid;
+  grid-template-columns: minmax(240px, 420px) minmax(0, 1fr);
+  align-items: end;
+  gap: 14px;
+  margin: 0 0 16px;
+}
+
+.decision-agent-picker p {
+  min-width: 0;
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
 .automation-primary-input textarea {
   min-height: 142px;
 }
@@ -670,7 +689,8 @@ summary:focus-visible {
 }
 
 textarea,
-input {
+input,
+select {
   width: 100%;
   min-width: 0;
   border: 1px solid var(--line-strong);
@@ -693,8 +713,14 @@ input {
   padding: 9px 11px;
 }
 
+select {
+  min-height: 40px;
+  padding: 9px 34px 9px 11px;
+}
+
 textarea:focus,
-input:focus {
+input:focus,
+select:focus {
   border-color: var(--teal);
   outline: 0;
   box-shadow: 0 0 0 3px rgb(8 125 112 / 10%);
@@ -1291,6 +1317,14 @@ dialog::backdrop {
 }
 
 @media (max-width: 900px) {
+  .decision-agent-picker {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .decision-agent-picker p {
+    margin: 0;
+  }
+
   .app-shell {
     grid-template-columns: minmax(0, 1fr);
   }

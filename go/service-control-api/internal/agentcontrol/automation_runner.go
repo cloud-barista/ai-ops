@@ -266,6 +266,26 @@ func (runner *AutomationRunner) run(
 	}
 	run.Flow = &flow
 	run.DesiredDeploymentSpec = flow.DesiredDeploymentSpec
+	switch flow.State {
+	case StateAgentAuthorizationRejected:
+		return runner.failAndStore(
+			run,
+			StateAgentAuthorizationRejected,
+			"Decision Agent authorization was rejected.",
+		), nil
+	case StateAgentExecutionFailed:
+		return runner.failAndStore(
+			run,
+			StateAgentExecutionFailed,
+			"Decision Agent execution failed.",
+		), nil
+	case StateAgentResultRejected:
+		return runner.failAndStore(
+			run,
+			StateAgentResultRejected,
+			"Decision Agent result was rejected by Go Guard.",
+		), nil
+	}
 	if flow.DeploymentRequest != nil && run.DesiredDeploymentSpec != nil {
 		submission, submitErr := runner.deploymentAdapter.Submit(
 			ctx,

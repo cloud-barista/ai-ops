@@ -8,7 +8,30 @@ const { chromium } = require("playwright");
 
 const staticDir = path.join(__dirname, "static");
 
+const agentsPayload = {
+  defaults: { ai_application_automation: "AIApplicationAutomationAgent" },
+  eligible_decision_agents: [
+    {
+      name: "AIApplicationAutomationAgent",
+      source: "configuration",
+      capabilities: ["ai_application_automation"],
+      bounded_actions: ["generate_deployment_decision"],
+      enabled: true,
+    },
+    {
+      name: "RuntimeDeploymentAgent",
+      source: "runtime",
+      capabilities: ["ai_application_automation"],
+      bounded_actions: ["generate_deployment_decision"],
+      enabled: true,
+    },
+  ],
+  agents: [],
+};
+
 function completedRun(input) {
+  const selectedAgent = input.decision_agent || "AIApplicationAutomationAgent";
+  const selectedSource = selectedAgent === "RuntimeDeploymentAgent" ? "runtime" : "configuration";
   const desiredDeploymentSpec = {
     spec_version: "1.0",
     decision_id: "decision-web-001",
@@ -66,11 +89,24 @@ function completedRun(input) {
       trace_id: "trace-web-001",
       state: "DEPLOY_APPROVED",
       agent_authorization: {
-        agent_name: "AIApplicationAutomationAgent",
+        agent_name: selectedAgent,
         capability: "ai_application_automation",
         action: "generate_deployment_decision",
         authorized: true,
         reason: "allowed by registry",
+      },
+      agent_execution: {
+        agent_name: selectedAgent,
+        source: selectedSource,
+        status: "completed",
+        latency_ms: 17,
+        request_guard: { status: "APPROVED", checks: [] },
+        result_guard: { status: "APPROVED", checks: [] },
+        decision: {
+          action: "DEPLOY",
+          reason: "requirements and recommendation are compatible",
+          selected_candidate_id: "mock-gpu-l4",
+        },
       },
       decision: {
         action: "DEPLOY",
@@ -100,6 +136,7 @@ async function browserPage(viewport = { width: 1280, height: 900 }) {
     "app.js",
   ].map(async (name) => [name, await fs.readFile(path.join(staticDir, name), "utf8")])));
   const requests = [];
+  const flows = [];
   const browser = await chromium.launch({ headless: true, channel: "chrome" });
   const page = await browser.newPage({ viewport });
   const consoleErrors = [];
@@ -128,20 +165,22 @@ async function browserPage(viewport = { width: 1280, height: 900 }) {
       return;
     }
     if (pathname === "/api/v1/agents") {
-      await route.fulfill({ contentType: "application/json", body: JSON.stringify({ agents: [] }) });
+      await route.fulfill({ contentType: "application/json", body: JSON.stringify(agentsPayload) });
       return;
     }
     if (pathname === "/api/v1/agent-control/flows") {
-      await route.fulfill({ contentType: "application/json", body: JSON.stringify({ flows: [] }) });
+      await route.fulfill({ contentType: "application/json", body: JSON.stringify({ flows }) });
       return;
     }
     if (pathname === "/api/v1/agent-control/automation-runs" && request.method() === "POST") {
       const input = request.postDataJSON();
       requests.push(input);
+      const run = completedRun(input);
+      flows.splice(0, flows.length, run.flow);
       await route.fulfill({
         status: 201,
         contentType: "application/json",
-        body: JSON.stringify(completedRun(input)),
+        body: JSON.stringify(run),
       });
       return;
     }
@@ -185,6 +224,7 @@ test("one natural-language input automatically completes all four stages", async
     assert.equal(await page.locator("#automation-input-mode-natural").isChecked(), true);
     assert.equal(await page.locator("#automation-request").isVisible(), true);
     assert.equal(await page.locator("#automation-app-spec-json").isVisible(), false);
+    await page.locator("#decision-agent-select").selectOption("RuntimeDeploymentAgent");
 
     await page.locator("#automation-request").fill(
       "GPU 1개, CPU 4코어, 메모리 8GiB로 AI 추론 서비스를 배포해 주세요.",
@@ -199,6 +239,7 @@ test("one natural-language input automatically completes all four stages", async
       input_type: "natural_language",
       request: "GPU 1개, CPU 4코어, 메모리 8GiB로 AI 추론 서비스를 배포해 주세요.",
       requested_by: "geon-web",
+      decision_agent: "RuntimeDeploymentAgent",
     });
     assert.deepEqual(
       await page.locator("#agent-control-stage-flow > li").evaluateAll((items) => (
@@ -214,6 +255,10 @@ test("one natural-language input automatically completes all four stages", async
     assert.equal(await page.locator("#automation-analysis-mode").textContent(), "local_rule");
     assert.equal(await page.locator("#agent-control-candidate").textContent(), "mock-gpu-l4");
     assert.equal(await page.locator("#agent-control-authorization").textContent(), "승인");
+    assert.equal(await page.locator("#agent-control-agent-name").textContent(), "RuntimeDeploymentAgent");
+    assert.equal(await page.locator("#agent-control-agent-source").textContent(), "runtime");
+    assert.equal(await page.locator("#agent-control-request-guard").textContent(), "APPROVED");
+    assert.equal(await page.locator("#agent-control-result-guard").textContent(), "APPROVED");
     assert.equal(await page.locator("#agent-control-guard").textContent(), "APPROVED");
     assert.equal(await page.locator("#agent-control-adapter").textContent(), "mock");
     assert.equal(
@@ -224,6 +269,9 @@ test("one natural-language input automatically completes all four stages", async
     assert.match(await page.locator("#agent-control-result-json").textContent(), /deployment_submission/);
     assert.match(await page.locator("#automation-application-profile-json").textContent(), /profile-web-001/);
     assert.match(await page.locator("#automation-resource-recommendation-json").textContent(), /mock-gpu-l4/);
+    await page.locator('[data-view-target="results"]').click();
+    assert.match(await page.locator("#experiment-agent-summary").textContent(), /RuntimeDeploymentAgent/);
+    assert.match(await page.locator("#experiment-flow-json").textContent(), /agent_execution/);
     assert.deepEqual(consoleErrors, []);
   } finally {
     await browser.close();
@@ -260,6 +308,7 @@ test("structured App Spec mode uses the same one-command endpoint without horizo
       assert.deepEqual(requests[0], {
         input_type: "structured",
         requested_by: "geon-web",
+        decision_agent: "AIApplicationAutomationAgent",
         app_spec: appSpec,
       });
       const layout = await page.evaluate(() => ({

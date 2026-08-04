@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 
@@ -48,6 +49,86 @@ func TestAutomationRunAPIExecutesAllThreeStagesFromOneRequest(t *testing.T) {
 	if detail.Code != http.StatusOK ||
 		!strings.Contains(detail.Body.String(), `"run_id":"`+run.RunID+`"`) {
 		t.Fatalf("automation run detail: code=%d body=%s", detail.Code, detail.Body.String())
+	}
+}
+
+func TestAutomationRunAPIUsesSelectedDecisionAgent(t *testing.T) {
+	var calls int
+	runtimeAgent := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+		calls++
+		var dispatched AgentDispatchRequest
+		if err := json.NewDecoder(request.Body).Decode(&dispatched); err != nil {
+			t.Errorf("decode Runtime Agent request: %v", err)
+		}
+		response.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(response).Encode(AgentExecutionResult{
+			RunID:  dispatched.RunID,
+			Agent:  dispatched.Agent,
+			Status: "completed",
+			Proposal: AgentProposal{
+				Action: dispatched.Action,
+				Parameters: map[string]any{
+					"decision":              agentcontrol.ActionDeploy,
+					"selected_candidate_id": "mock-gpu-l4",
+					"reason":                "Runtime Agent selected the catalog candidate.",
+					"confidence":            0.92,
+				},
+			},
+			DomainValidation: "deployment_decision",
+		})
+	}))
+	defer runtimeAgent.Close()
+
+	server := NewServer(NewServerConfig())
+	registration := performJSONRequest(
+		t,
+		server,
+		http.MethodPost,
+		"/api/v1/agents",
+		`{
+			"name":"RuntimeDeploymentAgent",
+			"version":"1.0.0",
+			"role":"Generate one guarded deployment decision.",
+			"endpoint":"`+runtimeAgent.URL+`",
+			"invocation_path":"/v1/decide",
+			"capabilities":["ai_application_automation"],
+			"bounded_actions":["generate_deployment_decision"],
+			"enabled":true
+		}`,
+	)
+	if registration.Code != http.StatusCreated {
+		t.Fatalf("register Runtime Agent: code=%d body=%s", registration.Code, registration.Body.String())
+	}
+
+	response := performJSONRequest(
+		t,
+		server,
+		http.MethodPost,
+		"/api/v1/agent-control/automation-runs",
+		`{
+			"input_type":"natural_language",
+			"request":"GPU 1개, CPU 4코어, 메모리 8GiB, 스토리지 20GiB로 추론 서비스를 배포해 주세요.",
+			"requested_by":"api-test",
+			"decision_agent":"RuntimeDeploymentAgent"
+		}`,
+	)
+	if response.Code != http.StatusCreated {
+		t.Fatalf("automation run: code=%d body=%s", response.Code, response.Body.String())
+	}
+	var run agentcontrol.AutomationRun
+	if err := json.Unmarshal(response.Body.Bytes(), &run); err != nil {
+		t.Fatalf("decode automation run: %v", err)
+	}
+	if calls != 1 || run.Flow == nil || run.Flow.AgentExecution == nil {
+		t.Fatalf("Runtime Agent evidence: calls=%d flow=%#v", calls, run.Flow)
+	}
+	if run.Input.DecisionAgent != "RuntimeDeploymentAgent" ||
+		run.Flow.AgentExecution.AgentName != "RuntimeDeploymentAgent" ||
+		run.Flow.AgentExecution.Source != agentSourceRuntime {
+		t.Fatalf("selected Runtime Agent evidence = %#v", run)
+	}
+	if run.Flow.AutomationRunID != run.RunID || run.Flow.CorrelationID != run.CorrelationID {
+		t.Fatalf("run identity is not connected: %#v", run.Flow)
 	}
 }
 

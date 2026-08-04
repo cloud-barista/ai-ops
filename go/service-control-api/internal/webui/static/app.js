@@ -12,7 +12,7 @@ const API = Object.freeze({
 });
 
 const VIEW_LABELS = Object.freeze({
-  "agent-control": ["KHU AUTOMATION AGENT", "AI 응용 자동화 에이전트"],
+  "agent-control": ["KHU AUTOMATION AGENT", "AI 응용 배포 자동화"],
   agents: ["AGENT REGISTRY POLICY", "Agent 및 정책"],
   results: ["DECISION EVIDENCE", "실험 결과"],
 });
@@ -154,6 +154,8 @@ const STRUCTURED_APP_SPEC_SAMPLE = Object.freeze({
 const state = {
   flows: [],
   agents: [],
+  eligibleDecisionAgents: [],
+  agentDefaults: {},
   activeFlowID: "",
   activeAutomationRun: null,
   activeView: "agent-control",
@@ -284,6 +286,10 @@ function setAutomationInputMode(mode) {
 }
 
 function buildAutomationRunPayload() {
+  const decisionAgent = byID("decision-agent-select").value.trim();
+  if (!decisionAgent) {
+    throw new Error("배포 판단 Agent를 선택하세요.");
+  }
   const mode = document.querySelector(
     'input[name="automation_input_mode"]:checked',
   )?.value;
@@ -291,6 +297,7 @@ function buildAutomationRunPayload() {
     return {
       input_type: "structured",
       requested_by: "geon-web",
+      decision_agent: decisionAgent,
       app_spec: parseProtocolMessage(
         "automation-app-spec-json",
         "구조화 App Spec",
@@ -305,6 +312,7 @@ function buildAutomationRunPayload() {
     input_type: "natural_language",
     request,
     requested_by: "geon-web",
+    decision_agent: decisionAgent,
   };
 }
 
@@ -331,6 +339,7 @@ function renderAgentControlStages(record) {
     ),
     decision: Boolean(
       flow?.decision ||
+      flow?.agent_execution ||
       flow?.agent_authorization?.authorized === false ||
       record?.status === "COMPLETED",
     ),
@@ -347,7 +356,11 @@ function renderAgentControlStages(record) {
     ["recommendation", "decision", "adapter"].forEach((stage) =>
       blocked.add(stage),
     );
-  } else if (flow?.state === "AGENT_AUTHORIZATION_REJECTED") {
+  } else if ([
+    "AGENT_AUTHORIZATION_REJECTED",
+    "AGENT_EXECUTION_FAILED",
+    "AGENT_RESULT_REJECTED",
+  ].includes(flow?.state)) {
     blocked.add("decision");
     blocked.add("adapter");
   } else if (
@@ -433,6 +446,7 @@ function scalingSummary(flow) {
 
 function renderExperimentDetail(flow) {
   if (!flow) {
+    byID("experiment-agent-summary").textContent = "Flow를 선택하세요.";
     byID("experiment-decision-summary").textContent = "Flow를 선택하세요.";
     byID("experiment-scaling-summary").textContent =
       "배포 상태와 성능 Feedback을 기다리고 있습니다.";
@@ -443,6 +457,10 @@ function renderExperimentDetail(flow) {
   }
   const decision = flow.decision || {};
   const guard = flow.guard || {};
+  const execution = flow.agent_execution || {};
+  byID("experiment-agent-summary").textContent = execution.agent_name
+    ? `${execution.agent_name} · ${text(execution.source)} · ${text(execution.status)}`
+    : text(flow.agent_authorization?.agent_name, "Agent 증거 없음");
   byID("experiment-decision-summary").textContent =
     `${text(decision.action, flow.state)} · Guard ${text(guard.status)}`;
   byID("experiment-scaling-summary").textContent = scalingSummary(flow);
@@ -462,6 +480,12 @@ function renderAgentControlFlow(flow) {
     byID("agent-control-adapter").textContent = "-";
     byID("agent-control-adapter-status").textContent = "-";
     byID("agent-control-candidate").textContent = "-";
+    byID("agent-control-agent-name").textContent = "-";
+    byID("agent-control-agent-source").textContent = "-";
+    byID("agent-control-dispatch-status").textContent = "-";
+    byID("agent-control-agent-latency").textContent = "-";
+    byID("agent-control-request-guard").textContent = "-";
+    byID("agent-control-result-guard").textContent = "-";
     byID("agent-control-reason").textContent =
       "요청을 입력한 뒤 자동 분석 및 판단을 실행하세요.";
     byID("agent-control-result-json").textContent =
@@ -473,6 +497,7 @@ function renderAgentControlFlow(flow) {
 
   state.activeFlowID = flow.correlation_id;
   const authorization = flow.agent_authorization || {};
+  const execution = flow.agent_execution || {};
   const decision = flow.decision || {};
   const guard = flow.guard || {};
   const correction = decision.correction_request;
@@ -488,6 +513,20 @@ function renderAgentControlFlow(flow) {
       : authorization.authorized === false
         ? "거부"
         : "-";
+  byID("agent-control-agent-name").textContent = text(
+    execution.agent_name,
+    authorization.agent_name,
+  );
+  byID("agent-control-agent-source").textContent = text(execution.source);
+  byID("agent-control-dispatch-status").textContent = text(execution.status);
+  byID("agent-control-agent-latency").textContent =
+    execution.latency_ms === undefined ? "-" : `${execution.latency_ms} ms`;
+  byID("agent-control-request-guard").textContent = text(
+    execution.request_guard?.status,
+  );
+  byID("agent-control-result-guard").textContent = text(
+    execution.result_guard?.status,
+  );
   byID("agent-control-action").textContent = text(decision.action);
   byID("agent-control-guard").textContent = text(guard.status);
   byID("agent-control-candidate").textContent = text(
@@ -504,7 +543,9 @@ function renderAgentControlFlow(flow) {
     trace_id: flow.trace_id,
     profile_id: flow.profile_id,
     state: flow.state,
+    requested_decision_agent: flow.requested_decision_agent,
     agent_authorization: flow.agent_authorization,
+    agent_execution: flow.agent_execution,
     decision: flow.decision,
     guard: flow.guard,
     desired_deployment_spec: desiredDeploymentSpec(flow),
@@ -557,7 +598,9 @@ function renderAutomationRun(run) {
     trace_id: run.trace_id,
     status: run.status,
     analyzer: analysis.evidence || { mode: analysis.mode },
+    requested_decision_agent: run.input?.decision_agent,
     agent_authorization: flow?.agent_authorization,
+    agent_execution: flow?.agent_execution,
     decision: flow?.decision,
     guard: flow?.guard,
     desired_deployment_spec:
@@ -815,12 +858,75 @@ function renderAgents() {
   window.lucide?.createIcons();
 }
 
+function decisionAgentSourceLabel(source) {
+  return source === "runtime" ? "Runtime" : "Internal";
+}
+
+function updateDecisionAgentHelp() {
+  const select = byID("decision-agent-select");
+  const selected = state.eligibleDecisionAgents.find(
+    (agent) => agent.name === select.value,
+  );
+  byID("decision-agent-help").textContent = selected
+    ? `${decisionAgentSourceLabel(selected.source)} Agent · Registry 권한 확인 후 외부 Go Guard를 적용합니다.`
+    : "Agent Registry에서 배포 판단 권한을 가진 Agent만 표시합니다.";
+}
+
+function renderDecisionAgentOptions() {
+  const select = byID("decision-agent-select");
+  const previous = select.value;
+  select.replaceChildren();
+  if (state.eligibleDecisionAgents.length === 0) {
+    const option = createElement("option", "", "사용 가능한 배포 판단 Agent가 없습니다.");
+    option.value = "";
+    option.disabled = true;
+    option.selected = true;
+    select.append(option);
+    select.disabled = true;
+    updateDecisionAgentHelp();
+    return;
+  }
+
+  select.disabled = false;
+  state.eligibleDecisionAgents.forEach((agent) => {
+    const option = createElement(
+      "option",
+      "",
+      `${agent.name} (${decisionAgentSourceLabel(agent.source)})`,
+    );
+    option.value = agent.name;
+    option.dataset.source = agent.source;
+    select.append(option);
+  });
+  const defaultAgent = state.agentDefaults.ai_application_automation;
+  const selectedName = state.eligibleDecisionAgents.some(
+    (agent) => agent.name === previous,
+  )
+    ? previous
+    : state.eligibleDecisionAgents.some((agent) => agent.name === defaultAgent)
+      ? defaultAgent
+      : state.eligibleDecisionAgents[0].name;
+  select.value = selectedName;
+  updateDecisionAgentHelp();
+}
+
 async function loadAgents() {
   try {
     const payload = await apiRequest(API.agents);
     state.agents = Array.isArray(payload.agents) ? payload.agents : [];
+    state.eligibleDecisionAgents = Array.isArray(payload.eligible_decision_agents)
+      ? payload.eligible_decision_agents
+      : [];
+    state.agentDefaults = payload.defaults || {};
+    byID("core-default-agent").textContent = text(
+      state.agentDefaults.ai_application_automation,
+      "미설정",
+    );
     renderAgents();
+    renderDecisionAgentOptions();
   } catch (error) {
+    state.eligibleDecisionAgents = [];
+    renderDecisionAgentOptions();
     showToast(error.message, "error");
   }
 }
@@ -1103,6 +1209,10 @@ function bindEvents() {
   byID("automation-run-form").addEventListener(
     "submit",
     submitAutomationRun,
+  );
+  byID("decision-agent-select").addEventListener(
+    "change",
+    updateDecisionAgentHelp,
   );
   document
     .querySelectorAll('input[name="automation_input_mode"]')

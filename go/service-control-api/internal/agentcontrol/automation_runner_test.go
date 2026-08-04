@@ -433,6 +433,85 @@ func TestAutomationRunnerRecordsSanitizedAdapterFailure(t *testing.T) {
 	}
 }
 
+func TestAutomationRunnerStoresDecisionAgentFailuresWithoutAdapterSubmission(t *testing.T) {
+	tests := []struct {
+		name       string
+		result     DecisionAgentResult
+		runtimeErr error
+		wantState  string
+	}{
+		{
+			name: "authorization rejected",
+			result: DecisionAgentResult{
+				AgentName: "RuntimeDeploymentAgent",
+				Source:    "runtime",
+				Status:    "rejected",
+				RequestGuard: GuardResult{
+					Status: GuardRejected,
+					Checks: []GuardCheck{{Name: "agent_request_guard", Passed: false, Reason: "action is not authorized"}},
+				},
+			},
+			runtimeErr: errors.New("decision Agent request rejected"),
+			wantState:  StateAgentAuthorizationRejected,
+		},
+		{
+			name: "execution failed",
+			result: DecisionAgentResult{
+				AgentName:    "RuntimeDeploymentAgent",
+				Source:       "runtime",
+				Status:       "failed",
+				RequestGuard: approvedDecisionGuard("request approved"),
+			},
+			runtimeErr: errors.New("runtime endpoint unavailable"),
+			wantState:  StateAgentExecutionFailed,
+		},
+		{
+			name: "result rejected",
+			result: DecisionAgentResult{
+				AgentName:    "RuntimeDeploymentAgent",
+				Source:       "runtime",
+				Status:       "completed",
+				RequestGuard: approvedDecisionGuard("request approved"),
+				ResultGuard: GuardResult{
+					Status: GuardRejected,
+					Checks: []GuardCheck{{Name: "agent_result_guard", Passed: false, Reason: "invalid candidate"}},
+				},
+			},
+			runtimeErr: errors.New("decision Agent result rejected"),
+			wantState:  StateAgentResultRejected,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			runtime := &stubDecisionAgentRuntime{result: test.result, err: test.runtimeErr}
+			service := NewServiceWithDecisionRuntime(nil, nil, runtime)
+			adapter := &recordingDeploymentAdapter{}
+			runner := testAutomationRunnerWithAdapter(t, service, adapter)
+			input := approvedAutomationInput()
+			input.DecisionAgent = "RuntimeDeploymentAgent"
+
+			run, err := runner.Run(context.Background(), input)
+			if err != nil {
+				t.Fatalf("run must return stored failure evidence, got %v", err)
+			}
+			if run.Status != AutomationRunStatusFailed || run.ErrorCode != test.wantState {
+				t.Fatalf("run status = %q code = %q, want FAILED/%s", run.Status, run.ErrorCode, test.wantState)
+			}
+			if run.Flow == nil || run.Flow.State != test.wantState || run.Flow.AgentExecution == nil {
+				t.Fatalf("failure Flow evidence = %#v", run.Flow)
+			}
+			if adapter.calls != 0 || run.DeploymentSubmission != nil {
+				t.Fatalf("failed Agent must not submit Adapter: calls=%d submission=%#v", adapter.calls, run.DeploymentSubmission)
+			}
+			stored, ok := runner.Get(run.RunID)
+			if !ok || stored.Flow == nil || stored.Flow.State != test.wantState {
+				t.Fatalf("stored failure run = %#v", stored)
+			}
+		})
+	}
+}
+
 func testApplicationAnalysisRequest() ApplicationAnalysisRequestEnvelope {
 	return ApplicationAnalysisRequestEnvelope{
 		Envelope: Envelope{

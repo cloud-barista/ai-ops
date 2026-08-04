@@ -18,7 +18,7 @@
 
       <nav class="primary-nav">
         <button class="nav-item is-active" type="button" data-view-target="agent-control">
-          <i data-lucide="workflow" aria-hidden="true"></i><span>자동화 에이전트</span>
+          <i data-lucide="workflow" aria-hidden="true"></i><span>자동화 실행</span>
         </button>
         <button class="nav-item" type="button" data-view-target="agents">
           <i data-lucide="shield-check" aria-hidden="true"></i><span>Agent 및 정책</span>
@@ -41,7 +41,7 @@
       <header class="topbar">
         <div>
           <p class="eyebrow" id="view-eyebrow">KHU AUTOMATION AGENT</p>
-          <h1 id="view-title">AI 응용 자동화 에이전트</h1>
+          <h1 id="view-title">AI 응용 배포 자동화</h1>
         </div>
         <div class="topbar-actions">
           <span class="health-pill" id="health-pill">
@@ -125,6 +125,16 @@
               </label>
             </fieldset>
 
+            <div class="decision-agent-picker">
+              <label class="field" for="decision-agent-select">
+                <span>배포 판단 Agent</span>
+                <select id="decision-agent-select" name="decision_agent" required>
+                  <option value="">Agent 정보를 불러오는 중입니다.</option>
+                </select>
+              </label>
+              <p id="decision-agent-help">Agent Registry에서 배포 판단 권한을 가진 Agent만 표시합니다.</p>
+            </div>
+
             <div class="automation-primary-input" data-automation-input-section="natural_language">
               <label class="json-input-block" for="automation-request">
                 <span class="input-label"><strong>배포·운영 요구사항</strong><small>한국어 또는 영어</small></span>
@@ -165,9 +175,15 @@
             <div><span>실행 상태</span><strong id="agent-control-status">WAITING</strong></div>
             <div><span>분석 방식</span><strong id="automation-analysis-mode">-</strong></div>
             <div><span>선택 후보</span><strong id="agent-control-candidate">-</strong></div>
+            <div><span>선택 Agent</span><strong id="agent-control-agent-name">-</strong></div>
+            <div><span>Agent 출처</span><strong id="agent-control-agent-source">-</strong></div>
+            <div><span>Dispatch 상태</span><strong id="agent-control-dispatch-status">-</strong></div>
+            <div><span>Agent 지연시간</span><strong id="agent-control-agent-latency">-</strong></div>
             <div><span>Registry 권한</span><strong id="agent-control-authorization">-</strong></div>
+            <div><span>Request Guard</span><strong id="agent-control-request-guard">-</strong></div>
+            <div><span>Result Guard</span><strong id="agent-control-result-guard">-</strong></div>
             <div><span>배포 결정</span><strong id="agent-control-action">-</strong></div>
-            <div><span>Go Guard</span><strong id="agent-control-guard">-</strong></div>
+            <div><span>Domain Guard</span><strong id="agent-control-guard">-</strong></div>
             <div><span>Adapter</span><strong id="agent-control-adapter">-</strong></div>
             <div><span>전달 상태</span><strong id="agent-control-adapter-status">-</strong></div>
           </div>
@@ -233,7 +249,7 @@
         </div>
 
         <section class="policy-band" id="core-policy-summary" aria-label="핵심 자동화 정책">
-          <div><span>Required Agent</span><strong>AIApplicationAutomationAgent</strong></div>
+          <div><span>Default Agent</span><strong id="core-default-agent">AIApplicationAutomationAgent</strong></div>
           <div><span>Capability</span><strong>ai_application_automation</strong></div>
           <div><span>Bounded Action</span><strong>generate_deployment_decision</strong></div>
           <div><span>Guard</span><strong>자동 적용</strong></div>
@@ -307,6 +323,10 @@
               <button class="icon-button" type="button" data-copy-target="experiment-flow-json" title="Flow JSON 복사" aria-label="Flow JSON 복사">
                 <i data-lucide="copy" aria-hidden="true"></i>
               </button>
+            </div>
+            <div class="experiment-summary-block">
+              <span>실행 Agent</span>
+              <strong id="experiment-agent-summary">Flow를 선택하세요.</strong>
             </div>
             <div class="experiment-summary-block">
               <span>배포 판단</span>
@@ -393,12 +413,12 @@
       <div class="dialog-body dialog-grid">
         <label class="field"><span>Name</span><input name="name" value="ResearchRuntimeAgent" required></label>
         <label class="field"><span>Version</span><input name="version" value="0.1.0" required></label>
-        <label class="field full"><span>Role</span><input name="role" value="Execute one bounded research action." required></label>
+        <label class="field full"><span>Role</span><input name="role" value="Generate one guarded AI application deployment decision." required></label>
         <label class="field"><span>Endpoint</span><input name="endpoint" type="url" value="http://127.0.0.1:19090" required></label>
         <label class="field"><span>Invocation Path</span><input name="invocation_path" value="/execute" required></label>
         <label class="field full"><span>Auth Token Environment Variable</span><input name="auth_token_env" placeholder="RESEARCH_AGENT_TOKEN"></label>
-        <label class="field full"><span>Capabilities</span><input name="capabilities" value="research_evaluation" required></label>
-        <label class="field full"><span>Bounded Actions</span><input name="bounded_actions" value="evaluate_result" required></label>
+        <label class="field full"><span>Capabilities</span><input name="capabilities" value="ai_application_automation" required></label>
+        <label class="field full"><span>Bounded Actions</span><input name="bounded_actions" value="generate_deployment_decision" required></label>
       </div>
       <div class="dialog-footer">
         <button class="button button-secondary" type="button" data-close-dialog>취소</button>
