@@ -586,7 +586,7 @@ type Flow struct {
 	ProfileID              string                           `json:"profile_id,omitempty"`
 	AutomationRunID        string                           `json:"automation_run_id,omitempty"`
 	RequestedDecisionAgent string                           `json:"requested_decision_agent,omitempty"`
-	State                  string                           `json:"state"`
+	State                  string                           `json:"state" enums:"WAITING_FOR_APPLICATION_CONTEXT,WAITING_FOR_RESOURCE_RECOMMENDATION,READY,AGENT_AUTHORIZATION_REJECTED,AGENT_EXECUTION_FAILED,AGENT_RESULT_REJECTED,DEPLOY_APPROVED,REJECTED,RETRY_REQUIRED"`
 	ApplicationContext     *ApplicationContextEnvelope      `json:"application_context,omitempty"`
 	ResourceRecommendation *ResourceRecommendationEnvelope  `json:"resource_recommendation,omitempty"`
 	AgentAuthorization     *AgentAuthorization              `json:"agent_authorization,omitempty"`

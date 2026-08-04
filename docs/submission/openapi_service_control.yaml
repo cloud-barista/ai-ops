@@ -1010,6 +1010,9 @@ components:
           type: string
           description: Natural-language deployment and operation request
         requested_by: {type: string}
+        decision_agent:
+          type: string
+          description: Optional Agent Registry name. When omitted, the ai_application_automation default is used.
         app_spec:
           $ref: "#/components/schemas/StructuredAppSpec"
       description: natural_language requires request; structured requires app_spec.
@@ -1514,6 +1517,8 @@ components:
       properties:
         correlation_id: {type: string}
         trace_id: {type: string}
+        automation_run_id: {type: string}
+        requested_decision_agent: {type: string}
         profile_id: {type: string}
         state:
           type: string
@@ -1522,6 +1527,8 @@ components:
             - WAITING_FOR_RESOURCE_RECOMMENDATION
             - READY
             - AGENT_AUTHORIZATION_REJECTED
+            - AGENT_EXECUTION_FAILED
+            - AGENT_RESULT_REJECTED
             - DEPLOY_APPROVED
             - REJECTED
             - RETRY_REQUIRED
@@ -1531,6 +1538,8 @@ components:
           $ref: "#/components/schemas/ResourceRecommendationEnvelope"
         agent_authorization:
           $ref: "#/components/schemas/AgentAuthorization"
+        agent_execution:
+          $ref: "#/components/schemas/DecisionAgentResult"
         decision:
           $ref: "#/components/schemas/AutomationDecision"
         deployment_plan:
@@ -1556,7 +1565,7 @@ components:
       properties:
         agent_name:
           type: string
-          enum: [AIApplicationAutomationAgent]
+          description: Selected configuration or Runtime Agent name
         capability:
           type: string
           enum: [ai_application_automation]
@@ -1565,6 +1574,21 @@ components:
           enum: [generate_deployment_decision]
         authorized: {type: boolean}
         reason: {type: string}
+    DecisionAgentResult:
+      type: object
+      required: [agent_name, source, status, request_guard, result_guard, decision, latency_ms]
+      properties:
+        agent_name: {type: string}
+        source: {type: string, enum: [configuration, runtime]}
+        status: {type: string, enum: [completed, rejected, failed]}
+        request_guard:
+          $ref: "#/components/schemas/AgentControlGuardResult"
+        result_guard:
+          $ref: "#/components/schemas/AgentControlGuardResult"
+        decision:
+          $ref: "#/components/schemas/AutomationDecision"
+        latency_ms: {type: integer, format: int64, minimum: 0}
+        message: {type: string}
     ValidationIssue:
       type: object
       required: [field, code, reason]
@@ -2156,7 +2180,7 @@ components:
           additionalProperties: true
         domain_validation:
           type: string
-          enum: [manifest_guard, not_registered]
+          enum: [manifest_guard, deployment_decision, not_registered]
     AgentExecutionResponse:
       type: object
       required: [request_id, run_id, selected_agent, request_guard, execution, result_guard]

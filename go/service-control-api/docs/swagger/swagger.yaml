@@ -231,6 +231,8 @@ definitions:
     properties:
       app_spec:
         $ref: '#/definitions/agentcontrol.StructuredAppSpec'
+      decision_agent:
+        type: string
       input_type:
         type: string
       request:
@@ -270,6 +272,25 @@ definitions:
       cost_per_hour_max:
         type: number
       currency:
+        type: string
+    type: object
+  agentcontrol.DecisionAgentResult:
+    properties:
+      agent_name:
+        type: string
+      decision:
+        $ref: '#/definitions/agentcontrol.AutomationDecision'
+      latency_ms:
+        type: integer
+      message:
+        type: string
+      request_guard:
+        $ref: '#/definitions/agentcontrol.GuardResult'
+      result_guard:
+        $ref: '#/definitions/agentcontrol.GuardResult'
+      source:
+        type: string
+      status:
         type: string
     type: object
   agentcontrol.DeclaredApplicationSpec:
@@ -520,8 +541,12 @@ definitions:
     properties:
       agent_authorization:
         $ref: '#/definitions/agentcontrol.AgentAuthorization'
+      agent_execution:
+        $ref: '#/definitions/agentcontrol.DecisionAgentResult'
       application_context:
         $ref: '#/definitions/agentcontrol.ApplicationContextEnvelope'
+      automation_run_id:
+        type: string
       correlation_id:
         type: string
       decision:
@@ -544,11 +569,23 @@ definitions:
         type: string
       reasoning_comparison:
         $ref: '#/definitions/agentcontrol.ReasoningComparison'
+      requested_decision_agent:
+        type: string
       resource_recommendation:
         $ref: '#/definitions/agentcontrol.ResourceRecommendationEnvelope'
       scaling_decision:
         $ref: '#/definitions/agentcontrol.ScalingDecision'
       state:
+        enum:
+        - WAITING_FOR_APPLICATION_CONTEXT
+        - WAITING_FOR_RESOURCE_RECOMMENDATION
+        - READY
+        - AGENT_AUTHORIZATION_REJECTED
+        - AGENT_EXECUTION_FAILED
+        - AGENT_RESULT_REJECTED
+        - DEPLOY_APPROVED
+        - REJECTED
+        - RETRY_REQUIRED
         type: string
       trace_id:
         type: string
@@ -2362,10 +2399,10 @@ paths:
     post:
       consumes:
       - application/json
-      description: Accept one natural-language request or structured App Spec and
-        automatically execute Requirement Analyzer, mock Resource Recommender, Agent
-        Registry authorization, AIApplicationAutomationAgent decision, and Go Guard
-        validation.
+      description: Accept one natural-language request or structured App Spec, resolve
+        the selected or default eligible decision Agent from Agent Registry, dispatch
+        its DEPLOY/REJECT/RETRY decision, and validate the result with external Go
+        Guards before producing a DesiredDeploymentSpec.
       operationId: PostAgentControlAutomationRun
       parameters:
       - description: One-shot automation request

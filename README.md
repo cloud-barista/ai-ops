@@ -27,7 +27,8 @@
 → Mock Resource Recommender
 → ResourceRecommendation
 → Agent Registry 권한 확인
-→ AIApplicationAutomationAgent
+→ Registry에서 선택한 배포 판단 Agent
+  (기본 Internal 또는 등록 Runtime)
 → DEPLOY / REJECT / RETRY
 → Go Guard
 → DesiredDeploymentSpec
@@ -103,13 +104,13 @@ curl http://127.0.0.1:18080/healthz
 
 웹은 연구 흐름에 맞춰 3개 화면만 제공합니다.
 
-### 1. 자동화 에이전트
+### 1. 자동화 실행
 
 1. 기본 입력 방식인 **자연어 요청**을 선택합니다.
-2. 배포·운영 요구사항을 한 번 입력합니다.
-3. **자동 분석 및 판단**을 누릅니다.
+2. **배포 판단 Agent**에서 기본 Internal Agent 또는 등록한 Runtime Agent를 선택합니다.
+3. 배포·운영 요구사항을 한 번 입력하고 **자동 분석 및 판단**을 누릅니다.
 4. `요구사항 분석 → 인프라 추천 → Agent 배포 판단 → Adapter 전달` 4단계 상태를 확인합니다.
-5. 분석 방식, 선택 후보, Registry 권한, 배포 결정, Go Guard를 확인합니다.
+5. 선택 Agent·출처·Dispatch 상태와 Request/Result/Domain Guard를 확인합니다.
 6. 결과 JSON의 `desired_deployment_spec`과 `deployment_submission`을 확인합니다.
 7. `mock / SIMULATED`는 독립 PoC 모의실험이며 실제 VM 배포가 아님을 확인합니다.
 8. 필요하면 **자동 생성된 중간 결과**에서 `ApplicationProfile`과 `ResourceRecommendation`을 확인합니다.
@@ -118,16 +119,16 @@ curl http://127.0.0.1:18080/healthz
 
 ### 2. Agent 및 정책
 
-- 기본 Agent `AIApplicationAutomationAgent`를 확인합니다.
+- 기본 Internal Agent `AIApplicationAutomationAgent`를 확인합니다.
 - 핵심 capability `ai_application_automation`을 확인합니다.
 - 허용 Action `generate_deployment_decision`을 확인합니다.
-- 필요하면 시험용 Runtime Agent를 등록하거나 삭제합니다.
+- 필요하면 같은 capability와 Action을 가진 Runtime Agent를 등록하거나 삭제합니다.
 
-등록만으로 외부 Agent가 핵심 자동화 흐름을 대체하지 않습니다. 현재 기본 자동화 판단은 설정 Agent인 `AIApplicationAutomationAgent`가 담당합니다.
+등록된 Runtime Agent는 **자동화 실행** 화면의 선택 목록에 나타나며, 선택하면 `DEPLOY`, `REJECT`, `RETRY` 판단을 실제 HTTP endpoint에 요청합니다. Runtime Agent 오류나 결과 거부 시 Internal Agent로 자동 대체하지 않으며 Adapter도 호출하지 않습니다. Runtime 등록 정보는 프로세스 메모리에만 저장되므로 서버 재시작 시 사라집니다.
 
 ### 3. 실험 결과
 
-- 저장된 Flow별 판단·Guard·Desired Deployment Spec을 확인합니다.
+- 저장된 Flow별 선택 Agent·출처·Guard·판단·Desired Deployment Spec을 확인합니다.
 - 선택적으로 규칙 기반, Qwen, Qwen+Guard 추론 결과를 비교합니다.
 - SLO 위반 Feedback 샘플로 `SCALE_OUT` 판단을 검증합니다.
 - 개별 기록 또는 전체 기록을 삭제합니다.

@@ -62,7 +62,7 @@ type AgentControlReasoningComparisonRequest struct {
 // RestPostAutomationRun godoc
 // @ID PostAgentControlAutomationRun
 // @Summary Run requirement analysis, resource recommendation, and Agent decision
-// @Description Accept one natural-language request or structured App Spec and automatically execute Requirement Analyzer, mock Resource Recommender, Agent Registry authorization, AIApplicationAutomationAgent decision, and Go Guard validation.
+// @Description Accept one natural-language request or structured App Spec, resolve the selected or default eligible decision Agent from Agent Registry, dispatch its DEPLOY/REJECT/RETRY decision, and validate the result with external Go Guards before producing a DesiredDeploymentSpec.
 // @Tags AI Application Automation Agent
 // @Accept json
 // @Produce json

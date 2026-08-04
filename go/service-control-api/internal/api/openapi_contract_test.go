@@ -112,6 +112,32 @@ func TestOpenAPIDocumentsAutomaticThreeStageAgentFlow(t *testing.T) {
 	}
 }
 
+func TestOpenAPIDocumentsRegistrySelectedDecisionAgent(t *testing.T) {
+	config := NewServerConfig()
+	documents := []string{
+		config.OpenAPIPath,
+		config.path("go", "service-control-api", "docs", "swagger", "swagger.json"),
+		config.path("go", "service-control-api", "docs", "swagger", "swagger.yaml"),
+	}
+	for _, path := range documents {
+		content, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("read OpenAPI %s: %v", path, err)
+		}
+		for _, expected := range []string{
+			"decision_agent",
+			"requested_decision_agent",
+			"agent_execution",
+			"AGENT_EXECUTION_FAILED",
+			"AGENT_RESULT_REJECTED",
+		} {
+			if !strings.Contains(string(content), expected) {
+				t.Fatalf("OpenAPI %s is missing selected-Agent contract %q", path, expected)
+			}
+		}
+	}
+}
+
 func TestSubmissionOpenAPIIncludesAgentControlDeletionAndScalingDecision(t *testing.T) {
 	config := NewServerConfig()
 	content, err := os.ReadFile(config.OpenAPIPath)

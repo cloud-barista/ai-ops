@@ -10,9 +10,11 @@ Natural-language request or Structured App Spec
 → ApplicationProfile
 → Mock Resource Recommender
 → ResourceRecommendation
-→ Agent Registry authorization
+→ Agent Registry에서 배포 판단 Agent 선택
+→ Internal executor 또는 Runtime HTTP endpoint 호출
+→ Request Guard / Result Guard
 → DEPLOY / REJECT / RETRY
-→ Go Guard
+→ Domain Go Guard
 → DesiredDeploymentSpec
 → deployment.status.changed
 → optimization.feedback.created
@@ -56,16 +58,16 @@ http://127.0.0.1:18080/openapi.yaml
 
 ## 3개 화면
 
-### 자동화 에이전트
+### 자동화 실행
 
 핵심 실험의 시작 화면입니다. 자연어 요청 또는 구조화 App Spec 하나를 입력합니다.
 
 1. Requirement Analyzer가 `ApplicationProfile` 생성
 2. Mock Resource Recommender가 `ResourceRecommendation` 생성
-3. `AIApplicationAutomationAgent` Registry 권한 확인
-4. `DEPLOY`, `REJECT`, `RETRY` 판단
-5. Go Guard 검증
-6. `DesiredDeploymentSpec` 생성
+3. 선택한 배포 판단 Agent의 Registry 권한 확인
+4. Internal executor 또는 Runtime HTTP endpoint에서 `DEPLOY`, `REJECT`, `RETRY` 판단
+5. Agent 밖의 Request/Result/Domain Go Guard 검증
+6. 승인된 경우에만 `DesiredDeploymentSpec` 생성
 
 **자동 분석 및 판단**을 한 번 누르면 세 단계가 같은 `run_id`, `correlation_id`, `trace_id`로 연결됩니다. 생성된 `ApplicationProfile`과 `ResourceRecommendation`은 고급 증거 영역에서 확인합니다. 기존 Common JSON 입력은 고급 프로토콜 검증용으로만 유지됩니다.
 
@@ -86,6 +88,14 @@ http://127.0.0.1:18080/openapi.yaml
   },
   "flow": {
     "state": "DEPLOY_APPROVED",
+    "requested_decision_agent": "AIApplicationAutomationAgent",
+    "agent_execution": {
+      "agent_name": "AIApplicationAutomationAgent",
+      "source": "configuration",
+      "status": "completed",
+      "request_guard": {"status": "APPROVED"},
+      "result_guard": {"status": "APPROVED"}
+    },
     "decision": {"action": "DEPLOY"},
     "guard": {"status": "APPROVED"}
   },
@@ -106,7 +116,13 @@ Agent Registry의 현재 정책을 조회합니다.
 | Bounded Action | `generate_deployment_decision` |
 | 상태 | `enabled` |
 
-Runtime Agent 등록은 capability와 bounded action 정책을 시험하기 위한 보조 기능입니다. 설정 파일의 기본 Agent는 웹에서 삭제할 수 없고, 현재 프로세스에 등록한 Runtime Agent만 삭제할 수 있습니다.
+설정 파일의 기본 Agent는 웹에서 삭제할 수 없고, 현재 프로세스에 등록한 Runtime Agent만 삭제할 수 있습니다. 다음 조건을 모두 만족하는 Agent만 **자동화 실행**의 선택 목록에 나타납니다.
+
+- `enabled=true`
+- capability `ai_application_automation`
+- bounded action `generate_deployment_decision`
+
+선택한 Runtime Agent는 기본 Internal Agent 대신 실제 HTTP 호출로 배포 판단을 수행합니다. 실패 시 Internal Agent로 조용히 대체하지 않으며, `AGENT_AUTHORIZATION_REJECTED`, `AGENT_EXECUTION_FAILED`, `AGENT_RESULT_REJECTED` 중 하나를 같은 Flow에 기록하고 Adapter 제출을 중단합니다. Runtime 등록 정보는 프로세스 메모리에만 유지됩니다.
 
 ### 실험 결과
 
@@ -165,7 +181,8 @@ curl -s -X POST http://127.0.0.1:18080/api/v1/agent-control/automation-runs \
   -d '{
     "input_type": "natural_language",
     "request": "GPU 1개, CPU 4코어, 메모리 8GiB로 AI 추론 서비스를 배포해 주세요.",
-    "requested_by": "researcher"
+    "requested_by": "researcher",
+    "decision_agent": "AIApplicationAutomationAgent"
   }'
 ```
 
@@ -207,6 +224,37 @@ GET    /api/v1/agents
 POST   /api/v1/agents
 DELETE /api/v1/agents/{name}
 ```
+
+`GET /api/v1/agents`의 `eligible_decision_agents`가 자동화 실행에서 선택 가능한 Agent 목록이고, `defaults.ai_application_automation`이 요청에서 `decision_agent`를 생략했을 때 사용하는 기본 Agent입니다.
+
+Runtime Agent endpoint는 등록한 `endpoint + invocation_path`에서 POST 요청을 받고 아래 형식으로 응답해야 합니다. 응답의 `run_id`, `agent`, `proposal.action`은 요청과 정확히 일치해야 합니다.
+
+```json
+{
+  "run_id": "run-...",
+  "agent": "RuntimeDeploymentAgent",
+  "status": "completed",
+  "proposal": {
+    "action": "generate_deployment_decision",
+    "parameters": {
+      "decision": "DEPLOY",
+      "selected_candidate_id": "mock-gpu-l4",
+      "reason": "The candidate satisfies the requested resources.",
+      "confidence": 0.92
+    }
+  },
+  "latency_ms": 12,
+  "domain_validation": "deployment_decision"
+}
+```
+
+Go Guard는 Runtime Agent 밖에서 요청 권한, 응답 신원·Action, 후보 ID, 자원 적합성, confidence 범위를 다시 검증합니다.
+
+## Deployment Adapter 경계
+
+- `AIOPS_DEPLOYMENT_ADAPTER=mock`: 승인된 요청을 외부로 보내지 않고 `SIMULATED` 증거를 생성합니다.
+- `AIOPS_DEPLOYMENT_ADAPTER=handoff`: 외부 연동 가능한 Common JSON을 `READY` 상태로 기록합니다.
+- 두 모드 모두 실제 INNO/ETRI API 호출이나 VM 배포 성공을 의미하지 않습니다. 향후 실제 연동 시 Adapter 구현만 교체합니다.
 
 ## 호환 API
 
