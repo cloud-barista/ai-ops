@@ -1,8 +1,9 @@
 package api
 
 type AgentRegistry struct {
-	Version string         `json:"version"`
-	Agents  []AgentProfile `json:"agents"`
+	Version  string            `json:"version"`
+	Defaults map[string]string `json:"defaults,omitempty"`
+	Agents   []AgentProfile    `json:"agents"`
 }
 
 type AgentProfile struct {

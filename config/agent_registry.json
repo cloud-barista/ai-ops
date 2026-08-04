@@ -1,5 +1,8 @@
 {
-  "version": "2",
+  "version": "3",
+  "defaults": {
+    "ai_application_automation": "AIApplicationAutomationAgent"
+  },
   "agents": [
     {
       "name": "AIApplicationAutomationAgent",
