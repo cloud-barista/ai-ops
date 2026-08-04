@@ -331,7 +331,6 @@ type AgentAuthorizationRequest struct {
 
 type AgentAuthorization struct {
 	AgentName  string `json:"agent_name"`
-	Source     string `json:"source,omitempty"`
 	Capability string `json:"capability"`
 	Action     string `json:"action"`
 	Authorized bool   `json:"authorized"`

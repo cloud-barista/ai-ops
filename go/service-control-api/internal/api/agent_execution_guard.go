@@ -3,6 +3,8 @@ package api
 import (
 	"fmt"
 	"strings"
+
+	"kyunghee-aiops/service-control-api/internal/agentcontrol"
 )
 
 var forbiddenAgentExecutionKeys = map[string]struct{}{
@@ -49,7 +51,7 @@ func validateAgentExecutionRequest(agent AgentProfile, request AgentExecutionReq
 	return GuardDecision{
 		Valid:  true,
 		Status: "approved",
-		Reason: "Agent Registry capability and bounded action are authorized",
+		Reason: "Agent Registry authorizes the required capability and bounded action.",
 	}
 }
 
@@ -74,7 +76,9 @@ func validateAgentExecutionResult(
 		))
 	case result.Manifest != nil && result.DomainValidation != "manifest_guard":
 		return rejectedGuardDecision("DeploymentManifest result is missing Manifest Guard evidence")
-	case result.Manifest == nil && result.DomainValidation != "not_registered":
+	case result.Manifest == nil &&
+		!(request.Action == agentcontrol.AutomationDecisionAction && result.DomainValidation == "deployment_decision") &&
+		result.DomainValidation != "not_registered":
 		return rejectedGuardDecision("Agent result must declare domain validation status")
 	}
 	return GuardDecision{

@@ -255,7 +255,12 @@ func (runner *AutomationRunner) run(
 			ResourceRecommendation: recommendation.ResourceRecommendation,
 		},
 	}
-	flow, err := runner.agentControl.ReceiveResourceRecommendation(ctx, resourceRecommendation)
+	flow, err := runner.agentControl.ReceiveResourceRecommendationForAgent(
+		ctx,
+		resourceRecommendation,
+		input.DecisionAgent,
+		run.RunID,
+	)
 	if err != nil {
 		return runner.failAndStore(run, "RESOURCE_RECOMMENDATION_REJECTED", "Resource Recommendation was rejected"), err
 	}

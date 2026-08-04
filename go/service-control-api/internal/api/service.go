@@ -15,7 +15,6 @@ import (
 	"kyunghee-aiops/service-control-api/internal/automation"
 	"kyunghee-aiops/service-control-api/internal/autonomy"
 	"kyunghee-aiops/service-control-api/internal/controlrun"
-	"kyunghee-aiops/service-control-api/internal/deploymentplanner"
 	"kyunghee-aiops/service-control-api/internal/llmclient"
 )
 
@@ -33,14 +32,34 @@ type Service struct {
 func NewService(config ServerConfig) Service {
 	reasoner := newAgentControlReasoner(config, llmclient.NewClient(nil))
 	authorizer := newAgentControlRegistryAuthorizer(config)
-	agentControlService := agentcontrol.NewServiceWithDependencies(reasoner, authorizer)
+	runtimeAgents := newRuntimeAgentStore()
+	internalExecutors := map[string]agentExecutor{}
+	if registry, err := loadAgentRegistry(config.path("config", "agent_registry.json")); err == nil {
+		if defaultAgent := strings.TrimSpace(registry.Defaults[agentcontrol.AutomationCapability]); defaultAgent != "" {
+			internalExecutors[defaultAgent] = newInternalDecisionAgentExecutor()
+		}
+	}
+	dispatcher := newAgentDispatcher(
+		internalExecutors,
+		newHTTPAgentExecutor(
+			newAgentHTTPClient(config.AgentExecutionTimeout),
+			config.AgentExecutionTimeout,
+		),
+	)
+	decisionRuntime := newDecisionAgentRuntime(config, runtimeAgents, dispatcher)
+	agentControlService := agentcontrol.NewServiceWithDecisionRuntime(
+		reasoner,
+		authorizer,
+		decisionRuntime,
+	)
 	resourceCatalog, _ := agentcontrol.LoadResourceCatalog(config.ResourceCatalogPath)
 	deploymentAdapter, _ := agentcontrol.NewDeploymentAdapter(config.DeploymentAdapterMode)
 	service := Service{
 		config:             config,
-		runtimeAgents:      newRuntimeAgentStore(),
+		runtimeAgents:      runtimeAgents,
 		automationFeedback: newAutomationFeedbackStore(),
 		controlRuns:        controlrun.NewStore(),
+		agentDispatcher:    dispatcher,
 		agentControl:       agentControlService,
 		automationRunner: agentcontrol.NewAutomationRunnerWithAdapter(
 			newAgentControlRequirementAnalyzer(config, llmclient.NewClient(nil)),
@@ -49,18 +68,6 @@ func NewService(config ServerConfig) Service {
 			deploymentAdapter,
 		),
 	}
-	service.agentDispatcher = newAgentDispatcher(
-		map[string]agentExecutor{
-			"AIApplicationAutomationAgent": newManifestAgentExecutor(
-				config.LLMCandidatesPath,
-				deploymentplanner.NewGenerator(llmclient.NewClient(nil)),
-			),
-		},
-		newHTTPAgentExecutor(
-			newAgentHTTPClient(config.AgentExecutionTimeout),
-			config.AgentExecutionTimeout,
-		),
-	)
 	var control autonomy.AppDeployControl
 	if strings.TrimSpace(config.AppDeployBaseURL) != "" {
 		client, err := appdeploy.NewClient(config.AppDeployBaseURL, nil)

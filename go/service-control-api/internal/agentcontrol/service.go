@@ -742,7 +742,6 @@ func (service *Service) applyDecisionAgentResult(
 func authorizationFromDecisionResult(result DecisionAgentResult) *AgentAuthorization {
 	return &AgentAuthorization{
 		AgentName:  result.AgentName,
-		Source:     result.Source,
 		Capability: AutomationCapability,
 		Action:     AutomationDecisionAction,
 		Authorized: result.RequestGuard.Status == GuardApproved,
