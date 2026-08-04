@@ -18,11 +18,12 @@ type Authorizer interface {
 }
 
 type Service struct {
-	mu         sync.RWMutex
-	flows      map[string]Flow
-	now        func() time.Time
-	reasoner   Reasoner
-	authorizer Authorizer
+	mu              sync.RWMutex
+	flows           map[string]Flow
+	now             func() time.Time
+	reasoner        Reasoner
+	authorizer      Authorizer
+	decisionRuntime DecisionAgentRuntime
 }
 
 func NewService() *Service {
@@ -34,11 +35,20 @@ func NewServiceWithReasoner(reasoner Reasoner) *Service {
 }
 
 func NewServiceWithDependencies(reasoner Reasoner, authorizer Authorizer) *Service {
+	return NewServiceWithDecisionRuntime(reasoner, authorizer, nil)
+}
+
+func NewServiceWithDecisionRuntime(
+	reasoner Reasoner,
+	authorizer Authorizer,
+	decisionRuntime DecisionAgentRuntime,
+) *Service {
 	return &Service{
-		flows:      map[string]Flow{},
-		now:        func() time.Time { return time.Now().UTC() },
-		reasoner:   reasoner,
-		authorizer: authorizer,
+		flows:           map[string]Flow{},
+		now:             func() time.Time { return time.Now().UTC() },
+		reasoner:        reasoner,
+		authorizer:      authorizer,
+		decisionRuntime: decisionRuntime,
 	}
 }
 
@@ -79,6 +89,15 @@ func (service *Service) ReceiveResourceRecommendation(
 	ctx context.Context,
 	message ResourceRecommendationEnvelope,
 ) (Flow, error) {
+	return service.ReceiveResourceRecommendationForAgent(ctx, message, "", "")
+}
+
+func (service *Service) ReceiveResourceRecommendationForAgent(
+	ctx context.Context,
+	message ResourceRecommendationEnvelope,
+	requestedAgent string,
+	runID string,
+) (Flow, error) {
 	if err := ctx.Err(); err != nil {
 		return Flow{}, err
 	}
@@ -101,6 +120,8 @@ func (service *Service) ReceiveResourceRecommendation(
 	flow.TraceID = message.TraceID
 	flow.ProfileID = message.Data.ResourceRecommendation.ProfileID
 	flow.ResourceRecommendation = &messageCopy
+	flow.RequestedDecisionAgent = strings.TrimSpace(requestedAgent)
+	flow.AutomationRunID = strings.TrimSpace(runID)
 	flow.State = inputJoinState(flow)
 	flow.UpdatedAt = service.now().Format(time.RFC3339Nano)
 	flow = service.evaluateFlow(ctx, flow)
@@ -470,6 +491,32 @@ func inputJoinState(flow Flow) string {
 }
 
 func (service *Service) evaluateFlow(ctx context.Context, flow Flow) Flow {
+	if flow.State != StateReady || service.decisionRuntime == nil {
+		return service.evaluateFlowLegacy(ctx, flow)
+	}
+
+	profile := flow.ApplicationContext.Data.ApplicationProfile
+	recommendation := flow.ResourceRecommendation.Data.ResourceRecommendation
+	createdAt := service.now().Format(time.RFC3339Nano)
+	decisionID := "decision-" + flow.CorrelationID
+	result, err := service.decisionRuntime.Decide(ctx, DecisionAgentRequest{
+		RunID:                  flow.AutomationRunID,
+		RequestedAgent:         flow.RequestedDecisionAgent,
+		CorrelationID:          flow.CorrelationID,
+		TraceID:                flow.TraceID,
+		ApplicationProfile:     profile,
+		ResourceRecommendation: recommendation,
+	})
+	resultCopy := cloneDecisionAgentResult(result)
+	flow.AgentExecution = &resultCopy
+	flow.AgentAuthorization = authorizationFromDecisionResult(result)
+	if err != nil {
+		return failedDecisionAgentFlow(flow, result)
+	}
+	return service.applyDecisionAgentResult(flow, result, createdAt, decisionID)
+}
+
+func (service *Service) evaluateFlowLegacy(ctx context.Context, flow Flow) Flow {
 	if flow.State != StateReady {
 		return flow
 	}
@@ -628,6 +675,112 @@ func (service *Service) evaluateFlow(ctx context.Context, flow Flow) Flow {
 	request := buildDeploymentCreateRequest(flow, createdAt)
 	flow.DeploymentRequest = &request
 	return flow
+}
+
+func (service *Service) applyDecisionAgentResult(
+	flow Flow,
+	result DecisionAgentResult,
+	createdAt string,
+	decisionID string,
+) Flow {
+	profile := flow.ApplicationContext.Data.ApplicationProfile
+	recommendation := flow.ResourceRecommendation.Data.ResourceRecommendation
+	decision := result.Decision
+	decision.DecisionID = decisionID
+	decision.CreatedAt = createdAt
+	if strings.TrimSpace(decision.ReasoningMode) == "" {
+		decision.ReasoningMode = "selected_agent"
+	}
+	guard := validateDecisionAgentResult(profile, recommendation, result)
+	flow.Guard = &guard
+	flow.Decision = &decision
+	flow.DeploymentPlan = nil
+	flow.DesiredDeploymentSpec = nil
+	flow.DeploymentRequest = nil
+
+	switch guard.Status {
+	case GuardApproved:
+		candidate, _ := findDecisionCandidate(recommendation, decision.SelectedCandidateID)
+		flow.State = StateDecisionApproved
+		flow.DeploymentPlan = &DeploymentPlan{
+			PlanID:                 "plan-" + flow.CorrelationID,
+			ProfileID:              profile.ProfileID,
+			AppID:                  profile.AppID,
+			AppVersion:             profile.AppVersion,
+			SelectedCandidateID:    candidate.CandidateID,
+			TargetRuntime:          "VM",
+			DesiredInfrastructure:  candidate.DesiredInfrastructure,
+			InferenceConfiguration: flow.ApplicationContext.Data.ModelRecommendation.InferenceConfiguration,
+			ResourceHints:          append([]string(nil), candidate.ResourceHints...),
+			ReasoningMode:          decision.ReasoningMode,
+			CreatedAt:              createdAt,
+		}
+		spec := buildDesiredDeploymentSpec(flow)
+		flow.DesiredDeploymentSpec = &spec
+		request := buildDeploymentCreateRequest(flow, createdAt)
+		flow.DeploymentRequest = &request
+	case GuardRetryRequired:
+		flow.State = StateRetryRequired
+		flow.Decision.Action = ActionRetry
+		if flow.Decision.CorrectionRequest == nil {
+			flow.Decision.CorrectionRequest = &CorrectionRequest{
+				Target: CorrectionTargetResourceRecommendation,
+				Reason: "Recommend another resource candidate that satisfies the Application Profile.",
+				Issues: append([]ValidationIssue(nil), guard.Issues...),
+			}
+		}
+	case GuardRejected:
+		if decision.Action == ActionReject && decisionResultGuardsApproved(result) {
+			flow.State = StateDecisionRejected
+		} else {
+			flow.State = StateAgentResultRejected
+		}
+	}
+	return flow
+}
+
+func authorizationFromDecisionResult(result DecisionAgentResult) *AgentAuthorization {
+	return &AgentAuthorization{
+		AgentName:  result.AgentName,
+		Source:     result.Source,
+		Capability: AutomationCapability,
+		Action:     AutomationDecisionAction,
+		Authorized: result.RequestGuard.Status == GuardApproved,
+		Reason:     decisionGuardReason(result.RequestGuard),
+	}
+}
+
+func failedDecisionAgentFlow(flow Flow, result DecisionAgentResult) Flow {
+	flow.Decision = nil
+	flow.DeploymentPlan = nil
+	flow.DesiredDeploymentSpec = nil
+	flow.DeploymentRequest = nil
+	switch {
+	case result.RequestGuard.Status == GuardRejected:
+		flow.State = StateAgentAuthorizationRejected
+		guard := result.RequestGuard
+		flow.Guard = &guard
+	case result.ResultGuard.Status == GuardRejected:
+		flow.State = StateAgentResultRejected
+		guard := result.ResultGuard
+		flow.Guard = &guard
+	default:
+		flow.State = StateAgentExecutionFailed
+		guard := rejectedDecisionGuard("agent_execution", "Decision Agent execution failed.")
+		flow.Guard = &guard
+	}
+	return flow
+}
+
+func decisionResultGuardsApproved(result DecisionAgentResult) bool {
+	return result.RequestGuard.Status == GuardApproved && result.ResultGuard.Status == GuardApproved
+}
+
+func decisionGuardReason(guard GuardResult) string {
+	if len(guard.Checks) > 0 {
+		return guard.Checks[0].Reason
+	}
+	return guard.Status
 }
 
 func validateApplicationRequirements(requirements ApplicationRequirements) []ValidationIssue {
@@ -1046,6 +1199,10 @@ func cloneFlow(flow Flow) Flow {
 		value := *flow.AgentAuthorization
 		result.AgentAuthorization = &value
 	}
+	if flow.AgentExecution != nil {
+		value := cloneDecisionAgentResult(*flow.AgentExecution)
+		result.AgentExecution = &value
+	}
 	if flow.Decision != nil {
 		value := *flow.Decision
 		if flow.Decision.CorrectionRequest != nil {
@@ -1095,6 +1252,19 @@ func cloneFlow(flow Flow) Flow {
 	if flow.ReasoningComparison != nil {
 		value := *flow.ReasoningComparison
 		result.ReasoningComparison = &value
+	}
+	return result
+}
+
+func cloneDecisionAgentResult(result DecisionAgentResult) DecisionAgentResult {
+	result.RequestGuard.Checks = append([]GuardCheck(nil), result.RequestGuard.Checks...)
+	result.RequestGuard.Issues = append([]ValidationIssue(nil), result.RequestGuard.Issues...)
+	result.ResultGuard.Checks = append([]GuardCheck(nil), result.ResultGuard.Checks...)
+	result.ResultGuard.Issues = append([]ValidationIssue(nil), result.ResultGuard.Issues...)
+	if result.Decision.CorrectionRequest != nil {
+		correction := *result.Decision.CorrectionRequest
+		correction.Issues = append([]ValidationIssue(nil), correction.Issues...)
+		result.Decision.CorrectionRequest = &correction
 	}
 	return result
 }

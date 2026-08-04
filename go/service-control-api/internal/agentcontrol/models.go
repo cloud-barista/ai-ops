@@ -17,6 +17,8 @@ const (
 	StateDecisionRejected           = "REJECTED"
 	StateRetryRequired              = "RETRY_REQUIRED"
 	StateAgentAuthorizationRejected = "AGENT_AUTHORIZATION_REJECTED"
+	StateAgentExecutionFailed       = "AGENT_EXECUTION_FAILED"
+	StateAgentResultRejected        = "AGENT_RESULT_REJECTED"
 
 	ActionDeploy = "DEPLOY"
 	ActionReject = "REJECT"
@@ -71,10 +73,11 @@ type Endpoint struct {
 }
 
 type AutomationRunInput struct {
-	InputType   string             `json:"input_type"`
-	Request     string             `json:"request,omitempty"`
-	RequestedBy string             `json:"requested_by,omitempty"`
-	AppSpec     *StructuredAppSpec `json:"app_spec,omitempty"`
+	InputType     string             `json:"input_type"`
+	Request       string             `json:"request,omitempty"`
+	RequestedBy   string             `json:"requested_by,omitempty"`
+	DecisionAgent string             `json:"decision_agent,omitempty"`
+	AppSpec       *StructuredAppSpec `json:"app_spec,omitempty"`
 }
 
 type StructuredAppSpec struct {
@@ -328,6 +331,7 @@ type AgentAuthorizationRequest struct {
 
 type AgentAuthorization struct {
 	AgentName  string `json:"agent_name"`
+	Source     string `json:"source,omitempty"`
 	Capability string `json:"capability"`
 	Action     string `json:"action"`
 	Authorized bool   `json:"authorized"`
@@ -581,10 +585,13 @@ type Flow struct {
 	CorrelationID          string                           `json:"correlation_id"`
 	TraceID                string                           `json:"trace_id"`
 	ProfileID              string                           `json:"profile_id,omitempty"`
+	AutomationRunID        string                           `json:"automation_run_id,omitempty"`
+	RequestedDecisionAgent string                           `json:"requested_decision_agent,omitempty"`
 	State                  string                           `json:"state"`
 	ApplicationContext     *ApplicationContextEnvelope      `json:"application_context,omitempty"`
 	ResourceRecommendation *ResourceRecommendationEnvelope  `json:"resource_recommendation,omitempty"`
 	AgentAuthorization     *AgentAuthorization              `json:"agent_authorization,omitempty"`
+	AgentExecution         *DecisionAgentResult             `json:"agent_execution,omitempty"`
 	Decision               *AutomationDecision              `json:"decision,omitempty"`
 	DeploymentPlan         *DeploymentPlan                  `json:"deployment_plan,omitempty"`
 	Guard                  *GuardResult                     `json:"guard,omitempty"`
