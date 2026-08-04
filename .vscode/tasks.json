@@ -1,0 +1,79 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "geon: 서버 실행 (18080)",
+      "type": "process",
+      "command": "go",
+      "args": [
+        "run",
+        "./cmd/service-control-api"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/go/service-control-api",
+        "env": {
+          "AIOPS_REPO_ROOT": "${workspaceFolder}",
+          "AIOPS_BIND_ADDRESS": "127.0.0.1",
+          "AIOPS_DEPLOYMENT_ADAPTER": "mock",
+          "PORT": "18080"
+        }
+      },
+      "problemMatcher": [
+        "$go"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "geon: 전체 테스트",
+      "type": "process",
+      "command": "go",
+      "args": [
+        "test",
+        "./...",
+        "-count=1"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/go/service-control-api"
+      },
+      "problemMatcher": [
+        "$go"
+      ],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      }
+    },
+    {
+      "label": "geon: Go Vet",
+      "type": "process",
+      "command": "go",
+      "args": [
+        "vet",
+        "./..."
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/go/service-control-api"
+      },
+      "problemMatcher": [
+        "$go"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      }
+    }
+  ]
+}

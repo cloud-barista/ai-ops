@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "geon: Agent Control (18080)",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/go/service-control-api/cmd/service-control-api",
+      "cwd": "${workspaceFolder}/go/service-control-api",
+      "env": {
+        "AIOPS_REPO_ROOT": "${workspaceFolder}",
+        "AIOPS_BIND_ADDRESS": "127.0.0.1",
+        "AIOPS_DEPLOYMENT_ADAPTER": "mock",
+        "PORT": "18080"
+      }
+    }
+  ]
+}
