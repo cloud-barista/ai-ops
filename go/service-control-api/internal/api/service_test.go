@@ -72,6 +72,37 @@ func TestValidateAgentActionUsesRegistryBounds(t *testing.T) {
 	}
 }
 
+func TestServiceListAgentsReturnsOperationOptimizationAgent(t *testing.T) {
+	service := NewService(NewServerConfig())
+
+	result, err := service.ListAgents(context.Background())
+	if err != nil {
+		t.Fatalf("ListAgents returned error: %v", err)
+	}
+
+	defaults, ok := result["defaults"].(map[string]string)
+	if !ok || defaults["ai_application_operation_optimization"] != "OperationOptimizationAgent" {
+		t.Fatalf("operation default = %#v", result["defaults"])
+	}
+	agents, ok := result["agents"].([]AgentProfile)
+	if !ok || !hasNamedAgent(agents, "OperationOptimizationAgent") {
+		t.Fatalf("operation Agent missing from agents: %#v", result["agents"])
+	}
+	eligible, ok := result["eligible_operation_agents"].([]AgentProfile)
+	if !ok || !hasNamedAgent(eligible, "OperationOptimizationAgent") {
+		t.Fatalf("eligible operation Agents = %#v", result["eligible_operation_agents"])
+	}
+}
+
+func hasNamedAgent(agents []AgentProfile, name string) bool {
+	for _, agent := range agents {
+		if agent.Name == name {
+			return true
+		}
+	}
+	return false
+}
+
 func TestValidateVMSuitabilityUsesRecordedVMInsteadOfRankingCandidates(t *testing.T) {
 	service := NewService(NewServerConfig())
 

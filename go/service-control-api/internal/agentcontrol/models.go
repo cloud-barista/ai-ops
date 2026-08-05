@@ -32,6 +32,10 @@ const (
 	AutomationCapability     = "ai_application_automation"
 	AutomationDecisionAction = "generate_deployment_decision"
 
+	OperationOptimizationAgentName      = "OperationOptimizationAgent"
+	OperationOptimizationCapability     = "ai_application_operation_optimization"
+	OperationOptimizationDecisionAction = "generate_scaling_decision"
+
 	ReasoningModeRuleBased = "rule_based"
 
 	InputTypeNaturalLanguage = "natural_language"

@@ -1,7 +1,8 @@
 {
   "version": "3",
   "defaults": {
-    "ai_application_automation": "AIApplicationAutomationAgent"
+    "ai_application_automation": "AIApplicationAutomationAgent",
+    "ai_application_operation_optimization": "OperationOptimizationAgent"
   },
   "agents": [
     {
@@ -29,18 +30,30 @@
         "generate_deployment_manifest",
         "submit_deployment_manifest",
         "observe_deployment_status",
-        "deploy_application",
-        "observe_status",
-        "scale_out_application",
-        "restart_application",
-        "rollback_application",
-        "stop_application"
+        "observe_status"
       ],
       "reward_signals": [
         "Positive reward when the manifest is contract-valid and preserves trusted request fields.",
         "Positive reward when AppDeploy reaches RUNNING with bounded polling.",
         "Penalty when the proposal invents a Target, Runtime Adapter, credential, or unsupported field.",
         "Penalty when the proposal cannot pass Go Guard validation."
+      ],
+      "enabled": true
+    },
+    {
+      "name": "OperationOptimizationAgent",
+      "korean_name": "AI ?묒슜 ?댁쁺 理쒖쟻???먯씠?꾪듃",
+      "role": "Evaluate deployment status, SLO, resource utilization, and inference metrics and produce a bounded scaling recommendation.",
+      "responsibilities": [
+        "Join deployment.status.changed and optimization.feedback.created using correlation_id and decision_id.",
+        "Decide KEEP, SCALE_OUT, or SCALE_IN without executing infrastructure control.",
+        "Return SLO and utilization evidence for deterministic Guard validation."
+      ],
+      "capabilities": ["ai_application_operation_optimization"],
+      "bounded_actions": ["generate_scaling_decision"],
+      "reward_signals": [
+        "Positive reward for a bounded decision supported by observed SLO and utilization evidence.",
+        "Penalty for inventing metrics or exceeding replica limits."
       ],
       "enabled": true
     }

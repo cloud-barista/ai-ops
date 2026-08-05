@@ -93,20 +93,22 @@ func (service Service) ListAgents(ctx context.Context) (map[string]any, error) {
 		registry.Agents[index].Source = agentSourceConfiguration
 	}
 	runtimeAgents := service.runtimeAgents.list()
-	eligibleAgents := eligibleDecisionAgents(registry, runtimeAgents)
+	eligibleDecision := eligibleDecisionAgents(registry, runtimeAgents)
+	eligibleOperation := eligibleOperationAgents(registry, runtimeAgents)
 	registry.Agents = append(registry.Agents, runtimeAgents...)
 	sort.SliceStable(registry.Agents, func(i, j int) bool {
 		return registry.Agents[i].Name < registry.Agents[j].Name
 	})
 	return map[string]any{
-		"command":                  "list-agents",
-		"registry":                 path,
-		"version":                  registry.Version,
-		"defaults":                 registry.Defaults,
-		"persistence":              "configuration_and_process_memory",
-		"runtime_agent_count":      service.runtimeAgents.count(),
-		"agents":                   registry.Agents,
-		"eligible_decision_agents": eligibleAgents,
+		"command":                   "list-agents",
+		"registry":                  path,
+		"version":                   registry.Version,
+		"defaults":                  registry.Defaults,
+		"persistence":               "configuration_and_process_memory",
+		"runtime_agent_count":       service.runtimeAgents.count(),
+		"agents":                    registry.Agents,
+		"eligible_decision_agents":  eligibleDecision,
+		"eligible_operation_agents": eligibleOperation,
 	}, nil
 }
 
