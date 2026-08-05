@@ -193,6 +193,13 @@ operationAgentQueryDocumented:
 	if reference := flowProperties["operation_agent_execution"].(map[string]any)["$ref"]; reference != "#/components/schemas/OperationOptimizationResult" {
 		t.Fatalf("operation_agent_execution schema reference=%#v", reference)
 	}
+	operationExecution := schemas["OperationOptimizationResult"].(map[string]any)
+	if required := operationExecution["required"].([]any); len(required) != 1 || required[0] != "status" {
+		t.Fatalf("OperationOptimizationResult required fields=%#v, want only status", required)
+	}
+	if description, _ := operationExecution["description"].(string); !strings.Contains(description, "Terminal failed or rejected") {
+		t.Fatalf("OperationOptimizationResult does not document terminal evidence semantics: %#v", operationExecution)
+	}
 
 	scaling := schemas["ScalingDecision"].(map[string]any)
 	properties := scaling["properties"].(map[string]any)
@@ -213,6 +220,48 @@ operationAgentQueryDocumented:
 			t.Fatalf("ScalingDecision action enum is missing %q: %#v", expected, actionValues)
 		}
 	}
+}
+
+func TestGeneratedSwaggerDocumentsCanonicalOperationScalingAction(t *testing.T) {
+	config := NewServerConfig()
+	for _, path := range []string{
+		config.path("go", "service-control-api", "docs", "swagger", "swagger.json"),
+		config.path("go", "service-control-api", "docs", "swagger", "swagger.yaml"),
+	} {
+		content, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("read generated Swagger %s: %v", path, err)
+		}
+		var document map[string]any
+		if err := yaml.Unmarshal(content, &document); err != nil {
+			t.Fatalf("parse generated Swagger %s: %v", path, err)
+		}
+		action := document["definitions"].(map[string]any)["agentcontrol.ScalingDecision"].(map[string]any)["properties"].(map[string]any)["action"].(map[string]any)
+		actionValues, ok := action["enum"].([]any)
+		if !ok {
+			t.Fatalf("generated Swagger %s action is missing its canonical enum: %#v", path, action)
+		}
+		for _, expected := range []string{"KEEP", "SCALE_OUT", "SCALE_IN"} {
+			if !containsOpenAPIEnum(actionValues, expected) {
+				t.Fatalf("generated Swagger %s action enum missing %q: %#v", path, expected, actionValues)
+			}
+		}
+		description, _ := action["description"].(string)
+		for _, expected := range []string{"NO_ACTION", "proposal/result", "normalized to KEEP"} {
+			if !strings.Contains(description, expected) {
+				t.Fatalf("generated Swagger %s action description missing %q: %#v", path, expected, action)
+			}
+		}
+	}
+}
+
+func containsOpenAPIEnum(values []any, expected string) bool {
+	for _, value := range values {
+		if value == expected {
+			return true
+		}
+	}
+	return false
 }
 
 func TestSubmissionOpenAPIIncludesGuardedAgentExecution(t *testing.T) {

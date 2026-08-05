@@ -3255,7 +3255,13 @@
             "type": "object",
             "properties": {
                 "action": {
-                    "type": "string"
+                    "description": "Action is KEEP, SCALE_OUT, or SCALE_IN. Legacy NO_ACTION is accepted only in an Operation Agent proposal/result and is normalized to KEEP before Scaling Guard validation.",
+                    "type": "string",
+                    "enum": [
+                        "KEEP",
+                        "SCALE_OUT",
+                        "SCALE_IN"
+                    ]
                 },
                 "created_at": {
                     "type": "string"

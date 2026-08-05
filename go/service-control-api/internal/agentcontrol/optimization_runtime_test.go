@@ -1,6 +1,55 @@
 package agentcontrol
 
-import "testing"
+import (
+	"encoding/json"
+	"testing"
+)
+
+func TestOperationOptimizationResultOmitsUnavailableTerminalEvidence(t *testing.T) {
+	encoded, err := json.Marshal(OperationOptimizationResult{
+		Status:  "failed",
+		Message: "Operation Agent execution failed.",
+	})
+	if err != nil {
+		t.Fatalf("marshal terminal operation evidence: %v", err)
+	}
+	var evidence map[string]any
+	if err := json.Unmarshal(encoded, &evidence); err != nil {
+		t.Fatalf("unmarshal terminal operation evidence: %v", err)
+	}
+	for _, field := range []string{
+		"agent_name", "source", "latency_ms", "request_guard", "result_guard", "scaling_guard", "decision",
+	} {
+		if _, ok := evidence[field]; ok {
+			t.Fatalf("terminal operation evidence unexpectedly includes %q: %s", field, encoded)
+		}
+	}
+	if evidence["status"] != "failed" || evidence["message"] != "Operation Agent execution failed." {
+		t.Fatalf("terminal operation evidence=%s", encoded)
+	}
+}
+
+func TestOperationOptimizationResultIncludesCompletedEvidence(t *testing.T) {
+	result := approvedOptimizationResult(ScalingDecision{
+		Action: ScalingActionKeep, CurrentReplicas: 1, DesiredReplicas: 1,
+	})
+	result.ScalingGuard = approvedDecisionGuard("scaling approved")
+	encoded, err := json.Marshal(result)
+	if err != nil {
+		t.Fatalf("marshal completed operation evidence: %v", err)
+	}
+	var evidence map[string]any
+	if err := json.Unmarshal(encoded, &evidence); err != nil {
+		t.Fatalf("unmarshal completed operation evidence: %v", err)
+	}
+	for _, field := range []string{
+		"agent_name", "source", "request_guard", "result_guard", "scaling_guard", "decision",
+	} {
+		if _, ok := evidence[field]; !ok {
+			t.Fatalf("completed operation evidence is missing %q: %s", field, encoded)
+		}
+	}
+}
 
 func TestValidateOperationOptimizationResultRejectsReplicaJump(t *testing.T) {
 	guard := validateOperationOptimizationResult(scaleOutReadyFlow(1, 3), approvedOptimizationResult(ScalingDecision{

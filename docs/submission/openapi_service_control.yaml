@@ -1812,9 +1812,9 @@ components:
           type: string
           description: >
             Canonical scaling recommendation. KEEP preserves the observed
-            replica count. Legacy NO_ACTION input remains accepted for
-            compatibility and is normalized to KEEP before Guard validation;
-            new responses use KEEP.
+            replica count. Legacy NO_ACTION is accepted only as an Operation
+            Agent proposal/result value and is normalized to KEEP before Guard
+            validation; new responses use KEEP.
           enum: [KEEP, SCALE_OUT, SCALE_IN]
         reason: {type: string}
         current_replicas: {type: integer, minimum: 1}
@@ -1825,17 +1825,29 @@ components:
         created_at: {type: string, format: date-time}
     OperationOptimizationResult:
       type: object
-      required: [agent_name, source, status, latency_ms, request_guard, result_guard, scaling_guard, decision]
+      required: [status]
       description: >
         Evidence returned by the Operation Optimization Agent after deployment
-        status and optimization Feedback are joined. All Guards remain outside
-        the Agent. Only a completed result with approved Guards can populate
-        scaling_decision.
+        status and optimization Feedback are joined. A completed result carries
+        source, request_guard, result_guard, scaling_guard, and decision; all
+        Guards remain outside the Agent. Terminal failed or rejected evidence
+        may omit unavailable identity, Guard, latency, and decision fields and
+        contains only terminal-safe evidence. Only a completed result with
+        approved Guards can populate scaling_decision.
       properties:
-        agent_name: {type: string, example: OperationOptimizationAgent}
-        source: {type: string, enum: [configuration, runtime]}
+        agent_name:
+          type: string
+          description: Present when the selected Agent identity is known.
+          example: OperationOptimizationAgent
+        source:
+          type: string
+          enum: [configuration, runtime]
+          description: Present for a resolved Agent.
         status: {type: string, enum: [completed, rejected, failed]}
-        latency_ms: {type: integer, format: int64}
+        latency_ms:
+          type: integer
+          format: int64
+          description: Present when execution latency is available.
         request_guard:
           $ref: "#/components/schemas/AgentControlGuardResult"
         result_guard:
@@ -1844,7 +1856,7 @@ components:
           $ref: "#/components/schemas/AgentControlGuardResult"
         decision:
           $ref: "#/components/schemas/ScalingDecision"
-        message: {type: string}
+        message: {type: string, description: Terminal-safe execution summary.}
     AgentControlReasoningComparisonRequest:
       type: object
       required: [candidate_id]

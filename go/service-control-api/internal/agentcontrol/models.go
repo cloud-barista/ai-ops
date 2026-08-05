@@ -524,7 +524,8 @@ type FeedbackSummary struct {
 }
 
 type ScalingDecision struct {
-	Action          string   `json:"action"`
+	// Action is KEEP, SCALE_OUT, or SCALE_IN. Legacy NO_ACTION is accepted only in an Operation Agent proposal/result and is normalized to KEEP before Scaling Guard validation.
+	Action          string   `json:"action" enums:"KEEP,SCALE_OUT,SCALE_IN"`
 	Reason          string   `json:"reason"`
 	CurrentReplicas int      `json:"current_replicas"`
 	DesiredReplicas int      `json:"desired_replicas"`

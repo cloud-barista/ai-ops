@@ -281,9 +281,9 @@ The main Flow uses `AIApplicationAutomationAgent` for the deployment decision an
 3. Send `POST /api/v1/agent-control/optimization-feedback?operation_agent=OperationOptimizationAgent` with SLO and resource Feedback. Omitting the query uses the Registry default Operation Agent.
 4. Read `GET /api/v1/agent-control/flows/{correlation_id}` and verify `requested_operation_agent`, `operation_agent_execution`, its three Guards, and `scaling_decision`. A normal result is `KEEP`; the SLO-violation sample is `SCALE_OUT 1 -> 2`.
 
-`NO_ACTION` remains accepted only as a legacy input alias and is normalized to `KEEP` before Guard validation. New results emit `KEEP`. `SIMULATED` is Mock Adapter evidence, not real deployment, VM control, AppDeploy execution, or scaling execution.
+`NO_ACTION` remains accepted only as a legacy Operation Agent proposal/result value, not an `optimization-feedback` client request, and is normalized to `KEEP` before Guard validation. New results emit `KEEP`. `SIMULATED` is Mock Adapter evidence, not real deployment, VM control, AppDeploy execution, or scaling execution.
 
-The main Flow does not require Ollama. Ollama is only required for the optional Qwen comparison. Selecting a Runtime Agent requires its registered `endpoint + invocation_path` to serve the execution request; an endpoint failure is recorded and never falls back to an Internal Agent.
+The main two-Agent Mock Flow does not require Ollama. Optional Qwen comparison and a Qwen-backed registered-Agent execution endpoint may require a configured provider. Selecting a Runtime Agent requires its registered `endpoint + invocation_path` to serve the execution request; an endpoint failure is recorded and never falls back to an Internal Agent.
 
 ### Agent Registry
 

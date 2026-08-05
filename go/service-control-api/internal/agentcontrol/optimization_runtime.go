@@ -18,14 +18,14 @@ type OperationOptimizationRequest struct {
 }
 
 type OperationOptimizationResult struct {
-	AgentName    string          `json:"agent_name"`
-	Source       string          `json:"source"`
+	AgentName    string          `json:"agent_name,omitempty,omitzero"`
+	Source       string          `json:"source,omitempty,omitzero"`
 	Status       string          `json:"status"`
-	LatencyMS    int64           `json:"latency_ms"`
-	RequestGuard GuardResult     `json:"request_guard"`
-	ResultGuard  GuardResult     `json:"result_guard"`
-	ScalingGuard GuardResult     `json:"scaling_guard"`
-	Decision     ScalingDecision `json:"decision"`
+	LatencyMS    int64           `json:"latency_ms,omitempty,omitzero"`
+	RequestGuard GuardResult     `json:"request_guard,omitempty,omitzero"`
+	ResultGuard  GuardResult     `json:"result_guard,omitempty,omitzero"`
+	ScalingGuard GuardResult     `json:"scaling_guard,omitempty,omitzero"`
+	Decision     ScalingDecision `json:"decision,omitempty,omitzero"`
 	Message      string          `json:"message,omitempty"`
 }
 

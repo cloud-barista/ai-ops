@@ -982,6 +982,13 @@ definitions:
   agentcontrol.ScalingDecision:
     properties:
       action:
+        description: Action is KEEP, SCALE_OUT, or SCALE_IN. Legacy NO_ACTION is accepted
+          only in an Operation Agent proposal/result and is normalized to KEEP before
+          Scaling Guard validation.
+        enum:
+        - KEEP
+        - SCALE_OUT
+        - SCALE_IN
         type: string
       created_at:
         type: string
