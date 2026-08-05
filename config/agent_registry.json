@@ -30,7 +30,12 @@
         "generate_deployment_manifest",
         "submit_deployment_manifest",
         "observe_deployment_status",
-        "observe_status"
+        "observe_status",
+        "deploy_application",
+        "scale_out_application",
+        "restart_application",
+        "rollback_application",
+        "stop_application"
       ],
       "reward_signals": [
         "Positive reward when the manifest is contract-valid and preserves trusted request fields.",
@@ -42,7 +47,7 @@
     },
     {
       "name": "OperationOptimizationAgent",
-      "korean_name": "AI ?묒슜 ?댁쁺 理쒖쟻???먯씠?꾪듃",
+      "korean_name": "AI 응용 운영 최적화 에이전트",
       "role": "Evaluate deployment status, SLO, resource utilization, and inference metrics and produce a bounded scaling recommendation.",
       "responsibilities": [
         "Join deployment.status.changed and optimization.feedback.created using correlation_id and decision_id.",
