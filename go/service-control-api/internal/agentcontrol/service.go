@@ -18,12 +18,13 @@ type Authorizer interface {
 }
 
 type Service struct {
-	mu              sync.RWMutex
-	flows           map[string]Flow
-	now             func() time.Time
-	reasoner        Reasoner
-	authorizer      Authorizer
-	decisionRuntime DecisionAgentRuntime
+	mu               sync.RWMutex
+	flows            map[string]Flow
+	now              func() time.Time
+	reasoner         Reasoner
+	authorizer       Authorizer
+	decisionRuntime  DecisionAgentRuntime
+	operationRuntime OperationOptimizationRuntime
 }
 
 func NewService() *Service {
@@ -43,12 +44,22 @@ func NewServiceWithDecisionRuntime(
 	authorizer Authorizer,
 	decisionRuntime DecisionAgentRuntime,
 ) *Service {
+	return NewServiceWithRuntimes(reasoner, authorizer, decisionRuntime, nil)
+}
+
+func NewServiceWithRuntimes(
+	reasoner Reasoner,
+	authorizer Authorizer,
+	decisionRuntime DecisionAgentRuntime,
+	operationRuntime OperationOptimizationRuntime,
+) *Service {
 	return &Service{
-		flows:           map[string]Flow{},
-		now:             func() time.Time { return time.Now().UTC() },
-		reasoner:        reasoner,
-		authorizer:      authorizer,
-		decisionRuntime: decisionRuntime,
+		flows:            map[string]Flow{},
+		now:              func() time.Time { return time.Now().UTC() },
+		reasoner:         reasoner,
+		authorizer:       authorizer,
+		decisionRuntime:  decisionRuntime,
+		operationRuntime: operationRuntime,
 	}
 }
 
@@ -161,7 +172,7 @@ func (service *Service) ReceiveDeploymentStatus(
 	messageCopy := cloneDeploymentStatusEnvelope(message)
 	flow.DeploymentStatus = &messageCopy
 	flow.FeedbackSummary = summarizeFeedback(flow)
-	flow.ScalingDecision = evaluateScalingDecision(flow, service.now())
+	flow.ScalingDecision = nil
 	flow.UpdatedAt = service.now().Format(time.RFC3339Nano)
 	service.flows[message.CorrelationID] = cloneFlow(flow)
 	return cloneFlow(flow), nil
@@ -170,6 +181,14 @@ func (service *Service) ReceiveDeploymentStatus(
 func (service *Service) ReceiveOptimizationFeedback(
 	ctx context.Context,
 	message OptimizationFeedbackEnvelope,
+) (Flow, error) {
+	return service.ReceiveOptimizationFeedbackForAgent(ctx, message, "")
+}
+
+func (service *Service) ReceiveOptimizationFeedbackForAgent(
+	ctx context.Context,
+	message OptimizationFeedbackEnvelope,
+	requestedAgent string,
 ) (Flow, error) {
 	if err := ctx.Err(); err != nil {
 		return Flow{}, err
@@ -182,10 +201,10 @@ func (service *Service) ReceiveOptimizationFeedback(
 	}
 
 	service.mu.Lock()
-	defer service.mu.Unlock()
 
 	flow, ok := service.flows[message.CorrelationID]
 	if !ok {
+		service.mu.Unlock()
 		return Flow{}, fmt.Errorf("correlation_id does not identify an Agent Control flow")
 	}
 	feedback := message.Data.OptimizationFeedback
@@ -195,18 +214,69 @@ func (service *Service) ReceiveOptimizationFeedback(
 		feedback.DecisionID,
 		feedback.DeploymentID,
 	); err != nil {
+		service.mu.Unlock()
 		return Flow{}, err
 	}
 	if flow.DeploymentStatus == nil {
+		service.mu.Unlock()
 		return Flow{}, fmt.Errorf("deployment.status.changed must be received before optimization feedback")
+	}
+	if flow.OptimizationFeedback != nil && flow.OptimizationFeedback.MessageID == message.MessageID {
+		service.mu.Unlock()
+		return cloneFlow(flow), nil
 	}
 	messageCopy := cloneOptimizationFeedbackEnvelope(message)
 	flow.OptimizationFeedback = &messageCopy
+	flow.RequestedOperationAgent = strings.TrimSpace(requestedAgent)
+	flow.OperationAgentExecution = nil
 	flow.FeedbackSummary = summarizeFeedback(flow)
-	flow.ScalingDecision = evaluateScalingDecision(flow, service.now())
+	flow.ScalingDecision = nil
 	flow.UpdatedAt = service.now().Format(time.RFC3339Nano)
 	service.flows[message.CorrelationID] = cloneFlow(flow)
-	return cloneFlow(flow), nil
+	snapshot := cloneFlow(flow)
+	service.mu.Unlock()
+
+	if service.operationRuntime == nil {
+		return snapshot, nil
+	}
+
+	result, runtimeErr := service.operationRuntime.Optimize(ctx, OperationOptimizationRequest{
+		RunID:          snapshot.AutomationRunID,
+		RequestedAgent: snapshot.RequestedOperationAgent,
+		CorrelationID:  snapshot.CorrelationID,
+		TraceID:        snapshot.TraceID,
+		Flow:           snapshot,
+	})
+	result = CanonicalizeOperationOptimizationResult(result)
+	if runtimeErr != nil {
+		result.Status = "failed"
+		if strings.TrimSpace(result.Message) == "" {
+			result.Message = runtimeErr.Error()
+		}
+	}
+	scalingGuard := validateOperationOptimizationResult(snapshot, result)
+
+	service.mu.Lock()
+	defer service.mu.Unlock()
+	current, ok := service.flows[message.CorrelationID]
+	if !ok || current.TraceID != snapshot.TraceID || current.OptimizationFeedback == nil ||
+		current.OptimizationFeedback.MessageID != message.MessageID {
+		return cloneFlow(current), nil
+	}
+	resultCopy := cloneOperationOptimizationResult(result)
+	current.OperationAgentExecution = &resultCopy
+	if runtimeErr == nil &&
+		result.Status == "completed" &&
+		result.RequestGuard.Status == GuardApproved &&
+		result.ResultGuard.Status == GuardApproved &&
+		scalingGuard.Status == GuardApproved {
+		decision := result.Decision
+		decision.Evidence = append([]string(nil), result.Decision.Evidence...)
+		current.ScalingDecision = &decision
+	}
+	current.UpdatedAt = service.now().Format(time.RFC3339Nano)
+	service.flows[message.CorrelationID] = cloneFlow(current)
+	return cloneFlow(current), nil
 }
 
 func (service *Service) CompareReasoning(
@@ -1202,6 +1272,10 @@ func cloneFlow(flow Flow) Flow {
 		value := cloneDecisionAgentResult(*flow.AgentExecution)
 		result.AgentExecution = &value
 	}
+	if flow.OperationAgentExecution != nil {
+		value := cloneOperationOptimizationResult(*flow.OperationAgentExecution)
+		result.OperationAgentExecution = &value
+	}
 	if flow.Decision != nil {
 		value := *flow.Decision
 		if flow.Decision.CorrectionRequest != nil {
@@ -1265,6 +1339,15 @@ func cloneDecisionAgentResult(result DecisionAgentResult) DecisionAgentResult {
 		correction.Issues = append([]ValidationIssue(nil), correction.Issues...)
 		result.Decision.CorrectionRequest = &correction
 	}
+	return result
+}
+
+func cloneOperationOptimizationResult(result OperationOptimizationResult) OperationOptimizationResult {
+	result.RequestGuard.Checks = append([]GuardCheck(nil), result.RequestGuard.Checks...)
+	result.RequestGuard.Issues = append([]ValidationIssue(nil), result.RequestGuard.Issues...)
+	result.ResultGuard.Checks = append([]GuardCheck(nil), result.ResultGuard.Checks...)
+	result.ResultGuard.Issues = append([]ValidationIssue(nil), result.ResultGuard.Issues...)
+	result.Decision.Evidence = append([]string(nil), result.Decision.Evidence...)
 	return result
 }
 

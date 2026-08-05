@@ -52,10 +52,11 @@ func NewService(config ServerConfig) Service {
 	)
 	decisionRuntime := newDecisionAgentRuntime(config, runtimeAgents, dispatcher)
 	operationRuntime := newOperationOptimizationRuntime(config, runtimeAgents, dispatcher)
-	agentControlService := agentcontrol.NewServiceWithDecisionRuntime(
+	agentControlService := agentcontrol.NewServiceWithRuntimes(
 		reasoner,
 		authorizer,
 		decisionRuntime,
+		operationRuntime,
 	)
 	resourceCatalog, _ := agentcontrol.LoadResourceCatalog(config.ResourceCatalogPath)
 	deploymentAdapter, _ := agentcontrol.NewDeploymentAdapter(config.DeploymentAdapterMode)

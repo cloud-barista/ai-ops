@@ -205,9 +205,10 @@ func (handler restHandler) RestPostOptimizationFeedback(context echo.Context) er
 	if message, err := bindAndValidate(context, &request); err != nil {
 		return jsonError(context, http.StatusBadRequest, message, err)
 	}
-	flow, err := handler.service.agentControl.ReceiveOptimizationFeedback(
+	flow, err := handler.service.agentControl.ReceiveOptimizationFeedbackForAgent(
 		context.Request().Context(),
 		request,
+		context.QueryParam("operation_agent"),
 	)
 	if err != nil {
 		return jsonError(context, http.StatusBadRequest, "Optimization feedback could not be accepted", err)

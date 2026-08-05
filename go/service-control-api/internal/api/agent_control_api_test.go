@@ -431,6 +431,42 @@ func TestAgentControlFeedbackAPI(t *testing.T) {
 	}
 }
 
+func TestAgentControlFeedbackAPISelectsOperationAgentFromQuery(t *testing.T) {
+	server := NewServer(NewServerConfig())
+	postAgentControlInputPair(t, server)
+
+	status := apiDeploymentStatusEnvelope()
+	statusResponse := performJSONRequest(
+		t,
+		server,
+		http.MethodPost,
+		"/api/v1/agent-control/deployment-status",
+		marshalAgentControlMessage(t, status),
+	)
+	if statusResponse.Code != http.StatusAccepted {
+		t.Fatalf("deployment status: code=%d body=%s", statusResponse.Code, statusResponse.Body.String())
+	}
+
+	body := marshalAgentControlMessage(t, apiOptimizationFeedbackEnvelope())
+	if strings.Contains(body, "operation_agent") {
+		t.Fatalf("Common JSON feedback body must not contain operation_agent: %s", body)
+	}
+	feedbackResponse := performJSONRequest(
+		t,
+		server,
+		http.MethodPost,
+		"/api/v1/agent-control/optimization-feedback?operation_agent=OperationOptimizationAgent",
+		body,
+	)
+	if feedbackResponse.Code != http.StatusAccepted {
+		t.Fatalf("optimization feedback: code=%d body=%s", feedbackResponse.Code, feedbackResponse.Body.String())
+	}
+	if !strings.Contains(feedbackResponse.Body.String(), `"requested_operation_agent":"OperationOptimizationAgent"`) ||
+		!strings.Contains(feedbackResponse.Body.String(), `"operation_agent_execution"`) {
+		t.Fatalf("operation Agent selection was not recorded: %s", feedbackResponse.Body.String())
+	}
+}
+
 func TestAgentControlDeletesFlowAPI(t *testing.T) {
 	server := NewServer(NewServerConfig())
 	postAgentControlInputPair(t, server)
@@ -684,5 +720,58 @@ func apiResourceRecommendationEnvelope() agentcontrol.ResourceRecommendationEnve
 				},
 			},
 		},
+	}
+}
+
+func apiDeploymentStatusEnvelope() agentcontrol.DeploymentStatusEnvelope {
+	return agentcontrol.DeploymentStatusEnvelope{
+		Envelope: agentcontrol.Envelope{
+			ContractVersion: agentcontrol.ContractVersionV1,
+			MessageID:       "msg-deployment-api-001",
+			MessageType:     agentcontrol.MessageDeploymentStatusChanged,
+			OccurredAt:      "2026-07-29T05:10:00Z",
+			CorrelationID:   "flow-api-001",
+			TraceID:         "trace-api-001",
+			Source:          agentcontrol.Endpoint{System: "deployment-orchestrator", Component: "runtime-adapter"},
+			Target:          agentcontrol.Endpoint{System: "khu-geon", Component: "agent-control"},
+		},
+		Data: agentcontrol.DeploymentStatusData{DeploymentStatus: agentcontrol.DeploymentStatus{
+			DeploymentID: "deployment-api-001",
+			DecisionID:   "decision-flow-api-001",
+			State:        agentcontrol.DeploymentStateRunning,
+			Message:      "The application is running.",
+			UpdatedAt:    "2026-07-29T05:10:00Z",
+		}},
+	}
+}
+
+func apiOptimizationFeedbackEnvelope() agentcontrol.OptimizationFeedbackEnvelope {
+	return agentcontrol.OptimizationFeedbackEnvelope{
+		Envelope: agentcontrol.Envelope{
+			ContractVersion: agentcontrol.ContractVersionV1,
+			MessageID:       "msg-feedback-api-001",
+			MessageType:     agentcontrol.MessageOptimizationFeedbackCreated,
+			OccurredAt:      "2026-07-29T05:30:00Z",
+			CorrelationID:   "flow-api-001",
+			TraceID:         "trace-api-001",
+			Source:          agentcontrol.Endpoint{System: "deployment-orchestrator", Component: "monitoring"},
+			Target:          agentcontrol.Endpoint{System: "khu-geon", Component: "agent-control"},
+		},
+		Data: agentcontrol.OptimizationFeedbackData{OptimizationFeedback: agentcontrol.OptimizationFeedback{
+			FeedbackID:   "feedback-api-001",
+			DecisionID:   "decision-flow-api-001",
+			DeploymentID: "deployment-api-001",
+			Outcome:      agentcontrol.FeedbackOutcomeSucceeded,
+			ObservationWindow: agentcontrol.ObservationWindow{
+				StartedAt: "2026-07-29T05:10:00Z",
+				EndedAt:   "2026-07-29T05:30:00Z",
+			},
+			Metrics: agentcontrol.OptimizationMetrics{
+				Resource:  agentcontrol.ResourceMetrics{CPUAveragePercent: 50, AcceleratorAveragePercent: 75},
+				Inference: agentcontrol.InferenceMetrics{LatencyP95MS: 1200, ThroughputRPS: 6.4},
+				Cost:      agentcontrol.CostMetrics{Currency: "KRW", EstimatedCost: 800},
+			},
+			CreatedAt: "2026-07-29T05:30:00Z",
+		}},
 	}
 }
