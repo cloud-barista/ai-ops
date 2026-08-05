@@ -24,9 +24,14 @@
 
 핵심 산출물은 실제 VM 배포 명령이 아니라 **검증 근거가 포함된 배포 결정과 플랫폼 중립적인 `DesiredDeploymentSpec`**입니다.
 
-## 바로 실행하기
+## 실행
 
-저장소 루트의 실행 파일이 환경 변수 설정과 `go run`을 자동으로 처리합니다.
+[Go 1.25 이상](https://go.dev/dl/)을 설치하고 저장소를 받습니다.
+
+```bash
+git clone --branch geon --single-branch https://github.com/cloud-barista/ai-ops.git
+cd ai-ops
+```
 
 Windows PowerShell 또는 VS Code 터미널:
 
@@ -40,59 +45,7 @@ Git Bash, Linux 또는 macOS:
 ./run-agent-control.sh
 ```
 
-실행 후 [http://127.0.0.1:18080/](http://127.0.0.1:18080/)을 엽니다. 종료할 때는 실행한 터미널에서 `Ctrl+C`를 누릅니다.
-
-## VS Code에서 F5로 실행
-
-### 1. 저장소 열기
-
-```bash
-git clone --branch geon --single-branch https://github.com/cloud-barista/ai-ops.git
-cd ai-ops
-code .
-```
-
-### 2. 준비
-
-- [Go 1.25 이상](https://go.dev/dl/)
-- VS Code Go 확장 `golang.go`
-
-설치 후 VS Code를 다시 시작하고 터미널에서 확인합니다.
-
-```bash
-go version
-```
-
-### 3. 실행
-
-1. VS Code의 **Run and Debug**를 엽니다.
-2. `geon: Agent Control (18080)`을 선택합니다.
-3. `F5`를 누릅니다.
-
-| 화면 | 주소 |
-| --- | --- |
-| Agent Control | [http://127.0.0.1:18080/](http://127.0.0.1:18080/) |
-| Health | [http://127.0.0.1:18080/healthz](http://127.0.0.1:18080/healthz) |
-| OpenAPI | [http://127.0.0.1:18080/openapi.yaml](http://127.0.0.1:18080/openapi.yaml) |
-
-F5 실행은 다음 설정을 자동 적용합니다.
-
-```text
-AIOPS_REPO_ROOT=<저장소 루트>
-AIOPS_BIND_ADDRESS=127.0.0.1
-AIOPS_DEPLOYMENT_ADAPTER=mock
-PORT=18080
-```
-
-### VS Code Task
-
-`Ctrl+Shift+P` → **Tasks: Run Task**에서 실행합니다.
-
-| Task | 역할 |
-| --- | --- |
-| `geon: 서버 실행 (18080)` | 디버거 없이 서버 실행 |
-| `geon: 전체 테스트` | 전체 Go 테스트 |
-| `geon: Go Vet` | Go 정적 검사 |
+실행 후 [http://127.0.0.1:18080/](http://127.0.0.1:18080/)을 엽니다. 종료는 `Ctrl+C`입니다.
 
 ## 웹 실험 순서
 
