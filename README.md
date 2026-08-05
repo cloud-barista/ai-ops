@@ -24,7 +24,25 @@
 
 핵심 산출물은 실제 VM 배포 명령이 아니라 **검증 근거가 포함된 배포 결정과 플랫폼 중립적인 `DesiredDeploymentSpec`**입니다.
 
-## 빠른 시작: VS Code
+## 바로 실행하기
+
+저장소 루트의 실행 파일이 환경 변수 설정과 `go run`을 자동으로 처리합니다.
+
+Windows PowerShell 또는 VS Code 터미널:
+
+```powershell
+.\run-agent-control.cmd
+```
+
+Git Bash, Linux 또는 macOS:
+
+```bash
+./run-agent-control.sh
+```
+
+실행 후 [http://127.0.0.1:18080/](http://127.0.0.1:18080/)을 엽니다. 종료할 때는 실행한 터미널에서 `Ctrl+C`를 누릅니다.
+
+## VS Code에서 F5로 실행
 
 ### 1. 저장소 열기
 

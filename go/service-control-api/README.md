@@ -23,7 +23,25 @@ Natural-language request or Structured App Spec
 
 핵심 Flow는 AppDeploy, VM, Kubernetes 없이 로컬에서 독립 실행할 수 있습니다. 실제 배포와 플랫폼 전용 변환은 외부 시스템의 책임입니다.
 
-## VS Code 실행
+## 바로 실행
+
+저장소 루트에서 다음 중 하나를 실행합니다.
+
+Windows PowerShell 또는 VS Code 터미널:
+
+```powershell
+.\run-agent-control.cmd
+```
+
+Git Bash, Linux 또는 macOS:
+
+```bash
+./run-agent-control.sh
+```
+
+실행 후 [http://127.0.0.1:18080/](http://127.0.0.1:18080/)을 엽니다. 종료할 때는 `Ctrl+C`를 누릅니다.
+
+## VS Code F5 실행
 
 저장소 루트에 포함된 VS Code 구성으로 실행하는 방법을 권장합니다.
 
