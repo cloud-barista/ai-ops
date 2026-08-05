@@ -798,7 +798,7 @@ function renderExperimentFlows() {
     );
     const select = createElement("button", "flow-select");
     select.type = "button";
-    select.dataset.flowID = flow.correlation_id;
+    select.dataset.flowId = flow.correlation_id;
     select.append(
       createElement("strong", "", flow.correlation_id),
       createElement(
