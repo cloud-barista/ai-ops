@@ -468,6 +468,94 @@ func TestAgentControlFeedbackAPISelectsOperationAgentFromQuery(t *testing.T) {
 	}
 }
 
+func TestAgentControlFeedbackAPISanitizesFailedRuntimeOperationAgentResult(t *testing.T) {
+	const sensitiveMessage = "Authorization: Bearer super-secret-token"
+	const sensitiveProposal = "private endpoint https://runtime.internal/token"
+	runtimeAgent := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+		var dispatched AgentDispatchRequest
+		if err := json.NewDecoder(request.Body).Decode(&dispatched); err != nil {
+			t.Errorf("decode Runtime Agent request: %v", err)
+		}
+		response.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(response).Encode(AgentExecutionResult{
+			RunID:   dispatched.RunID,
+			Agent:   dispatched.Agent,
+			Status:  "failed",
+			Message: sensitiveMessage,
+			Proposal: AgentProposal{
+				Action: dispatched.Action,
+				Parameters: map[string]any{
+					"action":           agentcontrol.ScalingActionScaleOut,
+					"current_replicas": 1,
+					"desired_replicas": 2,
+					"reason":           sensitiveProposal,
+					"evidence":         []string{sensitiveProposal},
+				},
+			},
+			DomainValidation: "scaling_decision",
+		})
+	}))
+	defer runtimeAgent.Close()
+
+	server := NewServer(NewServerConfig())
+	registration := performJSONRequest(
+		t,
+		server,
+		http.MethodPost,
+		"/api/v1/agents",
+		`{
+			"name":"RuntimeOperationAgent",
+			"version":"1.0.0",
+			"role":"Generate one bounded scaling recommendation.",
+			"endpoint":"`+runtimeAgent.URL+`",
+			"invocation_path":"/execute",
+			"capabilities":["ai_application_operation_optimization"],
+			"bounded_actions":["generate_scaling_decision"],
+			"enabled":true
+		}`,
+	)
+	if registration.Code != http.StatusCreated {
+		t.Fatalf("register Runtime operation Agent: code=%d body=%s", registration.Code, registration.Body.String())
+	}
+	postAgentControlInputPair(t, server)
+	statusResponse := performJSONRequest(
+		t,
+		server,
+		http.MethodPost,
+		"/api/v1/agent-control/deployment-status",
+		marshalAgentControlMessage(t, apiDeploymentStatusEnvelope()),
+	)
+	if statusResponse.Code != http.StatusAccepted {
+		t.Fatalf("deployment status: code=%d body=%s", statusResponse.Code, statusResponse.Body.String())
+	}
+	response := performJSONRequest(
+		t,
+		server,
+		http.MethodPost,
+		"/api/v1/agent-control/optimization-feedback?operation_agent=RuntimeOperationAgent",
+		marshalAgentControlMessage(t, apiOptimizationFeedbackEnvelope()),
+	)
+	if response.Code != http.StatusAccepted {
+		t.Fatalf("optimization feedback: code=%d body=%s", response.Code, response.Body.String())
+	}
+	if strings.Contains(response.Body.String(), sensitiveMessage) || strings.Contains(response.Body.String(), sensitiveProposal) {
+		t.Fatalf("accepted Flow leaked Runtime Agent content: %s", response.Body.String())
+	}
+	var flow agentcontrol.Flow
+	if err := json.Unmarshal(response.Body.Bytes(), &flow); err != nil {
+		t.Fatalf("decode optimization feedback Flow: %v", err)
+	}
+	if flow.OperationAgentExecution == nil ||
+		flow.OperationAgentExecution.Status != "failed" ||
+		flow.OperationAgentExecution.Message != "Operation Agent execution failed." {
+		t.Fatalf("safe Runtime Agent evidence = %#v", flow.OperationAgentExecution)
+	}
+	if flow.OperationAgentExecution.ResultGuard.Status != agentcontrol.GuardRejected ||
+		flow.ScalingDecision != nil {
+		t.Fatalf("failed Runtime Agent Flow = %#v", flow)
+	}
+}
+
 func TestOptimizationFeedbackHandlerDocumentsOperationAgentQuery(t *testing.T) {
 	source, err := os.ReadFile("agent_control_api.go")
 	if err != nil {

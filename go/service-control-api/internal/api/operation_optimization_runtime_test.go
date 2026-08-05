@@ -2,7 +2,9 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"strings"
 	"testing"
 
 	"kyunghee-aiops/service-control-api/internal/agentcontrol"
@@ -134,6 +136,58 @@ func TestOperationOptimizationRuntimeRejectsMalformedRuntimeResult(t *testing.T)
 	}
 	if result.ResultGuard.Status != agentcontrol.GuardRejected {
 		t.Fatalf("result Guard = %#v", result.ResultGuard)
+	}
+}
+
+func TestOperationOptimizationRuntimeSanitizesFailedRuntimeResultWithoutDecodingProposal(t *testing.T) {
+	store := newRuntimeAgentStore()
+	runtimeAgent := operationAgent("RuntimeOperationAgent", true)
+	runtimeAgent.Source = agentSourceRuntime
+	if err := store.add(runtimeAgent); err != nil {
+		t.Fatalf("register Runtime operation Agent: %v", err)
+	}
+	const sensitiveMessage = "Authorization: Bearer super-secret-token"
+	const sensitiveProposal = "private endpoint https://runtime.internal/token"
+	dispatcher := newAgentDispatcher(nil, &recordingAgentExecutor{result: AgentExecutionResult{
+		RunID:   "run-operation-001",
+		Agent:   runtimeAgent.Name,
+		Status:  "failed",
+		Message: sensitiveMessage,
+		Proposal: AgentProposal{
+			Action: agentcontrol.OperationOptimizationDecisionAction,
+			Parameters: map[string]any{
+				"action":           agentcontrol.ScalingActionScaleOut,
+				"current_replicas": 1,
+				"desired_replicas": 2,
+				"reason":           sensitiveProposal,
+				"evidence":         []string{sensitiveProposal},
+			},
+		},
+		DomainValidation: "scaling_decision",
+	}})
+	runtime := newOperationOptimizationRuntime(NewServerConfig(), store, dispatcher)
+	request := operationRuntimeRequest()
+	request.RequestedAgent = runtimeAgent.Name
+
+	result, err := runtime.Optimize(context.Background(), request)
+	if err != nil {
+		t.Fatalf("failed Runtime Agent result must remain a safe Flow result: %v", err)
+	}
+	if result.Status != "failed" || result.Message != "Operation Agent execution failed." {
+		t.Fatalf("sanitized runtime result = %#v", result)
+	}
+	if result.ResultGuard.Status != agentcontrol.GuardRejected {
+		t.Fatalf("failed Runtime Agent result Guard = %#v", result.ResultGuard)
+	}
+	if result.Decision.Action != "" || result.Decision.Reason != "" || len(result.Decision.Evidence) != 0 {
+		t.Fatalf("failed Runtime Agent proposal must not be decoded: %#v", result.Decision)
+	}
+	encoded, err := json.Marshal(result)
+	if err != nil {
+		t.Fatalf("marshal sanitized runtime result: %v", err)
+	}
+	if strings.Contains(string(encoded), sensitiveMessage) || strings.Contains(string(encoded), sensitiveProposal) {
+		t.Fatalf("sanitized runtime result leaked runtime content: %s", encoded)
 	}
 }
 

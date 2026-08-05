@@ -98,6 +98,21 @@ func (runtime *registryOperationOptimizationRuntime) Optimize(
 	}
 	result.Status = execution.Status
 	result.LatencyMS = execution.LatencyMS
+	if execution.Status != "completed" {
+		result.Message = "Operation Agent execution failed."
+		if !agentExecutionStatusAllowed(execution.Status) {
+			result.ResultGuard = agentControlGuard(
+				rejectedGuardDecision("Operation Agent returned an unsupported execution status."),
+				"agent_result_guard",
+			)
+			return result, fmt.Errorf("operation optimization Agent returned unsupported execution status")
+		}
+		result.ResultGuard = agentControlGuard(
+			rejectedGuardDecision("Operation Agent did not complete."),
+			"agent_result_guard",
+		)
+		return result, nil
+	}
 	result.Message = execution.Message
 	resultGuard := validateAgentExecutionResult(agent, dispatchRequest, execution)
 	result.ResultGuard = agentControlGuard(resultGuard, "agent_result_guard")
