@@ -47,6 +47,39 @@ func TestOperationOptimizationRuntimeDispatchesInternalAgentThroughGuards(t *tes
 	}
 }
 
+func TestOperationOptimizationRuntimeDispatchesOnlyTrustedOperationSnapshot(t *testing.T) {
+	decision := agentcontrol.ScalingDecision{
+		Action:          agentcontrol.ScalingActionScaleOut,
+		CurrentReplicas: 1,
+		DesiredReplicas: 2,
+	}
+	internal := &recordingAgentExecutor{result: AgentExecutionResult{
+		RunID:  "run-operation-001",
+		Agent:  agentcontrol.OperationOptimizationAgentName,
+		Status: "completed",
+		Proposal: AgentProposal{
+			Action:     agentcontrol.OperationOptimizationDecisionAction,
+			Parameters: mustAnyMap(t, decision),
+		},
+		DomainValidation: "scaling_decision",
+	}}
+	runtime := newOperationOptimizationRuntime(
+		NewServerConfig(),
+		newRuntimeAgentStore(),
+		newAgentDispatcher(map[string]agentExecutor{agentcontrol.OperationOptimizationAgentName: internal}, nil),
+	)
+
+	if _, err := runtime.Optimize(context.Background(), operationRuntimeRequest()); err != nil {
+		t.Fatalf("optimize with trusted snapshot: %v", err)
+	}
+	if _, ok := internal.request.Input["flow"]; ok {
+		t.Fatalf("dispatcher input must not contain a complete Flow: %#v", internal.request.Input)
+	}
+	if _, ok := internal.request.Input["operation_input"]; !ok {
+		t.Fatalf("dispatcher input is missing operation snapshot: %#v", internal.request.Input)
+	}
+}
+
 func TestOperationOptimizationRuntimeDoesNotFallbackAfterRuntimeDispatchFailure(t *testing.T) {
 	store := newRuntimeAgentStore()
 	runtimeAgent := operationAgent("RuntimeOperationAgent", true)

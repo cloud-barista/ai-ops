@@ -15,6 +15,15 @@ type registryOperationOptimizationRuntime struct {
 	dispatcher    *agentDispatcher
 }
 
+type trustedOperationInputSnapshot struct {
+	DeploymentStatus     *agentcontrol.DeploymentStatus     `json:"deployment_status,omitempty"`
+	OptimizationFeedback *agentcontrol.OptimizationFeedback `json:"optimization_feedback,omitempty"`
+	SLO                  agentcontrol.SLORequirements       `json:"slo"`
+	CurrentReplicas      int                                `json:"current_replicas"`
+	MinimumReplicas      int                                `json:"minimum_replicas"`
+	MaximumReplicas      int                                `json:"maximum_replicas"`
+}
+
 func newOperationOptimizationRuntime(
 	config ServerConfig,
 	runtimeAgents *runtimeAgentStore,
@@ -107,11 +116,29 @@ func (runtime *registryOperationOptimizationRuntime) Optimize(
 func operationOptimizationRuntimeInput(
 	request agentcontrol.OperationOptimizationRequest,
 ) (map[string]any, error) {
-	flow, err := encodeAnyMap(request.Flow)
-	if err != nil {
-		return nil, fmt.Errorf("encode operation Flow: %w", err)
+	snapshot := trustedOperationInputSnapshot{}
+	if request.Flow.DeploymentStatus != nil {
+		status := request.Flow.DeploymentStatus.Data.DeploymentStatus
+		snapshot.DeploymentStatus = &status
 	}
-	return map[string]any{"flow": flow}, nil
+	if request.Flow.OptimizationFeedback != nil {
+		feedback := request.Flow.OptimizationFeedback.Data.OptimizationFeedback
+		snapshot.OptimizationFeedback = &feedback
+	}
+	if request.Flow.ApplicationContext != nil {
+		requirements := request.Flow.ApplicationContext.Data.ApplicationProfile.Requirements
+		snapshot.SLO = requirements.SLO
+		snapshot.MinimumReplicas = requirements.Deployment.ReplicasMin
+		snapshot.MaximumReplicas = requirements.Deployment.ReplicasMax
+	}
+	if request.Flow.DeploymentPlan != nil {
+		snapshot.CurrentReplicas = request.Flow.DeploymentPlan.InferenceConfiguration.Replicas
+	}
+	input, err := encodeAnyMap(snapshot)
+	if err != nil {
+		return nil, fmt.Errorf("encode trusted operation input: %w", err)
+	}
+	return map[string]any{"operation_input": input}, nil
 }
 
 func decodeScalingDecisionProposal(parameters map[string]any) (agentcontrol.ScalingDecision, error) {

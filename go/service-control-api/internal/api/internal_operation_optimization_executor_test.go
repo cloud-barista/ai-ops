@@ -31,6 +31,28 @@ func TestInternalOperationOptimizationExecutorReturnsBoundedDecision(t *testing.
 	}
 }
 
+func TestInternalOperationOptimizationExecutorIgnoresForgedUnrelatedFlowFields(t *testing.T) {
+	trusted := operationReadyFlow()
+	forged := operationReadyFlow()
+	forged.ApplicationContext.Data.ApplicationProfile.Requirements.Deployment.ReplicasMax = 1
+
+	request := operationDispatchRequest(t, trusted)
+	request.Input["flow"] = mustAnyMap(t, forged)
+
+	result, err := newInternalOperationOptimizationExecutor().Execute(
+		context.Background(),
+		operationAgent(agentcontrol.OperationOptimizationAgentName, true),
+		request,
+	)
+	if err != nil {
+		t.Fatalf("execute with forged unrelated Flow-shaped input: %v", err)
+	}
+	if result.Proposal.Parameters["action"] != agentcontrol.ScalingActionScaleOut ||
+		result.Proposal.Parameters["desired_replicas"] != float64(2) {
+		t.Fatalf("forged Flow altered scaling proposal: %#v", result.Proposal.Parameters)
+	}
+}
+
 func TestInternalOperationOptimizationExecutorRejectsMalformedStatus(t *testing.T) {
 	flow := operationReadyFlow()
 	flow.DeploymentStatus.Data.DeploymentStatus.State = "UNKNOWN"
@@ -80,14 +102,21 @@ func operationDispatchRequest(t *testing.T, flow agentcontrol.Flow) AgentDispatc
 		Agent:      agentcontrol.OperationOptimizationAgentName,
 		Capability: agentcontrol.OperationOptimizationCapability,
 		Action:     agentcontrol.OperationOptimizationDecisionAction,
-		Input: map[string]any{
-			"flow": mustAnyMap(t, flow),
-		},
+		Input:      trustedOperationInput(t, flow),
 		Context: map[string]any{
 			"correlation_id": "flow-operation-001",
 			"trace_id":       "trace-operation-001",
 		},
 	}
+}
+
+func trustedOperationInput(t *testing.T, flow agentcontrol.Flow) map[string]any {
+	t.Helper()
+	input, err := operationOptimizationRuntimeInput(agentcontrol.OperationOptimizationRequest{Flow: flow})
+	if err != nil {
+		t.Fatalf("construct trusted operation input: %v", err)
+	}
+	return input
 }
 
 func operationReadyFlow() agentcontrol.Flow {

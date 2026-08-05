@@ -28,16 +28,40 @@ func (executor *internalOperationOptimizationExecutor) Execute(
 	if executor == nil {
 		return AgentExecutionResult{}, fmt.Errorf("Internal operation optimization Agent executor is required")
 	}
-	flow, err := decodeDecisionInput[agentcontrol.Flow](request.Input, "flow")
+	input, err := decodeDecisionInput[trustedOperationInputSnapshot](request.Input, "operation_input")
 	if err != nil {
 		return AgentExecutionResult{}, err
 	}
-	if flow.DeploymentStatus == nil ||
-		strings.TrimSpace(flow.DeploymentStatus.Data.DeploymentStatus.State) != agentcontrol.DeploymentStateRunning {
+	if input.DeploymentStatus == nil ||
+		strings.TrimSpace(input.DeploymentStatus.State) != agentcontrol.DeploymentStateRunning {
 		return AgentExecutionResult{}, fmt.Errorf("operation Agent input requires a RUNNING deployment status")
 	}
-	if flow.OptimizationFeedback == nil {
+	if input.OptimizationFeedback == nil {
 		return AgentExecutionResult{}, fmt.Errorf("operation Agent input requires optimization feedback")
+	}
+	flow := agentcontrol.Flow{
+		ApplicationContext: &agentcontrol.ApplicationContextEnvelope{
+			Data: agentcontrol.ApplicationContextData{
+				ApplicationProfile: agentcontrol.ApplicationProfile{
+					Requirements: agentcontrol.ApplicationRequirements{
+						Deployment: agentcontrol.DeploymentRequirements{
+							ReplicasMin: input.MinimumReplicas,
+							ReplicasMax: input.MaximumReplicas,
+						},
+						SLO: input.SLO,
+					},
+				},
+			},
+		},
+		DeploymentPlan: &agentcontrol.DeploymentPlan{
+			InferenceConfiguration: agentcontrol.InferenceConfiguration{Replicas: input.CurrentReplicas},
+		},
+		DeploymentStatus: &agentcontrol.DeploymentStatusEnvelope{
+			Data: agentcontrol.DeploymentStatusData{DeploymentStatus: *input.DeploymentStatus},
+		},
+		OptimizationFeedback: &agentcontrol.OptimizationFeedbackEnvelope{
+			Data: agentcontrol.OptimizationFeedbackData{OptimizationFeedback: *input.OptimizationFeedback},
+		},
 	}
 	now := executor.now
 	if now == nil {
