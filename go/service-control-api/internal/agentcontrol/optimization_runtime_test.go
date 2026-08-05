@@ -108,6 +108,14 @@ func TestValidateOperationOptimizationResultApprovesMaxBoundSLOKeep(t *testing.T
 	}
 }
 
+func TestValidateOperationOptimizationResultRejectsMixedMaxBoundKeepEvidence(t *testing.T) {
+	guard := validateOperationOptimizationResult(scaleOutReadyFlow(3, 3), approvedOptimizationResult(ScalingDecision{
+		Action: ScalingActionKeep, CurrentReplicas: 3, DesiredReplicas: 3,
+		Evidence: []string{"latency_p95_ms", "invented_metric"},
+	}))
+	assertOnlyGuardCheckFailed(t, guard, "evidence_integrity")
+}
+
 func TestValidateOperationOptimizationResultApprovesLegacyNoAction(t *testing.T) {
 	guard := validateOperationOptimizationResult(healthyKeepFlow(), approvedOptimizationResult(ScalingDecision{
 		Action: ScalingActionNoAction, CurrentReplicas: 1, DesiredReplicas: 1,
