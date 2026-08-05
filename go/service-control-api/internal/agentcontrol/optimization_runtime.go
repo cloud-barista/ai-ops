@@ -24,6 +24,7 @@ type OperationOptimizationResult struct {
 	LatencyMS    int64           `json:"latency_ms"`
 	RequestGuard GuardResult     `json:"request_guard"`
 	ResultGuard  GuardResult     `json:"result_guard"`
+	ScalingGuard GuardResult     `json:"scaling_guard"`
 	Decision     ScalingDecision `json:"decision"`
 	Message      string          `json:"message,omitempty"`
 }

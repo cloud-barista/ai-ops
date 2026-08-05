@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -361,6 +362,28 @@ type recordingOperationOptimizationRuntime struct {
 	request OperationOptimizationRequest
 }
 
+type blockingOperationOptimizationRuntime struct {
+	result  OperationOptimizationResult
+	started chan struct{}
+	release chan struct{}
+}
+
+func (runtime *blockingOperationOptimizationRuntime) Optimize(
+	ctx context.Context,
+	_ OperationOptimizationRequest,
+) (OperationOptimizationResult, error) {
+	select {
+	case runtime.started <- struct{}{}:
+	default:
+	}
+	select {
+	case <-runtime.release:
+		return runtime.result, nil
+	case <-ctx.Done():
+		return OperationOptimizationResult{Status: "failed", Message: ctx.Err().Error()}, ctx.Err()
+	}
+}
+
 func (runtime *recordingOperationOptimizationRuntime) Optimize(
 	_ context.Context,
 	request OperationOptimizationRequest,
@@ -466,6 +489,106 @@ func TestOptimizationFeedbackRecordsRuntimeFailureWithoutDecision(t *testing.T) 
 	}
 }
 
+func TestOptimizationFeedbackRejectsStaleDeploymentStatusAfterRuntimeReturns(t *testing.T) {
+	runtime := &blockingOperationOptimizationRuntime{
+		result:  approvedOperationOptimizationResult(),
+		started: make(chan struct{}, 1),
+		release: make(chan struct{}),
+	}
+	service := NewServiceWithRuntimes(nil, nil, nil, runtime)
+	createApprovedFlow(t, service)
+	if _, err := service.ReceiveDeploymentStatus(context.Background(), validDeploymentStatusEnvelope()); err != nil {
+		t.Fatalf("receive deployment status: %v", err)
+	}
+
+	type feedbackResult struct {
+		flow Flow
+		err  error
+	}
+	completed := make(chan feedbackResult, 1)
+	feedback := validOptimizationFeedbackEnvelope()
+	feedback.Data.OptimizationFeedback.SLOViolations = []string{"latency_p95_ms"}
+	go func() {
+		flow, err := service.ReceiveOptimizationFeedback(context.Background(), feedback)
+		completed <- feedbackResult{flow: flow, err: err}
+	}()
+	<-runtime.started
+
+	staleStatus := validDeploymentStatusEnvelope()
+	staleStatus.MessageID = "msg-deployment-status-failed"
+	staleStatus.Data.DeploymentStatus.State = DeploymentStateFailed
+	staleStatus.Data.DeploymentStatus.Message = "deployment stopped while Agent was running"
+	if _, err := service.ReceiveDeploymentStatus(context.Background(), staleStatus); err != nil {
+		t.Fatalf("receive newer deployment status: %v", err)
+	}
+	close(runtime.release)
+
+	result := <-completed
+	if result.err != nil {
+		t.Fatalf("receive optimization feedback: %v", result.err)
+	}
+	if result.flow.DeploymentStatus == nil ||
+		result.flow.DeploymentStatus.Data.DeploymentStatus.State != DeploymentStateFailed {
+		t.Fatalf("current deployment status = %#v", result.flow.DeploymentStatus)
+	}
+	if result.flow.ScalingDecision != nil {
+		t.Fatalf("stale deployment status must not keep a scaling decision: %#v", result.flow.ScalingDecision)
+	}
+	scalingGuard := operationScalingGuard(t, result.flow)
+	if scalingGuard.Status != GuardRejected || !hasGuardCheck(scalingGuard, "trusted_deployment_status", false) {
+		t.Fatalf("stale deployment evidence = %#v", scalingGuard)
+	}
+}
+
+func TestDeploymentStatusReplayPreservesOptimizationEvidenceAndDecision(t *testing.T) {
+	runtime := &recordingOperationOptimizationRuntime{result: approvedOperationOptimizationResult()}
+	service := NewServiceWithRuntimes(nil, nil, nil, runtime)
+	createApprovedFlow(t, service)
+	status := validDeploymentStatusEnvelope()
+	if _, err := service.ReceiveDeploymentStatus(context.Background(), status); err != nil {
+		t.Fatalf("receive deployment status: %v", err)
+	}
+	feedback := validOptimizationFeedbackEnvelope()
+	feedback.Data.OptimizationFeedback.SLOViolations = []string{"latency_p95_ms"}
+	before, err := service.ReceiveOptimizationFeedback(context.Background(), feedback)
+	if err != nil {
+		t.Fatalf("receive optimization feedback: %v", err)
+	}
+
+	after, err := service.ReceiveDeploymentStatus(context.Background(), status)
+	if err != nil {
+		t.Fatalf("replay deployment status: %v", err)
+	}
+	if !reflect.DeepEqual(after.OptimizationFeedback, before.OptimizationFeedback) ||
+		!reflect.DeepEqual(after.OperationAgentExecution, before.OperationAgentExecution) ||
+		!reflect.DeepEqual(after.ScalingDecision, before.ScalingDecision) {
+		t.Fatalf("status replay changed optimization result: before=%#v after=%#v", before, after)
+	}
+}
+
+func TestOptimizationFeedbackStoresRejectedScalingGuardEvidence(t *testing.T) {
+	result := approvedOperationOptimizationResult()
+	result.Decision.Evidence = []string{"invented_slo_violation"}
+	runtime := &recordingOperationOptimizationRuntime{result: result}
+	service := NewServiceWithRuntimes(nil, nil, nil, runtime)
+	createApprovedFlow(t, service)
+	if _, err := service.ReceiveDeploymentStatus(context.Background(), validDeploymentStatusEnvelope()); err != nil {
+		t.Fatalf("receive deployment status: %v", err)
+	}
+
+	flow, err := service.ReceiveOptimizationFeedback(context.Background(), validOptimizationFeedbackEnvelope())
+	if err != nil {
+		t.Fatalf("receive optimization feedback: %v", err)
+	}
+	if flow.ScalingDecision != nil {
+		t.Fatalf("rejected scaling Guard must not create a decision: %#v", flow.ScalingDecision)
+	}
+	scalingGuard := operationScalingGuard(t, flow)
+	if scalingGuard.Status != GuardRejected || !hasGuardCheck(scalingGuard, "slo_evidence", false) {
+		t.Fatalf("scaling Guard evidence = %#v", scalingGuard)
+	}
+}
+
 func TestFlowCloneDeepCopiesOperationAgentExecution(t *testing.T) {
 	flow := Flow{OperationAgentExecution: &OperationOptimizationResult{
 		RequestGuard: GuardResult{
@@ -493,6 +616,52 @@ func TestFlowCloneDeepCopiesOperationAgentExecution(t *testing.T) {
 		flow.OperationAgentExecution.Decision.Evidence[0] != "latency_p95_ms" {
 		t.Fatalf("original operation evidence changed: %#v", flow.OperationAgentExecution)
 	}
+}
+
+func TestFlowCloneDeepCopiesOperationScalingGuard(t *testing.T) {
+	var execution OperationOptimizationResult
+	if err := json.Unmarshal([]byte(`{"scaling_guard":{"status":"REJECTED","checks":[{"name":"slo_evidence","passed":false,"reason":"original"}]}}`), &execution); err != nil {
+		t.Fatalf("unmarshal operation evidence: %v", err)
+	}
+	flow := Flow{OperationAgentExecution: &execution}
+	copy := cloneFlow(flow)
+
+	copyGuard := reflect.ValueOf(copy.OperationAgentExecution).Elem().FieldByName("ScalingGuard")
+	if !copyGuard.IsValid() {
+		t.Fatal("cloned operation evidence is missing scaling_guard")
+	}
+	copyGuard.FieldByName("Checks").Index(0).FieldByName("Name").SetString("changed")
+	originalGuard := reflect.ValueOf(flow.OperationAgentExecution).Elem().FieldByName("ScalingGuard")
+	if originalGuard.FieldByName("Checks").Index(0).FieldByName("Name").String() != "slo_evidence" {
+		t.Fatalf("original scaling Guard changed: %#v", flow.OperationAgentExecution)
+	}
+}
+
+func operationScalingGuard(t *testing.T, flow Flow) GuardResult {
+	t.Helper()
+	if flow.OperationAgentExecution == nil {
+		t.Fatal("operation Agent execution is missing")
+	}
+	encoded, err := json.Marshal(flow.OperationAgentExecution)
+	if err != nil {
+		t.Fatalf("marshal operation Agent execution: %v", err)
+	}
+	var evidence struct {
+		ScalingGuard GuardResult `json:"scaling_guard"`
+	}
+	if err := json.Unmarshal(encoded, &evidence); err != nil {
+		t.Fatalf("unmarshal operation Agent execution: %v", err)
+	}
+	return evidence.ScalingGuard
+}
+
+func hasGuardCheck(guard GuardResult, name string, passed bool) bool {
+	for _, check := range guard.Checks {
+		if check.Name == name && check.Passed == passed {
+			return true
+		}
+	}
+	return false
 }
 
 func approvedOperationOptimizationResult() OperationOptimizationResult {

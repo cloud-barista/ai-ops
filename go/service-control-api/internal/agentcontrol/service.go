@@ -169,6 +169,9 @@ func (service *Service) ReceiveDeploymentStatus(
 	); err != nil {
 		return Flow{}, err
 	}
+	if flow.DeploymentStatus != nil && flow.DeploymentStatus.MessageID == message.MessageID {
+		return cloneFlow(flow), nil
+	}
 	messageCopy := cloneDeploymentStatusEnvelope(message)
 	flow.DeploymentStatus = &messageCopy
 	flow.FeedbackSummary = summarizeFeedback(flow)
@@ -254,7 +257,7 @@ func (service *Service) ReceiveOptimizationFeedbackForAgent(
 			result.Message = runtimeErr.Error()
 		}
 	}
-	scalingGuard := validateOperationOptimizationResult(snapshot, result)
+	result.ScalingGuard = validateOperationOptimizationResult(snapshot, result)
 
 	service.mu.Lock()
 	defer service.mu.Unlock()
@@ -263,13 +266,16 @@ func (service *Service) ReceiveOptimizationFeedbackForAgent(
 		current.OptimizationFeedback.MessageID != message.MessageID {
 		return cloneFlow(current), nil
 	}
+	if !currentDeploymentStatusMatchesSnapshot(current, snapshot) {
+		result.ScalingGuard = rejectStaleDeploymentStatusGuard(result.ScalingGuard)
+	}
 	resultCopy := cloneOperationOptimizationResult(result)
 	current.OperationAgentExecution = &resultCopy
 	if runtimeErr == nil &&
 		result.Status == "completed" &&
 		result.RequestGuard.Status == GuardApproved &&
 		result.ResultGuard.Status == GuardApproved &&
-		scalingGuard.Status == GuardApproved {
+		result.ScalingGuard.Status == GuardApproved {
 		decision := result.Decision
 		decision.Evidence = append([]string(nil), result.Decision.Evidence...)
 		current.ScalingDecision = &decision
@@ -1347,8 +1353,31 @@ func cloneOperationOptimizationResult(result OperationOptimizationResult) Operat
 	result.RequestGuard.Issues = append([]ValidationIssue(nil), result.RequestGuard.Issues...)
 	result.ResultGuard.Checks = append([]GuardCheck(nil), result.ResultGuard.Checks...)
 	result.ResultGuard.Issues = append([]ValidationIssue(nil), result.ResultGuard.Issues...)
+	result.ScalingGuard.Checks = append([]GuardCheck(nil), result.ScalingGuard.Checks...)
+	result.ScalingGuard.Issues = append([]ValidationIssue(nil), result.ScalingGuard.Issues...)
 	result.Decision.Evidence = append([]string(nil), result.Decision.Evidence...)
 	return result
+}
+
+func currentDeploymentStatusMatchesSnapshot(current Flow, snapshot Flow) bool {
+	if current.DeploymentStatus == nil || snapshot.DeploymentStatus == nil {
+		return false
+	}
+	return current.DeploymentStatus.MessageID == snapshot.DeploymentStatus.MessageID &&
+		snapshot.DeploymentStatus.Data.DeploymentStatus.State == DeploymentStateRunning &&
+		current.DeploymentStatus.Data.DeploymentStatus.State == DeploymentStateRunning
+}
+
+func rejectStaleDeploymentStatusGuard(guard GuardResult) GuardResult {
+	guard.Checks = append([]GuardCheck(nil), guard.Checks...)
+	guard.Issues = append([]ValidationIssue(nil), guard.Issues...)
+	guard.Checks = append(guard.Checks, GuardCheck{
+		Name:   "trusted_deployment_status",
+		Passed: false,
+		Reason: "Deployment status changed after the Operation Agent started; its recommendation is stale.",
+	})
+	guard.Status = GuardRejected
+	return guard
 }
 
 func cloneApplicationContextEnvelope(message ApplicationContextEnvelope) ApplicationContextEnvelope {
