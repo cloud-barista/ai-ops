@@ -32,13 +32,13 @@ func TestEvaluateScalingDecision(t *testing.T) {
 		{
 			name:         "healthy workload at minimum remains unchanged",
 			flow:         scalingTestFlow(1, 1, 3, 55, 61, nil),
-			wantAction:   ScalingActionNoAction,
+			wantAction:   ScalingActionKeep,
 			wantReplicas: 1,
 		},
 		{
 			name:            "SLO violation at maximum remains unchanged",
 			flow:            scalingTestFlow(3, 1, 3, 90, 95, []string{"throughput_rps"}),
-			wantAction:      ScalingActionNoAction,
+			wantAction:      ScalingActionKeep,
 			wantReplicas:    3,
 			wantEvidenceLen: 1,
 		},
@@ -46,7 +46,7 @@ func TestEvaluateScalingDecision(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			decision := evaluateScalingDecision(test.flow, fixedScalingTime)
+			decision := ProposeRuleBasedScalingDecision(test.flow, fixedScalingTime)
 			if decision == nil {
 				t.Fatal("scaling decision is nil")
 			}
@@ -69,15 +69,15 @@ func TestEvaluateScalingDecision(t *testing.T) {
 func TestEvaluateScalingDecisionWaitsForRuntimeEvidence(t *testing.T) {
 	withoutStatus := scalingTestFlow(1, 1, 3, 50, 50, nil)
 	withoutStatus.DeploymentStatus = nil
-	if decision := evaluateScalingDecision(withoutStatus, fixedScalingTime); decision != nil {
+	if decision := ProposeRuleBasedScalingDecision(withoutStatus, fixedScalingTime); decision != nil {
 		t.Fatalf("decision = %#v, want nil before deployment status", decision)
 	}
 
 	withoutMetrics := scalingTestFlow(1, 1, 3, 50, 50, nil)
 	withoutMetrics.OptimizationFeedback = nil
-	decision := evaluateScalingDecision(withoutMetrics, fixedScalingTime)
-	if decision == nil || decision.Action != ScalingActionNoAction {
-		t.Fatalf("decision = %#v, want NO_ACTION while metrics are missing", decision)
+	decision := ProposeRuleBasedScalingDecision(withoutMetrics, fixedScalingTime)
+	if decision == nil || decision.Action != ScalingActionKeep {
+		t.Fatalf("decision = %#v, want KEEP while metrics are missing", decision)
 	}
 }
 
@@ -85,12 +85,26 @@ func TestEvaluateScalingDecisionDoesNotScaleFailedDeployment(t *testing.T) {
 	flow := scalingTestFlow(1, 1, 3, 95, 98, []string{"latency_p95_ms"})
 	flow.DeploymentStatus.Data.DeploymentStatus.State = DeploymentStateFailed
 
-	decision := evaluateScalingDecision(flow, fixedScalingTime)
-	if decision == nil || decision.Action != ScalingActionNoAction {
-		t.Fatalf("decision = %#v, want NO_ACTION for failed deployment", decision)
+	decision := ProposeRuleBasedScalingDecision(flow, fixedScalingTime)
+	if decision == nil || decision.Action != ScalingActionKeep {
+		t.Fatalf("decision = %#v, want KEEP for failed deployment", decision)
 	}
 	if decision.DesiredReplicas != 1 {
 		t.Fatalf("desired replicas = %d, want 1", decision.DesiredReplicas)
+	}
+}
+
+func TestNormalizeScalingActionCanonicalizesLegacyNoAction(t *testing.T) {
+	for _, test := range []struct {
+		action string
+		want   string
+	}{
+		{action: ScalingActionKeep, want: ScalingActionKeep},
+		{action: ScalingActionNoAction, want: ScalingActionKeep},
+	} {
+		if got := normalizeScalingAction(test.action); got != test.want {
+			t.Fatalf("normalizeScalingAction(%q) = %q, want %q", test.action, got, test.want)
+		}
 	}
 }
 

@@ -303,8 +303,8 @@ func TestServiceSummarizesSuccessfulDeploymentFeedback(t *testing.T) {
 	if flow.ScalingDecision == nil {
 		t.Fatal("scaling decision was not created")
 	}
-	if flow.ScalingDecision.Action != ScalingActionNoAction {
-		t.Fatalf("scaling action = %q, want %q", flow.ScalingDecision.Action, ScalingActionNoAction)
+	if flow.ScalingDecision.Action != ScalingActionKeep {
+		t.Fatalf("scaling action = %q, want %q", flow.ScalingDecision.Action, ScalingActionKeep)
 	}
 }
 

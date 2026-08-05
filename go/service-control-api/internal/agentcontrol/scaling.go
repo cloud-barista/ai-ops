@@ -2,19 +2,20 @@ package agentcontrol
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
 const scalingLowUtilizationPercent = 30.0
 
-func evaluateScalingDecision(flow Flow, now time.Time) *ScalingDecision {
+func ProposeRuleBasedScalingDecision(flow Flow, now time.Time) *ScalingDecision {
 	if flow.DeploymentStatus == nil {
 		return nil
 	}
 
 	current, minimum, maximum := scalingReplicaBounds(flow)
 	decision := &ScalingDecision{
-		Action:          ScalingActionNoAction,
+		Action:          ScalingActionKeep,
 		CurrentReplicas: current,
 		DesiredReplicas: current,
 		CreatedAt:       now.UTC().Format(time.RFC3339Nano),
@@ -65,6 +66,18 @@ func evaluateScalingDecision(flow Flow, now time.Time) *ScalingDecision {
 
 	decision.Reason = "SLO and utilization remain within the configured operating range."
 	return decision
+}
+
+func evaluateScalingDecision(flow Flow, now time.Time) *ScalingDecision {
+	return ProposeRuleBasedScalingDecision(flow, now)
+}
+
+func normalizeScalingAction(action string) string {
+	action = strings.TrimSpace(action)
+	if action == ScalingActionNoAction {
+		return ScalingActionKeep
+	}
+	return action
 }
 
 func scalingReplicaBounds(flow Flow) (current int, minimum int, maximum int) {

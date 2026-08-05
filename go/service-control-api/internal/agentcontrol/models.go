@@ -24,6 +24,7 @@ const (
 	ActionReject = "REJECT"
 	ActionRetry  = "RETRY"
 
+	ScalingActionKeep     = "KEEP"
 	ScalingActionNoAction = "NO_ACTION"
 	ScalingActionScaleOut = "SCALE_OUT"
 	ScalingActionScaleIn  = "SCALE_IN"
@@ -585,25 +586,27 @@ type ReasoningComparison struct {
 }
 
 type Flow struct {
-	CorrelationID          string                           `json:"correlation_id"`
-	TraceID                string                           `json:"trace_id"`
-	ProfileID              string                           `json:"profile_id,omitempty"`
-	AutomationRunID        string                           `json:"automation_run_id,omitempty"`
-	RequestedDecisionAgent string                           `json:"requested_decision_agent,omitempty"`
-	State                  string                           `json:"state" enums:"WAITING_FOR_APPLICATION_CONTEXT,WAITING_FOR_RESOURCE_RECOMMENDATION,READY,AGENT_AUTHORIZATION_REJECTED,AGENT_EXECUTION_FAILED,AGENT_RESULT_REJECTED,DEPLOY_APPROVED,REJECTED,RETRY_REQUIRED"`
-	ApplicationContext     *ApplicationContextEnvelope      `json:"application_context,omitempty"`
-	ResourceRecommendation *ResourceRecommendationEnvelope  `json:"resource_recommendation,omitempty"`
-	AgentAuthorization     *AgentAuthorization              `json:"agent_authorization,omitempty"`
-	AgentExecution         *DecisionAgentResult             `json:"agent_execution,omitempty"`
-	Decision               *AutomationDecision              `json:"decision,omitempty"`
-	DeploymentPlan         *DeploymentPlan                  `json:"deployment_plan,omitempty"`
-	Guard                  *GuardResult                     `json:"guard,omitempty"`
-	DesiredDeploymentSpec  *DesiredDeploymentSpec           `json:"desired_deployment_spec,omitempty"`
-	DeploymentRequest      *DeploymentCreateRequestEnvelope `json:"deployment_request,omitempty"`
-	DeploymentStatus       *DeploymentStatusEnvelope        `json:"deployment_status,omitempty"`
-	OptimizationFeedback   *OptimizationFeedbackEnvelope    `json:"optimization_feedback,omitempty"`
-	FeedbackSummary        *FeedbackSummary                 `json:"feedback_summary,omitempty"`
-	ScalingDecision        *ScalingDecision                 `json:"scaling_decision,omitempty"`
-	ReasoningComparison    *ReasoningComparison             `json:"reasoning_comparison,omitempty"`
-	UpdatedAt              string                           `json:"updated_at"`
+	CorrelationID           string                           `json:"correlation_id"`
+	TraceID                 string                           `json:"trace_id"`
+	ProfileID               string                           `json:"profile_id,omitempty"`
+	AutomationRunID         string                           `json:"automation_run_id,omitempty"`
+	RequestedDecisionAgent  string                           `json:"requested_decision_agent,omitempty"`
+	RequestedOperationAgent string                           `json:"requested_operation_agent,omitempty"`
+	State                   string                           `json:"state" enums:"WAITING_FOR_APPLICATION_CONTEXT,WAITING_FOR_RESOURCE_RECOMMENDATION,READY,AGENT_AUTHORIZATION_REJECTED,AGENT_EXECUTION_FAILED,AGENT_RESULT_REJECTED,DEPLOY_APPROVED,REJECTED,RETRY_REQUIRED"`
+	ApplicationContext      *ApplicationContextEnvelope      `json:"application_context,omitempty"`
+	ResourceRecommendation  *ResourceRecommendationEnvelope  `json:"resource_recommendation,omitempty"`
+	AgentAuthorization      *AgentAuthorization              `json:"agent_authorization,omitempty"`
+	AgentExecution          *DecisionAgentResult             `json:"agent_execution,omitempty"`
+	Decision                *AutomationDecision              `json:"decision,omitempty"`
+	DeploymentPlan          *DeploymentPlan                  `json:"deployment_plan,omitempty"`
+	Guard                   *GuardResult                     `json:"guard,omitempty"`
+	DesiredDeploymentSpec   *DesiredDeploymentSpec           `json:"desired_deployment_spec,omitempty"`
+	DeploymentRequest       *DeploymentCreateRequestEnvelope `json:"deployment_request,omitempty"`
+	DeploymentStatus        *DeploymentStatusEnvelope        `json:"deployment_status,omitempty"`
+	OptimizationFeedback    *OptimizationFeedbackEnvelope    `json:"optimization_feedback,omitempty"`
+	FeedbackSummary         *FeedbackSummary                 `json:"feedback_summary,omitempty"`
+	OperationAgentExecution *OperationOptimizationResult     `json:"operation_agent_execution,omitempty"`
+	ScalingDecision         *ScalingDecision                 `json:"scaling_decision,omitempty"`
+	ReasoningComparison     *ReasoningComparison             `json:"reasoning_comparison,omitempty"`
+	UpdatedAt               string                           `json:"updated_at"`
 }
