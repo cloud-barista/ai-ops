@@ -26,6 +26,7 @@ type Service struct {
 	controlRuns        *controlrun.Store
 	agentDispatcher    *agentDispatcher
 	agentControl       *agentcontrol.Service
+	operationRuntime   agentcontrol.OperationOptimizationRuntime
 	automationRunner   *agentcontrol.AutomationRunner
 }
 
@@ -38,6 +39,9 @@ func NewService(config ServerConfig) Service {
 		if defaultAgent := strings.TrimSpace(registry.Defaults[agentcontrol.AutomationCapability]); defaultAgent != "" {
 			internalExecutors[defaultAgent] = newInternalDecisionAgentExecutor()
 		}
+		if defaultAgent := strings.TrimSpace(registry.Defaults[agentcontrol.OperationOptimizationCapability]); defaultAgent != "" {
+			internalExecutors[defaultAgent] = newInternalOperationOptimizationExecutor()
+		}
 	}
 	dispatcher := newAgentDispatcher(
 		internalExecutors,
@@ -47,6 +51,7 @@ func NewService(config ServerConfig) Service {
 		),
 	)
 	decisionRuntime := newDecisionAgentRuntime(config, runtimeAgents, dispatcher)
+	operationRuntime := newOperationOptimizationRuntime(config, runtimeAgents, dispatcher)
 	agentControlService := agentcontrol.NewServiceWithDecisionRuntime(
 		reasoner,
 		authorizer,
@@ -61,6 +66,7 @@ func NewService(config ServerConfig) Service {
 		controlRuns:        controlrun.NewStore(),
 		agentDispatcher:    dispatcher,
 		agentControl:       agentControlService,
+		operationRuntime:   operationRuntime,
 		automationRunner: agentcontrol.NewAutomationRunnerWithAdapter(
 			newAgentControlRequirementAnalyzer(config, llmclient.NewClient(nil)),
 			agentcontrol.CatalogResourceRecommender{Catalog: resourceCatalog},

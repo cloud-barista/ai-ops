@@ -78,6 +78,7 @@ func validateAgentExecutionResult(
 		return rejectedGuardDecision("DeploymentManifest result is missing Manifest Guard evidence")
 	case result.Manifest == nil &&
 		!(request.Action == agentcontrol.AutomationDecisionAction && result.DomainValidation == "deployment_decision") &&
+		!(request.Action == agentcontrol.OperationOptimizationDecisionAction && result.DomainValidation == "scaling_decision") &&
 		result.DomainValidation != "not_registered":
 		return rejectedGuardDecision("Agent result must declare domain validation status")
 	}
