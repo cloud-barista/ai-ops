@@ -461,15 +461,16 @@ func TestOptimizationFeedbackRejectsFeedbackBeforeDeploymentStatus(t *testing.T)
 }
 
 func TestOptimizationFeedbackRecordsRuntimeFailureWithoutDecision(t *testing.T) {
+	sensitiveError := "runtime endpoint returned Authorization: Bearer super-secret-token"
 	runtime := &recordingOperationOptimizationRuntime{
 		result: OperationOptimizationResult{
 			AgentName:    "RuntimeOperationAgent",
 			Source:       "runtime",
 			Status:       "failed",
 			RequestGuard: approvedDecisionGuard("request approved"),
-			Message:      "runtime endpoint unavailable",
+			Message:      "untrusted runtime diagnostic",
 		},
-		err: errors.New("runtime endpoint unavailable"),
+		err: errors.New(sensitiveError),
 	}
 	service := NewServiceWithRuntimes(nil, nil, nil, runtime)
 	createApprovedFlow(t, service)
@@ -483,6 +484,16 @@ func TestOptimizationFeedbackRecordsRuntimeFailureWithoutDecision(t *testing.T) 
 	}
 	if flow.OperationAgentExecution == nil || flow.OperationAgentExecution.Status != "failed" {
 		t.Fatalf("runtime failure evidence = %#v", flow.OperationAgentExecution)
+	}
+	if flow.OperationAgentExecution.Message != "Operation Agent execution failed." {
+		t.Fatalf("runtime failure message = %q", flow.OperationAgentExecution.Message)
+	}
+	encoded, err := json.Marshal(flow)
+	if err != nil {
+		t.Fatalf("marshal failed runtime Flow: %v", err)
+	}
+	if strings.Contains(string(encoded), sensitiveError) || strings.Contains(string(encoded), "untrusted runtime diagnostic") {
+		t.Fatalf("serialized Flow leaked runtime diagnostic: %s", encoded)
 	}
 	if flow.ScalingDecision != nil {
 		t.Fatalf("failed runtime must not create a scaling decision: %#v", flow.ScalingDecision)

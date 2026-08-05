@@ -253,9 +253,7 @@ func (service *Service) ReceiveOptimizationFeedbackForAgent(
 	result = CanonicalizeOperationOptimizationResult(result)
 	if runtimeErr != nil {
 		result.Status = "failed"
-		if strings.TrimSpace(result.Message) == "" {
-			result.Message = runtimeErr.Error()
-		}
+		result.Message = "Operation Agent execution failed."
 	}
 	result.ScalingGuard = validateOperationOptimizationResult(snapshot, result)
 

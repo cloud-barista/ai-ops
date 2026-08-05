@@ -197,6 +197,7 @@ func (handler restHandler) RestPostDeploymentStatus(context echo.Context) error 
 // @Accept json
 // @Produce json
 // @Param request body agentcontrol.OptimizationFeedbackEnvelope true "Optimization feedback message"
+// @Param operation_agent query string false "Optional operation Agent name; empty uses the Registry default."
 // @Success 202 {object} agentcontrol.Flow
 // @Failure 400 {object} ErrorResponse
 // @Router /api/v1/agent-control/optimization-feedback [post]

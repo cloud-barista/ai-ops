@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 
@@ -464,6 +465,17 @@ func TestAgentControlFeedbackAPISelectsOperationAgentFromQuery(t *testing.T) {
 	if !strings.Contains(feedbackResponse.Body.String(), `"requested_operation_agent":"OperationOptimizationAgent"`) ||
 		!strings.Contains(feedbackResponse.Body.String(), `"operation_agent_execution"`) {
 		t.Fatalf("operation Agent selection was not recorded: %s", feedbackResponse.Body.String())
+	}
+}
+
+func TestOptimizationFeedbackHandlerDocumentsOperationAgentQuery(t *testing.T) {
+	source, err := os.ReadFile("agent_control_api.go")
+	if err != nil {
+		t.Fatalf("read handler source: %v", err)
+	}
+	annotation := `// @Param operation_agent query string false "Optional operation Agent name; empty uses the Registry default."`
+	if !strings.Contains(string(source), annotation) {
+		t.Fatalf("optimization feedback query annotation missing: %s", annotation)
 	}
 }
 
