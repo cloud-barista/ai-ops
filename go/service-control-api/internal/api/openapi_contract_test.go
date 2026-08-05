@@ -159,6 +159,25 @@ func TestSubmissionOpenAPIIncludesAgentControlDeletionAndScalingDecision(t *test
 			t.Fatalf("submission OpenAPI path %s is missing DELETE", path)
 		}
 	}
+	optimizationFeedback := paths["/api/v1/agent-control/optimization-feedback"].(map[string]any)["post"].(map[string]any)
+	parameters, ok := optimizationFeedback["parameters"].([]any)
+	if !ok {
+		t.Fatalf("optimization feedback does not document query parameters: %#v", optimizationFeedback)
+	}
+	for _, parameter := range parameters {
+		item := parameter.(map[string]any)
+		if item["name"] != "operation_agent" || item["in"] != "query" {
+			continue
+		}
+		schema := item["schema"].(map[string]any)
+		if schema["type"] != "string" || item["required"] == true {
+			t.Fatalf("operation_agent query parameter=%#v", item)
+		}
+		goto operationAgentQueryDocumented
+	}
+	t.Fatal("optimization feedback is missing the optional operation_agent query parameter")
+
+operationAgentQueryDocumented:
 
 	schemas := document["components"].(map[string]any)["schemas"].(map[string]any)
 	flowProperties := schemas["AgentControlFlow"].(map[string]any)["properties"].(map[string]any)
@@ -166,12 +185,23 @@ func TestSubmissionOpenAPIIncludesAgentControlDeletionAndScalingDecision(t *test
 	if scalingReference != "#/components/schemas/ScalingDecision" {
 		t.Fatalf("scaling_decision schema reference=%#v", scalingReference)
 	}
+	for _, field := range []string{"requested_operation_agent", "operation_agent_execution"} {
+		if _, ok := flowProperties[field]; !ok {
+			t.Fatalf("AgentControlFlow is missing operation Agent evidence field %q", field)
+		}
+	}
+	if reference := flowProperties["operation_agent_execution"].(map[string]any)["$ref"]; reference != "#/components/schemas/OperationOptimizationResult" {
+		t.Fatalf("operation_agent_execution schema reference=%#v", reference)
+	}
 
 	scaling := schemas["ScalingDecision"].(map[string]any)
 	properties := scaling["properties"].(map[string]any)
 	action := properties["action"].(map[string]any)
 	actionValues := action["enum"].([]any)
-	for _, expected := range []string{"NO_ACTION", "SCALE_OUT", "SCALE_IN"} {
+	if description, _ := action["description"].(string); !strings.Contains(description, "NO_ACTION") {
+		t.Fatalf("ScalingDecision action does not document legacy NO_ACTION compatibility: %#v", action)
+	}
+	for _, expected := range []string{"KEEP", "SCALE_OUT", "SCALE_IN"} {
 		found := false
 		for _, value := range actionValues {
 			if value == expected {

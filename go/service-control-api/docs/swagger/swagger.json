@@ -408,6 +408,12 @@
                         "schema": {
                             "$ref": "#/definitions/agentcontrol.OptimizationFeedbackEnvelope"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Optional operation Agent name; empty uses the Registry default.",
+                        "name": "operation_agent",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2610,6 +2616,9 @@
                 "guard": {
                     "$ref": "#/definitions/agentcontrol.GuardResult"
                 },
+                "operation_agent_execution": {
+                    "$ref": "#/definitions/agentcontrol.OperationOptimizationResult"
+                },
                 "optimization_feedback": {
                     "$ref": "#/definitions/agentcontrol.OptimizationFeedbackEnvelope"
                 },
@@ -2620,6 +2629,9 @@
                     "$ref": "#/definitions/agentcontrol.ReasoningComparison"
                 },
                 "requested_decision_agent": {
+                    "type": "string"
+                },
+                "requested_operation_agent": {
                     "type": "string"
                 },
                 "resource_recommendation": {
@@ -2761,6 +2773,38 @@
                     "type": "string"
                 },
                 "started_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.OperationOptimizationResult": {
+            "type": "object",
+            "properties": {
+                "agent_name": {
+                    "type": "string"
+                },
+                "decision": {
+                    "$ref": "#/definitions/agentcontrol.ScalingDecision"
+                },
+                "latency_ms": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "request_guard": {
+                    "$ref": "#/definitions/agentcontrol.GuardResult"
+                },
+                "result_guard": {
+                    "$ref": "#/definitions/agentcontrol.GuardResult"
+                },
+                "scaling_guard": {
+                    "$ref": "#/definitions/agentcontrol.GuardResult"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }

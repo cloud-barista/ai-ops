@@ -18,7 +18,8 @@ Natural-language request or Structured App Spec
 → DesiredDeploymentSpec
 → deployment.status.changed
 → optimization.feedback.created
-→ NO_ACTION / SCALE_OUT / SCALE_IN
+→ OperationOptimizationAgent
+→ KEEP / SCALE_OUT / SCALE_IN recommendation
 ```
 
 핵심 Flow는 AppDeploy, VM, Kubernetes 없이 로컬에서 독립 실행할 수 있습니다. 실제 배포와 플랫폼 전용 변환은 외부 시스템의 책임입니다.
@@ -270,6 +271,19 @@ DELETE /api/v1/agent-control/flows
 ```
 
 Flow는 현재 프로세스 메모리에 저장됩니다. 서버를 재시작하면 초기화됩니다.
+
+### Two-Agent Mock Experiment
+
+The main Flow uses `AIApplicationAutomationAgent` for the deployment decision and `OperationOptimizationAgent` after deployment Feedback. Request, Result, Domain, and Scaling Guards remain outside both Agents. `DesiredDeploymentSpec` is produced only after the first Agent passes Guard validation; the second Agent emits a scaling recommendation and does not execute VM control or AppDeploy.
+
+1. Start the server with the Mock Adapter, then submit `POST /api/v1/agent-control/automation-runs` and verify the first Agent's approved Guards and `DesiredDeploymentSpec`.
+2. Send `POST /api/v1/agent-control/deployment-status` with `RUNNING` and matching `correlation_id`, `trace_id`, and `profile_id`.
+3. Send `POST /api/v1/agent-control/optimization-feedback?operation_agent=OperationOptimizationAgent` with SLO and resource Feedback. Omitting the query uses the Registry default Operation Agent.
+4. Read `GET /api/v1/agent-control/flows/{correlation_id}` and verify `requested_operation_agent`, `operation_agent_execution`, its three Guards, and `scaling_decision`. A normal result is `KEEP`; the SLO-violation sample is `SCALE_OUT 1 -> 2`.
+
+`NO_ACTION` remains accepted only as a legacy input alias and is normalized to `KEEP` before Guard validation. New results emit `KEEP`. `SIMULATED` is Mock Adapter evidence, not real deployment, VM control, AppDeploy execution, or scaling execution.
+
+The main Flow does not require Ollama. Ollama is only required for the optional Qwen comparison. Selecting a Runtime Agent requires its registered `endpoint + invocation_path` to serve the execution request; an endpoint failure is recorded and never falls back to an Internal Agent.
 
 ### Agent Registry
 

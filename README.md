@@ -24,6 +24,15 @@
 
 핵심 산출물은 실제 VM 배포 명령이 아니라 **검증 근거가 포함된 배포 결정과 플랫폼 중립적인 `DesiredDeploymentSpec`**입니다.
 
+The two core Agents and their bounded outputs are:
+
+```text
+Request -> AIApplicationAutomationAgent -> Guards -> DesiredDeploymentSpec
+Deployment Feedback -> OperationOptimizationAgent -> Guards -> scaling recommendation
+```
+
+Guards are outside both Agents. `DesiredDeploymentSpec` is the approved deployment-planning output; `KEEP`, `SCALE_OUT`, and `SCALE_IN` are recommendations only and never execute VM control or AppDeploy.
+
 ## 실행
 
 [Go 1.25 이상](https://go.dev/dl/)을 설치하고 저장소를 받습니다.

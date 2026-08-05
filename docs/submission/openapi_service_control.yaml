@@ -176,7 +176,20 @@ paths:
   /api/v1/agent-control/optimization-feedback:
     post:
       summary: Receive optimization feedback
-      description: Attaches an optimization.feedback.created Common JSON v1.0 message and summarizes success, failure, metrics, and SLO violations.
+      description: >
+        Attaches an optimization.feedback.created Common JSON v1.0 message,
+        joins it with deployment.status.changed, and records the selected
+        Operation Optimization Agent evidence. A resulting scaling decision is
+        a guarded recommendation only; geon does not execute VM, Kubernetes,
+        AppDeploy, or other infrastructure control from this endpoint.
+      parameters:
+        - name: operation_agent
+          in: query
+          required: false
+          description: >
+            Optional Registry-authorized Operation Optimization Agent name.
+            When omitted, the Registry default is used.
+          schema: {type: string}
       requestBody:
         required: true
         content:
@@ -1519,6 +1532,9 @@ components:
         trace_id: {type: string}
         automation_run_id: {type: string}
         requested_decision_agent: {type: string}
+        requested_operation_agent:
+          type: string
+          description: Operation Optimization Agent requested for the joined deployment status and Feedback.
         profile_id: {type: string}
         state:
           type: string
@@ -1554,6 +1570,8 @@ components:
           $ref: "#/components/schemas/OptimizationFeedbackEnvelope"
         feedback_summary:
           $ref: "#/components/schemas/FeedbackSummary"
+        operation_agent_execution:
+          $ref: "#/components/schemas/OperationOptimizationResult"
         scaling_decision:
           $ref: "#/components/schemas/ScalingDecision"
         reasoning_comparison:
@@ -1792,7 +1810,12 @@ components:
       properties:
         action:
           type: string
-          enum: [NO_ACTION, SCALE_OUT, SCALE_IN]
+          description: >
+            Canonical scaling recommendation. KEEP preserves the observed
+            replica count. Legacy NO_ACTION input remains accepted for
+            compatibility and is normalized to KEEP before Guard validation;
+            new responses use KEEP.
+          enum: [KEEP, SCALE_OUT, SCALE_IN]
         reason: {type: string}
         current_replicas: {type: integer, minimum: 1}
         desired_replicas: {type: integer, minimum: 1}
@@ -1800,6 +1823,28 @@ components:
           type: array
           items: {type: string}
         created_at: {type: string, format: date-time}
+    OperationOptimizationResult:
+      type: object
+      required: [agent_name, source, status, latency_ms, request_guard, result_guard, scaling_guard, decision]
+      description: >
+        Evidence returned by the Operation Optimization Agent after deployment
+        status and optimization Feedback are joined. All Guards remain outside
+        the Agent. Only a completed result with approved Guards can populate
+        scaling_decision.
+      properties:
+        agent_name: {type: string, example: OperationOptimizationAgent}
+        source: {type: string, enum: [configuration, runtime]}
+        status: {type: string, enum: [completed, rejected, failed]}
+        latency_ms: {type: integer, format: int64}
+        request_guard:
+          $ref: "#/components/schemas/AgentControlGuardResult"
+        result_guard:
+          $ref: "#/components/schemas/AgentControlGuardResult"
+        scaling_guard:
+          $ref: "#/components/schemas/AgentControlGuardResult"
+        decision:
+          $ref: "#/components/schemas/ScalingDecision"
+        message: {type: string}
     AgentControlReasoningComparisonRequest:
       type: object
       required: [candidate_id]
