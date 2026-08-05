@@ -356,10 +356,11 @@ func TestServicePersistsScaleOutDecisionForSLOViolation(t *testing.T) {
 }
 
 type recordingOperationOptimizationRuntime struct {
-	result  OperationOptimizationResult
-	err     error
-	calls   int
-	request OperationOptimizationRequest
+	result    OperationOptimizationResult
+	err       error
+	calls     int
+	request   OperationOptimizationRequest
+	echoRunID bool
 }
 
 type blockingOperationOptimizationRuntime struct {
@@ -390,6 +391,9 @@ func (runtime *recordingOperationOptimizationRuntime) Optimize(
 ) (OperationOptimizationResult, error) {
 	runtime.calls++
 	runtime.request = request
+	if runtime.echoRunID {
+		runtime.result.RunID = request.RunID
+	}
 	return runtime.result, runtime.err
 }
 
@@ -425,6 +429,47 @@ func TestOptimizationFeedbackRunsOperationAgentAfterTrustedInputsJoin(t *testing
 	}
 }
 
+func TestProtocolFlowUsesStableOperationExecutionRunIDAcrossReplay(t *testing.T) {
+	runtime := &recordingOperationOptimizationRuntime{
+		result: approvedOperationOptimizationResult(), echoRunID: true,
+	}
+	service := NewServiceWithRuntimes(nil, nil, nil, runtime)
+	created := createApprovedFlow(t, service)
+	if created.AutomationRunID != "" {
+		t.Fatalf("protocol-created Flow automation_run_id = %q, want empty", created.AutomationRunID)
+	}
+	if _, err := service.ReceiveDeploymentStatus(context.Background(), validDeploymentStatusEnvelope()); err != nil {
+		t.Fatalf("receive deployment status: %v", err)
+	}
+	feedback := validOptimizationFeedbackEnvelope()
+	feedback.Data.OptimizationFeedback.SLOViolations = []string{"latency_p95_ms"}
+
+	first, err := service.ReceiveOptimizationFeedback(context.Background(), feedback)
+	if err != nil {
+		t.Fatalf("receive optimization feedback: %v", err)
+	}
+	if runtime.calls != 1 || strings.TrimSpace(runtime.request.RunID) == "" ||
+		!strings.HasPrefix(runtime.request.RunID, "run-operation-") {
+		t.Fatalf("operation Runtime request = %#v calls=%d", runtime.request, runtime.calls)
+	}
+	if first.OperationAgentExecution == nil ||
+		first.OperationAgentExecution.RunID != runtime.request.RunID {
+		t.Fatalf("operation execution evidence = %#v", first.OperationAgentExecution)
+	}
+
+	replayed, err := service.ReceiveOptimizationFeedback(context.Background(), feedback)
+	if err != nil {
+		t.Fatalf("replay optimization feedback: %v", err)
+	}
+	if runtime.calls != 1 {
+		t.Fatalf("operation Runtime replay calls = %d, want 1", runtime.calls)
+	}
+	if replayed.OperationAgentExecution == nil ||
+		replayed.OperationAgentExecution.RunID != first.OperationAgentExecution.RunID {
+		t.Fatalf("replay operation execution = %#v, first = %#v", replayed.OperationAgentExecution, first.OperationAgentExecution)
+	}
+}
+
 func TestOptimizationFeedbackDoesNotPersistRejectedOperationDecision(t *testing.T) {
 	result := approvedOperationOptimizationResult()
 	result.ResultGuard = GuardResult{Status: GuardRejected, Checks: []GuardCheck{{Name: "agent_result_guard", Passed: false}}}
@@ -444,6 +489,63 @@ func TestOptimizationFeedbackDoesNotPersistRejectedOperationDecision(t *testing.
 	}
 	if flow.ScalingDecision != nil {
 		t.Fatalf("rejected operation result must not create a scaling decision: %#v", flow.ScalingDecision)
+	}
+}
+
+func TestOptimizationFeedbackDoesNotPersistInvalidRuntimeDecisionContract(t *testing.T) {
+	tests := []struct {
+		name        string
+		mutate      func(*ScalingDecision)
+		failedCheck string
+	}{
+		{
+			name: "missing reason",
+			mutate: func(decision *ScalingDecision) {
+				decision.Reason = ""
+			},
+			failedCheck: "decision_reason",
+		},
+		{
+			name: "missing created at",
+			mutate: func(decision *ScalingDecision) {
+				decision.CreatedAt = ""
+			},
+			failedCheck: "decision_created_at",
+		},
+		{
+			name: "invalid created at",
+			mutate: func(decision *ScalingDecision) {
+				decision.CreatedAt = "not-rfc3339"
+			},
+			failedCheck: "decision_created_at",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result := approvedOperationOptimizationResult()
+			test.mutate(&result.Decision)
+			runtime := &recordingOperationOptimizationRuntime{result: result}
+			service := NewServiceWithRuntimes(nil, nil, nil, runtime)
+			createApprovedFlow(t, service)
+			if _, err := service.ReceiveDeploymentStatus(context.Background(), validDeploymentStatusEnvelope()); err != nil {
+				t.Fatalf("receive deployment status: %v", err)
+			}
+
+			feedback := validOptimizationFeedbackEnvelope()
+			feedback.Data.OptimizationFeedback.SLOViolations = []string{"latency_p95_ms"}
+			flow, err := service.ReceiveOptimizationFeedback(context.Background(), feedback)
+			if err != nil {
+				t.Fatalf("receive optimization feedback: %v", err)
+			}
+			if flow.ScalingDecision != nil {
+				t.Fatalf("invalid Runtime decision must not be persisted: %#v", flow.ScalingDecision)
+			}
+			scalingGuard := operationScalingGuard(t, flow)
+			if scalingGuard.Status != GuardRejected || !hasGuardCheck(scalingGuard, test.failedCheck, false) {
+				t.Fatalf("scaling Guard evidence = %#v", scalingGuard)
+			}
+		})
 	}
 }
 
@@ -677,6 +779,7 @@ func hasGuardCheck(guard GuardResult, name string, passed bool) bool {
 
 func approvedOperationOptimizationResult() OperationOptimizationResult {
 	return OperationOptimizationResult{
+		RunID:        "run-operation-fixture",
 		AgentName:    "RuntimeOperationAgent",
 		Source:       "runtime",
 		Status:       "completed",
@@ -684,9 +787,11 @@ func approvedOperationOptimizationResult() OperationOptimizationResult {
 		ResultGuard:  approvedDecisionGuard("result approved"),
 		Decision: ScalingDecision{
 			Action:          ScalingActionScaleOut,
+			Reason:          "Trusted SLO evidence requires one bounded replica increase.",
 			CurrentReplicas: 1,
 			DesiredReplicas: 2,
 			Evidence:        []string{"latency_p95_ms"},
+			CreatedAt:       "2026-08-05T08:00:00Z",
 		},
 	}
 }

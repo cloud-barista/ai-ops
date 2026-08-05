@@ -2,6 +2,7 @@ package agentcontrol
 
 import (
 	"context"
+	"crypto/sha256"
 	"fmt"
 	"sort"
 	"strings"
@@ -243,13 +244,15 @@ func (service *Service) ReceiveOptimizationFeedbackForAgent(
 		return snapshot, nil
 	}
 
+	operationRunID := operationExecutionRunID(snapshot.CorrelationID, message.MessageID)
 	result, runtimeErr := service.operationRuntime.Optimize(ctx, OperationOptimizationRequest{
-		RunID:          snapshot.AutomationRunID,
+		RunID:          operationRunID,
 		RequestedAgent: snapshot.RequestedOperationAgent,
 		CorrelationID:  snapshot.CorrelationID,
 		TraceID:        snapshot.TraceID,
 		Flow:           snapshot,
 	})
+	result.RunID = operationRunID
 	result = CanonicalizeOperationOptimizationResult(result)
 	if runtimeErr != nil {
 		result.Status = "failed"
@@ -281,6 +284,32 @@ func (service *Service) ReceiveOptimizationFeedbackForAgent(
 	current.UpdatedAt = service.now().Format(time.RFC3339Nano)
 	service.flows[message.CorrelationID] = cloneFlow(current)
 	return cloneFlow(current), nil
+}
+
+func operationExecutionRunID(correlationID string, feedbackMessageID string) string {
+	return deterministicAgentExecutionRunID(
+		"operation-agent", "run-operation", correlationID, feedbackMessageID,
+	)
+}
+
+func decisionExecutionRunID(flow Flow) string {
+	if runID := strings.TrimSpace(flow.AutomationRunID); runID != "" {
+		return runID
+	}
+	messageID := ""
+	if flow.ResourceRecommendation != nil {
+		messageID = flow.ResourceRecommendation.MessageID
+	}
+	return deterministicAgentExecutionRunID(
+		"decision-agent", "run-decision", flow.CorrelationID, messageID,
+	)
+}
+
+func deterministicAgentExecutionRunID(kind string, prefix string, correlationID string, eventID string) string {
+	payload := strings.TrimSpace(kind) + "\x00" + strings.TrimSpace(correlationID) + "\x00" +
+		strings.TrimSpace(eventID)
+	digest := sha256.Sum256([]byte(payload))
+	return fmt.Sprintf("%s-%x", strings.TrimSpace(prefix), digest[:12])
 }
 
 func (service *Service) CompareReasoning(
@@ -574,7 +603,7 @@ func (service *Service) evaluateFlow(ctx context.Context, flow Flow) Flow {
 	createdAt := service.now().Format(time.RFC3339Nano)
 	decisionID := "decision-" + flow.CorrelationID
 	result, err := service.decisionRuntime.Decide(ctx, DecisionAgentRequest{
-		RunID:                  flow.AutomationRunID,
+		RunID:                  decisionExecutionRunID(flow),
 		RequestedAgent:         flow.RequestedDecisionAgent,
 		CorrelationID:          flow.CorrelationID,
 		TraceID:                flow.TraceID,

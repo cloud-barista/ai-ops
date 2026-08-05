@@ -2,11 +2,13 @@ package agentcontrol
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 )
 
 func TestOperationOptimizationResultOmitsUnavailableTerminalEvidence(t *testing.T) {
 	encoded, err := json.Marshal(OperationOptimizationResult{
+		RunID:   "run-operation-001",
 		Status:  "failed",
 		Message: "Operation Agent execution failed.",
 	})
@@ -26,6 +28,9 @@ func TestOperationOptimizationResultOmitsUnavailableTerminalEvidence(t *testing.
 	}
 	if evidence["status"] != "failed" || evidence["message"] != "Operation Agent execution failed." {
 		t.Fatalf("terminal operation evidence=%s", encoded)
+	}
+	if evidence["run_id"] != "run-operation-001" {
+		t.Fatalf("terminal operation evidence is missing run_id: %s", encoded)
 	}
 }
 
@@ -57,6 +62,76 @@ func TestValidateOperationOptimizationResultRejectsReplicaJump(t *testing.T) {
 		Evidence: []string{"latency_p95_ms"},
 	}))
 	assertOnlyGuardCheckFailed(t, guard, "replica_step")
+}
+
+func TestValidateOperationOptimizationResultRejectsInvalidDecisionContract(t *testing.T) {
+	tests := []struct {
+		name        string
+		mutate      func(*ScalingDecision)
+		failedCheck string
+	}{
+		{
+			name: "missing reason",
+			mutate: func(decision *ScalingDecision) {
+				decision.Reason = ""
+			},
+			failedCheck: "decision_reason",
+		},
+		{
+			name: "reason exceeds repository text policy",
+			mutate: func(decision *ScalingDecision) {
+				decision.Reason = strings.Repeat("a", 8001)
+			},
+			failedCheck: "decision_reason",
+		},
+		{
+			name: "missing created at",
+			mutate: func(decision *ScalingDecision) {
+				decision.CreatedAt = ""
+			},
+			failedCheck: "decision_created_at",
+		},
+		{
+			name: "invalid created at",
+			mutate: func(decision *ScalingDecision) {
+				decision.CreatedAt = "2026-08-05 08:00:00"
+			},
+			failedCheck: "decision_created_at",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result := approvedOptimizationResult(ScalingDecision{
+				Action: ScalingActionKeep, CurrentReplicas: 1, DesiredReplicas: 1,
+			})
+			test.mutate(&result.Decision)
+
+			guard := validateOperationOptimizationResult(healthyKeepFlow(), result)
+			assertOnlyGuardCheckFailed(t, guard, test.failedCheck)
+		})
+	}
+}
+
+func TestValidateOperationOptimizationResultRejectsMissingExecutionRunID(t *testing.T) {
+	result := approvedOptimizationResult(ScalingDecision{
+		Action: ScalingActionKeep, CurrentReplicas: 1, DesiredReplicas: 1,
+	})
+	result.RunID = ""
+
+	guard := validateOperationOptimizationResult(healthyKeepFlow(), result)
+	assertOnlyGuardCheckFailed(t, guard, "operation_execution_run_id")
+}
+
+func TestValidateOperationOptimizationResultApprovesCompleteDecisionContract(t *testing.T) {
+	guard := validateOperationOptimizationResult(healthyKeepFlow(), approvedOptimizationResult(ScalingDecision{
+		Action: ScalingActionKeep, CurrentReplicas: 1, DesiredReplicas: 1,
+	}))
+	if guard.Status != GuardApproved ||
+		!hasOptimizationGuardCheck(guard, "decision_reason", true) ||
+		!hasOptimizationGuardCheck(guard, "decision_created_at", true) {
+		t.Fatalf("complete decision contract guard = %#v", guard)
+	}
 }
 
 func TestValidateOperationOptimizationResultRejectsMissingRuntimeEvidence(t *testing.T) {
@@ -187,7 +262,14 @@ func healthyKeepFlow() Flow {
 }
 
 func approvedOptimizationResult(decision ScalingDecision) OperationOptimizationResult {
+	if decision.Reason == "" {
+		decision.Reason = "The bounded scaling recommendation is supported by trusted operation evidence."
+	}
+	if decision.CreatedAt == "" {
+		decision.CreatedAt = "2026-08-05T08:00:00Z"
+	}
 	return OperationOptimizationResult{
+		RunID:        "run-operation-001",
 		AgentName:    OperationOptimizationAgentName,
 		Source:       "internal",
 		Status:       "completed",
@@ -195,6 +277,15 @@ func approvedOptimizationResult(decision ScalingDecision) OperationOptimizationR
 		ResultGuard:  approvedDecisionGuard("result approved"),
 		Decision:     decision,
 	}
+}
+
+func hasOptimizationGuardCheck(guard GuardResult, name string, passed bool) bool {
+	for _, check := range guard.Checks {
+		if check.Name == name && check.Passed == passed {
+			return true
+		}
+	}
+	return false
 }
 
 func assertOnlyGuardCheckFailed(t *testing.T, guard GuardResult, wantName string) {

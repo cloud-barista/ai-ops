@@ -2798,6 +2798,9 @@
                 "result_guard": {
                     "$ref": "#/definitions/agentcontrol.GuardResult"
                 },
+                "run_id": {
+                    "type": "string"
+                },
                 "scaling_guard": {
                     "$ref": "#/definitions/agentcontrol.GuardResult"
                 },

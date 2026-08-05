@@ -3,7 +3,10 @@ package agentcontrol
 import (
 	"context"
 	"strings"
+	"time"
 )
+
+const maxScalingDecisionReasonCharacters = 8000
 
 type OperationOptimizationRuntime interface {
 	Optimize(context.Context, OperationOptimizationRequest) (OperationOptimizationResult, error)
@@ -18,6 +21,7 @@ type OperationOptimizationRequest struct {
 }
 
 type OperationOptimizationResult struct {
+	RunID        string          `json:"run_id"`
 	AgentName    string          `json:"agent_name,omitempty,omitzero"`
 	Source       string          `json:"source,omitempty,omitzero"`
 	Status       string          `json:"status"`
@@ -33,6 +37,8 @@ func validateOperationOptimizationResult(flow Flow, result OperationOptimization
 	result = CanonicalizeOperationOptimizationResult(result)
 	decision := result.Decision
 	current, minimum, maximum := scalingReplicaBounds(flow)
+	reason := strings.TrimSpace(decision.Reason)
+	_, createdAtError := time.Parse(time.RFC3339, strings.TrimSpace(decision.CreatedAt))
 
 	checks := []GuardCheck{
 		{
@@ -51,11 +57,27 @@ func validateOperationOptimizationResult(flow Flow, result OperationOptimization
 			Reason: "Operation Agent result must be approved before recommendation validation.",
 		},
 		{
+			Name:   "operation_execution_run_id",
+			Passed: strings.TrimSpace(result.RunID) != "",
+			Reason: "Operation Agent execution run_id is required for audit evidence.",
+		},
+		{
 			Name: "runtime_evidence",
 			Passed: flow.DeploymentStatus != nil &&
 				flow.DeploymentStatus.Data.DeploymentStatus.State == DeploymentStateRunning &&
 				flow.OptimizationFeedback != nil,
 			Reason: "A RUNNING deployment status and optimization feedback are required.",
+		},
+		{
+			Name: "decision_reason",
+			Passed: reason != "" &&
+				len([]rune(decision.Reason)) <= maxScalingDecisionReasonCharacters,
+			Reason: "Scaling decision reason must contain 1 to 8000 characters.",
+		},
+		{
+			Name:   "decision_created_at",
+			Passed: createdAtError == nil,
+			Reason: "Scaling decision created_at must be a valid RFC3339 timestamp.",
 		},
 		{
 			Name:   "scaling_action",

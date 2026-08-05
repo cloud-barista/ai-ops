@@ -33,7 +33,8 @@ func TestOperationOptimizationRuntimeDispatchesInternalAgentThroughGuards(t *tes
 	)
 	runtime := newOperationOptimizationRuntime(NewServerConfig(), newRuntimeAgentStore(), dispatcher)
 
-	result, err := runtime.Optimize(context.Background(), operationRuntimeRequest())
+	request := operationRuntimeRequest()
+	result, err := runtime.Optimize(context.Background(), request)
 	if err != nil {
 		t.Fatalf("optimize with Internal operation Agent: %v", err)
 	}
@@ -44,8 +45,94 @@ func TestOperationOptimizationRuntimeDispatchesInternalAgentThroughGuards(t *tes
 		result.ResultGuard.Status != agentcontrol.GuardApproved {
 		t.Fatalf("Guard evidence = %#v", result)
 	}
+	if result.RunID != request.RunID {
+		t.Fatalf("Internal operation run_id = %q, want %q", result.RunID, request.RunID)
+	}
 	if result.Decision.Action != agentcontrol.ScalingActionScaleOut || result.Decision.DesiredReplicas != 2 {
 		t.Fatalf("scaling decision = %#v", result.Decision)
+	}
+}
+
+func TestOperationOptimizationRuntimeDispatchesRuntimeAgentWithMatchingRunID(t *testing.T) {
+	store := newRuntimeAgentStore()
+	runtimeAgent := operationAgent("RuntimeOperationAgent", true)
+	runtimeAgent.Source = agentSourceRuntime
+	if err := store.add(runtimeAgent); err != nil {
+		t.Fatalf("register Runtime operation Agent: %v", err)
+	}
+	request := operationRuntimeRequest()
+	request.RequestedAgent = runtimeAgent.Name
+	executor := &recordingAgentExecutor{result: validRuntimeOperationExecution(t, runtimeAgent.Name, request.RunID)}
+	runtime := newOperationOptimizationRuntime(
+		NewServerConfig(), store, newAgentDispatcher(nil, executor),
+	)
+
+	result, err := runtime.Optimize(context.Background(), request)
+	if err != nil {
+		t.Fatalf("optimize with Runtime operation Agent: %v", err)
+	}
+	if executor.request.RunID != request.RunID || result.RunID != request.RunID {
+		t.Fatalf("Runtime operation IDs: dispatch=%q result=%q want=%q", executor.request.RunID, result.RunID, request.RunID)
+	}
+}
+
+func TestOperationOptimizationRuntimeRejectsEmptyOrMismatchedRuntimeRunID(t *testing.T) {
+	tests := []struct {
+		name        string
+		resultRunID string
+	}{
+		{name: "empty", resultRunID: ""},
+		{name: "mismatched", resultRunID: "run-operation-other"},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			store := newRuntimeAgentStore()
+			runtimeAgent := operationAgent("RuntimeOperationAgent", true)
+			runtimeAgent.Source = agentSourceRuntime
+			if err := store.add(runtimeAgent); err != nil {
+				t.Fatalf("register Runtime operation Agent: %v", err)
+			}
+			request := operationRuntimeRequest()
+			request.RequestedAgent = runtimeAgent.Name
+			execution := validRuntimeOperationExecution(t, runtimeAgent.Name, test.resultRunID)
+			runtime := newOperationOptimizationRuntime(
+				NewServerConfig(), store,
+				newAgentDispatcher(nil, &recordingAgentExecutor{result: execution}),
+			)
+
+			result, err := runtime.Optimize(context.Background(), request)
+			if err == nil {
+				t.Fatal("expected Runtime operation run_id to be rejected")
+			}
+			if result.ResultGuard.Status != agentcontrol.GuardRejected ||
+				!strings.Contains(result.ResultGuard.Checks[0].Reason, "run_id") {
+				t.Fatalf("Runtime result Guard = %#v", result.ResultGuard)
+			}
+		})
+	}
+}
+
+func TestOperationOptimizationRuntimeRejectsEmptyRequestRunIDBeforeDispatch(t *testing.T) {
+	executor := &recordingAgentExecutor{}
+	runtime := newOperationOptimizationRuntime(
+		NewServerConfig(), newRuntimeAgentStore(),
+		newAgentDispatcher(map[string]agentExecutor{
+			agentcontrol.OperationOptimizationAgentName: executor,
+		}, nil),
+	)
+	request := operationRuntimeRequest()
+	request.RunID = "   "
+
+	result, err := runtime.Optimize(context.Background(), request)
+	if err == nil {
+		t.Fatal("expected empty operation request run_id to be rejected")
+	}
+	if executor.calls != 0 {
+		t.Fatalf("operation executor calls = %d, want 0", executor.calls)
+	}
+	if result.RequestGuard.Status != agentcontrol.GuardRejected {
+		t.Fatalf("operation request Guard = %#v", result.RequestGuard)
 	}
 }
 
@@ -197,5 +284,25 @@ func operationRuntimeRequest() agentcontrol.OperationOptimizationRequest {
 		CorrelationID: "flow-operation-001",
 		TraceID:       "trace-operation-001",
 		Flow:          operationReadyFlow(),
+	}
+}
+
+func validRuntimeOperationExecution(t *testing.T, agentName string, runID string) AgentExecutionResult {
+	t.Helper()
+	decision := agentcontrol.ScalingDecision{
+		Action:          agentcontrol.ScalingActionScaleOut,
+		Reason:          "Trusted SLO evidence requires one bounded replica increase.",
+		CurrentReplicas: 1,
+		DesiredReplicas: 2,
+		Evidence:        []string{"latency_p95_ms"},
+		CreatedAt:       "2026-08-05T08:00:00Z",
+	}
+	return AgentExecutionResult{
+		RunID: runID, Agent: agentName, Status: "completed",
+		Proposal: AgentProposal{
+			Action:     agentcontrol.OperationOptimizationDecisionAction,
+			Parameters: mustAnyMap(t, decision),
+		},
+		DomainValidation: "scaling_decision",
 	}
 }

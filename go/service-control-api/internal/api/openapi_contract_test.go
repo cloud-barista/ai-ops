@@ -194,8 +194,12 @@ operationAgentQueryDocumented:
 		t.Fatalf("operation_agent_execution schema reference=%#v", reference)
 	}
 	operationExecution := schemas["OperationOptimizationResult"].(map[string]any)
-	if required := operationExecution["required"].([]any); len(required) != 1 || required[0] != "status" {
-		t.Fatalf("OperationOptimizationResult required fields=%#v, want only status", required)
+	if required := operationExecution["required"].([]any); len(required) != 2 ||
+		required[0] != "run_id" || required[1] != "status" {
+		t.Fatalf("OperationOptimizationResult required fields=%#v, want run_id and status", required)
+	}
+	if _, ok := operationExecution["properties"].(map[string]any)["run_id"]; !ok {
+		t.Fatalf("OperationOptimizationResult is missing run_id: %#v", operationExecution)
 	}
 	if description, _ := operationExecution["description"].(string); !strings.Contains(description, "Terminal failed or rejected") {
 		t.Fatalf("OperationOptimizationResult does not document terminal evidence semantics: %#v", operationExecution)
@@ -204,6 +208,10 @@ operationAgentQueryDocumented:
 	scaling := schemas["ScalingDecision"].(map[string]any)
 	properties := scaling["properties"].(map[string]any)
 	action := properties["action"].(map[string]any)
+	reason := properties["reason"].(map[string]any)
+	if reason["minLength"] != 1 || reason["maxLength"] != 8000 {
+		t.Fatalf("ScalingDecision reason bounds=%#v", reason)
+	}
 	actionValues := action["enum"].([]any)
 	if description, _ := action["description"].(string); !strings.Contains(description, "NO_ACTION") {
 		t.Fatalf("ScalingDecision action does not document legacy NO_ACTION compatibility: %#v", action)
@@ -236,7 +244,12 @@ func TestGeneratedSwaggerDocumentsCanonicalOperationScalingAction(t *testing.T) 
 		if err := yaml.Unmarshal(content, &document); err != nil {
 			t.Fatalf("parse generated Swagger %s: %v", path, err)
 		}
-		action := document["definitions"].(map[string]any)["agentcontrol.ScalingDecision"].(map[string]any)["properties"].(map[string]any)["action"].(map[string]any)
+		definitions := document["definitions"].(map[string]any)
+		operationProperties := definitions["agentcontrol.OperationOptimizationResult"].(map[string]any)["properties"].(map[string]any)
+		if _, ok := operationProperties["run_id"]; !ok {
+			t.Fatalf("generated Swagger %s operation result is missing run_id: %#v", path, operationProperties)
+		}
+		action := definitions["agentcontrol.ScalingDecision"].(map[string]any)["properties"].(map[string]any)["action"].(map[string]any)
 		actionValues, ok := action["enum"].([]any)
 		if !ok {
 			t.Fatalf("generated Swagger %s action is missing its canonical enum: %#v", path, action)

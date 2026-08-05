@@ -40,7 +40,10 @@ func (runtime *registryOperationOptimizationRuntime) Optimize(
 	ctx context.Context,
 	request agentcontrol.OperationOptimizationRequest,
 ) (agentcontrol.OperationOptimizationResult, error) {
-	result := agentcontrol.OperationOptimizationResult{Status: "failed"}
+	result := agentcontrol.OperationOptimizationResult{
+		RunID:  strings.TrimSpace(request.RunID),
+		Status: "failed",
+	}
 	if runtime == nil || runtime.runtimeAgents == nil || runtime.dispatcher == nil {
 		return result, fmt.Errorf("operation optimization Agent runtime dependencies are not configured")
 	}
@@ -60,6 +63,14 @@ func (runtime *registryOperationOptimizationRuntime) Optimize(
 	}
 	result.AgentName = agent.Name
 	result.Source = agent.Source
+	if result.RunID == "" {
+		result.RequestGuard = agentControlGuard(
+			rejectedGuardDecision("Operation Agent request run_id is required"),
+			"agent_request_guard",
+		)
+		result.Message = "Operation optimization Agent request was rejected."
+		return result, fmt.Errorf("operation optimization Agent request run_id is required")
+	}
 
 	input, err := operationOptimizationRuntimeInput(request)
 	if err != nil {
