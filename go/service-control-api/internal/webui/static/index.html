@@ -248,11 +248,17 @@
           </button>
         </div>
 
-        <section class="policy-band" id="core-policy-summary" aria-label="핵심 자동화 정책">
-          <div><span>Default Agent</span><strong id="core-default-agent">AIApplicationAutomationAgent</strong></div>
-          <div><span>Capability</span><strong>ai_application_automation</strong></div>
-          <div><span>Bounded Action</span><strong>generate_deployment_decision</strong></div>
-          <div><span>Guard</span><strong>자동 적용</strong></div>
+        <section class="policy-band" id="core-policy-summary" aria-label="두 Agent 정책">
+          <div class="policy-row">
+            <span>배포 판단</span>
+            <strong id="core-default-agent">AIApplicationAutomationAgent</strong>
+            <small>ai_application_automation · generate_deployment_decision · Go Guard</small>
+          </div>
+          <div class="policy-row">
+            <span>운영 최적화</span>
+            <strong id="core-operation-agent">OperationOptimizationAgent</strong>
+            <small>ai_application_operation_optimization · generate_scaling_decision · Scaling Guard</small>
+          </div>
         </section>
 
         <section class="panel registry-panel" aria-labelledby="registry-title">
@@ -336,6 +342,15 @@
               <span>스케일링 판단</span>
               <strong id="experiment-scaling-summary">배포 상태와 성능 Feedback을 기다리고 있습니다.</strong>
             </div>
+            <section class="operation-evidence" id="experiment-operation-evidence" aria-label="운영 최적화 Agent 실행 결과" hidden>
+              <div><span>운영 최적화 Agent</span><strong id="experiment-operation-agent">-</strong></div>
+              <div><span>Request Guard</span><strong id="experiment-operation-request-guard">-</strong></div>
+              <div><span>Result Guard</span><strong id="experiment-operation-result-guard">-</strong></div>
+              <div><span>Scaling Guard</span><strong id="experiment-operation-scaling-guard">-</strong></div>
+              <div><span>스케일링 권고</span><strong id="experiment-operation-scaling">-</strong></div>
+              <div class="operation-evidence-wide"><span>사유</span><strong id="experiment-operation-reason">-</strong></div>
+              <div class="operation-evidence-wide"><span>근거</span><strong id="experiment-operation-evidence-list">-</strong></div>
+            </section>
             <pre class="json-output result-json" id="experiment-flow-json">{}</pre>
           </section>
         </div>
@@ -375,6 +390,13 @@
               <button class="button button-secondary" id="load-agent-control-feedback-sample" type="button">
                 <i data-lucide="file-input" aria-hidden="true"></i><span>SLO 위반 샘플</span>
               </button>
+            </div>
+            <div class="operation-agent-picker">
+              <label class="field">
+                <span>운영 최적화 Agent</span>
+                <select id="optimization-operation-agent-select" aria-describedby="optimization-operation-agent-help"></select>
+                <small id="optimization-operation-agent-help">Registry에서 스케일링 권한을 가진 Agent만 표시합니다.</small>
+              </label>
             </div>
             <div class="feedback-input-grid">
               <form id="deployment-status-form" class="protocol-form">

@@ -155,6 +155,7 @@ const state = {
   flows: [],
   agents: [],
   eligibleDecisionAgents: [],
+  eligibleOperationAgents: [],
   agentDefaults: {},
   activeFlowID: "",
   activeAutomationRun: null,
@@ -430,6 +431,8 @@ function renderFeedback(flow) {
     deployment_status: flow.deployment_status,
     optimization_feedback: flow.optimization_feedback,
     feedback_summary: summary,
+    requested_operation_agent: flow.requested_operation_agent,
+    operation_agent_execution: flow.operation_agent_execution,
     scaling_decision: flow.scaling_decision,
   });
 }
@@ -444,6 +447,45 @@ function scalingSummary(flow) {
   )} · ${text(scaling.reason)}`;
 }
 
+function renderOperationEvidence(flow) {
+  const container = byID("experiment-operation-evidence");
+  const execution = flow?.operation_agent_execution;
+  if (!execution) {
+    container.hidden = true;
+    return;
+  }
+
+  const decision = flow.scaling_decision || execution.decision || {};
+  const hasRecommendation = Boolean(decision.action);
+  container.hidden = false;
+  byID("experiment-operation-agent").textContent = [
+    text(execution.agent_name),
+    text(execution.source),
+    text(execution.status),
+  ].join(" · ");
+  byID("experiment-operation-request-guard").textContent = text(
+    execution.request_guard?.status,
+  );
+  byID("experiment-operation-result-guard").textContent = text(
+    execution.result_guard?.status,
+  );
+  byID("experiment-operation-scaling-guard").textContent = text(
+    execution.scaling_guard?.status,
+  );
+  byID("experiment-operation-scaling").textContent = hasRecommendation
+    ? `${text(decision.action)} ${text(decision.current_replicas)} -> ${text(decision.desired_replicas)}`
+    : "권고 없음";
+  byID("experiment-operation-reason").textContent = text(
+    decision.reason || execution.message,
+    "사유 없음",
+  );
+  byID("experiment-operation-evidence-list").textContent = Array.isArray(
+    decision.evidence,
+  ) && decision.evidence.length
+    ? decision.evidence.join(", ")
+    : "근거 없음";
+}
+
 function renderExperimentDetail(flow) {
   if (!flow) {
     byID("experiment-agent-summary").textContent = "Flow를 선택하세요.";
@@ -453,6 +495,7 @@ function renderExperimentDetail(flow) {
     byID("experiment-flow-json").textContent = "{}";
     renderReasoningComparison(null);
     renderFeedback(null);
+    renderOperationEvidence(null);
     return;
   }
   const decision = flow.decision || {};
@@ -467,6 +510,7 @@ function renderExperimentDetail(flow) {
   byID("experiment-flow-json").textContent = pretty(flow);
   renderReasoningComparison(flow.reasoning_comparison);
   renderFeedback(flow);
+  renderOperationEvidence(flow);
 }
 
 function renderAgentControlFlow(flow) {
@@ -544,11 +588,14 @@ function renderAgentControlFlow(flow) {
     profile_id: flow.profile_id,
     state: flow.state,
     requested_decision_agent: flow.requested_decision_agent,
+    requested_operation_agent: flow.requested_operation_agent,
     agent_authorization: flow.agent_authorization,
     agent_execution: flow.agent_execution,
     decision: flow.decision,
     guard: flow.guard,
     desired_deployment_spec: desiredDeploymentSpec(flow),
+    operation_agent_execution: flow.operation_agent_execution,
+    scaling_decision: flow.scaling_decision,
   });
   renderAgentControlStages(flow);
   renderExperimentDetail(flow);
@@ -599,6 +646,7 @@ function renderAutomationRun(run) {
     status: run.status,
     analyzer: analysis.evidence || { mode: analysis.mode },
     requested_decision_agent: run.input?.decision_agent,
+    requested_operation_agent: flow?.requested_operation_agent,
     agent_authorization: flow?.agent_authorization,
     agent_execution: flow?.agent_execution,
     decision: flow?.decision,
@@ -606,6 +654,8 @@ function renderAutomationRun(run) {
     desired_deployment_spec:
       run.desired_deployment_spec || desiredDeploymentSpec(flow),
     deployment_submission: run.deployment_submission,
+    operation_agent_execution: flow?.operation_agent_execution,
+    scaling_decision: flow?.scaling_decision,
   });
   renderAgentControlStages(run);
 }
@@ -910,6 +960,54 @@ function renderDecisionAgentOptions() {
   updateDecisionAgentHelp();
 }
 
+function updateOperationAgentHelp() {
+  const select = byID("optimization-operation-agent-select");
+  const selected = state.eligibleOperationAgents.find(
+    (agent) => agent.name === select.value,
+  );
+  byID("optimization-operation-agent-help").textContent = selected
+    ? `${decisionAgentSourceLabel(selected.source)} Agent · Registry 권한과 Scaling Guard를 적용합니다.`
+    : "Registry에서 스케일링 권한을 가진 Agent만 표시합니다.";
+}
+
+function renderOperationAgentOptions() {
+  const select = byID("optimization-operation-agent-select");
+  const previous = select.value;
+  select.replaceChildren();
+  if (state.eligibleOperationAgents.length === 0) {
+    const option = createElement("option", "", "사용 가능한 운영 최적화 Agent가 없습니다.");
+    option.value = "";
+    option.disabled = true;
+    option.selected = true;
+    select.append(option);
+    select.disabled = true;
+    updateOperationAgentHelp();
+    return;
+  }
+
+  select.disabled = false;
+  state.eligibleOperationAgents.forEach((agent) => {
+    const option = createElement(
+      "option",
+      "",
+      `${agent.name} (${decisionAgentSourceLabel(agent.source)})`,
+    );
+    option.value = agent.name;
+    option.dataset.source = agent.source;
+    select.append(option);
+  });
+  const defaultAgent = state.agentDefaults.ai_application_operation_optimization;
+  const selectedName = state.eligibleOperationAgents.some(
+    (agent) => agent.name === previous,
+  )
+    ? previous
+    : state.eligibleOperationAgents.some((agent) => agent.name === defaultAgent)
+      ? defaultAgent
+      : state.eligibleOperationAgents[0].name;
+  select.value = selectedName;
+  updateOperationAgentHelp();
+}
+
 async function loadAgents() {
   try {
     const payload = await apiRequest(API.agents);
@@ -917,16 +1015,26 @@ async function loadAgents() {
     state.eligibleDecisionAgents = Array.isArray(payload.eligible_decision_agents)
       ? payload.eligible_decision_agents
       : [];
+    state.eligibleOperationAgents = Array.isArray(payload.eligible_operation_agents)
+      ? payload.eligible_operation_agents
+      : [];
     state.agentDefaults = payload.defaults || {};
     byID("core-default-agent").textContent = text(
       state.agentDefaults.ai_application_automation,
       "미설정",
     );
+    byID("core-operation-agent").textContent = text(
+      state.agentDefaults.ai_application_operation_optimization,
+      "미설정",
+    );
     renderAgents();
     renderDecisionAgentOptions();
+    renderOperationAgentOptions();
   } catch (error) {
     state.eligibleDecisionAgents = [];
+    state.eligibleOperationAgents = [];
     renderDecisionAgentOptions();
+    renderOperationAgentOptions();
     showToast(error.message, "error");
   }
 }
@@ -1143,7 +1251,11 @@ async function submitOptimizationFeedback(event) {
       "optimization-feedback-json",
       "Optimization Feedback",
     );
-    const flow = await apiRequest(API.optimizationFeedback, {
+    const selectedOperationAgent = byID("optimization-operation-agent-select").value;
+    const query = selectedOperationAgent
+      ? `?${new URLSearchParams({ operation_agent: selectedOperationAgent }).toString()}`
+      : "";
+    const flow = await apiRequest(`${API.optimizationFeedback}${query}`, {
       method: "POST",
       body: JSON.stringify(body),
     });
@@ -1151,7 +1263,7 @@ async function submitOptimizationFeedback(event) {
     renderAgentControlFlow(flow);
     renderExperimentFlows();
     showToast(
-      `스케일링 판단: ${text(flow.scaling_decision?.action, "NO_ACTION")}`,
+      `스케일링 판단: ${text(flow.scaling_decision?.action, "결과 없음")}`,
       "success",
     );
   } catch (error) {
@@ -1213,6 +1325,10 @@ function bindEvents() {
   byID("decision-agent-select").addEventListener(
     "change",
     updateDecisionAgentHelp,
+  );
+  byID("optimization-operation-agent-select").addEventListener(
+    "change",
+    updateOperationAgentHelp,
   );
   document
     .querySelectorAll('input[name="automation_input_mode"]')

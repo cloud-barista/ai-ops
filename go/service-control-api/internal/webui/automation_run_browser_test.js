@@ -9,7 +9,10 @@ const { chromium } = require("playwright");
 const staticDir = path.join(__dirname, "static");
 
 const agentsPayload = {
-  defaults: { ai_application_automation: "AIApplicationAutomationAgent" },
+  defaults: {
+    ai_application_automation: "AIApplicationAutomationAgent",
+    ai_application_operation_optimization: "OperationOptimizationAgent",
+  },
   eligible_decision_agents: [
     {
       name: "AIApplicationAutomationAgent",
@@ -23,6 +26,15 @@ const agentsPayload = {
       source: "runtime",
       capabilities: ["ai_application_automation"],
       bounded_actions: ["generate_deployment_decision"],
+      enabled: true,
+    },
+  ],
+  eligible_operation_agents: [
+    {
+      name: "OperationOptimizationAgent",
+      source: "configuration",
+      capabilities: ["ai_application_operation_optimization"],
+      bounded_actions: ["generate_scaling_decision"],
       enabled: true,
     },
   ],
@@ -136,6 +148,7 @@ async function browserPage(viewport = { width: 1280, height: 900 }) {
     "app.js",
   ].map(async (name) => [name, await fs.readFile(path.join(staticDir, name), "utf8")])));
   const requests = [];
+  const feedbackRequests = [];
   const flows = [];
   const browser = await chromium.launch({ headless: true, channel: "chrome" });
   const page = await browser.newPage({ viewport });
@@ -184,6 +197,72 @@ async function browserPage(viewport = { width: 1280, height: 900 }) {
       });
       return;
     }
+    if (pathname === "/api/v1/agent-control/deployment-status" && request.method() === "POST") {
+      const deploymentStatus = request.postDataJSON();
+      flows[0] = {
+        ...flows[0],
+        deployment_status: deploymentStatus,
+        feedback_summary: {
+          deployment_id: "deployment-web-001",
+          decision_id: "decision-web-001",
+          deployment_state: "RUNNING",
+          success: true,
+          cause: "The application is running.",
+        },
+      };
+      await route.fulfill({
+        status: 202,
+        contentType: "application/json",
+        body: JSON.stringify(flows[0]),
+      });
+      return;
+    }
+    if (pathname === "/api/v1/agent-control/optimization-feedback" && request.method() === "POST") {
+      const feedback = request.postDataJSON();
+      feedbackRequests.push({ url: request.url(), body: feedback });
+      flows[0] = {
+        ...flows[0],
+        requested_operation_agent: url.searchParams.get("operation_agent"),
+        optimization_feedback: feedback,
+        feedback_summary: {
+          deployment_id: "deployment-web-001",
+          decision_id: "decision-web-001",
+          deployment_state: "RUNNING",
+          outcome: "SUCCEEDED",
+          success: true,
+          cause: "SLO latency target exceeded.",
+          slo_violations: ["latency_p95_ms"],
+        },
+        operation_agent_execution: {
+          agent_name: "OperationOptimizationAgent",
+          source: "configuration",
+          status: "completed",
+          request_guard: { status: "APPROVED", checks: [] },
+          result_guard: { status: "APPROVED", checks: [] },
+          scaling_guard: { status: "APPROVED", checks: [] },
+          decision: {
+            action: "SCALE_OUT",
+            current_replicas: 1,
+            desired_replicas: 2,
+            reason: "SLO latency target exceeded.",
+            evidence: ["latency_p95_ms"],
+          },
+        },
+        scaling_decision: {
+          action: "SCALE_OUT",
+          current_replicas: 1,
+          desired_replicas: 2,
+          reason: "SLO latency target exceeded.",
+          evidence: ["latency_p95_ms"],
+        },
+      };
+      await route.fulfill({
+        status: 202,
+        contentType: "application/json",
+        body: JSON.stringify(flows[0]),
+      });
+      return;
+    }
     await route.fulfill({
       status: 404,
       contentType: "application/json",
@@ -191,7 +270,7 @@ async function browserPage(viewport = { width: 1280, height: 900 }) {
     });
   });
   await page.goto("http://automation.test/");
-  return { browser, page, requests, consoleErrors };
+  return { browser, page, requests, feedbackRequests, consoleErrors };
 }
 
 test("experiment guide starts collapsed and can be opened without horizontal overflow", async () => {
@@ -320,5 +399,51 @@ test("structured App Spec mode uses the same one-command endpoint without horizo
     } finally {
       await browser.close();
     }
+  }
+});
+
+test("optimization feedback selects an operation Agent and renders guarded scaling evidence", async () => {
+  const { browser, page, feedbackRequests, consoleErrors } = await browserPage();
+  try {
+    await page.locator("#automation-run-submit").click();
+    await page.waitForFunction(() => (
+      document.getElementById("agent-control-action").textContent === "DEPLOY"
+    ));
+    await page.locator('[data-view-target="results"]').click();
+    await page.locator("#load-agent-control-feedback-sample").click();
+
+    assert.equal(
+      await page.locator("#optimization-operation-agent-select").inputValue(),
+      "OperationOptimizationAgent",
+    );
+    await page.locator("#deployment-status-form button[type=submit]").click();
+    await page.waitForFunction(() => (
+      document.getElementById("experiment-scaling-summary").textContent.includes("Feedback")
+    ));
+    assert.equal(await page.locator("#experiment-operation-evidence").isVisible(), false);
+    assert.doesNotMatch(await page.locator("#experiment-scaling-summary").textContent(), /KEEP|SCALE_/);
+
+    await page.locator("#optimization-feedback-form button[type=submit]").click();
+    await page.waitForFunction(() => (
+      document.getElementById("experiment-operation-scaling").textContent.includes("SCALE_OUT 1 -> 2")
+    ));
+
+    assert.equal(feedbackRequests.length, 1);
+    assert.equal(
+      new URL(feedbackRequests[0].url).searchParams.get("operation_agent"),
+      "OperationOptimizationAgent",
+    );
+    assert.equal(feedbackRequests[0].body.operation_agent, undefined);
+    assert.match(await page.locator("#experiment-operation-agent").textContent(), /OperationOptimizationAgent.*configuration.*completed/);
+    assert.equal(await page.locator("#experiment-operation-request-guard").textContent(), "APPROVED");
+    assert.equal(await page.locator("#experiment-operation-result-guard").textContent(), "APPROVED");
+    assert.equal(await page.locator("#experiment-operation-scaling-guard").textContent(), "APPROVED");
+    assert.equal(await page.locator("#experiment-operation-scaling").textContent(), "SCALE_OUT 1 -> 2");
+    assert.equal(await page.locator("#experiment-operation-reason").textContent(), "SLO latency target exceeded.");
+    assert.equal(await page.locator("#experiment-operation-evidence-list").textContent(), "latency_p95_ms");
+    assert.match(await page.locator("#experiment-flow-json").textContent(), /operation_agent_execution/);
+    assert.deepEqual(consoleErrors, []);
+  } finally {
+    await browser.close();
   }
 });
