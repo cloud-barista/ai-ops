@@ -450,6 +450,7 @@ test("optimization feedback selects an operation Agent and renders guarded scali
       document.getElementById("agent-control-action").textContent === "DEPLOY"
     ));
     await page.locator('[data-view-target="results"]').click();
+    await page.locator("#experiment-feedback > summary").click();
     await page.locator("#load-agent-control-feedback-sample").click();
 
     assert.equal(
@@ -499,6 +500,7 @@ test("rejected operation Agent proposals are not shown as scaling recommendation
       document.getElementById("agent-control-action").textContent === "DEPLOY"
     ));
     await page.locator('[data-view-target="results"]').click();
+    await page.locator("#experiment-feedback > summary").click();
     await page.locator("#load-agent-control-feedback-sample").click();
     await page.locator("#deployment-status-form button[type=submit]").click();
     await page.locator("#optimization-feedback-form button[type=submit]").click();
@@ -535,12 +537,13 @@ test("mobile guarded feedback wraps long optimization evidence without overlap",
       document.getElementById("agent-control-action").textContent === "DEPLOY"
     ));
     await page.locator('[data-view-target="results"]').click();
+    await page.locator("#experiment-feedback > summary").click();
     await page.locator("#load-agent-control-feedback-sample").click();
     await page.locator("#deployment-status-form button[type=submit]").click();
     await page.locator("#optimization-feedback-form button[type=submit]").click();
-    await page.waitForFunction(() => (
-      document.getElementById("experiment-operation-agent").textContent.includes(longAgentName)
-    ));
+    await page.waitForFunction((expectedAgentName) => (
+      document.getElementById("experiment-operation-agent").textContent.includes(expectedAgentName)
+    ), longAgentName);
 
     assert.equal(await page.locator("#experiment-operation-evidence > div").count(), 6);
     assert.equal(await page.locator("#experiment-operation-reason").textContent(), reason);
