@@ -1091,7 +1091,7 @@ td small {
 
 .operation-evidence {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   border-bottom: 1px solid var(--line);
   background: var(--surface-soft);
 }
@@ -1105,7 +1105,7 @@ td small {
   border-bottom: 1px solid var(--line);
 }
 
-.operation-evidence > div:nth-child(4),
+.operation-evidence > div:nth-child(3),
 .operation-evidence > div:last-child {
   border-right: 0;
 }
@@ -1126,6 +1126,14 @@ td small {
   overflow-wrap: anywhere;
   font-size: 13px;
   line-height: 1.45;
+}
+
+.operation-evidence small {
+  min-width: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 .experiment-summary-block.scaling {

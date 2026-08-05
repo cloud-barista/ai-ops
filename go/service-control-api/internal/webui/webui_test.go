@@ -235,6 +235,8 @@ func TestControlAppJavaScriptUsesOnlyFocusedWebAPIs(t *testing.T) {
 		`renderOperationAgentOptions`,
 		`operation_agent`,
 		`renderOperationEvidence`,
+		`const decision = flow.scaling_decision || {};`,
+		`권고 없음`,
 		`submitAutomationRun`,
 		`submitProtocolFlow`,
 		`renderAutomationRun`,
@@ -246,6 +248,10 @@ func TestControlAppJavaScriptUsesOnlyFocusedWebAPIs(t *testing.T) {
 		if !strings.Contains(javascript, expected) {
 			t.Fatalf("missing focused JavaScript contract %q", expected)
 		}
+	}
+
+	if strings.Contains(javascript, `flow.scaling_decision || execution.decision`) {
+		t.Fatal("visible scaling recommendation must not fall back to an unapproved operation Agent decision")
 	}
 
 	for _, removed := range []string{

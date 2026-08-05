@@ -455,7 +455,7 @@ function renderOperationEvidence(flow) {
     return;
   }
 
-  const decision = flow.scaling_decision || execution.decision || {};
+  const decision = flow.scaling_decision || {};
   const hasRecommendation = Boolean(decision.action);
   container.hidden = false;
   byID("experiment-operation-agent").textContent = [
@@ -476,14 +476,14 @@ function renderOperationEvidence(flow) {
     ? `${text(decision.action)} ${text(decision.current_replicas)} -> ${text(decision.desired_replicas)}`
     : "권고 없음";
   byID("experiment-operation-reason").textContent = text(
-    decision.reason || execution.message,
-    "사유 없음",
+    decision.reason,
+    "권고 없음",
   );
   byID("experiment-operation-evidence-list").textContent = Array.isArray(
     decision.evidence,
   ) && decision.evidence.length
     ? decision.evidence.join(", ")
-    : "근거 없음";
+    : "권고 없음";
 }
 
 function renderExperimentDetail(flow) {

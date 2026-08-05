@@ -141,7 +141,21 @@ function completedRun(input) {
   };
 }
 
-async function browserPage(viewport = { width: 1280, height: 900 }) {
+function browserAgentsPayload(operationAgentName) {
+  return {
+    ...agentsPayload,
+    defaults: {
+      ...agentsPayload.defaults,
+      ai_application_operation_optimization: operationAgentName,
+    },
+    eligible_operation_agents: agentsPayload.eligible_operation_agents.map((agent) => ({
+      ...agent,
+      name: operationAgentName,
+    })),
+  };
+}
+
+async function browserPage(viewport = { width: 1280, height: 900 }, scenario = {}) {
   const assets = Object.fromEntries(await Promise.all([
     "index.html",
     "app.css",
@@ -150,6 +164,9 @@ async function browserPage(viewport = { width: 1280, height: 900 }) {
   const requests = [];
   const feedbackRequests = [];
   const flows = [];
+  const operationAgentName = scenario.operationAgentName || "OperationOptimizationAgent";
+  const operationReason = scenario.operationReason || "SLO latency target exceeded.";
+  const operationEvidence = scenario.operationEvidence || ["latency_p95_ms"];
   const browser = await chromium.launch({ headless: true, channel: "chrome" });
   const page = await browser.newPage({ viewport });
   const consoleErrors = [];
@@ -178,7 +195,10 @@ async function browserPage(viewport = { width: 1280, height: 900 }) {
       return;
     }
     if (pathname === "/api/v1/agents") {
-      await route.fulfill({ contentType: "application/json", body: JSON.stringify(agentsPayload) });
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(browserAgentsPayload(operationAgentName)),
+      });
       return;
     }
     if (pathname === "/api/v1/agent-control/flows") {
@@ -233,28 +253,48 @@ async function browserPage(viewport = { width: 1280, height: 900 }) {
           cause: "SLO latency target exceeded.",
           slo_violations: ["latency_p95_ms"],
         },
-        operation_agent_execution: {
-          agent_name: "OperationOptimizationAgent",
-          source: "configuration",
-          status: "completed",
-          request_guard: { status: "APPROVED", checks: [] },
-          result_guard: { status: "APPROVED", checks: [] },
-          scaling_guard: { status: "APPROVED", checks: [] },
-          decision: {
-            action: "SCALE_OUT",
-            current_replicas: 1,
-            desired_replicas: 2,
-            reason: "SLO latency target exceeded.",
-            evidence: ["latency_p95_ms"],
-          },
-        },
-        scaling_decision: {
-          action: "SCALE_OUT",
-          current_replicas: 1,
-          desired_replicas: 2,
-          reason: "SLO latency target exceeded.",
-          evidence: ["latency_p95_ms"],
-        },
+        operation_agent_execution: scenario.rejectedOperation
+          ? {
+              agent_name: operationAgentName,
+              source: "runtime",
+              status: "failed",
+              request_guard: { status: "APPROVED", checks: [] },
+              result_guard: { status: "REJECTED", checks: [] },
+              scaling_guard: { status: "REJECTED", checks: [] },
+              decision: {
+                action: "SCALE_IN",
+                current_replicas: 2,
+                desired_replicas: 1,
+                reason: "Rejected runtime proposal.",
+                evidence: ["untrusted_metric"],
+              },
+            }
+          : {
+              agent_name: operationAgentName,
+              source: "configuration",
+              status: "completed",
+              request_guard: { status: "APPROVED", checks: [] },
+              result_guard: { status: "APPROVED", checks: [] },
+              scaling_guard: { status: "APPROVED", checks: [] },
+              decision: {
+                action: "SCALE_OUT",
+                current_replicas: 1,
+                desired_replicas: 2,
+                reason: operationReason,
+                evidence: operationEvidence,
+              },
+            },
+        ...(scenario.rejectedOperation
+          ? {}
+          : {
+              scaling_decision: {
+                action: "SCALE_OUT",
+                current_replicas: 1,
+                desired_replicas: 2,
+                reason: operationReason,
+                evidence: operationEvidence,
+              },
+            }),
       };
       await route.fulfill({
         status: 202,
@@ -442,6 +482,91 @@ test("optimization feedback selects an operation Agent and renders guarded scali
     assert.equal(await page.locator("#experiment-operation-reason").textContent(), "SLO latency target exceeded.");
     assert.equal(await page.locator("#experiment-operation-evidence-list").textContent(), "latency_p95_ms");
     assert.match(await page.locator("#experiment-flow-json").textContent(), /operation_agent_execution/);
+    assert.deepEqual(consoleErrors, []);
+  } finally {
+    await browser.close();
+  }
+});
+
+test("rejected operation Agent proposals are not shown as scaling recommendations", async () => {
+  const { browser, page, consoleErrors } = await browserPage(
+    { width: 1280, height: 900 },
+    { rejectedOperation: true },
+  );
+  try {
+    await page.locator("#automation-run-submit").click();
+    await page.waitForFunction(() => (
+      document.getElementById("agent-control-action").textContent === "DEPLOY"
+    ));
+    await page.locator('[data-view-target="results"]').click();
+    await page.locator("#load-agent-control-feedback-sample").click();
+    await page.locator("#deployment-status-form button[type=submit]").click();
+    await page.locator("#optimization-feedback-form button[type=submit]").click();
+    await page.waitForFunction(() => (
+      document.getElementById("experiment-operation-result-guard").textContent === "REJECTED"
+    ));
+
+    assert.equal(await page.locator("#experiment-operation-scaling").textContent(), "권고 없음");
+    assert.equal(await page.locator("#experiment-operation-reason").textContent(), "권고 없음");
+    assert.equal(await page.locator("#experiment-operation-evidence-list").textContent(), "권고 없음");
+    assert.doesNotMatch(await page.locator("#experiment-operation-evidence").textContent(), /SCALE_IN 2 -> 1|Rejected runtime proposal|untrusted_metric/);
+    assert.match(await page.locator("#experiment-flow-json").textContent(), /Rejected runtime proposal/);
+    assert.deepEqual(consoleErrors, []);
+  } finally {
+    await browser.close();
+  }
+});
+
+test("mobile guarded feedback wraps long optimization evidence without overlap", async () => {
+  const longAgentName = "OperationOptimizationAgentWithExtendedRegistryIdentity";
+  const reason = "지연 시간이 목표를 초과해 사용자 요청을 보호하기 위한 확장 권고가 필요합니다.";
+  const evidence = [
+    "latency_p95_ms",
+    "accelerator_average_percent",
+    "cpu_average_percent",
+  ];
+  const { browser, page, consoleErrors } = await browserPage(
+    { width: 390, height: 844 },
+    { operationAgentName: longAgentName, operationReason: reason, operationEvidence: evidence },
+  );
+  try {
+    await page.locator("#automation-run-submit").click();
+    await page.waitForFunction(() => (
+      document.getElementById("agent-control-action").textContent === "DEPLOY"
+    ));
+    await page.locator('[data-view-target="results"]').click();
+    await page.locator("#load-agent-control-feedback-sample").click();
+    await page.locator("#deployment-status-form button[type=submit]").click();
+    await page.locator("#optimization-feedback-form button[type=submit]").click();
+    await page.waitForFunction(() => (
+      document.getElementById("experiment-operation-agent").textContent.includes(longAgentName)
+    ));
+
+    assert.equal(await page.locator("#experiment-operation-evidence > div").count(), 6);
+    assert.equal(await page.locator("#experiment-operation-reason").textContent(), reason);
+    assert.equal(await page.locator("#experiment-operation-evidence-list").textContent(), evidence.join(", "));
+    const layout = await page.evaluate(() => {
+      const boxes = (selector) => Array.from(document.querySelectorAll(selector))
+        .filter((element) => element.checkVisibility())
+        .map((element) => {
+          const { left, right, top, bottom } = element.getBoundingClientRect();
+          return { left, right, top, bottom };
+        });
+      const overlaps = (items) => items.some((item, index) => items.slice(index + 1).some((other) => (
+        item.left < other.right && item.right > other.left && item.top < other.bottom && item.bottom > other.top
+      )));
+      return {
+        clientWidth: document.documentElement.clientWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+        policyRowsOverlap: overlaps(boxes("#core-policy-summary .policy-row")),
+        pickerControlsOverlap: overlaps(boxes(".operation-agent-picker select, .operation-agent-picker small")),
+        evidenceCellsOverlap: overlaps(boxes("#experiment-operation-evidence > div")),
+      };
+    });
+    assert.equal(layout.scrollWidth <= layout.clientWidth, true, JSON.stringify(layout));
+    assert.equal(layout.policyRowsOverlap, false, JSON.stringify(layout));
+    assert.equal(layout.pickerControlsOverlap, false, JSON.stringify(layout));
+    assert.equal(layout.evidenceCellsOverlap, false, JSON.stringify(layout));
     assert.deepEqual(consoleErrors, []);
   } finally {
     await browser.close();
