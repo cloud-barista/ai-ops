@@ -57,7 +57,7 @@ func buildRepairDecision(flow Flow, now time.Time) *AutomationDecision {
 				Actual: errorCode,
 			}},
 		}
-	case ErrorCodeCUDAMismatch, ErrorCodeResourceUnavailable:
+	case ErrorCodeCUDAMismatch, ErrorCodeResourceUnavailable, ErrorCodeResourceInsufficient:
 		action = ActionRequestAlternativeResource
 		reasonCode = ReasonFailureRequiresAlternative
 		reason = "The deployment failed because the selected resource is not compatible or available."

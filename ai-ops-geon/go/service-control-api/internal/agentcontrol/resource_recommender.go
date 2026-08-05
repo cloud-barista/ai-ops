@@ -30,6 +30,7 @@ type CatalogResource struct {
 	AcceleratorMemoryMiB int     `json:"accelerator_memory_mib,omitempty"`
 	CostPerHour          float64 `json:"cost_per_hour"`
 	AvailabilityScore    float64 `json:"availability_score"`
+	FailureRiskScore     float64 `json:"failure_risk_score"`
 }
 
 type RecommendationEvidence struct {
@@ -72,6 +73,9 @@ func LoadResourceCatalog(path string) (ResourceCatalog, error) {
 		}
 		if candidate.AvailabilityScore < 0 || candidate.AvailabilityScore > 1 {
 			return ResourceCatalog{}, fmt.Errorf("availability_score must be between 0 and 1")
+		}
+		if candidate.FailureRiskScore < 0 || candidate.FailureRiskScore > 1 {
+			return ResourceCatalog{}, fmt.Errorf("failure_risk_score must be between 0 and 1")
 		}
 	}
 	return catalog, nil
@@ -183,13 +187,16 @@ func scoreCatalogCandidate(
 	})
 	costEfficiency := clampScore(1 / (1 + resource.CostPerHour))
 	availability := clampScore(resource.AvailabilityScore)
+	failureRisk := clampScore(resource.FailureRiskScore)
 	sloHeadroom := clampScore(0.5 + 0.5*resourceFit)
-	total := clampScore(
+	baseTotal :=
 		0.45*resourceFit +
 			0.20*sloHeadroom +
 			0.25*costEfficiency +
-			0.10*availability,
-	)
+			0.10*availability
+	// ponytail: fixed risk penalty keeps the catalog contract small; replace
+	// with a calibrated expected-loss model when historical samples are stable.
+	total := clampScore(baseTotal - 0.15*failureRisk)
 	return ResourceCandidate{
 		CandidateID: resource.CandidateID,
 		Feasible:    len(reasons) == 0,
@@ -211,6 +218,7 @@ func scoreCatalogCandidate(
 			SLOHeadroom:    roundScore(sloHeadroom),
 			CostEfficiency: roundScore(costEfficiency),
 			Availability:   roundScore(availability),
+			FailureRisk:    roundScore(failureRisk),
 			Total:          roundScore(total),
 		},
 		RejectionReasons: reasons,

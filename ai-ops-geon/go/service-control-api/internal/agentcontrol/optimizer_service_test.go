@@ -185,6 +185,12 @@ func TestOptimizerBuildsFailureRepairDecision(t *testing.T) {
 			reasonCode: ReasonFailureRequiresAlternative,
 		},
 		{
+			name:       "resource insufficient",
+			errorCode:  ErrorCodeResourceInsufficient,
+			action:     ActionRequestAlternativeResource,
+			reasonCode: ReasonFailureRequiresAlternative,
+		},
+		{
 			name:       "transient deployment",
 			errorCode:  ErrorCodeTransientDeployment,
 			action:     ActionRetryDeployment,

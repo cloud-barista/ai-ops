@@ -423,7 +423,10 @@ func (s *Service) failWithHTTPStatus(ctx context.Context, deployment model.Deplo
 	}
 	s.record(ctx, deployment.DeploymentID, status, "ERROR", "orchestrator", message, code, retryable)
 	s.releaseDeploymentPlacement(ctx, deployment)
-	return deployment, apperrors.New(code, message, httpStatus, retryable)
+	return deployment, apperrors.WithDetails(code, message, httpStatus, retryable, map[string]any{
+		"deployment_id": deployment.DeploymentID,
+		"status":        deployment.Status,
+	})
 }
 
 func (s *Service) releaseDeploymentPlacement(ctx context.Context, deployment model.DeploymentResponse) {

@@ -55,6 +55,54 @@ func BenchmarkRuleBasedOptimizationLifecycle(b *testing.B) {
 	}
 }
 
+func BenchmarkNoOptimizerDeploymentRequest(b *testing.B) {
+	// ponytail: direct construction is a lower bound; add AppDeploy/network timing for deployment E2E latency.
+	applicationContext := validApplicationContextEnvelope()
+	resourceRecommendation := validResourceRecommendationEnvelope()
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		request := buildDirectDeploymentRequest(applicationContext, resourceRecommendation)
+		if request.DeploymentManifest.Application.AppID == "" || request.DeploymentManifest.DesiredInfrastructure.NodeCount == 0 {
+			b.Fatal("direct deployment request is incomplete")
+		}
+	}
+}
+
+func buildDirectDeploymentRequest(
+	applicationContext ApplicationContextEnvelope,
+	resourceRecommendation ResourceRecommendationEnvelope,
+) DeploymentRequest {
+	profile := applicationContext.Data.ApplicationProfile
+	recommendation := resourceRecommendation.Data.ResourceRecommendation
+	candidate := recommendation.Candidates[0]
+	decisionID := "decision-" + resourceRecommendation.CorrelationID
+	return DeploymentRequest{
+		RequestID:  "request-" + resourceRecommendation.CorrelationID,
+		DecisionID: decisionID,
+		Application: DeploymentApplication{
+			AppID:      profile.AppID,
+			AppVersion: profile.AppVersion,
+			Artifact:   profile.Artifact,
+		},
+		DeploymentManifest: DeploymentManifest{
+			ManifestID:      "manifest-" + resourceRecommendation.CorrelationID,
+			ManifestVersion: ContractVersionV1,
+			DecisionID:      decisionID,
+			Application: ManifestApplication{
+				AppID:      profile.AppID,
+				AppVersion: profile.AppVersion,
+			},
+			TargetRuntime:          applicationContext.Data.ModelRecommendation.InferenceConfiguration.RuntimeEngine,
+			DesiredInfrastructure:  candidate.DesiredInfrastructure,
+			InferenceConfiguration: applicationContext.Data.ModelRecommendation.InferenceConfiguration,
+			ResourceHints:          append([]string(nil), candidate.ResourceHints...),
+			Metadata:               ManifestMetadata{ProfileID: profile.ProfileID},
+		},
+	}
+}
+
 func runOptimizationLifecycle(
 	service *Service,
 	applicationContext ApplicationContextEnvelope,

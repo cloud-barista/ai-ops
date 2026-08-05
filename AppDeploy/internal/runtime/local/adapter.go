@@ -3,12 +3,17 @@ package local
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
+	"hash/fnv"
+	"math/rand"
 	"net/http"
 	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
+	goruntime "runtime"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -19,9 +24,130 @@ import (
 )
 
 type Adapter struct {
-	mu       sync.RWMutex
-	workRoot string
-	jobs     map[string]*job
+	mu            sync.RWMutex
+	workRoot      string
+	jobs          map[string]*job
+	faultInjector *faultInjector
+}
+
+const (
+	FaultCodeGPUOOM               = "GPU_OOM"
+	FaultCodeCUDAMismatch         = "CUDA_MISMATCH"
+	FaultCodeResourceUnavailable  = "RESOURCE_UNAVAILABLE"
+	FaultCodeResourceInsufficient = "RESOURCE_INSUFFICIENT"
+	FaultCodeTransientDeployment  = "TRANSIENT_DEPLOYMENT_FAILURE"
+)
+
+type FaultInjectionConfig struct {
+	Rate          float64
+	Seed          int64
+	MaxFaults     int
+	Codes         []string
+	TargetRates   map[string]float64
+	Deterministic bool
+}
+
+type faultInjector struct {
+	mu            sync.Mutex
+	rate          float64
+	maxFaults     int
+	faults        int
+	codes         []string
+	seed          int64
+	targetRates   map[string]float64
+	deterministic bool
+	random        *rand.Rand
+}
+
+func newFaultInjector(config FaultInjectionConfig) *faultInjector {
+	seed := config.Seed
+	if seed == 0 {
+		seed = time.Now().UnixNano()
+	}
+	codes := append([]string(nil), config.Codes...)
+	if len(codes) == 0 {
+		codes = []string{
+			FaultCodeGPUOOM,
+			FaultCodeCUDAMismatch,
+			FaultCodeResourceUnavailable,
+			FaultCodeResourceInsufficient,
+			FaultCodeTransientDeployment,
+		}
+	}
+	return &faultInjector{
+		rate:          config.Rate,
+		maxFaults:     config.MaxFaults,
+		codes:         codes,
+		seed:          seed,
+		targetRates:   cloneTargetRates(config.TargetRates),
+		deterministic: config.Deterministic,
+		random:        rand.New(rand.NewSource(seed)),
+	}
+}
+
+func (injector *faultInjector) next() (string, bool) {
+	return injector.nextFor("", nil)
+}
+
+func (injector *faultInjector) nextFor(targetID string, parameters map[string]any) (string, bool) {
+	if injector == nil {
+		return "", false
+	}
+	injector.mu.Lock()
+	defer injector.mu.Unlock()
+	rate := injector.rate
+	if targetRate, ok := injector.targetRates[targetID]; ok {
+		rate = targetRate
+	}
+	if rate <= 0 || (injector.maxFaults > 0 && injector.faults >= injector.maxFaults) {
+		return "", false
+	}
+	value := uint64(0)
+	caseID, hasCaseID := parameters["experiment_case_id"]
+	if injector.deterministic && hasCaseID && strings.TrimSpace(fmt.Sprint(caseID)) != "" {
+		hash := fnv.New64a()
+		_, _ = fmt.Fprintf(hash, "%d|%s|%v|%v", injector.seed, targetID, caseID, parameters["experiment_attempt"])
+		value = hash.Sum64()
+	}
+	chance := injector.random.Float64()
+	if value != 0 {
+		chance = float64(value%1_000_000) / 1_000_000
+	}
+	if chance >= rate {
+		return "", false
+	}
+	injector.faults++
+	if value == 0 {
+		return injector.codes[injector.random.Intn(len(injector.codes))], true
+	}
+	return injector.codes[(value/1_000_000)%uint64(len(injector.codes))], true
+}
+
+func cloneTargetRates(rates map[string]float64) map[string]float64 {
+	if len(rates) == 0 {
+		return nil
+	}
+	clone := make(map[string]float64, len(rates))
+	for targetID, rate := range rates {
+		clone[targetID] = rate
+	}
+	return clone
+}
+
+func localFaultError(code string) *apperrors.AppError {
+	status := http.StatusInternalServerError
+	retryable := false
+	switch code {
+	case FaultCodeCUDAMismatch, FaultCodeGPUOOM:
+		status = http.StatusBadRequest
+	case FaultCodeResourceInsufficient:
+		status = http.StatusConflict
+		retryable = true
+	case FaultCodeResourceUnavailable, FaultCodeTransientDeployment:
+		status = http.StatusServiceUnavailable
+		retryable = true
+	}
+	return apperrors.New(code, "local fault injection: "+code, status, retryable)
 }
 
 type job struct {
@@ -34,10 +160,18 @@ type job struct {
 }
 
 func New(workRoot string) *Adapter {
+	return NewWithFaultInjection(workRoot, FaultInjectionConfig{})
+}
+
+func NewWithFaultInjection(workRoot string, config FaultInjectionConfig) *Adapter {
 	if strings.TrimSpace(workRoot) == "" {
 		workRoot = filepath.Join("tmp", "local-runtime")
 	}
-	return &Adapter{workRoot: workRoot, jobs: map[string]*job{}}
+	return &Adapter{
+		workRoot:      workRoot,
+		jobs:          map[string]*job{},
+		faultInjector: newFaultInjector(config),
+	}
 }
 
 func (a *Adapter) ValidateTarget(ctx context.Context, target model.TargetProfile) error {
@@ -93,6 +227,9 @@ func (a *Adapter) Deploy(ctx context.Context, plan runtime.DeploymentPlan) (*run
 	workingDir := a.workingDirectory(plan.App, plan.Target, artifactPath)
 	if err := os.MkdirAll(workingDir, 0o755); err != nil {
 		return nil, apperrors.New(model.ErrStorageUnavailable, "local runtime working directory could not be created", http.StatusInternalServerError, false)
+	}
+	if code, injected := a.faultInjector.nextFor(plan.Target.TargetProfileID, plan.Parameters); injected {
+		return nil, localFaultError(code)
 	}
 	if !filepath.IsAbs(command) && (strings.Contains(command, string(filepath.Separator)) || strings.Contains(command, "/")) {
 		command = filepath.Join(workingDir, filepath.FromSlash(command))
@@ -173,7 +310,28 @@ func (a *Adapter) Stop(ctx context.Context, plan runtime.StopPlan) error {
 	item.stopping = true
 	process := item.cmd.Process
 	a.mu.Unlock()
-	if err := process.Kill(); err != nil {
+	var err error
+	for attempt := 0; attempt < 5; attempt++ {
+		err = process.Kill()
+		if err == nil || errors.Is(err, os.ErrProcessDone) {
+			return nil
+		}
+		a.mu.RLock()
+		finished := item.status == model.StatusStopped || item.status == model.StatusCompleted || item.status == model.StatusRuntimeFailed
+		a.mu.RUnlock()
+		if finished {
+			return nil
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	if err != nil {
+		var taskkillErr error
+		if goruntime.GOOS == "windows" {
+			taskkillErr = exec.Command("taskkill", "/PID", strconv.Itoa(process.Pid), "/T", "/F").Run()
+			if taskkillErr == nil {
+				return nil
+			}
+		}
 		return apperrors.New(model.ErrRuntimeFailed, "local application process could not be stopped", http.StatusBadRequest, true)
 	}
 	return nil

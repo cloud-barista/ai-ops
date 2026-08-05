@@ -65,7 +65,14 @@ func newWithConfig(settings config.Settings, requestLogging bool) (*echo.Echo, e
 	}
 	credentials := credentialsvc.NewService(config.NewEnvCredentialResolver(), settings.SSHDefaultTimeout)
 	mockAdapter := mockruntime.New()
-	localAdapter := localruntime.New(settings.LocalRuntimeWorkDir)
+	localAdapter := localruntime.NewWithFaultInjection(settings.LocalRuntimeWorkDir, localruntime.FaultInjectionConfig{
+		Rate:          settings.LocalFaultRate,
+		Seed:          settings.LocalFaultSeed,
+		MaxFaults:     settings.LocalFaultMax,
+		Codes:         settings.LocalFaultCodes,
+		TargetRates:   settings.LocalFaultTargetRates,
+		Deterministic: settings.LocalFaultDeterministic,
+	})
 	cpuAdapter := cpuvm.New(cpuVMRunner(settings, credentials))
 	gpuAdapter := gpuvm.New(gpuVMRunner(settings, credentials))
 	aiInfraAdapter := aiinfra.New(etri.NewMockClient())

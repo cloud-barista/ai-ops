@@ -297,6 +297,7 @@ type ResourceScores struct {
 	SLOHeadroom    float64 `json:"slo_headroom"`
 	CostEfficiency float64 `json:"cost_efficiency"`
 	Availability   float64 `json:"availability"`
+	FailureRisk    float64 `json:"failure_risk"`
 	Total          float64 `json:"total"`
 }
 

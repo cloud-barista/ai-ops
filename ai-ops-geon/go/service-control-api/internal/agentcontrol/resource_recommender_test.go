@@ -98,6 +98,17 @@ func TestLoadResourceCatalogRejectsInvalidJSON(t *testing.T) {
 	}
 }
 
+func TestLoadResourceCatalogRejectsInvalidFailureRisk(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "catalog.json")
+	content := `{"version":"1.0","candidates":[{"candidate_id":"node","failure_risk_score":1.1}]}`
+	if err := os.WriteFile(path, []byte(content), 0o600); err != nil {
+		t.Fatalf("write catalog: %v", err)
+	}
+	if _, err := LoadResourceCatalog(path); err == nil {
+		t.Fatal("failure_risk_score above 1 must be rejected")
+	}
+}
+
 func TestCatalogResourceRecommenderSortsByTotalScore(t *testing.T) {
 	recommender := CatalogResourceRecommender{Catalog: testResourceCatalog()}
 	profile := analyzerProfile(t, StructuredAppSpec{
@@ -118,6 +129,34 @@ func TestCatalogResourceRecommenderSortsByTotalScore(t *testing.T) {
 		if candidates[index-1].Scores.Total < candidates[index].Scores.Total {
 			t.Fatalf("candidates are not sorted by total score: %#v", candidates)
 		}
+	}
+}
+
+func TestCatalogResourceRecommenderPenalizesFailureRisk(t *testing.T) {
+	profile := analyzerProfile(t, StructuredAppSpec{
+		AppID:       "risk-aware-service",
+		CPUCores:    2,
+		MemoryMiB:   4096,
+		StorageGiB:  20,
+		ReplicasMin: 1,
+		ReplicasMax: 1,
+	})
+	recommender := CatalogResourceRecommender{Catalog: ResourceCatalog{
+		Version: "risk-v1",
+		Candidates: []CatalogResource{
+			{CandidateID: "risky", CPUCores: 4, MemoryMiB: 8192, StorageGiB: 100, CostPerHour: 0.5, AvailabilityScore: 0.99, FailureRiskScore: 0.9},
+			{CandidateID: "safe", CPUCores: 4, MemoryMiB: 8192, StorageGiB: 100, CostPerHour: 0.5, AvailabilityScore: 0.99, FailureRiskScore: 0.1},
+		},
+	}}
+	result, err := recommender.Recommend(context.Background(), profile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := result.ResourceRecommendation.SelectedCandidateID; got != "safe" {
+		t.Fatalf("selected candidate = %q, want safe", got)
+	}
+	if got := result.ResourceRecommendation.Candidates[1].Scores.FailureRisk; got != 0.9 {
+		t.Fatalf("risky candidate failure risk = %v, want 0.9", got)
 	}
 }
 

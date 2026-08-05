@@ -16,10 +16,11 @@ const (
 	ReasonFailureTransient           = "FAILURE_TRANSIENT_RETRYABLE"
 	ReasonFailureNeedsClarification  = "FAILURE_NEEDS_USER_CLARIFICATION"
 
-	ErrorCodeGPUOOM              = "GPU_OOM"
-	ErrorCodeCUDAMismatch        = "CUDA_MISMATCH"
-	ErrorCodeResourceUnavailable = "RESOURCE_UNAVAILABLE"
-	ErrorCodeTransientDeployment = "TRANSIENT_DEPLOYMENT_FAILURE"
+	ErrorCodeGPUOOM               = "GPU_OOM"
+	ErrorCodeCUDAMismatch         = "CUDA_MISMATCH"
+	ErrorCodeResourceUnavailable  = "RESOURCE_UNAVAILABLE"
+	ErrorCodeResourceInsufficient = "RESOURCE_INSUFFICIENT"
+	ErrorCodeTransientDeployment  = "TRANSIENT_DEPLOYMENT_FAILURE"
 )
 
 type RetryPolicy struct {
