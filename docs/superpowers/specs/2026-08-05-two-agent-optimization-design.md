@@ -235,9 +235,9 @@ Agent 및 정책
 
 - 입력 방식 선택
 - 배포 판단 Agent 선택
-- 추론 전략 선택
 - 요구사항 분석, 추천, Agent 판단, Guard, Adapter 단계 표시
 - `DesiredDeploymentSpec`과 중간 증거 표시
+- 핵심 실행은 선택 Agent의 안전한 기본 전략을 사용
 
 ### Agent 및 정책
 
@@ -248,7 +248,9 @@ Agent 및 정책
 ### 실험 결과
 
 - 배포 판단 결과와 추론 전략 비교
+- 규칙 기반, Qwen 원시 제안, Qwen+Guard를 같은 Flow에서 비교
 - 배포 상태와 성능 Feedback 입력
+- 운영 최적화 Agent 선택. 생략하면 Registry 기본 Agent 사용
 - 운영 최적화 Agent 실행 결과
 - `KEEP`, `SCALE_OUT`, `SCALE_IN` 판단과 증거 표시
 
@@ -265,6 +267,8 @@ Agent 및 정책
 - `POST /api/v1/agent-control/flows/{correlation_id}/reasoning-comparison`
 
 운영 최적화 Agent 실행 증거는 기존 Flow의 `scaling_decision`을 확장하여 저장한다.
+`optimization-feedback`은 Common JSON 본문을 변경하지 않고 선택적인
+`operation_agent` 쿼리 매개변수를 허용한다. 생략하면 Registry 기본 Agent를 사용한다.
 필요한 경우에만 capability별 eligible Agent 목록과 선택 Agent 필드를 기존 응답에
 추가한다. 기존 클라이언트가 보내지 않는 필드는 Registry 기본값을 사용한다.
 
@@ -304,4 +308,3 @@ Agent 및 정책
 - 핵심 Mock 실험은 Ollama와 외부 Runtime Agent 없이 재현할 수 있다.
 - Runtime Agent를 선택한 경우에는 실제 endpoint 결과만 사용하며 묵시적 fallback이 없다.
 - AppDeploy와 실제 VM 코드는 변경하지 않는다.
-
