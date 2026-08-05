@@ -37,12 +37,29 @@ func TestResolveOperationAgentUsesRegistryDefault(t *testing.T) {
 	}
 }
 
-func TestResolveOperationAgentRejectsUnauthorizedAgent(t *testing.T) {
-	agent := operationAgent("UnauthorizedOperationAgent", true)
+func TestResolveOperationAgentRejectsDisabledAgent(t *testing.T) {
+	agent := operationAgent("DisabledOperationAgent", false)
+
+	if _, err := resolveOperationAgent(AgentRegistry{}, []AgentProfile{agent}, agent.Name); err == nil {
+		t.Fatal("expected disabled operation Agent to be rejected")
+	}
+}
+
+func TestResolveOperationAgentRejectsMissingCapability(t *testing.T) {
+	agent := operationAgent("MissingCapabilityOperationAgent", true)
+	agent.Capabilities = []string{"deployment_review"}
+
+	if _, err := resolveOperationAgent(AgentRegistry{}, []AgentProfile{agent}, agent.Name); err == nil {
+		t.Fatal("expected operation Agent without the capability to be rejected")
+	}
+}
+
+func TestResolveOperationAgentRejectsMissingAction(t *testing.T) {
+	agent := operationAgent("MissingActionOperationAgent", true)
 	agent.BoundedActions = []string{"observe_status"}
 
 	if _, err := resolveOperationAgent(AgentRegistry{}, []AgentProfile{agent}, agent.Name); err == nil {
-		t.Fatal("expected unauthorized operation Agent to be rejected")
+		t.Fatal("expected operation Agent without the action to be rejected")
 	}
 }
 

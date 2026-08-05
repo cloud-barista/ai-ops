@@ -30,12 +30,7 @@
         "generate_deployment_manifest",
         "submit_deployment_manifest",
         "observe_deployment_status",
-        "observe_status",
-        "deploy_application",
-        "scale_out_application",
-        "restart_application",
-        "rollback_application",
-        "stop_application"
+        "observe_status"
       ],
       "reward_signals": [
         "Positive reward when the manifest is contract-valid and preserves trusted request fields.",
