@@ -54,13 +54,7 @@ func ProposeRuleBasedScalingDecision(flow Flow, now time.Time) *ScalingDecision 
 		decision.Action = ScalingActionScaleIn
 		decision.DesiredReplicas = current - 1
 		decision.Reason = "Healthy SLO and sustained low utilization allow one bounded replica decrease."
-		decision.Evidence = []string{
-			fmt.Sprintf("cpu_average_percent=%.2f", resource.CPUAveragePercent),
-			fmt.Sprintf(
-				"accelerator_average_percent=%.2f",
-				resource.AcceleratorAveragePercent,
-			),
-		}
+		decision.Evidence = scalingLowUtilizationEvidence(resource)
 		return decision
 	}
 
@@ -68,11 +62,21 @@ func ProposeRuleBasedScalingDecision(flow Flow, now time.Time) *ScalingDecision 
 	return decision
 }
 
+func scalingLowUtilizationEvidence(resource ResourceMetrics) []string {
+	return []string{
+		fmt.Sprintf("cpu_average_percent=%.2f", resource.CPUAveragePercent),
+		fmt.Sprintf(
+			"accelerator_average_percent=%.2f",
+			resource.AcceleratorAveragePercent,
+		),
+	}
+}
+
 func evaluateScalingDecision(flow Flow, now time.Time) *ScalingDecision {
 	return ProposeRuleBasedScalingDecision(flow, now)
 }
 
-func normalizeScalingAction(action string) string {
+func NormalizeScalingAction(action string) string {
 	action = strings.TrimSpace(action)
 	if action == ScalingActionNoAction {
 		return ScalingActionKeep

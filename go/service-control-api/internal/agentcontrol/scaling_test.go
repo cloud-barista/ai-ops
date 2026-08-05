@@ -102,8 +102,8 @@ func TestNormalizeScalingActionCanonicalizesLegacyNoAction(t *testing.T) {
 		{action: ScalingActionKeep, want: ScalingActionKeep},
 		{action: ScalingActionNoAction, want: ScalingActionKeep},
 	} {
-		if got := normalizeScalingAction(test.action); got != test.want {
-			t.Fatalf("normalizeScalingAction(%q) = %q, want %q", test.action, got, test.want)
+		if got := NormalizeScalingAction(test.action); got != test.want {
+			t.Fatalf("NormalizeScalingAction(%q) = %q, want %q", test.action, got, test.want)
 		}
 	}
 }

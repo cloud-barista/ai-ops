@@ -29,8 +29,8 @@ type OperationOptimizationResult struct {
 }
 
 func validateOperationOptimizationResult(flow Flow, result OperationOptimizationResult) GuardResult {
+	result = CanonicalizeOperationOptimizationResult(result)
 	decision := result.Decision
-	decision.Action = normalizeScalingAction(decision.Action)
 	current, minimum, maximum := scalingReplicaBounds(flow)
 
 	checks := []GuardCheck{
@@ -58,7 +58,7 @@ func validateOperationOptimizationResult(flow Flow, result OperationOptimization
 		},
 		{
 			Name:   "scaling_action",
-			Passed: decision.Action == ScalingActionKeep || decision.Action == ScalingActionScaleOut || decision.Action == ScalingActionScaleIn,
+			Passed: isSupportedScalingAction(decision.Action),
 			Reason: "Scaling action must be KEEP, SCALE_OUT, or SCALE_IN.",
 		},
 		{
@@ -78,8 +78,8 @@ func validateOperationOptimizationResult(flow Flow, result OperationOptimization
 		},
 	}
 
-	if flow.OptimizationFeedback != nil {
-		checks = append(checks, operationEvidenceCheck(flow, decision))
+	if flow.OptimizationFeedback != nil && isSupportedScalingAction(decision.Action) {
+		checks = append(checks, operationEvidenceChecks(flow, decision, current, maximum)...)
 	}
 
 	status := GuardApproved
@@ -92,6 +92,11 @@ func validateOperationOptimizationResult(flow Flow, result OperationOptimization
 	return GuardResult{Status: status, Checks: checks}
 }
 
+func CanonicalizeOperationOptimizationResult(result OperationOptimizationResult) OperationOptimizationResult {
+	result.Decision.Action = NormalizeScalingAction(result.Decision.Action)
+	return result
+}
+
 func scalingReplicaStepIsBounded(decision ScalingDecision) bool {
 	switch decision.Action {
 	case ScalingActionKeep:
@@ -101,42 +106,82 @@ func scalingReplicaStepIsBounded(decision ScalingDecision) bool {
 	case ScalingActionScaleIn:
 		return decision.DesiredReplicas == decision.CurrentReplicas-1
 	default:
-		return false
+		return true
 	}
 }
 
-func operationEvidenceCheck(flow Flow, decision ScalingDecision) GuardCheck {
+func isSupportedScalingAction(action string) bool {
+	return action == ScalingActionKeep || action == ScalingActionScaleOut || action == ScalingActionScaleIn
+}
+
+func operationEvidenceChecks(
+	flow Flow,
+	decision ScalingDecision,
+	current int,
+	maximum int,
+) []GuardCheck {
 	feedback := flow.OptimizationFeedback.Data.OptimizationFeedback
 	violations := scalingSLOViolations(flow, feedback)
 
 	switch decision.Action {
 	case ScalingActionScaleOut:
-		return GuardCheck{
-			Name:   "slo_evidence",
-			Passed: hasTrustedSLOEvidence(violations, decision.Evidence),
-			Reason: "SCALE_OUT requires matching SLO evidence from optimization feedback.",
+		return []GuardCheck{
+			{
+				Name:   "slo_evidence",
+				Passed: len(violations) > 0 && len(decision.Evidence) > 0,
+				Reason: "SCALE_OUT requires SLO evidence from optimization feedback.",
+			},
+			{
+				Name:   "evidence_integrity",
+				Passed: allEvidenceTrusted(decision.Evidence, violations),
+				Reason: "SCALE_OUT evidence must contain only observed SLO violations.",
+			},
 		}
 	case ScalingActionScaleIn:
-		return GuardCheck{
-			Name: "utilization_evidence",
-			Passed: len(violations) == 0 &&
-				feedback.Metrics.Resource.CPUAveragePercent < scalingLowUtilizationPercent &&
-				feedback.Metrics.Resource.AcceleratorAveragePercent < scalingLowUtilizationPercent,
-			Reason: "SCALE_IN requires healthy SLO and low trusted resource utilization.",
+		return []GuardCheck{
+			{
+				Name: "utilization_evidence",
+				Passed: len(violations) == 0 &&
+					feedback.Metrics.Resource.CPUAveragePercent < scalingLowUtilizationPercent &&
+					feedback.Metrics.Resource.AcceleratorAveragePercent < scalingLowUtilizationPercent,
+				Reason: "SCALE_IN requires healthy SLO and low trusted resource utilization.",
+			},
+			{
+				Name:   "evidence_integrity",
+				Passed: sameEvidence(decision.Evidence, scalingLowUtilizationEvidence(feedback.Metrics.Resource)),
+				Reason: "SCALE_IN evidence must match the observed low-utilization metrics.",
+			},
 		}
 	default:
-		return GuardCheck{Name: "scaling_evidence", Passed: true, Reason: "KEEP preserves the observed replica count."}
+		trustedEvidence := []string(nil)
+		if current == maximum && len(violations) > 0 {
+			trustedEvidence = violations
+		}
+		return []GuardCheck{{
+			Name:   "evidence_integrity",
+			Passed: allEvidenceTrusted(decision.Evidence, trustedEvidence),
+			Reason: "KEEP evidence is allowed only for observed SLO violations at the replica maximum.",
+		}}
 	}
 }
 
-func hasTrustedSLOEvidence(violations []string, evidence []string) bool {
-	if len(violations) == 0 {
-		return false
-	}
+func allEvidenceTrusted(evidence []string, trusted []string) bool {
 	for _, value := range evidence {
-		if containsString(violations, strings.TrimSpace(value)) {
-			return true
+		if !containsString(trusted, strings.TrimSpace(value)) {
+			return false
 		}
 	}
-	return false
+	return true
+}
+
+func sameEvidence(actual []string, expected []string) bool {
+	if len(actual) != len(expected) {
+		return false
+	}
+	for index, value := range actual {
+		if strings.TrimSpace(value) != expected[index] {
+			return false
+		}
+	}
+	return true
 }
