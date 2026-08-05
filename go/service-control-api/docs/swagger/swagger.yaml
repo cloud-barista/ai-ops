@@ -563,6 +563,10 @@ definitions:
         $ref: '#/definitions/agentcontrol.FeedbackSummary'
       guard:
         $ref: '#/definitions/agentcontrol.GuardResult'
+      manifest_revisions:
+        items:
+          $ref: '#/definitions/agentcontrol.ManifestRevision'
+        type: array
       operation_agent_execution:
         $ref: '#/definitions/agentcontrol.OperationOptimizationResult'
       optimization_feedback:
@@ -652,6 +656,21 @@ definitions:
   agentcontrol.ManifestMetadata:
     properties:
       profile_id:
+        type: string
+    type: object
+  agentcontrol.ManifestRevision:
+    properties:
+      created_at:
+        type: string
+      deployment_request:
+        $ref: '#/definitions/agentcontrol.DeploymentCreateRequestEnvelope'
+      desired_deployment_spec:
+        $ref: '#/definitions/agentcontrol.DesiredDeploymentSpec'
+      phase:
+        type: string
+      revision:
+        type: integer
+      trigger_action:
         type: string
     type: object
   agentcontrol.ModelRecommendation:

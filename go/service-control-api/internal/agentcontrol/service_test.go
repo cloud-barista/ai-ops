@@ -182,6 +182,185 @@ func TestServiceCreatesPlatformNeutralDesiredDeploymentSpec(t *testing.T) {
 	}
 }
 
+func TestApprovedFlowPersistsInitialManifestRevision(t *testing.T) {
+	service := NewService()
+	created := createApprovedFlow(t, service)
+
+	revisions := manifestRevisionPayloads(t, created)
+	if len(revisions) != 1 {
+		t.Fatalf("manifest revisions = %d, want 1", len(revisions))
+	}
+	initial := manifestRevisionMap(t, revisions[0])
+	if initial["revision"] != float64(1) || initial["phase"] != "INITIAL" {
+		t.Fatalf("initial manifest revision = %#v", initial)
+	}
+	manifest := manifestFromRevision(t, revisions[0])
+	if manifest["manifest_version"] != ContractVersionV1 {
+		t.Fatalf("manifest schema version = %#v, want %q", manifest["manifest_version"], ContractVersionV1)
+	}
+
+	stored, ok := service.GetFlow(created.CorrelationID)
+	if !ok || len(manifestRevisionPayloads(t, stored)) != 1 {
+		t.Fatalf("stored Flow did not preserve its initial Manifest: %#v", stored)
+	}
+}
+
+func TestReevaluatingFlowPreservesExistingManifestRevisions(t *testing.T) {
+	service := NewService()
+	createApprovedFlow(t, service)
+
+	contextMessage := validApplicationContextEnvelope()
+	contextMessage.MessageID = "msg-context-replanned"
+	flow, err := service.ReceiveApplicationContext(context.Background(), contextMessage)
+	if err != nil {
+		t.Fatalf("receive replanned application context: %v", err)
+	}
+
+	revisions := manifestRevisionPayloads(t, flow)
+	if len(revisions) != 2 {
+		t.Fatalf("replanned manifest revisions = %d, want 2", len(revisions))
+	}
+	if manifestRevisionMap(t, revisions[0])["revision"] != float64(1) ||
+		manifestRevisionMap(t, revisions[1])["revision"] != float64(2) {
+		t.Fatalf("replanned manifest revision history = %#v", revisions)
+	}
+}
+
+func TestPlanningInputReplayDoesNotCreateManifestRevision(t *testing.T) {
+	service := NewService()
+	created := createApprovedFlow(t, service)
+
+	replayed, err := service.ReceiveResourceRecommendation(
+		context.Background(), validResourceRecommendationEnvelope(),
+	)
+	if err != nil {
+		t.Fatalf("replay resource recommendation: %v", err)
+	}
+	if len(manifestRevisionPayloads(t, replayed)) != 1 || replayed.UpdatedAt != created.UpdatedAt {
+		t.Fatalf("input replay changed the Flow: before=%#v after=%#v", created, replayed)
+	}
+}
+
+func TestApprovedScaleOutCreatesSecondManifestRevision(t *testing.T) {
+	runtime := &recordingOperationOptimizationRuntime{result: approvedOperationOptimizationResult()}
+	service := NewServiceWithRuntimes(nil, nil, nil, runtime)
+	createApprovedFlow(t, service)
+	if _, err := service.ReceiveDeploymentStatus(context.Background(), validDeploymentStatusEnvelope()); err != nil {
+		t.Fatalf("receive deployment status: %v", err)
+	}
+	feedback := validOptimizationFeedbackEnvelope()
+	feedback.Data.OptimizationFeedback.SLOViolations = []string{"latency_p95_ms"}
+	flow, err := service.ReceiveOptimizationFeedback(context.Background(), feedback)
+	if err != nil {
+		t.Fatalf("receive optimization feedback: %v", err)
+	}
+
+	revisions := manifestRevisionPayloads(t, flow)
+	if len(revisions) != 2 {
+		t.Fatalf("manifest revisions = %d, want 2", len(revisions))
+	}
+	optimized := manifestRevisionMap(t, revisions[1])
+	if optimized["revision"] != float64(2) || optimized["phase"] != "OPTIMIZED" ||
+		optimized["trigger_action"] != ScalingActionScaleOut {
+		t.Fatalf("optimized manifest revision = %#v", optimized)
+	}
+	initialReplicas := manifestReplicas(t, manifestFromRevision(t, revisions[0]))
+	optimizedManifest := manifestFromRevision(t, revisions[1])
+	optimizedReplicas := manifestReplicas(t, optimizedManifest)
+	if initialReplicas != 1 || optimizedReplicas != 2 {
+		t.Fatalf("manifest replicas = %v -> %v, want 1 -> 2", initialReplicas, optimizedReplicas)
+	}
+	if optimizedManifest["manifest_version"] != ContractVersionV1 {
+		t.Fatalf("optimized manifest schema version = %#v, want %q", optimizedManifest["manifest_version"], ContractVersionV1)
+	}
+	if flow.DesiredDeploymentSpec == nil || flow.DesiredDeploymentSpec.InferenceConfiguration.Replicas != 2 ||
+		flow.DeploymentRequest == nil || flow.DeploymentRequest.CausationID != feedback.MessageID {
+		t.Fatalf("latest Flow artifacts were not updated from approved feedback: %#v", flow)
+	}
+	if flow.DeploymentPlan == nil || flow.DeploymentPlan.InferenceConfiguration.Replicas != 2 {
+		t.Fatalf("latest Flow deployment plan replicas = %#v, want 2", flow.DeploymentPlan)
+	}
+	stored, ok := service.GetFlow(flow.CorrelationID)
+	if !ok || len(manifestRevisionPayloads(t, stored)) != 2 {
+		t.Fatalf("stored Flow did not preserve both Manifest revisions: %#v", stored)
+	}
+}
+
+func TestKeepScalingDecisionDoesNotCreateManifestRevision(t *testing.T) {
+	result := approvedOperationOptimizationResult()
+	result.Decision.Action = ScalingActionKeep
+	result.Decision.DesiredReplicas = result.Decision.CurrentReplicas
+	result.Decision.Evidence = nil
+	runtime := &recordingOperationOptimizationRuntime{result: result}
+	service := NewServiceWithRuntimes(nil, nil, nil, runtime)
+	createApprovedFlow(t, service)
+	if _, err := service.ReceiveDeploymentStatus(context.Background(), validDeploymentStatusEnvelope()); err != nil {
+		t.Fatalf("receive deployment status: %v", err)
+	}
+	flow, err := service.ReceiveOptimizationFeedback(context.Background(), validOptimizationFeedbackEnvelope())
+	if err != nil {
+		t.Fatalf("receive optimization feedback: %v", err)
+	}
+	if flow.ScalingDecision == nil || flow.ScalingDecision.Action != ScalingActionKeep {
+		t.Fatalf("scaling decision = %#v, want KEEP", flow.ScalingDecision)
+	}
+	if revisions := manifestRevisionPayloads(t, flow); len(revisions) != 1 {
+		t.Fatalf("KEEP manifest revisions = %d, want 1", len(revisions))
+	}
+}
+
+func manifestRevisionPayloads(t *testing.T, flow Flow) []any {
+	t.Helper()
+	encoded, err := json.Marshal(flow)
+	if err != nil {
+		t.Fatalf("marshal Flow: %v", err)
+	}
+	var payload map[string]any
+	if err := json.Unmarshal(encoded, &payload); err != nil {
+		t.Fatalf("unmarshal Flow: %v", err)
+	}
+	revisions, _ := payload["manifest_revisions"].([]any)
+	return revisions
+}
+
+func manifestFromRevision(t *testing.T, value any) map[string]any {
+	t.Helper()
+	revision := manifestRevisionMap(t, value)
+	request, ok := revision["deployment_request"].(map[string]any)
+	if !ok {
+		t.Fatalf("deployment_request = %#v", revision["deployment_request"])
+	}
+	data := request["data"].(map[string]any)
+	deployment := data["deployment_request"].(map[string]any)
+	manifest, ok := deployment["deployment_manifest"].(map[string]any)
+	if !ok {
+		t.Fatalf("deployment_manifest = %#v", deployment["deployment_manifest"])
+	}
+	return manifest
+}
+
+func manifestRevisionMap(t *testing.T, value any) map[string]any {
+	t.Helper()
+	revision, ok := value.(map[string]any)
+	if !ok {
+		t.Fatalf("manifest revision = %#v", value)
+	}
+	return revision
+}
+
+func manifestReplicas(t *testing.T, manifest map[string]any) float64 {
+	t.Helper()
+	inference, ok := manifest["inference_configuration"].(map[string]any)
+	if !ok {
+		t.Fatalf("inference_configuration = %#v", manifest["inference_configuration"])
+	}
+	replicas, ok := inference["replicas"].(float64)
+	if !ok {
+		t.Fatalf("replicas = %#v", inference["replicas"])
+	}
+	return replicas
+}
+
 func TestServiceRequestsResourceRetryForInsufficientCandidate(t *testing.T) {
 	service := NewService()
 	if _, err := service.ReceiveApplicationContext(context.Background(), validApplicationContextEnvelope()); err != nil {
@@ -490,6 +669,9 @@ func TestOptimizationFeedbackDoesNotPersistRejectedOperationDecision(t *testing.
 	if flow.ScalingDecision != nil {
 		t.Fatalf("rejected operation result must not create a scaling decision: %#v", flow.ScalingDecision)
 	}
+	if revisions := manifestRevisionPayloads(t, flow); len(revisions) != 1 {
+		t.Fatalf("rejected operation result manifest revisions = %d, want 1", len(revisions))
+	}
 }
 
 func TestOptimizationFeedbackDoesNotPersistInvalidRuntimeDecisionContract(t *testing.T) {
@@ -650,6 +832,54 @@ func TestOptimizationFeedbackRejectsStaleDeploymentStatusAfterRuntimeReturns(t *
 	scalingGuard := operationScalingGuard(t, result.flow)
 	if scalingGuard.Status != GuardRejected || !hasGuardCheck(scalingGuard, "trusted_deployment_status", false) {
 		t.Fatalf("stale deployment evidence = %#v", scalingGuard)
+	}
+}
+
+func TestOptimizationFeedbackRejectsStalePlanningInputsAfterRuntimeReturns(t *testing.T) {
+	runtime := &blockingOperationOptimizationRuntime{
+		result:  approvedOperationOptimizationResult(),
+		started: make(chan struct{}, 1),
+		release: make(chan struct{}),
+	}
+	service := NewServiceWithRuntimes(nil, nil, nil, runtime)
+	createApprovedFlow(t, service)
+	if _, err := service.ReceiveDeploymentStatus(context.Background(), validDeploymentStatusEnvelope()); err != nil {
+		t.Fatalf("receive deployment status: %v", err)
+	}
+
+	type feedbackResult struct {
+		flow Flow
+		err  error
+	}
+	completed := make(chan feedbackResult, 1)
+	feedback := validOptimizationFeedbackEnvelope()
+	feedback.Data.OptimizationFeedback.SLOViolations = []string{"latency_p95_ms"}
+	go func() {
+		flow, err := service.ReceiveOptimizationFeedback(context.Background(), feedback)
+		completed <- feedbackResult{flow: flow, err: err}
+	}()
+	<-runtime.started
+
+	recommendation := validResourceRecommendationEnvelope()
+	recommendation.MessageID = "msg-resource-replanned"
+	if _, err := service.ReceiveResourceRecommendation(context.Background(), recommendation); err != nil {
+		t.Fatalf("receive newer resource recommendation: %v", err)
+	}
+	close(runtime.release)
+
+	result := <-completed
+	if result.err != nil {
+		t.Fatalf("receive optimization feedback: %v", result.err)
+	}
+	if result.flow.ScalingDecision != nil {
+		t.Fatalf("stale planning inputs must not keep a scaling decision: %#v", result.flow.ScalingDecision)
+	}
+	scalingGuard := operationScalingGuard(t, result.flow)
+	if scalingGuard.Status != GuardRejected || !hasGuardCheck(scalingGuard, "trusted_planning_inputs", false) {
+		t.Fatalf("stale planning evidence = %#v", scalingGuard)
+	}
+	if revisions := manifestRevisionPayloads(t, result.flow); len(revisions) != 2 {
+		t.Fatalf("stale operation result changed manifest revisions = %d, want 2", len(revisions))
 	}
 }
 

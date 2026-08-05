@@ -41,6 +41,41 @@ const agentsPayload = {
   agents: [],
 };
 
+function manifestRevision(revision, phase, triggerAction, spec) {
+  return {
+    revision,
+    phase,
+    trigger_action: triggerAction,
+    created_at: `2026-07-29T00:00:0${revision}Z`,
+    desired_deployment_spec: spec,
+    deployment_request: {
+      contract_version: "1.0",
+      message_id: `msg-deploy-request-flow-web-001-r${revision}`,
+      message_type: "deployment.create.request",
+      occurred_at: `2026-07-29T00:00:0${revision}Z`,
+      correlation_id: "flow-web-001",
+      trace_id: "trace-web-001",
+      data: {
+        deployment_request: {
+          request_id: `deploy-request-flow-web-001-r${revision}`,
+          decision_id: "decision-web-001",
+          application: { app_id: "demo-app", app_version: "1.0.0" },
+          deployment_manifest: {
+            manifest_id: `manifest-flow-web-001-r${revision}`,
+            manifest_version: "1.0",
+            decision_id: "decision-web-001",
+            application: { app_id: "demo-app", app_version: "1.0.0" },
+            target_runtime: "GPU_VM",
+            desired_infrastructure: spec.desired_infrastructure,
+            inference_configuration: spec.inference_configuration,
+            metadata: spec.metadata,
+          },
+        },
+      },
+    },
+  };
+}
+
 function completedRun(input) {
   const selectedAgent = input.decision_agent || "AIApplicationAutomationAgent";
   const selectedSource = selectedAgent === "RuntimeDeploymentAgent" ? "runtime" : "configuration";
@@ -59,6 +94,12 @@ function completedRun(input) {
     inference_configuration: { runtime_engine: "VLLM", precision: "FP16", replicas: 1 },
     metadata: { correlation_id: "flow-web-001", trace_id: "trace-web-001" },
   };
+  const initialManifestRevision = manifestRevision(
+    1,
+    "INITIAL",
+    "DEPLOY",
+    desiredDeploymentSpec,
+  );
   return {
     run_id: "run-web-001",
     correlation_id: "flow-web-001",
@@ -127,6 +168,8 @@ function completedRun(input) {
       },
       guard: { status: "APPROVED", checks: [] },
       desired_deployment_spec: desiredDeploymentSpec,
+      deployment_request: initialManifestRevision.deployment_request,
+      manifest_revisions: [initialManifestRevision],
     },
     desired_deployment_spec: desiredDeploymentSpec,
     deployment_submission: {
@@ -294,6 +337,23 @@ async function browserPage(viewport = { width: 1280, height: 900 }, scenario = {
                 reason: operationReason,
                 evidence: operationEvidence,
               },
+              desired_deployment_spec: {
+                ...flows[0].desired_deployment_spec,
+                inference_configuration: {
+                  ...flows[0].desired_deployment_spec.inference_configuration,
+                  replicas: 2,
+                },
+              },
+              manifest_revisions: [
+                ...flows[0].manifest_revisions,
+                manifestRevision(2, "OPTIMIZED", "SCALE_OUT", {
+                  ...flows[0].desired_deployment_spec,
+                  inference_configuration: {
+                    ...flows[0].desired_deployment_spec.inference_configuration,
+                    replicas: 2,
+                  },
+                }),
+              ],
             }),
       };
       await route.fulfill({
@@ -386,6 +446,9 @@ test("one natural-language input automatically completes all four stages", async
     );
     assert.match(await page.locator("#agent-control-result-json").textContent(), /desired_infrastructure/);
     assert.match(await page.locator("#agent-control-result-json").textContent(), /deployment_submission/);
+    assert.equal(await page.locator("#manifest-initial-status").textContent(), "생성 완료 · Revision 1");
+    assert.match(await page.locator("#manifest-initial-json").textContent(), /manifest-flow-web-001-r1/);
+    assert.equal(await page.locator("#manifest-optimized-status").textContent(), "Feedback 후 생성 대기");
     assert.match(await page.locator("#automation-application-profile-json").textContent(), /profile-web-001/);
     assert.match(await page.locator("#automation-resource-recommendation-json").textContent(), /mock-gpu-l4/);
     await page.locator('[data-view-target="results"]').click();
@@ -482,6 +545,14 @@ test("optimization feedback selects an operation Agent and renders guarded scali
     assert.equal(await page.locator("#experiment-operation-scaling").textContent(), "SCALE_OUT 1 -> 2");
     assert.equal(await page.locator("#experiment-operation-reason").textContent(), "SLO latency target exceeded.");
     assert.equal(await page.locator("#experiment-operation-evidence-list").textContent(), "latency_p95_ms");
+    assert.equal(
+      await page.locator("#experiment-manifest-optimized-status").textContent(),
+      "생성 완료 · Revision 2 · SCALE_OUT",
+    );
+    assert.match(
+      await page.locator("#experiment-manifest-optimized-json").textContent(),
+      /manifest-flow-web-001-r2/,
+    );
     assert.match(await page.locator("#experiment-flow-json").textContent(), /operation_agent_execution/);
     assert.deepEqual(consoleErrors, []);
   } finally {

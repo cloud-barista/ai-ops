@@ -29,6 +29,9 @@ const (
 	ScalingActionScaleOut = "SCALE_OUT"
 	ScalingActionScaleIn  = "SCALE_IN"
 
+	ManifestPhaseInitial   = "INITIAL"
+	ManifestPhaseOptimized = "OPTIMIZED"
+
 	AutomationAgentName      = "AIApplicationAutomationAgent"
 	AutomationCapability     = "ai_application_automation"
 	AutomationDecisionAction = "generate_deployment_decision"
@@ -415,6 +418,18 @@ type DeploymentManifest struct {
 	Metadata               ManifestMetadata       `json:"metadata"`
 }
 
+// ManifestRevision preserves each guarded manifest generated for one Flow.
+// ManifestVersion remains the Common JSON schema version; Revision is the
+// ordered generation number within the Flow.
+type ManifestRevision struct {
+	Revision              int                             `json:"revision"`
+	Phase                 string                          `json:"phase"`
+	TriggerAction         string                          `json:"trigger_action"`
+	CreatedAt             string                          `json:"created_at"`
+	DesiredDeploymentSpec DesiredDeploymentSpec           `json:"desired_deployment_spec"`
+	DeploymentRequest     DeploymentCreateRequestEnvelope `json:"deployment_request"`
+}
+
 type ManifestApplication struct {
 	AppID      string `json:"app_id"`
 	AppVersion string `json:"app_version"`
@@ -603,6 +618,7 @@ type Flow struct {
 	Guard                   *GuardResult                     `json:"guard,omitempty"`
 	DesiredDeploymentSpec   *DesiredDeploymentSpec           `json:"desired_deployment_spec,omitempty"`
 	DeploymentRequest       *DeploymentCreateRequestEnvelope `json:"deployment_request,omitempty"`
+	ManifestRevisions       []ManifestRevision               `json:"manifest_revisions,omitempty"`
 	DeploymentStatus        *DeploymentStatusEnvelope        `json:"deployment_status,omitempty"`
 	OptimizationFeedback    *OptimizationFeedbackEnvelope    `json:"optimization_feedback,omitempty"`
 	FeedbackSummary         *FeedbackSummary                 `json:"feedback_summary,omitempty"`

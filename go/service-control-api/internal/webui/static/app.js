@@ -329,6 +329,58 @@ function desiredDeploymentSpec(flow) {
   );
 }
 
+function manifestRevisions(flow) {
+  const revisions = Array.isArray(flow?.manifest_revisions)
+    ? [...flow.manifest_revisions]
+    : [];
+  if (!revisions.length && flow?.deployment_request) {
+    revisions.push({
+      revision: 1,
+      phase: "INITIAL",
+      trigger_action: "DEPLOY",
+      deployment_request: flow.deployment_request,
+    });
+  }
+  return revisions.sort((left, right) => Number(left.revision) - Number(right.revision));
+}
+
+function manifestPayload(revision) {
+  return (
+    revision?.deployment_request?.data?.deployment_request?.deployment_manifest ||
+    null
+  );
+}
+
+function renderManifestOutput(prefix, flow) {
+  const revisions = manifestRevisions(flow);
+  const initial = revisions.find((revision) => Number(revision.revision) === 1) || null;
+  const optimized = [...revisions]
+    .reverse()
+    .find((revision) => revision.phase === "OPTIMIZED") || null;
+  const initialStatus = byID(`${prefix}manifest-initial-status`);
+  const initialJSON = byID(`${prefix}manifest-initial-json`);
+  const optimizedStatus = byID(`${prefix}manifest-optimized-status`);
+  const optimizedJSON = byID(`${prefix}manifest-optimized-json`);
+
+  initialStatus.textContent = initial
+    ? `생성 완료 · Revision ${text(initial.revision)}`
+    : "생성 대기";
+  initialJSON.textContent = initial
+    ? pretty(manifestPayload(initial))
+    : "DEPLOY 승인 후 생성됩니다.";
+  optimizedStatus.textContent = optimized
+    ? `생성 완료 · Revision ${text(optimized.revision)} · ${text(optimized.trigger_action)}`
+    : "Feedback 후 생성 대기";
+  optimizedJSON.textContent = optimized
+    ? pretty(manifestPayload(optimized))
+    : "승인된 SCALE_OUT 또는 SCALE_IN 판단 후 생성됩니다.";
+}
+
+function renderManifestOutputs(flow) {
+  renderManifestOutput("", flow);
+  renderManifestOutput("experiment-", flow);
+}
+
 function renderAgentControlStages(record) {
   const flow = record?.flow || record;
   const complete = {
@@ -496,6 +548,7 @@ function renderExperimentDetail(flow) {
     renderReasoningComparison(null);
     renderFeedback(null);
     renderOperationEvidence(null);
+    renderManifestOutputs(null);
     return;
   }
   const decision = flow.decision || {};
@@ -511,6 +564,7 @@ function renderExperimentDetail(flow) {
   renderReasoningComparison(flow.reasoning_comparison);
   renderFeedback(flow);
   renderOperationEvidence(flow);
+  renderManifestOutputs(flow);
 }
 
 function renderAgentControlFlow(flow) {
@@ -534,6 +588,7 @@ function renderAgentControlFlow(flow) {
       "요청을 입력한 뒤 자동 분석 및 판단을 실행하세요.";
     byID("agent-control-result-json").textContent =
       "아직 실행 결과가 없습니다.";
+    renderManifestOutputs(null);
     renderAgentControlStages(null);
     renderExperimentDetail(null);
     return;
@@ -594,6 +649,8 @@ function renderAgentControlFlow(flow) {
     decision: flow.decision,
     guard: flow.guard,
     desired_deployment_spec: desiredDeploymentSpec(flow),
+    deployment_request: flow.deployment_request,
+    manifest_revisions: flow.manifest_revisions,
     operation_agent_execution: flow.operation_agent_execution,
     scaling_decision: flow.scaling_decision,
   });
@@ -653,6 +710,8 @@ function renderAutomationRun(run) {
     guard: flow?.guard,
     desired_deployment_spec:
       run.desired_deployment_spec || desiredDeploymentSpec(flow),
+    deployment_request: flow?.deployment_request,
+    manifest_revisions: flow?.manifest_revisions,
     deployment_submission: run.deployment_submission,
     operation_agent_execution: flow?.operation_agent_execution,
     scaling_decision: flow?.scaling_decision,

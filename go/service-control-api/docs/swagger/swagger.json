@@ -2616,6 +2616,12 @@
                 "guard": {
                     "$ref": "#/definitions/agentcontrol.GuardResult"
                 },
+                "manifest_revisions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/agentcontrol.ManifestRevision"
+                    }
+                },
                 "operation_agent_execution": {
                     "$ref": "#/definitions/agentcontrol.OperationOptimizationResult"
                 },
@@ -2748,6 +2754,29 @@
             "type": "object",
             "properties": {
                 "profile_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.ManifestRevision": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "deployment_request": {
+                    "$ref": "#/definitions/agentcontrol.DeploymentCreateRequestEnvelope"
+                },
+                "desired_deployment_spec": {
+                    "$ref": "#/definitions/agentcontrol.DesiredDeploymentSpec"
+                },
+                "phase": {
+                    "type": "string"
+                },
+                "revision": {
+                    "type": "integer"
+                },
+                "trigger_action": {
                     "type": "string"
                 }
             }

@@ -85,6 +85,9 @@ func (service *Service) ReceiveApplicationContext(
 	if err := ensureFlowIdentity(flow, message.Envelope, message.Data.ApplicationProfile.ProfileID); err != nil {
 		return Flow{}, err
 	}
+	if flow.ApplicationContext != nil && flow.ApplicationContext.MessageID == message.MessageID {
+		return cloneFlow(flow), nil
+	}
 	messageCopy := cloneApplicationContextEnvelope(message)
 	flow.CorrelationID = message.CorrelationID
 	flow.TraceID = message.TraceID
@@ -126,6 +129,9 @@ func (service *Service) ReceiveResourceRecommendationForAgent(
 	flow := service.flows[message.CorrelationID]
 	if err := ensureFlowIdentity(flow, message.Envelope, message.Data.ResourceRecommendation.ProfileID); err != nil {
 		return Flow{}, err
+	}
+	if flow.ResourceRecommendation != nil && flow.ResourceRecommendation.MessageID == message.MessageID {
+		return cloneFlow(flow), nil
 	}
 	messageCopy := cloneResourceRecommendationEnvelope(message)
 	flow.CorrelationID = message.CorrelationID
@@ -270,6 +276,9 @@ func (service *Service) ReceiveOptimizationFeedbackForAgent(
 	if !currentDeploymentStatusMatchesSnapshot(current, snapshot) {
 		result.ScalingGuard = rejectStaleDeploymentStatusGuard(result.ScalingGuard)
 	}
+	if !currentPlanningInputsMatchSnapshot(current, snapshot) {
+		result.ScalingGuard = rejectStalePlanningInputsGuard(result.ScalingGuard)
+	}
 	resultCopy := cloneOperationOptimizationResult(result)
 	current.OperationAgentExecution = &resultCopy
 	if runtimeErr == nil &&
@@ -280,6 +289,17 @@ func (service *Service) ReceiveOptimizationFeedbackForAgent(
 		decision := result.Decision
 		decision.Evidence = append([]string(nil), result.Decision.Evidence...)
 		current.ScalingDecision = &decision
+		if decision.Action == ScalingActionScaleOut || decision.Action == ScalingActionScaleIn {
+			if current.DeploymentPlan != nil {
+				current.DeploymentPlan.InferenceConfiguration.Replicas = decision.DesiredReplicas
+			}
+			revision := buildOptimizedManifestRevision(current, decision, service.now().Format(time.RFC3339Nano))
+			current.ManifestRevisions = append(current.ManifestRevisions, revision)
+			spec := cloneDesiredDeploymentSpec(revision.DesiredDeploymentSpec)
+			current.DesiredDeploymentSpec = &spec
+			request := cloneDeploymentCreateRequestEnvelope(revision.DeploymentRequest)
+			current.DeploymentRequest = &request
+		}
 	}
 	current.UpdatedAt = service.now().Format(time.RFC3339Nano)
 	service.flows[message.CorrelationID] = cloneFlow(current)
@@ -776,6 +796,9 @@ func (service *Service) evaluateFlowLegacy(ctx context.Context, flow Flow) Flow 
 	spec := buildDesiredDeploymentSpec(flow)
 	flow.DesiredDeploymentSpec = &spec
 	request := buildDeploymentCreateRequest(flow, createdAt)
+	flow.ManifestRevisions, request = appendInitialManifestRevision(
+		flow.ManifestRevisions, spec, request, createdAt,
+	)
 	flow.DeploymentRequest = &request
 	return flow
 }
@@ -821,6 +844,9 @@ func (service *Service) applyDecisionAgentResult(
 		spec := buildDesiredDeploymentSpec(flow)
 		flow.DesiredDeploymentSpec = &spec
 		request := buildDeploymentCreateRequest(flow, createdAt)
+		flow.ManifestRevisions, request = appendInitialManifestRevision(
+			flow.ManifestRevisions, spec, request, createdAt,
+		)
 		flow.DeploymentRequest = &request
 	case GuardRetryRequired:
 		flow.State = StateRetryRequired
@@ -1084,6 +1110,63 @@ func buildDeploymentCreateRequest(flow Flow, createdAt string) DeploymentCreateR
 	}
 }
 
+func appendInitialManifestRevision(
+	existing []ManifestRevision,
+	spec DesiredDeploymentSpec,
+	request DeploymentCreateRequestEnvelope,
+	createdAt string,
+) ([]ManifestRevision, DeploymentCreateRequestEnvelope) {
+	revisionNumber := len(existing) + 1
+	if revisionNumber > 1 {
+		requestID := fmt.Sprintf("deploy-request-%s-r%d", request.CorrelationID, revisionNumber)
+		request.MessageID = "msg-" + requestID
+		request.Data.DeploymentRequest.RequestID = requestID
+		request.Data.DeploymentRequest.DeploymentManifest.ManifestID = fmt.Sprintf(
+			"manifest-%s-r%d", request.CorrelationID, revisionNumber,
+		)
+	}
+	revision := ManifestRevision{
+		Revision:              revisionNumber,
+		Phase:                 ManifestPhaseInitial,
+		TriggerAction:         ActionDeploy,
+		CreatedAt:             createdAt,
+		DesiredDeploymentSpec: cloneDesiredDeploymentSpec(spec),
+		DeploymentRequest:     cloneDeploymentCreateRequestEnvelope(request),
+	}
+	return append(cloneManifestRevisions(existing), revision), request
+}
+
+func buildOptimizedManifestRevision(
+	flow Flow,
+	decision ScalingDecision,
+	createdAt string,
+) ManifestRevision {
+	revisionNumber := len(flow.ManifestRevisions) + 1
+	spec := cloneDesiredDeploymentSpec(*flow.DesiredDeploymentSpec)
+	spec.InferenceConfiguration.Replicas = decision.DesiredReplicas
+
+	request := cloneDeploymentCreateRequestEnvelope(*flow.DeploymentRequest)
+	requestID := fmt.Sprintf("deploy-request-%s-r%d", flow.CorrelationID, revisionNumber)
+	request.MessageID = "msg-" + requestID
+	request.OccurredAt = createdAt
+	if flow.OptimizationFeedback != nil {
+		request.CausationID = flow.OptimizationFeedback.MessageID
+	}
+	request.Data.DeploymentRequest.RequestID = requestID
+	manifest := &request.Data.DeploymentRequest.DeploymentManifest
+	manifest.ManifestID = fmt.Sprintf("manifest-%s-r%d", flow.CorrelationID, revisionNumber)
+	manifest.InferenceConfiguration.Replicas = decision.DesiredReplicas
+
+	return ManifestRevision{
+		Revision:              revisionNumber,
+		Phase:                 ManifestPhaseOptimized,
+		TriggerAction:         decision.Action,
+		CreatedAt:             createdAt,
+		DesiredDeploymentSpec: spec,
+		DeploymentRequest:     request,
+	}
+}
+
 func validateEnvelope(envelope Envelope, expectedType string) error {
 	switch {
 	case envelope.ContractVersion != ContractVersionV1:
@@ -1333,6 +1416,13 @@ func cloneFlow(flow Flow) Flow {
 		value := cloneDeploymentCreateRequestEnvelope(*flow.DeploymentRequest)
 		result.DeploymentRequest = &value
 	}
+	if flow.DesiredDeploymentSpec != nil {
+		value := cloneDesiredDeploymentSpec(*flow.DesiredDeploymentSpec)
+		result.DesiredDeploymentSpec = &value
+	}
+	if flow.ManifestRevisions != nil {
+		result.ManifestRevisions = cloneManifestRevisions(flow.ManifestRevisions)
+	}
 	if flow.DeploymentStatus != nil {
 		value := cloneDeploymentStatusEnvelope(*flow.DeploymentStatus)
 		result.DeploymentStatus = &value
@@ -1358,6 +1448,19 @@ func cloneFlow(flow Flow) Flow {
 	if flow.ReasoningComparison != nil {
 		value := *flow.ReasoningComparison
 		result.ReasoningComparison = &value
+	}
+	return result
+}
+
+func cloneManifestRevisions(revisions []ManifestRevision) []ManifestRevision {
+	if revisions == nil {
+		return nil
+	}
+	result := make([]ManifestRevision, len(revisions))
+	for index, revision := range revisions {
+		result[index] = revision
+		result[index].DesiredDeploymentSpec = cloneDesiredDeploymentSpec(revision.DesiredDeploymentSpec)
+		result[index].DeploymentRequest = cloneDeploymentCreateRequestEnvelope(revision.DeploymentRequest)
 	}
 	return result
 }
@@ -1395,6 +1498,24 @@ func currentDeploymentStatusMatchesSnapshot(current Flow, snapshot Flow) bool {
 		current.DeploymentStatus.Data.DeploymentStatus.State == DeploymentStateRunning
 }
 
+func currentPlanningInputsMatchSnapshot(current Flow, snapshot Flow) bool {
+	if current.ApplicationContext == nil || snapshot.ApplicationContext == nil ||
+		current.ResourceRecommendation == nil || snapshot.ResourceRecommendation == nil ||
+		current.Decision == nil || snapshot.Decision == nil ||
+		current.DesiredDeploymentSpec == nil || snapshot.DesiredDeploymentSpec == nil ||
+		current.DeploymentRequest == nil || snapshot.DeploymentRequest == nil ||
+		len(current.ManifestRevisions) == 0 || len(snapshot.ManifestRevisions) == 0 {
+		return false
+	}
+	currentRevision := current.ManifestRevisions[len(current.ManifestRevisions)-1]
+	snapshotRevision := snapshot.ManifestRevisions[len(snapshot.ManifestRevisions)-1]
+	return current.ApplicationContext.MessageID == snapshot.ApplicationContext.MessageID &&
+		current.ResourceRecommendation.MessageID == snapshot.ResourceRecommendation.MessageID &&
+		current.Decision.DecisionID == snapshot.Decision.DecisionID &&
+		currentRevision.Revision == snapshotRevision.Revision &&
+		current.DeploymentRequest.MessageID == snapshot.DeploymentRequest.MessageID
+}
+
 func rejectStaleDeploymentStatusGuard(guard GuardResult) GuardResult {
 	guard.Checks = append([]GuardCheck(nil), guard.Checks...)
 	guard.Issues = append([]ValidationIssue(nil), guard.Issues...)
@@ -1402,6 +1523,18 @@ func rejectStaleDeploymentStatusGuard(guard GuardResult) GuardResult {
 		Name:   "trusted_deployment_status",
 		Passed: false,
 		Reason: "Deployment status changed after the Operation Agent started; its recommendation is stale.",
+	})
+	guard.Status = GuardRejected
+	return guard
+}
+
+func rejectStalePlanningInputsGuard(guard GuardResult) GuardResult {
+	guard.Checks = append([]GuardCheck(nil), guard.Checks...)
+	guard.Issues = append([]ValidationIssue(nil), guard.Issues...)
+	guard.Checks = append(guard.Checks, GuardCheck{
+		Name:   "trusted_planning_inputs",
+		Passed: false,
+		Reason: "Planning inputs or the active Manifest changed after the Operation Agent started; its recommendation is stale.",
 	})
 	guard.Status = GuardRejected
 	return guard
@@ -1468,6 +1601,21 @@ func cloneDeploymentCreateRequestEnvelope(
 		manifest.Runtime.Environment = make(map[string]string, len(sourceManifest.Runtime.Environment))
 		for key, value := range sourceManifest.Runtime.Environment {
 			manifest.Runtime.Environment[key] = value
+		}
+	}
+	return result
+}
+
+func cloneDesiredDeploymentSpec(spec DesiredDeploymentSpec) DesiredDeploymentSpec {
+	result := spec
+	result.PolicyHints = append([]string(nil), spec.PolicyHints...)
+	result.Runtime.Command = append([]string(nil), spec.Runtime.Command...)
+	result.Runtime.Args = append([]string(nil), spec.Runtime.Args...)
+	result.Runtime.Ports = append([]RuntimePort(nil), spec.Runtime.Ports...)
+	if spec.Runtime.Environment != nil {
+		result.Runtime.Environment = make(map[string]string, len(spec.Runtime.Environment))
+		for key, value := range spec.Runtime.Environment {
+			result.Runtime.Environment[key] = value
 		}
 	}
 	return result

@@ -188,6 +188,31 @@
             <div><span>전달 상태</span><strong id="agent-control-adapter-status">-</strong></div>
           </div>
           <p class="decision-reason" id="agent-control-reason">요청을 입력한 뒤 자동 분석 및 판단을 실행하세요.</p>
+          <section class="manifest-output" aria-labelledby="manifest-output-title">
+            <div class="manifest-output-heading">
+              <div>
+                <span>FINAL ARTIFACT</span>
+                <strong id="manifest-output-title">Deployment Manifest</strong>
+              </div>
+              <small>통신 규약 스키마는 1.0이며 Revision은 동일 Flow 안의 생성 순서입니다.</small>
+            </div>
+            <div class="manifest-output-grid">
+              <section>
+                <div class="manifest-revision-heading">
+                  <strong>초기 Manifest</strong>
+                  <span id="manifest-initial-status">생성 대기</span>
+                </div>
+                <pre class="json-output manifest-json" id="manifest-initial-json">DEPLOY 승인 후 생성됩니다.</pre>
+              </section>
+              <section>
+                <div class="manifest-revision-heading">
+                  <strong>최적화 Manifest</strong>
+                  <span id="manifest-optimized-status">Feedback 후 생성 대기</span>
+                </div>
+                <pre class="json-output manifest-json" id="manifest-optimized-json">승인된 SCALE_OUT 또는 SCALE_IN 판단 후 생성됩니다.</pre>
+              </section>
+            </div>
+          </section>
           <pre class="json-output" id="agent-control-result-json">아직 실행 결과가 없습니다.</pre>
         </section>
 
@@ -352,6 +377,28 @@
                 <span>사유 및 근거</span>
                 <strong id="experiment-operation-reason">-</strong>
                 <small id="experiment-operation-evidence-list">-</small>
+              </div>
+            </section>
+            <section class="manifest-output experiment-manifest-output" aria-label="Flow Manifest 생성 이력">
+              <div class="manifest-output-heading">
+                <div><span>MANIFEST HISTORY</span><strong>Flow 최종 산출물</strong></div>
+                <small>초기 배포안과 Feedback 기반 재계획안을 나란히 비교합니다.</small>
+              </div>
+              <div class="manifest-output-grid">
+                <section>
+                  <div class="manifest-revision-heading">
+                    <strong>초기 Manifest</strong>
+                    <span id="experiment-manifest-initial-status">생성 대기</span>
+                  </div>
+                  <pre class="json-output manifest-json" id="experiment-manifest-initial-json">DEPLOY 승인 후 생성됩니다.</pre>
+                </section>
+                <section>
+                  <div class="manifest-revision-heading">
+                    <strong>최적화 Manifest</strong>
+                    <span id="experiment-manifest-optimized-status">Feedback 후 생성 대기</span>
+                  </div>
+                  <pre class="json-output manifest-json" id="experiment-manifest-optimized-json">승인된 SCALE_OUT 또는 SCALE_IN 판단 후 생성됩니다.</pre>
+                </section>
               </div>
             </section>
             <pre class="json-output result-json" id="experiment-flow-json">{}</pre>
