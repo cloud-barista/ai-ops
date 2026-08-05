@@ -1,0 +1,36 @@
+{
+  "version": "v1",
+  "max_request_length": 8000,
+  "allowed_requesters": [
+    "ai-ops-geon-planner",
+    "ai-agent"
+  ],
+  "forbidden_request_terms": [
+    "kubernetes",
+    "kubectl",
+    "helm",
+    "container",
+    "docker",
+    "쿠버네티스",
+    "컨테이너",
+    "password",
+    "api key",
+    "access key",
+    "secret key",
+    "private key",
+    "credential",
+    "rm -rf",
+    "curl |",
+    "sudo "
+  ],
+  "forbidden_parameter_keys": [
+    "password",
+    "token",
+    "secret",
+    "credential",
+    "api_key",
+    "access_key",
+    "secret_key",
+    "private_key"
+  ]
+}

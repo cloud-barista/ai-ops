@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>geon Agent Control</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="주요 메뉴">
+      <div class="brand-lockup">
+        <span class="brand-mark" aria-hidden="true">G</span>
+        <span><strong>geon</strong><small>Automation Agent PoC</small></span>
+      </div>
+
+      <nav class="primary-nav">
+        <button class="nav-item is-active" type="button" data-view-target="agent-control">
+          <i data-lucide="workflow" aria-hidden="true"></i><span>자동화 에이전트</span>
+        </button>
+        <button class="nav-item" type="button" data-view-target="agents">
+          <i data-lucide="shield-check" aria-hidden="true"></i><span>Agent 및 정책</span>
+        </button>
+        <button class="nav-item" type="button" data-view-target="results">
+          <i data-lucide="flask-conical" aria-hidden="true"></i><span>실험 결과</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="service-indicator">
+          <span class="status-dot" id="sidebar-health-dot"></span>
+          <span>service-control-api</span>
+        </div>
+        <small>Independent research PoC</small>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow" id="view-eyebrow">KHU AUTOMATION AGENT</p>
+          <h1 id="view-title">AI 응용 자동화 에이전트</h1>
+        </div>
+        <div class="topbar-actions">
+          <span class="health-pill" id="health-pill">
+            <span class="status-dot"></span><span>확인 중</span>
+          </span>
+          <a class="icon-button" href="/openapi.yaml" target="_blank" rel="noreferrer" title="API 문서" aria-label="API 문서">
+            <i data-lucide="file-code-2" aria-hidden="true"></i>
+          </a>
+          <button class="icon-button" id="refresh-button" type="button" title="새로고침" aria-label="새로고침">
+            <i data-lucide="refresh-cw" aria-hidden="true"></i>
+          </button>
+        </div>
+      </header>
+
+      <section class="view is-active" data-view="agent-control">
+        <div class="view-heading">
+          <div>
+            <p class="section-label">CORE WORKFLOW</p>
+            <h2>자동 분석 및 판단</h2>
+            <p>요청을 한 번 입력하면 요구사항 분석, 인프라 추천, Agent 배포 판단을 순서대로 실행합니다.</p>
+          </div>
+          <span class="scope-badge">AppDeploy 없이 실행 가능</span>
+        </div>
+
+        <details class="experiment-guide" id="experiment-guide">
+          <summary>
+            <span class="experiment-guide-heading">
+              <i data-lucide="list-checks" aria-hidden="true"></i>
+              <span><strong>실험 진행 방법</strong><small>처음 실행한다면 순서와 확인 항목을 펼쳐보세요.</small></span>
+            </span>
+            <i class="experiment-guide-chevron" data-lucide="chevron-down" aria-hidden="true"></i>
+          </summary>
+          <ol class="experiment-guide-steps">
+            <li class="experiment-guide-step">
+              <span>1</span>
+              <div><strong>입력 방식 선택</strong><p>자연어 요청 또는 구조화 App Spec을 선택하고 배포 요구사항을 입력합니다.</p></div>
+            </li>
+            <li class="experiment-guide-step">
+              <span>2</span>
+              <div><strong>자동 분석 및 판단 실행</strong><p><b>자동 분석 및 판단</b>을 눌러 세 단계를 한 번에 실행합니다.</p></div>
+            </li>
+            <li class="experiment-guide-step">
+              <span>3</span>
+              <div><strong>판단 결과 확인</strong><p>DEPLOY·REJECT·RETRY, Registry 권한, Go Guard와 DesiredDeploymentSpec을 확인합니다.</p></div>
+            </li>
+            <li class="experiment-guide-step">
+              <span>4</span>
+              <div><strong>선택 실험</strong><p><b>실험 결과</b>에서 추론 비교 또는 Feedback·스케일링 판단을 추가로 검증합니다.</p></div>
+            </li>
+          </ol>
+          <p class="experiment-guide-note"><strong>핵심 완료 기준:</strong> DEPLOY 판단과 Guard 승인 후 DesiredDeploymentSpec이 생성되면 배포 전 실험이 완료된 것입니다.</p>
+          <p class="experiment-guide-note"><strong>외부 시스템 연동:</strong> Common JSON v1.0 <code>application.analysis.request</code>는 <code>/api/v1/agent-control/application-analysis-requests</code>로 전송합니다. 같은 <code>message_id</code>를 다시 보내면 기존 실행 결과를 반환하여 중복 배포 요청 생성을 방지합니다.</p>
+        </details>
+
+        <ol class="agent-control-stage-flow" id="agent-control-stage-flow" aria-label="자동화 에이전트 처리 단계">
+          <li data-agent-control-stage="requirement"><span>1</span><strong>요구사항 분석</strong><small>ApplicationProfile 생성</small></li>
+          <li data-agent-control-stage="recommendation"><span>2</span><strong>인프라 추천</strong><small>Mock 자원 후보 비교</small></li>
+          <li data-agent-control-stage="decision"><span>3</span><strong>Agent 배포 판단</strong><small>Registry · Guard · Desired Spec</small></li>
+        </ol>
+
+        <section class="panel automation-panel" aria-labelledby="automation-input-title">
+          <div class="panel-header">
+            <div>
+              <p class="section-label">INPUT</p>
+              <h3 id="automation-input-title">어플리케이션 요청</h3>
+            </div>
+            <span class="contract-label">One-shot Agent Run</span>
+          </div>
+
+          <form id="automation-run-form">
+            <fieldset class="input-mode-switch">
+              <legend class="sr-only">입력 방식</legend>
+              <label>
+                <input id="automation-input-mode-natural" type="radio" name="automation_input_mode" value="natural_language" checked>
+                <span>자연어 요청</span>
+              </label>
+              <label>
+                <input id="automation-input-mode-structured" type="radio" name="automation_input_mode" value="structured">
+                <span>구조화 App Spec</span>
+              </label>
+            </fieldset>
+
+            <div class="automation-primary-input" data-automation-input-section="natural_language">
+              <label class="json-input-block" for="automation-request">
+                <span class="input-label"><strong>배포·운영 요구사항</strong><small>한국어 또는 영어</small></span>
+                <textarea id="automation-request" rows="7" spellcheck="true" required>GPU 1개, CPU 4코어, 메모리 8GiB, 스토리지 20GiB로 AI 추론 서비스를 배포해 주세요.</textarea>
+              </label>
+            </div>
+
+            <div class="automation-primary-input" data-automation-input-section="structured" hidden>
+              <label class="json-input-block" for="automation-app-spec-json">
+                <span class="input-label"><strong>구조화 App Spec</strong><small>자원 요구사항 JSON</small></span>
+                <textarea id="automation-app-spec-json" rows="15" spellcheck="false"></textarea>
+              </label>
+            </div>
+
+            <div class="workflow-actions workflow-actions-primary">
+              <button class="button button-primary" id="automation-run-submit" type="submit">
+                <i data-lucide="play" aria-hidden="true"></i><span>자동 분석 및 판단</span>
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel result-panel" aria-labelledby="agent-control-result-title">
+          <div class="panel-header">
+            <div>
+              <p class="section-label">DECISION EVIDENCE</p>
+              <h3 id="agent-control-result-title">자동화 실행 결과</h3>
+            </div>
+            <div class="panel-header-actions">
+              <span class="contract-label">Desired Deployment Spec</span>
+              <code id="agent-control-flow-id">실행 대기</code>
+              <button class="icon-button" type="button" data-copy-target="agent-control-result-json" title="JSON 복사" aria-label="결과 JSON 복사">
+                <i data-lucide="copy" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+          <div class="decision-summary">
+            <div><span>실행 상태</span><strong id="agent-control-status">WAITING</strong></div>
+            <div><span>분석 방식</span><strong id="automation-analysis-mode">-</strong></div>
+            <div><span>선택 후보</span><strong id="agent-control-candidate">-</strong></div>
+            <div><span>Registry 권한</span><strong id="agent-control-authorization">-</strong></div>
+            <div><span>배포 결정</span><strong id="agent-control-action">-</strong></div>
+            <div><span>Go Guard</span><strong id="agent-control-guard">-</strong></div>
+          </div>
+          <p class="decision-reason" id="agent-control-reason">요청을 입력한 뒤 자동 분석 및 판단을 실행하세요.</p>
+          <pre class="json-output" id="agent-control-result-json">아직 실행 결과가 없습니다.</pre>
+        </section>
+
+        <details class="panel experiment-disclosure automation-evidence" id="automation-evidence">
+          <summary>
+            <span><small>GENERATED EVIDENCE</small><strong>자동 생성된 중간 결과</strong></span>
+            <i data-lucide="chevron-down" aria-hidden="true"></i>
+          </summary>
+          <div class="automation-evidence-grid">
+            <section>
+              <h3>ApplicationProfile</h3>
+              <pre class="json-output" id="automation-application-profile-json">아직 생성되지 않았습니다.</pre>
+            </section>
+            <section>
+              <h3>ResourceRecommendation</h3>
+              <pre class="json-output" id="automation-resource-recommendation-json">아직 생성되지 않았습니다.</pre>
+            </section>
+          </div>
+        </details>
+
+        <details class="panel experiment-disclosure advanced-protocol-inputs" id="advanced-protocol-inputs">
+          <summary>
+            <span><small>ADVANCED TEST</small><strong>고급 프로토콜 검증</strong></span>
+            <i data-lucide="chevron-down" aria-hidden="true"></i>
+          </summary>
+          <form id="automation-flow-form">
+            <div class="automation-input-grid">
+              <label class="json-input-block">
+                <span class="input-label"><strong>Application Context</strong><small>application.context.created</small></span>
+                <textarea id="application-context-json" rows="18" spellcheck="false" required></textarea>
+              </label>
+              <label class="json-input-block">
+                <span class="input-label"><strong>Resource Recommendation</strong><small>resource.recommendation.created</small></span>
+                <textarea id="resource-recommendation-json" rows="18" spellcheck="false" required></textarea>
+              </label>
+            </div>
+            <div class="workflow-actions">
+              <button class="button button-secondary" id="load-agent-control-sample" type="button">
+                <i data-lucide="file-input" aria-hidden="true"></i><span>프로토콜 샘플</span>
+              </button>
+              <button class="button button-secondary" id="run-protocol-flow" type="submit">
+                <i data-lucide="flask-conical" aria-hidden="true"></i><span>고급 검증 실행</span>
+              </button>
+            </div>
+          </form>
+        </details>
+      </section>
+
+      <section class="view" data-view="agents" hidden>
+        <div class="view-heading">
+          <div>
+            <p class="section-label">REGISTRY POLICY</p>
+            <h2>Agent 및 정책</h2>
+            <p>자동화 에이전트가 사용할 수 있는 capability와 bounded action을 확인합니다.</p>
+          </div>
+          <button class="button button-primary" id="open-agent-dialog" type="button">
+            <i data-lucide="user-plus" aria-hidden="true"></i><span>Agent 등록</span>
+          </button>
+        </div>
+
+        <section class="policy-band" id="core-policy-summary" aria-label="핵심 자동화 정책">
+          <div><span>Required Agent</span><strong>AIApplicationAutomationAgent</strong></div>
+          <div><span>Capability</span><strong>ai_application_automation</strong></div>
+          <div><span>Bounded Action</span><strong>generate_deployment_decision</strong></div>
+          <div><span>Guard</span><strong>자동 적용</strong></div>
+        </section>
+
+        <section class="panel registry-panel" aria-labelledby="registry-title">
+          <div class="panel-header">
+            <div>
+              <p class="section-label">AGENT REGISTRY</p>
+              <h3 id="registry-title">등록 Agent <span class="count-label" id="agent-count">0</span></h3>
+            </div>
+            <button class="icon-button" id="refresh-agents" type="button" title="Agent 새로고침" aria-label="Agent 새로고침">
+              <i data-lucide="refresh-cw" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Agent</th>
+                  <th>Source</th>
+                  <th>Role</th>
+                  <th>Capabilities</th>
+                  <th>Bounded Actions</th>
+                  <th>Status</th>
+                  <th aria-label="관리"></th>
+                </tr>
+              </thead>
+              <tbody id="agent-table-body">
+                <tr><td colspan="7" class="empty-cell">Agent 정보를 불러오는 중입니다.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section class="view" data-view="results" hidden>
+        <div class="view-heading">
+          <div>
+            <p class="section-label">EXPERIMENT EVIDENCE</p>
+            <h2>실험 결과</h2>
+            <p>배포 판단, 검증 근거, 추론 비교, Feedback과 스케일링 판단을 하나의 Flow로 확인합니다.</p>
+          </div>
+          <button class="icon-button" id="refresh-experiment-flows" type="button" title="실험 결과 새로고침" aria-label="실험 결과 새로고침">
+            <i data-lucide="refresh-cw" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <div class="results-layout">
+          <section class="panel flow-list-panel" aria-labelledby="experiment-list-title">
+            <div class="panel-header">
+              <div>
+                <p class="section-label">RUNS</p>
+                <h3 id="experiment-list-title">Agent Control Flow</h3>
+              </div>
+              <button class="icon-button danger-icon" id="clear-experiment-flows" type="button" title="전체 기록 삭제" aria-label="전체 기록 삭제">
+                <i data-lucide="trash-2" aria-hidden="true"></i>
+              </button>
+            </div>
+            <div class="flow-list" id="experiment-flow-list">
+              <p class="empty-state">저장된 실험 결과가 없습니다.</p>
+            </div>
+          </section>
+
+          <section class="panel experiment-detail-panel" aria-labelledby="experiment-detail-title">
+            <div class="panel-header">
+              <div>
+                <p class="section-label">SELECTED FLOW</p>
+                <h3 id="experiment-detail-title">판단 및 스케일링 결과</h3>
+              </div>
+              <button class="icon-button" type="button" data-copy-target="experiment-flow-json" title="Flow JSON 복사" aria-label="Flow JSON 복사">
+                <i data-lucide="copy" aria-hidden="true"></i>
+              </button>
+            </div>
+            <div class="experiment-summary-block">
+              <span>배포 판단</span>
+              <strong id="experiment-decision-summary">Flow를 선택하세요.</strong>
+            </div>
+            <div class="experiment-summary-block scaling">
+              <span>스케일링 판단</span>
+              <strong id="experiment-scaling-summary">배포 상태와 성능 Feedback을 기다리고 있습니다.</strong>
+            </div>
+            <pre class="json-output result-json" id="experiment-flow-json">{}</pre>
+          </section>
+        </div>
+
+        <details class="panel experiment-disclosure" id="experiment-reasoning">
+          <summary>
+            <span><small>OPTIONAL EVALUATION</small><strong>추론 방식 비교</strong></span>
+            <i data-lucide="chevron-down" aria-hidden="true"></i>
+          </summary>
+          <div class="disclosure-body">
+            <form id="reasoning-comparison-form" class="compact-form">
+              <label class="field">
+                <span>Qwen Candidate</span>
+                <input id="reasoning-candidate-id" name="candidate_id" value="qwen3.5-ops-planner" required>
+              </label>
+              <button class="button button-primary" type="submit">
+                <i data-lucide="flask-conical" aria-hidden="true"></i><span>비교 실행</span>
+              </button>
+            </form>
+            <div class="comparison-summary">
+              <div><span>규칙 기반</span><strong id="reasoning-rule-action">-</strong></div>
+              <div><span>Qwen 원시 제안</span><strong id="reasoning-simple-action">-</strong></div>
+              <div><span>Qwen + Guard</span><strong id="reasoning-validated-action">-</strong></div>
+            </div>
+            <pre class="json-output compact" id="reasoning-comparison-json">Flow를 선택한 뒤 비교 실험을 실행하세요.</pre>
+          </div>
+        </details>
+
+        <details class="panel experiment-disclosure" id="experiment-feedback">
+          <summary>
+            <span><small>POST-DEPLOYMENT EVIDENCE</small><strong>배포 결과와 스케일링 판단</strong></span>
+            <i data-lucide="chevron-down" aria-hidden="true"></i>
+          </summary>
+          <div class="disclosure-body">
+            <div class="feedback-heading">
+              <p>선택한 Flow의 deployment.status.changed와 optimization.feedback.created를 입력합니다.</p>
+              <button class="button button-secondary" id="load-agent-control-feedback-sample" type="button">
+                <i data-lucide="file-input" aria-hidden="true"></i><span>SLO 위반 샘플</span>
+              </button>
+            </div>
+            <div class="feedback-input-grid">
+              <form id="deployment-status-form" class="protocol-form">
+                <label class="field">
+                  <span>deployment.status.changed JSON</span>
+                  <textarea id="deployment-status-json" rows="11" spellcheck="false" required></textarea>
+                </label>
+                <button class="button button-secondary" type="submit">배포 상태 전송</button>
+              </form>
+              <form id="optimization-feedback-form" class="protocol-form">
+                <label class="field">
+                  <span>optimization.feedback.created JSON</span>
+                  <textarea id="optimization-feedback-json" rows="11" spellcheck="false" required></textarea>
+                </label>
+                <button class="button button-secondary" type="submit">성능 Feedback 전송</button>
+              </form>
+            </div>
+            <div class="feedback-result" id="agent-control-feedback-summary">
+              <span>배포 결과</span><strong>아직 수신되지 않았습니다.</strong>
+            </div>
+            <pre class="json-output compact" id="agent-control-feedback-json">배포 상태와 성능 Feedback이 같은 Flow에 기록됩니다.</pre>
+          </div>
+        </details>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="agent-dialog">
+    <form id="agent-registration-form" class="dialog-card">
+      <div class="dialog-header">
+        <div><p class="section-label">RUNTIME AGENT</p><h2>Agent 등록</h2></div>
+        <button class="icon-button" type="button" data-close-dialog aria-label="닫기">
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="dialog-body dialog-grid">
+        <label class="field"><span>Name</span><input name="name" value="ResearchRuntimeAgent" required></label>
+        <label class="field"><span>Version</span><input name="version" value="0.1.0" required></label>
+        <label class="field full"><span>Role</span><input name="role" value="Execute one bounded research action." required></label>
+        <label class="field"><span>Endpoint</span><input name="endpoint" type="url" value="http://127.0.0.1:19090" required></label>
+        <label class="field"><span>Invocation Path</span><input name="invocation_path" value="/execute" required></label>
+        <label class="field full"><span>Auth Token Environment Variable</span><input name="auth_token_env" placeholder="RESEARCH_AGENT_TOKEN"></label>
+        <label class="field full"><span>Capabilities</span><input name="capabilities" value="research_evaluation" required></label>
+        <label class="field full"><span>Bounded Actions</span><input name="bounded_actions" value="evaluate_result" required></label>
+      </div>
+      <div class="dialog-footer">
+        <button class="button button-secondary" type="button" data-close-dialog>취소</button>
+        <button class="button button-primary" type="submit">
+          <i data-lucide="plus" aria-hidden="true"></i><span>등록</span>
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast-region" id="toast-region" aria-live="polite"></div>
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <script src="/assets/app.js"></script>
+</body>
+</html>

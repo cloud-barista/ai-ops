@@ -1,0 +1,2403 @@
+openapi: 3.0.3
+info:
+  title: AI Service Control API
+  version: "0.5.0"
+  description: >
+    Go Echo contract for the KHU AI application automation Agent. The core flow
+    joins ApplicationProfile and ResourceRecommendation messages, authorizes the
+    built-in AIApplicationAutomationAgent through Agent Registry capability and
+    bounded Action policy, decides DEPLOY, REJECT, or RETRY, applies deterministic
+    Go Guard checks, and emits a platform-neutral Desired Deployment Spec inside
+    deployment.create.request. Deployment execution and platform-specific Manifest
+    conversion remain external responsibilities. Legacy ControlRun, runtime Agent
+    execution, and post-deployment controls are retained as optional PoC tools.
+servers:
+  - url: http://127.0.0.1:18080
+paths:
+  /healthz:
+    get:
+      summary: Check service health
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: {type: string, example: ok}
+                  service: {type: string, example: service-control-api}
+  /openapi.yaml:
+    get:
+      summary: Download this contract
+      responses:
+        "200":
+          description: OpenAPI YAML
+  /api/v1/agent-control/application-analysis-requests:
+    post:
+      operationId: PostApplicationAnalysisRequest
+      summary: Start the Agent flow from a Common JSON analysis request
+      description: >
+        Accepts application.analysis.request, preserves correlation_id and
+        trace_id, and executes Requirement Analyzer, Resource Recommender,
+        Agent Registry authorization, deployment decision, and Go Guard.
+        message_id is the idempotency key. An identical replay returns the
+        original run without generating another deployment.create.request.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationAnalysisRequestEnvelope"
+      responses:
+        "201":
+          description: Analysis request processed for the first time
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutomationRun"
+        "200":
+          description: Existing AutomationRun returned for an idempotent replay
+          headers:
+            Idempotent-Replayed:
+              schema: {type: string, enum: ["true"]}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutomationRun"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          description: The message_id already exists with a different payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/agent-control/automation-runs:
+    post:
+      operationId: PostAgentControlAutomationRun
+      summary: Run the automatic three-stage AI application Agent flow
+      description: >
+        Accepts one natural-language request or structured App Spec and
+        automatically executes Requirement Analyzer, mock Resource Recommender,
+        Agent Registry authorization, AIApplicationAutomationAgent decision,
+        and Go Guard validation. This endpoint produces a platform-neutral
+        DesiredDeploymentSpec and does not execute a real deployment.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AutomationRunInput"
+      responses:
+        "201":
+          description: Automatic Agent run completed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutomationRun"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/agent-control/automation-runs/{run_id}:
+    get:
+      operationId: GetAgentControlAutomationRun
+      summary: Get one automatic three-stage Agent run
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: Requirement analysis, resource recommendation, Agent decision, Guard evidence, and Desired Deployment Spec
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutomationRun"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/agent-control/application-contexts:
+    post:
+      summary: Receive an Application Context message
+      description: Stores an application.context.created Common JSON v1.0 message and waits for its matching Resource Recommendation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationContextEnvelope"
+      responses:
+        "202":
+          description: Application Context accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentControlFlow"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/agent-control/resource-recommendations:
+    post:
+      summary: Receive a Resource Recommendation message
+      description: Stores a resource.recommendation.created Common JSON v1.0 message, joins it by correlation_id, trace_id, and profile_id, verifies the automation Agent against Agent Registry, and then performs decision and Guard processing.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResourceRecommendationEnvelope"
+      responses:
+        "202":
+          description: Resource Recommendation accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentControlFlow"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/agent-control/deployment-status:
+    post:
+      summary: Receive a deployment status message
+      description: Attaches a deployment.status.changed Common JSON v1.0 message to its correlation flow and summarizes the current outcome.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeploymentStatusEnvelope"
+      responses:
+        "202":
+          description: Deployment status accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentControlFlow"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/agent-control/optimization-feedback:
+    post:
+      summary: Receive optimization feedback
+      description: Attaches an optimization.feedback.created Common JSON v1.0 message and summarizes success, failure, metrics, and SLO violations.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OptimizationFeedbackEnvelope"
+      responses:
+        "202":
+          description: Optimization feedback accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentControlFlow"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/agent-control/flows:
+    get:
+      summary: List Agent Control input flows
+      responses:
+        "200":
+          description: Correlated input flows
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [count, flows]
+                properties:
+                  count: {type: integer, minimum: 0}
+                  flows:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AgentControlFlow"
+    delete:
+      summary: Delete all Agent Control experiment flows
+      description: Clears the in-memory Agent Control experiment records.
+      responses:
+        "200":
+          description: All experiment flows deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [deleted, flows]
+                properties:
+                  deleted: {type: integer, minimum: 0}
+                  flows:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AgentControlFlow"
+  /api/v1/agent-control/flows/{correlation_id}:
+    get:
+      summary: Get one Agent Control input flow
+      parameters:
+        - name: correlation_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: Correlated input flow
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentControlFlow"
+        "404":
+          description: Flow not found
+    delete:
+      summary: Delete one Agent Control experiment flow
+      description: Deletes one in-memory experiment record by correlation_id.
+      parameters:
+        - name: correlation_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: Experiment flow deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [deleted, correlation_id]
+                properties:
+                  deleted: {type: integer, enum: [1]}
+                  correlation_id: {type: string}
+        "404":
+          description: Flow not found
+  /api/v1/agent-control/flows/{correlation_id}/reasoning-comparisons:
+    post:
+      summary: Compare simple and validated Qwen reasoning
+      description: Returns the deterministic rule result, raw Qwen proposal, and the final proposal after Go Guard validation.
+      parameters:
+        - name: correlation_id
+          in: path
+          required: true
+          schema: {type: string}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentControlReasoningComparisonRequest"
+      responses:
+        "200":
+          description: Reasoning comparison, including provider_unavailable when the configured LLM cannot be reached
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReasoningComparison"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/agents:
+    get:
+      summary: List configured and runtime agents
+      responses:
+        "200":
+          description: Agent list
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+    post:
+      summary: Register an external agent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExternalAgentRegistrationRequest"
+      responses:
+        "201":
+          description: Registered agent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentProfile"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/agents/{name}:
+    get:
+      summary: Get a registered agent
+      parameters:
+        - $ref: "#/components/parameters/AgentName"
+      responses:
+        "200":
+          description: Agent profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentProfile"
+        "404":
+          description: Agent not found
+    delete:
+      summary: Delete a runtime Agent
+      description: Deletes only an Agent registered in the current geon process. Configuration-backed Agents are protected.
+      security:
+        - AutonomyAdminToken: []
+      parameters:
+        - $ref: "#/components/parameters/AgentName"
+      responses:
+        "200":
+          description: Runtime Agent deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted: {type: boolean, example: true}
+                  name: {type: string}
+                  source: {type: string, enum: [runtime]}
+        "401":
+          description: Invalid or missing admin token for an external request
+        "403":
+          description: Configuration Agent is protected or external mutations are disabled
+        "404":
+          description: Runtime Agent not found
+  /api/v1/agents/{name}/actions/{action}/validate:
+    post:
+      summary: Validate a bounded Action
+      parameters:
+        - $ref: "#/components/parameters/AgentName"
+        - name: action
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: Action result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  agent: {type: string}
+                  action: {type: string}
+                  valid: {type: boolean}
+  /api/v1/agents/{name}/invocations/plan:
+    post:
+      summary: Build a non-executing agent invocation plan
+      parameters:
+        - $ref: "#/components/parameters/AgentName"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentInvocationPlanRequest"
+      responses:
+        "200":
+          description: Invocation plan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentInvocationPlan"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/agents/{name}/execute:
+    post:
+      operationId: ExecuteAgent
+      summary: Execute a registered Agent through the guarded Dispatcher
+      description: >
+        Resolves the Agent from Registry, validates its capability and bounded
+        Action, dispatches one internal or runtime Agent execution, validates
+        the returned result, and stores all stages in one ControlRun. The
+        built-in AIApplicationAutomationAgent uses Qwen and Go Manifest Guard;
+        a runtime Agent receives one HTTP POST at its registered endpoint.
+      security:
+        - {}
+        - AutonomyAdminToken: []
+      parameters:
+        - $ref: "#/components/parameters/AgentName"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentExecutionRequest"
+      responses:
+        "200":
+          description: Guarded Agent execution completed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentExecutionResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "403":
+          description: Agent capability or bounded Action was not authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentExecutionErrorResponse"
+        "404":
+          description: Agent was not found
+        "422":
+          description: Agent result was rejected by the result or Manifest Guard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentExecutionErrorResponse"
+        "501":
+          description: The selected internal Agent has no registered executor
+        "502":
+          description: Runtime Agent endpoint or internal Agent execution failed
+        "504":
+          description: Agent execution timed out
+  /api/v1/ops-llm/select:
+    post:
+      summary: Select an Ops LLM policy candidate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                policy: {type: string, example: quality_first}
+      responses:
+        "200":
+          description: LLM selection
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /api/v1/apps/vm-suitability:
+    post:
+      summary: Validate an infrastructure-supplied VM
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VMCompatibilityRequest"
+      responses:
+        "200":
+          description: VM suitability result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VMCompatibilityResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/apps/deployment-plan:
+    post:
+      summary: Build a capability-based external-agent handoff plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VMCompatibilityRequest"
+      responses:
+        "200":
+          description: Non-executing handoff plan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeploymentPlanResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/automation/action-proposals:
+    post:
+      summary: Generate and validate an actual LLM automation Action
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LLMAutomationActionRequest"
+      responses:
+        "200":
+          description: LLM decision, Go Guard result, and optional non-executing handoff
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LLMAutomationActionResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/automation/feedback:
+    get:
+      summary: List execution feedback records owned by geon
+      responses:
+        "200":
+          description: Feedback records sorted newest first
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count: {type: integer, minimum: 0}
+                  feedback:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AutomationFeedbackRecord"
+    post:
+      summary: Record external execution feedback for an approved correlation ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AutomationFeedbackRequest"
+      responses:
+        "200":
+          description: Stored feedback record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutomationFeedbackRecord"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+    delete:
+      summary: Clear execution feedback records owned by geon
+      description: Approved correlation registrations are preserved so valid feedback can be recorded again.
+      security:
+        - {}
+        - AutonomyAdminToken: []
+      responses:
+        "200":
+          description: Feedback records cleared
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted: {type: boolean, example: true}
+                  deleted_count: {type: integer, minimum: 0}
+                  feedback:
+                    type: array
+                    maxItems: 0
+                    items:
+                      $ref: "#/components/schemas/AutomationFeedbackRecord"
+        "401":
+          description: Invalid or missing admin token for an external request
+        "403":
+          description: External mutations are disabled without an admin token
+  /api/v1/control-runs:
+    post:
+      operationId: CreateControlRun
+      summary: Generate and validate a DeploymentManifest
+      description: >
+        Runs the Go Request Guard, resolves an enabled Manifest Planner through
+        Agent Registry, invokes Qwen, and validates the generated Manifest with
+        the Go Manifest Guard. AppDeploy is not required for this operation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateControlRunRequest"
+      responses:
+        "201":
+          description: Manifest approved and retained as a ControlRun
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ControlRun"
+        "400":
+          description: Request Guard rejected the request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ControlRun"
+        "403":
+          description: Agent Registry rejected the requested Planner Agent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ControlRun"
+        "422":
+          description: Manifest Guard rejected the generated Manifest
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ControlRun"
+    get:
+      operationId: ListControlRuns
+      summary: List backend-owned ControlRuns
+      responses:
+        "200":
+          description: Newest-first ControlRun list
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [count, items]
+                properties:
+                  count: {type: integer, minimum: 0}
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ControlRun"
+                  runs:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ControlRun"
+    delete:
+      operationId: DeleteControlRuns
+      summary: Delete all geon-owned ControlRun records
+      description: This does not delete AppDeploy deployments or cloud resources.
+      security:
+        - {}
+        - AutonomyAdminToken: []
+      responses:
+        "200":
+          description: ControlRun store cleared
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted_count: {type: integer, minimum: 0}
+                  items: {type: array, maxItems: 0, items: {$ref: "#/components/schemas/ControlRun"}}
+  /api/v1/control-runs/{run_id}:
+    get:
+      operationId: GetControlRun
+      summary: Get one ControlRun and all recorded stages
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: ControlRun
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ControlRun"
+        "404":
+          $ref: "#/components/responses/BadRequest"
+    delete:
+      operationId: DeleteControlRun
+      summary: Delete one geon-owned ControlRun record
+      description: This does not delete AppDeploy deployments or cloud resources.
+      security:
+        - {}
+        - AutonomyAdminToken: []
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: Deleted ControlRun record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ControlRun"
+        "404":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/control-runs/{run_id}/submit:
+    post:
+      operationId: SubmitControlRun
+      summary: Submit an approved Manifest to AppDeploy
+      description: >
+        Revalidates submit_deployment_manifest permission through Agent Registry
+        and sends the exact approved Manifest to AppDeploy. This operation is
+        optional and can be retried after APPDEPLOY_FAILED.
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string}
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitControlRunRequest"
+      responses:
+        "200":
+          description: AppDeploy accepted the Manifest and returned deployment state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ControlRun"
+        "403":
+          description: Agent Registry denied Manifest submission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ControlRun"
+        "404":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          description: ControlRun is not in a submittable state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ControlRun"
+        "502":
+          description: AppDeploy submission or polling failed; Manifest remains stored
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ControlRun"
+  /api/v1/planner/deployments:
+    post:
+      summary: Guard a request, generate a DeploymentManifest, and submit it to AppDeploy
+      description: >
+        Validates the caller request with deterministic Go rules before any
+        upstream call, invokes a configured OpenAI-compatible LLM, validates
+        the generated DeploymentManifest with a second Go guard, submits it to
+        AppDeploy POST /api/v1/deployments, and polls status and logs. The
+        optional target_profile_id is a hint; AppDeploy owns final Target and
+        Runtime Adapter selection.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppDeployPlannerRequest"
+      responses:
+        "200":
+          description: Request guard, planner generation, manifest guard, AppDeploy status, and logs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppDeployPlannerResponse"
+        "400":
+          description: Request rejected by Go Request Guard or invalid planner input
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/AppDeployPlannerResponse"
+                  - $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/service-operations/run:
+    post:
+      summary: Run integrated service-control planning
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceOperationsRequest"
+      responses:
+        "200":
+          description: Planning and validation report
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/automation/feedback/{correlation_id}:
+    delete:
+      summary: Delete one execution feedback record owned by geon
+      description: The approved correlation registration is preserved.
+      security:
+        - {}
+        - AutonomyAdminToken: []
+      parameters:
+        - name: correlation_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: Deleted feedback record
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted: {type: boolean, example: true}
+                  feedback:
+                    $ref: "#/components/schemas/AutomationFeedbackRecord"
+        "401":
+          description: Invalid or missing admin token for an external request
+        "403":
+          description: External mutations are disabled without an admin token
+        "404":
+          description: Feedback record not found
+  /api/v1/autonomy/status:
+    get:
+      summary: Get guarded autonomous loop status
+      responses:
+        "200":
+          description: Loop configuration, runtime evidence, and latest decision state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutonomyStatus"
+  /api/v1/autonomy/config:
+    put:
+      summary: Replace guarded autonomous loop configuration
+      description: Loopback requests are allowed directly. Remote requests require an Autonomy admin Bearer token.
+      security:
+        - {}
+        - AutonomyAdminToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AutonomyConfig"
+      responses:
+        "200":
+          description: Updated loop status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutonomyStatus"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/autonomy/start:
+    post:
+      summary: Start the configured monitoring loop
+      security:
+        - {}
+        - AutonomyAdminToken: []
+      responses:
+        "200":
+          description: Started or already-running loop status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutonomyStatus"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/autonomy/stop:
+    post:
+      summary: Stop the monitoring loop
+      security:
+        - {}
+        - AutonomyAdminToken: []
+      responses:
+        "200":
+          description: Stopped loop status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutonomyStatus"
+  /api/v1/autonomy/emergency-stop:
+    post:
+      summary: Stop immediately and return to Monitor Only
+      security:
+        - {}
+        - AutonomyAdminToken: []
+      responses:
+        "200":
+          description: Stopped Monitor Only status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutonomyStatus"
+  /api/v1/autonomy/cycles:
+    post:
+      summary: Run one serialized autonomy cycle
+      security:
+        - {}
+        - AutonomyAdminToken: []
+      responses:
+        "200":
+          description: Observation, decision, guard, and optional execution result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutonomyCycleResult"
+  /api/v1/autonomy/events:
+    get:
+      summary: List the latest 200 autonomy events
+      responses:
+        "200":
+          description: Chronological autonomy events
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count: {type: integer}
+                  events:
+                    type: array
+                    maxItems: 200
+                    items:
+                      $ref: "#/components/schemas/AutonomyEvent"
+    delete:
+      summary: Clear Autonomous Loop events
+      description: Clears only the in-memory event timeline and preserves loop configuration, runtime state, cooldown, and Action budget.
+      security:
+        - AutonomyAdminToken: []
+      responses:
+        "200":
+          description: Event timeline cleared
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted: {type: boolean, example: true}
+                  deleted_count: {type: integer, minimum: 0}
+                  events:
+                    type: array
+                    maxItems: 0
+                    items:
+                      $ref: "#/components/schemas/AutonomyEvent"
+        "401":
+          description: Invalid or missing admin token for an external request
+        "403":
+          description: External mutations are disabled without an admin token
+  /api/v1/autonomy/events/{sequence}:
+    delete:
+      summary: Delete one Autonomous Loop event
+      description: Deletes one event without renumbering later events or changing runtime state.
+      security:
+        - {}
+        - AutonomyAdminToken: []
+      parameters:
+        - name: sequence
+          in: path
+          required: true
+          schema: {type: integer, format: uint64, minimum: 1}
+      responses:
+        "200":
+          description: Deleted event
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted: {type: boolean, example: true}
+                  event:
+                    $ref: "#/components/schemas/AutonomyEvent"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          description: Invalid or missing admin token for an external request
+        "403":
+          description: External mutations are disabled without an admin token
+        "404":
+          description: Event not found
+components:
+  securitySchemes:
+    AutonomyAdminToken:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque admin token
+  parameters:
+    AgentName:
+      name: name
+      in: path
+      required: true
+      schema: {type: string}
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: Requested record was not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+  schemas:
+    AutomationRunInput:
+      type: object
+      required: [input_type]
+      properties:
+        input_type:
+          type: string
+          enum: [natural_language, structured]
+        request:
+          type: string
+          description: Natural-language deployment and operation request
+        requested_by: {type: string}
+        app_spec:
+          $ref: "#/components/schemas/StructuredAppSpec"
+      description: natural_language requires request; structured requires app_spec.
+    StructuredAppSpec:
+      type: object
+      required: [cpu_cores, memory_mib, storage_gib]
+      properties:
+        app_id: {type: string}
+        app_version: {type: string}
+        workload_type: {type: string}
+        cpu_cores: {type: integer, minimum: 1}
+        memory_mib: {type: integer, minimum: 1}
+        storage_gib: {type: integer, minimum: 1}
+        accelerator_type: {type: string}
+        accelerator_count: {type: integer, minimum: 0}
+        accelerator_memory_mib: {type: integer, minimum: 0}
+        replicas_min: {type: integer, minimum: 0}
+        replicas_max: {type: integer, minimum: 0}
+        artifact:
+          $ref: "#/components/schemas/ApplicationArtifact"
+        expected_rps: {type: number, minimum: 0}
+        max_input_tokens: {type: integer, minimum: 0}
+        labels:
+          type: object
+          additionalProperties: {type: string}
+    AutomationRun:
+      type: object
+      required: [run_id, correlation_id, trace_id, status, input, created_at, updated_at]
+      properties:
+        run_id: {type: string}
+        correlation_id: {type: string}
+        trace_id: {type: string}
+        status: {type: string, enum: [COMPLETED, FAILED]}
+        input:
+          $ref: "#/components/schemas/AutomationRunInput"
+        requirement_analysis:
+          $ref: "#/components/schemas/RequirementAnalysisResult"
+        resource_recommendation:
+          $ref: "#/components/schemas/RecommendationResult"
+        flow:
+          $ref: "#/components/schemas/AgentControlFlow"
+        desired_deployment_spec:
+          $ref: "#/components/schemas/DesiredDeploymentSpec"
+        error_code: {type: string}
+        error_message: {type: string}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+    RequirementAnalysisResult:
+      type: object
+      required: [application_profile, model_recommendation, mode, evidence]
+      properties:
+        application_profile:
+          $ref: "#/components/schemas/ApplicationProfile"
+        model_recommendation:
+          $ref: "#/components/schemas/ApplicationModelRecommendation"
+        mode: {type: string, enum: [local_rule, structured, qwen]}
+        evidence:
+          $ref: "#/components/schemas/RequirementAnalysisEvidence"
+    RequirementAnalysisEvidence:
+      type: object
+      required: [mode]
+      properties:
+        mode: {type: string, enum: [local_rule, structured, qwen]}
+        source_input: {type: string}
+        assumptions: {type: array, items: {type: string}}
+        candidate_id: {type: string}
+        provider: {type: string}
+        actual_model: {type: string}
+        latency_ms: {type: integer, format: int64, minimum: 0}
+    RecommendationResult:
+      type: object
+      required: [resource_recommendation, evidence]
+      properties:
+        resource_recommendation:
+          $ref: "#/components/schemas/ResourceRecommendation"
+        evidence:
+          $ref: "#/components/schemas/RecommendationEvidence"
+    RecommendationEvidence:
+      type: object
+      required: [catalog_version, candidate_count, feasible_count, mode]
+      properties:
+        catalog_version: {type: string}
+        candidate_count: {type: integer, minimum: 0}
+        feasible_count: {type: integer, minimum: 0}
+        mode: {type: string, enum: [mock_catalog]}
+    DesiredDeploymentSpec:
+      type: object
+      required:
+        - spec_version
+        - decision_id
+        - application
+        - target_runtime
+        - desired_infrastructure
+        - inference_configuration
+        - metadata
+      properties:
+        spec_version: {type: string, enum: ["1.0"]}
+        decision_id: {type: string}
+        application:
+          type: object
+          required: [app_id, app_version]
+          properties:
+            app_id: {type: string}
+            app_version: {type: string}
+        target_runtime: {type: string, enum: [VM]}
+        desired_infrastructure:
+          $ref: "#/components/schemas/DesiredInfrastructure"
+        inference_configuration:
+          type: object
+          additionalProperties: true
+        runtime:
+          type: object
+          additionalProperties: true
+        policy_hints: {type: array, items: {type: string}}
+        metadata:
+          type: object
+          required: [profile_id]
+          properties:
+            profile_id: {type: string}
+    CommonMessageEndpoint:
+      type: object
+      required: [system, component]
+      properties:
+        system: {type: string}
+        component: {type: string}
+    CommonMessageEnvelope:
+      type: object
+      required:
+        - contract_version
+        - message_id
+        - message_type
+        - occurred_at
+        - correlation_id
+        - trace_id
+        - source
+        - target
+      properties:
+        contract_version: {type: string, enum: ["1.0"]}
+        message_id: {type: string}
+        message_type: {type: string}
+        occurred_at: {type: string, format: date-time}
+        correlation_id: {type: string}
+        trace_id: {type: string}
+        causation_id: {type: string}
+        source:
+          $ref: "#/components/schemas/CommonMessageEndpoint"
+        target:
+          $ref: "#/components/schemas/CommonMessageEndpoint"
+    ApplicationArtifact:
+      type: object
+      required: [type, uri]
+      properties:
+        type: {type: string, example: OCI_IMAGE}
+        uri:
+          type: string
+          example: docker://registry.example.org/chat-service:1.0.0
+        entrypoint:
+          type: array
+          items: {type: string}
+    ApplicationAnalysisRequestEnvelope:
+      allOf:
+        - $ref: "#/components/schemas/CommonMessageEnvelope"
+        - type: object
+          required: [data]
+          properties:
+            message_type:
+              type: string
+              enum: [application.analysis.request]
+            data:
+              type: object
+              required: [application]
+              properties:
+                application:
+                  type: object
+                  required:
+                    - app_id
+                    - app_version
+                    - artifact
+                    - user_request
+                  properties:
+                    app_id: {type: string, example: chat-service}
+                    app_version: {type: string, example: 1.0.0}
+                    artifact:
+                      $ref: "#/components/schemas/ApplicationArtifact"
+                    user_request:
+                      type: string
+                      example: 동시 사용자 20명, p95 지연시간 2초 이하로 배포
+                    declared_spec:
+                      type: object
+                      properties:
+                        expected_rps: {type: number, minimum: 0, example: 5}
+                        max_input_tokens: {type: integer, minimum: 0, example: 4096}
+                    labels:
+                      type: object
+                      additionalProperties: {type: string}
+    ApplicationContextEnvelope:
+      allOf:
+        - $ref: "#/components/schemas/CommonMessageEnvelope"
+        - type: object
+          required: [data]
+          properties:
+            message_type:
+              type: string
+              enum: [application.context.created]
+            data:
+              type: object
+              required: [application_profile, model_recommendation]
+              properties:
+                application_profile:
+                  $ref: "#/components/schemas/ApplicationProfile"
+                model_recommendation:
+                  $ref: "#/components/schemas/ApplicationModelRecommendation"
+    ApplicationProfile:
+      type: object
+      required: [profile_id, app_id, app_version, requirements]
+      properties:
+        profile_id: {type: string}
+        app_id: {type: string}
+        app_version: {type: string}
+        artifact:
+          type: object
+          properties:
+            type: {type: string}
+            uri: {type: string}
+            entrypoint:
+              type: array
+              items: {type: string}
+        workload:
+          type: object
+          properties:
+            task_type: {type: string}
+            request_pattern: {type: string}
+            expected_rps: {type: number, minimum: 0}
+        requirements:
+          $ref: "#/components/schemas/ApplicationRequirements"
+        analysis:
+          type: object
+          properties:
+            confidence: {type: number, minimum: 0, maximum: 1}
+            assumptions: {type: array, items: {type: string}}
+            missing_fields: {type: array, items: {type: string}}
+            warnings: {type: array, items: {type: string}}
+    ApplicationRequirements:
+      type: object
+      required: [compute, accelerator, deployment]
+      properties:
+        compute:
+          type: object
+          required: [cpu_cores_min, memory_mib_min, storage_gib_min]
+          properties:
+            cpu_cores_min: {type: integer, minimum: 1}
+            memory_mib_min: {type: integer, minimum: 1}
+            storage_gib_min: {type: integer, minimum: 0}
+        accelerator:
+          type: object
+          required: [required]
+          properties:
+            required: {type: boolean}
+            type: {type: string, example: GPU}
+            count_min: {type: integer, minimum: 0}
+            memory_mib_min_per_device: {type: integer, minimum: 0}
+        deployment:
+          type: object
+          required: [replicas_min, replicas_max, isolation]
+          properties:
+            replicas_min: {type: integer, minimum: 1}
+            replicas_max: {type: integer, minimum: 1}
+            isolation: {type: string}
+        slo:
+          type: object
+          properties:
+            latency_p95_ms_max: {type: number, minimum: 0}
+            throughput_rps_min: {type: number, minimum: 0}
+        cost:
+          type: object
+          properties:
+            currency: {type: string}
+            cost_per_hour_max: {type: number, minimum: 0}
+    ApplicationModelRecommendation:
+      type: object
+      required: [selected_model, inference_configuration]
+      properties:
+        recommendation_id: {type: string}
+        selected_model:
+          type: object
+          required: [model_id, model_version, source]
+          properties:
+            model_id: {type: string}
+            model_version: {type: string}
+            source: {type: string}
+        inference_configuration:
+          type: object
+          required:
+            - runtime_engine
+            - precision
+            - max_batch_size
+            - max_concurrency
+            - tensor_parallel_size
+            - replicas
+          properties:
+            runtime_engine: {type: string}
+            precision: {type: string}
+            max_batch_size: {type: integer, minimum: 1}
+            max_concurrency: {type: integer, minimum: 1}
+            tensor_parallel_size: {type: integer, minimum: 1}
+            replicas: {type: integer, minimum: 1}
+    ResourceRecommendationEnvelope:
+      allOf:
+        - $ref: "#/components/schemas/CommonMessageEnvelope"
+        - type: object
+          required: [data]
+          properties:
+            message_type:
+              type: string
+              enum: [resource.recommendation.created]
+            data:
+              type: object
+              required: [resource_recommendation]
+              properties:
+                resource_recommendation:
+                  $ref: "#/components/schemas/ResourceRecommendation"
+    ResourceRecommendation:
+      type: object
+      required:
+        - recommendation_id
+        - profile_id
+        - snapshot_id
+        - status
+        - selected_candidate_id
+        - candidates
+      properties:
+        recommendation_id: {type: string}
+        profile_id: {type: string}
+        snapshot_id: {type: string}
+        status: {type: string}
+        selected_candidate_id: {type: string}
+        candidates:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/ResourceCandidate"
+    DeploymentStatusEnvelope:
+      allOf:
+        - $ref: "#/components/schemas/CommonMessageEnvelope"
+        - type: object
+          required: [data]
+          properties:
+            message_type:
+              type: string
+              enum: [deployment.status.changed]
+            data:
+              type: object
+              required: [deployment_status]
+              properties:
+                deployment_status:
+                  $ref: "#/components/schemas/DeploymentStatus"
+    DeploymentStatus:
+      type: object
+      required: [deployment_id, decision_id, state, updated_at]
+      properties:
+        deployment_id: {type: string}
+        decision_id: {type: string}
+        state:
+          type: string
+          enum: [QUEUED, PROVISIONING, DEPLOYING, RUNNING, FAILED, STOPPING, STOPPED]
+        actual_infrastructure:
+          type: object
+          properties:
+            provider: {type: string}
+            region: {type: string}
+            resource_ids: {type: array, items: {type: string}}
+        message: {type: string}
+        updated_at: {type: string, format: date-time}
+    OptimizationFeedbackEnvelope:
+      allOf:
+        - $ref: "#/components/schemas/CommonMessageEnvelope"
+        - type: object
+          required: [data]
+          properties:
+            message_type:
+              type: string
+              enum: [optimization.feedback.created]
+            data:
+              type: object
+              required: [optimization_feedback]
+              properties:
+                optimization_feedback:
+                  $ref: "#/components/schemas/OptimizationFeedback"
+    OptimizationFeedback:
+      type: object
+      required:
+        - feedback_id
+        - decision_id
+        - deployment_id
+        - outcome
+        - observation_window
+        - metrics
+        - created_at
+      properties:
+        feedback_id: {type: string}
+        decision_id: {type: string}
+        deployment_id: {type: string}
+        outcome: {type: string, example: SUCCEEDED}
+        observation_window:
+          type: object
+          required: [started_at, ended_at]
+          properties:
+            started_at: {type: string, format: date-time}
+            ended_at: {type: string, format: date-time}
+        metrics:
+          $ref: "#/components/schemas/OptimizationMetrics"
+        slo_violations: {type: array, items: {type: string}}
+        created_at: {type: string, format: date-time}
+    OptimizationMetrics:
+      type: object
+      required: [resource, inference, cost]
+      properties:
+        resource:
+          type: object
+          properties:
+            cpu_average_percent: {type: number, minimum: 0, maximum: 100}
+            memory_peak_mib: {type: number, minimum: 0}
+            accelerator_average_percent: {type: number, minimum: 0, maximum: 100}
+            accelerator_memory_peak_mib: {type: number, minimum: 0}
+        inference:
+          type: object
+          properties:
+            latency_p95_ms: {type: number, minimum: 0}
+            throughput_rps: {type: number, minimum: 0}
+            error_rate_percent: {type: number, minimum: 0, maximum: 100}
+        cost:
+          type: object
+          properties:
+            currency: {type: string}
+            estimated_cost: {type: number, minimum: 0}
+    ResourceCandidate:
+      type: object
+      required: [candidate_id, rank, feasible, desired_infrastructure, scores]
+      properties:
+        candidate_id: {type: string}
+        rank: {type: integer, minimum: 1}
+        feasible: {type: boolean}
+        desired_infrastructure:
+          $ref: "#/components/schemas/DesiredInfrastructure"
+        resource_hints: {type: array, items: {type: string}}
+        scores:
+          type: object
+          required: [resource_fit, slo_headroom, cost_efficiency, availability, total]
+          properties:
+            resource_fit: {type: number, minimum: 0, maximum: 1}
+            slo_headroom: {type: number, minimum: 0, maximum: 1}
+            cost_efficiency: {type: number, minimum: 0, maximum: 1}
+            availability: {type: number, minimum: 0, maximum: 1}
+            total: {type: number, minimum: 0, maximum: 1}
+        rejection_reasons: {type: array, items: {type: string}}
+    DesiredInfrastructure:
+      type: object
+      required:
+        - node_count
+        - cpu_cores_per_node
+        - memory_mib_per_node
+        - storage_gib_per_node
+        - isolation
+      properties:
+        node_count: {type: integer, minimum: 1}
+        cpu_cores_per_node: {type: integer, minimum: 1}
+        memory_mib_per_node: {type: integer, minimum: 1}
+        storage_gib_per_node: {type: integer, minimum: 0}
+        accelerator:
+          type: object
+          properties:
+            type: {type: string}
+            count: {type: integer, minimum: 0}
+            memory_mib_min_per_device: {type: integer, minimum: 0}
+        isolation: {type: string}
+    AgentControlFlow:
+      type: object
+      required: [correlation_id, trace_id, state, updated_at]
+      properties:
+        correlation_id: {type: string}
+        trace_id: {type: string}
+        profile_id: {type: string}
+        state:
+          type: string
+          enum:
+            - WAITING_FOR_APPLICATION_CONTEXT
+            - WAITING_FOR_RESOURCE_RECOMMENDATION
+            - READY
+            - AGENT_AUTHORIZATION_REJECTED
+            - DEPLOY_APPROVED
+            - REJECTED
+            - RETRY_REQUIRED
+        application_context:
+          $ref: "#/components/schemas/ApplicationContextEnvelope"
+        resource_recommendation:
+          $ref: "#/components/schemas/ResourceRecommendationEnvelope"
+        agent_authorization:
+          $ref: "#/components/schemas/AgentAuthorization"
+        decision:
+          $ref: "#/components/schemas/AutomationDecision"
+        deployment_plan:
+          $ref: "#/components/schemas/AgentControlDeploymentPlan"
+        guard:
+          $ref: "#/components/schemas/AgentControlGuardResult"
+        deployment_request:
+          $ref: "#/components/schemas/DeploymentCreateRequestEnvelope"
+        deployment_status:
+          $ref: "#/components/schemas/DeploymentStatusEnvelope"
+        optimization_feedback:
+          $ref: "#/components/schemas/OptimizationFeedbackEnvelope"
+        feedback_summary:
+          $ref: "#/components/schemas/FeedbackSummary"
+        scaling_decision:
+          $ref: "#/components/schemas/ScalingDecision"
+        reasoning_comparison:
+          $ref: "#/components/schemas/ReasoningComparison"
+        updated_at: {type: string, format: date-time}
+    AgentAuthorization:
+      type: object
+      required: [agent_name, capability, action, authorized, reason]
+      properties:
+        agent_name:
+          type: string
+          enum: [AIApplicationAutomationAgent]
+        capability:
+          type: string
+          enum: [ai_application_automation]
+        action:
+          type: string
+          enum: [generate_deployment_decision]
+        authorized: {type: boolean}
+        reason: {type: string}
+    ValidationIssue:
+      type: object
+      required: [field, code, reason]
+      properties:
+        field: {type: string}
+        code: {type: string}
+        reason: {type: string}
+        expected: {}
+        actual: {}
+    CorrectionRequest:
+      type: object
+      required: [target, reason, issues]
+      properties:
+        target:
+          type: string
+          enum: [application_profile, resource_recommendation]
+        reason: {type: string}
+        issues:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValidationIssue"
+    AutomationDecision:
+      type: object
+      required:
+        - decision_id
+        - action
+        - reason
+        - reasoning_mode
+        - confidence
+        - created_at
+      properties:
+        decision_id: {type: string}
+        action: {type: string, enum: [DEPLOY, REJECT, RETRY]}
+        reason: {type: string}
+        reasoning_mode: {type: string, enum: [rule_based]}
+        confidence: {type: number, minimum: 0, maximum: 1}
+        selected_candidate_id: {type: string}
+        correction_request:
+          $ref: "#/components/schemas/CorrectionRequest"
+        created_at: {type: string, format: date-time}
+    AgentControlDeploymentPlan:
+      type: object
+      required:
+        - plan_id
+        - profile_id
+        - app_id
+        - app_version
+        - selected_candidate_id
+        - target_runtime
+        - desired_infrastructure
+        - inference_configuration
+        - reasoning_mode
+        - created_at
+      properties:
+        plan_id: {type: string}
+        profile_id: {type: string}
+        app_id: {type: string}
+        app_version: {type: string}
+        selected_candidate_id: {type: string}
+        target_runtime: {type: string, enum: [VM]}
+        desired_infrastructure:
+          $ref: "#/components/schemas/DesiredInfrastructure"
+        inference_configuration:
+          type: object
+          additionalProperties: true
+        resource_hints: {type: array, items: {type: string}}
+        reasoning_mode: {type: string, enum: [rule_based]}
+        created_at: {type: string, format: date-time}
+    AgentControlGuardResult:
+      type: object
+      required: [status, checks]
+      properties:
+        status:
+          type: string
+          enum: [APPROVED, REJECTED, RETRY_REQUIRED]
+        checks:
+          type: array
+          items:
+            type: object
+            required: [name, passed, reason]
+            properties:
+              name: {type: string}
+              passed: {type: boolean}
+              reason: {type: string}
+        issues:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValidationIssue"
+    DeploymentCreateRequestEnvelope:
+      allOf:
+        - $ref: "#/components/schemas/CommonMessageEnvelope"
+        - type: object
+          required: [data]
+          properties:
+            message_type:
+              type: string
+              enum: [deployment.create.request]
+            data:
+              type: object
+              required: [deployment_request]
+              properties:
+                deployment_request:
+                  $ref: "#/components/schemas/AgentControlDeploymentRequest"
+    AgentControlDeploymentRequest:
+      type: object
+      required: [request_id, decision_id, application, deployment_manifest]
+      properties:
+        request_id:
+          type: string
+          description: Idempotency key for deployment execution.
+        decision_id: {type: string}
+        application:
+          $ref: "#/components/schemas/AgentControlDeploymentApplication"
+        deployment_manifest:
+          $ref: "#/components/schemas/AgentControlDeploymentManifest"
+    AgentControlDeploymentApplication:
+      type: object
+      required: [app_id, app_version]
+      properties:
+        app_id: {type: string}
+        app_version: {type: string}
+        artifact:
+          type: object
+          required: [type, uri]
+          properties:
+            type: {type: string}
+            uri: {type: string}
+            entrypoint:
+              type: array
+              items: {type: string}
+    AgentControlDeploymentManifest:
+      type: object
+      required:
+        - manifest_id
+        - manifest_version
+        - decision_id
+        - application
+        - target_runtime
+        - desired_infrastructure
+        - inference_configuration
+        - metadata
+      properties:
+        manifest_id: {type: string}
+        manifest_version: {type: string, enum: ["1.0"]}
+        decision_id: {type: string}
+        application:
+          type: object
+          required: [app_id, app_version]
+          properties:
+            app_id: {type: string}
+            app_version: {type: string}
+        target_runtime: {type: string, enum: [VM]}
+        desired_infrastructure:
+          $ref: "#/components/schemas/DesiredInfrastructure"
+        inference_configuration:
+          type: object
+          additionalProperties: true
+        runtime:
+          type: object
+          properties:
+            command: {type: array, items: {type: string}}
+            args: {type: array, items: {type: string}}
+            environment:
+              type: object
+              additionalProperties: {type: string}
+            ports:
+              type: array
+              items:
+                type: object
+                required: [name, port, protocol]
+                properties:
+                  name: {type: string}
+                  port: {type: integer, minimum: 1, maximum: 65535}
+                  protocol: {type: string}
+            restart_policy: {type: string}
+        resource_hints:
+          type: array
+          items: {type: string}
+        metadata:
+          type: object
+          required: [profile_id]
+          properties:
+            profile_id: {type: string}
+    FeedbackSummary:
+      type: object
+      required: [deployment_id, decision_id, deployment_state, success, cause, updated_at]
+      properties:
+        deployment_id: {type: string}
+        decision_id: {type: string}
+        deployment_state: {type: string}
+        outcome: {type: string}
+        success: {type: boolean}
+        cause: {type: string}
+        slo_violations: {type: array, items: {type: string}}
+        metrics:
+          $ref: "#/components/schemas/OptimizationMetrics"
+        updated_at: {type: string, format: date-time}
+    ScalingDecision:
+      type: object
+      required: [action, reason, current_replicas, desired_replicas, created_at]
+      properties:
+        action:
+          type: string
+          enum: [NO_ACTION, SCALE_OUT, SCALE_IN]
+        reason: {type: string}
+        current_replicas: {type: integer, minimum: 1}
+        desired_replicas: {type: integer, minimum: 1}
+        evidence:
+          type: array
+          items: {type: string}
+        created_at: {type: string, format: date-time}
+    AgentControlReasoningComparisonRequest:
+      type: object
+      required: [candidate_id]
+      properties:
+        candidate_id: {type: string, example: qwen3.5-ops-planner}
+    ReasoningComparison:
+      type: object
+      required:
+        - correlation_id
+        - candidate_id
+        - rule_based
+        - simple_inference
+        - validated_inference
+        - agreement
+        - created_at
+      properties:
+        correlation_id: {type: string}
+        candidate_id: {type: string}
+        rule_based:
+          $ref: "#/components/schemas/ReasoningTrial"
+        simple_inference:
+          $ref: "#/components/schemas/ReasoningTrial"
+        validated_inference:
+          $ref: "#/components/schemas/ReasoningTrial"
+        agreement:
+          type: object
+          required: [action_match, candidate_match]
+          properties:
+            action_match: {type: boolean}
+            candidate_match: {type: boolean}
+        created_at: {type: string, format: date-time}
+    ReasoningTrial:
+      type: object
+      required: [mode, execution_status, latency_ms, guard_status]
+      properties:
+        mode:
+          type: string
+          enum: [rule_based, simple_inference, validated_inference]
+        execution_status:
+          type: string
+          enum: [executed, skipped, provider_unavailable, rejected]
+        candidate_id: {type: string}
+        provider: {type: string}
+        actual_model: {type: string}
+        latency_ms: {type: integer, format: int64, minimum: 0}
+        action: {type: string, enum: [DEPLOY, REJECT, RETRY]}
+        proposed_action: {type: string, enum: [DEPLOY, REJECT, RETRY]}
+        selected_candidate_id: {type: string}
+        reason: {type: string}
+        confidence: {type: number, minimum: 0, maximum: 1}
+        guard_status: {type: string, enum: [APPROVED, REJECTED, RETRY_REQUIRED, NOT_APPLIED]}
+        guard_reason: {type: string}
+        error: {type: string}
+    CreateControlRunRequest:
+      type: object
+      required: [natural_language_request, app_version_id, candidate_id]
+      properties:
+        natural_language_request:
+          type: string
+          maxLength: 8000
+          example: GPU 1개와 메모리 16Gi가 필요한 추론 앱의 Manifest를 생성해 주세요.
+        app_version_id: {type: string, example: appver-llm-inference-v1}
+        candidate_id: {type: string, example: qwen3.5-ops-planner}
+        target_profile_id:
+          type: string
+          description: Optional Target hint; AppDeploy still owns final selection.
+        requested_by: {type: string, example: ai-ops-geon-planner}
+        agent_name:
+          type: string
+          description: Optional explicit configuration Agent name.
+          example: AIApplicationAutomationAgent
+        parameters:
+          type: object
+          additionalProperties: true
+    SubmitControlRunRequest:
+      type: object
+      properties:
+        poll_interval_ms:
+          type: integer
+          minimum: 1
+          maximum: 60000
+          default: 1000
+        max_poll_attempts:
+          type: integer
+          minimum: 1
+          maximum: 600
+          default: 60
+    ControlRun:
+      type: object
+      required: [run_id, status, created_at, updated_at, request, request_guard, selected_agent, manifest, stages]
+      properties:
+        run_id: {type: string, example: run-4b53c2c1}
+        status:
+          type: string
+          enum: [RECEIVED, REQUEST_REJECTED, AGENT_REJECTED, PLANNING, MANIFEST_REJECTED, MANIFEST_APPROVED, SUBMITTING, APPDEPLOY_FAILED, DEPLOYED, AGENT_DISPATCHING, AGENT_COMPLETED, AGENT_FAILED, RESULT_REJECTED]
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+        request:
+          type: object
+          additionalProperties: true
+        request_guard:
+          $ref: "#/components/schemas/PlannerGuardDecision"
+        selected_agent:
+          type: object
+          properties:
+            name: {type: string}
+            capability: {type: string, example: deployment_manifest_planning}
+            action: {type: string, example: generate_deployment_manifest}
+            source: {type: string, example: configuration}
+            reason: {type: string}
+        generation:
+          type: object
+          additionalProperties: true
+        manifest:
+          $ref: "#/components/schemas/AppDeployDeploymentManifest"
+        deployment:
+          type: object
+          nullable: true
+          additionalProperties: true
+        polling:
+          type: object
+          nullable: true
+          additionalProperties: true
+        logs:
+          type: array
+          items: {type: object, additionalProperties: true}
+        retry_recommended: {type: boolean}
+        retry_reason: {type: string}
+        correlation_ids:
+          type: array
+          items: {type: string}
+        stages:
+          type: array
+          items:
+            $ref: "#/components/schemas/ControlRunStage"
+    ControlRunStage:
+      type: object
+      required: [name, status, started_at]
+      properties:
+        name:
+          type: string
+          example: manifest_guard
+        status: {type: string, example: approved}
+        reason: {type: string}
+        started_at: {type: string, format: date-time}
+        ended_at: {type: string, format: date-time, nullable: true}
+        details:
+          type: object
+          additionalProperties: true
+    AppDeployPlannerRequest:
+      type: object
+      required: [natural_language_request, app_version_id, candidate_id]
+      properties:
+        natural_language_request:
+          type: string
+          maxLength: 8000
+          example: GPU 1개와 메모리 16Gi가 필요한 추론 앱을 배포해 주세요.
+        app_version_id:
+          type: string
+          example: appver-llm-inference-v1
+        candidate_id:
+          type: string
+          example: qwen3.5-ops-planner
+        target_profile_id:
+          type: string
+          description: Optional AppDeploy Target Profile hint.
+        requested_by:
+          type: string
+          example: ai-ops-geon-planner
+        parameters:
+          type: object
+          additionalProperties: true
+        poll_interval_ms:
+          type: integer
+          minimum: 1
+          maximum: 60000
+          default: 1000
+        max_poll_attempts:
+          type: integer
+          minimum: 1
+          maximum: 600
+          default: 60
+    AppDeployPlannerResponse:
+      type: object
+      required: [valid, status, request_guard, generation, manifest, deployment, polling, retry_recommended]
+      properties:
+        valid: {type: boolean}
+        status: {type: string, example: RUNNING}
+        request_guard:
+          $ref: "#/components/schemas/PlannerGuardDecision"
+        generation:
+          type: object
+          additionalProperties: true
+        manifest:
+          $ref: "#/components/schemas/AppDeployDeploymentManifest"
+        deployment:
+          type: object
+          additionalProperties: true
+        polling:
+          type: object
+          additionalProperties: true
+        logs:
+          type: array
+          items: {type: object, additionalProperties: true}
+        retry_recommended: {type: boolean}
+        retry_reason: {type: string}
+    PlannerGuardDecision:
+      type: object
+      required: [valid, status, policy_version, reason, checks]
+      properties:
+        valid: {type: boolean}
+        status: {type: string, enum: [approved, rejected]}
+        policy_version: {type: string, example: v1}
+        reason: {type: string}
+        checks:
+          type: array
+          items:
+            type: object
+            required: [name, passed, reason]
+            properties:
+              name: {type: string}
+              passed: {type: boolean}
+              reason: {type: string}
+    AppDeployDeploymentManifest:
+      type: object
+      required: [schema_version, kind, spec]
+      properties:
+        schema_version:
+          type: string
+          enum: [deployment.khu.ai/v1alpha1]
+        kind:
+          type: string
+          enum: [DeploymentManifest]
+        metadata:
+          type: object
+          properties:
+            name: {type: string}
+        spec:
+          type: object
+          required: [app_version_id, accelerator, resources]
+          properties:
+            app_version_id: {type: string}
+            target_profile_id:
+              type: string
+              description: Optional hint; AppDeploy performs final Target selection.
+            accelerator: {type: string, enum: [none, nvidia]}
+            resources:
+              type: object
+              required: [cpu, memory, gpu, storage]
+              properties:
+                cpu: {type: string, example: "4"}
+                memory: {type: string, example: 16Gi}
+                gpu: {type: string, example: "1"}
+                storage: {type: string, example: 20Gi}
+            requested_by: {type: string}
+            parameters: {type: object, additionalProperties: true}
+    ErrorResponse:
+      type: object
+      required: [valid, message]
+      properties:
+        valid: {type: boolean, example: false}
+        message: {type: string}
+    AgentProfile:
+      type: object
+      properties:
+        name: {type: string}
+        korean_name: {type: string}
+        version: {type: string}
+        role: {type: string}
+        responsibilities:
+          type: array
+          items: {type: string}
+        capabilities:
+          type: array
+          items: {type: string}
+        bounded_actions:
+          type: array
+          items: {type: string}
+        enabled: {type: boolean}
+        endpoint: {type: string, format: uri}
+        invocation_path: {type: string}
+        auth_token_env:
+          type: string
+          description: Environment variable name containing an optional bearer token. The token value is never returned.
+        source: {type: string, enum: [configuration, runtime]}
+    ExternalAgentRegistrationRequest:
+      type: object
+      required: [name, version, role, endpoint, invocation_path, capabilities, bounded_actions]
+      properties:
+        name: {type: string}
+        korean_name: {type: string}
+        version: {type: string}
+        role: {type: string}
+        responsibilities:
+          type: array
+          items: {type: string}
+        endpoint: {type: string, format: uri}
+        invocation_path: {type: string, example: /v1/actions}
+        auth_token_env:
+          type: string
+          description: Optional environment variable name containing a bearer token.
+        capabilities:
+          type: array
+          minItems: 1
+          items: {type: string}
+        bounded_actions:
+          type: array
+          minItems: 1
+          items: {type: string}
+        enabled: {type: boolean, default: true}
+    AgentInvocationPlanRequest:
+      type: object
+      required: [capability, action]
+      properties:
+        capability: {type: string}
+        action: {type: string}
+        parameters:
+          type: object
+          additionalProperties: true
+    AgentInvocationPlan:
+      type: object
+      properties:
+        valid: {type: boolean}
+        agent: {type: string}
+        capability: {type: string}
+        action: {type: string}
+        target_url: {type: string, format: uri}
+        parameters:
+          type: object
+          additionalProperties: true
+        execution_status: {type: string, enum: [not_executed]}
+        reason: {type: string}
+    AgentExecutionRequest:
+      type: object
+      required: [capability, action]
+      properties:
+        capability:
+          type: string
+          example: deployment_manifest_planning
+        action:
+          type: string
+          example: generate_deployment_manifest
+        input:
+          type: object
+          additionalProperties: true
+        context:
+          type: object
+          additionalProperties: true
+    AgentProposal:
+      type: object
+      required: [action]
+      properties:
+        action: {type: string}
+        parameters:
+          type: object
+          additionalProperties: true
+    AgentExecutionResult:
+      type: object
+      required: [run_id, agent, status, proposal, latency_ms, domain_validation]
+      properties:
+        run_id: {type: string, example: run-4b53c2c1}
+        agent: {type: string, example: AIApplicationAutomationAgent}
+        status: {type: string, enum: [completed, rejected, failed]}
+        proposal:
+          $ref: "#/components/schemas/AgentProposal"
+        result:
+          type: object
+          additionalProperties: true
+        evidence:
+          type: object
+          additionalProperties: true
+        message: {type: string}
+        latency_ms: {type: integer, format: int64}
+        manifest:
+          $ref: "#/components/schemas/AppDeployDeploymentManifest"
+        generation:
+          type: object
+          additionalProperties: true
+        domain_validation:
+          type: string
+          enum: [manifest_guard, not_registered]
+    AgentExecutionResponse:
+      type: object
+      required: [request_id, run_id, selected_agent, request_guard, execution, result_guard]
+      properties:
+        request_id: {type: string}
+        run_id: {type: string}
+        selected_agent:
+          $ref: "#/components/schemas/AgentProfile"
+        request_guard:
+          $ref: "#/components/schemas/GuardDecision"
+        execution:
+          $ref: "#/components/schemas/AgentExecutionResult"
+        result_guard:
+          $ref: "#/components/schemas/GuardDecision"
+    AgentExecutionErrorResponse:
+      type: object
+      required: [valid, message, run_id, selected_agent, request_guard, execution, result_guard]
+      properties:
+        valid: {type: boolean, enum: [false]}
+        message:
+          type: string
+          enum: [Agent execution was not authorized, Agent result was rejected]
+        reason: {type: string}
+        request_id: {type: string}
+        run_id: {type: string, example: run-4b53c2c1}
+        selected_agent:
+          $ref: "#/components/schemas/AgentProfile"
+        request_guard:
+          $ref: "#/components/schemas/GuardDecision"
+        execution:
+          $ref: "#/components/schemas/AgentExecutionResult"
+        result_guard:
+          $ref: "#/components/schemas/GuardDecision"
+    VMCompatibilityRequest:
+      type: object
+      required: [workload, target_vm]
+      properties:
+        workload: {type: string, example: llm-chat-inference}
+        target_vm:
+          $ref: "#/components/schemas/VMResourceSnapshot"
+    VMResourceSnapshot:
+      type: object
+      required: [id, source, evidence_status, accelerator]
+      properties:
+        id: {type: string, example: aws-us-west-2-g6-xlarge-l4-20260707}
+        source: {type: string, example: live_vm_system_validation}
+        evidence_status: {type: string, enum: [collected, incomplete]}
+        provider: {type: string}
+        region: {type: string}
+        availability_zone: {type: string}
+        instance_type: {type: string}
+        accelerator: {type: string, enum: [cpu, gpu]}
+        cpu_cores: {type: integer}
+        memory_gb: {type: number}
+        gpu_model: {type: string}
+        gpu_memory_mib: {type: integer}
+        driver_version: {type: string}
+        cuda_version: {type: string}
+        collected_at: {type: string, format: date-time}
+        performance:
+          $ref: "#/components/schemas/VMPerformanceEvidence"
+    VMPerformanceEvidence:
+      type: object
+      properties:
+        status: {type: string, enum: [not_measured, measured]}
+        latency_ms: {type: number}
+        throughput_rps: {type: number}
+        cost_per_hour: {type: number}
+        measured_at: {type: string, format: date-time}
+        source: {type: string}
+    VMCompatibilityResponse:
+      type: object
+      properties:
+        valid: {type: boolean}
+        validation_mode: {type: string, example: actual_vm_compatibility}
+        workload: {type: string}
+        target_vm_id: {type: string}
+        resource_source: {type: string}
+        evidence_status: {type: string}
+        compatibility_status:
+          type: string
+          enum: [incompatible, provisionally_compatible, compatible]
+        resource_checks_passed: {type: boolean}
+        performance_status: {type: string}
+        action: {type: string}
+        reason: {type: string}
+        checks:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+    DeploymentPlan:
+      type: object
+      properties:
+        workload: {type: string}
+        service_name: {type: string}
+        target_vm_id: {type: string}
+        target_accelerator: {type: string}
+        executor_type: {type: string, enum: [registered_external_agent]}
+        required_capability: {type: string, example: ai_application_deployment_control}
+        selected_executor: {type: string}
+        requested_action: {type: string, example: deploy_application}
+        allowed_actions:
+          type: array
+          items: {type: string}
+        preconditions:
+          type: array
+          items: {type: string}
+        execution_status: {type: string, enum: [not_executed]}
+        feedback_required: {type: boolean}
+    DeploymentPlanResponse:
+      allOf:
+        - $ref: "#/components/schemas/VMCompatibilityResponse"
+        - type: object
+          properties:
+            deployment_plan:
+              $ref: "#/components/schemas/DeploymentPlan"
+    LLMAutomationActionRequest:
+      type: object
+      required: [workload, target_vm, candidate_id]
+      properties:
+        workload: {type: string, example: llm-chat-inference}
+        target_vm:
+          $ref: "#/components/schemas/VMResourceSnapshot"
+        candidate_id: {type: string, example: qwen3.5-ops-planner}
+        observations:
+          type: object
+          additionalProperties: true
+    LLMActionProposal:
+      type: object
+      required: [action, reason, confidence, required_capability, target_vm_id]
+      properties:
+        action: {type: string, enum: [deploy_application, observe_status, scale_out_application, restart_application, rollback_application, stop_application]}
+        reason: {type: string}
+        confidence: {type: number, minimum: 0, maximum: 1}
+        required_capability: {type: string, example: ai_application_deployment_control}
+        target_vm_id: {type: string}
+        parameters:
+          type: object
+          additionalProperties: true
+    LLMDecisionResult:
+      type: object
+      properties:
+        decision_execution_status: {type: string, enum: [not_executed, executed, rejected, llm_failed]}
+        candidate_id: {type: string}
+        provider: {type: string}
+        actual_model: {type: string}
+        latency_ms: {type: integer, format: int64}
+        proposal:
+          $ref: "#/components/schemas/LLMActionProposal"
+    GuardDecision:
+      type: object
+      properties:
+        valid: {type: boolean}
+        status: {type: string, enum: [not_evaluated, approved, rejected]}
+        reason: {type: string}
+    LLMAutomationActionResponse:
+      type: object
+      properties:
+        valid: {type: boolean}
+        status: {type: string, enum: [not_executed, approved, rejected, pending_executor, vm_incompatible, llm_failed]}
+        correlation_id: {type: string}
+        vm_compatibility:
+          $ref: "#/components/schemas/VMCompatibilityResponse"
+        decision:
+          $ref: "#/components/schemas/LLMDecisionResult"
+        guard:
+          $ref: "#/components/schemas/GuardDecision"
+        handoff:
+          $ref: "#/components/schemas/AgentInvocationPlan"
+    AutomationFeedbackRequest:
+      type: object
+      required: [correlation_id, executor, status]
+      properties:
+        correlation_id: {type: string}
+        executor: {type: string}
+        status: {type: string, enum: [accepted, running, succeeded, failed, stopped]}
+        external_execution_id: {type: string}
+        latency_ms: {type: number}
+        throughput_rps: {type: number}
+        message: {type: string}
+    AutomationFeedbackRecord:
+      allOf:
+        - $ref: "#/components/schemas/AutomationFeedbackRequest"
+        - type: object
+          properties:
+            received_at: {type: string, format: date-time}
+    AutonomySLOPolicy:
+      type: object
+      additionalProperties: false
+      required: [max_latency_ms, min_throughput_rps, max_error_rate]
+      properties:
+        max_latency_ms: {type: number, minimum: 0, example: 500}
+        min_throughput_rps: {type: number, minimum: 0, example: 1}
+        max_error_rate: {type: number, minimum: 0, maximum: 1, example: 0.05}
+    AutonomyConfig:
+      type: object
+      additionalProperties: false
+      required: [mode, poll_interval_seconds, consecutive_violations, cooldown_seconds, max_actions_per_deployment, max_metric_age_seconds, deployment_id, slo]
+      properties:
+        mode: {type: string, enum: [monitor_only, guarded_auto]}
+        poll_interval_seconds: {type: integer, minimum: 2, maximum: 3600}
+        consecutive_violations: {type: integer, minimum: 1, maximum: 10}
+        cooldown_seconds: {type: integer, minimum: 0, maximum: 86400}
+        max_actions_per_deployment: {type: integer, minimum: 1, maximum: 20}
+        max_metric_age_seconds: {type: integer, minimum: 2, maximum: 86400}
+        deployment_id: {type: string, example: dep-example}
+        standby_target_profile_id: {type: string}
+        rollback_app_version_id: {type: string}
+        slo:
+          $ref: "#/components/schemas/AutonomySLOPolicy"
+    AutonomyStatus:
+      type: object
+      properties:
+        running: {type: boolean}
+        execution_locked: {type: boolean}
+        appdeploy_configured: {type: boolean}
+        config:
+          $ref: "#/components/schemas/AutonomyConfig"
+        state:
+          type: object
+          additionalProperties: true
+        latest_event:
+          $ref: "#/components/schemas/AutonomyEvent"
+    AutonomyCycleResult:
+      type: object
+      properties:
+        cycle_id: {type: string}
+        status: {type: string}
+        reason: {type: string}
+        evaluation: {type: object, additionalProperties: true}
+        decision: {type: object, additionalProperties: true}
+        guard: {type: object, additionalProperties: true}
+        execution: {type: object, additionalProperties: true}
+    AutonomyEvent:
+      type: object
+      properties:
+        sequence: {type: integer, format: int64}
+        timestamp: {type: string, format: date-time}
+        cycle_id: {type: string}
+        deployment_id: {type: string}
+        stage: {type: string, enum: [monitor, slo, qwen, guard, execute, feedback, control]}
+        status: {type: string}
+        reason: {type: string}
+        evaluation: {type: object, additionalProperties: true}
+        decision: {type: object, additionalProperties: true}
+        guard: {type: object, additionalProperties: true}
+        execution: {type: object, additionalProperties: true}
+    ServiceOperationsRequest:
+      type: object
+      required: [workload, target_vm]
+      properties:
+        llm_config: {type: string, example: config/ops_llm_benchmark.json}
+        vm_requirements: {type: string, example: config/vm_workload_requirements.json}
+        llm_policy: {type: string, example: quality_first}
+        llm_candidates: {type: string, example: config/ops_llm_eval_candidates.local_ollama.json}
+        llm_candidate_id: {type: string, example: qwen3.5-ops-planner}
+        workload: {type: string, example: llm-chat-inference}
+        target_vm:
+          $ref: "#/components/schemas/VMResourceSnapshot"
+        observations:
+          type: object
+          additionalProperties: true
+        operation_service: {type: string, example: llm-chat-inference}
+        operation_resource: {type: string, example: aws-us-west-2-g6-xlarge-l4-20260707}
+        mode: {type: string, enum: [plan_only]}
+        guard_backend: {type: string, enum: [go]}

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-mcmp.example.org/schema/application-profile-1.0.json",
+  "title": "ApplicationProfile",
+  "type": "object",
+  "required": ["profile_id", "app_id", "app_version", "requirements"],
+  "properties": {
+    "profile_id": {"type": "string", "minLength": 1},
+    "app_id": {"type": "string", "minLength": 1},
+    "app_version": {"type": "string", "minLength": 1},
+    "workload": {"type": "object"},
+    "artifact": {"type": "object"},
+    "requirements": {
+      "type": "object",
+      "required": ["compute", "accelerator", "deployment"],
+      "properties": {
+        "compute": {"type": "object"},
+        "accelerator": {"type": "object"},
+        "deployment": {"type": "object"},
+        "slo": {"type": "object"},
+        "cost": {"type": "object"}
+      },
+      "additionalProperties": true
+    },
+    "analysis": {"type": "object"}
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,9 @@
+NAME                            READY   UP-TO-DATE   AVAILABLE   CONTAINERS   IMAGES              SELECTOR
+deployment.apps/aiops-service   2/2     2            2           nginx        nginx:1.27-alpine   app=aiops-service
+
+NAME                    TYPE        PORT(S)   SELECTOR
+service/aiops-service   ClusterIP   80/TCP    app=aiops-service
+
+NAME                                READY   STATUS    RESTARTS   NODE
+pod/aiops-service-ff55cdd9f-r58hm   1/1     Running   0          aiops-live-control-plane
+pod/aiops-service-ff55cdd9f-vgp7d   1/1     Running   0          aiops-live-control-plane

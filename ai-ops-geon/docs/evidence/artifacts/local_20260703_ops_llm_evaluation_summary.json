@@ -1,0 +1,58 @@
+﻿{
+  "command": "evaluate-ops-llm-outputs",
+  "valid": true,
+  "benchmark_status": "dry_run",
+  "scenarios_path": "<repo>/data/ops_llm_eval_scenarios.jsonl",
+  "outputs_path": "<repo>/runs/ops-llm-evaluation-dry-run-20260703-counts/model_outputs.jsonl",
+  "summary_path": "<repo>/runs/ops-llm-evaluation-dry-run-20260703-counts/evaluation_summary.json",
+  "scenario_count": 10,
+  "output_count": 30,
+  "executed_count": 0,
+  "dry_run_count": 30,
+  "skipped_count": 0,
+  "error_count": 0,
+  "candidates": [
+    {
+      "candidate_id": "local-gpu-llm",
+      "role_label": "primary-ops-llm",
+      "actual_model": "to-be-evaluated-local-gpu-model",
+      "provider": "local-openai-compatible",
+      "output_count": 10,
+      "executed": 0,
+      "dry_run": 10,
+      "skipped": 0,
+      "error_count": 0,
+      "average_score": 0
+    },
+    {
+      "candidate_id": "low-cost-cloud-llm",
+      "role_label": "low-cost-ops-llm",
+      "actual_model": "to-be-evaluated-low-cost-model",
+      "provider": "openai-compatible",
+      "output_count": 10,
+      "executed": 0,
+      "dry_run": 10,
+      "skipped": 0,
+      "error_count": 0,
+      "average_score": 0
+    },
+    {
+      "candidate_id": "primary-cloud-llm",
+      "role_label": "primary-ops-llm",
+      "actual_model": "to-be-evaluated-primary-cloud-model",
+      "provider": "openai-compatible",
+      "output_count": 10,
+      "executed": 0,
+      "dry_run": 10,
+      "skipped": 0,
+      "error_count": 0,
+      "average_score": 0
+    }
+  ],
+  "notes": [
+    "selected_actual_model is populated only when benchmark_status is executed.",
+    "Dry-run summaries verify evaluation wiring, not provider model quality."
+  ]
+}
+
+

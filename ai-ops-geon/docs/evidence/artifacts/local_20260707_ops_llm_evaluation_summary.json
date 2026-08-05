@@ -1,0 +1,36 @@
+{
+  "command": "evaluate-ops-llm-outputs",
+  "valid": true,
+  "benchmark_status": "executed",
+  "scenarios_path": "<repo>/data/ops_llm_eval_scenarios.jsonl",
+  "outputs_path": "<repo>/runs/full-validation-local-llm-api-executed-20260707/ops-llm-benchmark/model_outputs.jsonl",
+  "summary_path": "<repo>/runs/full-validation-local-llm-api-executed-20260707/ops-llm-benchmark/evaluation_summary.json",
+  "scenario_count": 10,
+  "output_count": 10,
+  "executed_count": 10,
+  "dry_run_count": 0,
+  "skipped_count": 0,
+  "error_count": 0,
+  "selected_candidate_id": "local-ollama-ops-llm",
+  "selected_role_label": "primary-ops-llm",
+  "selected_actual_model": "llama3.2:3b",
+  "selected_provider": "local-openai-compatible",
+  "candidates": [
+    {
+      "candidate_id": "local-ollama-ops-llm",
+      "role_label": "primary-ops-llm",
+      "actual_model": "llama3.2:3b",
+      "provider": "local-openai-compatible",
+      "output_count": 10,
+      "executed": 10,
+      "dry_run": 0,
+      "skipped": 0,
+      "error_count": 0,
+      "average_score": 0.9182
+    }
+  ],
+  "notes": [
+    "selected_actual_model is populated only when benchmark_status is executed.",
+    "Dry-run summaries verify evaluation wiring, not provider model quality."
+  ]
+}

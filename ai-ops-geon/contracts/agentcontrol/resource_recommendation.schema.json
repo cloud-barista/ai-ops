@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-mcmp.example.org/schema/resource-recommendation-1.0.json",
+  "title": "ResourceRecommendation",
+  "type": "object",
+  "required": ["recommendation_id", "profile_id", "status", "candidates"],
+  "properties": {
+    "recommendation_id": {"type": "string", "minLength": 1},
+    "profile_id": {"type": "string", "minLength": 1},
+    "snapshot_id": {"type": "string"},
+    "status": {"type": "string", "enum": ["FOUND", "RETRY_REQUIRED"]},
+    "selected_candidate_id": {"type": "string"},
+    "candidates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["candidate_id", "feasible", "desired_infrastructure", "scores"],
+        "properties": {
+          "candidate_id": {"type": "string", "minLength": 1},
+          "rank": {"type": "integer", "minimum": 1},
+          "feasible": {"type": "boolean"},
+          "desired_infrastructure": {"type": "object"},
+          "resource_hints": {"type": "array", "items": {"type": "string"}},
+          "scores": {"type": "object"},
+          "rejection_reasons": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

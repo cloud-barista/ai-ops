@@ -1,0 +1,3483 @@
+basePath: /
+definitions:
+  agentcontrol.AcceleratorAllocation:
+    properties:
+      count:
+        type: integer
+      memory_mib_min_per_device:
+        type: integer
+      type:
+        type: string
+    type: object
+  agentcontrol.AcceleratorRequirements:
+    properties:
+      count_min:
+        type: integer
+      memory_mib_min_per_device:
+        type: integer
+      required:
+        type: boolean
+      type:
+        type: string
+    type: object
+  agentcontrol.ActualInfrastructure:
+    properties:
+      provider:
+        type: string
+      region:
+        type: string
+      resource_ids:
+        items:
+          type: string
+        type: array
+    type: object
+  agentcontrol.AgentAuthorization:
+    properties:
+      action:
+        type: string
+      agent_name:
+        type: string
+      authorized:
+        type: boolean
+      capability:
+        type: string
+      reason:
+        type: string
+    type: object
+  agentcontrol.AnalysisRequestApplication:
+    properties:
+      app_id:
+        type: string
+      app_version:
+        type: string
+      artifact:
+        $ref: '#/definitions/agentcontrol.Artifact'
+      declared_spec:
+        $ref: '#/definitions/agentcontrol.DeclaredApplicationSpec'
+      labels:
+        additionalProperties:
+          type: string
+        type: object
+      user_request:
+        type: string
+    type: object
+  agentcontrol.AnalysisSummary:
+    properties:
+      assumptions:
+        items:
+          type: string
+        type: array
+      confidence:
+        type: number
+      missing_fields:
+        items:
+          type: string
+        type: array
+      warnings:
+        items:
+          type: string
+        type: array
+    type: object
+  agentcontrol.ApplicationAnalysisRequestData:
+    properties:
+      application:
+        $ref: '#/definitions/agentcontrol.AnalysisRequestApplication'
+    type: object
+  agentcontrol.ApplicationAnalysisRequestEnvelope:
+    properties:
+      causation_id:
+        type: string
+      contract_version:
+        type: string
+      correlation_id:
+        type: string
+      data:
+        $ref: '#/definitions/agentcontrol.ApplicationAnalysisRequestData'
+      message_id:
+        type: string
+      message_type:
+        type: string
+      occurred_at:
+        type: string
+      source:
+        $ref: '#/definitions/agentcontrol.Endpoint'
+      target:
+        $ref: '#/definitions/agentcontrol.Endpoint'
+      trace_id:
+        type: string
+    type: object
+  agentcontrol.ApplicationContextData:
+    properties:
+      application_profile:
+        $ref: '#/definitions/agentcontrol.ApplicationProfile'
+      model_recommendation:
+        $ref: '#/definitions/agentcontrol.ModelRecommendation'
+    type: object
+  agentcontrol.ApplicationContextEnvelope:
+    properties:
+      causation_id:
+        type: string
+      contract_version:
+        type: string
+      correlation_id:
+        type: string
+      data:
+        $ref: '#/definitions/agentcontrol.ApplicationContextData'
+      message_id:
+        type: string
+      message_type:
+        type: string
+      occurred_at:
+        type: string
+      source:
+        $ref: '#/definitions/agentcontrol.Endpoint'
+      target:
+        $ref: '#/definitions/agentcontrol.Endpoint'
+      trace_id:
+        type: string
+    type: object
+  agentcontrol.ApplicationProfile:
+    properties:
+      analysis:
+        $ref: '#/definitions/agentcontrol.AnalysisSummary'
+      app_id:
+        type: string
+      app_version:
+        type: string
+      artifact:
+        $ref: '#/definitions/agentcontrol.Artifact'
+      profile_id:
+        type: string
+      requirements:
+        $ref: '#/definitions/agentcontrol.ApplicationRequirements'
+      workload:
+        $ref: '#/definitions/agentcontrol.WorkloadProfile'
+    type: object
+  agentcontrol.ApplicationRequirements:
+    properties:
+      accelerator:
+        $ref: '#/definitions/agentcontrol.AcceleratorRequirements'
+      compute:
+        $ref: '#/definitions/agentcontrol.ComputeRequirements'
+      cost:
+        $ref: '#/definitions/agentcontrol.CostRequirements'
+      deployment:
+        $ref: '#/definitions/agentcontrol.DeploymentRequirements'
+      slo:
+        $ref: '#/definitions/agentcontrol.SLORequirements'
+    type: object
+  agentcontrol.Artifact:
+    properties:
+      entrypoint:
+        items:
+          type: string
+        type: array
+      type:
+        type: string
+      uri:
+        type: string
+    type: object
+  agentcontrol.AutomationDecision:
+    properties:
+      action:
+        type: string
+      confidence:
+        type: number
+      correction_request:
+        $ref: '#/definitions/agentcontrol.CorrectionRequest'
+      created_at:
+        type: string
+      decision_id:
+        type: string
+      reason:
+        type: string
+      reasoning_mode:
+        type: string
+      selected_candidate_id:
+        type: string
+    type: object
+  agentcontrol.AutomationRun:
+    properties:
+      correlation_id:
+        type: string
+      created_at:
+        type: string
+      desired_deployment_spec:
+        $ref: '#/definitions/agentcontrol.DesiredDeploymentSpec'
+      error_code:
+        type: string
+      error_message:
+        type: string
+      flow:
+        $ref: '#/definitions/agentcontrol.Flow'
+      input:
+        $ref: '#/definitions/agentcontrol.AutomationRunInput'
+      requirement_analysis:
+        $ref: '#/definitions/agentcontrol.RequirementAnalysisResult'
+      resource_recommendation:
+        $ref: '#/definitions/agentcontrol.RecommendationResult'
+      run_id:
+        type: string
+      status:
+        type: string
+      trace_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  agentcontrol.AutomationRunInput:
+    properties:
+      app_spec:
+        $ref: '#/definitions/agentcontrol.StructuredAppSpec'
+      input_type:
+        type: string
+      request:
+        type: string
+      requested_by:
+        type: string
+    type: object
+  agentcontrol.ComputeRequirements:
+    properties:
+      cpu_cores_min:
+        type: integer
+      memory_mib_min:
+        type: integer
+      storage_gib_min:
+        type: integer
+    type: object
+  agentcontrol.CorrectionRequest:
+    properties:
+      issues:
+        items:
+          $ref: '#/definitions/agentcontrol.ValidationIssue'
+        type: array
+      reason:
+        type: string
+      target:
+        type: string
+    type: object
+  agentcontrol.CostMetrics:
+    properties:
+      currency:
+        type: string
+      estimated_cost:
+        type: number
+    type: object
+  agentcontrol.CostRequirements:
+    properties:
+      cost_per_hour_max:
+        type: number
+      currency:
+        type: string
+    type: object
+  agentcontrol.DeclaredApplicationSpec:
+    properties:
+      expected_rps:
+        type: number
+      max_input_tokens:
+        type: integer
+    type: object
+  agentcontrol.DeploymentApplication:
+    properties:
+      app_id:
+        type: string
+      app_version:
+        type: string
+      artifact:
+        $ref: '#/definitions/agentcontrol.Artifact'
+    type: object
+  agentcontrol.DeploymentCreateRequestData:
+    properties:
+      deployment_request:
+        $ref: '#/definitions/agentcontrol.DeploymentRequest'
+    type: object
+  agentcontrol.DeploymentCreateRequestEnvelope:
+    properties:
+      causation_id:
+        type: string
+      contract_version:
+        type: string
+      correlation_id:
+        type: string
+      data:
+        $ref: '#/definitions/agentcontrol.DeploymentCreateRequestData'
+      message_id:
+        type: string
+      message_type:
+        type: string
+      occurred_at:
+        type: string
+      source:
+        $ref: '#/definitions/agentcontrol.Endpoint'
+      target:
+        $ref: '#/definitions/agentcontrol.Endpoint'
+      trace_id:
+        type: string
+    type: object
+  agentcontrol.DeploymentManifest:
+    properties:
+      application:
+        $ref: '#/definitions/agentcontrol.ManifestApplication'
+      decision_id:
+        type: string
+      desired_infrastructure:
+        $ref: '#/definitions/agentcontrol.DesiredInfrastructure'
+      inference_configuration:
+        $ref: '#/definitions/agentcontrol.InferenceConfiguration'
+      manifest_id:
+        type: string
+      manifest_version:
+        type: string
+      metadata:
+        $ref: '#/definitions/agentcontrol.ManifestMetadata'
+      resource_hints:
+        items:
+          type: string
+        type: array
+      runtime:
+        $ref: '#/definitions/agentcontrol.RuntimeConfiguration'
+      target_runtime:
+        type: string
+    type: object
+  agentcontrol.DeploymentPlan:
+    properties:
+      app_id:
+        type: string
+      app_version:
+        type: string
+      created_at:
+        type: string
+      desired_infrastructure:
+        $ref: '#/definitions/agentcontrol.DesiredInfrastructure'
+      inference_configuration:
+        $ref: '#/definitions/agentcontrol.InferenceConfiguration'
+      plan_id:
+        type: string
+      profile_id:
+        type: string
+      reasoning_mode:
+        type: string
+      resource_hints:
+        items:
+          type: string
+        type: array
+      selected_candidate_id:
+        type: string
+      target_runtime:
+        type: string
+    type: object
+  agentcontrol.DeploymentRequest:
+    properties:
+      application:
+        $ref: '#/definitions/agentcontrol.DeploymentApplication'
+      decision_id:
+        type: string
+      deployment_manifest:
+        $ref: '#/definitions/agentcontrol.DeploymentManifest'
+      request_id:
+        type: string
+    type: object
+  agentcontrol.DeploymentRequirements:
+    properties:
+      isolation:
+        type: string
+      replicas_max:
+        type: integer
+      replicas_min:
+        type: integer
+    type: object
+  agentcontrol.DeploymentStatus:
+    properties:
+      actual_infrastructure:
+        $ref: '#/definitions/agentcontrol.ActualInfrastructure'
+      decision_id:
+        type: string
+      deployment_id:
+        type: string
+      message:
+        type: string
+      state:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  agentcontrol.DeploymentStatusData:
+    properties:
+      deployment_status:
+        $ref: '#/definitions/agentcontrol.DeploymentStatus'
+    type: object
+  agentcontrol.DeploymentStatusEnvelope:
+    properties:
+      causation_id:
+        type: string
+      contract_version:
+        type: string
+      correlation_id:
+        type: string
+      data:
+        $ref: '#/definitions/agentcontrol.DeploymentStatusData'
+      message_id:
+        type: string
+      message_type:
+        type: string
+      occurred_at:
+        type: string
+      source:
+        $ref: '#/definitions/agentcontrol.Endpoint'
+      target:
+        $ref: '#/definitions/agentcontrol.Endpoint'
+      trace_id:
+        type: string
+    type: object
+  agentcontrol.DesiredDeploymentSpec:
+    properties:
+      application:
+        $ref: '#/definitions/agentcontrol.ManifestApplication'
+      decision_id:
+        type: string
+      desired_infrastructure:
+        $ref: '#/definitions/agentcontrol.DesiredInfrastructure'
+      inference_configuration:
+        $ref: '#/definitions/agentcontrol.InferenceConfiguration'
+      metadata:
+        $ref: '#/definitions/agentcontrol.ManifestMetadata'
+      policy_hints:
+        items:
+          type: string
+        type: array
+      runtime:
+        $ref: '#/definitions/agentcontrol.RuntimeConfiguration'
+      spec_version:
+        type: string
+      target_runtime:
+        type: string
+    type: object
+  agentcontrol.DesiredInfrastructure:
+    properties:
+      accelerator:
+        $ref: '#/definitions/agentcontrol.AcceleratorAllocation'
+      cpu_cores_per_node:
+        type: integer
+      isolation:
+        type: string
+      memory_mib_per_node:
+        type: integer
+      node_count:
+        type: integer
+      storage_gib_per_node:
+        type: integer
+    type: object
+  agentcontrol.Endpoint:
+    properties:
+      component:
+        type: string
+      system:
+        type: string
+    type: object
+  agentcontrol.FeedbackSummary:
+    properties:
+      cause:
+        type: string
+      decision_id:
+        type: string
+      deployment_id:
+        type: string
+      deployment_state:
+        type: string
+      metrics:
+        $ref: '#/definitions/agentcontrol.OptimizationMetrics'
+      outcome:
+        type: string
+      slo_violations:
+        items:
+          type: string
+        type: array
+      success:
+        type: boolean
+      updated_at:
+        type: string
+    type: object
+  agentcontrol.Flow:
+    properties:
+      agent_authorization:
+        $ref: '#/definitions/agentcontrol.AgentAuthorization'
+      application_context:
+        $ref: '#/definitions/agentcontrol.ApplicationContextEnvelope'
+      correlation_id:
+        type: string
+      decision:
+        $ref: '#/definitions/agentcontrol.AutomationDecision'
+      deployment_plan:
+        $ref: '#/definitions/agentcontrol.DeploymentPlan'
+      deployment_request:
+        $ref: '#/definitions/agentcontrol.DeploymentCreateRequestEnvelope'
+      deployment_status:
+        $ref: '#/definitions/agentcontrol.DeploymentStatusEnvelope'
+      desired_deployment_spec:
+        $ref: '#/definitions/agentcontrol.DesiredDeploymentSpec'
+      feedback_summary:
+        $ref: '#/definitions/agentcontrol.FeedbackSummary'
+      guard:
+        $ref: '#/definitions/agentcontrol.GuardResult'
+      optimization_feedback:
+        $ref: '#/definitions/agentcontrol.OptimizationFeedbackEnvelope'
+      profile_id:
+        type: string
+      reasoning_comparison:
+        $ref: '#/definitions/agentcontrol.ReasoningComparison'
+      resource_recommendation:
+        $ref: '#/definitions/agentcontrol.ResourceRecommendationEnvelope'
+      scaling_decision:
+        $ref: '#/definitions/agentcontrol.ScalingDecision'
+      state:
+        type: string
+      trace_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  agentcontrol.GuardCheck:
+    properties:
+      name:
+        type: string
+      passed:
+        type: boolean
+      reason:
+        type: string
+    type: object
+  agentcontrol.GuardResult:
+    properties:
+      checks:
+        items:
+          $ref: '#/definitions/agentcontrol.GuardCheck'
+        type: array
+      issues:
+        items:
+          $ref: '#/definitions/agentcontrol.ValidationIssue'
+        type: array
+      status:
+        type: string
+    type: object
+  agentcontrol.InferenceConfiguration:
+    properties:
+      max_batch_size:
+        type: integer
+      max_concurrency:
+        type: integer
+      precision:
+        type: string
+      replicas:
+        type: integer
+      runtime_engine:
+        type: string
+      tensor_parallel_size:
+        type: integer
+    type: object
+  agentcontrol.InferenceMetrics:
+    properties:
+      error_rate_percent:
+        type: number
+      latency_p95_ms:
+        type: number
+      throughput_rps:
+        type: number
+    type: object
+  agentcontrol.ManifestApplication:
+    properties:
+      app_id:
+        type: string
+      app_version:
+        type: string
+    type: object
+  agentcontrol.ManifestMetadata:
+    properties:
+      profile_id:
+        type: string
+    type: object
+  agentcontrol.ModelRecommendation:
+    properties:
+      inference_configuration:
+        $ref: '#/definitions/agentcontrol.InferenceConfiguration'
+      recommendation_id:
+        type: string
+      selected_model:
+        $ref: '#/definitions/agentcontrol.SelectedModel'
+    type: object
+  agentcontrol.ObservationWindow:
+    properties:
+      ended_at:
+        type: string
+      started_at:
+        type: string
+    type: object
+  agentcontrol.OptimizationFeedback:
+    properties:
+      created_at:
+        type: string
+      decision_id:
+        type: string
+      deployment_id:
+        type: string
+      feedback_id:
+        type: string
+      metrics:
+        $ref: '#/definitions/agentcontrol.OptimizationMetrics'
+      observation_window:
+        $ref: '#/definitions/agentcontrol.ObservationWindow'
+      outcome:
+        type: string
+      slo_violations:
+        items:
+          type: string
+        type: array
+    type: object
+  agentcontrol.OptimizationFeedbackData:
+    properties:
+      optimization_feedback:
+        $ref: '#/definitions/agentcontrol.OptimizationFeedback'
+    type: object
+  agentcontrol.OptimizationFeedbackEnvelope:
+    properties:
+      causation_id:
+        type: string
+      contract_version:
+        type: string
+      correlation_id:
+        type: string
+      data:
+        $ref: '#/definitions/agentcontrol.OptimizationFeedbackData'
+      message_id:
+        type: string
+      message_type:
+        type: string
+      occurred_at:
+        type: string
+      source:
+        $ref: '#/definitions/agentcontrol.Endpoint'
+      target:
+        $ref: '#/definitions/agentcontrol.Endpoint'
+      trace_id:
+        type: string
+    type: object
+  agentcontrol.OptimizationMetrics:
+    properties:
+      cost:
+        $ref: '#/definitions/agentcontrol.CostMetrics'
+      inference:
+        $ref: '#/definitions/agentcontrol.InferenceMetrics'
+      resource:
+        $ref: '#/definitions/agentcontrol.ResourceMetrics'
+    type: object
+  agentcontrol.ReasoningAgreement:
+    properties:
+      action_match:
+        type: boolean
+      candidate_match:
+        type: boolean
+    type: object
+  agentcontrol.ReasoningComparison:
+    properties:
+      agreement:
+        $ref: '#/definitions/agentcontrol.ReasoningAgreement'
+      candidate_id:
+        type: string
+      correlation_id:
+        type: string
+      created_at:
+        type: string
+      rule_based:
+        $ref: '#/definitions/agentcontrol.ReasoningTrial'
+      simple_inference:
+        $ref: '#/definitions/agentcontrol.ReasoningTrial'
+      validated_inference:
+        $ref: '#/definitions/agentcontrol.ReasoningTrial'
+    type: object
+  agentcontrol.ReasoningTrial:
+    properties:
+      action:
+        type: string
+      actual_model:
+        type: string
+      candidate_id:
+        type: string
+      confidence:
+        type: number
+      error:
+        type: string
+      execution_status:
+        type: string
+      guard_reason:
+        type: string
+      guard_status:
+        type: string
+      latency_ms:
+        type: integer
+      mode:
+        type: string
+      proposed_action:
+        type: string
+      provider:
+        type: string
+      reason:
+        type: string
+      selected_candidate_id:
+        type: string
+    type: object
+  agentcontrol.RecommendationEvidence:
+    properties:
+      candidate_count:
+        type: integer
+      catalog_version:
+        type: string
+      feasible_count:
+        type: integer
+      mode:
+        type: string
+    type: object
+  agentcontrol.RecommendationResult:
+    properties:
+      evidence:
+        $ref: '#/definitions/agentcontrol.RecommendationEvidence'
+      resource_recommendation:
+        $ref: '#/definitions/agentcontrol.ResourceRecommendation'
+    type: object
+  agentcontrol.RequirementAnalysisEvidence:
+    properties:
+      actual_model:
+        type: string
+      assumptions:
+        items:
+          type: string
+        type: array
+      candidate_id:
+        type: string
+      latency_ms:
+        type: integer
+      mode:
+        type: string
+      provider:
+        type: string
+      source_input:
+        type: string
+    type: object
+  agentcontrol.RequirementAnalysisResult:
+    properties:
+      application_profile:
+        $ref: '#/definitions/agentcontrol.ApplicationProfile'
+      evidence:
+        $ref: '#/definitions/agentcontrol.RequirementAnalysisEvidence'
+      mode:
+        type: string
+      model_recommendation:
+        $ref: '#/definitions/agentcontrol.ModelRecommendation'
+    type: object
+  agentcontrol.ResourceCandidate:
+    properties:
+      candidate_id:
+        type: string
+      desired_infrastructure:
+        $ref: '#/definitions/agentcontrol.DesiredInfrastructure'
+      feasible:
+        type: boolean
+      rank:
+        type: integer
+      rejection_reasons:
+        items:
+          type: string
+        type: array
+      resource_hints:
+        items:
+          type: string
+        type: array
+      scores:
+        $ref: '#/definitions/agentcontrol.ResourceScores'
+    type: object
+  agentcontrol.ResourceMetrics:
+    properties:
+      accelerator_average_percent:
+        type: number
+      accelerator_memory_peak_mib:
+        type: number
+      cpu_average_percent:
+        type: number
+      memory_peak_mib:
+        type: number
+    type: object
+  agentcontrol.ResourceRecommendation:
+    properties:
+      candidates:
+        items:
+          $ref: '#/definitions/agentcontrol.ResourceCandidate'
+        type: array
+      profile_id:
+        type: string
+      recommendation_id:
+        type: string
+      selected_candidate_id:
+        type: string
+      snapshot_id:
+        type: string
+      status:
+        type: string
+    type: object
+  agentcontrol.ResourceRecommendationData:
+    properties:
+      resource_recommendation:
+        $ref: '#/definitions/agentcontrol.ResourceRecommendation'
+    type: object
+  agentcontrol.ResourceRecommendationEnvelope:
+    properties:
+      causation_id:
+        type: string
+      contract_version:
+        type: string
+      correlation_id:
+        type: string
+      data:
+        $ref: '#/definitions/agentcontrol.ResourceRecommendationData'
+      message_id:
+        type: string
+      message_type:
+        type: string
+      occurred_at:
+        type: string
+      source:
+        $ref: '#/definitions/agentcontrol.Endpoint'
+      target:
+        $ref: '#/definitions/agentcontrol.Endpoint'
+      trace_id:
+        type: string
+    type: object
+  agentcontrol.ResourceScores:
+    properties:
+      availability:
+        type: number
+      cost_efficiency:
+        type: number
+      resource_fit:
+        type: number
+      slo_headroom:
+        type: number
+      total:
+        type: number
+    type: object
+  agentcontrol.RuntimeConfiguration:
+    properties:
+      args:
+        items:
+          type: string
+        type: array
+      command:
+        items:
+          type: string
+        type: array
+      environment:
+        additionalProperties:
+          type: string
+        type: object
+      ports:
+        items:
+          $ref: '#/definitions/agentcontrol.RuntimePort'
+        type: array
+      restart_policy:
+        type: string
+    type: object
+  agentcontrol.RuntimePort:
+    properties:
+      name:
+        type: string
+      port:
+        type: integer
+      protocol:
+        type: string
+    type: object
+  agentcontrol.SLORequirements:
+    properties:
+      latency_p95_ms_max:
+        type: number
+      throughput_rps_min:
+        type: number
+    type: object
+  agentcontrol.ScalingDecision:
+    properties:
+      action:
+        type: string
+      created_at:
+        type: string
+      current_replicas:
+        type: integer
+      desired_replicas:
+        type: integer
+      evidence:
+        items:
+          type: string
+        type: array
+      reason:
+        type: string
+    type: object
+  agentcontrol.SelectedModel:
+    properties:
+      model_id:
+        type: string
+      model_version:
+        type: string
+      source:
+        type: string
+    type: object
+  agentcontrol.StructuredAppSpec:
+    properties:
+      accelerator_count:
+        type: integer
+      accelerator_memory_mib:
+        type: integer
+      accelerator_type:
+        type: string
+      app_id:
+        type: string
+      app_version:
+        type: string
+      artifact:
+        $ref: '#/definitions/agentcontrol.Artifact'
+      cpu_cores:
+        type: integer
+      expected_rps:
+        type: number
+      labels:
+        additionalProperties:
+          type: string
+        type: object
+      max_input_tokens:
+        type: integer
+      memory_mib:
+        type: integer
+      replicas_max:
+        type: integer
+      replicas_min:
+        type: integer
+      storage_gib:
+        type: integer
+      workload_type:
+        type: string
+    type: object
+  agentcontrol.ValidationIssue:
+    properties:
+      actual: {}
+      code:
+        type: string
+      expected: {}
+      field:
+        type: string
+      reason:
+        type: string
+    type: object
+  agentcontrol.WorkloadProfile:
+    properties:
+      expected_rps:
+        type: number
+      request_pattern:
+        type: string
+      task_type:
+        type: string
+    type: object
+  api.AgentControlReasoningComparisonRequest:
+    properties:
+      candidate_id:
+        type: string
+    required:
+    - candidate_id
+    type: object
+  api.AgentExecutionErrorResponse:
+    properties:
+      execution:
+        $ref: '#/definitions/api.AgentExecutionResult'
+      message:
+        type: string
+      reason:
+        type: string
+      request_guard:
+        $ref: '#/definitions/api.GuardDecision'
+      request_id:
+        type: string
+      result_guard:
+        $ref: '#/definitions/api.GuardDecision'
+      run_id:
+        type: string
+      selected_agent:
+        $ref: '#/definitions/api.AgentProfile'
+      valid:
+        type: boolean
+    type: object
+  api.AgentExecutionRequest:
+    properties:
+      action:
+        type: string
+      capability:
+        type: string
+      context:
+        additionalProperties: {}
+        type: object
+      input:
+        additionalProperties: {}
+        type: object
+    required:
+    - action
+    - capability
+    type: object
+  api.AgentExecutionResponse:
+    properties:
+      execution:
+        $ref: '#/definitions/api.AgentExecutionResult'
+      request_guard:
+        $ref: '#/definitions/api.GuardDecision'
+      request_id:
+        type: string
+      result_guard:
+        $ref: '#/definitions/api.GuardDecision'
+      run_id:
+        type: string
+      selected_agent:
+        $ref: '#/definitions/api.AgentProfile'
+    type: object
+  api.AgentExecutionResult:
+    properties:
+      agent:
+        type: string
+      domain_validation:
+        type: string
+      evidence:
+        additionalProperties: {}
+        type: object
+      generation:
+        $ref: '#/definitions/deploymentplanner.GenerateResult'
+      latency_ms:
+        type: integer
+      manifest:
+        $ref: '#/definitions/appdeploy.DeploymentManifest'
+      message:
+        type: string
+      proposal:
+        $ref: '#/definitions/api.AgentProposal'
+      result:
+        additionalProperties: {}
+        type: object
+      run_id:
+        type: string
+      status:
+        type: string
+    type: object
+  api.AgentInvocationPlan:
+    properties:
+      action:
+        type: string
+      agent:
+        type: string
+      capability:
+        type: string
+      execution_status:
+        type: string
+      parameters:
+        additionalProperties: {}
+        type: object
+      reason:
+        type: string
+      target_url:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  api.AgentInvocationPlanRequest:
+    properties:
+      action:
+        type: string
+      capability:
+        type: string
+      parameters:
+        additionalProperties: {}
+        type: object
+    required:
+    - action
+    - capability
+    type: object
+  api.AgentProfile:
+    properties:
+      auth_token_env:
+        type: string
+      bounded_actions:
+        items:
+          type: string
+        type: array
+      capabilities:
+        items:
+          type: string
+        type: array
+      enabled:
+        type: boolean
+      endpoint:
+        type: string
+      invocation_path:
+        type: string
+      korean_name:
+        type: string
+      name:
+        type: string
+      registered_at:
+        type: string
+      responsibilities:
+        items:
+          type: string
+        type: array
+      reward_signals:
+        items:
+          type: string
+        type: array
+      role:
+        type: string
+      source:
+        type: string
+      version:
+        type: string
+    type: object
+  api.AgentProposal:
+    properties:
+      action:
+        type: string
+      parameters:
+        additionalProperties: {}
+        type: object
+    type: object
+  api.AgentReview:
+    properties:
+      action:
+        type: string
+      agent:
+        type: string
+      approved:
+        type: boolean
+      parameters:
+        additionalProperties:
+          type: string
+        type: object
+      reason:
+        type: string
+      reviewer_type:
+        type: string
+      reward:
+        type: number
+      skipped:
+        type: boolean
+    type: object
+  api.AgentReviews:
+    properties:
+      application:
+        $ref: '#/definitions/api.AgentReview'
+      cost:
+        $ref: '#/definitions/api.AgentReview'
+      infrastructure:
+        $ref: '#/definitions/api.AgentReview'
+    type: object
+  api.AppDeployPlannerRequest:
+    properties:
+      agent_name:
+        example: AIApplicationAutomationAgent
+        type: string
+      app_version_id:
+        example: appver-llm-inference-v1
+        type: string
+      candidate_id:
+        example: qwen3.5-ops-planner
+        type: string
+      max_poll_attempts:
+        example: 60
+        maximum: 600
+        minimum: 1
+        type: integer
+      natural_language_request:
+        example: GPU 1개와 메모리 16Gi가 필요한 추론 앱을 배포해 주세요.
+        maxLength: 8000
+        type: string
+      parameters:
+        additionalProperties: {}
+        type: object
+      poll_interval_ms:
+        example: 1000
+        maximum: 60000
+        minimum: 1
+        type: integer
+      requested_by:
+        example: ai-ops-geon-planner
+        type: string
+      target_profile_id:
+        example: target-profile-hint
+        type: string
+    required:
+    - app_version_id
+    - candidate_id
+    - natural_language_request
+    type: object
+  api.AutomationFeedbackRecord:
+    properties:
+      correlation_id:
+        type: string
+      executor:
+        type: string
+      external_execution_id:
+        type: string
+      latency_ms:
+        type: number
+      message:
+        type: string
+      received_at:
+        type: string
+      run_id:
+        type: string
+      status:
+        type: string
+      throughput_rps:
+        type: number
+    required:
+    - correlation_id
+    - executor
+    - status
+    type: object
+  api.AutomationFeedbackRequest:
+    properties:
+      correlation_id:
+        type: string
+      executor:
+        type: string
+      external_execution_id:
+        type: string
+      latency_ms:
+        type: number
+      message:
+        type: string
+      status:
+        type: string
+      throughput_rps:
+        type: number
+    required:
+    - correlation_id
+    - executor
+    - status
+    type: object
+  api.CreateControlRunRequest:
+    properties:
+      agent_name:
+        example: AIApplicationAutomationAgent
+        type: string
+      app_version_id:
+        example: appver-llm-inference-v1
+        type: string
+      candidate_id:
+        example: qwen3.5-ops-planner
+        type: string
+      natural_language_request:
+        example: Deploy an inference application with one GPU and 16Gi memory.
+        maxLength: 8000
+        type: string
+      parameters:
+        additionalProperties: {}
+        type: object
+      requested_by:
+        example: ai-ops-geon-planner
+        type: string
+      requirements:
+        $ref: '#/definitions/appdeploy.DeploymentRequirements'
+      target_profile_id:
+        example: target-profile-hint
+        type: string
+    required:
+    - app_version_id
+    - candidate_id
+    - natural_language_request
+    type: object
+  api.DeploymentPlan:
+    properties:
+      allowed_actions:
+        items:
+          type: string
+        type: array
+      execution_status:
+        type: string
+      executor_type:
+        type: string
+      feedback_required:
+        type: boolean
+      preconditions:
+        items:
+          type: string
+        type: array
+      requested_action:
+        type: string
+      required_capability:
+        type: string
+      selected_executor:
+        type: string
+      service_name:
+        type: string
+      target_accelerator:
+        type: string
+      target_vm_id:
+        type: string
+      workload:
+        type: string
+    type: object
+  api.DeploymentPlanResponse:
+    properties:
+      action:
+        type: string
+      checks:
+        items:
+          $ref: '#/definitions/api.VMCompatibilityCheck'
+        type: array
+      compatibility_status:
+        type: string
+      deployment_plan:
+        $ref: '#/definitions/api.DeploymentPlan'
+      evidence_status:
+        type: string
+      performance_status:
+        type: string
+      reason:
+        type: string
+      resource_checks_passed:
+        type: boolean
+      resource_source:
+        type: string
+      target_vm_id:
+        type: string
+      valid:
+        type: boolean
+      validation_mode:
+        type: string
+      workload:
+        type: string
+    type: object
+  api.DeploymentValidation:
+    properties:
+      checks:
+        items:
+          type: string
+        type: array
+      mode:
+        type: string
+      reason:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  api.ErrorResponse:
+    properties:
+      message:
+        example: 'Malformed request body: check JSON syntax'
+        type: string
+      valid:
+        example: false
+        type: boolean
+    type: object
+  api.ExternalAgentRegistrationRequest:
+    properties:
+      auth_token_env:
+        type: string
+      bounded_actions:
+        items:
+          type: string
+        minItems: 1
+        type: array
+      capabilities:
+        items:
+          type: string
+        minItems: 1
+        type: array
+      enabled:
+        type: boolean
+      endpoint:
+        type: string
+      invocation_path:
+        type: string
+      korean_name:
+        type: string
+      name:
+        type: string
+      responsibilities:
+        items:
+          type: string
+        type: array
+      reward_signals:
+        items:
+          type: string
+        type: array
+      role:
+        type: string
+      version:
+        type: string
+    required:
+    - bounded_actions
+    - capabilities
+    - endpoint
+    - invocation_path
+    - name
+    - role
+    - version
+    type: object
+  api.GuardDecision:
+    properties:
+      reason:
+        type: string
+      status:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  api.GuardValidation:
+    properties:
+      backend:
+        type: string
+      boundary:
+        type: string
+      checked_actions:
+        items:
+          type: string
+        type: array
+      mode:
+        type: string
+      operation_resource:
+        type: string
+      operation_service:
+        type: string
+      reason:
+        type: string
+      runtime_wired:
+        type: boolean
+      valid:
+        type: boolean
+    type: object
+  api.LLMActionProposal:
+    properties:
+      action:
+        type: string
+      confidence:
+        type: number
+      parameters:
+        additionalProperties: {}
+        type: object
+      reason:
+        type: string
+      required_capability:
+        type: string
+      target_vm_id:
+        type: string
+    type: object
+  api.LLMAutomationActionRequest:
+    properties:
+      candidate_id:
+        example: qwen3.5-ops-planner
+        type: string
+      observations:
+        additionalProperties: {}
+        type: object
+      run_id:
+        example: run-0123456789abcdef
+        type: string
+      target_vm:
+        $ref: '#/definitions/api.VMResourceSnapshot'
+      workload:
+        example: llm-chat-inference
+        type: string
+    required:
+    - candidate_id
+    - target_vm
+    - workload
+    type: object
+  api.LLMAutomationActionResponse:
+    properties:
+      correlation_id:
+        type: string
+      decision:
+        $ref: '#/definitions/api.LLMDecisionResult'
+      guard:
+        $ref: '#/definitions/api.GuardDecision'
+      handoff:
+        $ref: '#/definitions/api.AgentInvocationPlan'
+      run_id:
+        type: string
+      status:
+        type: string
+      valid:
+        type: boolean
+      vm_compatibility:
+        $ref: '#/definitions/api.VMCompatibilityResponse'
+    type: object
+  api.LLMDecisionResult:
+    properties:
+      actual_model:
+        type: string
+      candidate_id:
+        type: string
+      decision_execution_status:
+        type: string
+      latency_ms:
+        type: integer
+      proposal:
+        $ref: '#/definitions/api.LLMActionProposal'
+      provider:
+        type: string
+    type: object
+  api.OperationReadiness:
+    properties:
+      reason:
+        type: string
+      service:
+        type: string
+      skipped:
+        type: boolean
+      target_resource:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  api.OpsLLMRankedItem:
+    properties:
+      actual_model:
+        type: string
+      benchmark_status:
+        type: string
+      evaluation_source:
+        type: string
+      evaluation_type:
+        type: string
+      metrics:
+        additionalProperties:
+          format: float64
+          type: number
+        type: object
+      model:
+        type: string
+      notes:
+        items:
+          type: string
+        type: array
+      provider:
+        type: string
+      role:
+        type: string
+      score:
+        type: number
+    type: object
+  api.OpsLLMSelectRequest:
+    properties:
+      policy:
+        example: quality_first
+        type: string
+    type: object
+  api.OpsLLMSelectionResponse:
+    properties:
+      benchmark_status:
+        type: string
+      evaluation_source:
+        type: string
+      evaluation_type:
+        type: string
+      policy:
+        type: string
+      ranking:
+        items:
+          $ref: '#/definitions/api.OpsLLMRankedItem'
+        type: array
+      rationale:
+        type: string
+      selected_actual_model:
+        type: string
+      selected_model:
+        type: string
+      selected_provider:
+        type: string
+      selected_score:
+        type: number
+      valid:
+        type: boolean
+    type: object
+  api.PackageControlRunErrorResponse:
+    properties:
+      application:
+        $ref: '#/definitions/controlrun.ApplicationEvidence'
+      correlation_ids:
+        items:
+          type: string
+        type: array
+      created_at:
+        type: string
+      deployment:
+        $ref: '#/definitions/appdeploy.DeploymentResponse'
+      execution:
+        $ref: '#/definitions/controlrun.AgentExecution'
+      generation:
+        $ref: '#/definitions/deploymentplanner.GenerateResult'
+      logs:
+        items:
+          $ref: '#/definitions/appdeploy.DeploymentLog'
+        type: array
+      manifest:
+        $ref: '#/definitions/appdeploy.DeploymentManifest'
+      message:
+        example: 'Malformed request body: check JSON syntax'
+        type: string
+      partial_result:
+        $ref: '#/definitions/controlrun.PartialResult'
+      polling:
+        $ref: '#/definitions/deploymentplanner.PollingResult'
+      request:
+        $ref: '#/definitions/controlrun.SafeRequest'
+      request_guard:
+        $ref: '#/definitions/plannerguard.Decision'
+      retry_reason:
+        type: string
+      retry_recommended:
+        type: boolean
+      run_id:
+        type: string
+      selected_agent:
+        $ref: '#/definitions/controlrun.AgentSelection'
+      stages:
+        items:
+          $ref: '#/definitions/controlrun.Stage'
+        type: array
+      status:
+        $ref: '#/definitions/controlrun.Status'
+      updated_at:
+        type: string
+      valid:
+        example: false
+        type: boolean
+    type: object
+  api.ServiceOperationsRequest:
+    properties:
+      guard_backend:
+        example: go
+        type: string
+      llm_candidate_id:
+        example: qwen3.5-ops-planner
+        type: string
+      llm_candidates:
+        example: config/ops_llm_eval_candidates.local_ollama.json
+        type: string
+      llm_config:
+        example: config/ops_llm_benchmark.json
+        type: string
+      llm_policy:
+        example: quality_first
+        type: string
+      mode:
+        example: plan_only
+        type: string
+      observations:
+        additionalProperties: {}
+        type: object
+      operation_resource:
+        type: string
+      operation_service:
+        example: llm-chat-inference
+        type: string
+      target_vm:
+        $ref: '#/definitions/api.VMResourceSnapshot'
+      vm_requirements:
+        example: config/vm_workload_requirements.json
+        type: string
+      workload:
+        example: llm-chat-inference
+        type: string
+    required:
+    - target_vm
+    - workload
+    type: object
+  api.ServiceOperationsResponse:
+    properties:
+      agent_reviews:
+        $ref: '#/definitions/api.AgentReviews'
+      benchmark_status:
+        type: string
+      command:
+        type: string
+      decision_execution_status:
+        type: string
+      deployment_execution_mode:
+        type: string
+      deployment_plan:
+        $ref: '#/definitions/api.DeploymentPlan'
+      deployment_validation:
+        $ref: '#/definitions/api.DeploymentValidation'
+      evaluation_source:
+        type: string
+      evaluation_type:
+        type: string
+      guard_backend:
+        type: string
+      guard_validation:
+        $ref: '#/definitions/api.GuardValidation'
+      inference_deployment_plan:
+        $ref: '#/definitions/api.DeploymentPlanResponse'
+      llm_automation_action:
+        $ref: '#/definitions/api.LLMAutomationActionResponse'
+      metadata:
+        additionalProperties:
+          type: string
+        type: object
+      operation:
+        $ref: '#/definitions/api.OperationReadiness'
+      operation_pipeline_ready:
+        type: boolean
+      runtime_model:
+        type: string
+      selected_actual_model:
+        type: string
+      selected_llm:
+        type: string
+      selected_provider:
+        type: string
+      selected_resource:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  api.SubmitControlRunRequest:
+    properties:
+      max_poll_attempts:
+        example: 60
+        maximum: 600
+        minimum: 1
+        type: integer
+      poll_interval_ms:
+        example: 1000
+        maximum: 60000
+        minimum: 1
+        type: integer
+    type: object
+  api.VMCompatibilityCheck:
+    properties:
+      actual:
+        type: string
+      name:
+        type: string
+      reason:
+        type: string
+      required:
+        type: string
+      status:
+        type: string
+    type: object
+  api.VMCompatibilityRequest:
+    properties:
+      target_vm:
+        $ref: '#/definitions/api.VMResourceSnapshot'
+      workload:
+        example: llm-chat-inference
+        type: string
+    required:
+    - target_vm
+    - workload
+    type: object
+  api.VMCompatibilityResponse:
+    properties:
+      action:
+        type: string
+      checks:
+        items:
+          $ref: '#/definitions/api.VMCompatibilityCheck'
+        type: array
+      compatibility_status:
+        type: string
+      evidence_status:
+        type: string
+      performance_status:
+        type: string
+      reason:
+        type: string
+      resource_checks_passed:
+        type: boolean
+      resource_source:
+        type: string
+      target_vm_id:
+        type: string
+      valid:
+        type: boolean
+      validation_mode:
+        type: string
+      workload:
+        type: string
+    type: object
+  api.VMPerformanceEvidence:
+    properties:
+      cost_per_hour:
+        type: number
+      latency_ms:
+        type: number
+      measured_at:
+        type: string
+      source:
+        type: string
+      status:
+        type: string
+      throughput_rps:
+        type: number
+    type: object
+  api.VMResourceSnapshot:
+    properties:
+      accelerator:
+        type: string
+      availability_zone:
+        type: string
+      collected_at:
+        type: string
+      cpu_cores:
+        type: integer
+      cuda_version:
+        type: string
+      driver_version:
+        type: string
+      evidence_status:
+        type: string
+      gpu_memory_mib:
+        type: integer
+      gpu_model:
+        type: string
+      id:
+        type: string
+      instance_type:
+        type: string
+      memory_gb:
+        type: number
+      performance:
+        $ref: '#/definitions/api.VMPerformanceEvidence'
+      provider:
+        type: string
+      region:
+        type: string
+      source:
+        type: string
+    required:
+    - accelerator
+    - evidence_status
+    - id
+    - source
+    type: object
+  appdeploy.AppRegistrationResponse:
+    properties:
+      app_id:
+        type: string
+      app_spec:
+        type: object
+      app_version_id:
+        type: string
+      name:
+        type: string
+      request_id:
+        type: string
+      version:
+        type: string
+    type: object
+  appdeploy.DeploymentLog:
+    properties:
+      component:
+        type: string
+      deployment_id:
+        type: string
+      error_code:
+        type: string
+      level:
+        type: string
+      message:
+        type: string
+      request_id:
+        type: string
+      stage:
+        type: string
+      timestamp:
+        type: string
+    type: object
+  appdeploy.DeploymentManifest:
+    properties:
+      kind:
+        type: string
+      metadata:
+        $ref: '#/definitions/appdeploy.DeploymentMetadata'
+      schema_version:
+        type: string
+      spec:
+        $ref: '#/definitions/appdeploy.DeploymentSpec'
+    type: object
+  appdeploy.DeploymentMetadata:
+    properties:
+      name:
+        type: string
+    type: object
+  appdeploy.DeploymentRequirements:
+    properties:
+      accelerator:
+        type: string
+      cost_policy:
+        type: string
+      labels:
+        additionalProperties:
+          type: string
+        type: object
+      resources:
+        $ref: '#/definitions/appdeploy.ResourceRequirements'
+      runtime:
+        type: string
+      slo:
+        additionalProperties: {}
+        type: object
+    type: object
+  appdeploy.DeploymentResponse:
+    properties:
+      app_id:
+        type: string
+      app_version_id:
+        type: string
+      created_at:
+        type: string
+      deployment_id:
+        type: string
+      manifest:
+        $ref: '#/definitions/appdeploy.DeploymentManifest'
+      placement:
+        $ref: '#/definitions/appdeploy.PlacementDecision'
+      request_id:
+        type: string
+      runtime_id:
+        type: string
+      status:
+        type: string
+      target_profile_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  appdeploy.DeploymentSpec:
+    properties:
+      accelerator:
+        type: string
+      app_version_id:
+        type: string
+      parameters:
+        additionalProperties: {}
+        type: object
+      requested_by:
+        type: string
+      requirements:
+        $ref: '#/definitions/appdeploy.DeploymentRequirements'
+      resources:
+        $ref: '#/definitions/appdeploy.ResourceRequirements'
+      target_profile_id:
+        type: string
+    type: object
+  appdeploy.PackageBuildResponse:
+    properties:
+      app_spec:
+        type: object
+      archive_name:
+        type: string
+      artifact_uri:
+        type: string
+      checksum:
+        type: string
+      package_type:
+        type: string
+      request_id:
+        type: string
+      size_bytes:
+        type: integer
+    type: object
+  appdeploy.PlacementDecision:
+    properties:
+      allocation:
+        $ref: '#/definitions/appdeploy.ResourceAllocation'
+      external_decision_id:
+        type: string
+      reason:
+        type: string
+      score:
+        type: number
+      selected_at:
+        type: string
+      source:
+        type: string
+      target_profile_id:
+        type: string
+      target_vm_id:
+        type: string
+    type: object
+  appdeploy.ResourceAllocation:
+    properties:
+      cpu_cores:
+        type: number
+      gpu_count:
+        type: integer
+      memory_bytes:
+        type: integer
+      storage_bytes:
+        type: integer
+    type: object
+  appdeploy.ResourceRequirements:
+    properties:
+      cpu:
+        type: string
+      gpu:
+        type: string
+      memory:
+        type: string
+      storage:
+        type: string
+    type: object
+  controlrun.AgentExecution:
+    properties:
+      domain_validation:
+        type: string
+      evidence:
+        additionalProperties: {}
+        type: object
+      guard_status:
+        type: string
+      latency_ms:
+        type: integer
+      message:
+        type: string
+      proposal:
+        additionalProperties: {}
+        type: object
+      result:
+        additionalProperties: {}
+        type: object
+      status:
+        type: string
+    type: object
+  controlrun.AgentSelection:
+    properties:
+      action:
+        type: string
+      capability:
+        type: string
+      name:
+        type: string
+      reason:
+        type: string
+      source:
+        type: string
+    type: object
+  controlrun.ApplicationEvidence:
+    properties:
+      app_spec:
+        type: object
+      package:
+        $ref: '#/definitions/appdeploy.PackageBuildResponse'
+      registration:
+        $ref: '#/definitions/appdeploy.AppRegistrationResponse'
+    type: object
+  controlrun.PartialResult:
+    properties:
+      app_id:
+        type: string
+      app_version_id:
+        type: string
+      archive_name:
+        type: string
+      artifact_uri:
+        type: string
+      checksum:
+        type: string
+    type: object
+  controlrun.Run:
+    properties:
+      application:
+        $ref: '#/definitions/controlrun.ApplicationEvidence'
+      correlation_ids:
+        items:
+          type: string
+        type: array
+      created_at:
+        type: string
+      deployment:
+        $ref: '#/definitions/appdeploy.DeploymentResponse'
+      execution:
+        $ref: '#/definitions/controlrun.AgentExecution'
+      generation:
+        $ref: '#/definitions/deploymentplanner.GenerateResult'
+      logs:
+        items:
+          $ref: '#/definitions/appdeploy.DeploymentLog'
+        type: array
+      manifest:
+        $ref: '#/definitions/appdeploy.DeploymentManifest'
+      partial_result:
+        $ref: '#/definitions/controlrun.PartialResult'
+      polling:
+        $ref: '#/definitions/deploymentplanner.PollingResult'
+      request:
+        $ref: '#/definitions/controlrun.SafeRequest'
+      request_guard:
+        $ref: '#/definitions/plannerguard.Decision'
+      retry_reason:
+        type: string
+      retry_recommended:
+        type: boolean
+      run_id:
+        type: string
+      selected_agent:
+        $ref: '#/definitions/controlrun.AgentSelection'
+      stages:
+        items:
+          $ref: '#/definitions/controlrun.Stage'
+        type: array
+      status:
+        $ref: '#/definitions/controlrun.Status'
+      updated_at:
+        type: string
+    type: object
+  controlrun.SafeRequest:
+    properties:
+      action:
+        type: string
+      agent_name:
+        type: string
+      app_version_id:
+        type: string
+      candidate_id:
+        type: string
+      capability:
+        type: string
+      natural_language_request:
+        type: string
+      requested_by:
+        type: string
+      target_profile_id:
+        type: string
+    type: object
+  controlrun.Stage:
+    properties:
+      details:
+        additionalProperties: {}
+        type: object
+      ended_at:
+        type: string
+      name:
+        type: string
+      reason:
+        type: string
+      started_at:
+        type: string
+      status:
+        type: string
+    type: object
+  controlrun.Status:
+    enum:
+    - PACKAGING
+    - PACKAGE_FAILED
+    - REGISTERING_APP
+    - APP_REGISTRATION_FAILED
+    - PLANNING_CANCELED
+    - RECEIVED
+    - REQUEST_REJECTED
+    - AGENT_REJECTED
+    - PLANNING
+    - MANIFEST_REJECTED
+    - MANIFEST_APPROVED
+    - SUBMITTING
+    - APPDEPLOY_FAILED
+    - DEPLOYED
+    - AGENT_DISPATCHING
+    - AGENT_COMPLETED
+    - AGENT_FAILED
+    - RESULT_REJECTED
+    type: string
+    x-enum-varnames:
+    - StatusPackaging
+    - StatusPackageFailed
+    - StatusRegisteringApp
+    - StatusAppRegistrationFailed
+    - StatusPlanningCanceled
+    - StatusReceived
+    - StatusRequestRejected
+    - StatusAgentRejected
+    - StatusPlanning
+    - StatusManifestRejected
+    - StatusManifestApproved
+    - StatusSubmitting
+    - StatusAppDeployFailed
+    - StatusDeployed
+    - StatusAgentDispatching
+    - StatusAgentCompleted
+    - StatusAgentFailed
+    - StatusResultRejected
+  deploymentplanner.GenerateResult:
+    properties:
+      actual_model:
+        type: string
+      candidate_id:
+        type: string
+      execution_status:
+        type: string
+      guard_reason:
+        type: string
+      guard_valid:
+        type: boolean
+      latency_ms:
+        type: integer
+      manifest:
+        $ref: '#/definitions/appdeploy.DeploymentManifest'
+      provider:
+        type: string
+    type: object
+  deploymentplanner.PollingResult:
+    properties:
+      attempts:
+        type: integer
+      final_status:
+        type: string
+      logs_collected:
+        type: boolean
+      max_attempts:
+        type: integer
+      terminal:
+        type: boolean
+    type: object
+  plannerguard.Check:
+    properties:
+      name:
+        type: string
+      passed:
+        type: boolean
+      reason:
+        type: string
+    type: object
+  plannerguard.Decision:
+    properties:
+      checks:
+        items:
+          $ref: '#/definitions/plannerguard.Check'
+        type: array
+      policy_version:
+        type: string
+      reason:
+        type: string
+      status:
+        type: string
+      valid:
+        type: boolean
+    type: object
+info:
+  contact: {}
+  description: Go Echo API for AI LLM operation management, agent registry management,
+    CPU/GPU VM placement, and AI application deployment-control planning.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  title: AI-Ops Service Control API
+  version: "0.1"
+paths:
+  /api/v1/agent-control/application-analysis-requests:
+    post:
+      consumes:
+      - application/json
+      description: Accept application.analysis.request, preserve its correlation and
+        trace identifiers, and execute requirement analysis, resource recommendation,
+        Agent decision, and Go Guard exactly once per message_id.
+      operationId: PostApplicationAnalysisRequest
+      parameters:
+      - description: Common JSON v1.0 application analysis request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/agentcontrol.ApplicationAnalysisRequestEnvelope'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Idempotent replay
+          schema:
+            $ref: '#/definitions/agentcontrol.AutomationRun'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/agentcontrol.AutomationRun'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Start the geon automation flow from a Common JSON analysis request
+      tags:
+      - AI Application Automation Agent
+  /api/v1/agent-control/application-contexts:
+    post:
+      consumes:
+      - application/json
+      description: Validate and store a Common JSON v1.0 application.context.created
+        message.
+      operationId: PostAgentControlApplicationContext
+      parameters:
+      - description: Application Context message
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/agentcontrol.ApplicationContextEnvelope'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/agentcontrol.Flow'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Receive an Application Context message
+      tags:
+      - AI Application Automation Agent
+  /api/v1/agent-control/automation-runs:
+    post:
+      consumes:
+      - application/json
+      description: Accept one natural-language request or structured App Spec and
+        automatically execute Requirement Analyzer, mock Resource Recommender, Agent
+        Registry authorization, AIApplicationAutomationAgent decision, and Go Guard
+        validation.
+      operationId: PostAgentControlAutomationRun
+      parameters:
+      - description: One-shot automation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/agentcontrol.AutomationRunInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/agentcontrol.AutomationRun'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Run requirement analysis, resource recommendation, and Agent decision
+      tags:
+      - AI Application Automation Agent
+  /api/v1/agent-control/automation-runs/{run_id}:
+    get:
+      description: Return requirement analysis, resource recommendation, Agent decision,
+        Guard evidence, and Desired Deployment Spec for one run_id.
+      operationId: GetAgentControlAutomationRun
+      parameters:
+      - description: Automation run ID
+        in: path
+        name: run_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/agentcontrol.AutomationRun'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Get one automatic three-stage Agent run
+      tags:
+      - AI Application Automation Agent
+  /api/v1/agent-control/deployment-status:
+    post:
+      consumes:
+      - application/json
+      description: Validate and attach a Common JSON v1.0 deployment.status.changed
+        message to an Agent Control flow.
+      operationId: PostAgentControlDeploymentStatus
+      parameters:
+      - description: Deployment status message
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/agentcontrol.DeploymentStatusEnvelope'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/agentcontrol.Flow'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Receive a deployment status message
+      tags:
+      - AI Application Automation Agent
+  /api/v1/agent-control/flows:
+    delete:
+      description: Clear the in-memory Agent Control experiment records.
+      operationId: DeleteAgentControlFlows
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete all generated Agent Control flows
+      tags:
+      - AI Application Automation Agent
+    get:
+      description: Return Application Context and Resource Recommendation correlation
+        flows.
+      operationId: GetAgentControlFlows
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List joined Agent Control inputs
+      tags:
+      - AI Application Automation Agent
+  /api/v1/agent-control/flows/{correlation_id}:
+    delete:
+      description: Delete one in-memory Agent Control experiment record by correlation_id.
+      operationId: DeleteAgentControlFlow
+      parameters:
+      - description: Common JSON correlation ID
+        in: path
+        name: correlation_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Delete one generated Agent Control flow
+      tags:
+      - AI Application Automation Agent
+    get:
+      description: Return one correlation flow by correlation_id.
+      operationId: GetAgentControlFlow
+      parameters:
+      - description: Common JSON correlation ID
+        in: path
+        name: correlation_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/agentcontrol.Flow'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Get a joined Agent Control input
+      tags:
+      - AI Application Automation Agent
+  /api/v1/agent-control/flows/{correlation_id}/reasoning-comparisons:
+    post:
+      consumes:
+      - application/json
+      description: Compare the deterministic rule-based decision, the raw Qwen proposal,
+        and the same proposal after Go Guard validation.
+      operationId: PostAgentControlReasoningComparison
+      parameters:
+      - description: Common JSON correlation ID
+        in: path
+        name: correlation_id
+        required: true
+        type: string
+      - description: Reasoning candidate
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.AgentControlReasoningComparisonRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/agentcontrol.ReasoningComparison'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Compare simple and validated Qwen reasoning
+      tags:
+      - AI Application Automation Agent
+  /api/v1/agent-control/optimization-feedback:
+    post:
+      consumes:
+      - application/json
+      description: Validate and attach a Common JSON v1.0 optimization.feedback.created
+        message to an Agent Control flow.
+      operationId: PostAgentControlOptimizationFeedback
+      parameters:
+      - description: Optimization feedback message
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/agentcontrol.OptimizationFeedbackEnvelope'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/agentcontrol.Flow'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Receive optimization feedback
+      tags:
+      - AI Application Automation Agent
+  /api/v1/agent-control/resource-recommendations:
+    post:
+      consumes:
+      - application/json
+      description: Validate and store a Common JSON v1.0 resource.recommendation.created
+        message.
+      operationId: PostAgentControlResourceRecommendation
+      parameters:
+      - description: Resource Recommendation message
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/agentcontrol.ResourceRecommendationEnvelope'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/agentcontrol.Flow'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Receive a Resource Recommendation message
+      tags:
+      - AI Application Automation Agent
+  /api/v1/agents:
+    get:
+      description: Return the configured bounded-action agent registry.
+      operationId: GetAgents
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: List registered AI operation agents
+      tags:
+      - Agent Registry
+    post:
+      consumes:
+      - application/json
+      description: Register an external agent endpoint, capabilities, and bounded
+        actions in process memory.
+      operationId: PostAgent
+      parameters:
+      - description: External agent registration
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.ExternalAgentRegistrationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/api.AgentProfile'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Register an external AI operation agent
+      tags:
+      - Agent Registry
+  /api/v1/agents/{name}:
+    delete:
+      description: Delete only an Agent registered in process memory. Configuration-backed
+        Agents are protected.
+      operationId: DeleteAgent
+      parameters:
+      - description: Agent name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Delete a runtime AI operation agent
+      tags:
+      - Agent Registry
+    get:
+      operationId: GetAgent
+      parameters:
+      - description: Agent name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.AgentProfile'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Get a registered AI operation agent
+      tags:
+      - Agent Registry
+  /api/v1/agents/{name}/actions/{action}/validate:
+    post:
+      operationId: PostAgentActionValidate
+      parameters:
+      - description: Agent name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Action identifier
+        in: path
+        name: action
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Validate an action against an agent boundary
+      tags:
+      - Agent Registry
+  /api/v1/agents/{name}/execute:
+    post:
+      consumes:
+      - application/json
+      description: Validate Registry capability and bounded action, execute one internal
+        or runtime Agent, validate its result, and record a ControlRun.
+      operationId: ExecuteAgent
+      parameters:
+      - description: Agent name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Agent execution request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.AgentExecutionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.AgentExecutionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.AgentExecutionErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/api.AgentExecutionErrorResponse'
+        "501":
+          description: Not Implemented
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "504":
+          description: Gateway Timeout
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Execute a registered Agent through the guarded Dispatcher
+      tags:
+      - Agent Registry
+  /api/v1/agents/{name}/invocations/plan:
+    post:
+      consumes:
+      - application/json
+      description: Validate the registered capability and bounded action, then return
+        a non-executing invocation plan.
+      operationId: PostAgentInvocationPlan
+      parameters:
+      - description: Agent name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Invocation plan request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.AgentInvocationPlanRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.AgentInvocationPlan'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Build a validated external-agent invocation plan
+      tags:
+      - Agent Registry
+  /api/v1/apps/deployment-plan:
+    post:
+      consumes:
+      - application/json
+      description: Build a non-executing, capability-based handoff plan for any registered
+        external execution agent.
+      operationId: PostDeploymentPlan
+      parameters:
+      - description: VM compatibility request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.VMCompatibilityRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.DeploymentPlanResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Build an AI application deployment plan
+      tags:
+      - AI Application Deployment
+  /api/v1/apps/vm-suitability:
+    post:
+      consumes:
+      - application/json
+      description: Validate whether an infrastructure-supplied VM snapshot satisfies
+        declared workload requirements without selecting or provisioning a VM.
+      operationId: PostVMSuitability
+      parameters:
+      - description: VM compatibility request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.VMCompatibilityRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.VMCompatibilityResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Validate a provided CPU/GPU VM
+      tags:
+      - AI Application Deployment
+  /api/v1/automation/action-proposals:
+    post:
+      consumes:
+      - application/json
+      description: Call an actual configured LLM candidate, validate its bounded Action
+        against actual VM evidence and Agent Registry policy, and return a non-executing
+        external-agent handoff.
+      operationId: PostLLMAutomationAction
+      parameters:
+      - description: LLM automation Action request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.LLMAutomationActionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.LLMAutomationActionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Generate and validate an LLM-based automation Action
+      tags:
+      - AI Application Automation
+  /api/v1/automation/feedback:
+    delete:
+      description: Clear geon-owned feedback records while preserving approved correlation
+        registrations.
+      operationId: DeleteAllAutomationFeedback
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Clear automation execution feedback
+      tags:
+      - AI Application Automation
+    get:
+      description: Return normalized execution feedback records held by the current
+        geon process, newest first.
+      operationId: GetAutomationFeedback
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: List automation execution feedback
+      tags:
+      - AI Application Automation
+    post:
+      consumes:
+      - application/json
+      description: Record normalized status and optional performance evidence for
+        a previously approved correlation ID. Credentials and arbitrary secret fields
+        are not accepted.
+      operationId: PostAutomationFeedback
+      parameters:
+      - description: Automation execution feedback
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.AutomationFeedbackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.AutomationFeedbackRecord'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Record external automation execution feedback
+      tags:
+      - AI Application Automation
+  /api/v1/automation/feedback/{correlation_id}:
+    delete:
+      description: Delete one geon-owned feedback record while preserving its approved
+        correlation registration.
+      operationId: DeleteAutomationFeedback
+      parameters:
+      - description: Automation correlation ID
+        in: path
+        name: correlation_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Delete one automation execution feedback record
+      tags:
+      - AI Application Automation
+  /api/v1/autonomy/events:
+    delete:
+      description: Clear only the in-memory event timeline. Loop configuration, runtime
+        state, cooldown, and Action budget are preserved.
+      operationId: DeleteAutonomyEvents
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Clear guarded autonomous loop events
+      tags:
+      - Autonomous Loop
+  /api/v1/autonomy/events/{sequence}:
+    delete:
+      description: Delete one in-memory timeline event by its monotonic sequence.
+        Later events keep their original sequence values.
+      operationId: DeleteAutonomyEvent
+      parameters:
+      - description: Event sequence
+        in: path
+        name: sequence
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Delete one guarded autonomous loop event
+      tags:
+      - Autonomous Loop
+  /api/v1/control-runs:
+    delete:
+      description: Clear only the in-memory geon ControlRun store. This does not delete
+        AppDeploy or cloud resources.
+      operationId: DeleteControlRuns
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete all geon-owned ControlRun records
+      tags:
+      - AI Application Automation
+    get:
+      operationId: ListControlRuns
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List geon ControlRuns
+      tags:
+      - AI Application Automation
+    post:
+      consumes:
+      - application/json
+      description: Create a backend ControlRun, validate the request and Agent Registry
+        authorization, invoke the configured Qwen Planner, and return a Go-validated
+        DeploymentManifest without requiring AppDeploy.
+      operationId: CreateControlRun
+      parameters:
+      - description: Manifest planning request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.CreateControlRunRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+      summary: Generate a guarded DeploymentManifest
+      tags:
+      - AI Application Automation
+  /api/v1/control-runs/{run_id}:
+    delete:
+      description: Delete only the in-memory geon ControlRun. This does not delete
+        AppDeploy or cloud resources.
+      operationId: DeleteControlRun
+      parameters:
+      - description: ControlRun ID
+        in: path
+        name: run_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Delete one geon-owned ControlRun record
+      tags:
+      - AI Application Automation
+    get:
+      operationId: GetControlRun
+      parameters:
+      - description: ControlRun ID
+        in: path
+        name: run_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Get one geon ControlRun
+      tags:
+      - AI Application Automation
+  /api/v1/control-runs/{run_id}/submit:
+    post:
+      consumes:
+      - application/json
+      description: Revalidate the selected Agent submit permission and send the approved
+        DeploymentManifest to AppDeploy. AppDeploy retains final Target selection
+        and execution responsibility.
+      operationId: SubmitControlRun
+      parameters:
+      - description: ControlRun ID
+        in: path
+        name: run_id
+        required: true
+        type: string
+      - description: AppDeploy polling options
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.SubmitControlRunRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+      summary: Submit an approved ControlRun Manifest to AppDeploy
+      tags:
+      - AI Application Automation
+  /api/v1/control-runs/from-package:
+    post:
+      consumes:
+      - multipart/form-data
+      description: |-
+        Accept application source as multipart form data, invoke AppDeploy packaging and registration, then run the existing guarded ControlRun planning workflow.
+        Successful Package and App registration results remain in application and partial_result after a later Planner or Guard failure and are not automatically rolled back. AppDeploy submission remains a separate explicit request.
+      operationId: CreateControlRunFromPackage
+      parameters:
+      - description: Application source file or source archive
+        in: formData
+        name: source
+        required: true
+        type: file
+      - description: Package type
+        in: formData
+        name: package_type
+        required: true
+        type: string
+      - description: Application name
+        in: formData
+        name: app_name
+        required: true
+        type: string
+      - description: Application version
+        in: formData
+        name: app_version
+        required: true
+        type: string
+      - description: Application entrypoint
+        in: formData
+        name: entrypoint
+        required: true
+        type: string
+      - description: 'Runtime type: cpu or gpu'
+        in: formData
+        name: runtime_type
+        required: true
+        type: string
+      - description: Application service port
+        in: formData
+        name: service_port
+        type: integer
+      - description: HTTP healthcheck path
+        in: formData
+        name: healthcheck_path
+        type: string
+      - description: Deployment planning request
+        in: formData
+        name: natural_language_request
+        required: true
+        type: string
+      - description: Configured Planner candidate
+        in: formData
+        name: candidate_id
+        required: true
+        type: string
+      - default: ai-agent
+        description: Trusted requester; defaults to ai-agent
+        in: formData
+        name: requested_by
+        type: string
+      - description: Manifest Planner Agent
+        in: formData
+        name: agent_name
+        type: string
+      - description: AppDeploy Target hint; AppDeploy performs final Target selection
+        in: formData
+        name: target_profile_id
+        type: string
+      - description: CPU requirement
+        in: formData
+        name: cpu
+        required: true
+        type: string
+      - description: Memory requirement
+        in: formData
+        name: memory
+        required: true
+        type: string
+      - description: GPU requirement
+        in: formData
+        name: gpu
+        required: true
+        type: string
+      - description: Storage requirement
+        in: formData
+        name: storage
+        required: true
+        type: string
+      - description: Cost policy; empty or min_cost
+        enum:
+        - min_cost
+        in: formData
+        name: cost_policy
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Package and App registered; DeploymentManifest approved
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+        "400":
+          description: Malformed multipart or field validation returns api.ErrorResponse;
+            Request Guard rejection returns controlrun.Run
+          schema:
+            $ref: '#/definitions/api.PackageControlRunErrorResponse'
+        "403":
+          description: Agent Registry or bounded Action rejection
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+        "413":
+          description: Upload exceeds AIOPS_APP_UPLOAD_MAX_BYTES
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "422":
+          description: Planner or Manifest Guard rejection with partial results preserved
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+        "500":
+          description: Pre-ControlRun setup failures return api.ErrorResponse; unexpected
+            ControlRun states return controlrun.Run
+          schema:
+            $ref: '#/definitions/api.PackageControlRunErrorResponse'
+        "502":
+          description: AppDeploy Package or App registration failure with available
+            partial results preserved
+          schema:
+            $ref: '#/definitions/controlrun.Run'
+      summary: Package and register an application before generating a guarded DeploymentManifest
+      tags:
+      - AI Application Automation
+  /api/v1/ops-llm/select:
+    post:
+      consumes:
+      - application/json
+      description: Rank Ops LLM candidates using the configured service-control benchmark
+        policy.
+      operationId: PostOpsLLMSelect
+      parameters:
+      - description: Ops LLM selection request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.OpsLLMSelectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.OpsLLMSelectionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Select an Ops LLM policy candidate
+      tags:
+      - LLM Operation Management
+  /api/v1/planner/deployments:
+    post:
+      consumes:
+      - application/json
+      description: Validate the request with Go Request Guard, use an actual configured
+        LLM to generate an AppDeploy DeploymentManifest, validate it with Go Manifest
+        Guard, submit it to AppDeploy, and poll the deployment status. AppDeploy retains
+        target selection and execution responsibility.
+      operationId: PostAppDeployPlanner
+      parameters:
+      - description: Planner request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.AppDeployPlannerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Plan and submit an AI application deployment
+      tags:
+      - AI Application Automation
+  /api/v1/service-operations/run:
+    post:
+      consumes:
+      - application/json
+      description: Execute the Go service-control flow across LLM selection, agent
+        checks, actual VM suitability validation, and generic deployment-control handoff
+        planning.
+      operationId: PostServiceOperationsRun
+      parameters:
+      - description: Service operation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.ServiceOperationsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.ServiceOperationsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Run service-control operation planning
+      tags:
+      - Service Control
+  /healthz:
+    get:
+      description: Return a lightweight readiness response for the Go service-control
+        API.
+      operationId: GetHealthz
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Check service-control API health
+      tags:
+      - Service Control
+  /openapi.yaml:
+    get:
+      description: Return the submission OpenAPI YAML for the service-control prototype.
+      operationId: GetOpenAPI
+      produces:
+      - text/yaml
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Get OpenAPI specification
+      tags:
+      - Service Control
+swagger: "2.0"

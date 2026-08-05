@@ -1,0 +1,5150 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Go Echo API for AI LLM operation management, agent registry management, CPU/GPU VM placement, and AI application deployment-control planning.",
+        "title": "AI-Ops Service Control API",
+        "contact": {},
+        "license": {
+            "name": "Apache 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "0.1"
+    },
+    "basePath": "/",
+    "paths": {
+        "/api/v1/agent-control/application-analysis-requests": {
+            "post": {
+                "description": "Accept application.analysis.request, preserve its correlation and trace identifiers, and execute requirement analysis, resource recommendation, Agent decision, and Go Guard exactly once per message_id.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "Start the geon automation flow from a Common JSON analysis request",
+                "operationId": "PostApplicationAnalysisRequest",
+                "parameters": [
+                    {
+                        "description": "Common JSON v1.0 application analysis request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.ApplicationAnalysisRequestEnvelope"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Idempotent replay",
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.AutomationRun"
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.AutomationRun"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agent-control/application-contexts": {
+            "post": {
+                "description": "Validate and store a Common JSON v1.0 application.context.created message.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "Receive an Application Context message",
+                "operationId": "PostAgentControlApplicationContext",
+                "parameters": [
+                    {
+                        "description": "Application Context message",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.ApplicationContextEnvelope"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.Flow"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agent-control/automation-runs": {
+            "post": {
+                "description": "Accept one natural-language request or structured App Spec and automatically execute Requirement Analyzer, mock Resource Recommender, Agent Registry authorization, AIApplicationAutomationAgent decision, and Go Guard validation.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "Run requirement analysis, resource recommendation, and Agent decision",
+                "operationId": "PostAgentControlAutomationRun",
+                "parameters": [
+                    {
+                        "description": "One-shot automation request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.AutomationRunInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.AutomationRun"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agent-control/automation-runs/{run_id}": {
+            "get": {
+                "description": "Return requirement analysis, resource recommendation, Agent decision, Guard evidence, and Desired Deployment Spec for one run_id.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "Get one automatic three-stage Agent run",
+                "operationId": "GetAgentControlAutomationRun",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Automation run ID",
+                        "name": "run_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.AutomationRun"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agent-control/deployment-status": {
+            "post": {
+                "description": "Validate and attach a Common JSON v1.0 deployment.status.changed message to an Agent Control flow.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "Receive a deployment status message",
+                "operationId": "PostAgentControlDeploymentStatus",
+                "parameters": [
+                    {
+                        "description": "Deployment status message",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.DeploymentStatusEnvelope"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.Flow"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agent-control/flows": {
+            "get": {
+                "description": "Return Application Context and Resource Recommendation correlation flows.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "List joined Agent Control inputs",
+                "operationId": "GetAgentControlFlows",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Clear the in-memory Agent Control experiment records.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "Delete all generated Agent Control flows",
+                "operationId": "DeleteAgentControlFlows",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agent-control/flows/{correlation_id}": {
+            "get": {
+                "description": "Return one correlation flow by correlation_id.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "Get a joined Agent Control input",
+                "operationId": "GetAgentControlFlow",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Common JSON correlation ID",
+                        "name": "correlation_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.Flow"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete one in-memory Agent Control experiment record by correlation_id.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "Delete one generated Agent Control flow",
+                "operationId": "DeleteAgentControlFlow",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Common JSON correlation ID",
+                        "name": "correlation_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agent-control/flows/{correlation_id}/reasoning-comparisons": {
+            "post": {
+                "description": "Compare the deterministic rule-based decision, the raw Qwen proposal, and the same proposal after Go Guard validation.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "Compare simple and validated Qwen reasoning",
+                "operationId": "PostAgentControlReasoningComparison",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Common JSON correlation ID",
+                        "name": "correlation_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Reasoning candidate",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.AgentControlReasoningComparisonRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.ReasoningComparison"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agent-control/optimization-feedback": {
+            "post": {
+                "description": "Validate and attach a Common JSON v1.0 optimization.feedback.created message to an Agent Control flow.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "Receive optimization feedback",
+                "operationId": "PostAgentControlOptimizationFeedback",
+                "parameters": [
+                    {
+                        "description": "Optimization feedback message",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.OptimizationFeedbackEnvelope"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.Flow"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agent-control/resource-recommendations": {
+            "post": {
+                "description": "Validate and store a Common JSON v1.0 resource.recommendation.created message.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "Receive a Resource Recommendation message",
+                "operationId": "PostAgentControlResourceRecommendation",
+                "parameters": [
+                    {
+                        "description": "Resource Recommendation message",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.ResourceRecommendationEnvelope"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.Flow"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agents": {
+            "get": {
+                "description": "Return the configured bounded-action agent registry.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Agent Registry"
+                ],
+                "summary": "List registered AI operation agents",
+                "operationId": "GetAgents",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Register an external agent endpoint, capabilities, and bounded actions in process memory.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Agent Registry"
+                ],
+                "summary": "Register an external AI operation agent",
+                "operationId": "PostAgent",
+                "parameters": [
+                    {
+                        "description": "External agent registration",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.ExternalAgentRegistrationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/api.AgentProfile"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agents/{name}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Agent Registry"
+                ],
+                "summary": "Get a registered AI operation agent",
+                "operationId": "GetAgent",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Agent name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.AgentProfile"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete only an Agent registered in process memory. Configuration-backed Agents are protected.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Agent Registry"
+                ],
+                "summary": "Delete a runtime AI operation agent",
+                "operationId": "DeleteAgent",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Agent name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agents/{name}/actions/{action}/validate": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Agent Registry"
+                ],
+                "summary": "Validate an action against an agent boundary",
+                "operationId": "PostAgentActionValidate",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Agent name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Action identifier",
+                        "name": "action",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agents/{name}/execute": {
+            "post": {
+                "description": "Validate Registry capability and bounded action, execute one internal or runtime Agent, validate its result, and record a ControlRun.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Agent Registry"
+                ],
+                "summary": "Execute a registered Agent through the guarded Dispatcher",
+                "operationId": "ExecuteAgent",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Agent name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Agent execution request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.AgentExecutionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.AgentExecutionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/api.AgentExecutionErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/api.AgentExecutionErrorResponse"
+                        }
+                    },
+                    "501": {
+                        "description": "Not Implemented",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "504": {
+                        "description": "Gateway Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agents/{name}/invocations/plan": {
+            "post": {
+                "description": "Validate the registered capability and bounded action, then return a non-executing invocation plan.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Agent Registry"
+                ],
+                "summary": "Build a validated external-agent invocation plan",
+                "operationId": "PostAgentInvocationPlan",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Agent name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Invocation plan request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.AgentInvocationPlanRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.AgentInvocationPlan"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/apps/deployment-plan": {
+            "post": {
+                "description": "Build a non-executing, capability-based handoff plan for any registered external execution agent.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Deployment"
+                ],
+                "summary": "Build an AI application deployment plan",
+                "operationId": "PostDeploymentPlan",
+                "parameters": [
+                    {
+                        "description": "VM compatibility request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.VMCompatibilityRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.DeploymentPlanResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/apps/vm-suitability": {
+            "post": {
+                "description": "Validate whether an infrastructure-supplied VM snapshot satisfies declared workload requirements without selecting or provisioning a VM.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Deployment"
+                ],
+                "summary": "Validate a provided CPU/GPU VM",
+                "operationId": "PostVMSuitability",
+                "parameters": [
+                    {
+                        "description": "VM compatibility request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.VMCompatibilityRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.VMCompatibilityResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/automation/action-proposals": {
+            "post": {
+                "description": "Call an actual configured LLM candidate, validate its bounded Action against actual VM evidence and Agent Registry policy, and return a non-executing external-agent handoff.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "Generate and validate an LLM-based automation Action",
+                "operationId": "PostLLMAutomationAction",
+                "parameters": [
+                    {
+                        "description": "LLM automation Action request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.LLMAutomationActionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.LLMAutomationActionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/automation/feedback": {
+            "get": {
+                "description": "Return normalized execution feedback records held by the current geon process, newest first.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "List automation execution feedback",
+                "operationId": "GetAutomationFeedback",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Record normalized status and optional performance evidence for a previously approved correlation ID. Credentials and arbitrary secret fields are not accepted.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "Record external automation execution feedback",
+                "operationId": "PostAutomationFeedback",
+                "parameters": [
+                    {
+                        "description": "Automation execution feedback",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.AutomationFeedbackRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.AutomationFeedbackRecord"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Clear geon-owned feedback records while preserving approved correlation registrations.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "Clear automation execution feedback",
+                "operationId": "DeleteAllAutomationFeedback",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/automation/feedback/{correlation_id}": {
+            "delete": {
+                "description": "Delete one geon-owned feedback record while preserving its approved correlation registration.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "Delete one automation execution feedback record",
+                "operationId": "DeleteAutomationFeedback",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Automation correlation ID",
+                        "name": "correlation_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/autonomy/events": {
+            "delete": {
+                "description": "Clear only the in-memory event timeline. Loop configuration, runtime state, cooldown, and Action budget are preserved.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Autonomous Loop"
+                ],
+                "summary": "Clear guarded autonomous loop events",
+                "operationId": "DeleteAutonomyEvents",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/autonomy/events/{sequence}": {
+            "delete": {
+                "description": "Delete one in-memory timeline event by its monotonic sequence. Later events keep their original sequence values.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Autonomous Loop"
+                ],
+                "summary": "Delete one guarded autonomous loop event",
+                "operationId": "DeleteAutonomyEvent",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Event sequence",
+                        "name": "sequence",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/control-runs": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "List geon ControlRuns",
+                "operationId": "ListControlRuns",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a backend ControlRun, validate the request and Agent Registry authorization, invoke the configured Qwen Planner, and return a Go-validated DeploymentManifest without requiring AppDeploy.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "Generate a guarded DeploymentManifest",
+                "operationId": "CreateControlRun",
+                "parameters": [
+                    {
+                        "description": "Manifest planning request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.CreateControlRunRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Clear only the in-memory geon ControlRun store. This does not delete AppDeploy or cloud resources.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "Delete all geon-owned ControlRun records",
+                "operationId": "DeleteControlRuns",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/control-runs/from-package": {
+            "post": {
+                "description": "Accept application source as multipart form data, invoke AppDeploy packaging and registration, then run the existing guarded ControlRun planning workflow.\nSuccessful Package and App registration results remain in application and partial_result after a later Planner or Guard failure and are not automatically rolled back. AppDeploy submission remains a separate explicit request.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "Package and register an application before generating a guarded DeploymentManifest",
+                "operationId": "CreateControlRunFromPackage",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Application source file or source archive",
+                        "name": "source",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Package type",
+                        "name": "package_type",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Application name",
+                        "name": "app_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Application version",
+                        "name": "app_version",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Application entrypoint",
+                        "name": "entrypoint",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Runtime type: cpu or gpu",
+                        "name": "runtime_type",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Application service port",
+                        "name": "service_port",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "HTTP healthcheck path",
+                        "name": "healthcheck_path",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Deployment planning request",
+                        "name": "natural_language_request",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Configured Planner candidate",
+                        "name": "candidate_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "ai-agent",
+                        "description": "Trusted requester; defaults to ai-agent",
+                        "name": "requested_by",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Manifest Planner Agent",
+                        "name": "agent_name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "AppDeploy Target hint; AppDeploy performs final Target selection",
+                        "name": "target_profile_id",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "CPU requirement",
+                        "name": "cpu",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Memory requirement",
+                        "name": "memory",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "GPU requirement",
+                        "name": "gpu",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Storage requirement",
+                        "name": "storage",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "min_cost"
+                        ],
+                        "type": "string",
+                        "description": "Cost policy; empty or min_cost",
+                        "name": "cost_policy",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Package and App registered; DeploymentManifest approved",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    },
+                    "400": {
+                        "description": "Malformed multipart or field validation returns api.ErrorResponse; Request Guard rejection returns controlrun.Run",
+                        "schema": {
+                            "$ref": "#/definitions/api.PackageControlRunErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Agent Registry or bounded Action rejection",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    },
+                    "413": {
+                        "description": "Upload exceeds AIOPS_APP_UPLOAD_MAX_BYTES",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Planner or Manifest Guard rejection with partial results preserved",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    },
+                    "500": {
+                        "description": "Pre-ControlRun setup failures return api.ErrorResponse; unexpected ControlRun states return controlrun.Run",
+                        "schema": {
+                            "$ref": "#/definitions/api.PackageControlRunErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "AppDeploy Package or App registration failure with available partial results preserved",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/control-runs/{run_id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "Get one geon ControlRun",
+                "operationId": "GetControlRun",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ControlRun ID",
+                        "name": "run_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete only the in-memory geon ControlRun. This does not delete AppDeploy or cloud resources.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "Delete one geon-owned ControlRun record",
+                "operationId": "DeleteControlRun",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ControlRun ID",
+                        "name": "run_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/control-runs/{run_id}/submit": {
+            "post": {
+                "description": "Revalidate the selected Agent submit permission and send the approved DeploymentManifest to AppDeploy. AppDeploy retains final Target selection and execution responsibility.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "Submit an approved ControlRun Manifest to AppDeploy",
+                "operationId": "SubmitControlRun",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ControlRun ID",
+                        "name": "run_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "AppDeploy polling options",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.SubmitControlRunRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/controlrun.Run"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/ops-llm/select": {
+            "post": {
+                "description": "Rank Ops LLM candidates using the configured service-control benchmark policy.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LLM Operation Management"
+                ],
+                "summary": "Select an Ops LLM policy candidate",
+                "operationId": "PostOpsLLMSelect",
+                "parameters": [
+                    {
+                        "description": "Ops LLM selection request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.OpsLLMSelectRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.OpsLLMSelectionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/planner/deployments": {
+            "post": {
+                "description": "Validate the request with Go Request Guard, use an actual configured LLM to generate an AppDeploy DeploymentManifest, validate it with Go Manifest Guard, submit it to AppDeploy, and poll the deployment status. AppDeploy retains target selection and execution responsibility.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation"
+                ],
+                "summary": "Plan and submit an AI application deployment",
+                "operationId": "PostAppDeployPlanner",
+                "parameters": [
+                    {
+                        "description": "Planner request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.AppDeployPlannerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/service-operations/run": {
+            "post": {
+                "description": "Execute the Go service-control flow across LLM selection, agent checks, actual VM suitability validation, and generic deployment-control handoff planning.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Service Control"
+                ],
+                "summary": "Run service-control operation planning",
+                "operationId": "PostServiceOperationsRun",
+                "parameters": [
+                    {
+                        "description": "Service operation request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.ServiceOperationsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.ServiceOperationsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/healthz": {
+            "get": {
+                "description": "Return a lightweight readiness response for the Go service-control API.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Service Control"
+                ],
+                "summary": "Check service-control API health",
+                "operationId": "GetHealthz",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/openapi.yaml": {
+            "get": {
+                "description": "Return the submission OpenAPI YAML for the service-control prototype.",
+                "produces": [
+                    "text/yaml"
+                ],
+                "tags": [
+                    "Service Control"
+                ],
+                "summary": "Get OpenAPI specification",
+                "operationId": "GetOpenAPI",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "agentcontrol.AcceleratorAllocation": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "memory_mib_min_per_device": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.AcceleratorRequirements": {
+            "type": "object",
+            "properties": {
+                "count_min": {
+                    "type": "integer"
+                },
+                "memory_mib_min_per_device": {
+                    "type": "integer"
+                },
+                "required": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.ActualInfrastructure": {
+            "type": "object",
+            "properties": {
+                "provider": {
+                    "type": "string"
+                },
+                "region": {
+                    "type": "string"
+                },
+                "resource_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "agentcontrol.AgentAuthorization": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "agent_name": {
+                    "type": "string"
+                },
+                "authorized": {
+                    "type": "boolean"
+                },
+                "capability": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.AnalysisRequestApplication": {
+            "type": "object",
+            "properties": {
+                "app_id": {
+                    "type": "string"
+                },
+                "app_version": {
+                    "type": "string"
+                },
+                "artifact": {
+                    "$ref": "#/definitions/agentcontrol.Artifact"
+                },
+                "declared_spec": {
+                    "$ref": "#/definitions/agentcontrol.DeclaredApplicationSpec"
+                },
+                "labels": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "user_request": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.AnalysisSummary": {
+            "type": "object",
+            "properties": {
+                "assumptions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "confidence": {
+                    "type": "number"
+                },
+                "missing_fields": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "warnings": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "agentcontrol.ApplicationAnalysisRequestData": {
+            "type": "object",
+            "properties": {
+                "application": {
+                    "$ref": "#/definitions/agentcontrol.AnalysisRequestApplication"
+                }
+            }
+        },
+        "agentcontrol.ApplicationAnalysisRequestEnvelope": {
+            "type": "object",
+            "properties": {
+                "causation_id": {
+                    "type": "string"
+                },
+                "contract_version": {
+                    "type": "string"
+                },
+                "correlation_id": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/agentcontrol.ApplicationAnalysisRequestData"
+                },
+                "message_id": {
+                    "type": "string"
+                },
+                "message_type": {
+                    "type": "string"
+                },
+                "occurred_at": {
+                    "type": "string"
+                },
+                "source": {
+                    "$ref": "#/definitions/agentcontrol.Endpoint"
+                },
+                "target": {
+                    "$ref": "#/definitions/agentcontrol.Endpoint"
+                },
+                "trace_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.ApplicationContextData": {
+            "type": "object",
+            "properties": {
+                "application_profile": {
+                    "$ref": "#/definitions/agentcontrol.ApplicationProfile"
+                },
+                "model_recommendation": {
+                    "$ref": "#/definitions/agentcontrol.ModelRecommendation"
+                }
+            }
+        },
+        "agentcontrol.ApplicationContextEnvelope": {
+            "type": "object",
+            "properties": {
+                "causation_id": {
+                    "type": "string"
+                },
+                "contract_version": {
+                    "type": "string"
+                },
+                "correlation_id": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/agentcontrol.ApplicationContextData"
+                },
+                "message_id": {
+                    "type": "string"
+                },
+                "message_type": {
+                    "type": "string"
+                },
+                "occurred_at": {
+                    "type": "string"
+                },
+                "source": {
+                    "$ref": "#/definitions/agentcontrol.Endpoint"
+                },
+                "target": {
+                    "$ref": "#/definitions/agentcontrol.Endpoint"
+                },
+                "trace_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.ApplicationProfile": {
+            "type": "object",
+            "properties": {
+                "analysis": {
+                    "$ref": "#/definitions/agentcontrol.AnalysisSummary"
+                },
+                "app_id": {
+                    "type": "string"
+                },
+                "app_version": {
+                    "type": "string"
+                },
+                "artifact": {
+                    "$ref": "#/definitions/agentcontrol.Artifact"
+                },
+                "profile_id": {
+                    "type": "string"
+                },
+                "requirements": {
+                    "$ref": "#/definitions/agentcontrol.ApplicationRequirements"
+                },
+                "workload": {
+                    "$ref": "#/definitions/agentcontrol.WorkloadProfile"
+                }
+            }
+        },
+        "agentcontrol.ApplicationRequirements": {
+            "type": "object",
+            "properties": {
+                "accelerator": {
+                    "$ref": "#/definitions/agentcontrol.AcceleratorRequirements"
+                },
+                "compute": {
+                    "$ref": "#/definitions/agentcontrol.ComputeRequirements"
+                },
+                "cost": {
+                    "$ref": "#/definitions/agentcontrol.CostRequirements"
+                },
+                "deployment": {
+                    "$ref": "#/definitions/agentcontrol.DeploymentRequirements"
+                },
+                "slo": {
+                    "$ref": "#/definitions/agentcontrol.SLORequirements"
+                }
+            }
+        },
+        "agentcontrol.Artifact": {
+            "type": "object",
+            "properties": {
+                "entrypoint": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "type": {
+                    "type": "string"
+                },
+                "uri": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.AutomationDecision": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "confidence": {
+                    "type": "number"
+                },
+                "correction_request": {
+                    "$ref": "#/definitions/agentcontrol.CorrectionRequest"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "decision_id": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "reasoning_mode": {
+                    "type": "string"
+                },
+                "selected_candidate_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.AutomationRun": {
+            "type": "object",
+            "properties": {
+                "correlation_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "desired_deployment_spec": {
+                    "$ref": "#/definitions/agentcontrol.DesiredDeploymentSpec"
+                },
+                "error_code": {
+                    "type": "string"
+                },
+                "error_message": {
+                    "type": "string"
+                },
+                "flow": {
+                    "$ref": "#/definitions/agentcontrol.Flow"
+                },
+                "input": {
+                    "$ref": "#/definitions/agentcontrol.AutomationRunInput"
+                },
+                "requirement_analysis": {
+                    "$ref": "#/definitions/agentcontrol.RequirementAnalysisResult"
+                },
+                "resource_recommendation": {
+                    "$ref": "#/definitions/agentcontrol.RecommendationResult"
+                },
+                "run_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "trace_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.AutomationRunInput": {
+            "type": "object",
+            "properties": {
+                "app_spec": {
+                    "$ref": "#/definitions/agentcontrol.StructuredAppSpec"
+                },
+                "input_type": {
+                    "type": "string"
+                },
+                "request": {
+                    "type": "string"
+                },
+                "requested_by": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.ComputeRequirements": {
+            "type": "object",
+            "properties": {
+                "cpu_cores_min": {
+                    "type": "integer"
+                },
+                "memory_mib_min": {
+                    "type": "integer"
+                },
+                "storage_gib_min": {
+                    "type": "integer"
+                }
+            }
+        },
+        "agentcontrol.CorrectionRequest": {
+            "type": "object",
+            "properties": {
+                "issues": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/agentcontrol.ValidationIssue"
+                    }
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "target": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.CostMetrics": {
+            "type": "object",
+            "properties": {
+                "currency": {
+                    "type": "string"
+                },
+                "estimated_cost": {
+                    "type": "number"
+                }
+            }
+        },
+        "agentcontrol.CostRequirements": {
+            "type": "object",
+            "properties": {
+                "cost_per_hour_max": {
+                    "type": "number"
+                },
+                "currency": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.DeclaredApplicationSpec": {
+            "type": "object",
+            "properties": {
+                "expected_rps": {
+                    "type": "number"
+                },
+                "max_input_tokens": {
+                    "type": "integer"
+                }
+            }
+        },
+        "agentcontrol.DeploymentApplication": {
+            "type": "object",
+            "properties": {
+                "app_id": {
+                    "type": "string"
+                },
+                "app_version": {
+                    "type": "string"
+                },
+                "artifact": {
+                    "$ref": "#/definitions/agentcontrol.Artifact"
+                }
+            }
+        },
+        "agentcontrol.DeploymentCreateRequestData": {
+            "type": "object",
+            "properties": {
+                "deployment_request": {
+                    "$ref": "#/definitions/agentcontrol.DeploymentRequest"
+                }
+            }
+        },
+        "agentcontrol.DeploymentCreateRequestEnvelope": {
+            "type": "object",
+            "properties": {
+                "causation_id": {
+                    "type": "string"
+                },
+                "contract_version": {
+                    "type": "string"
+                },
+                "correlation_id": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/agentcontrol.DeploymentCreateRequestData"
+                },
+                "message_id": {
+                    "type": "string"
+                },
+                "message_type": {
+                    "type": "string"
+                },
+                "occurred_at": {
+                    "type": "string"
+                },
+                "source": {
+                    "$ref": "#/definitions/agentcontrol.Endpoint"
+                },
+                "target": {
+                    "$ref": "#/definitions/agentcontrol.Endpoint"
+                },
+                "trace_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.DeploymentManifest": {
+            "type": "object",
+            "properties": {
+                "application": {
+                    "$ref": "#/definitions/agentcontrol.ManifestApplication"
+                },
+                "decision_id": {
+                    "type": "string"
+                },
+                "desired_infrastructure": {
+                    "$ref": "#/definitions/agentcontrol.DesiredInfrastructure"
+                },
+                "inference_configuration": {
+                    "$ref": "#/definitions/agentcontrol.InferenceConfiguration"
+                },
+                "manifest_id": {
+                    "type": "string"
+                },
+                "manifest_version": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/agentcontrol.ManifestMetadata"
+                },
+                "resource_hints": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "runtime": {
+                    "$ref": "#/definitions/agentcontrol.RuntimeConfiguration"
+                },
+                "target_runtime": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.DeploymentPlan": {
+            "type": "object",
+            "properties": {
+                "app_id": {
+                    "type": "string"
+                },
+                "app_version": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "desired_infrastructure": {
+                    "$ref": "#/definitions/agentcontrol.DesiredInfrastructure"
+                },
+                "inference_configuration": {
+                    "$ref": "#/definitions/agentcontrol.InferenceConfiguration"
+                },
+                "plan_id": {
+                    "type": "string"
+                },
+                "profile_id": {
+                    "type": "string"
+                },
+                "reasoning_mode": {
+                    "type": "string"
+                },
+                "resource_hints": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "selected_candidate_id": {
+                    "type": "string"
+                },
+                "target_runtime": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.DeploymentRequest": {
+            "type": "object",
+            "properties": {
+                "application": {
+                    "$ref": "#/definitions/agentcontrol.DeploymentApplication"
+                },
+                "decision_id": {
+                    "type": "string"
+                },
+                "deployment_manifest": {
+                    "$ref": "#/definitions/agentcontrol.DeploymentManifest"
+                },
+                "request_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.DeploymentRequirements": {
+            "type": "object",
+            "properties": {
+                "isolation": {
+                    "type": "string"
+                },
+                "replicas_max": {
+                    "type": "integer"
+                },
+                "replicas_min": {
+                    "type": "integer"
+                }
+            }
+        },
+        "agentcontrol.DeploymentStatus": {
+            "type": "object",
+            "properties": {
+                "actual_infrastructure": {
+                    "$ref": "#/definitions/agentcontrol.ActualInfrastructure"
+                },
+                "decision_id": {
+                    "type": "string"
+                },
+                "deployment_id": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.DeploymentStatusData": {
+            "type": "object",
+            "properties": {
+                "deployment_status": {
+                    "$ref": "#/definitions/agentcontrol.DeploymentStatus"
+                }
+            }
+        },
+        "agentcontrol.DeploymentStatusEnvelope": {
+            "type": "object",
+            "properties": {
+                "causation_id": {
+                    "type": "string"
+                },
+                "contract_version": {
+                    "type": "string"
+                },
+                "correlation_id": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/agentcontrol.DeploymentStatusData"
+                },
+                "message_id": {
+                    "type": "string"
+                },
+                "message_type": {
+                    "type": "string"
+                },
+                "occurred_at": {
+                    "type": "string"
+                },
+                "source": {
+                    "$ref": "#/definitions/agentcontrol.Endpoint"
+                },
+                "target": {
+                    "$ref": "#/definitions/agentcontrol.Endpoint"
+                },
+                "trace_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.DesiredDeploymentSpec": {
+            "type": "object",
+            "properties": {
+                "application": {
+                    "$ref": "#/definitions/agentcontrol.ManifestApplication"
+                },
+                "decision_id": {
+                    "type": "string"
+                },
+                "desired_infrastructure": {
+                    "$ref": "#/definitions/agentcontrol.DesiredInfrastructure"
+                },
+                "inference_configuration": {
+                    "$ref": "#/definitions/agentcontrol.InferenceConfiguration"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/agentcontrol.ManifestMetadata"
+                },
+                "policy_hints": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "runtime": {
+                    "$ref": "#/definitions/agentcontrol.RuntimeConfiguration"
+                },
+                "spec_version": {
+                    "type": "string"
+                },
+                "target_runtime": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.DesiredInfrastructure": {
+            "type": "object",
+            "properties": {
+                "accelerator": {
+                    "$ref": "#/definitions/agentcontrol.AcceleratorAllocation"
+                },
+                "cpu_cores_per_node": {
+                    "type": "integer"
+                },
+                "isolation": {
+                    "type": "string"
+                },
+                "memory_mib_per_node": {
+                    "type": "integer"
+                },
+                "node_count": {
+                    "type": "integer"
+                },
+                "storage_gib_per_node": {
+                    "type": "integer"
+                }
+            }
+        },
+        "agentcontrol.Endpoint": {
+            "type": "object",
+            "properties": {
+                "component": {
+                    "type": "string"
+                },
+                "system": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.FeedbackSummary": {
+            "type": "object",
+            "properties": {
+                "cause": {
+                    "type": "string"
+                },
+                "decision_id": {
+                    "type": "string"
+                },
+                "deployment_id": {
+                    "type": "string"
+                },
+                "deployment_state": {
+                    "type": "string"
+                },
+                "metrics": {
+                    "$ref": "#/definitions/agentcontrol.OptimizationMetrics"
+                },
+                "outcome": {
+                    "type": "string"
+                },
+                "slo_violations": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "success": {
+                    "type": "boolean"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.Flow": {
+            "type": "object",
+            "properties": {
+                "agent_authorization": {
+                    "$ref": "#/definitions/agentcontrol.AgentAuthorization"
+                },
+                "application_context": {
+                    "$ref": "#/definitions/agentcontrol.ApplicationContextEnvelope"
+                },
+                "correlation_id": {
+                    "type": "string"
+                },
+                "decision": {
+                    "$ref": "#/definitions/agentcontrol.AutomationDecision"
+                },
+                "deployment_plan": {
+                    "$ref": "#/definitions/agentcontrol.DeploymentPlan"
+                },
+                "deployment_request": {
+                    "$ref": "#/definitions/agentcontrol.DeploymentCreateRequestEnvelope"
+                },
+                "deployment_status": {
+                    "$ref": "#/definitions/agentcontrol.DeploymentStatusEnvelope"
+                },
+                "desired_deployment_spec": {
+                    "$ref": "#/definitions/agentcontrol.DesiredDeploymentSpec"
+                },
+                "feedback_summary": {
+                    "$ref": "#/definitions/agentcontrol.FeedbackSummary"
+                },
+                "guard": {
+                    "$ref": "#/definitions/agentcontrol.GuardResult"
+                },
+                "optimization_feedback": {
+                    "$ref": "#/definitions/agentcontrol.OptimizationFeedbackEnvelope"
+                },
+                "profile_id": {
+                    "type": "string"
+                },
+                "reasoning_comparison": {
+                    "$ref": "#/definitions/agentcontrol.ReasoningComparison"
+                },
+                "resource_recommendation": {
+                    "$ref": "#/definitions/agentcontrol.ResourceRecommendationEnvelope"
+                },
+                "scaling_decision": {
+                    "$ref": "#/definitions/agentcontrol.ScalingDecision"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "trace_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.GuardCheck": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "passed": {
+                    "type": "boolean"
+                },
+                "reason": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.GuardResult": {
+            "type": "object",
+            "properties": {
+                "checks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/agentcontrol.GuardCheck"
+                    }
+                },
+                "issues": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/agentcontrol.ValidationIssue"
+                    }
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.InferenceConfiguration": {
+            "type": "object",
+            "properties": {
+                "max_batch_size": {
+                    "type": "integer"
+                },
+                "max_concurrency": {
+                    "type": "integer"
+                },
+                "precision": {
+                    "type": "string"
+                },
+                "replicas": {
+                    "type": "integer"
+                },
+                "runtime_engine": {
+                    "type": "string"
+                },
+                "tensor_parallel_size": {
+                    "type": "integer"
+                }
+            }
+        },
+        "agentcontrol.InferenceMetrics": {
+            "type": "object",
+            "properties": {
+                "error_rate_percent": {
+                    "type": "number"
+                },
+                "latency_p95_ms": {
+                    "type": "number"
+                },
+                "throughput_rps": {
+                    "type": "number"
+                }
+            }
+        },
+        "agentcontrol.ManifestApplication": {
+            "type": "object",
+            "properties": {
+                "app_id": {
+                    "type": "string"
+                },
+                "app_version": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.ManifestMetadata": {
+            "type": "object",
+            "properties": {
+                "profile_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.ModelRecommendation": {
+            "type": "object",
+            "properties": {
+                "inference_configuration": {
+                    "$ref": "#/definitions/agentcontrol.InferenceConfiguration"
+                },
+                "recommendation_id": {
+                    "type": "string"
+                },
+                "selected_model": {
+                    "$ref": "#/definitions/agentcontrol.SelectedModel"
+                }
+            }
+        },
+        "agentcontrol.ObservationWindow": {
+            "type": "object",
+            "properties": {
+                "ended_at": {
+                    "type": "string"
+                },
+                "started_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.OptimizationFeedback": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "decision_id": {
+                    "type": "string"
+                },
+                "deployment_id": {
+                    "type": "string"
+                },
+                "feedback_id": {
+                    "type": "string"
+                },
+                "metrics": {
+                    "$ref": "#/definitions/agentcontrol.OptimizationMetrics"
+                },
+                "observation_window": {
+                    "$ref": "#/definitions/agentcontrol.ObservationWindow"
+                },
+                "outcome": {
+                    "type": "string"
+                },
+                "slo_violations": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "agentcontrol.OptimizationFeedbackData": {
+            "type": "object",
+            "properties": {
+                "optimization_feedback": {
+                    "$ref": "#/definitions/agentcontrol.OptimizationFeedback"
+                }
+            }
+        },
+        "agentcontrol.OptimizationFeedbackEnvelope": {
+            "type": "object",
+            "properties": {
+                "causation_id": {
+                    "type": "string"
+                },
+                "contract_version": {
+                    "type": "string"
+                },
+                "correlation_id": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/agentcontrol.OptimizationFeedbackData"
+                },
+                "message_id": {
+                    "type": "string"
+                },
+                "message_type": {
+                    "type": "string"
+                },
+                "occurred_at": {
+                    "type": "string"
+                },
+                "source": {
+                    "$ref": "#/definitions/agentcontrol.Endpoint"
+                },
+                "target": {
+                    "$ref": "#/definitions/agentcontrol.Endpoint"
+                },
+                "trace_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.OptimizationMetrics": {
+            "type": "object",
+            "properties": {
+                "cost": {
+                    "$ref": "#/definitions/agentcontrol.CostMetrics"
+                },
+                "inference": {
+                    "$ref": "#/definitions/agentcontrol.InferenceMetrics"
+                },
+                "resource": {
+                    "$ref": "#/definitions/agentcontrol.ResourceMetrics"
+                }
+            }
+        },
+        "agentcontrol.ReasoningAgreement": {
+            "type": "object",
+            "properties": {
+                "action_match": {
+                    "type": "boolean"
+                },
+                "candidate_match": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "agentcontrol.ReasoningComparison": {
+            "type": "object",
+            "properties": {
+                "agreement": {
+                    "$ref": "#/definitions/agentcontrol.ReasoningAgreement"
+                },
+                "candidate_id": {
+                    "type": "string"
+                },
+                "correlation_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "rule_based": {
+                    "$ref": "#/definitions/agentcontrol.ReasoningTrial"
+                },
+                "simple_inference": {
+                    "$ref": "#/definitions/agentcontrol.ReasoningTrial"
+                },
+                "validated_inference": {
+                    "$ref": "#/definitions/agentcontrol.ReasoningTrial"
+                }
+            }
+        },
+        "agentcontrol.ReasoningTrial": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "actual_model": {
+                    "type": "string"
+                },
+                "candidate_id": {
+                    "type": "string"
+                },
+                "confidence": {
+                    "type": "number"
+                },
+                "error": {
+                    "type": "string"
+                },
+                "execution_status": {
+                    "type": "string"
+                },
+                "guard_reason": {
+                    "type": "string"
+                },
+                "guard_status": {
+                    "type": "string"
+                },
+                "latency_ms": {
+                    "type": "integer"
+                },
+                "mode": {
+                    "type": "string"
+                },
+                "proposed_action": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "selected_candidate_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.RecommendationEvidence": {
+            "type": "object",
+            "properties": {
+                "candidate_count": {
+                    "type": "integer"
+                },
+                "catalog_version": {
+                    "type": "string"
+                },
+                "feasible_count": {
+                    "type": "integer"
+                },
+                "mode": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.RecommendationResult": {
+            "type": "object",
+            "properties": {
+                "evidence": {
+                    "$ref": "#/definitions/agentcontrol.RecommendationEvidence"
+                },
+                "resource_recommendation": {
+                    "$ref": "#/definitions/agentcontrol.ResourceRecommendation"
+                }
+            }
+        },
+        "agentcontrol.RequirementAnalysisEvidence": {
+            "type": "object",
+            "properties": {
+                "actual_model": {
+                    "type": "string"
+                },
+                "assumptions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "candidate_id": {
+                    "type": "string"
+                },
+                "latency_ms": {
+                    "type": "integer"
+                },
+                "mode": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "source_input": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.RequirementAnalysisResult": {
+            "type": "object",
+            "properties": {
+                "application_profile": {
+                    "$ref": "#/definitions/agentcontrol.ApplicationProfile"
+                },
+                "evidence": {
+                    "$ref": "#/definitions/agentcontrol.RequirementAnalysisEvidence"
+                },
+                "mode": {
+                    "type": "string"
+                },
+                "model_recommendation": {
+                    "$ref": "#/definitions/agentcontrol.ModelRecommendation"
+                }
+            }
+        },
+        "agentcontrol.ResourceCandidate": {
+            "type": "object",
+            "properties": {
+                "candidate_id": {
+                    "type": "string"
+                },
+                "desired_infrastructure": {
+                    "$ref": "#/definitions/agentcontrol.DesiredInfrastructure"
+                },
+                "feasible": {
+                    "type": "boolean"
+                },
+                "rank": {
+                    "type": "integer"
+                },
+                "rejection_reasons": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "resource_hints": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "scores": {
+                    "$ref": "#/definitions/agentcontrol.ResourceScores"
+                }
+            }
+        },
+        "agentcontrol.ResourceMetrics": {
+            "type": "object",
+            "properties": {
+                "accelerator_average_percent": {
+                    "type": "number"
+                },
+                "accelerator_memory_peak_mib": {
+                    "type": "number"
+                },
+                "cpu_average_percent": {
+                    "type": "number"
+                },
+                "memory_peak_mib": {
+                    "type": "number"
+                }
+            }
+        },
+        "agentcontrol.ResourceRecommendation": {
+            "type": "object",
+            "properties": {
+                "candidates": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/agentcontrol.ResourceCandidate"
+                    }
+                },
+                "profile_id": {
+                    "type": "string"
+                },
+                "recommendation_id": {
+                    "type": "string"
+                },
+                "selected_candidate_id": {
+                    "type": "string"
+                },
+                "snapshot_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.ResourceRecommendationData": {
+            "type": "object",
+            "properties": {
+                "resource_recommendation": {
+                    "$ref": "#/definitions/agentcontrol.ResourceRecommendation"
+                }
+            }
+        },
+        "agentcontrol.ResourceRecommendationEnvelope": {
+            "type": "object",
+            "properties": {
+                "causation_id": {
+                    "type": "string"
+                },
+                "contract_version": {
+                    "type": "string"
+                },
+                "correlation_id": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/agentcontrol.ResourceRecommendationData"
+                },
+                "message_id": {
+                    "type": "string"
+                },
+                "message_type": {
+                    "type": "string"
+                },
+                "occurred_at": {
+                    "type": "string"
+                },
+                "source": {
+                    "$ref": "#/definitions/agentcontrol.Endpoint"
+                },
+                "target": {
+                    "$ref": "#/definitions/agentcontrol.Endpoint"
+                },
+                "trace_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.ResourceScores": {
+            "type": "object",
+            "properties": {
+                "availability": {
+                    "type": "number"
+                },
+                "cost_efficiency": {
+                    "type": "number"
+                },
+                "resource_fit": {
+                    "type": "number"
+                },
+                "slo_headroom": {
+                    "type": "number"
+                },
+                "total": {
+                    "type": "number"
+                }
+            }
+        },
+        "agentcontrol.RuntimeConfiguration": {
+            "type": "object",
+            "properties": {
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "command": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "environment": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "ports": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/agentcontrol.RuntimePort"
+                    }
+                },
+                "restart_policy": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.RuntimePort": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "protocol": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.SLORequirements": {
+            "type": "object",
+            "properties": {
+                "latency_p95_ms_max": {
+                    "type": "number"
+                },
+                "throughput_rps_min": {
+                    "type": "number"
+                }
+            }
+        },
+        "agentcontrol.ScalingDecision": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "current_replicas": {
+                    "type": "integer"
+                },
+                "desired_replicas": {
+                    "type": "integer"
+                },
+                "evidence": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "reason": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.SelectedModel": {
+            "type": "object",
+            "properties": {
+                "model_id": {
+                    "type": "string"
+                },
+                "model_version": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.StructuredAppSpec": {
+            "type": "object",
+            "properties": {
+                "accelerator_count": {
+                    "type": "integer"
+                },
+                "accelerator_memory_mib": {
+                    "type": "integer"
+                },
+                "accelerator_type": {
+                    "type": "string"
+                },
+                "app_id": {
+                    "type": "string"
+                },
+                "app_version": {
+                    "type": "string"
+                },
+                "artifact": {
+                    "$ref": "#/definitions/agentcontrol.Artifact"
+                },
+                "cpu_cores": {
+                    "type": "integer"
+                },
+                "expected_rps": {
+                    "type": "number"
+                },
+                "labels": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "max_input_tokens": {
+                    "type": "integer"
+                },
+                "memory_mib": {
+                    "type": "integer"
+                },
+                "replicas_max": {
+                    "type": "integer"
+                },
+                "replicas_min": {
+                    "type": "integer"
+                },
+                "storage_gib": {
+                    "type": "integer"
+                },
+                "workload_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.ValidationIssue": {
+            "type": "object",
+            "properties": {
+                "actual": {},
+                "code": {
+                    "type": "string"
+                },
+                "expected": {},
+                "field": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                }
+            }
+        },
+        "agentcontrol.WorkloadProfile": {
+            "type": "object",
+            "properties": {
+                "expected_rps": {
+                    "type": "number"
+                },
+                "request_pattern": {
+                    "type": "string"
+                },
+                "task_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.AgentControlReasoningComparisonRequest": {
+            "type": "object",
+            "required": [
+                "candidate_id"
+            ],
+            "properties": {
+                "candidate_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.AgentExecutionErrorResponse": {
+            "type": "object",
+            "properties": {
+                "execution": {
+                    "$ref": "#/definitions/api.AgentExecutionResult"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "request_guard": {
+                    "$ref": "#/definitions/api.GuardDecision"
+                },
+                "request_id": {
+                    "type": "string"
+                },
+                "result_guard": {
+                    "$ref": "#/definitions/api.GuardDecision"
+                },
+                "run_id": {
+                    "type": "string"
+                },
+                "selected_agent": {
+                    "$ref": "#/definitions/api.AgentProfile"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "api.AgentExecutionRequest": {
+            "type": "object",
+            "required": [
+                "action",
+                "capability"
+            ],
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "capability": {
+                    "type": "string"
+                },
+                "context": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "input": {
+                    "type": "object",
+                    "additionalProperties": {}
+                }
+            }
+        },
+        "api.AgentExecutionResponse": {
+            "type": "object",
+            "properties": {
+                "execution": {
+                    "$ref": "#/definitions/api.AgentExecutionResult"
+                },
+                "request_guard": {
+                    "$ref": "#/definitions/api.GuardDecision"
+                },
+                "request_id": {
+                    "type": "string"
+                },
+                "result_guard": {
+                    "$ref": "#/definitions/api.GuardDecision"
+                },
+                "run_id": {
+                    "type": "string"
+                },
+                "selected_agent": {
+                    "$ref": "#/definitions/api.AgentProfile"
+                }
+            }
+        },
+        "api.AgentExecutionResult": {
+            "type": "object",
+            "properties": {
+                "agent": {
+                    "type": "string"
+                },
+                "domain_validation": {
+                    "type": "string"
+                },
+                "evidence": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "generation": {
+                    "$ref": "#/definitions/deploymentplanner.GenerateResult"
+                },
+                "latency_ms": {
+                    "type": "integer"
+                },
+                "manifest": {
+                    "$ref": "#/definitions/appdeploy.DeploymentManifest"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "proposal": {
+                    "$ref": "#/definitions/api.AgentProposal"
+                },
+                "result": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "run_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.AgentInvocationPlan": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "agent": {
+                    "type": "string"
+                },
+                "capability": {
+                    "type": "string"
+                },
+                "execution_status": {
+                    "type": "string"
+                },
+                "parameters": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "target_url": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "api.AgentInvocationPlanRequest": {
+            "type": "object",
+            "required": [
+                "action",
+                "capability"
+            ],
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "capability": {
+                    "type": "string"
+                },
+                "parameters": {
+                    "type": "object",
+                    "additionalProperties": {}
+                }
+            }
+        },
+        "api.AgentProfile": {
+            "type": "object",
+            "properties": {
+                "auth_token_env": {
+                    "type": "string"
+                },
+                "bounded_actions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "capabilities": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "endpoint": {
+                    "type": "string"
+                },
+                "invocation_path": {
+                    "type": "string"
+                },
+                "korean_name": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "registered_at": {
+                    "type": "string"
+                },
+                "responsibilities": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "reward_signals": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "role": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.AgentProposal": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "parameters": {
+                    "type": "object",
+                    "additionalProperties": {}
+                }
+            }
+        },
+        "api.AgentReview": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "agent": {
+                    "type": "string"
+                },
+                "approved": {
+                    "type": "boolean"
+                },
+                "parameters": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "reviewer_type": {
+                    "type": "string"
+                },
+                "reward": {
+                    "type": "number"
+                },
+                "skipped": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "api.AgentReviews": {
+            "type": "object",
+            "properties": {
+                "application": {
+                    "$ref": "#/definitions/api.AgentReview"
+                },
+                "cost": {
+                    "$ref": "#/definitions/api.AgentReview"
+                },
+                "infrastructure": {
+                    "$ref": "#/definitions/api.AgentReview"
+                }
+            }
+        },
+        "api.AppDeployPlannerRequest": {
+            "type": "object",
+            "required": [
+                "app_version_id",
+                "candidate_id",
+                "natural_language_request"
+            ],
+            "properties": {
+                "agent_name": {
+                    "type": "string",
+                    "example": "AIApplicationAutomationAgent"
+                },
+                "app_version_id": {
+                    "type": "string",
+                    "example": "appver-llm-inference-v1"
+                },
+                "candidate_id": {
+                    "type": "string",
+                    "example": "qwen3.5-ops-planner"
+                },
+                "max_poll_attempts": {
+                    "type": "integer",
+                    "maximum": 600,
+                    "minimum": 1,
+                    "example": 60
+                },
+                "natural_language_request": {
+                    "type": "string",
+                    "maxLength": 8000,
+                    "example": "GPU 1개와 메모리 16Gi가 필요한 추론 앱을 배포해 주세요."
+                },
+                "parameters": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "poll_interval_ms": {
+                    "type": "integer",
+                    "maximum": 60000,
+                    "minimum": 1,
+                    "example": 1000
+                },
+                "requested_by": {
+                    "type": "string",
+                    "example": "ai-ops-geon-planner"
+                },
+                "target_profile_id": {
+                    "type": "string",
+                    "example": "target-profile-hint"
+                }
+            }
+        },
+        "api.AutomationFeedbackRecord": {
+            "type": "object",
+            "required": [
+                "correlation_id",
+                "executor",
+                "status"
+            ],
+            "properties": {
+                "correlation_id": {
+                    "type": "string"
+                },
+                "executor": {
+                    "type": "string"
+                },
+                "external_execution_id": {
+                    "type": "string"
+                },
+                "latency_ms": {
+                    "type": "number"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "received_at": {
+                    "type": "string"
+                },
+                "run_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "throughput_rps": {
+                    "type": "number"
+                }
+            }
+        },
+        "api.AutomationFeedbackRequest": {
+            "type": "object",
+            "required": [
+                "correlation_id",
+                "executor",
+                "status"
+            ],
+            "properties": {
+                "correlation_id": {
+                    "type": "string"
+                },
+                "executor": {
+                    "type": "string"
+                },
+                "external_execution_id": {
+                    "type": "string"
+                },
+                "latency_ms": {
+                    "type": "number"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "throughput_rps": {
+                    "type": "number"
+                }
+            }
+        },
+        "api.CreateControlRunRequest": {
+            "type": "object",
+            "required": [
+                "app_version_id",
+                "candidate_id",
+                "natural_language_request"
+            ],
+            "properties": {
+                "agent_name": {
+                    "type": "string",
+                    "example": "AIApplicationAutomationAgent"
+                },
+                "app_version_id": {
+                    "type": "string",
+                    "example": "appver-llm-inference-v1"
+                },
+                "candidate_id": {
+                    "type": "string",
+                    "example": "qwen3.5-ops-planner"
+                },
+                "natural_language_request": {
+                    "type": "string",
+                    "maxLength": 8000,
+                    "example": "Deploy an inference application with one GPU and 16Gi memory."
+                },
+                "parameters": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "requested_by": {
+                    "type": "string",
+                    "example": "ai-ops-geon-planner"
+                },
+                "requirements": {
+                    "$ref": "#/definitions/appdeploy.DeploymentRequirements"
+                },
+                "target_profile_id": {
+                    "type": "string",
+                    "example": "target-profile-hint"
+                }
+            }
+        },
+        "api.DeploymentPlan": {
+            "type": "object",
+            "properties": {
+                "allowed_actions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "execution_status": {
+                    "type": "string"
+                },
+                "executor_type": {
+                    "type": "string"
+                },
+                "feedback_required": {
+                    "type": "boolean"
+                },
+                "preconditions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "requested_action": {
+                    "type": "string"
+                },
+                "required_capability": {
+                    "type": "string"
+                },
+                "selected_executor": {
+                    "type": "string"
+                },
+                "service_name": {
+                    "type": "string"
+                },
+                "target_accelerator": {
+                    "type": "string"
+                },
+                "target_vm_id": {
+                    "type": "string"
+                },
+                "workload": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.DeploymentPlanResponse": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "checks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.VMCompatibilityCheck"
+                    }
+                },
+                "compatibility_status": {
+                    "type": "string"
+                },
+                "deployment_plan": {
+                    "$ref": "#/definitions/api.DeploymentPlan"
+                },
+                "evidence_status": {
+                    "type": "string"
+                },
+                "performance_status": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "resource_checks_passed": {
+                    "type": "boolean"
+                },
+                "resource_source": {
+                    "type": "string"
+                },
+                "target_vm_id": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                },
+                "validation_mode": {
+                    "type": "string"
+                },
+                "workload": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.DeploymentValidation": {
+            "type": "object",
+            "properties": {
+                "checks": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "mode": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "api.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Malformed request body: check JSON syntax"
+                },
+                "valid": {
+                    "type": "boolean",
+                    "example": false
+                }
+            }
+        },
+        "api.ExternalAgentRegistrationRequest": {
+            "type": "object",
+            "required": [
+                "bounded_actions",
+                "capabilities",
+                "endpoint",
+                "invocation_path",
+                "name",
+                "role",
+                "version"
+            ],
+            "properties": {
+                "auth_token_env": {
+                    "type": "string"
+                },
+                "bounded_actions": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "capabilities": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "endpoint": {
+                    "type": "string"
+                },
+                "invocation_path": {
+                    "type": "string"
+                },
+                "korean_name": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "responsibilities": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "reward_signals": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "role": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.GuardDecision": {
+            "type": "object",
+            "properties": {
+                "reason": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "api.GuardValidation": {
+            "type": "object",
+            "properties": {
+                "backend": {
+                    "type": "string"
+                },
+                "boundary": {
+                    "type": "string"
+                },
+                "checked_actions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "mode": {
+                    "type": "string"
+                },
+                "operation_resource": {
+                    "type": "string"
+                },
+                "operation_service": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "runtime_wired": {
+                    "type": "boolean"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "api.LLMActionProposal": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "confidence": {
+                    "type": "number"
+                },
+                "parameters": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "required_capability": {
+                    "type": "string"
+                },
+                "target_vm_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.LLMAutomationActionRequest": {
+            "type": "object",
+            "required": [
+                "candidate_id",
+                "target_vm",
+                "workload"
+            ],
+            "properties": {
+                "candidate_id": {
+                    "type": "string",
+                    "example": "qwen3.5-ops-planner"
+                },
+                "observations": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "run_id": {
+                    "type": "string",
+                    "example": "run-0123456789abcdef"
+                },
+                "target_vm": {
+                    "$ref": "#/definitions/api.VMResourceSnapshot"
+                },
+                "workload": {
+                    "type": "string",
+                    "example": "llm-chat-inference"
+                }
+            }
+        },
+        "api.LLMAutomationActionResponse": {
+            "type": "object",
+            "properties": {
+                "correlation_id": {
+                    "type": "string"
+                },
+                "decision": {
+                    "$ref": "#/definitions/api.LLMDecisionResult"
+                },
+                "guard": {
+                    "$ref": "#/definitions/api.GuardDecision"
+                },
+                "handoff": {
+                    "$ref": "#/definitions/api.AgentInvocationPlan"
+                },
+                "run_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                },
+                "vm_compatibility": {
+                    "$ref": "#/definitions/api.VMCompatibilityResponse"
+                }
+            }
+        },
+        "api.LLMDecisionResult": {
+            "type": "object",
+            "properties": {
+                "actual_model": {
+                    "type": "string"
+                },
+                "candidate_id": {
+                    "type": "string"
+                },
+                "decision_execution_status": {
+                    "type": "string"
+                },
+                "latency_ms": {
+                    "type": "integer"
+                },
+                "proposal": {
+                    "$ref": "#/definitions/api.LLMActionProposal"
+                },
+                "provider": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.OperationReadiness": {
+            "type": "object",
+            "properties": {
+                "reason": {
+                    "type": "string"
+                },
+                "service": {
+                    "type": "string"
+                },
+                "skipped": {
+                    "type": "boolean"
+                },
+                "target_resource": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "api.OpsLLMRankedItem": {
+            "type": "object",
+            "properties": {
+                "actual_model": {
+                    "type": "string"
+                },
+                "benchmark_status": {
+                    "type": "string"
+                },
+                "evaluation_source": {
+                    "type": "string"
+                },
+                "evaluation_type": {
+                    "type": "string"
+                },
+                "metrics": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "number",
+                        "format": "float64"
+                    }
+                },
+                "model": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "number"
+                }
+            }
+        },
+        "api.OpsLLMSelectRequest": {
+            "type": "object",
+            "properties": {
+                "policy": {
+                    "type": "string",
+                    "example": "quality_first"
+                }
+            }
+        },
+        "api.OpsLLMSelectionResponse": {
+            "type": "object",
+            "properties": {
+                "benchmark_status": {
+                    "type": "string"
+                },
+                "evaluation_source": {
+                    "type": "string"
+                },
+                "evaluation_type": {
+                    "type": "string"
+                },
+                "policy": {
+                    "type": "string"
+                },
+                "ranking": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.OpsLLMRankedItem"
+                    }
+                },
+                "rationale": {
+                    "type": "string"
+                },
+                "selected_actual_model": {
+                    "type": "string"
+                },
+                "selected_model": {
+                    "type": "string"
+                },
+                "selected_provider": {
+                    "type": "string"
+                },
+                "selected_score": {
+                    "type": "number"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "api.PackageControlRunErrorResponse": {
+            "type": "object",
+            "properties": {
+                "application": {
+                    "$ref": "#/definitions/controlrun.ApplicationEvidence"
+                },
+                "correlation_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deployment": {
+                    "$ref": "#/definitions/appdeploy.DeploymentResponse"
+                },
+                "execution": {
+                    "$ref": "#/definitions/controlrun.AgentExecution"
+                },
+                "generation": {
+                    "$ref": "#/definitions/deploymentplanner.GenerateResult"
+                },
+                "logs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/appdeploy.DeploymentLog"
+                    }
+                },
+                "manifest": {
+                    "$ref": "#/definitions/appdeploy.DeploymentManifest"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Malformed request body: check JSON syntax"
+                },
+                "partial_result": {
+                    "$ref": "#/definitions/controlrun.PartialResult"
+                },
+                "polling": {
+                    "$ref": "#/definitions/deploymentplanner.PollingResult"
+                },
+                "request": {
+                    "$ref": "#/definitions/controlrun.SafeRequest"
+                },
+                "request_guard": {
+                    "$ref": "#/definitions/plannerguard.Decision"
+                },
+                "retry_reason": {
+                    "type": "string"
+                },
+                "retry_recommended": {
+                    "type": "boolean"
+                },
+                "run_id": {
+                    "type": "string"
+                },
+                "selected_agent": {
+                    "$ref": "#/definitions/controlrun.AgentSelection"
+                },
+                "stages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controlrun.Stage"
+                    }
+                },
+                "status": {
+                    "$ref": "#/definitions/controlrun.Status"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean",
+                    "example": false
+                }
+            }
+        },
+        "api.ServiceOperationsRequest": {
+            "type": "object",
+            "required": [
+                "target_vm",
+                "workload"
+            ],
+            "properties": {
+                "guard_backend": {
+                    "type": "string",
+                    "example": "go"
+                },
+                "llm_candidate_id": {
+                    "type": "string",
+                    "example": "qwen3.5-ops-planner"
+                },
+                "llm_candidates": {
+                    "type": "string",
+                    "example": "config/ops_llm_eval_candidates.local_ollama.json"
+                },
+                "llm_config": {
+                    "type": "string",
+                    "example": "config/ops_llm_benchmark.json"
+                },
+                "llm_policy": {
+                    "type": "string",
+                    "example": "quality_first"
+                },
+                "mode": {
+                    "type": "string",
+                    "example": "plan_only"
+                },
+                "observations": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "operation_resource": {
+                    "type": "string"
+                },
+                "operation_service": {
+                    "type": "string",
+                    "example": "llm-chat-inference"
+                },
+                "target_vm": {
+                    "$ref": "#/definitions/api.VMResourceSnapshot"
+                },
+                "vm_requirements": {
+                    "type": "string",
+                    "example": "config/vm_workload_requirements.json"
+                },
+                "workload": {
+                    "type": "string",
+                    "example": "llm-chat-inference"
+                }
+            }
+        },
+        "api.ServiceOperationsResponse": {
+            "type": "object",
+            "properties": {
+                "agent_reviews": {
+                    "$ref": "#/definitions/api.AgentReviews"
+                },
+                "benchmark_status": {
+                    "type": "string"
+                },
+                "command": {
+                    "type": "string"
+                },
+                "decision_execution_status": {
+                    "type": "string"
+                },
+                "deployment_execution_mode": {
+                    "type": "string"
+                },
+                "deployment_plan": {
+                    "$ref": "#/definitions/api.DeploymentPlan"
+                },
+                "deployment_validation": {
+                    "$ref": "#/definitions/api.DeploymentValidation"
+                },
+                "evaluation_source": {
+                    "type": "string"
+                },
+                "evaluation_type": {
+                    "type": "string"
+                },
+                "guard_backend": {
+                    "type": "string"
+                },
+                "guard_validation": {
+                    "$ref": "#/definitions/api.GuardValidation"
+                },
+                "inference_deployment_plan": {
+                    "$ref": "#/definitions/api.DeploymentPlanResponse"
+                },
+                "llm_automation_action": {
+                    "$ref": "#/definitions/api.LLMAutomationActionResponse"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "operation": {
+                    "$ref": "#/definitions/api.OperationReadiness"
+                },
+                "operation_pipeline_ready": {
+                    "type": "boolean"
+                },
+                "runtime_model": {
+                    "type": "string"
+                },
+                "selected_actual_model": {
+                    "type": "string"
+                },
+                "selected_llm": {
+                    "type": "string"
+                },
+                "selected_provider": {
+                    "type": "string"
+                },
+                "selected_resource": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "api.SubmitControlRunRequest": {
+            "type": "object",
+            "properties": {
+                "max_poll_attempts": {
+                    "type": "integer",
+                    "maximum": 600,
+                    "minimum": 1,
+                    "example": 60
+                },
+                "poll_interval_ms": {
+                    "type": "integer",
+                    "maximum": 60000,
+                    "minimum": 1,
+                    "example": 1000
+                }
+            }
+        },
+        "api.VMCompatibilityCheck": {
+            "type": "object",
+            "properties": {
+                "actual": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "required": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.VMCompatibilityRequest": {
+            "type": "object",
+            "required": [
+                "target_vm",
+                "workload"
+            ],
+            "properties": {
+                "target_vm": {
+                    "$ref": "#/definitions/api.VMResourceSnapshot"
+                },
+                "workload": {
+                    "type": "string",
+                    "example": "llm-chat-inference"
+                }
+            }
+        },
+        "api.VMCompatibilityResponse": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "checks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.VMCompatibilityCheck"
+                    }
+                },
+                "compatibility_status": {
+                    "type": "string"
+                },
+                "evidence_status": {
+                    "type": "string"
+                },
+                "performance_status": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "resource_checks_passed": {
+                    "type": "boolean"
+                },
+                "resource_source": {
+                    "type": "string"
+                },
+                "target_vm_id": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                },
+                "validation_mode": {
+                    "type": "string"
+                },
+                "workload": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.VMPerformanceEvidence": {
+            "type": "object",
+            "properties": {
+                "cost_per_hour": {
+                    "type": "number"
+                },
+                "latency_ms": {
+                    "type": "number"
+                },
+                "measured_at": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "throughput_rps": {
+                    "type": "number"
+                }
+            }
+        },
+        "api.VMResourceSnapshot": {
+            "type": "object",
+            "required": [
+                "accelerator",
+                "evidence_status",
+                "id",
+                "source"
+            ],
+            "properties": {
+                "accelerator": {
+                    "type": "string"
+                },
+                "availability_zone": {
+                    "type": "string"
+                },
+                "collected_at": {
+                    "type": "string"
+                },
+                "cpu_cores": {
+                    "type": "integer"
+                },
+                "cuda_version": {
+                    "type": "string"
+                },
+                "driver_version": {
+                    "type": "string"
+                },
+                "evidence_status": {
+                    "type": "string"
+                },
+                "gpu_memory_mib": {
+                    "type": "integer"
+                },
+                "gpu_model": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "instance_type": {
+                    "type": "string"
+                },
+                "memory_gb": {
+                    "type": "number"
+                },
+                "performance": {
+                    "$ref": "#/definitions/api.VMPerformanceEvidence"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "region": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                }
+            }
+        },
+        "appdeploy.AppRegistrationResponse": {
+            "type": "object",
+            "properties": {
+                "app_id": {
+                    "type": "string"
+                },
+                "app_spec": {
+                    "type": "object"
+                },
+                "app_version_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "request_id": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "appdeploy.DeploymentLog": {
+            "type": "object",
+            "properties": {
+                "component": {
+                    "type": "string"
+                },
+                "deployment_id": {
+                    "type": "string"
+                },
+                "error_code": {
+                    "type": "string"
+                },
+                "level": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "request_id": {
+                    "type": "string"
+                },
+                "stage": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                }
+            }
+        },
+        "appdeploy.DeploymentManifest": {
+            "type": "object",
+            "properties": {
+                "kind": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/appdeploy.DeploymentMetadata"
+                },
+                "schema_version": {
+                    "type": "string"
+                },
+                "spec": {
+                    "$ref": "#/definitions/appdeploy.DeploymentSpec"
+                }
+            }
+        },
+        "appdeploy.DeploymentMetadata": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "appdeploy.DeploymentRequirements": {
+            "type": "object",
+            "properties": {
+                "accelerator": {
+                    "type": "string"
+                },
+                "cost_policy": {
+                    "type": "string"
+                },
+                "labels": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "resources": {
+                    "$ref": "#/definitions/appdeploy.ResourceRequirements"
+                },
+                "runtime": {
+                    "type": "string"
+                },
+                "slo": {
+                    "type": "object",
+                    "additionalProperties": {}
+                }
+            }
+        },
+        "appdeploy.DeploymentResponse": {
+            "type": "object",
+            "properties": {
+                "app_id": {
+                    "type": "string"
+                },
+                "app_version_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deployment_id": {
+                    "type": "string"
+                },
+                "manifest": {
+                    "$ref": "#/definitions/appdeploy.DeploymentManifest"
+                },
+                "placement": {
+                    "$ref": "#/definitions/appdeploy.PlacementDecision"
+                },
+                "request_id": {
+                    "type": "string"
+                },
+                "runtime_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "target_profile_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "appdeploy.DeploymentSpec": {
+            "type": "object",
+            "properties": {
+                "accelerator": {
+                    "type": "string"
+                },
+                "app_version_id": {
+                    "type": "string"
+                },
+                "parameters": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "requested_by": {
+                    "type": "string"
+                },
+                "requirements": {
+                    "$ref": "#/definitions/appdeploy.DeploymentRequirements"
+                },
+                "resources": {
+                    "$ref": "#/definitions/appdeploy.ResourceRequirements"
+                },
+                "target_profile_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "appdeploy.PackageBuildResponse": {
+            "type": "object",
+            "properties": {
+                "app_spec": {
+                    "type": "object"
+                },
+                "archive_name": {
+                    "type": "string"
+                },
+                "artifact_uri": {
+                    "type": "string"
+                },
+                "checksum": {
+                    "type": "string"
+                },
+                "package_type": {
+                    "type": "string"
+                },
+                "request_id": {
+                    "type": "string"
+                },
+                "size_bytes": {
+                    "type": "integer"
+                }
+            }
+        },
+        "appdeploy.PlacementDecision": {
+            "type": "object",
+            "properties": {
+                "allocation": {
+                    "$ref": "#/definitions/appdeploy.ResourceAllocation"
+                },
+                "external_decision_id": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "number"
+                },
+                "selected_at": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "target_profile_id": {
+                    "type": "string"
+                },
+                "target_vm_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "appdeploy.ResourceAllocation": {
+            "type": "object",
+            "properties": {
+                "cpu_cores": {
+                    "type": "number"
+                },
+                "gpu_count": {
+                    "type": "integer"
+                },
+                "memory_bytes": {
+                    "type": "integer"
+                },
+                "storage_bytes": {
+                    "type": "integer"
+                }
+            }
+        },
+        "appdeploy.ResourceRequirements": {
+            "type": "object",
+            "properties": {
+                "cpu": {
+                    "type": "string"
+                },
+                "gpu": {
+                    "type": "string"
+                },
+                "memory": {
+                    "type": "string"
+                },
+                "storage": {
+                    "type": "string"
+                }
+            }
+        },
+        "controlrun.AgentExecution": {
+            "type": "object",
+            "properties": {
+                "domain_validation": {
+                    "type": "string"
+                },
+                "evidence": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "guard_status": {
+                    "type": "string"
+                },
+                "latency_ms": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "proposal": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "result": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "controlrun.AgentSelection": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "capability": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                }
+            }
+        },
+        "controlrun.ApplicationEvidence": {
+            "type": "object",
+            "properties": {
+                "app_spec": {
+                    "type": "object"
+                },
+                "package": {
+                    "$ref": "#/definitions/appdeploy.PackageBuildResponse"
+                },
+                "registration": {
+                    "$ref": "#/definitions/appdeploy.AppRegistrationResponse"
+                }
+            }
+        },
+        "controlrun.PartialResult": {
+            "type": "object",
+            "properties": {
+                "app_id": {
+                    "type": "string"
+                },
+                "app_version_id": {
+                    "type": "string"
+                },
+                "archive_name": {
+                    "type": "string"
+                },
+                "artifact_uri": {
+                    "type": "string"
+                },
+                "checksum": {
+                    "type": "string"
+                }
+            }
+        },
+        "controlrun.Run": {
+            "type": "object",
+            "properties": {
+                "application": {
+                    "$ref": "#/definitions/controlrun.ApplicationEvidence"
+                },
+                "correlation_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deployment": {
+                    "$ref": "#/definitions/appdeploy.DeploymentResponse"
+                },
+                "execution": {
+                    "$ref": "#/definitions/controlrun.AgentExecution"
+                },
+                "generation": {
+                    "$ref": "#/definitions/deploymentplanner.GenerateResult"
+                },
+                "logs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/appdeploy.DeploymentLog"
+                    }
+                },
+                "manifest": {
+                    "$ref": "#/definitions/appdeploy.DeploymentManifest"
+                },
+                "partial_result": {
+                    "$ref": "#/definitions/controlrun.PartialResult"
+                },
+                "polling": {
+                    "$ref": "#/definitions/deploymentplanner.PollingResult"
+                },
+                "request": {
+                    "$ref": "#/definitions/controlrun.SafeRequest"
+                },
+                "request_guard": {
+                    "$ref": "#/definitions/plannerguard.Decision"
+                },
+                "retry_reason": {
+                    "type": "string"
+                },
+                "retry_recommended": {
+                    "type": "boolean"
+                },
+                "run_id": {
+                    "type": "string"
+                },
+                "selected_agent": {
+                    "$ref": "#/definitions/controlrun.AgentSelection"
+                },
+                "stages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controlrun.Stage"
+                    }
+                },
+                "status": {
+                    "$ref": "#/definitions/controlrun.Status"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "controlrun.SafeRequest": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "agent_name": {
+                    "type": "string"
+                },
+                "app_version_id": {
+                    "type": "string"
+                },
+                "candidate_id": {
+                    "type": "string"
+                },
+                "capability": {
+                    "type": "string"
+                },
+                "natural_language_request": {
+                    "type": "string"
+                },
+                "requested_by": {
+                    "type": "string"
+                },
+                "target_profile_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "controlrun.Stage": {
+            "type": "object",
+            "properties": {
+                "details": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "ended_at": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "started_at": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "controlrun.Status": {
+            "type": "string",
+            "enum": [
+                "PACKAGING",
+                "PACKAGE_FAILED",
+                "REGISTERING_APP",
+                "APP_REGISTRATION_FAILED",
+                "PLANNING_CANCELED",
+                "RECEIVED",
+                "REQUEST_REJECTED",
+                "AGENT_REJECTED",
+                "PLANNING",
+                "MANIFEST_REJECTED",
+                "MANIFEST_APPROVED",
+                "SUBMITTING",
+                "APPDEPLOY_FAILED",
+                "DEPLOYED",
+                "AGENT_DISPATCHING",
+                "AGENT_COMPLETED",
+                "AGENT_FAILED",
+                "RESULT_REJECTED"
+            ],
+            "x-enum-varnames": [
+                "StatusPackaging",
+                "StatusPackageFailed",
+                "StatusRegisteringApp",
+                "StatusAppRegistrationFailed",
+                "StatusPlanningCanceled",
+                "StatusReceived",
+                "StatusRequestRejected",
+                "StatusAgentRejected",
+                "StatusPlanning",
+                "StatusManifestRejected",
+                "StatusManifestApproved",
+                "StatusSubmitting",
+                "StatusAppDeployFailed",
+                "StatusDeployed",
+                "StatusAgentDispatching",
+                "StatusAgentCompleted",
+                "StatusAgentFailed",
+                "StatusResultRejected"
+            ]
+        },
+        "deploymentplanner.GenerateResult": {
+            "type": "object",
+            "properties": {
+                "actual_model": {
+                    "type": "string"
+                },
+                "candidate_id": {
+                    "type": "string"
+                },
+                "execution_status": {
+                    "type": "string"
+                },
+                "guard_reason": {
+                    "type": "string"
+                },
+                "guard_valid": {
+                    "type": "boolean"
+                },
+                "latency_ms": {
+                    "type": "integer"
+                },
+                "manifest": {
+                    "$ref": "#/definitions/appdeploy.DeploymentManifest"
+                },
+                "provider": {
+                    "type": "string"
+                }
+            }
+        },
+        "deploymentplanner.PollingResult": {
+            "type": "object",
+            "properties": {
+                "attempts": {
+                    "type": "integer"
+                },
+                "final_status": {
+                    "type": "string"
+                },
+                "logs_collected": {
+                    "type": "boolean"
+                },
+                "max_attempts": {
+                    "type": "integer"
+                },
+                "terminal": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "plannerguard.Check": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "passed": {
+                    "type": "boolean"
+                },
+                "reason": {
+                    "type": "string"
+                }
+            }
+        },
+        "plannerguard.Decision": {
+            "type": "object",
+            "properties": {
+                "checks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/plannerguard.Check"
+                    }
+                },
+                "policy_version": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        }
+    }
+}

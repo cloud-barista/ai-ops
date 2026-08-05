@@ -1,0 +1,91 @@
+{
+  "command": "api-integration-validation",
+  "validation_type": "local_api_integration_validation",
+  "target": "local",
+  "valid": true,
+  "endpoint_count": 6,
+  "valid_endpoint_count": 6,
+  "production_level_validation": false,
+  "full_operational_validation": false,
+  "description": "Local service-control API endpoints were called sequentially and key response fields were verified. This is not production-level operational validation.",
+  "raw_result_directory": "<repo>/runs/api-integration-local/",
+  "endpoints": [
+    {
+      "endpoint": "/healthz",
+      "method": "GET",
+      "response_file": "<repo>/runs/api-integration-local/01_healthz_response.json",
+      "fields_checked": [
+        "status",
+        "service"
+      ],
+      "valid": true
+    },
+    {
+      "endpoint": "/api/v1/agents",
+      "method": "GET",
+      "response_file": "<repo>/runs/api-integration-local/02_agents_response.json",
+      "fields_checked": [
+        "agents",
+        "version",
+        "command"
+      ],
+      "valid": true
+    },
+    {
+      "endpoint": "/api/v1/ops-llm/select",
+      "method": "POST",
+      "response_file": "<repo>/runs/api-integration-local/03_ops_llm_select_response.json",
+      "fields_checked": [
+        "valid",
+        "selected_model",
+        "selected_actual_model",
+        "selected_provider",
+        "benchmark_status"
+      ],
+      "valid": true
+    },
+    {
+      "endpoint": "/api/v1/apps/placement",
+      "method": "POST",
+      "response_file": "<repo>/runs/api-integration-local/04_apps_placement_response.json",
+      "fields_checked": [
+        "valid",
+        "selected_resource",
+        "action",
+        "slo_satisfied"
+      ],
+      "valid": true
+    },
+    {
+      "endpoint": "/api/v1/apps/deployment-plan",
+      "method": "POST",
+      "response_file": "<repo>/runs/api-integration-local/05_apps_deployment_plan_response.json",
+      "fields_checked": [
+        "valid",
+        "selected_resource",
+        "deployment_plan"
+      ],
+      "valid": true
+    },
+    {
+      "endpoint": "/api/v1/service-operations/run",
+      "method": "POST",
+      "response_file": "<repo>/runs/api-integration-local/06_service_operations_run_response.json",
+      "fields_checked": [
+        "valid",
+        "selected_llm",
+        "benchmark_status",
+        "selected_resource",
+        "deployment_plan",
+        "deployment_manifest",
+        "deployment_dry_run",
+        "deployment_execution_mode",
+        "kubernetes_live_apply",
+        "guard_backend",
+        "guard_validation"
+      ],
+      "valid": true
+    }
+  ],
+  "note": "Raw API integration validation responses are kept under runs/ and are not committed."
+}

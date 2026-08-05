@@ -1,0 +1,34 @@
+{
+  "workload": "llm-chat-inference",
+  "selected_resource": "gpu-vm-l4",
+  "deployment_plan": {
+    "service_name": "llm-chat-inference",
+    "container_image": "ghcr.io/cloud-barista/ai-ops/llm-chat:prototype",
+    "target_accelerator": "gpu",
+    "kubernetes": {
+      "namespace": "ai-inference",
+      "deployment": "llm-chat-inference",
+      "replicas": 1,
+      "node_selector": {
+        "aiops.resource/accelerator": "gpu",
+        "aiops.resource/gpu-class": "l4"
+      },
+      "resource_limits": {
+        "nvidia.com/gpu": "1"
+      }
+    },
+    "control_actions": [
+      "app_plan_deployment",
+      "app_select_inference_vm",
+      "app_scale_deployment",
+      "app_observe_service_logs"
+    ],
+    "monitoring_metrics": [
+      "latency_ms",
+      "throughput_rps",
+      "gpu_memory_utilization",
+      "error_rate"
+    ]
+  },
+  "valid": true
+}

@@ -1,0 +1,24 @@
+{
+  "command": "evaluate-ops-llm-outputs",
+  "environment": "local-wsl-openai-compatible",
+  "benchmark_status": "executed",
+  "scenario_count": 10,
+  "output_count": 10,
+  "executed_count": 10,
+  "dry_run_count": 0,
+  "skipped_count": 0,
+  "error_count": 0,
+  "selected_candidate_id": "qwen3.5-ops-planner",
+  "selected_role_label": "primary-ops-llm",
+  "selected_actual_model": "qwen3.5:4b",
+  "selected_provider": "local-openai-compatible",
+  "average_score": 0.9219,
+  "reasoning_effort": "none",
+  "timeout_seconds": 120,
+  "generated_at": "2026-07-21T02:51:14Z",
+  "limitations": [
+    "This artifact records a local single-candidate Ops scenario evaluation.",
+    "It does not prove AppDeploy production deployment completion.",
+    "A separate AWS L4 VM execution is required for VM-specific performance evidence."
+  ]
+}

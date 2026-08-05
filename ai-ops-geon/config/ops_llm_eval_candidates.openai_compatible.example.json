@@ -1,0 +1,18 @@
+{
+  "version": "1",
+  "benchmark_mode": "openai_compatible_candidate_config",
+  "description": "Generic OpenAI-compatible candidate config example. This file is not an executed result. Replace endpoint, actual_model, provider, and api_key_env for the target integration environment.",
+  "candidates": [
+    {
+      "candidate_id": "integration-primary-ops-llm",
+      "role_label": "primary-ops-llm",
+      "provider": "openai-compatible-provider",
+      "actual_model": "replace-with-model-name",
+      "endpoint": "https://replace-with-endpoint/v1/chat/completions",
+      "api_key_env": "OPENAI_COMPATIBLE_API_KEY",
+      "enabled": false,
+      "json_mode": true,
+      "timeout_seconds": 60
+    }
+  ]
+}

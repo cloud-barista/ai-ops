@@ -1,0 +1,12 @@
+{
+  "selected_model": "primary-ops-llm",
+  "selected_actual_model": "to-be-evaluated-primary-model",
+  "selected_provider": "prototype-policy",
+  "evaluation_source": "prototype_policy_config",
+  "evaluation_type": "prototype_policy_baseline",
+  "benchmark_status": "not_executed",
+  "selected_score": 0.972,
+  "policy": "quality_first",
+  "valid": true,
+  "rationale": "Selected the highest ranked Ops LLM role label under the quality_first policy. This is a prototype policy baseline, not a final executed benchmark result."
+}

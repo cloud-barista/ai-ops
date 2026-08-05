@@ -1,0 +1,52 @@
+﻿{
+  "command": "validate-system",
+  "development_language": "go",
+  "environment_path": "<repo>/runs/system-validation-local-20260703-go-validation/01_environment.json",
+  "output_dir": "<repo>/runs/system-validation-local-20260703-go-validation",
+  "scope": [
+    "go_module_tests",
+    "team_validation",
+    "ops_llm_benchmark",
+    "api_integration_validation",
+    "service_operations_readiness",
+    "target_environment_evidence"
+  ],
+  "steps": [
+    {
+      "name": "collect-environment",
+      "valid": true,
+      "output_path": "<repo>/runs/system-validation-local-20260703-go-validation/01_environment.json"
+    },
+    {
+      "name": "go-test-aiops-guard",
+      "valid": true,
+      "output_path": "<repo>/runs/system-validation-local-20260703-go-validation/02_go_test_aiops_guard.txt"
+    },
+    {
+      "name": "go-test-service-control-api",
+      "valid": true,
+      "output_path": "<repo>/runs/system-validation-local-20260703-go-validation/03_go_test_service_control_api.txt"
+    },
+    {
+      "name": "team-validation",
+      "valid": true,
+      "output_path": "<repo>/runs/system-validation-local-20260703-go-validation/team-validation/00_team_validation_summary.json"
+    },
+    {
+      "name": "ops-llm-evaluation",
+      "valid": true,
+      "skipped": true,
+      "reason": "--run-llm-benchmark was not enabled"
+    },
+    {
+      "name": "api-integration-validation",
+      "valid": true,
+      "skipped": true,
+      "reason": "--run-api-integration was not enabled"
+    }
+  ],
+  "target": "local",
+  "valid": true
+}
+
+

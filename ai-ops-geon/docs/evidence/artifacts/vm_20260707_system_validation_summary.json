@@ -1,0 +1,66 @@
+{
+  "command": "validate-system",
+  "development_language": "go",
+  "environment_path": "<vm>/ai-ops/runs/full-validation-vm-gpu/01_environment.json",
+  "output_dir": "<vm>/ai-ops/runs/full-validation-vm-gpu",
+  "scope": [
+    "go_module_tests",
+    "team_validation",
+    "ops_llm_benchmark",
+    "api_integration_validation",
+    "service_operations_readiness",
+    "target_environment_evidence"
+  ],
+  "steps": [
+    {
+      "name": "collect-environment",
+      "valid": true,
+      "output_path": "<vm>/ai-ops/runs/full-validation-vm-gpu/01_environment.json"
+    },
+    {
+      "name": "go-test-aiops-guard",
+      "valid": true,
+      "output_path": "<vm>/ai-ops/runs/full-validation-vm-gpu/02_go_test_aiops_guard.txt"
+    },
+    {
+      "name": "go-test-service-control-api",
+      "valid": true,
+      "output_path": "<vm>/ai-ops/runs/full-validation-vm-gpu/03_go_test_service_control_api.txt"
+    },
+    {
+      "name": "team-validation",
+      "valid": true,
+      "output_path": "<vm>/ai-ops/runs/full-validation-vm-gpu/team-validation/00_team_validation_summary.json"
+    },
+    {
+      "name": "ops-llm-evaluation",
+      "valid": true,
+      "skipped": true,
+      "reason": "--run-llm-benchmark was not enabled"
+    },
+    {
+      "name": "api-integration-validation",
+      "valid": true,
+      "skipped": true,
+      "reason": "--run-api-integration was not enabled"
+    },
+    {
+      "name": "vm-gpu-nvidia-smi",
+      "valid": true,
+      "output_path": "<vm>/ai-ops/runs/full-validation-vm-gpu/04_vm_nvidia_smi.txt"
+    },
+    {
+      "name": "vm-aws-metadata",
+      "valid": true,
+      "output_path": "<vm>/ai-ops/runs/full-validation-vm-gpu/05_vm_aws_metadata.json"
+    }
+  ],
+  "summary_path": "<vm>/ai-ops/runs/full-validation-vm-gpu/00_system_validation_summary.json",
+  "target": "vm",
+  "valid": true,
+  "vm_scope": [
+    "nvidia_smi",
+    "gpu_driver_cuda_visibility",
+    "aws_instance_metadata"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "workload": "llm-chat-inference",
+  "selected_resource": "gpu-vm-l4",
+  "accelerator": "gpu",
+  "action": "app_select_inference_vm",
+  "score": 0.877,
+  "slo_satisfied": true,
+  "ranked_candidates": [
+    {
+      "resource_id": "gpu-vm-l4",
+      "score": 0.877,
+      "reason": "Meets LLM VRAM, latency, throughput, and cost constraints."
+    },
+    {
+      "resource_id": "gpu-vm-a100",
+      "score": 0.823,
+      "reason": "Higher performance but higher cost."
+    }
+  ],
+  "valid": true
+}

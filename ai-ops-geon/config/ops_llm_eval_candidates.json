@@ -1,0 +1,18 @@
+{
+  "version": "1",
+  "benchmark_status": "not_executed",
+  "description": "Project-specific Qwen Ops Planner candidate. The candidate remains disabled in this provider-neutral config until a reachable OpenAI-compatible Qwen endpoint is configured.",
+  "candidates": [
+    {
+      "candidate_id": "qwen3.5-ops-planner",
+      "role_label": "primary-ops-llm",
+      "provider": "openai-compatible",
+      "actual_model": "qwen3.5:4b",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "json_mode": true,
+      "reasoning_effort": "none",
+      "timeout_seconds": 60,
+      "enabled": false
+    }
+  ]
+}

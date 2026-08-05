@@ -1,0 +1,70 @@
+{
+  "valid": true,
+  "status": "RUNNING",
+  "request_guard": {
+    "valid": true,
+    "status": "approved",
+    "policy_version": "v1",
+    "reason": "request satisfies the configured planner boundary",
+    "checks": [
+      {"name": "required_fields", "passed": true, "reason": "required planner fields are present"},
+      {"name": "request_length", "passed": true, "reason": "request is within the configured length limit"},
+      {"name": "requester_allowlist", "passed": true, "reason": "requester is allowed by the planner guard policy"},
+      {"name": "vm_only_scope", "passed": true, "reason": "request remains within the first-year VM-only scope"},
+      {"name": "sensitive_parameters", "passed": true, "reason": "request parameters do not contain forbidden credential fields"}
+    ]
+  },
+  "generation": {
+    "execution_status": "executed",
+    "candidate_id": "qwen3.5-ops-planner",
+    "provider": "openai-compatible-local-example",
+    "actual_model": "qwen3.5:4b",
+    "latency_ms": 842,
+    "guard_valid": true,
+    "guard_reason": "deployment manifest matches the AppDeploy contract and trusted request fields",
+    "manifest": {
+      "schema_version": "deployment.khu.ai/v1alpha1",
+      "kind": "DeploymentManifest",
+      "metadata": {"name": "llm-inference"},
+      "spec": {
+        "app_version_id": "appver-llm-inference-v1",
+        "accelerator": "nvidia",
+        "resources": {
+          "cpu": "4",
+          "memory": "16Gi",
+          "gpu": "1",
+          "storage": "20Gi"
+        },
+        "requested_by": "ai-ops-geon-planner"
+      }
+    }
+  },
+  "manifest": {
+    "schema_version": "deployment.khu.ai/v1alpha1",
+    "kind": "DeploymentManifest",
+    "metadata": {"name": "llm-inference"},
+    "spec": {
+      "app_version_id": "appver-llm-inference-v1",
+      "accelerator": "nvidia",
+      "resources": {"cpu": "4", "memory": "16Gi", "gpu": "1", "storage": "20Gi"},
+      "requested_by": "ai-ops-geon-planner"
+    }
+  },
+  "deployment": {
+    "deployment_id": "dep-example-001",
+    "app_version_id": "appver-llm-inference-v1",
+    "target_profile_id": "target-selected-by-appdeploy",
+    "status": "RUNNING"
+  },
+  "polling": {
+    "attempts": 3,
+    "max_attempts": 60,
+    "final_status": "RUNNING",
+    "terminal": true,
+    "logs_collected": true
+  },
+  "logs": [
+    {"stage": "RUNNING", "message": "deployment is running"}
+  ],
+  "retry_recommended": false
+}

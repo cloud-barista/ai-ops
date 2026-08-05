@@ -1,0 +1,49 @@
+{
+  "valid": true,
+  "status": "approved",
+  "correlation_id": "automation-example-correlation-id",
+  "vm_compatibility": {
+    "valid": true,
+    "validation_mode": "actual_vm_compatibility",
+    "workload": "llm-chat-inference",
+    "target_vm_id": "aws-us-west-2-g6-xlarge-l4-20260707",
+    "resource_source": "cb-tumblebug_and_vm_evidence",
+    "evidence_status": "collected",
+    "compatibility_status": "provisionally_compatible",
+    "resource_checks_passed": true,
+    "performance_status": "not_measured"
+  },
+  "decision": {
+    "decision_execution_status": "executed",
+    "candidate_id": "qwen3.5-ops-planner",
+    "provider": "local-openai-compatible",
+    "actual_model": "qwen3.5:4b",
+    "latency_ms": 842,
+    "proposal": {
+      "action": "observe_status",
+      "reason": "The VM is suitable, but performance evidence has not been measured.",
+      "confidence": 0.84,
+      "required_capability": "ai_application_deployment_control",
+      "target_vm_id": "aws-us-west-2-g6-xlarge-l4-20260707",
+      "parameters": {}
+    }
+  },
+  "guard": {
+    "valid": true,
+    "status": "approved",
+    "reason": "LLM proposal matches the validated VM, required capability, and bounded Action policy"
+  },
+  "handoff": {
+    "valid": true,
+    "agent": "ExternalExecutionAgent",
+    "capability": "ai_application_deployment_control",
+    "action": "observe_status",
+    "target_url": "https://agent.example.com/v1/actions",
+    "parameters": {
+      "workload": "llm-chat-inference",
+      "target_vm_id": "aws-us-west-2-g6-xlarge-l4-20260707"
+    },
+    "execution_status": "not_executed",
+    "reason": "Agent invocation plan was validated but not executed"
+  }
+}
