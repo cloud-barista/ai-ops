@@ -13,9 +13,29 @@
   -> AppDeploy DeploymentCreateRequest 초안
 ~~~
 
-브라우저 페이지 주소는 서비스 실행 기준 "/llm-op-demo"다. 기존 geon 3-view 화면과 파일·route를 분리하여 양쪽 작업자가 같은 index와 app.js를 동시에 수정하지 않도록 했다.
+브라우저 페이지 route는 서비스 실행 기준 "/llm-op-demo"다. 이 주소는 공개 호스팅 URL이 아니라 현재 PC의 service-control-api가 실행 중일 때만 열리는 loopback 주소다. 기존 geon 3-view 화면과 파일·route를 분리하여 양쪽 작업자가 같은 index와 app.js를 동시에 수정하지 않도록 했다.
 
 페이지 자체는 LLM API, model endpoint, AppDeploy endpoint를 호출하지 않는다. 시연자는 prompt를 외부 AI 서비스에 직접 옮길 수 있지만, 그 외부 서비스의 호출·과금·보존은 페이지가 통제하거나 관측하지 못한다.
+
+## 접속 방법
+
+두 방법 모두 `LLM_Op` 브랜치가 필요하다. `main`과 `geon`에는 이 page와 route가 없으며, Draft PR을 push해도 GitHub Pages나 별도 서버가 자동 생성되지 않는다.
+
+### 서버 없이 바로 열기
+
+Windows에서 저장소 루트의 다음 파일을 실행한다.
+
+```powershell
+.\open-llm-op-demo.cmd
+```
+
+이는 `go/service-control-api/internal/webui/static/llm_op_demo.html`을 기본 브라우저에서 직접 연다. Go 프로세스, 모델 API, AppDeploy endpoint를 시작하지 않는다. `file://` 보안 정책으로 Web Crypto가 제한된 브라우저에서는 digest가 `unavailable_in_this_browser_context`로 표시될 수 있지만, 시나리오 선택과 JSON 검증은 계속 사용할 수 있다.
+
+### service-control-api와 함께 열기
+
+저장소 루트에서 `run-agent-control.cmd`를 실행하면 `PORT=18080`이 설정된다. 먼저 [http://127.0.0.1:18080/healthz](http://127.0.0.1:18080/healthz)가 응답하는지 확인하고 [http://127.0.0.1:18080/llm-op-demo](http://127.0.0.1:18080/llm-op-demo)를 연다.
+
+`go/service-control-api`에서 환경변수 없이 `go run ./cmd/service-control-api`를 직접 실행하면 기본 포트는 `8080`이므로 주소도 `http://127.0.0.1:8080/llm-op-demo`가 된다.
 
 ## 시연 모드
 
@@ -38,12 +58,21 @@ LLM 1과 LLM 2는 반드시 서로 다른 모델이라는 뜻이 아니다. 현�
 
 ## 사전 조건
 
-1. service-control-api의 embedded web UI를 평소 연구 환경 방식으로 실행한다.
-2. 브라우저에서 "/llm-op-demo"를 연다.
+1. `LLM_Op` 브랜치를 checkout하고 위 두 접속 방식 중 하나를 선택한다.
+2. 서버 방식이면 healthz 성공을 확인한 뒤 "/llm-op-demo"를 연다.
 3. 저장 예시가 아니라 외부 AI를 쓸 경우 새 대화를 권장한다.
 4. 가능하면 AI 서비스에서 system과 user role을 별도로 입력한다.
 5. tool, plugin, browsing, code execution 기능은 끈다. 이 시연은 JSON completion만 필요하다.
 6. 저장소에 포함된 합성 데이터만 사용한다. 실제 token, API key, kubeconfig, 내부 ID, 운영 로그를 복사하지 않는다.
+
+접속 오류는 다음 순서로 구분한다.
+
+| 증상 | 원인 | 조치 |
+| --- | --- | --- |
+| connection refused | 해당 포트에 서버가 없음 | `run-agent-control.cmd` 실행 후 healthz 확인 또는 server-free launcher 사용 |
+| 404 | `main`/`geon` checkout 또는 잘못된 route | `LLM_Op` checkout과 `/llm-op-demo` 확인 |
+| 8080에서는 열리고 18080에서는 실패 | 환경변수 없는 직접 `go run` | 실제 포트를 사용하거나 repository launcher 사용 |
+| HTML만 보이고 style·동작이 없음 | 이전 absolute-asset 버전 또는 파일 일부만 복사 | 최신 `LLM_Op` 전체를 받고 HTML과 같은 폴더의 CSS·JS 보존 |
 
 일반 채팅창에 "[SYSTEM]"과 "[USER]"가 합쳐진 prompt를 한 번에 붙여넣는 방식은 역할 우선순위를 보장하지 않는다. 이 경우 결과는 API 동등 검증이 아니라 contract simulation이다.
 

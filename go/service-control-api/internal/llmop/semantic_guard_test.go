@@ -195,7 +195,7 @@ func TestSemanticGuardRequiresOneFreshReadyTarget(t *testing.T) {
 			MemoryAvailable:  true,
 			GPUAvailable:     false,
 			StorageAvailable: false,
-			LastCheckedAt:    now.Add(-2 * time.Minute),
+			LastCheckedAt:    request.OperationContext.ResourceSnapshot.ObservedAt,
 		},
 		{
 			TargetProfileID:  "target-gpu-storage",
@@ -203,7 +203,7 @@ func TestSemanticGuardRequiresOneFreshReadyTarget(t *testing.T) {
 			MemoryAvailable:  false,
 			GPUAvailable:     true,
 			StorageAvailable: true,
-			LastCheckedAt:    now.Add(-2 * time.Minute),
+			LastCheckedAt:    request.OperationContext.ResourceSnapshot.ObservedAt,
 		},
 	}
 
@@ -377,7 +377,7 @@ func TestSemanticGuardRejectsCrossSourceRuntimeContradiction(t *testing.T) {
 		TargetProfileID: request.OperationContext.ResourceSnapshot.Targets[0].TargetProfileID,
 		Status:          "available",
 		RuntimeHealth:   "down",
-		LastCheckedAt:    now.Add(-time.Minute),
+		LastCheckedAt:    request.OperationContext.MonitoringSummary.Summary.GeneratedAt,
 	}}
 
 	result, err := prepareSemanticProposal(

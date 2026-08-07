@@ -41,7 +41,7 @@ Git Bash, Linux 또는 macOS:
 
 실행 후 [http://127.0.0.1:18080/](http://127.0.0.1:18080/)을 엽니다. 종료할 때는 `Ctrl+C`를 누릅니다.
 
-LLM_Op의 별도 수동 시연은 [http://127.0.0.1:18080/llm-op-demo](http://127.0.0.1:18080/llm-op-demo)에서 연다. 기존 3개 화면과 분리되어 있으며, 페이지가 모델 API나 AppDeploy를 호출하지 않는다. 저장 예시를 재생하거나 두 단계 prompt를 외부 AI에 직접 복사한 뒤 raw JSON을 붙여넣을 수 있다. 상세 절차는 [수동 2단계 LLM 브라우저 시연](../../docs/llm-op/07-manual-two-stage-browser-demo.md)을 참조한다.
+LLM_Op의 별도 수동 시연은 `LLM_Op` 브랜치에서만 제공하며, GitHub에 push한 것만으로 호스팅되지 않는다. 서버 없이 보려면 저장소 루트의 `.\open-llm-op-demo.cmd`를 실행한다. 통합 route를 보려면 먼저 위 launcher로 서버를 실행하고 [healthz](http://127.0.0.1:18080/healthz)를 확인한 뒤 [http://127.0.0.1:18080/llm-op-demo](http://127.0.0.1:18080/llm-op-demo)를 연다. 환경변수 없이 `go run ./cmd/service-control-api`를 직접 실행했다면 포트는 `18080`이 아니라 기본값 `8080`이다. 페이지는 모델 API나 AppDeploy를 호출하지 않으며, 저장 예시 재생 또는 두 단계 prompt 복사·raw JSON 붙여넣기를 지원한다. 상세 절차는 [수동 2단계 LLM 브라우저 시연](../../docs/llm-op/07-manual-two-stage-browser-demo.md)을 참조한다.
 
 ## VS Code F5 실행
 

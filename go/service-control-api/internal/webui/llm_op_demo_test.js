@@ -197,8 +197,9 @@ test("standalone page exposes the complete gated workflow without an API client"
   ]) {
     assert.match(html, new RegExp('id="' + id + '"'));
   }
-  assert.match(html, /\/assets\/llm-op-demo-contract\.js/);
-  assert.match(html, /\/assets\/llm-op-demo\.js/);
+  assert.match(html, /href="\.\/llm_op_demo\.css"/);
+  assert.match(html, /src="\.\/llm_op_demo_contract\.js"/);
+  assert.match(html, /src="\.\/llm_op_demo\.js"/);
   assert.match(stylesheet, /@media \(max-width: 760px\)/);
   assert.doesNotMatch(application, /\bfetch\s*\(/);
   assert.doesNotMatch(application, /\.innerHTML\b/);

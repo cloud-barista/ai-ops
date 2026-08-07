@@ -47,6 +47,18 @@ Git Bash, Linux 또는 macOS:
 
 실행 후 [http://127.0.0.1:18080/](http://127.0.0.1:18080/)을 엽니다. 종료는 `Ctrl+C`입니다.
 
+### LLM_Op 수동 시연 페이지
+
+이 페이지는 `LLM_Op` 브랜치에만 있으며 GitHub에 push하거나 Draft PR을 열어도 공개 웹사이트로 배포되지는 않습니다. `main` 또는 `geon`을 checkout한 상태에서는 페이지 파일과 route가 없습니다.
+
+Go 서버 없이 페이지 흐름만 시연하려면 `LLM_Op` 브랜치의 저장소 루트에서 다음 파일을 실행합니다.
+
+```powershell
+.\open-llm-op-demo.cmd
+```
+
+이 방식은 로컬 HTML, CSS, JavaScript만 열며 모델 API와 AppDeploy를 호출하지 않습니다. 통합 서버 route를 확인하려면 먼저 `.\run-agent-control.cmd`를 실행하고 [healthz](http://127.0.0.1:18080/healthz)가 응답하는지 확인한 뒤 [LLM_Op demo](http://127.0.0.1:18080/llm-op-demo)를 엽니다. 환경변수 없이 `go run ./cmd/service-control-api`만 실행하면 기본 포트는 `8080`입니다.
+
 ## 웹 실험 순서
 
 ### 1. 자동화 실행

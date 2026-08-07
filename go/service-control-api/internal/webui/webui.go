@@ -20,6 +20,14 @@ func Register(server *echo.Echo) {
 	server.GET("/assets/llm-op-demo.css", serveEmbedded("static/llm_op_demo.css", "text/css; charset=utf-8"))
 	server.GET("/assets/llm-op-demo-contract.js", serveEmbedded("static/llm_op_demo_contract.js", "text/javascript; charset=utf-8"))
 	server.GET("/assets/llm-op-demo.js", serveEmbedded("static/llm_op_demo.js", "text/javascript; charset=utf-8"))
+	// Same-directory aliases keep the embedded route compatible with the relative
+	// asset URLs used by the server-free, file:// demo entry point.
+	server.GET("/llm_op_demo.css", serveEmbedded("static/llm_op_demo.css", "text/css; charset=utf-8"))
+	server.GET("/llm_op_demo_contract.js", serveEmbedded("static/llm_op_demo_contract.js", "text/javascript; charset=utf-8"))
+	server.GET("/llm_op_demo.js", serveEmbedded("static/llm_op_demo.js", "text/javascript; charset=utf-8"))
+	server.GET("/llm-op-demo/llm_op_demo.css", serveEmbedded("static/llm_op_demo.css", "text/css; charset=utf-8"))
+	server.GET("/llm-op-demo/llm_op_demo_contract.js", serveEmbedded("static/llm_op_demo_contract.js", "text/javascript; charset=utf-8"))
+	server.GET("/llm-op-demo/llm_op_demo.js", serveEmbedded("static/llm_op_demo.js", "text/javascript; charset=utf-8"))
 }
 
 func serveEmbedded(name string, contentType string) echo.HandlerFunc {
