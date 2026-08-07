@@ -23,10 +23,39 @@ func PrepareWithConfig(
 	request Request,
 	candidateConfigPath string,
 	guardPolicyPath string,
+	options ProviderOptions,
+	httpClient *http.Client,
+) (Result, error) {
+	return prepareWithConfig(
+		ctx,
+		request,
+		candidateConfigPath,
+		guardPolicyPath,
+		NewNormalizer(),
+		options,
+		httpClient,
+	)
+}
+
+// prepareWithConfig permits a deterministic clock only inside this package's
+// tests. Production callers use PrepareWithConfig and cannot replace the
+// freshness clock.
+func prepareWithConfig(
+	ctx context.Context,
+	request Request,
+	candidateConfigPath string,
+	guardPolicyPath string,
 	normalizer Normalizer,
 	options ProviderOptions,
 	httpClient *http.Client,
 ) (Result, error) {
+	requestSnapshot, err := cloneRequest(request)
+	if err != nil {
+		result := NewResult(request)
+		rejectRequest(&result, "request could not be snapshotted into the bounded JSON contract")
+		return result, &StageError{Status: result.Status, Cause: err}
+	}
+	request = requestSnapshot
 	result := NewResult(request)
 
 	guardPolicy, err := plannerguard.LoadPolicy(guardPolicyPath)
@@ -69,7 +98,7 @@ func PrepareWithConfig(
 		}
 	}
 	client := llmclient.NewClient(httpClient)
-	return NewSafeguardedPlanner(client, client, normalizer).prepareNormalized(
+	return newSafeguardedPlanner(client, client, normalizer).prepareNormalized(
 		ctx,
 		candidate,
 		guardPolicy,

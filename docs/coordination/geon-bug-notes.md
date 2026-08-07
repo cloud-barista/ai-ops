@@ -68,7 +68,7 @@ LLM_Op 대응:
 ### 6. 두 Manifest 생성 경로의 정책 drift 위험
 
 - 기존 `internal/deploymentplanner.Generator`는 Qwen에 전체 DeploymentManifest를 요청한 뒤 신뢰 필드를 덮어쓰는 경로다.
-- 새 공식 `internal/llmop.SafeguardedPlanner`는 첫 Qwen에 allow/clarify/reject review만, allow 뒤 내부 `Planner`의 둘째 Qwen에 action/reason/resources Proposal만 허용한다. 자연어 정확값·Common JSON Profile minima와 선택 Resource exact 값·fresh readiness 모순을 검사한 뒤 Go mapper가 Manifest를 만든다.
+- 새 공식 offline `internal/llmop.NewOfflineFixturePlanner(...).Prepare`와 향후 live `PrepareWithConfig`는 첫 Qwen 단계에 allow/clarify/reject review만, allow 뒤 내부 `Planner`의 둘째 단계에 action/reason/resources Proposal만 허용한다. 자연어 정확값·Common JSON Profile minima와 선택 Resource exact 값·fresh readiness 모순을 검사한 뒤 Go mapper가 Manifest를 만든다.
 - 두 경로를 동시에 공개 route로 유지하면 같은 자연어 요청이 서로 다른 redaction, freshness, semantic Guard와 상태값을 거칠 수 있다.
 
 LLM_Op 대응:

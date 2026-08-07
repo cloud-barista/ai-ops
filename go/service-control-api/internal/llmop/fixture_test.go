@@ -14,7 +14,7 @@ import (
 )
 
 // NewPlanner is intentionally test-only. Production integrations must use
-// NewSafeguardedPlanner so the natural-language review cannot be bypassed.
+// newSafeguardedPlanner so the natural-language review cannot be bypassed.
 func NewPlanner(client CompletionClient, normalizer Normalizer) Planner {
 	return newProposalPlanner(client, normalizer)
 }
@@ -72,7 +72,7 @@ func TestGoldenFixtureProducesSafeguardedHandoff(t *testing.T) {
 	safeguardClient := &capturingCompletionClient{content: string(safeguardContent)}
 	proposalClient := &capturingCompletionClient{content: string(proposalContent)}
 
-	result, err := NewSafeguardedPlanner(
+	result, err := newSafeguardedPlanner(
 		safeguardClient,
 		proposalClient,
 		normalizer,
@@ -99,7 +99,7 @@ func TestGoldenFixtureProducesSafeguardedHandoff(t *testing.T) {
 		t.Fatal("expected fixture proposal to map to a manifest")
 	}
 	if result.Manifest.Spec.AppVersionID != request.Application.AppVersionID {
-		t.Fatal("trusted app_version_id was not injected into the manifest")
+		t.Fatal("non-LLM app_version_id was not injected into the manifest")
 	}
 	if result.Manifest.Spec.Resources.GPU != "1" {
 		t.Fatalf("expected one GPU, got %q", result.Manifest.Spec.Resources.GPU)

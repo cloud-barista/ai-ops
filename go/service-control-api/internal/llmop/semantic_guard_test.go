@@ -309,7 +309,87 @@ func TestSemanticGuardRejectsFreshEmptySnapshot(t *testing.T) {
 	assertSemanticRejection(t, result, err)
 }
 
-func TestSemanticGuardDoesNotTreatStaleSnapshotAsNegativeEvidence(t *testing.T) {
+func TestSemanticGuardRejectsUnavailableRuntimeDespiteReadyBooleans(t *testing.T) {
+	now := mustTime(t, "2026-08-05T14:05:00+09:00")
+	request := testRequest(t, now)
+	request.OperationContext.ResourceSnapshot.Targets[0].RuntimeHealth = "down"
+
+	result, err := prepareSemanticProposal(
+		t,
+		now,
+		request,
+		createProposalJSON("4", "16Gi", "1", "20Gi", "nvidia"),
+	)
+	assertSemanticRejection(t, result, err)
+}
+
+func TestNormalizerRejectsAnonymousReadyTargetBeforeProposal(t *testing.T) {
+	now := mustTime(t, "2026-08-05T14:05:00+09:00")
+	request := testRequest(t, now)
+	request.OperationContext.ResourceSnapshot.Targets[0].TargetProfileID = ""
+
+	result, err := prepareSemanticProposal(
+		t,
+		now,
+		request,
+		createProposalJSON("4", "16Gi", "1", "20Gi", "nvidia"),
+	)
+	if err == nil {
+		t.Fatal("anonymous resource target must fail during normalization")
+	}
+	if result.Status != StatusRequestRejected {
+		t.Fatalf("expected %s, got %s", StatusRequestRejected, result.Status)
+	}
+	if result.Manifest != nil || result.Handoff.PreparedRequest != nil {
+		t.Fatal("normalization rejection must not prepare an AppDeploy request")
+	}
+}
+
+func TestSemanticGuardRejectsDuplicateTargetReadinessRows(t *testing.T) {
+	now := mustTime(t, "2026-08-05T14:05:00+09:00")
+	request := testRequest(t, now)
+	conflicting := request.OperationContext.ResourceSnapshot.Targets[0]
+	conflicting.Status = "unavailable"
+	conflicting.RuntimeHealth = "down"
+	conflicting.CPUAvailable = false
+	request.OperationContext.ResourceSnapshot.Targets = append(
+		request.OperationContext.ResourceSnapshot.Targets,
+		conflicting,
+	)
+
+	result, err := prepareSemanticProposal(
+		t,
+		now,
+		request,
+		createProposalJSON("4", "16Gi", "1", "20Gi", "nvidia"),
+	)
+	assertSemanticRejection(t, result, err)
+	var semanticErr *semanticGuardError
+	if !errors.As(err, &semanticErr) || semanticErr.code != "ambiguous_resource_snapshot" {
+		t.Fatalf("expected ambiguous_resource_snapshot, got %v", err)
+	}
+}
+
+func TestSemanticGuardRejectsCrossSourceRuntimeContradiction(t *testing.T) {
+	now := mustTime(t, "2026-08-05T14:05:00+09:00")
+	request := testRequest(t, now)
+	request.OperationContext.MonitoringSummary.Summary.RuntimeHealth = []appdeploy.RuntimeHealthSnapshot{{
+		TargetProfileID: request.OperationContext.ResourceSnapshot.Targets[0].TargetProfileID,
+		Status:          "available",
+		RuntimeHealth:   "down",
+		LastCheckedAt:    now.Add(-time.Minute),
+	}}
+
+	result, err := prepareSemanticProposal(
+		t,
+		now,
+		request,
+		createProposalJSON("4", "16Gi", "1", "20Gi", "nvidia"),
+	)
+	assertSemanticRejection(t, result, err)
+}
+
+func TestSemanticGuardRejectsProvidedStaleSnapshot(t *testing.T) {
 	now := mustTime(t, "2026-08-05T14:05:00+09:00")
 	request := testRequest(t, now)
 	request.OperationContext.ResourceSnapshot.ObservedAt = now.Add(-11 * time.Minute)
@@ -321,12 +401,7 @@ func TestSemanticGuardDoesNotTreatStaleSnapshotAsNegativeEvidence(t *testing.T) 
 		request,
 		createProposalJSON("4", "16Gi", "1", "20Gi", "nvidia"),
 	)
-	if err != nil {
-		t.Fatalf("stale snapshot should be excluded instead of treated as a resource conflict: %v", err)
-	}
-	if result.Status != StatusHandoffReady {
-		t.Fatalf("expected %s, got %s", StatusHandoffReady, result.Status)
-	}
+	assertSemanticRejection(t, result, err)
 	if result.Evidence.Input.ResourceSnapshotIncluded {
 		t.Fatal("stale resource snapshot must not be marked as prompt input")
 	}
@@ -379,6 +454,30 @@ func TestSemanticGuardAppliesTrustedPlanningMinimaWithoutLeakingSourceIDs(t *tes
 		now,
 		request,
 		createProposalJSON("4", "16Gi", "1", "20Gi", "nvidia"),
+	)
+	assertSemanticRejection(t, result, err)
+}
+
+func TestSemanticGuardRejectsResourceInflationWithoutExactRecommendation(t *testing.T) {
+	now := mustTime(t, "2026-08-05T14:05:00+09:00")
+	request := testRequest(t, now)
+	request.Application.UserRequest = "이 추론 서비스의 준비 전용 배포 매니페스트를 작성해줘."
+	request.Application.PlanningConstraints = &PlanningConstraints{
+		SourceProfileID:        "profile-source-002",
+		SourceRecommendationID: "recommendation-source-002",
+		RecommendationFeasible: true,
+		CPUCoresMin:            4,
+		MemoryMiBMin:           16 * 1024,
+		GPUCountMin:            1,
+		StorageGiBMin:          20,
+		Accelerator:            "nvidia",
+	}
+
+	result, err := prepareSemanticProposal(
+		t,
+		now,
+		request,
+		createProposalJSON("8", "32Gi", "1", "40Gi", "nvidia"),
 	)
 	assertSemanticRejection(t, result, err)
 }

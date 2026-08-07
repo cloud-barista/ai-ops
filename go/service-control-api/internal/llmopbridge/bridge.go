@@ -4,8 +4,11 @@ package llmopbridge
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
+	"unicode"
+	"unicode/utf8"
 
 	"kyunghee-aiops/service-control-api/internal/agentcontrol"
 	"kyunghee-aiops/service-control-api/internal/llmop"
@@ -17,6 +20,17 @@ const (
 	maxMemoryMiB              = 2 * 1024 * 1024
 	maxGPUCount               = 16
 	maxStorageGiB             = 64 * 1024
+	maxBridgeIdentifierBytes  = 128
+	maxBridgeUserRequestBytes = 32 << 10
+	maxBridgeUserRequestRunes = 8000
+)
+
+var bridgeIdentifierPattern = regexp.MustCompile(
+	`^[A-Za-z0-9](?:[A-Za-z0-9._:/@+-]{0,126}[A-Za-z0-9])?$`,
+)
+
+var llmopIdentifierPattern = regexp.MustCompile(
+	`^[A-Za-z0-9][A-Za-z0-9._:/@-]{1,126}[A-Za-z0-9]$`,
 )
 
 // Input combines caller-bound llmop identity with three existing Common JSON
@@ -78,15 +92,31 @@ func Project(input Input) (Projection, error) {
 	application := analysis.Data.Application
 	profile := applicationContext.Data.ApplicationProfile
 	recommendation := resourceMessage.Data.ResourceRecommendation
-	if strings.TrimSpace(application.AppID) == "" ||
-		strings.TrimSpace(application.AppVersion) == "" ||
-		strings.TrimSpace(application.UserRequest) == "" {
-		return Projection{}, fmt.Errorf("analysis application identity and user_request are required")
+	if err := requireBridgeIdentifier("analysis application app_id", application.AppID); err != nil {
+		return Projection{}, err
 	}
-	if strings.TrimSpace(profile.ProfileID) == "" ||
-		strings.TrimSpace(profile.AppID) == "" ||
-		strings.TrimSpace(profile.AppVersion) == "" {
-		return Projection{}, fmt.Errorf("ApplicationProfile identity is required")
+	if err := requireBridgeIdentifier("analysis application app_version", application.AppVersion); err != nil {
+		return Projection{}, err
+	}
+	if !boundedBridgeUserRequest(application.UserRequest) {
+		return Projection{}, fmt.Errorf("analysis user_request exceeds the bounded text contract")
+	}
+	if err := requireLLMOpStrongIdentifier(
+		"ApplicationProfile profile_id",
+		profile.ProfileID,
+	); err != nil {
+		return Projection{}, err
+	}
+	for _, field := range []struct {
+		label string
+		value string
+	}{
+		{label: "ApplicationProfile app_id", value: profile.AppID},
+		{label: "ApplicationProfile app_version", value: profile.AppVersion},
+	} {
+		if err := requireBridgeIdentifier(field.label, field.value); err != nil {
+			return Projection{}, err
+		}
 	}
 	if application.AppID != profile.AppID || application.AppVersion != profile.AppVersion {
 		return Projection{}, fmt.Errorf("analysis application identity does not match ApplicationProfile")
@@ -139,20 +169,31 @@ func validateEnvelope(envelope agentcontrol.Envelope, expectedType string) error
 	switch {
 	case envelope.ContractVersion != agentcontrol.ContractVersionV1:
 		return fmt.Errorf("contract_version must be %s", agentcontrol.ContractVersionV1)
-	case strings.TrimSpace(envelope.MessageID) == "":
-		return fmt.Errorf("message_id is required")
 	case envelope.MessageType != expectedType:
 		return fmt.Errorf("message_type must be %s", expectedType)
-	case strings.TrimSpace(envelope.CorrelationID) == "":
-		return fmt.Errorf("correlation_id is required")
-	case strings.TrimSpace(envelope.TraceID) == "":
-		return fmt.Errorf("trace_id is required")
-	case strings.TrimSpace(envelope.Source.System) == "" ||
-		strings.TrimSpace(envelope.Source.Component) == "":
-		return fmt.Errorf("source system and component are required")
-	case strings.TrimSpace(envelope.Target.System) == "" ||
-		strings.TrimSpace(envelope.Target.Component) == "":
-		return fmt.Errorf("target system and component are required")
+	}
+	for _, field := range []struct {
+		label string
+		value string
+	}{
+		{label: "message_id", value: envelope.MessageID},
+		{label: "source.system", value: envelope.Source.System},
+		{label: "source.component", value: envelope.Source.Component},
+		{label: "target.system", value: envelope.Target.System},
+		{label: "target.component", value: envelope.Target.Component},
+	} {
+		if err := requireBridgeIdentifier(field.label, field.value); err != nil {
+			return err
+		}
+	}
+	if err := requireLLMOpStrongIdentifier("correlation_id", envelope.CorrelationID); err != nil {
+		return err
+	}
+	if err := requireLLMOpStrongIdentifier("trace_id", envelope.TraceID); err != nil {
+		return err
+	}
+	if err := optionalBridgeIdentifier("causation_id", envelope.CausationID); err != nil {
+		return err
 	}
 	if _, err := time.Parse(time.RFC3339, envelope.OccurredAt); err != nil {
 		return fmt.Errorf("occurred_at must be RFC3339: %w", err)
@@ -189,11 +230,30 @@ func validateRequestTemplate(
 	if request.APIVersion != "" && request.APIVersion != llmop.APIVersion {
 		return fmt.Errorf("unsupported llmop api_version")
 	}
-	if strings.TrimSpace(request.RequestID) == "" ||
-		strings.TrimSpace(request.CandidateID) == "" ||
-		strings.TrimSpace(request.RequestedBy) == "" ||
-		strings.TrimSpace(request.Application.AppVersionID) == "" {
-		return fmt.Errorf("caller-supplied llmop identity fields are required")
+	for _, field := range []struct {
+		label string
+		value string
+	}{
+		{label: "llmop request_id", value: request.RequestID},
+		{label: "llmop candidate_id", value: request.CandidateID},
+		{label: "llmop requested_by", value: request.RequestedBy},
+		{label: "llmop app_version_id", value: request.Application.AppVersionID},
+	} {
+		if err := requireLLMOpStrongIdentifier(field.label, field.value); err != nil {
+			return err
+		}
+	}
+	if err := optionalLLMOpStrongIdentifier(
+		"llmop deployment_id",
+		request.Application.DeploymentID,
+	); err != nil {
+		return err
+	}
+	if err := optionalLLMOpIdentifier(
+		"llmop target_profile_id",
+		request.Application.TargetProfileID,
+	); err != nil {
+		return err
 	}
 	if request.Policy.Mode != "" && request.Policy.Mode != llmop.ModePrepareOnly {
 		return fmt.Errorf("only prepare_only mode is supported")
@@ -216,10 +276,24 @@ func validateRequestTemplate(
 func findSelectedCandidate(
 	recommendation agentcontrol.ResourceRecommendation,
 ) (agentcontrol.ResourceCandidate, error) {
-	if strings.TrimSpace(recommendation.RecommendationID) == "" ||
-		strings.TrimSpace(recommendation.SnapshotID) == "" ||
-		strings.TrimSpace(recommendation.SelectedCandidateID) == "" {
-		return agentcontrol.ResourceCandidate{}, fmt.Errorf("resource recommendation identifiers are required")
+	for _, field := range []struct {
+		label string
+		value string
+	}{
+		{label: "resource recommendation_id", value: recommendation.RecommendationID},
+	} {
+		if err := requireLLMOpStrongIdentifier(field.label, field.value); err != nil {
+			return agentcontrol.ResourceCandidate{}, err
+		}
+	}
+	if err := requireBridgeIdentifier("resource snapshot_id", recommendation.SnapshotID); err != nil {
+		return agentcontrol.ResourceCandidate{}, err
+	}
+	if err := requireBridgeIdentifier(
+		"selected resource candidate_id",
+		recommendation.SelectedCandidateID,
+	); err != nil {
+		return agentcontrol.ResourceCandidate{}, err
 	}
 	var selected agentcontrol.ResourceCandidate
 	matches := 0
@@ -235,7 +309,77 @@ func findSelectedCandidate(
 	if !selected.Feasible {
 		return agentcontrol.ResourceCandidate{}, fmt.Errorf("selected resource candidate is not feasible")
 	}
+	if err := requireBridgeIdentifier("resource candidate_id", selected.CandidateID); err != nil {
+		return agentcontrol.ResourceCandidate{}, err
+	}
 	return selected, nil
+}
+
+func requireBridgeIdentifier(label string, value string) error {
+	if !boundedBridgeIdentifier(value) {
+		return fmt.Errorf("%s must be a bounded ASCII identifier", label)
+	}
+	return nil
+}
+
+func optionalBridgeIdentifier(label string, value string) error {
+	if value == "" {
+		return nil
+	}
+	return requireBridgeIdentifier(label, value)
+}
+
+func requireLLMOpStrongIdentifier(label string, value string) error {
+	if !boundedLLMOpIdentifier(value) || len(value) < 8 {
+		return fmt.Errorf("%s must be an 8..128 byte LLM operation identifier", label)
+	}
+	return nil
+}
+
+func optionalLLMOpStrongIdentifier(label string, value string) error {
+	if value == "" {
+		return nil
+	}
+	return requireLLMOpStrongIdentifier(label, value)
+}
+
+func optionalLLMOpIdentifier(label string, value string) error {
+	if value == "" {
+		return nil
+	}
+	if !boundedLLMOpIdentifier(value) {
+		return fmt.Errorf("%s must be a bounded LLM operation identifier", label)
+	}
+	return nil
+}
+
+func boundedLLMOpIdentifier(value string) bool {
+	return value == strings.TrimSpace(value) && llmopIdentifierPattern.MatchString(value)
+}
+
+func boundedBridgeIdentifier(value string) bool {
+	return len(value) <= maxBridgeIdentifierBytes &&
+		value == strings.TrimSpace(value) &&
+		bridgeIdentifierPattern.MatchString(value)
+}
+
+func boundedBridgeUserRequest(value string) bool {
+	if strings.TrimSpace(value) == "" || len(value) > maxBridgeUserRequestBytes ||
+		!utf8.ValidString(value) ||
+		utf8.RuneCountInString(value) > maxBridgeUserRequestRunes {
+		return false
+	}
+	for _, character := range value {
+		if (unicode.IsControl(character) && character != '\r' && character != '\n' && character != '\t') ||
+			character == '\u2028' || character == '\u2029' ||
+			(character >= '\u200b' && character <= '\u200f') ||
+			(character >= '\u202a' && character <= '\u202e') ||
+			(character >= '\u2060' && character <= '\u206f') ||
+			character == '\ufeff' {
+			return false
+		}
+	}
+	return true
 }
 
 func validateSelectedCandidate(

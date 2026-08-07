@@ -63,6 +63,11 @@ func NewNormalizer() Normalizer {
 }
 
 func (normalizer Normalizer) Normalize(input OperationContext) (NormalizedContext, error) {
+	if !normalizerLimitsWithinSecurityCeilings(normalizer) {
+		return NormalizedContext{}, fmt.Errorf(
+			"normalizer limits exceed the fixed LLM operation security ceilings",
+		)
+	}
 	now := time.Now()
 	if normalizer.Now != nil {
 		now = normalizer.Now()
@@ -345,6 +350,19 @@ func (normalizer Normalizer) Normalize(input OperationContext) (NormalizedContex
 	return result, nil
 }
 
+func normalizerLimitsWithinSecurityCeilings(normalizer Normalizer) bool {
+	return normalizer.MaxObservationAge <= defaultMaxObservationAge &&
+		normalizer.MaxFutureSkew <= defaultMaxFutureSkew &&
+		normalizer.MaxLogs <= defaultMaxLogs &&
+		normalizer.MaxLogInputs <= defaultMaxLogInputs &&
+		normalizer.MaxLogRunes <= defaultMaxLogRunes &&
+		normalizer.MaxTargets <= defaultMaxTargets &&
+		normalizer.MaxRuntimeHealth <= defaultMaxRuntimeHealth &&
+		normalizer.MaxAlarms <= defaultMaxAlarms &&
+		normalizer.MaxStatusBuckets <= defaultMaxStatusBuckets &&
+		normalizer.MaxFieldRunes <= defaultMaxFieldRunes
+}
+
 func observationFresh(
 	label string,
 	source string,
@@ -564,6 +582,9 @@ func normalizeRuntimeHealth(
 	maxFieldRunes int,
 	redactedValues *int,
 ) error {
+	if !boundedRequestIdentifier(snapshot.TargetProfileID) {
+		return fmt.Errorf("%s.target_profile_id must be a bounded identifier", label)
+	}
 	if err := validateBoundedField(
 		label+".target_profile_id",
 		snapshot.TargetProfileID,

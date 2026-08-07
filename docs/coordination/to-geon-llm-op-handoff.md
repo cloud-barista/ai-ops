@@ -37,21 +37,23 @@ Draft PR을 만들 때 geon 최신 커밋 작성자인 @gunsun2000을 멘션하�
 
 LLM_Op은 geon의 기존 deploymentplanner.GenerateInput을 즉시 바꾸지 않는다. 첫 단계에서는 별도 `internal/llmop` 패키지와 문서 계약으로 관측 입력을 정규화한다. 통합 시에만 geon 작업자와 합의하여 ControlRun 또는 Planner Service의 명시적인 결합점을 정한다.
 
-현재 `internal/llmop`의 관측 입력은 caller가 요청 본문으로 제공한 값을 정규화하는 방식이다. source 문자열 형식은 검사하지만 서명·소유권·AppDeployer 조회 결과와의 동일성은 검증하지 않는다. AppDeployer 조회·제출 adapter와 승인 검증 adapter는 없다. 무서버 demo도 실제 Qwen endpoint가 아니라 Safeguard review와 Manifest Proposal JSON fixture를 반환하는 두 completion client를 사용한다. 두 단계는 공통 정규화 context에 서로 다른 `required_output` 계약을 사용한다. future integration용 `PrepareWithConfig`도 `AllowLiveCompletion=false`가 기본이라 명시적 허용 없이는 어느 completion도 HTTP client에 도달하지 않으며, true는 동일 candidate로 최대 두 live completion을 허용한다. 이번 작업에서는 켜지 않았다. 이 코드와 단위 테스트는 정적으로 검토했지만 Go 도구로 실행하지 않았다.
+현재 `internal/llmop`의 관측 입력은 caller가 요청 본문으로 제공한 값을 정규화하는 방식이다. source 문자열 형식은 검사하지만 서명·소유권·AppDeployer 조회 결과와의 동일성은 검증하지 않는다. AppDeployer 조회·제출 adapter와 승인 검증 adapter는 없다. 무서버 demo는 public `NewOfflineFixturePlanner`가 두 개의 pre-recorded JSON 문자열만 소비하고 provider/model evidence를 fixture label로 고정하므로 HTTP client 경로가 없다. future integration용 `PrepareWithConfig`는 system clock을 내부 소유하며 `AllowLiveCompletion=false`가 기본이다. true는 현재 release 승인이 아니며 이번 작업에서는 켜지 않았다. 이 코드와 단위 테스트는 정적으로 검토했지만 Go 도구로 실행하지 않았다.
 
 ## 반드시 지켜야 하는 계약
 
 1. 최종 제출물은 AppDeployer DeploymentManifest다.
-2. app_version_id는 호출자가 제공한 신뢰 필드이며 LLM이 생성·변경하지 않는다.
-3. target_profile_id는 optional hint이고 최종 Target 선택 권한은 AppDeployer에 있다.
+2. app_version_id는 LLM이 생성·변경하지 않지만, 공개 route는 Common JSON app identity와 trusted registry에서 결합해야 한다.
+3. target_profile_id는 integration-supplied optional hint이고 최종 Target 선택 권한은 AppDeployer에 있다. server-side binding 전에는 caller 값을 trusted로 보지 않는다.
 4. LLM_Op과 geon 모두 VM ID, Runtime Adapter, credential, API key, private key, endpoint, shell 명령, Kubernetes/컨테이너 리소스를 Manifest에 넣지 않는다.
 5. Qwen 장애·형식 오류에는 추측 Manifest를 만들지 않는다.
 6. 승인 없는 요청은 Manifest 생성까지만 허용하고 AppDeployer POST는 하지 않는다.
 7. 실제 VM 배포 성공은 AppDeployer의 deployment_id와 상태 증적 없이는 주장하지 않는다.
-8. HANDOFF_READY는 구문·책임 경계·자원 상한과 명시 자원값/Profile 최소값/선택 Resource exact 값/fresh availability boolean의 결정적 모순 검사를 통과한 prepare-only 초안이다. 일반 자연어 의미의 정답, 실제 capacity, Target 호환성 또는 배포 가능성 보장은 아니다.
+8. HANDOFF_READY는 구문·알려진 책임 경계·자원 상한과 명시 자원값/Profile 최소값/선택 Resource exact 값, 제공된 fresh Target ID/status/runtime/availability의 결정적 모순 검사를 통과한 prepare-only 초안이다. 일반 자연어 의미의 정답, 실제 capacity, Target 호환성 또는 배포 가능성 보장은 아니다.
 9. `evidence.input.*_included`는 정제된 관측 본문의 bounded Qwen prompt 포함 여부다. Qwen의 실제 사용이나 검증된 telemetry provenance를 뜻하지 않는다.
 10. Completion의 candidate/provider/model 일치는 adapter/config 일관성 검사이며 provider가 실제 모델을 증명한 attestation이 아니다.
 11. `handoff.next_endpoint`는 후속 연동을 위한 정보성 상대 경로이며 호출·승인·도달 가능성을 뜻하지 않는다.
+12. 모든 reject/clarify/error 상태를 legacy full-Manifest planner fallback으로 성공 변환하지 않는다. only `HANDOFF_READY`가 다음 단계로 가며 이 상태도 POST 권한이 아니다.
+13. 인증 principal, registry app binding, candidate/deployment/Target hint와 trusted telemetry builder는 route 계층이 소유한다.
 
 ## LLM_Op이 제공할 계약
 
@@ -75,9 +77,9 @@ LLMOperationResult
   + handoff submission state and informational next route
 ~~~
 
-공식 종단 진입점은 `llmop.SafeguardedPlanner`다. 내부 `llmop.Planner`는 allow 이후 Proposal 단계의 구성 요소이므로 geon 통합 코드가 직접 호출하면 자연어 Safeguard review를 우회하게 된다.
+offline 공식 진입점은 `llmop.NewOfflineFixturePlanner(...).Prepare`, 향후 live 진입점은 `llmop.PrepareWithConfig`다. 내부 `llmop.Planner`와 package-private client constructor를 geon 통합 코드가 직접 호출하면 안 된다.
 
-1차 구현의 잠정 Guard 기본값은 사용자 요청 8,000 rune, 관측 age 10분, 미래·부모 timestamp skew 1분, 입력 log 500개, 보존 log 50개, resource/runtime-health/alarm 각 100개, status bucket 50개, message 2,000 rune, 짧은 필드 128 rune, Qwen user message 128 KiB(system message 제외), completion content 64 KiB다. parameters는 JSON 64 KiB·깊이 16·node 1,000·key 128 rune으로 제한하며 credential·runtime·Target·endpoint·command 같은 책임 경계 key/value를 거부한다. Manifest 생성 action은 confidence 0.5 이상이어야 하고 CPU 256·GPU 16·memory 2Ti·storage 64Ti 상한을 지켜야 한다. 이 값들은 실제 운영 데이터와 AppDeployer 정책을 확인하기 전의 provisional defaults다.
+1차 구현의 잠정 Guard ceiling은 사용자 요청 8,000 rune, raw field 32 KiB/text envelope 2 MiB, 관측 age 10분, 미래·부모 timestamp skew 1분, 입력 log 500개, 보존 log 50개, resource/runtime-health/alarm 각 100개, status bucket 50개, message 2,000 rune, 짧은 필드 128 rune, Qwen user message 128 KiB(system message 제외), completion content 64 KiB다. non-empty parameters는 v1alpha1에서 전부 거부하며 Manifest에 복사하지 않는다. Manifest 생성 action은 confidence 0.5 이상이어야 하고 CPU 256·GPU 16·memory 2Ti·storage 64Ti 전역 상한과 exact 자원 계약을 모두 지켜야 한다. 이 값들은 실제 운영 데이터와 AppDeployer 정책을 확인하기 전의 provisional safety envelope다.
 
 기존 AppDeployer 연동에 필요한 최소 API는 아래와 같다.
 
@@ -103,6 +105,9 @@ GET  /api/v1/resources/inventory
 ## 충돌을 피하는 작업 방식
 
 - LLM_Op은 새 internal/llmop, internal/llmopbridge 패키지와 docs/llm-op 아래에 우선 작업한다.
+- 수동 2단계 시연은 기존 index.html·app.js의 3-view 계약을 바꾸지 않고 별도 /llm-op-demo route와 llm_op_demo 전용 asset에 격리한다.
+- 브라우저는 모델 API나 AppDeploy를 호출하지 않는다. prompt 복사와 raw JSON 검증만 수행하며, 실제 Go prompt 상수와 byte-identical한지 Node contract test로 감시한다.
+- geon이 webui.go의 embed 목록이나 /assets route를 수정할 때는 llm_op_demo 4개 asset과 /llm-op-demo route를 보존하거나 충돌을 이 Draft PR에 알린다.
 - geon의 `go/service-control-api/internal/deploymentplanner`, `go/service-control-api/internal/api/server.go`, 기존 OpenAPI를 수정해야 하는 순간에는 선행 협의를 한다.
 - 공유는 LLM_Op Draft PR에서만 수행하고 geon 브랜치에 직접 push·cherry-pick하지 않는다. 병합 가능한 변경이 합의되면 PR 안에서 작은 독립 커밋으로 분리한다.
 - AppDeployer 변경은 계약 불일치가 확인된 경우에만 별도 이슈 또는 협업 요청으로 제안한다.
@@ -115,6 +120,8 @@ GET  /api/v1/resources/inventory
 - 비-`prepare_only` mode를 향후 허용할 경우 사용할 승인 reference와 사용자 principal 확인 방법
 - AppDeployer 개발·통합 환경의 base URL 및 인증 방식
 
+수동 시연과 외부 상태 형식은 docs/llm-op/07-manual-two-stage-browser-demo.md와 docs/llm-op/08-operation-context-adapter-contract.md에 고정했다. Adapter 구현은 여전히 LLM_Op 범위 밖이며, geon 또는 별도 수집 담당자가 이 입력 계약을 채우면 LLM_Op이 정규화·검증한다.
+
 ## 별도 버그 노트
 
 docs/coordination/geon-bug-notes.md에 다음 정적 발견을 기록했다.
@@ -123,11 +130,11 @@ docs/coordination/geon-bug-notes.md에 다음 정적 발견을 기록했다.
 - 한글 요청 길이 byte/rune 기준 불일치
 - Manifest JSON Schema와 OpenAPI/Go 모델의 requirements 및 엄격성 drift
 - request_id 전달과 idempotency, 승인 verifier 계약 부재
-- 기존 full-Manifest Generator와 새 `SafeguardedPlanner` 경로를 동시에 공개할 때의 Guard·상태 drift 위험
+- 기존 full-Manifest Generator와 새 two-stage LLM_Op 경로를 동시에 공개할 때의 Guard·상태 drift 및 unsafe fallback 위험
 - LocalRequirementAnalyzer 자연어 GPU device-memory minimum을 AppDeploy v1 Manifest에서 표현할 수 없는 계약 공백
 
 ## 기존 예제와 보완 필요 시나리오
 
 기존 data/ops_llm_eval_scenarios.jsonl은 GPU/CPU 요구, 모호성, secret 거부, Target hint, 상태 polling, retry 정책을 다룬다.
 
-LLM_Op은 caller가 제공한 최근 관측의 정제·prompt 포함 여부, 로그 redaction, Safeguard review의 allow/clarify/reject, Proposal LLM의 금지 필드 생성, Qwen 미연결, 비-`prepare_only` mode·임의 approval reference 거부를 추가 검증 대상으로 둔다. stale 관측은 본문을 Qwen prompt에서 제외하고 evidence의 `stale_sources`에 기록하는 계약이다. 이 evidence는 관측 출처의 진위나 Qwen의 실제 근거 사용을 증명하지 않는다. Repair는 현재 자동 수정 loop가 아니라 clarify/reject로 닫으며, `retryable=false`를 결정적 재시도 금지 상태로 바꾸는 동작과 사용자 명확화 왕복 흐름은 후속 범위다. 이 추가 fixture는 geon의 기존 평가 시나리오를 대체하지 않고 보완한다.
+LLM_Op은 caller가 제공한 최근 관측의 bounded projection, 로그 redaction, Safeguard review의 allow/clarify/reject, Proposal LLM의 금지 필드 생성, Qwen 미연결, 비-`prepare_only` mode·임의 approval reference 거부를 추가 검증 대상으로 둔다. stale monitoring/log/metrics는 prompt에서 제외하지만, 제공한 resource snapshot이 stale이면 create를 semantic guard에서 거부한다. snapshot 미제공만 readiness unknown으로 남는다. 이 evidence는 관측 출처의 진위나 Qwen의 실제 근거 사용을 증명하지 않는다. Repair는 현재 자동 수정 loop가 아니라 clarify/reject로 닫으며, 사용자 명확화 왕복 흐름은 후속 범위다. 이 추가 fixture는 geon의 기존 평가 시나리오를 대체하지 않고 보완한다.

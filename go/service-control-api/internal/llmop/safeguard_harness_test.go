@@ -9,6 +9,43 @@ import (
 	"time"
 )
 
+func TestOfflineFixturePlannerRejectsSpoofedExecutionEvidence(t *testing.T) {
+	now := mustTime(t, "2026-08-05T14:05:00+09:00")
+	normalizer := NewNormalizer()
+	normalizer.Now = func() time.Time { return now }
+	candidate := testCandidate()
+	candidate.Provider = "openai-compatible"
+	candidate.ActualModel = "qwen3.5:4b"
+
+	result, err := NewOfflineFixturePlanner(`{}`, `{}`, normalizer).Prepare(
+		context.Background(),
+		candidate,
+		testGuardPolicy(),
+		testRequest(t, now),
+	)
+	if err == nil || result.Status != StatusModelUnavailable {
+		t.Fatalf("spoofed offline evidence must fail closed: status=%s err=%v", result.Status, err)
+	}
+	if result.Evidence.SafeguardReview != nil ||
+		result.Evidence.Model.Provider != "" ||
+		result.Evidence.Model.ActualModel != "" {
+		t.Fatalf("spoofed execution labels reached evidence: %#v", result.Evidence)
+	}
+}
+
+func TestParseSafeguardReviewRejectsDuplicateObjectKeys(t *testing.T) {
+	_, err := parseSafeguardReview(`{
+		"decision":"allow_request",
+		"decision":"reject_request",
+		"reason_code":"DUPLICATE_DECISION",
+		"reason":"Duplicate keys must not be last-wins.",
+		"confidence":0.9
+	}`)
+	if err == nil {
+		t.Fatal("duplicate safeguard keys must be rejected before typed decoding")
+	}
+}
+
 func TestSafeguardedPlannerRunsReviewBeforeManifestProposal(t *testing.T) {
 	now := mustTime(t, "2026-08-05T14:05:00+09:00")
 	safeguardClient := &capturingCompletionClient{content: `{
@@ -41,7 +78,7 @@ func TestSafeguardedPlannerRunsReviewBeforeManifestProposal(t *testing.T) {
 	normalizer := NewNormalizer()
 	normalizer.Now = func() time.Time { return now }
 
-	result, err := NewSafeguardedPlanner(
+	result, err := newSafeguardedPlanner(
 		safeguardClient,
 		proposalClient,
 		normalizer,
@@ -83,7 +120,7 @@ func TestSafeguardedPlannerRunsReviewBeforeManifestProposal(t *testing.T) {
 	); err != nil {
 		t.Fatalf("decode proposal stage prompt: %v", err)
 	}
-	for _, key := range []string{"user_request", "trusted_scope", "operation_context"} {
+	for _, key := range []string{"user_request", "request_scope", "operation_context"} {
 		if !reflect.DeepEqual(safeguardPrompt[key], proposalPrompt[key]) {
 			t.Fatalf("stage prompts changed shared %s context", key)
 		}
@@ -133,7 +170,7 @@ func TestSafeguardedPlannerStopsAtClarification(t *testing.T) {
 	normalizer := NewNormalizer()
 	normalizer.Now = func() time.Time { return now }
 
-	result, err := NewSafeguardedPlanner(
+	result, err := newSafeguardedPlanner(
 		safeguardClient,
 		proposalClient,
 		normalizer,
@@ -166,7 +203,7 @@ func TestSafeguardedPlannerStopsAtReviewRejection(t *testing.T) {
 	normalizer := NewNormalizer()
 	normalizer.Now = func() time.Time { return now }
 
-	result, err := NewSafeguardedPlanner(
+	result, err := newSafeguardedPlanner(
 		safeguardClient,
 		proposalClient,
 		normalizer,
@@ -198,7 +235,7 @@ func TestSafeguardedPlannerRejectsMalformedReviewWithoutProposal(t *testing.T) {
 	normalizer := NewNormalizer()
 	normalizer.Now = func() time.Time { return now }
 
-	result, err := NewSafeguardedPlanner(
+	result, err := newSafeguardedPlanner(
 		safeguardClient,
 		proposalClient,
 		normalizer,
@@ -273,7 +310,7 @@ func TestSafeguardedPlannerRejectsProviderDisclosureBeforeProposal(t *testing.T)
 				candidate.Provider = test.provider
 			}
 
-			result, err := NewSafeguardedPlanner(
+			result, err := newSafeguardedPlanner(
 				safeguardClient,
 				proposalClient,
 				normalizer,
@@ -300,7 +337,7 @@ func TestSafeguardedPlannerRejectsProviderWithoutAlphanumericIdentity(t *testing
 	candidate := testCandidate()
 	candidate.Provider = "---@"
 
-	result, err := NewSafeguardedPlanner(
+	result, err := newSafeguardedPlanner(
 		safeguardClient,
 		proposalClient,
 		normalizer,
@@ -326,7 +363,7 @@ func TestSafeguardedPlannerRunsNoModelForDeterministicRequestRejection(t *testin
 	normalizer := NewNormalizer()
 	normalizer.Now = func() time.Time { return now }
 
-	result, err := NewSafeguardedPlanner(
+	result, err := newSafeguardedPlanner(
 		safeguardClient,
 		proposalClient,
 		normalizer,
@@ -364,7 +401,7 @@ func TestSafeguardedPlannerRejectsLowConfidenceAllowBeforeProposal(t *testing.T)
 	normalizer := NewNormalizer()
 	normalizer.Now = func() time.Time { return now }
 
-	result, err := NewSafeguardedPlanner(
+	result, err := newSafeguardedPlanner(
 		safeguardClient,
 		proposalClient,
 		normalizer,
@@ -394,7 +431,7 @@ func TestSafeguardedPlannerClearsHandoffWhenProposalFailsSemanticGuard(t *testin
 	normalizer := NewNormalizer()
 	normalizer.Now = func() time.Time { return now }
 
-	result, err := NewSafeguardedPlanner(
+	result, err := newSafeguardedPlanner(
 		safeguardClient,
 		proposalClient,
 		normalizer,

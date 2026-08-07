@@ -91,7 +91,11 @@ func validateProposalSemantics(
 		if proposal.Accelerator != constraints.Accelerator {
 			return &semanticGuardError{code: "accelerator_mismatch", field: "accelerator"}
 		}
-		if err := compareRecommendedResources(constraints.RecommendedResources, actual, proposal.Accelerator); err != nil {
+		if constraints.RecommendedResources != nil {
+			if err := compareRecommendedResources(constraints.RecommendedResources, actual, proposal.Accelerator); err != nil {
+				return err
+			}
+		} else if err := compareDerivedMinimumResources(constraints, intent, actual); err != nil {
 			return err
 		}
 	} else if err := compareExactIntent(intent, actual); err != nil {
@@ -100,6 +104,13 @@ func validateProposalSemantics(
 	if (actual.GPU.Value > 0 && proposal.Accelerator != "nvidia") ||
 		(actual.GPU.Value == 0 && proposal.Accelerator != "none") {
 		return &semanticGuardError{code: "accelerator_mismatch", field: "accelerator"}
+	}
+	if request.OperationContext.ResourceSnapshot != nil &&
+		normalized.ResourceSnapshot == nil {
+		return &semanticGuardError{
+			code:  "stale_resource_snapshot",
+			field: "resource_snapshot",
+		}
 	}
 	return validateFreshResourceReadiness(
 		normalized,
@@ -368,6 +379,43 @@ func compareRecommendedResources(
 	return nil
 }
 
+// compareDerivedMinimumResources prevents an LLM from inflating a profile-only
+// request up to the global safety ceiling. Without an exact upstream
+// recommendation, the only accepted shape is the component-wise maximum of
+// trusted profile minima and unambiguous positive user values.
+func compareDerivedMinimumResources(
+	constraints *PlanningConstraints,
+	intent explicitResourceIntent,
+	actual explicitResourceIntent,
+) error {
+	expectedCPU := constraints.CPUCoresMin
+	expectedMemory := constraints.MemoryMiBMin
+	expectedGPU := constraints.GPUCountMin
+	expectedStorage := constraints.StorageGiBMin * 1024
+	if intent.CPU.Set && intent.CPU.Value > expectedCPU {
+		expectedCPU = intent.CPU.Value
+	}
+	if intent.MemoryMi.Set && intent.MemoryMi.Value > expectedMemory {
+		expectedMemory = intent.MemoryMi.Value
+	}
+	if intent.GPU.Set && intent.GPU.Value > expectedGPU {
+		expectedGPU = intent.GPU.Value
+	}
+	if intent.StorageMi.Set && intent.StorageMi.Value > expectedStorage {
+		expectedStorage = intent.StorageMi.Value
+	}
+	if actual.CPU.Value != expectedCPU ||
+		actual.MemoryMi.Value != expectedMemory ||
+		actual.GPU.Value != expectedGPU ||
+		actual.StorageMi.Value != expectedStorage {
+		return &semanticGuardError{
+			code:  "resource_inflation_without_exact_recommendation",
+			field: "resources",
+		}
+	}
+	return nil
+}
+
 func validateFreshResourceReadiness(
 	normalized NormalizedContext,
 	targetProfileID string,
@@ -377,14 +425,54 @@ func validateFreshResourceReadiness(
 	if snapshot == nil {
 		return nil
 	}
+	seenTargetIDs := make(map[string]struct{}, len(snapshot.Targets))
+	for _, target := range snapshot.Targets {
+		if !boundedRequestIdentifier(target.TargetProfileID) {
+			return &semanticGuardError{
+				code:  "ambiguous_resource_snapshot",
+				field: "resource_snapshot.targets",
+			}
+		}
+		if _, duplicate := seenTargetIDs[target.TargetProfileID]; duplicate {
+			return &semanticGuardError{
+				code:  "ambiguous_resource_snapshot",
+				field: "resource_snapshot.targets",
+			}
+		}
+		seenTargetIDs[target.TargetProfileID] = struct{}{}
+	}
 	for _, target := range snapshot.Targets {
 		if targetProfileID != "" && target.TargetProfileID != targetProfileID {
 			continue
 		}
-		if target.CPUAvailable && target.MemoryAvailable && target.StorageAvailable &&
-			(!gpuRequired || target.GPUAvailable) {
+		if strings.EqualFold(strings.TrimSpace(target.Status), "available") &&
+			strings.EqualFold(strings.TrimSpace(target.RuntimeHealth), "ok") &&
+			target.CPUAvailable && target.MemoryAvailable && target.StorageAvailable &&
+			(!gpuRequired || target.GPUAvailable) &&
+			!monitoringRuntimeContradicts(normalized, target.TargetProfileID) {
 			return nil
 		}
 	}
 	return &semanticGuardError{code: "fresh_resource_readiness_conflict", field: "resource_snapshot"}
+}
+
+func monitoringRuntimeContradicts(
+	normalized NormalizedContext,
+	targetProfileID string,
+) bool {
+	if normalized.MonitoringSummary == nil {
+		return false
+	}
+	for _, target := range normalized.MonitoringSummary.Summary.RuntimeHealth {
+		if target.TargetProfileID != targetProfileID {
+			continue
+		}
+		status := strings.TrimSpace(target.Status)
+		health := strings.TrimSpace(target.RuntimeHealth)
+		if (status != "" && !strings.EqualFold(status, "available")) ||
+			(health != "" && !strings.EqualFold(health, "ok")) {
+			return true
+		}
+	}
+	return false
 }

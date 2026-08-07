@@ -60,7 +60,6 @@ func TestPrepareCreatesHandoffReadyManifest(t *testing.T) {
 	normalizer.Now = func() time.Time { return now }
 	planner := NewPlanner(client, normalizer)
 	request := testRequest(t, now)
-	request.Application.Parameters = map[string]any{"safe_mode": "fixture"}
 
 	result, err := planner.Prepare(
 		context.Background(),
@@ -123,9 +122,77 @@ func TestPrepareCreatesHandoffReadyManifest(t *testing.T) {
 	if result.Handoff.PreparedRequest == nil {
 		t.Fatal("expected an exact AppDeploy request payload")
 	}
-	result.Manifest.Spec.Parameters["safe_mode"] = "mutated-result"
-	if result.Handoff.PreparedRequest.Manifest.Spec.Parameters["safe_mode"] != "fixture" {
+	result.Manifest.Spec.Resources.CPU = "8"
+	if result.Handoff.PreparedRequest.Manifest.Spec.Resources.CPU != "4" {
 		t.Fatal("prepared AppDeploy request must be an immutable copy of the approved manifest")
+	}
+}
+
+func TestPrepareRejectsAllUntypedManifestParametersBeforeCompletion(t *testing.T) {
+	now := mustTime(t, "2026-08-05T14:05:00+09:00")
+	request := testRequest(t, now)
+	request.Application.Parameters = map[string]any{"safe_mode": "fixture"}
+	client := &capturingCompletionClient{}
+	normalizer := NewNormalizer()
+	normalizer.Now = func() time.Time { return now }
+
+	result, err := NewPlanner(client, normalizer).Prepare(
+		context.Background(),
+		testCandidate(),
+		testGuardPolicy(),
+		request,
+	)
+	if err == nil || result.Status != StatusRequestRejected {
+		t.Fatalf("expected untyped parameter rejection, got %s, %v", result.Status, err)
+	}
+	if client.calls != 0 {
+		t.Fatalf("Qwen must not be called for untyped parameters, got %d calls", client.calls)
+	}
+}
+
+func TestCloneRequestDeepCopiesMutableInputs(t *testing.T) {
+	now := mustTime(t, "2026-08-05T14:05:00+09:00")
+	request := testRequest(t, now)
+	request.Application.Parameters = map[string]any{
+		"labels": map[string]any{"tier": "demo"},
+	}
+	request.Application.PlanningConstraints = &PlanningConstraints{
+		SourceProfileID:        "profile-snapshot-001",
+		SourceRecommendationID: "recommendation-snapshot-001",
+		RecommendationFeasible: true,
+		CPUCoresMin:            4,
+		MemoryMiBMin:           16 * 1024,
+		GPUCountMin:            1,
+		StorageGiBMin:          20,
+		Accelerator:            "nvidia",
+	}
+
+	snapshot, err := cloneRequest(request)
+	if err != nil {
+		t.Fatalf("clone request: %v", err)
+	}
+	request.Application.Parameters["labels"].(map[string]any)["tier"] = "mutated"
+	request.Application.PlanningConstraints.CPUCoresMin = 99
+	request.OperationContext.ResourceSnapshot.Targets[0].GPUAvailable = false
+
+	labels := snapshot.Application.Parameters["labels"].(map[string]any)
+	if labels["tier"] != "demo" ||
+		snapshot.Application.PlanningConstraints.CPUCoresMin != 4 ||
+		!snapshot.OperationContext.ResourceSnapshot.Targets[0].GPUAvailable {
+		t.Fatal("request snapshot retained mutable aliases to caller-owned input")
+	}
+}
+
+func TestCloneRequestRejectsOversizedRawObservationBeforeMarshal(t *testing.T) {
+	now := mustTime(t, "2026-08-05T14:05:00+09:00")
+	request := testRequest(t, now)
+	request.OperationContext.DeploymentLogs.Items[0].Message = strings.Repeat(
+		"x",
+		maxRawObservationFieldBytes+1,
+	)
+
+	if _, err := cloneRequest(request); err == nil {
+		t.Fatal("oversized raw observation must fail before the request snapshot marshal")
 	}
 }
 

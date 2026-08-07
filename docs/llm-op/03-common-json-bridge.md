@@ -12,20 +12,23 @@
 
 ## 입력과 출력
 
-입력은 caller-bound `llmop.Request` template과 Common JSON 세 envelope다. template에는 등록된 `app_version_id`, 요청자, completion candidate binding, 선택적 deployment/Target hint 및 관측값만 caller가 제공한다. 자연어 요청, correlation/trace, prepare-only policy와 planning constraints는 브리지가 Common JSON에서 채운다.
+입력은 caller-bound `llmop.Request` template과 Common JSON 세 envelope다. template에는 integration이 제공한 `app_version_id`, 요청자, completion candidate binding, 선택적 deployment/Target hint 및 관측값만 들어간다. 자연어 요청, correlation/trace, prepare-only policy와 planning constraints는 브리지가 Common JSON에서 채운다. 이 template 값이 등록·인증됐는지는 현재 bridge가 증명하지 않는다.
 
 출력은 다음 두 부분이다.
 
-- `Projection.Request`: 공식 종단 진입점인 `llmop.SafeguardedPlanner`에 전달할 요청
+- `Projection.Request`: offline에서는 `NewOfflineFixturePlanner(...).Prepare`, 향후 live에서는 `PrepareWithConfig`에 전달할 요청
 - `Projection.Evidence`: Common JSON join에 사용한 message/profile/recommendation/snapshot/resource-candidate ID
 
 Evidence의 Profile ID, Resource candidate ID, Snapshot ID는 AppDeploy `target_profile_id`가 아니다. Resource candidate ID와 completion `candidate_id`도 서로 다른 namespace다.
 
 ## 결정적 검증
 
-브리지는 아래 조건을 통과하지 못하면 request를 만들지 않는다.
+브리지는 아래 Common JSON join·투영 조건을 통과하지 못하면 `Projection.Request`를 만들지 않는다.
 
 - Common JSON `contract_version=1.0`, message type, RFC3339 `occurred_at`, source/target 필수값
+- correlation/trace, source profile/recommendation 및 주요 LLM_Op identity는 8..128 byte strong-ID 계약
+- message/snapshot/resource-candidate 등 evidence ID와 선택적 `target_profile_id` hint는 각각의 bounded ASCII 계약. 이 값들은 strong-ID나 같은 namespace라고 가정하지 않음
+- user request 8,000 rune/32 KiB 상한, non-empty 및 bidi/zero-width/control hygiene
 - 세 메시지의 `correlation_id`와 `trace_id` 일치
 - Context `causation_id = analysis.message_id`
 - Resource Recommendation `causation_id = context.message_id`
@@ -38,13 +41,17 @@ Evidence의 Profile ID, Resource candidate ID, Snapshot ID는 AppDeploy `target_
 - caller template과 Common JSON의 correlation/trace가 충돌하지 않음
 - mode는 비어 있거나 `prepare_only`, approval reference는 비어 있음
 
+이 검사는 Common JSON에서 투영하는 필드의 lossless join을 보장할 뿐, template 전체를 인증하거나 모든 `llmop.Request` 규칙을 끝내지 않는다. caller가 넣은 `OperationContext`와 template identity의 나머지 검사는 반드시 downstream `Prepare`의 Request Guard와 Normalizer를 통과해야 한다.
+
+이 join 검증은 producer 인증, 메시지 서명·소유권, `occurred_at` freshness/순서, replay/고유성을 증명하지 않는다. `Projection.Evidence`도 현재 final `llmop.Result.Evidence`에 자동 보존되지 않고 Request와 digest로 결합되지 않는다. 공개 route 전에 trusted producer, replay policy, immutable evidence binding을 별도 계약으로 추가해야 한다.
+
 ## 무손실 매핑
 
 | 원본 | LLM_Op 대상 | 규칙 |
 | --- | --- | --- |
 | analysis `user_request` | `application.user_request` | 문자열을 그대로 보존 |
 | Common JSON `correlation_id`, `trace_id` | 같은 이름의 LLM_Op 필드 | 세 envelope가 일치해야 함 |
-| caller의 등록 `app_version_id` | `application.app_version_id` | App ID/version에서 합성하지 않음 |
+| caller의 integration `app_version_id` | `application.app_version_id` | App ID/version에서 합성하지 않음; registry binding은 route 책임 |
 | caller의 Target hint | `application.target_profile_id` | Profile/Resource candidate ID로 대체하지 않음 |
 | Profile CPU·memory·storage 최소값 | `planning_constraints` | 양수·상한 내 값만 투영 |
 | Profile GPU 필요 여부·개수 | `planning_constraints` | 현재 AppDeploy 범위에서 GPU/NVIDIA만 `nvidia`로 투영 |
@@ -115,7 +122,7 @@ Evidence의 Profile ID, Resource candidate ID, Snapshot ID는 AppDeploy `target_
 
 ## 이후 AppDeploy 인계
 
-브리지 출력은 `llmop.SafeguardedPlanner`의 입력이다. 결정적 Request Guard → 자연어 Safeguard review → 별도 Proposal → semantic/AppDeploy Guard를 모두 통과한 뒤에만 다음 exact body가 준비된다. 내부 `llmop.Planner` 직접 호출은 첫 review를 우회하므로 공식 통합 경로로 사용하지 않는다.
+브리지 출력은 공식 two-stage pipeline의 입력이다. offline은 `NewOfflineFixturePlanner`, live는 기본 차단된 `PrepareWithConfig`만 사용한다. 결정적 Request Guard → 자연어 Safeguard review → 별도 Proposal → semantic/AppDeploy Guard를 모두 통과한 뒤에만 다음 exact body가 준비된다. 내부 `llmop.Planner` 또는 package-private client constructor를 통합 경로로 사용하지 않는다.
 
 ~~~go
 appdeploy.DeploymentCreateRequest{
@@ -123,7 +130,7 @@ appdeploy.DeploymentCreateRequest{
 }
 ~~~
 
-이 body는 Agent Control의 Common JSON `DeploymentCreateRequestEnvelope`가 아니다. `HANDOFF_READY`에서도 POST는 수행하지 않으며, 승인·인증·idempotency adapter가 마련되기 전까지 `submission_mode=not_submitted`를 유지한다.
+이 body는 Agent Control의 Common JSON `DeploymentCreateRequestEnvelope`가 아니다. 공개 route는 registry에서 Common JSON `app_id/app_version`과 AppDeploy `app_version_id`를 결합하고, 인증 principal과 server-side candidate/deployment/Target binding으로 caller 값을 덮어써야 한다. 이 결합이 없으면 A의 분석을 B의 AppVersion/Target hint와 조합할 수 있으므로 release blocker다. `HANDOFF_READY`에서도 POST는 수행하지 않으며, 승인·인증·idempotency adapter가 마련되기 전까지 `submission_mode=not_submitted`를 유지한다.
 
 ## 검증 상태
 

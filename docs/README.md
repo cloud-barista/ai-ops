@@ -36,6 +36,9 @@
 | [`submission/execution_code_guide.md`](submission/execution_code_guide.md) | 주요 Go 코드 위치와 실행 명령 |
 | [`../go/service-control-api/README.md`](../go/service-control-api/README.md) | service-control API/CLI 모듈 설명 |
 | [`../go/aiops-guard/README.md`](../go/aiops-guard/README.md) | bounded-action guard 모듈 설명 |
+| [`llm-op/README.md`](llm-op/README.md) | LLM_Op prepare-only 자연어 Safeguard·Manifest Proposal 구현, 계약, 감사, demo 진입점 |
+| [llm-op/07-manual-two-stage-browser-demo.md](llm-op/07-manual-two-stage-browser-demo.md) | 모델 API 없이 prompt 복사·raw JSON 붙여넣기로 진행하는 2단계 브라우저 시연 |
+| [llm-op/08-operation-context-adapter-contract.md](llm-op/08-operation-context-adapter-contract.md) | 외부 서버 상태·로그 Adapter 입력 형식과 신뢰·freshness 경계 |
 
 ## 검증 및 평가 문서
 
@@ -54,6 +57,8 @@
 | [`design/year1_vm_operation_scenarios.md`](design/year1_vm_operation_scenarios.md) | 1차년도 VM-only 통합 시나리오와 개별 동작 시나리오 초안 |
 | [`design/llm_provider_abstraction.md`](design/llm_provider_abstraction.md) | OpenAI-compatible endpoint 기반 LLM provider 교체 구조 |
 | [`design/integration_boundary.md`](design/integration_boundary.md) | LLM Planner, AppDeploy, 인프라 계층의 책임 경계 |
+| [`llm-op/03-common-json-bridge.md`](llm-op/03-common-json-bridge.md) | geon Common JSON → LLM_Op bounded projection 계약 |
+| [`coordination/to-geon-llm-op-handoff.md`](coordination/to-geon-llm-op-handoff.md) | geon 작업자와의 소유 범위·충돌 방지·release gate 합의안 |
 
 ## 예제 파일
 
@@ -61,6 +66,7 @@
 | --- | --- |
 | [`../examples/requests/`](../examples/requests/) | API 시연용 request JSON |
 | [`../examples/responses/`](../examples/responses/) | API 시연용 response JSON |
+| [`../examples/llm-op/`](../examples/llm-op/) | 4개 AI 서비스 metadata, offline fixture, 47개 정적 사용자 시나리오 |
 
 ## 그림 원본
 

@@ -23,6 +23,8 @@ const (
 	SafeguardDecisionClarify    = "request_clarification"
 	SafeguardDecisionReject     = "reject_request"
 	minSafeguardAllowConfidence = 0.5
+	OfflineFixtureProvider      = "offline-fixture"
+	OfflineFixtureActualModel   = "fixture-qwen-contract-not-executed"
 )
 
 type SafeguardReview struct {
@@ -38,12 +40,13 @@ type SafeguardReview struct {
 type SafeguardedPlanner struct {
 	safeguardClient CompletionClient
 	planner         Planner
+	offlineFixture  bool
 }
 
-// NewSafeguardedPlanner composes completion clients but does not authorize
-// network access. Real provider integrations must enter through
-// PrepareWithConfig so ProviderOptions can keep live calls disabled by default.
-func NewSafeguardedPlanner(
+// newSafeguardedPlanner is intentionally package-private so an integration
+// cannot inject a network-capable client around ProviderOptions. Live provider
+// access must enter through PrepareWithConfig.
+func newSafeguardedPlanner(
 	safeguardClient CompletionClient,
 	proposalClient CompletionClient,
 	normalizer Normalizer,
@@ -54,12 +57,54 @@ func NewSafeguardedPlanner(
 	}
 }
 
+type offlineFixtureCompletionClient struct {
+	content string
+}
+
+func (client offlineFixtureCompletionClient) Complete(
+	_ context.Context,
+	candidate llmclient.Candidate,
+	_ string,
+	_ string,
+) (llmclient.Completion, error) {
+	return llmclient.Completion{
+		Status:      "executed",
+		Content:     client.content,
+		Provider:    OfflineFixtureProvider,
+		ActualModel: OfflineFixtureActualModel,
+		CandidateID: candidate.CandidateID,
+	}, nil
+}
+
+// NewOfflineFixturePlanner constructs the only public injectable harness. It
+// consumes pre-recorded JSON strings and has no HTTP client or network path.
+func NewOfflineFixturePlanner(
+	safeguardOutput string,
+	proposalOutput string,
+	normalizer Normalizer,
+) SafeguardedPlanner {
+	planner := newSafeguardedPlanner(
+		offlineFixtureCompletionClient{content: safeguardOutput},
+		offlineFixtureCompletionClient{content: proposalOutput},
+		normalizer,
+	)
+	planner.offlineFixture = true
+	return planner
+}
+
 func (pipeline SafeguardedPlanner) Prepare(
 	ctx context.Context,
 	candidate llmclient.Candidate,
 	guardPolicy plannerguard.Policy,
 	request Request,
 ) (Result, error) {
+	requestSnapshot, err := cloneRequest(request)
+	if err != nil {
+		result := NewResult(request)
+		rejectRequest(&result, "request could not be snapshotted into the bounded JSON contract")
+		return result, &StageError{Status: result.Status, Cause: err}
+	}
+	request = requestSnapshot
 	result, normalized, prompt, err := preflightRequest(
 		ctx,
 		pipeline.planner.normalizer,
@@ -89,14 +134,20 @@ func (pipeline SafeguardedPlanner) prepareNormalized(
 	normalized NormalizedContext,
 	prompt []byte,
 ) (Result, error) {
-	result.Evidence.SafeguardReview = &SafeguardReviewEvidence{
-		Provider:    candidate.Provider,
-		CandidateID: candidate.CandidateID,
-		ActualModel: candidate.ActualModel,
+	if pipeline.offlineFixture {
+		if err := validateOfflineFixtureCandidate(candidate); err != nil {
+			rejectModel(&result, normalized, "offline fixture candidate violates the fixed evidence contract")
+			return result, &StageError{Status: result.Status, Cause: err}
+		}
 	}
 	if err := validateCandidate(candidate, request); err != nil {
 		rejectModel(&result, normalized, "configured Qwen safeguard candidate is unavailable")
 		return result, &StageError{Status: result.Status, Cause: err}
+	}
+	result.Evidence.SafeguardReview = &SafeguardReviewEvidence{
+		Provider:    candidate.Provider,
+		CandidateID: candidate.CandidateID,
+		ActualModel: candidate.ActualModel,
 	}
 	if pipeline.safeguardClient == nil {
 		err := fmt.Errorf("natural-language safeguard completion client is required")
@@ -190,6 +241,16 @@ func (pipeline SafeguardedPlanner) prepareNormalized(
 	)
 }
 
+func validateOfflineFixtureCandidate(candidate llmclient.Candidate) error {
+	if candidate.Provider != OfflineFixtureProvider ||
+		candidate.ActualModel != OfflineFixtureActualModel ||
+		strings.TrimSpace(candidate.Endpoint) != "" ||
+		strings.TrimSpace(candidate.APIKeyEnv) != "" {
+		return fmt.Errorf("offline fixture provider, model, endpoint, and API-key fields are fixed")
+	}
+	return nil
+}
+
 func buildSafeguardPrompt(
 	request Request,
 	normalized NormalizedContext,
@@ -214,6 +275,9 @@ func buildSafeguardPrompt(
 func parseSafeguardReview(content string) (SafeguardReview, error) {
 	if strings.TrimSpace(content) == "" || len(content) > maxProposalBytes {
 		return SafeguardReview{}, fmt.Errorf("Qwen safeguard review is outside the bounded envelope")
+	}
+	if err := validateUniqueJSONKeys(strings.TrimSpace(content)); err != nil {
+		return SafeguardReview{}, fmt.Errorf("parse Qwen safeguard review: %w", err)
 	}
 	var review SafeguardReview
 	decoder := json.NewDecoder(bytes.NewBufferString(strings.TrimSpace(content)))
@@ -250,6 +314,13 @@ func validateSafeguardReview(
 		) ||
 		containsTrustedIdentifier(review.ReasonCode, request) {
 		return fmt.Errorf("safeguard reason_code is outside the bounded contract")
+	}
+	normalizedReasonCode := strings.ReplaceAll(review.ReasonCode, "_", " ")
+	if unsupportedResourceText.MatchString(normalizedReasonCode) ||
+		unsupportedRequirementText.MatchString(normalizedReasonCode) ||
+		unsupportedTopologyText.MatchString(normalizedReasonCode) ||
+		unsupportedDeploymentDetailText.MatchString(normalizedReasonCode) {
+		return fmt.Errorf("safeguard reason_code claims an unsupported requirement")
 	}
 	if strings.TrimSpace(review.Reason) == "" || utf8.RuneCountInString(review.Reason) > 1000 {
 		return fmt.Errorf("safeguard reason is outside the bounded contract")

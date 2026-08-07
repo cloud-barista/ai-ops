@@ -25,6 +25,12 @@
 | `examples/responses/run-appdeploy-planner-success.json` | AppDeploy 상태·로그를 포함한 Planner 응답 예시 |
 | `examples/appdeploy/deployment-create-request.json` | Planner가 최신 AppDeploy에 전달하는 Manifest handoff 예시 |
 | `examples/appdeploy/deployment-response.json` | AppDeploy가 선택한 실제 Target과 배포 상태 응답 예시 |
+| `go/service-control-api/internal/llmop/` | 자연어 Safeguard review, bounded Manifest Proposal, 결정적 guard와 prepare-only AppDeploy handoff 선행 PoC |
+| `go/service-control-api/internal/llmopbridge/` | geon Common JSON의 supported single-node subset을 LLM_Op 계약으로 투영하는 bridge |
+| `go/service-control-api/cmd/llmop-demo/` | 실제 API·model weight·AppDeploy POST가 없는 offline fixture demo CLI |
+| `examples/llm-op/` | AI 서비스 metadata, 고정 Qwen intended-model binding, golden fixture, 47개 정적 scenario catalog |
+| go/service-control-api/internal/webui/static/llm_op_demo* | 두 단계 prompt 복사·raw JSON 붙여넣기·대표 8개 흐름을 제공하는 no-call 브라우저 lab |
+| schemas/llm-op/ | Safeguard review와 bounded Manifest Proposal의 JSON shape 계약 |
 
 ## 필수 제출 산출물
 
@@ -42,6 +48,7 @@
 | `docs/evidence/artifacts/local_20260707_ops_llm_evaluation_summary.json` | 실제 LLM endpoint Ops 평가 결과 |
 | `docs/release/1차년도_제출_패키지_체크리스트.md` | 제출 전 점검표 |
 | `docs/ops/로그_에러_가이드.md` | 상태값과 오류 메시지 해석 기준 |
+| `docs/llm-op/` | LLM_Op 계약, 완성도 감사, Safeguard/policy LLM 가이드, 수동 브라우저 시연과 상태 Adapter 계약 |
 
 ## 공식 설계 산출물
 
@@ -82,6 +89,7 @@
 | 경로 | 설명 |
 | --- | --- |
 | `scripts/generate_docx_deliverables.sh` | 변환 도구가 준비된 환경에서 Markdown 산출물을 DOCX 제출본으로 변환 |
+| `scripts/validate-llmop-demo-data.ps1` | offline 실행 불변식, AI 서비스/model/scenario 교차참조 정적 검증 |
 
 ## 제외 항목
 

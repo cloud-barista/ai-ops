@@ -45,7 +45,7 @@ func TestPrepareWithConfigDoesNotFallbackForDisabledQwen(t *testing.T) {
 	normalizer := NewNormalizer()
 	normalizer.Now = func() time.Time { return now }
 	transport := &countingRoundTripper{}
-	result, err := PrepareWithConfig(
+	result, err := prepareWithConfig(
 		context.Background(),
 		testRequest(t, now),
 		candidatePath,
@@ -97,7 +97,7 @@ func TestPrepareWithConfigRejectsUnsafeRequestBeforeCandidateLookup(t *testing.T
 	request.Policy.Mode = "approved_submit"
 	request.Policy.ApprovalReference = "unverified-approval"
 
-	result, err := PrepareWithConfig(
+	result, err := prepareWithConfig(
 		context.Background(),
 		request,
 		candidatePath,
@@ -137,7 +137,7 @@ func TestPrepareWithConfigRequiresExplicitLiveCompletion(t *testing.T) {
 	normalizer := NewNormalizer()
 	normalizer.Now = func() time.Time { return now }
 	transport := &countingRoundTripper{}
-	result, err := PrepareWithConfig(
+	result, err := prepareWithConfig(
 		context.Background(),
 		testRequest(t, now),
 		candidatePath,

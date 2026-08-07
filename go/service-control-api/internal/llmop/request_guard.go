@@ -10,6 +10,7 @@ import (
 )
 
 const (
+	maxUserRequestRunes = 8000
 	maxParameterBytes = 64 << 10
 	maxParameterDepth = 16
 	maxParameterNodes = 1000
@@ -35,6 +36,33 @@ var (
 	requestIdentifierPattern = regexp.MustCompile(
 		`^[A-Za-z0-9][A-Za-z0-9._:/@-]{1,126}[A-Za-z0-9]$`,
 	)
+	promptInjectionText = regexp.MustCompile(
+		`(?i)(?:\b(?:ignore|disregard|override|bypass)\b[\s\S]{0,80}\b(?:previous|prior|system|developer)\b[\s\S]{0,40}\b(?:instructions?|prompts?|rules?)\b|\b(?:reveal|show|print|expose)\b[\s\S]{0,60}\b(?:system|developer)\b[\s\S]{0,20}\bprompt\b|(?:이전|앞선|기존|시스템|개발자)[\s\S]{0,40}(?:지시|명령|규칙|프롬프트)[\s\S]{0,20}(?:무시|우회|덮어쓰|재정의)|(?:시스템|개발자)[\s\S]{0,20}프롬프트[\s\S]{0,20}(?:공개|출력|보여|노출))`,
+	)
+	resourceNegationAfterText = regexp.MustCompile(
+		`(?i)(?:CPU|GPU|memory|storage|메모리|저장소)[^\r\n,;]{0,40}(?:do\s+not\s+use|not\s+needed|instead\s+of|rather\s+than|exclude|사용하지|쓰지|제외|아닌|아니라|없이|말고|대신|불필요|필요\s*없)`,
+	)
+	resourceNegationBeforeText = regexp.MustCompile(
+		`(?i)(?:do\s+not\s+use|don't\s+use|without|instead\s+of|rather\s+than|말고|대신|아닌|아니라)[^\r\n,;]{0,40}(?:CPU|GPU|memory|storage|메모리|저장소)`,
+	)
+	resourceConditionalText = regexp.MustCompile(
+		`(?i)(?:CPU|GPU|memory|storage|메모리|저장소)[^\r\n,;]{0,40}(?:if\s+possible|prefer(?:red)?|ideally|optional|가능하면|되면|좋겠|선호|가급적|여유되면|있으면)|(?:if\s+possible|prefer(?:red)?|ideally|optional|가능하면|가급적|여유되면)[^\r\n,;]{0,40}(?:CPU|GPU|memory|storage|메모리|저장소)`,
+	)
+	unsupportedResourceText = regexp.MustCompile(
+		`(?i)\b(?:NPU|TPU|FPGA|ASIC)\b|\b(?:AMD|ROCm|MI[0-9]{2,4}|Intel|Gaudi)[^\r\n,;]{0,20}\b(?:GPU|accelerator)\b|\b(?:GPU|accelerator)[^\r\n,;]{0,20}\b(?:AMD|ROCm|MI[0-9]{2,4}|Intel|Gaudi)\b|\b(?:H100|H200|H800|A100|A800|A40|A30|L4|L40S?|T4|V100|P100|P40)\b|\bRTX[ -]?[0-9]{3,4}(?:[ -]?Ti)?\b|\bTesla(?:[ -]+[A-Za-z0-9.-]+)?\b|\b(?:Xeon|EPYC|ARM64|AARCH64|X86_64|CUDA|cuDNN)\b|\bcompute[ _-]+capability\b|\b(?:GPU[ _-]+)?driver[ _-]+version\b|(?:엔피유|티피유|에프피지에이|드라이버\s*버전)`,
+	)
+	unsupportedRequirementText = regexp.MustCompile(
+		`(?i)\b(?:replicas?|VRAM|GPU\s+memory|device\s+memory|SLO|cost|budget|throughput|RPS|TPS|p95|p99)\b|(?:레플리카|복제본|GPU\s*메모리|비용|예산|처리량)|(?:latency|response(?:\s+time)?|지연(?:시간)?|응답(?:시간)?)[^\r\n,;]{0,40}(?:낮|줄|최대|최소|이하|미만|이내|안쪽|보장|유지|목표|limit|under|below|less|max|min)|(?:초당\s*[0-9]+\s*(?:건|요청)|requests?\s+per\s+second)`,
+	)
+	unsupportedTopologyText = regexp.MustCompile(
+		`(?i)\b(?:[2-9]|[1-9][0-9]+)\s*(?:instances?|nodes?|vms?)\b|\b(?:two|three|four|five|multiple)\s+(?:instances?|nodes?|vms?)\b|(?:인스턴스|노드|VM|가상\s*머신)\s*(?:[2-9][0-9]*|두|세|네|여러)\s*(?:개|대)?|(?:[2-9][0-9]*|두|세|네|여러)\s*(?:개|대)의?\s*(?:인스턴스|노드|VM|가상\s*머신)|\bscale[ -]?out\b|\bhigh[ -]?availability\b|\bmulti[ -]?node\b|스케일\s*아웃|고가용성|다중\s*노드`,
+	)
+	unsupportedDeploymentDetailText = regexp.MustCompile(
+		`(?i)\b(?:Ubuntu|Debian|Windows\s+Server|RHEL|Rocky\s+Linux|AlmaLinux|operating\s+system|OS|port|TCP|UDP|VPC|subnet|firewall|region|availability\s+zone|volume|mount|affinity|topology)\b|\b(?:container|machine|boot|OS)[ _-]+image\b|(?:운영체제|OS\s*이미지|컨테이너\s*이미지|포트|네트워크|서브넷|방화벽|리전|가용\s*영역|볼륨|마운트|어피니티|토폴로지)`,
+	)
+	targetSelectionText = regexp.MustCompile(
+		`(?i)(?:\btarget[-_](?:[A-Za-z0-9._:@/-]*[0-9][A-Za-z0-9._:@/-]*|[A-Za-z0-9]+[-_.:/@][A-Za-z0-9._:@/-]+)|\b(?:target(?:[ _-]+profile)?|vm|virtual[ _-]+machine)[ \t]+(?:[A-Za-z][A-Za-z0-9]*[0-9][A-Za-z0-9._:@/-]*|[A-Za-z0-9]+[-_.:/@][A-Za-z0-9._:@/-]+)|(?:타겟|대상\s*(?:프로파일|VM|가상\s*머신)|가상\s*머신)[ \t]*(?:[A-Za-z][A-Za-z0-9]*[0-9][A-Za-z0-9._:@/-]*|[A-Za-z0-9]+[-_.:/@][A-Za-z0-9._:@/-]+))[^\r\n,;]{0,32}(?:\b(?:select|choose|pick|use|assign|pin)\b|선택|지정|골라|사용)|(?:\b(?:select|choose|pick|use|assign|pin)\b|선택|지정|골라|사용)[^\r\n,;]{0,32}(?:\btarget[-_](?:[A-Za-z0-9._:@/-]*[0-9][A-Za-z0-9._:@/-]*|[A-Za-z0-9]+[-_.:/@][A-Za-z0-9._:@/-]+)|\b(?:target(?:[ _-]+profile)?|vm|virtual[ _-]+machine)[ \t]+(?:[A-Za-z][A-Za-z0-9]*[0-9][A-Za-z0-9._:@/-]*|[A-Za-z0-9]+[-_.:/@][A-Za-z0-9._:@/-]+)|(?:타겟|대상\s*(?:프로파일|VM|가상\s*머신)|가상\s*머신)[ \t]*(?:[A-Za-z][A-Za-z0-9]*[0-9][A-Za-z0-9._:@/-]*|[A-Za-z0-9]+[-_.:/@][A-Za-z0-9._:@/-]+))`,
+	)
 	responsibilityParameterKeyMarkers = []string{
 		"runtime",
 		"runtime_adapter",
@@ -56,8 +84,11 @@ var (
 )
 
 func ValidateRequest(request Request, policy plannerguard.Policy) plannerguard.Decision {
-	if policy.MaxRequestLength > 0 &&
-		len([]rune(request.Application.UserRequest)) > policy.MaxRequestLength {
+	requestLimit := maxUserRequestRunes
+	if policy.MaxRequestLength > 0 && policy.MaxRequestLength < requestLimit {
+		requestLimit = policy.MaxRequestLength
+	}
+	if len([]rune(request.Application.UserRequest)) > requestLimit {
 		return plannerguard.Decision{
 			Valid:         false,
 			Status:        "rejected",
@@ -191,10 +222,45 @@ func ValidateRequest(request Request, policy plannerguard.Policy) plannerguard.D
 		"user request contains a credential-like value",
 	)
 	addCheck(
+		"prompt_injection",
+		!promptInjectionText.MatchString(guardUserRequest) &&
+			!containsPromptInjectionValue(request.Application.Parameters) &&
+			!containsObservationPromptInjection(request.OperationContext),
+		"request and observation text do not contain prompt-control instructions",
+		"request or observation text contains prompt-control instructions",
+	)
+	addCheck(
+		"input_text_hygiene",
+		promptInputTextSafe(request.Application.UserRequest) &&
+			!operationContextTextMatches(request.OperationContext, func(value string) bool {
+				return !promptInputTextSafe(value)
+			}),
+		"request and observation text do not contain control or directional formatting characters",
+		"request or observation text contains forbidden control or directional formatting characters",
+	)
+	addCheck(
+		"resource_intent_grammar",
+		!resourceNegationAfterText.MatchString(guardUserRequest) &&
+			!resourceNegationBeforeText.MatchString(guardUserRequest) &&
+			!resourceConditionalText.MatchString(guardUserRequest),
+		"resource intent uses the supported affirmative exact-value grammar",
+		"resource intent uses unsupported negation, contrast, conditional, or preference grammar",
+	)
+	addCheck(
+		"supported_requirement_scope",
+		!unsupportedResourceText.MatchString(guardUserRequest) &&
+			!unsupportedRequirementText.MatchString(guardUserRequest) &&
+			!unsupportedTopologyText.MatchString(guardUserRequest) &&
+			!unsupportedDeploymentDetailText.MatchString(guardUserRequest),
+		"request contains only requirements represented by the LLM operation contract",
+		"request contains a hardware, topology, SLO, cost, or deployment requirement that cannot be represented",
+	)
+	addCheck(
 		"responsibility_user_text",
 		!forbiddenProposalText.MatchString(guardUserRequest) &&
 			!forbiddenOperationalText.MatchString(guardUserRequest) &&
-			!forbiddenParameterValueText.MatchString(guardUserRequest),
+			!forbiddenParameterValueText.MatchString(guardUserRequest) &&
+			!targetSelectionText.MatchString(guardUserRequest),
 		"user request stays within the bounded planning responsibility",
 		"user request asks for a forbidden runtime, target, endpoint, command, or credential detail",
 	)
@@ -203,6 +269,12 @@ func ValidateRequest(request Request, policy plannerguard.Policy) plannerguard.D
 		parametersBounded(request.Application.Parameters),
 		"request parameters are within the bounded JSON envelope",
 		"request parameters exceed the JSON byte, depth, or item limit",
+	)
+	addCheck(
+		"manifest_parameters_disabled",
+		len(request.Application.Parameters) == 0,
+		"no untyped manifest parameters were supplied",
+		"untyped manifest parameters are disabled until AppDeploy publishes a field allowlist",
 	)
 	addCheck(
 		"sensitive_parameter_keys",
@@ -266,8 +338,65 @@ func parametersBounded(parameters map[string]any) bool {
 	if !parameterValueBounded(parameters, 0, &nodes) {
 		return false
 	}
+	remainingTextBytes := maxParameterBytes
+	if !parameterTextBytesBounded(parameters, &remainingTextBytes) {
+		return false
+	}
 	content, err := json.Marshal(parameters)
 	return err == nil && len(content) <= maxParameterBytes
+}
+
+func parameterTextBytesBounded(value any, remaining *int) bool {
+	consume := func(text string) bool {
+		if len(text) > *remaining {
+			return false
+		}
+		*remaining -= len(text)
+		return true
+	}
+	switch typed := value.(type) {
+	case string:
+		return consume(typed)
+	case json.Number:
+		return consume(string(typed))
+	case map[string]any:
+		for key, item := range typed {
+			if !consume(key) || !parameterTextBytesBounded(item, remaining) {
+				return false
+			}
+		}
+	case map[string]string:
+		for key, item := range typed {
+			if !consume(key) || !consume(item) {
+				return false
+			}
+		}
+	case []any:
+		for _, item := range typed {
+			if !parameterTextBytesBounded(item, remaining) {
+				return false
+			}
+		}
+	case []string:
+		for _, item := range typed {
+			if !consume(item) {
+				return false
+			}
+		}
+	case []map[string]any:
+		for _, item := range typed {
+			if !parameterTextBytesBounded(item, remaining) {
+				return false
+			}
+		}
+	case []map[string]string:
+		for _, item := range typed {
+			if !parameterTextBytesBounded(item, remaining) {
+				return false
+			}
+		}
+	}
+	return true
 }
 
 func parameterValueBounded(value any, depth int, nodes *int) bool {
@@ -391,6 +520,138 @@ func containsResponsibilityParameterValue(value any) bool {
 	return false
 }
 
+func containsPromptInjectionValue(value any) bool {
+	switch typed := value.(type) {
+	case string:
+		return promptInjectionText.MatchString(typed)
+	case map[string]any:
+		for _, item := range typed {
+			if containsPromptInjectionValue(item) {
+				return true
+			}
+		}
+	case map[string]string:
+		for _, item := range typed {
+			if containsPromptInjectionValue(item) {
+				return true
+			}
+		}
+	case []any:
+		for _, item := range typed {
+			if containsPromptInjectionValue(item) {
+				return true
+			}
+		}
+	case []string:
+		for _, item := range typed {
+			if containsPromptInjectionValue(item) {
+				return true
+			}
+		}
+	case []map[string]any:
+		for _, item := range typed {
+			if containsPromptInjectionValue(item) {
+				return true
+			}
+		}
+	case []map[string]string:
+		for _, item := range typed {
+			if containsPromptInjectionValue(item) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func containsObservationPromptInjection(context OperationContext) bool {
+	return operationContextTextMatches(context, promptInjectionText.MatchString)
+}
+
+func operationContextTextMatches(context OperationContext, matches func(string) bool) bool {
+	contains := func(values ...string) bool {
+		for _, value := range values {
+			if matches(value) {
+				return true
+			}
+		}
+		return false
+	}
+	if snapshot := context.ResourceSnapshot; snapshot != nil {
+		if contains(snapshot.Source) {
+			return true
+		}
+		for _, target := range snapshot.Targets {
+			if contains(target.TargetProfileID, target.Status, target.RuntimeHealth) {
+				return true
+			}
+		}
+	}
+	if monitoring := context.MonitoringSummary; monitoring != nil {
+		if contains(monitoring.Source, monitoring.Summary.Status, monitoring.Summary.RequestID) {
+			return true
+		}
+		for status := range monitoring.Summary.Deployments.ByStatus {
+			if contains(status) {
+				return true
+			}
+		}
+		for _, target := range monitoring.Summary.RuntimeHealth {
+			if contains(target.TargetProfileID, target.Status, target.RuntimeHealth) {
+				return true
+			}
+		}
+		for _, alarm := range monitoring.Summary.Alarms {
+			if contains(
+				alarm.Severity,
+				alarm.ErrorCode,
+				alarm.LatestDeploymentID,
+				alarm.LatestStage,
+				alarm.LatestMessage,
+			) {
+				return true
+			}
+		}
+	}
+	if logs := context.DeploymentLogs; logs != nil {
+		if contains(logs.Source) {
+			return true
+		}
+		for _, item := range logs.Items {
+			if contains(
+				item.Timestamp,
+				item.Level,
+				item.RequestID,
+				item.DeploymentID,
+				item.Component,
+				item.Stage,
+				item.Message,
+				item.ErrorCode,
+			) {
+				return true
+			}
+		}
+	}
+	if metrics := context.MetricsSummary; metrics != nil {
+		return contains(metrics.Source, metrics.DeploymentID)
+	}
+	return false
+}
+
+func promptInputTextSafe(value string) bool {
+	for _, character := range value {
+		if (unicode.IsControl(character) && character != '\r' && character != '\n' && character != '\t') ||
+			character == '\u2028' || character == '\u2029' ||
+			(character >= '\u200b' && character <= '\u200f') ||
+			(character >= '\u202a' && character <= '\u202e') ||
+			(character >= '\u2060' && character <= '\u206f') ||
+			character == '\ufeff' {
+			return false
+		}
+	}
+	return true
+}
+
 func containsConfiguredForbiddenParameterValue(value any, terms []string) bool {
 	switch typed := value.(type) {
 	case string:
@@ -474,10 +735,20 @@ func stableGuardFailureReason(name string) string {
 		return "request is outside the prepare-only approval boundary"
 	case "sensitive_user_text":
 		return "user request contains credential-like material"
+	case "prompt_injection":
+		return "request contains prompt-control instructions"
+	case "input_text_hygiene":
+		return "request contains forbidden control or directional formatting characters"
+	case "resource_intent_grammar":
+		return "resource request uses unsupported negation or contrast grammar"
+	case "supported_requirement_scope":
+		return "request contains requirements that cannot be represented by the LLM operation contract"
 	case "responsibility_user_text":
 		return "user request crosses the bounded planning responsibility"
 	case "bounded_parameters":
 		return "request parameters exceed the bounded JSON envelope"
+	case "manifest_parameters_disabled":
+		return "untyped manifest parameters are not supported by the LLM operation contract"
 	case "responsibility_parameter_keys", "responsibility_parameter_values":
 		return "request parameters cross the bounded planning responsibility"
 	case "observation_scope":

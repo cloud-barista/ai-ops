@@ -224,9 +224,9 @@ func (err *StageError) Unwrap() error {
 func NewResult(request Request) Result {
 	return Result{
 		APIVersion:    APIVersion,
-		RequestID:     request.RequestID,
-		CorrelationID: request.CorrelationID,
-		TraceID:       request.TraceID,
+		RequestID:     safeResultIdentifier(request.RequestID),
+		CorrelationID: safeResultIdentifier(request.CorrelationID),
+		TraceID:       safeResultIdentifier(request.TraceID),
 		Status:        StatusModelUnavailable,
 		Decision: Decision{
 			Action:            "none",
@@ -246,4 +246,14 @@ func NewResult(request Request) Result {
 			SubmissionMode: "not_submitted",
 		},
 	}
+}
+
+func safeResultIdentifier(value string) string {
+	// Request/correlation/trace identifiers are strong identifiers in the
+	// request contract. Do not reflect even syntactically safe short values in
+	// an error Result before the full request guard has run.
+	if !boundedRequestIdentifier(value) || len(value) < 8 {
+		return ""
+	}
+	return value
 }

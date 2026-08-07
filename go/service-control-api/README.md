@@ -41,6 +41,8 @@ Git Bash, Linux 또는 macOS:
 
 실행 후 [http://127.0.0.1:18080/](http://127.0.0.1:18080/)을 엽니다. 종료할 때는 `Ctrl+C`를 누릅니다.
 
+LLM_Op의 별도 수동 시연은 [http://127.0.0.1:18080/llm-op-demo](http://127.0.0.1:18080/llm-op-demo)에서 연다. 기존 3개 화면과 분리되어 있으며, 페이지가 모델 API나 AppDeploy를 호출하지 않는다. 저장 예시를 재생하거나 두 단계 prompt를 외부 AI에 직접 복사한 뒤 raw JSON을 붙여넣을 수 있다. 상세 절차는 [수동 2단계 LLM 브라우저 시연](../../docs/llm-op/07-manual-two-stage-browser-demo.md)을 참조한다.
+
 ## VS Code F5 실행
 
 저장소 루트에 포함된 VS Code 구성으로 실행하는 방법을 권장합니다.

@@ -8,6 +8,15 @@ import (
 	"kyunghee-aiops/service-control-api/internal/appdeploy"
 )
 
+func TestNormalizerRejectsLimitsAboveSecurityCeilings(t *testing.T) {
+	normalizer := NewNormalizer()
+	normalizer.MaxObservationAge = defaultMaxObservationAge + time.Second
+
+	if _, err := normalizer.Normalize(OperationContext{}); err == nil {
+		t.Fatal("normalizer must not allow callers to relax the freshness ceiling")
+	}
+}
+
 func TestNormalizerExcludesStaleObservationFromPromptContext(t *testing.T) {
 	now := mustTime(t, "2026-08-05T14:05:00+09:00")
 	normalizer := NewNormalizer()
@@ -404,6 +413,18 @@ func TestNormalizerRejectsOversizedCollections(t *testing.T) {
 				t.Fatal("expected an oversized collection to be rejected")
 			}
 		})
+	}
+}
+
+func TestNormalizerRejectsMonitoringRuntimeWithoutBoundedTargetID(t *testing.T) {
+	now := mustTime(t, "2026-08-05T14:05:00+09:00")
+	context := monitoringContext(now, 1, 0, nil)
+	context.MonitoringSummary.Summary.RuntimeHealth[0].TargetProfileID = ""
+	normalizer := NewNormalizer()
+	normalizer.Now = func() time.Time { return now }
+
+	if _, err := normalizer.Normalize(context); err == nil {
+		t.Fatal("monitoring runtime health without a bounded target ID must fail closed")
 	}
 }
 

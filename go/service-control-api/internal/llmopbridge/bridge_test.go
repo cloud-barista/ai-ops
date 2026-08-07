@@ -14,6 +14,45 @@ import (
 	"kyunghee-aiops/service-control-api/internal/llmop"
 )
 
+func TestProjectRejectsUnsafeProjectedIdentifiers(t *testing.T) {
+	input := validBridgeInput()
+	input.AnalysisRequest.Envelope.MessageID = "message\u202eunsafe"
+
+	if _, err := Project(input); err == nil {
+		t.Fatal("unsafe Common JSON identifiers must not reach Projection evidence")
+	}
+}
+
+func TestProjectRejectsUnboundedUserRequestBeforeProjection(t *testing.T) {
+	input := validBridgeInput()
+	input.AnalysisRequest.Data.Application.UserRequest = strings.Repeat(
+		"가",
+		maxBridgeUserRequestRunes+1,
+	)
+
+	if _, err := Project(input); err == nil {
+		t.Fatal("unbounded user request must not reach the llmop projection")
+	}
+}
+
+func TestProjectRejectsWhitespaceOnlyUserRequest(t *testing.T) {
+	input := validBridgeInput()
+	input.AnalysisRequest.Data.Application.UserRequest = " \t\r\n "
+
+	if _, err := Project(input); err == nil {
+		t.Fatal("whitespace-only user request must not reach the llmop projection")
+	}
+}
+
+func TestProjectRejectsIdentifierOutsideLLMOpContract(t *testing.T) {
+	input := validBridgeInput()
+	input.Request.RequestID = "a+b"
+
+	if _, err := Project(input); err == nil {
+		t.Fatal("bridge must enforce the downstream LLM operation identifier contract")
+	}
+}
+
 func TestProjectAcceptsLocalAnalyzerAndCatalogRecommendationCPUPath(t *testing.T) {
 	input := localAnalyzerCatalogBridgeInput(t)
 	projection, err := Project(input)

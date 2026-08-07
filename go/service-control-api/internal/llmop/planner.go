@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 
 	"kyunghee-aiops/service-control-api/internal/appdeploy"
@@ -27,6 +28,10 @@ const (
 	ActionRejectUnsafe         = "reject_unsafe_request"
 	maxPromptBytes             = 128 << 10
 	maxProposalBytes           = 64 << 10
+	maxRawObservationFieldBytes = 32 << 10
+	maxRawRequestEnvelopeBytes  = 2 << 20
+	maxCompletionJSONDepth      = 16
+	maxCompletionJSONNodes      = 1000
 	maxCPUCount                = uint64(256)
 	maxGPUCount                = uint64(16)
 	maxMemoryMi                = uint64(2 * 1024 * 1024)
@@ -37,6 +42,8 @@ const (
 var (
 	reasonCodePattern = regexp.MustCompile(`^[A-Z][A-Z0-9_]{2,79}$`)
 	quantityPattern   = regexp.MustCompile(`^([1-9][0-9]*)(Mi|Gi|Ti)$`)
+	positiveCountPattern = regexp.MustCompile(`^[1-9][0-9]*$`)
+	gpuCountPattern      = regexp.MustCompile(`^(0|[1-9][0-9]*)$`)
 	forbiddenReasonCodeToken = regexp.MustCompile(
 		`(^|_)(APP_VERSION_ID|DEPLOYMENT_ID|TARGET_ID|TARGET_PROFILE_ID|TARGET_VM_ID|VM_ID|PROVIDER|CLOUD_PROVIDER|CLOUD_A|CLOUD_B|CLOUD_C|RUNTIME|RUNTIME_ADAPTER|ENDPOINT|COMMAND|SHELL|PASSWORD|TOKEN|SECRET|AUTHORIZATION|BEARER|CREDENTIAL|API_KEY|ACCESS_KEY|PRIVATE_KEY|KUBERNETES|KUBECTL|DOCKER|CONTAINER|SSH|AWS|AZURE|GCP|HELM|TERRAFORM|ANSIBLE|OLLAMA|PYTHON|NODE|JAVA|GOLANG|LOCALHOST|UNIX_SOCKET)($|_)`,
 	)
@@ -75,6 +82,13 @@ func (planner Planner) Prepare(
 	guardPolicy plannerguard.Policy,
 	request Request,
 ) (Result, error) {
+	requestSnapshot, err := cloneRequest(request)
+	if err != nil {
+		result := NewResult(request)
+		rejectRequest(&result, "request could not be snapshotted into the bounded JSON contract")
+		return result, &StageError{Status: result.Status, Cause: err}
+	}
+	request = requestSnapshot
 	result, normalized, prompt, err := preflightRequest(
 		ctx,
 		planner.normalizer,
@@ -168,14 +182,14 @@ func (planner Planner) prepareNormalized(
 	normalized NormalizedContext,
 	prompt []byte,
 ) (Result, error) {
+	if err := validateCandidate(candidate, request); err != nil {
+		rejectModel(&result, normalized, "configured Qwen candidate is unavailable")
+		return result, &StageError{Status: result.Status, Cause: err}
+	}
 	result.Evidence.Model = ModelEvidence{
 		Provider:    candidate.Provider,
 		CandidateID: candidate.CandidateID,
 		ActualModel: candidate.ActualModel,
-	}
-	if err := validateCandidate(candidate, request); err != nil {
-		rejectModel(&result, normalized, "configured Qwen candidate is unavailable")
-		return result, &StageError{Status: result.Status, Cause: err}
 	}
 	if planner.client == nil {
 		err := fmt.Errorf("LLM completion client is required")
@@ -290,11 +304,14 @@ func (planner Planner) prepareNormalized(
 	}
 
 	result.Status = StatusHandoffReady
+	result.Decision.ReasonCode = "BOUNDED_MANIFEST_PREPARED"
+	result.Decision.Reason = "The exact bounded resource contract passed deterministic safeguards; the request body is prepared but not submitted."
+	result.Decision.Assumptions = nil
 	result.Manifest = &manifest
 	result.Safeguard.Manifest = ManifestGuard{
 		Valid:  true,
 		Status: "approved",
-		Reason: "proposal was mapped to trusted fields and passed the AppDeploy Go Manifest Guard",
+		Reason: "proposal was mapped with non-LLM identity fields and passed the AppDeploy Go Manifest Guard",
 	}
 	result.Handoff.SubmissionMode = "not_submitted"
 	result.Handoff.NextEndpoint = "/api/v1/deployments"
@@ -344,9 +361,9 @@ func buildStagePrompt(
 	)
 	content, err := json.Marshal(map[string]any{
 		"user_request": sanitizedUserRequest,
-		"trusted_scope": map[string]any{
-			"has_registered_app_version": strings.TrimSpace(request.Application.AppVersionID) != "",
-			"has_deployment_scope":       strings.TrimSpace(request.Application.DeploymentID) != "",
+		"request_scope": map[string]any{
+			"app_version_id_present": strings.TrimSpace(request.Application.AppVersionID) != "",
+			"deployment_id_present":  strings.TrimSpace(request.Application.DeploymentID) != "",
 		},
 		"operation_context": promptContext,
 		"required_output": requiredOutput,
@@ -553,6 +570,14 @@ func validateCandidate(candidate llmclient.Candidate, request Request) error {
 		strings.TrimSpace(candidate.ActualModel) == "" {
 		return fmt.Errorf("Qwen candidate provider and actual_model are required")
 	}
+	if candidate.Provider != strings.TrimSpace(candidate.Provider) ||
+		candidate.ActualModel != strings.TrimSpace(candidate.ActualModel) ||
+		utf8.RuneCountInString(candidate.Provider) > 256 ||
+		utf8.RuneCountInString(candidate.ActualModel) > 256 ||
+		!displayTextSafe(candidate.Provider) ||
+		!displayTextSafe(candidate.ActualModel) {
+		return fmt.Errorf("Qwen candidate provider and actual_model must be bounded display-safe labels")
+	}
 	if !candidate.JSONMode {
 		return fmt.Errorf("Qwen candidate must enable JSON mode")
 	}
@@ -596,6 +621,9 @@ func parseProposal(content string) (Proposal, error) {
 		return Proposal{}, fmt.Errorf("Qwen operation proposal is outside the bounded envelope")
 	}
 	content = strings.TrimSpace(content)
+	if err := validateUniqueJSONKeys(content); err != nil {
+		return Proposal{}, fmt.Errorf("parse Qwen operation proposal: %w", err)
+	}
 	var proposal Proposal
 	decoder := json.NewDecoder(bytes.NewBufferString(content))
 	decoder.DisallowUnknownFields()
@@ -622,6 +650,64 @@ func parseProposal(content string) (Proposal, error) {
 		}
 	}
 	return proposal, nil
+}
+
+func validateUniqueJSONKeys(content string) error {
+	decoder := json.NewDecoder(strings.NewReader(content))
+	decoder.UseNumber()
+	nodes := 0
+	return consumeUniqueJSONValue(decoder, 0, &nodes)
+}
+
+func consumeUniqueJSONValue(decoder *json.Decoder, depth int, nodes *int) error {
+	if depth > maxCompletionJSONDepth || *nodes >= maxCompletionJSONNodes {
+		return fmt.Errorf("JSON value exceeds the bounded depth or node limit")
+	}
+	*nodes = *nodes + 1
+	token, err := decoder.Token()
+	if err != nil {
+		return err
+	}
+	delimiter, ok := token.(json.Delim)
+	if !ok {
+		return nil
+	}
+	switch delimiter {
+	case '{':
+		seen := make(map[string]struct{})
+		for decoder.More() {
+			keyToken, err := decoder.Token()
+			if err != nil {
+				return err
+			}
+			key, ok := keyToken.(string)
+			if !ok {
+				return fmt.Errorf("JSON object key is not a string")
+			}
+			if key != strings.ToLower(key) {
+				return fmt.Errorf("JSON object key %q is not canonical lowercase", key)
+			}
+			if _, exists := seen[key]; exists {
+				return fmt.Errorf("duplicate JSON object key %q", key)
+			}
+			seen[key] = struct{}{}
+			if err := consumeUniqueJSONValue(decoder, depth+1, nodes); err != nil {
+				return err
+			}
+		}
+		_, err = decoder.Token()
+		return err
+	case '[':
+		for decoder.More() {
+			if err := consumeUniqueJSONValue(decoder, depth+1, nodes); err != nil {
+				return err
+			}
+		}
+		_, err = decoder.Token()
+		return err
+	default:
+		return fmt.Errorf("unexpected JSON delimiter %q", delimiter)
+	}
 }
 
 func validateProposal(
@@ -651,6 +737,13 @@ func validateProposal(
 	}
 	if containsTrustedIdentifier(proposal.ReasonCode, request) {
 		return fmt.Errorf("proposal reason_code contains a trusted identifier")
+	}
+	normalizedReasonCode := strings.ReplaceAll(proposal.ReasonCode, "_", " ")
+	if unsupportedResourceText.MatchString(normalizedReasonCode) ||
+		unsupportedRequirementText.MatchString(normalizedReasonCode) ||
+		unsupportedTopologyText.MatchString(normalizedReasonCode) ||
+		unsupportedDeploymentDetailText.MatchString(normalizedReasonCode) {
+		return fmt.Errorf("proposal reason_code claims an unsupported requirement")
 	}
 	if strings.TrimSpace(proposal.Reason) == "" {
 		return fmt.Errorf("proposal reason is required")
@@ -723,6 +816,9 @@ func validateProposalText(
 	request Request,
 	guardPolicy plannerguard.Policy,
 ) error {
+	if !displayTextSafe(value) {
+		return fmt.Errorf("proposal %s contains unsafe display characters", label)
+	}
 	if _, redactedValues := redactSensitiveText(value); redactedValues > 0 {
 		return fmt.Errorf("proposal %s contains secret-bearing text", label)
 	}
@@ -732,10 +828,30 @@ func validateProposalText(
 		containsConfiguredForbiddenTerm(value, guardPolicy.ForbiddenRequestTerms) {
 		return fmt.Errorf("proposal %s crosses the bounded responsibility boundary", label)
 	}
+	if unsupportedResourceText.MatchString(value) ||
+		unsupportedRequirementText.MatchString(value) ||
+		unsupportedTopologyText.MatchString(value) ||
+		unsupportedDeploymentDetailText.MatchString(value) {
+		return fmt.Errorf("proposal %s claims an unsupported requirement", label)
+	}
 	if containsTrustedIdentifier(value, request) {
 		return fmt.Errorf("proposal %s contains a trusted identifier", label)
 	}
 	return nil
+}
+
+func displayTextSafe(value string) bool {
+	for _, character := range value {
+		if unicode.IsControl(character) || character == '<' || character == '>' ||
+			character == '\u2028' || character == '\u2029' ||
+			(character >= '\u200b' && character <= '\u200f') ||
+			(character >= '\u202a' && character <= '\u202e') ||
+			(character >= '\u2060' && character <= '\u206f') ||
+			character == '\ufeff' {
+			return false
+		}
+	}
+	return true
 }
 
 func containsConfiguredForbiddenTerm(value string, terms []string) bool {
@@ -750,9 +866,15 @@ func containsConfiguredForbiddenTerm(value string, terms []string) bool {
 }
 
 func validateResourceCeilings(resources appdeploy.ResourceRequirements) error {
+	if !positiveCountPattern.MatchString(resources.CPU) {
+		return fmt.Errorf("proposal CPU must use canonical positive decimal syntax")
+	}
 	cpu, err := strconv.ParseUint(resources.CPU, 10, 64)
 	if err != nil || cpu == 0 || cpu > maxCPUCount {
 		return fmt.Errorf("proposal CPU exceeds the provisional safety ceiling")
+	}
+	if !gpuCountPattern.MatchString(resources.GPU) {
+		return fmt.Errorf("proposal GPU must use canonical non-negative decimal syntax")
 	}
 	gpu, err := strconv.ParseUint(resources.GPU, 10, 64)
 	if err != nil || gpu > maxGPUCount {
@@ -909,10 +1031,6 @@ func buildManifest(request Request, proposal Proposal) (appdeploy.DeploymentMani
 	if proposal.Resources == nil {
 		return appdeploy.DeploymentManifest{}, fmt.Errorf("proposal resources are required")
 	}
-	parameters, err := cloneJSONMap(request.Application.Parameters)
-	if err != nil {
-		return appdeploy.DeploymentManifest{}, err
-	}
 	return appdeploy.DeploymentManifest{
 		SchemaVersion: appdeploy.ManifestSchemaVersion,
 		Kind:          appdeploy.ManifestKind,
@@ -922,24 +1040,116 @@ func buildManifest(request Request, proposal Proposal) (appdeploy.DeploymentMani
 			Accelerator:     proposal.Accelerator,
 			Resources:       *proposal.Resources,
 			RequestedBy:     request.RequestedBy,
-			Parameters:      parameters,
 		},
 	}, nil
 }
 
-func cloneJSONMap(source map[string]any) (map[string]any, error) {
-	if source == nil {
-		return nil, nil
+// cloneRequest takes ownership of a canonical JSON snapshot before any guard or
+// model call. Callers must not mutate the input concurrently while this
+// snapshot is being made; later mutations cannot affect validation or handoff.
+func cloneRequest(source Request) (Request, error) {
+	if !requestSnapshotEnvelopeBounded(source) {
+		return Request{}, fmt.Errorf("LLM operation request exceeds the pre-snapshot envelope")
 	}
 	content, err := json.Marshal(source)
 	if err != nil {
-		return nil, fmt.Errorf("encode trusted parameters: %w", err)
+		return Request{}, fmt.Errorf("encode LLM operation request snapshot: %w", err)
 	}
-	var result map[string]any
+	var result Request
 	if err := json.Unmarshal(content, &result); err != nil {
-		return nil, fmt.Errorf("decode trusted parameters: %w", err)
+		return Request{}, fmt.Errorf("decode LLM operation request snapshot: %w", err)
 	}
 	return result, nil
+}
+
+func requestSnapshotEnvelopeBounded(request Request) bool {
+	if len([]rune(request.Application.UserRequest)) > maxUserRequestRunes ||
+		!operationContextEnvelopeBounded(request.OperationContext) ||
+		!parametersBounded(request.Application.Parameters) {
+		return false
+	}
+	total := 0
+	add := func(values ...string) bool {
+		for _, value := range values {
+			if len(value) > maxRawObservationFieldBytes ||
+				total > maxRawRequestEnvelopeBytes-len(value) {
+				return false
+			}
+			total += len(value)
+		}
+		return true
+	}
+	if !add(
+		request.APIVersion,
+		request.RequestID,
+		request.CorrelationID,
+		request.TraceID,
+		request.CandidateID,
+		request.RequestedBy,
+		request.Application.AppVersionID,
+		request.Application.DeploymentID,
+		request.Application.UserRequest,
+		request.Application.TargetProfileID,
+		request.Policy.Mode,
+		request.Policy.ApprovalReference,
+	) {
+		return false
+	}
+	if constraints := request.Application.PlanningConstraints; constraints != nil &&
+		!add(constraints.SourceProfileID, constraints.SourceRecommendationID, constraints.Accelerator) {
+		return false
+	}
+	if constraints := request.Application.PlanningConstraints; constraints != nil &&
+		constraints.RecommendedResources != nil &&
+		!add(constraints.RecommendedResources.Accelerator) {
+		return false
+	}
+	context := request.OperationContext
+	if snapshot := context.ResourceSnapshot; snapshot != nil {
+		if !add(snapshot.Source) {
+			return false
+		}
+		for _, target := range snapshot.Targets {
+			if !add(target.TargetProfileID, target.Status, target.RuntimeHealth) {
+				return false
+			}
+		}
+	}
+	if monitoring := context.MonitoringSummary; monitoring != nil {
+		if !add(monitoring.Source, monitoring.Summary.RequestID, monitoring.Summary.Status) {
+			return false
+		}
+		for status := range monitoring.Summary.Deployments.ByStatus {
+			if !add(status) {
+				return false
+			}
+		}
+		for _, target := range monitoring.Summary.RuntimeHealth {
+			if !add(target.TargetProfileID, target.Status, target.RuntimeHealth) {
+				return false
+			}
+		}
+		for _, alarm := range monitoring.Summary.Alarms {
+			if !add(alarm.Severity, alarm.ErrorCode, alarm.LatestDeploymentID, alarm.LatestStage, alarm.LatestMessage) {
+				return false
+			}
+		}
+	}
+	if logs := context.DeploymentLogs; logs != nil {
+		if !add(logs.Source) {
+			return false
+		}
+		for _, item := range logs.Items {
+			if !add(item.Timestamp, item.Level, item.RequestID, item.DeploymentID, item.Component, item.Stage, item.Message, item.ErrorCode) {
+				return false
+			}
+		}
+	}
+	if metrics := context.MetricsSummary; metrics != nil &&
+		!add(metrics.Source, metrics.DeploymentID) {
+		return false
+	}
+	return true
 }
 
 func cloneManifest(

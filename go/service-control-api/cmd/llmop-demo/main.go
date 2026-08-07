@@ -12,29 +12,9 @@ import (
 	"strings"
 	"time"
 
-	"kyunghee-aiops/service-control-api/internal/llmclient"
 	"kyunghee-aiops/service-control-api/internal/llmop"
 	"kyunghee-aiops/service-control-api/internal/plannerguard"
 )
-
-type fixtureCompletionClient struct {
-	content string
-}
-
-func (client fixtureCompletionClient) Complete(
-	_ context.Context,
-	candidate llmclient.Candidate,
-	_ string,
-	_ string,
-) (llmclient.Completion, error) {
-	return llmclient.Completion{
-		Status:      "executed",
-		Content:     client.content,
-		Provider:    candidate.Provider,
-		ActualModel: candidate.ActualModel,
-		CandidateID: candidate.CandidateID,
-	}, nil
-}
 
 func main() {
 	if err := run(); err != nil {
@@ -48,11 +28,15 @@ func run() error {
 	var safeguardOutputPath string
 	var modelOutputPath string
 	var policyPath string
+	var catalogPath string
+	var serviceID string
 	var nowValue string
 	flag.StringVar(&requestPath, "request", "", "path to an LLMOperationRequest JSON fixture")
 	flag.StringVar(&safeguardOutputPath, "safeguard-output", "", "path to a bounded safeguard review JSON fixture")
 	flag.StringVar(&modelOutputPath, "model-output", "", "path to a bounded Qwen proposal JSON fixture")
 	flag.StringVar(&policyPath, "policy", "", "path to planner_guard_policy.json")
+	flag.StringVar(&catalogPath, "catalog", "", "path to an offline AI service and caller-pinned model catalog")
+	flag.StringVar(&serviceID, "service", "", "exact demo AI service_id bound to application.app_version_id")
 	flag.StringVar(&nowValue, "now", "", "fixed RFC3339 time for deterministic freshness checks")
 	flag.Parse()
 
@@ -60,12 +44,18 @@ func run() error {
 		strings.TrimSpace(safeguardOutputPath) == "" ||
 		strings.TrimSpace(modelOutputPath) == "" ||
 		strings.TrimSpace(policyPath) == "" ||
+		strings.TrimSpace(catalogPath) == "" ||
+		strings.TrimSpace(serviceID) == "" ||
 		strings.TrimSpace(nowValue) == "" {
-		return errors.New("-request, -safeguard-output, -model-output, -policy, and -now are required")
+		return errors.New("-request, -safeguard-output, -model-output, -policy, -catalog, -service, and -now are required")
 	}
 
 	var request llmop.Request
 	if err := decodeJSONFile(requestPath, &request); err != nil {
+		return err
+	}
+	candidate, _, err := loadDemoBinding(catalogPath, serviceID, request)
+	if err != nil {
 		return err
 	}
 	modelOutput, err := os.ReadFile(modelOutputPath)
@@ -87,20 +77,14 @@ func run() error {
 
 	normalizer := llmop.NewNormalizer()
 	normalizer.Now = func() time.Time { return now }
-	planner := llmop.NewSafeguardedPlanner(
-		fixtureCompletionClient{content: string(safeguardOutput)},
-		fixtureCompletionClient{content: string(modelOutput)},
+	planner := llmop.NewOfflineFixturePlanner(
+		string(safeguardOutput),
+		string(modelOutput),
 		normalizer,
 	)
 	result, prepareErr := planner.Prepare(
 		context.Background(),
-		llmclient.Candidate{
-			CandidateID: request.CandidateID,
-			Provider:    "fixture-openai-compatible",
-			ActualModel: "fixture-qwen",
-			Enabled:     true,
-			JSONMode:    true,
-		},
+		candidate,
 		policy,
 		request,
 	)
