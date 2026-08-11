@@ -154,10 +154,10 @@ func TestControlAppContainsCollapsibleExperimentGuide(t *testing.T) {
 	for _, expected := range []string{
 		`<details class="experiment-guide" id="experiment-guide">`,
 		`실험 진행 방법`,
-		`입력 방식 선택`,
+		`입력 방식과 Agent 선택`,
 		`1. Revision 1 생성`,
-		`배포 상태와 Feedback 전송`,
-		`결과와 증거 확인`,
+		`배포 상태 전송`,
+		`Feedback → 운영 최적화 → Revision 2`,
 		`Feedback`,
 	} {
 		if !strings.Contains(html, expected) {
