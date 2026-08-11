@@ -292,6 +292,27 @@ summary:focus-visible {
   padding: 26px 28px 44px;
 }
 
+.view[data-view="results"] {
+  display: flex;
+  flex-direction: column;
+}
+
+.view[data-view="results"] > .view-heading {
+  order: 0;
+}
+
+.view[data-view="results"] > .results-layout {
+  order: 1;
+}
+
+.view[data-view="results"] > #experiment-feedback {
+  order: 2;
+}
+
+.view[data-view="results"] > #experiment-reasoning {
+  order: 3;
+}
+
 .view-heading {
   display: flex;
   align-items: flex-start;
@@ -927,9 +948,17 @@ select:focus {
 }
 
 .manifest-revision-heading {
+  flex-wrap: wrap;
   min-height: 48px;
   padding: 10px 16px;
   border-bottom: 1px solid var(--line);
+}
+
+.manifest-revision-heading strong,
+.manifest-revision-heading span {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .manifest-revision-heading strong {
@@ -950,6 +979,74 @@ select:focus {
 
 .experiment-manifest-output {
   border-top: 1px solid var(--line);
+}
+
+.experiment-sequence {
+  border-top: 1px solid var(--line);
+  background: #f8fbfa;
+}
+
+.experiment-sequence-step {
+  min-width: 0;
+}
+
+.experiment-sequence-step + .experiment-sequence-step {
+  border-top: 1px solid var(--line);
+}
+
+.experiment-sequence-heading {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 13px 16px;
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+}
+
+.experiment-sequence-heading > div {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.experiment-sequence-heading strong,
+.experiment-sequence-heading small,
+.experiment-sequence-heading > span:last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.experiment-sequence-heading strong {
+  font-size: 13px;
+}
+
+.experiment-sequence-heading small,
+.experiment-sequence-heading > span:last-child {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.experiment-sequence-number {
+  display: inline-grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--teal);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.experiment-sequence-form {
+  padding: 16px;
+}
+
+.experiment-sequence .operation-evidence {
+  border-bottom: 0;
 }
 
 .json-output {
@@ -1223,6 +1320,61 @@ td small {
   max-height: 420px;
 }
 
+.flow-record-disclosure {
+  border-top: 1px solid var(--line);
+  background: #f5f8f7;
+}
+
+.flow-record-disclosure > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 70px;
+  padding: 13px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.flow-record-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.flow-record-heading {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.flow-record-heading small {
+  color: var(--teal-dark);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.flow-record-heading strong {
+  font-size: 14px;
+}
+
+.flow-record-heading > span {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.flow-record-disclosure[open] > summary {
+  border-bottom: 1px solid var(--line);
+}
+
+.flow-record-disclosure[open] > summary svg {
+  transform: rotate(180deg);
+}
+
+.flow-record-disclosure > .result-json {
+  margin: 0;
+}
+
 .experiment-disclosure {
   overflow: hidden;
 }
@@ -1255,6 +1407,16 @@ td small {
 
 .experiment-disclosure > summary strong {
   font-size: 14px;
+}
+
+.experiment-disclosure > summary .disclosure-summary-note {
+  display: block;
+  flex: 1;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.5;
+  text-transform: none;
 }
 
 .experiment-disclosure[open] > summary {
@@ -1315,9 +1477,11 @@ td small {
 }
 
 .feedback-heading p {
+  min-width: 0;
   margin: 0;
   color: var(--muted);
   font-size: 12px;
+  overflow-wrap: anywhere;
 }
 
 .feedback-input-grid {
@@ -1333,6 +1497,12 @@ td small {
   display: grid;
   min-width: 0;
   gap: 10px;
+}
+
+.protocol-form textarea,
+.operation-agent-picker select {
+  width: 100%;
+  max-width: 100%;
 }
 
 .protocol-form .button {
@@ -1593,6 +1763,15 @@ dialog::backdrop {
 }
 
 @media (max-width: 620px) {
+  .experiment-disclosure > summary {
+    flex-wrap: wrap;
+  }
+
+  .experiment-disclosure > summary .disclosure-summary-note {
+    order: 3;
+    flex-basis: 100%;
+  }
+
   .topbar h1 {
     font-size: 17px;
   }

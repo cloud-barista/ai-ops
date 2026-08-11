@@ -282,6 +282,71 @@ async function browserPage({
       });
       return;
     }
+    if (pathname === "/api/v1/agent-control/deployment-status" && method === "POST") {
+      const deploymentStatus = request.postDataJSON();
+      const selectedIndex = flows.findIndex(
+        (flow) => flow.correlation_id === deploymentStatus.correlation_id,
+      );
+      if (selectedIndex < 0) {
+        await route.fulfill({
+          status: 404,
+          contentType: "application/json",
+          body: JSON.stringify({ message: "flow not found" }),
+        });
+        return;
+      }
+      flows[selectedIndex] = {
+        ...flows[selectedIndex],
+        deployment_status: deploymentStatus,
+      };
+      await route.fulfill({
+        status: 202,
+        contentType: "application/json",
+        body: JSON.stringify(flows[selectedIndex]),
+      });
+      return;
+    }
+    if (pathname === "/api/v1/agent-control/optimization-feedback" && method === "POST") {
+      const feedback = request.postDataJSON();
+      const selectedIndex = flows.findIndex(
+        (flow) => flow.correlation_id === feedback.correlation_id,
+      );
+      if (selectedIndex < 0) {
+        await route.fulfill({
+          status: 404,
+          contentType: "application/json",
+          body: JSON.stringify({ message: "flow not found" }),
+        });
+        return;
+      }
+      const operationAgent = url.searchParams.get("operation_agent") || "OperationOptimizationAgent";
+      flows[selectedIndex] = {
+        ...flows[selectedIndex],
+        requested_operation_agent: operationAgent,
+        optimization_feedback: feedback,
+        operation_agent_execution: {
+          agent_name: operationAgent,
+          source: "configuration",
+          status: "completed",
+          request_guard: { status: "APPROVED", checks: [] },
+          result_guard: { status: "APPROVED", checks: [] },
+          scaling_guard: { status: "APPROVED", checks: [] },
+        },
+        scaling_decision: {
+          action: "SCALE_OUT",
+          current_replicas: 1,
+          desired_replicas: 2,
+          reason: "approved policy projection",
+          evidence: ["latency_p95_ms"],
+        },
+      };
+      await route.fulfill({
+        status: 202,
+        contentType: "application/json",
+        body: JSON.stringify(flows[selectedIndex]),
+      });
+      return;
+    }
     await route.fulfill({
       status: 404,
       contentType: "application/json",
@@ -414,6 +479,7 @@ test("replayed one-shot automation results project one stable ControlRun Flow", 
       document.getElementById("agent-control-flow-id").textContent === "run-stable-001"
     ));
 
+    await page.locator('[data-view-target="agent-control"]').click();
     const secondRequest = page.waitForRequest((request) => (
       new URL(request.url()).pathname === "/api/v1/agent-control/automation-runs"
     ));
@@ -501,9 +567,6 @@ test("results select the newest Flow and keep active evidence and Feedback sampl
     assert.equal(rawFlow.correlation_id, "flow-older-001");
     assert.equal(rawFlow.requested_operation_agent, "OperationOptimizationAgent");
 
-    const feedback = page.locator("#experiment-feedback");
-    assert.equal(await feedback.getAttribute("open"), null);
-    await page.locator("#experiment-feedback > summary").click();
     await page.locator("#load-agent-control-feedback-sample").click();
     const statusSample = JSON.parse(await page.locator("#deployment-status-json").inputValue());
     const feedbackSample = JSON.parse(await page.locator("#optimization-feedback-json").inputValue());

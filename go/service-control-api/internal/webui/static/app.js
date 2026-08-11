@@ -383,12 +383,27 @@ function renderManifestOutputs(flow) {
 
 function renderAgentControlStages(record) {
   const flow = record?.flow || record;
+  const linkedRun =
+    state.activeAutomationRun?.flow?.correlation_id === flow?.correlation_id
+      ? state.activeAutomationRun
+      : null;
+  const revisions = manifestRevisions(flow);
+  const hasInitialManifest = revisions.some(
+    (revision) => Number(revision.revision) === 1,
+  );
+  const hasOptimizedManifest = revisions.some(
+    (revision) => revision.phase === "OPTIMIZED",
+  );
   const complete = {
     requirement: Boolean(
-      record?.requirement_analysis || flow?.application_context,
+      record?.requirement_analysis ||
+      linkedRun?.requirement_analysis ||
+      flow?.application_context,
     ),
     recommendation: Boolean(
-      record?.resource_recommendation || flow?.resource_recommendation,
+      record?.resource_recommendation ||
+      linkedRun?.resource_recommendation ||
+      flow?.resource_recommendation,
     ),
     decision: Boolean(
       flow?.decision ||
@@ -396,33 +411,66 @@ function renderAgentControlStages(record) {
       flow?.agent_authorization?.authorized === false ||
       record?.status === "COMPLETED",
     ),
-    adapter: ["SIMULATED", "READY"].includes(
-      record?.deployment_submission?.status,
-    ),
+    "initial-manifest": hasInitialManifest,
+    "deployment-status": Boolean(flow?.deployment_status),
+    "optimization-feedback": Boolean(flow?.optimization_feedback),
+    operation: Boolean(flow?.operation_agent_execution),
+    "optimized-manifest": hasOptimizedManifest,
   };
   const blocked = new Set();
   if (record?.status === "FAILED" && !complete.requirement) {
-    ["requirement", "recommendation", "decision", "adapter"].forEach((stage) =>
-      blocked.add(stage),
-    );
+    [
+      "requirement",
+      "recommendation",
+      "decision",
+      "initial-manifest",
+      "deployment-status",
+      "optimization-feedback",
+      "operation",
+      "optimized-manifest",
+    ].forEach((stage) => blocked.add(stage));
   } else if (record?.status === "FAILED" && !complete.recommendation) {
-    ["recommendation", "decision", "adapter"].forEach((stage) =>
-      blocked.add(stage),
-    );
+    [
+      "recommendation",
+      "decision",
+      "initial-manifest",
+      "deployment-status",
+      "optimization-feedback",
+      "operation",
+      "optimized-manifest",
+    ].forEach((stage) => blocked.add(stage));
   } else if ([
     "AGENT_AUTHORIZATION_REJECTED",
     "AGENT_EXECUTION_FAILED",
     "AGENT_RESULT_REJECTED",
   ].includes(flow?.state)) {
     blocked.add("decision");
-    blocked.add("adapter");
+    [
+      "initial-manifest",
+      "deployment-status",
+      "optimization-feedback",
+      "operation",
+      "optimized-manifest",
+    ].forEach((stage) => blocked.add(stage));
   } else if (
     flow?.decision?.action &&
     flow.decision.action !== "DEPLOY"
   ) {
-    blocked.add("adapter");
+    [
+      "initial-manifest",
+      "deployment-status",
+      "optimization-feedback",
+      "operation",
+      "optimized-manifest",
+    ].forEach((stage) => blocked.add(stage));
   } else if (record?.deployment_submission?.status === "FAILED") {
-    blocked.add("adapter");
+    [
+      "initial-manifest",
+      "deployment-status",
+      "optimization-feedback",
+      "operation",
+      "optimized-manifest",
+    ].forEach((stage) => blocked.add(stage));
   }
 
   document.querySelectorAll("[data-agent-control-stage]").forEach((item) => {
@@ -503,7 +551,15 @@ function renderOperationEvidence(flow) {
   const container = byID("experiment-operation-evidence");
   const execution = flow?.operation_agent_execution;
   if (!execution) {
-    container.hidden = true;
+    container.hidden = false;
+    byID("experiment-operation-agent").textContent = "Feedback 전송 대기";
+    byID("experiment-operation-request-guard").textContent = "-";
+    byID("experiment-operation-result-guard").textContent = "-";
+    byID("experiment-operation-scaling-guard").textContent = "-";
+    byID("experiment-operation-scaling").textContent = "-";
+    byID("experiment-operation-reason").textContent =
+      "성능 Feedback 전송 후 생성됩니다.";
+    byID("experiment-operation-evidence-list").textContent = "-";
     return;
   }
 
@@ -538,7 +594,29 @@ function renderOperationEvidence(flow) {
     : "권고 없음";
 }
 
+function syncFeedbackControls(flow) {
+  const statusSubmit = byID("deployment-status-submit");
+  const feedbackSubmit = byID("optimization-feedback-submit");
+  const statusBlocked = !flow || Boolean(flow.deployment_status);
+  statusSubmit.disabled = statusBlocked;
+  statusSubmit.toggleAttribute("disabled", statusBlocked);
+  statusSubmit.title = !flow
+    ? "먼저 전체 실험 실행으로 Revision 1을 생성하세요."
+    : flow.deployment_status
+      ? "배포 상태가 이미 같은 Flow에 연결되었습니다."
+      : "Revision 1에 배포 상태를 연결합니다.";
+  const feedbackBlocked = !flow?.deployment_status || Boolean(flow.optimization_feedback);
+  feedbackSubmit.disabled = feedbackBlocked;
+  feedbackSubmit.toggleAttribute("disabled", feedbackBlocked);
+  feedbackSubmit.title = !flow?.deployment_status
+    ? "배포 상태를 먼저 전송하세요."
+    : flow.optimization_feedback
+      ? "성능 Feedback이 이미 같은 Flow에 연결되었습니다."
+      : "성능 Feedback을 전송하여 운영 최적화 판단을 실행합니다.";
+}
+
 function renderExperimentDetail(flow) {
+  syncFeedbackControls(flow);
   if (!flow) {
     byID("experiment-agent-summary").textContent = "Flow를 선택하세요.";
     byID("experiment-decision-summary").textContent = "Flow를 선택하세요.";
@@ -549,6 +627,7 @@ function renderExperimentDetail(flow) {
     renderFeedback(null);
     renderOperationEvidence(null);
     renderManifestOutputs(null);
+    loadFeedbackSamples(null);
     return;
   }
   const decision = flow.decision || {};
@@ -565,6 +644,7 @@ function renderExperimentDetail(flow) {
   renderFeedback(flow);
   renderOperationEvidence(flow);
   renderManifestOutputs(flow);
+  loadFeedbackSamples(flow);
 }
 
 function renderAgentControlFlow(flow) {
@@ -599,6 +679,12 @@ function renderAgentControlFlow(flow) {
   const execution = flow.agent_execution || {};
   const decision = flow.decision || {};
   const guard = flow.guard || {};
+  const linkedRun =
+    state.activeAutomationRun?.flow?.correlation_id === flow.correlation_id
+      ? state.activeAutomationRun
+      : null;
+  const deploymentSubmission =
+    flow.deployment_submission || linkedRun?.deployment_submission;
   const correction = decision.correction_request;
   byID("agent-control-flow-id").textContent =
     flow.correlation_id || "ID 없음";
@@ -651,6 +737,7 @@ function renderAgentControlFlow(flow) {
     desired_deployment_spec: desiredDeploymentSpec(flow),
     deployment_request: flow.deployment_request,
     manifest_revisions: flow.manifest_revisions,
+    deployment_submission: deploymentSubmission,
     operation_agent_execution: flow.operation_agent_execution,
     scaling_decision: flow.scaling_decision,
   });
@@ -733,6 +820,7 @@ async function submitAutomationRun(event) {
     }
     renderAutomationRun(run);
     renderExperimentFlows();
+    switchView("results");
     const action = run.flow?.decision?.action || run.flow?.state || run.status;
     showToast(
       `${text(action)} 결정과 배포 요구 스펙이 생성되었습니다.`,
@@ -745,6 +833,7 @@ async function submitAutomationRun(event) {
     showToast(error.message, "error");
   } finally {
     setBusy(form, false);
+    syncFeedbackControls(activeFlow());
   }
 }
 
@@ -798,6 +887,7 @@ async function submitProtocolFlow(event) {
     showToast(error.message, "error");
   } finally {
     setBusy(form, false);
+    syncFeedbackControls(activeFlow());
   }
 }
 
@@ -1271,10 +1361,23 @@ function buildFeedbackSamples(flow = activeFlow()) {
   };
 }
 
-function loadFeedbackSamples() {
-  const samples = buildFeedbackSamples();
+function loadFeedbackSamples(flow = activeFlow()) {
+  const selectedFlow = flow?.correlation_id ? flow : activeFlow();
+  const samples = buildFeedbackSamples(selectedFlow);
   byID("deployment-status-json").value = pretty(samples.status);
   byID("optimization-feedback-json").value = pretty(samples.feedback);
+}
+
+function requireSelectedFlowMessage(body, label) {
+  const flow = activeFlow();
+  if (!flow) {
+    throw new Error(`${label}: 먼저 실험 Flow를 선택하세요.`);
+  }
+  if (body.correlation_id !== flow.correlation_id) {
+    throw new Error(
+      `${label}: 현재 Flow(${flow.correlation_id})와 JSON correlation_id(${text(body.correlation_id)})가 다릅니다.`,
+    );
+  }
 }
 
 async function submitDeploymentStatus(event) {
@@ -1286,6 +1389,7 @@ async function submitDeploymentStatus(event) {
       "deployment-status-json",
       "Deployment Status",
     );
+    requireSelectedFlowMessage(body, "Deployment Status");
     const flow = await apiRequest(API.deploymentStatus, {
       method: "POST",
       body: JSON.stringify(body),
@@ -1293,11 +1397,14 @@ async function submitDeploymentStatus(event) {
     upsertFlow(flow);
     renderAgentControlFlow(flow);
     renderExperimentFlows();
+    byID("deployment-status-submit").disabled = true;
+    byID("optimization-feedback-submit").disabled = false;
     showToast("배포 상태를 Flow에 연결했습니다.", "success");
   } catch (error) {
     showToast(error.message, "error");
   } finally {
     setBusy(form, false);
+    syncFeedbackControls(activeFlow());
   }
 }
 
@@ -1310,6 +1417,7 @@ async function submitOptimizationFeedback(event) {
       "optimization-feedback-json",
       "Optimization Feedback",
     );
+    requireSelectedFlowMessage(body, "Optimization Feedback");
     const selectedOperationAgent = byID("optimization-operation-agent-select").value;
     const query = selectedOperationAgent
       ? `?${new URLSearchParams({ operation_agent: selectedOperationAgent }).toString()}`
@@ -1321,6 +1429,8 @@ async function submitOptimizationFeedback(event) {
     upsertFlow(flow);
     renderAgentControlFlow(flow);
     renderExperimentFlows();
+    byID("deployment-status-submit").disabled = true;
+    byID("optimization-feedback-submit").disabled = true;
     showToast(
       `스케일링 판단: ${text(flow.scaling_decision?.action, "결과 없음")}`,
       "success",
@@ -1329,6 +1439,7 @@ async function submitOptimizationFeedback(event) {
     showToast(error.message, "error");
   } finally {
     setBusy(form, false);
+    syncFeedbackControls(activeFlow());
   }
 }
 
@@ -1446,7 +1557,7 @@ function bindEvents() {
   );
   byID("load-agent-control-feedback-sample").addEventListener(
     "click",
-    loadFeedbackSamples,
+    () => loadFeedbackSamples(activeFlow()),
   );
   byID("deployment-status-form").addEventListener(
     "submit",

@@ -206,7 +206,8 @@ async function browserPage(viewport = { width: 1280, height: 900 }, scenario = {
   ].map(async (name) => [name, await fs.readFile(path.join(staticDir, name), "utf8")])));
   const requests = [];
   const feedbackRequests = [];
-  const flows = [];
+  const deploymentStatusRequests = [];
+  const flows = structuredClone(scenario.initialFlows || []);
   const operationAgentName = scenario.operationAgentName || "OperationOptimizationAgent";
   const operationReason = scenario.operationReason || "SLO latency target exceeded.";
   const operationEvidence = scenario.operationEvidence || ["latency_p95_ms"];
@@ -252,7 +253,11 @@ async function browserPage(viewport = { width: 1280, height: 900 }, scenario = {
       const input = request.postDataJSON();
       requests.push(input);
       const run = completedRun(input);
-      flows.splice(0, flows.length, run.flow);
+      if (scenario.preserveExistingFlows) {
+        flows.unshift(run.flow);
+      } else {
+        flows.splice(0, flows.length, run.flow);
+      }
       await route.fulfill({
         status: 201,
         contentType: "application/json",
@@ -262,8 +267,13 @@ async function browserPage(viewport = { width: 1280, height: 900 }, scenario = {
     }
     if (pathname === "/api/v1/agent-control/deployment-status" && request.method() === "POST") {
       const deploymentStatus = request.postDataJSON();
-      flows[0] = {
-        ...flows[0],
+      deploymentStatusRequests.push(deploymentStatus);
+      const flowIndex = flows.findIndex(
+        (flow) => flow.correlation_id === deploymentStatus.correlation_id,
+      );
+      const selectedIndex = flowIndex >= 0 ? flowIndex : 0;
+      flows[selectedIndex] = {
+        ...flows[selectedIndex],
         deployment_status: deploymentStatus,
         feedback_summary: {
           deployment_id: "deployment-web-001",
@@ -276,7 +286,7 @@ async function browserPage(viewport = { width: 1280, height: 900 }, scenario = {
       await route.fulfill({
         status: 202,
         contentType: "application/json",
-        body: JSON.stringify(flows[0]),
+        body: JSON.stringify(flows[selectedIndex]),
       });
       return;
     }
@@ -370,8 +380,213 @@ async function browserPage(viewport = { width: 1280, height: 900 }, scenario = {
     });
   });
   await page.goto("http://automation.test/");
-  return { browser, page, requests, feedbackRequests, consoleErrors };
+  return {
+    browser,
+    page,
+    requests,
+    deploymentStatusRequests,
+    feedbackRequests,
+    consoleErrors,
+  };
 }
+
+test("a new run stops at Revision 1 until deployment status and Feedback are sent", async () => {
+  const oldFlow = completedRun({
+    input_type: "natural_language",
+    request: "old flow",
+  }).flow;
+  const oldFlowJSON = JSON.stringify(oldFlow)
+    .replaceAll("flow-web-001", "flow-old-001")
+    .replaceAll("trace-web-001", "trace-old-001")
+    .replaceAll("decision-web-001", "decision-old-001");
+  const { browser, page, requests, deploymentStatusRequests, feedbackRequests, consoleErrors } = await browserPage(
+    { width: 1280, height: 900 },
+    {
+      initialFlows: [{ ...JSON.parse(oldFlowJSON), updated_at: "2026-07-29T00:00:02Z" }],
+      preserveExistingFlows: true,
+    },
+  );
+  try {
+    await page.waitForFunction(() => (
+      document.getElementById("agent-control-flow-id").textContent === "flow-old-001"
+    ));
+    assert.equal(
+      JSON.parse(await page.locator("#deployment-status-json").inputValue()).correlation_id,
+      "flow-old-001",
+    );
+
+    await page.locator("#automation-run-submit").click();
+    await page.waitForTimeout(250);
+    assert.equal(requests.length, 1, JSON.stringify(consoleErrors));
+    assert.equal(
+      await page.locator(".flow-list-item.is-active [data-flow-id]").getAttribute("data-flow-id"),
+      "flow-web-001",
+    );
+
+    assert.equal(
+      JSON.parse(await page.locator("#deployment-status-json").inputValue()).correlation_id,
+      "flow-web-001",
+    );
+    assert.equal(
+      JSON.parse(await page.locator("#optimization-feedback-json").inputValue()).correlation_id,
+      "flow-web-001",
+    );
+    assert.equal(deploymentStatusRequests.length, 0);
+    assert.equal(feedbackRequests.length, 0);
+    assert.match(await page.locator("#manifest-initial-status").textContent(), /Revision 1/);
+    assert.match(await page.locator("#manifest-optimized-status").textContent(), /Feedback 후 생성 대기/);
+
+    await page.locator('[data-view-target="results"]').click();
+    const statusButton = page.locator("#deployment-status-form button[type=submit]");
+    const feedbackButton = page.locator("#optimization-feedback-form button[type=submit]");
+    assert.equal(await statusButton.textContent(), "2. 배포 상태 전송");
+    assert.equal(await feedbackButton.textContent(), "3. 성능 Feedback 전송");
+    assert.equal(await statusButton.isDisabled(), false);
+    assert.equal(await feedbackButton.isDisabled(), true);
+    await statusButton.click();
+    await page.waitForTimeout(50);
+    assert.equal(deploymentStatusRequests.length, 1);
+    assert.equal(feedbackRequests.length, 0);
+    assert.equal(await statusButton.isDisabled(), true);
+    assert.equal(await feedbackButton.isDisabled(), false);
+    assert.match(await page.locator("#experiment-manifest-optimized-status").textContent(), /Feedback 후 생성 대기/);
+    await feedbackButton.click();
+    await page.waitForTimeout(50);
+    assert.equal(feedbackRequests.length, 1);
+    assert.equal(deploymentStatusRequests[0].correlation_id, "flow-web-001");
+    assert.equal(feedbackRequests[0].body.correlation_id, "flow-web-001");
+    assert.equal(
+      await page.locator(".flow-list-item.is-active [data-flow-id]").getAttribute("data-flow-id"),
+      "flow-web-001",
+    );
+    assert.match(await page.locator("#experiment-manifest-initial-status").textContent(), /Revision 1/);
+    assert.equal(await feedbackButton.isDisabled(), true);
+    assert.match(await page.locator("#experiment-manifest-optimized-status").textContent(), /Revision 2/);
+    assert.deepEqual(consoleErrors, []);
+  } finally {
+    await browser.close();
+  }
+});
+
+test("results view exposes experiment actions in the required execution order", async () => {
+  const { browser, page, consoleErrors } = await browserPage();
+  try {
+    await page.locator("#automation-run-submit").click();
+    await page.waitForFunction(() => (
+      document.getElementById("manifest-initial-status").textContent.includes("Revision 1")
+    ));
+    assert.equal(
+      await page.locator('[data-view-target="results"]').evaluate((item) => item.classList.contains("is-active")),
+      true,
+    );
+
+    const workflow = await page.evaluate(() => {
+      const items = [
+        document.getElementById("experiment-manifest-initial-status").closest("section"),
+        document.getElementById("deployment-status-form"),
+        document.getElementById("optimization-feedback-form"),
+        document.getElementById("experiment-operation-evidence"),
+        document.getElementById("experiment-manifest-optimized-status").closest("section"),
+      ];
+      return {
+        visible: items.map((item) => item.checkVisibility()),
+        ordered: items.slice(0, -1).map((item, index) => (
+          Boolean(item.compareDocumentPosition(items[index + 1]) & Node.DOCUMENT_POSITION_FOLLOWING)
+        )),
+      };
+    });
+
+    assert.deepEqual(workflow.visible, [true, true, true, true, true]);
+    assert.deepEqual(workflow.ordered, [true, true, true, true]);
+    assert.deepEqual(consoleErrors, []);
+  } finally {
+    await browser.close();
+  }
+});
+
+test("full Flow record is separated from Manifest output and collapsed by default", async () => {
+  const { browser, page, consoleErrors } = await browserPage();
+  try {
+    await page.locator("#automation-run-submit").click();
+    await page.waitForFunction(() => (
+      document.getElementById("experiment-manifest-initial-status").textContent.includes("Revision 1")
+    ));
+
+    const disclosure = page.locator("#experiment-flow-record");
+    assert.equal(await disclosure.count(), 1);
+    assert.equal(await disclosure.getAttribute("open"), null);
+    assert.match(await disclosure.locator("summary").textContent(), /전체 Flow 실행 기록/);
+    assert.match(await disclosure.locator("summary").textContent(), /Manifest가 아닌/);
+    assert.equal(await page.locator("#experiment-flow-json").isVisible(), false);
+
+    await disclosure.locator("summary").click();
+    assert.equal(await page.locator("#experiment-flow-json").isVisible(), true);
+    assert.match(await page.locator("#experiment-flow-json").textContent(), /flow-web-001/);
+    assert.deepEqual(consoleErrors, []);
+  } finally {
+    await browser.close();
+  }
+});
+
+test("manifest and feedback controls never overlap with long experiment values", async () => {
+  for (const viewport of [{ width: 1280, height: 900 }, { width: 390, height: 844 }]) {
+    const { browser, page, consoleErrors } = await browserPage(viewport);
+    try {
+      await page.locator("#automation-run-submit").click();
+      await page.waitForFunction(() => (
+        document.querySelector(".flow-list-item.is-active [data-flow-id]")?.dataset.flowId === "flow-web-001"
+      ));
+      await page.locator('[data-view-target="results"]').click();
+      await page.evaluate(() => {
+        const longValue = "OperationOptimizationAgentWithAVeryLongRegistryIdentityAndBoundedActionPolicy";
+        document.getElementById("experiment-agent-summary").textContent = longValue;
+        document.getElementById("experiment-manifest-initial-status").textContent = `${longValue}-Revision-1`;
+        document.getElementById("experiment-manifest-optimized-status").textContent = `${longValue}-Feedback-Pending`;
+      });
+
+      const layout = await page.evaluate(() => {
+        const visibleRects = (selector) => Array.from(document.querySelectorAll(selector))
+          .filter((element) => element.checkVisibility())
+          .map((element) => {
+            const { left, right, top, bottom } = element.getBoundingClientRect();
+            return { left, right, top, bottom };
+          });
+        const overlaps = (rects) => rects.some((item, index) => rects.slice(index + 1).some((other) => (
+          item.left < other.right && item.right > other.left && item.top < other.bottom && item.bottom > other.top
+        )));
+        return {
+          clientWidth: document.documentElement.clientWidth,
+          scrollWidth: document.documentElement.scrollWidth,
+          manifestHeadingOverlap: Array.from(document.querySelectorAll(".manifest-revision-heading"))
+            .some((heading) => overlaps(Array.from(heading.children).map((element) => {
+              const { left, right, top, bottom } = element.getBoundingClientRect();
+              return { left, right, top, bottom };
+            }))),
+          feedbackHeadingOverlap: overlaps(visibleRects(".feedback-heading > *")),
+          feedbackFormsOverlap: overlaps(visibleRects(".feedback-input-grid > form")),
+          operationEvidenceOverlap: overlaps(visibleRects("#experiment-operation-evidence > div")),
+          overflowing: Array.from(document.querySelectorAll("body *"))
+            .filter((element) => element.checkVisibility())
+            .map((element) => {
+              const rect = element.getBoundingClientRect();
+              return { tag: element.tagName, id: element.id, className: element.className, right: rect.right };
+            })
+            .filter((item) => item.right > document.documentElement.clientWidth + 1)
+            .slice(0, 8),
+        };
+      });
+
+      assert.equal(layout.scrollWidth <= layout.clientWidth, true, JSON.stringify({ viewport, layout }));
+      assert.equal(layout.manifestHeadingOverlap, false, JSON.stringify({ viewport, layout }));
+      assert.equal(layout.feedbackHeadingOverlap, false, JSON.stringify({ viewport, layout }));
+      assert.equal(layout.feedbackFormsOverlap, false, JSON.stringify({ viewport, layout }));
+      assert.equal(layout.operationEvidenceOverlap, false, JSON.stringify({ viewport, layout }));
+      assert.deepEqual(consoleErrors, []);
+    } finally {
+      await browser.close();
+    }
+  }
+});
 
 test("experiment guide starts collapsed and can be opened without horizontal overflow", async () => {
   for (const viewport of [{ width: 1280, height: 900 }, { width: 390, height: 844 }]) {
@@ -397,8 +612,15 @@ test("experiment guide starts collapsed and can be opened without horizontal ove
   }
 });
 
-test("one natural-language input automatically completes all four stages", async () => {
-  const { browser, page, requests, consoleErrors } = await browserPage();
+test("one natural-language input executes the deployment-to-feedback sequence in order", async () => {
+  const {
+    browser,
+    page,
+    requests,
+    deploymentStatusRequests,
+    feedbackRequests,
+    consoleErrors,
+  } = await browserPage();
   try {
     assert.equal(await page.locator("#automation-input-mode-natural").isChecked(), true);
     assert.equal(await page.locator("#automation-request").isVisible(), true);
@@ -410,7 +632,7 @@ test("one natural-language input automatically completes all four stages", async
     );
     await page.locator("#automation-run-submit").click();
     await page.waitForFunction(() => (
-      document.getElementById("agent-control-action").textContent === "DEPLOY"
+      document.getElementById("manifest-initial-status").textContent.includes("Revision 1")
     ));
 
     assert.equal(requests.length, 1);
@@ -420,17 +642,8 @@ test("one natural-language input automatically completes all four stages", async
       requested_by: "geon-web",
       decision_agent: "RuntimeDeploymentAgent",
     });
-    assert.deepEqual(
-      await page.locator("#agent-control-stage-flow > li").evaluateAll((items) => (
-        items.map((item) => [item.dataset.agentControlStage, item.classList.contains("is-complete")])
-      )),
-      [
-        ["requirement", true],
-        ["recommendation", true],
-        ["decision", true],
-        ["adapter", true],
-      ],
-    );
+    assert.equal(deploymentStatusRequests.length, 0);
+    assert.equal(feedbackRequests.length, 0);
     assert.equal(await page.locator("#automation-analysis-mode").textContent(), "local_rule");
     assert.equal(await page.locator("#agent-control-candidate").textContent(), "mock-gpu-l4");
     assert.equal(await page.locator("#agent-control-authorization").textContent(), "승인");
@@ -452,6 +665,16 @@ test("one natural-language input automatically completes all four stages", async
     assert.match(await page.locator("#automation-application-profile-json").textContent(), /profile-web-001/);
     assert.match(await page.locator("#automation-resource-recommendation-json").textContent(), /mock-gpu-l4/);
     await page.locator('[data-view-target="results"]').click();
+    await page.locator("#deployment-status-form button[type=submit]").click();
+    await page.waitForTimeout(50);
+    assert.equal(deploymentStatusRequests.length, 1);
+    assert.equal(feedbackRequests.length, 0);
+    await page.locator("#optimization-feedback-form button[type=submit]").click();
+    await page.waitForFunction(() => (
+      document.getElementById("manifest-optimized-status").textContent.includes("Revision 2")
+    ));
+    assert.equal(feedbackRequests.length, 1);
+    assert.match(await page.locator("#manifest-optimized-status").textContent(), /Revision 2/);
     assert.match(await page.locator("#experiment-agent-summary").textContent(), /RuntimeDeploymentAgent/);
     assert.match(await page.locator("#experiment-flow-json").textContent(), /agent_execution/);
     assert.deepEqual(consoleErrors, []);
@@ -510,27 +733,20 @@ test("optimization feedback selects an operation Agent and renders guarded scali
   try {
     await page.locator("#automation-run-submit").click();
     await page.waitForFunction(() => (
-      document.getElementById("agent-control-action").textContent === "DEPLOY"
+      document.getElementById("manifest-initial-status").textContent.includes("Revision 1")
     ));
     await page.locator('[data-view-target="results"]').click();
-    await page.locator("#experiment-feedback > summary").click();
-    await page.locator("#load-agent-control-feedback-sample").click();
+    await page.locator("#deployment-status-form button[type=submit]").click();
+    await page.waitForTimeout(50);
+    await page.locator("#optimization-feedback-form button[type=submit]").click();
+    await page.waitForFunction(() => (
+      document.getElementById("experiment-operation-scaling").textContent.includes("SCALE_OUT 1 -> 2")
+    ));
 
     assert.equal(
       await page.locator("#optimization-operation-agent-select").inputValue(),
       "OperationOptimizationAgent",
     );
-    await page.locator("#deployment-status-form button[type=submit]").click();
-    await page.waitForFunction(() => (
-      document.getElementById("experiment-scaling-summary").textContent.includes("Feedback")
-    ));
-    assert.equal(await page.locator("#experiment-operation-evidence").isVisible(), false);
-    assert.doesNotMatch(await page.locator("#experiment-scaling-summary").textContent(), /KEEP|SCALE_/);
-
-    await page.locator("#optimization-feedback-form button[type=submit]").click();
-    await page.waitForFunction(() => (
-      document.getElementById("experiment-operation-scaling").textContent.includes("SCALE_OUT 1 -> 2")
-    ));
 
     assert.equal(feedbackRequests.length, 1);
     assert.equal(
@@ -568,12 +784,11 @@ test("rejected operation Agent proposals are not shown as scaling recommendation
   try {
     await page.locator("#automation-run-submit").click();
     await page.waitForFunction(() => (
-      document.getElementById("agent-control-action").textContent === "DEPLOY"
+      document.getElementById("manifest-initial-status").textContent.includes("Revision 1")
     ));
     await page.locator('[data-view-target="results"]').click();
-    await page.locator("#experiment-feedback > summary").click();
-    await page.locator("#load-agent-control-feedback-sample").click();
     await page.locator("#deployment-status-form button[type=submit]").click();
+    await page.waitForTimeout(50);
     await page.locator("#optimization-feedback-form button[type=submit]").click();
     await page.waitForFunction(() => (
       document.getElementById("experiment-operation-result-guard").textContent === "REJECTED"
@@ -605,13 +820,15 @@ test("mobile guarded feedback wraps long optimization evidence without overlap",
   try {
     await page.locator("#automation-run-submit").click();
     await page.waitForFunction(() => (
-      document.getElementById("agent-control-action").textContent === "DEPLOY"
+      document.getElementById("manifest-initial-status").textContent.includes("Revision 1")
     ));
     await page.locator('[data-view-target="results"]').click();
-    await page.locator("#experiment-feedback > summary").click();
-    await page.locator("#load-agent-control-feedback-sample").click();
     await page.locator("#deployment-status-form button[type=submit]").click();
+    await page.waitForTimeout(50);
     await page.locator("#optimization-feedback-form button[type=submit]").click();
+    await page.waitForFunction(() => (
+      document.getElementById("experiment-operation-evidence").hidden === false
+    ));
     await page.waitForFunction((expectedAgentName) => (
       document.getElementById("experiment-operation-agent").textContent.includes(expectedAgentName)
     ), longAgentName);
