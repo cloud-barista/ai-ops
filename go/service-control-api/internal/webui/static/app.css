@@ -417,7 +417,7 @@ summary:focus-visible {
 
 .experiment-guide-steps {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   margin: 0;
   padding: 0;
   list-style: none;
@@ -433,6 +433,14 @@ summary:focus-visible {
 
 .experiment-guide-step + .experiment-guide-step {
   border-left: 1px solid var(--line);
+}
+
+.experiment-guide-step:nth-child(3n + 1) {
+  border-left: 0;
+}
+
+.experiment-guide-step:nth-child(n + 4) {
+  border-top: 1px solid var(--line);
 }
 
 .experiment-guide-step > span {
@@ -1716,6 +1724,10 @@ dialog::backdrop {
 
   .experiment-guide-steps {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .experiment-guide-step:nth-child(3n + 1) {
+    border-left: 1px solid var(--line);
   }
 
   .experiment-guide-step:nth-child(odd) {

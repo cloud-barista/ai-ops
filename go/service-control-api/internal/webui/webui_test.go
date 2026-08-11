@@ -155,18 +155,44 @@ func TestControlAppContainsCollapsibleExperimentGuide(t *testing.T) {
 		`<details class="experiment-guide" id="experiment-guide">`,
 		`실험 진행 방법`,
 		`입력 방식과 Agent 선택`,
-		`1. Revision 1 생성`,
+		`Revision 1 생성`,
 		`배포 상태 전송`,
-		`Feedback → 운영 최적화 → Revision 2`,
-		`Feedback`,
+		`성능 Feedback 전송`,
+		`운영 최적화 판단`,
+		`Revision 2 확인`,
 	} {
 		if !strings.Contains(html, expected) {
 			t.Fatalf("missing collapsible experiment guide contract %q", expected)
 		}
 	}
+	if count := strings.Count(html, `class="experiment-guide-step"`); count != 6 {
+		t.Fatalf("expected 6 separate experiment guide steps, got %d", count)
+	}
 
 	if strings.Contains(html, `<details class="experiment-guide" id="experiment-guide" open>`) {
 		t.Fatal("experiment guide must be collapsed by default")
+	}
+}
+
+func TestControlAppDoesNotPreloadExperimentEvidence(t *testing.T) {
+	server := echo.New()
+	Register(server)
+	javascript := requestBody(t, server, "/assets/app.js")
+
+	initialize := regexp.MustCompile(`(?s)async function initialize\(\) \{(.*?)\n\}`).FindStringSubmatch(javascript)
+	if len(initialize) != 2 {
+		t.Fatal("initialize function not found")
+	}
+	for _, preload := range []string{
+		`loadAgentControlSamples();`,
+		`loadFeedbackSamples();`,
+	} {
+		if strings.Contains(initialize[1], preload) {
+			t.Fatalf("experiment evidence must not be preloaded at startup: %s", preload)
+		}
+	}
+	if !strings.Contains(initialize[1], `loadAgentControlFlows("", false)`) {
+		t.Fatal("startup must load the saved Flow list without selecting previous evidence")
 	}
 }
 

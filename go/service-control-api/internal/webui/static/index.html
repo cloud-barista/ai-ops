@@ -89,7 +89,15 @@
             </li>
             <li class="experiment-guide-step">
               <span>4</span>
-              <div><strong>Feedback → 운영 최적화 → Revision 2</strong><p><b>3. 성능 Feedback 전송</b> 후 OperationOptimizationAgent와 Scaling Guard가 실행되고 최적화 Manifest가 생성됩니다.</p></div>
+              <div><strong>성능 Feedback 전송</strong><p><b>3. 성능 Feedback 전송</b>을 누르면 같은 Flow의 SLO와 자원·추론 성능 지표가 입력됩니다.</p></div>
+            </li>
+            <li class="experiment-guide-step">
+              <span>5</span>
+              <div><strong>운영 최적화 판단</strong><p>OperationOptimizationAgent가 자동 실행되고 Scaling Guard가 KEEP·SCALE_OUT·SCALE_IN 판단을 검증합니다.</p></div>
+            </li>
+            <li class="experiment-guide-step">
+              <span>6</span>
+              <div><strong>Revision 2 확인</strong><p>승인된 운영 판단이 반영된 최적화 Manifest와 같은 Flow ID의 전체 실행 증거를 확인합니다.</p></div>
             </li>
           </ol>
           <p class="experiment-guide-note"><strong>핵심 완료 기준:</strong> <b>1. Revision 1 생성</b> → <b>2. 배포 상태 전송</b> → <b>3. 성능 Feedback 전송</b> → 운영 최적화 판단 → <b>Manifest Revision 2</b>가 같은 Flow ID에 누적되면 전체 Mock 실험이 완료된 것입니다. SIMULATED는 실제 VM 배포가 아닙니다.</p>

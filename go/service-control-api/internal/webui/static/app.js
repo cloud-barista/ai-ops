@@ -907,7 +907,10 @@ function upsertFlow(flow) {
   state.activeFlowID = flow.correlation_id;
 }
 
-async function loadAgentControlFlows(preferredID = state.activeFlowID) {
+async function loadAgentControlFlows(
+  preferredID = state.activeFlowID,
+  selectNewest = true,
+) {
   try {
     const payload = await apiRequest(API.agentControlFlows);
     state.flows = Array.isArray(payload.flows) ? payload.flows : [];
@@ -917,7 +920,7 @@ async function loadAgentControlFlows(preferredID = state.activeFlowID) {
     );
     const selected =
       state.flows.find((flow) => flow.correlation_id === preferredID) ||
-      state.flows[0] ||
+      (selectNewest ? state.flows[0] : null) ||
       null;
     state.activeFlowID = selected?.correlation_id || "";
     renderExperimentFlows();
@@ -1363,6 +1366,11 @@ function buildFeedbackSamples(flow = activeFlow()) {
 
 function loadFeedbackSamples(flow = activeFlow()) {
   const selectedFlow = flow?.correlation_id ? flow : activeFlow();
+  if (!selectedFlow?.correlation_id) {
+    byID("deployment-status-json").value = "";
+    byID("optimization-feedback-json").value = "";
+    return;
+  }
   const samples = buildFeedbackSamples(selectedFlow);
   byID("deployment-status-json").value = pretty(samples.status);
   byID("optimization-feedback-json").value = pretty(samples.feedback);
@@ -1584,13 +1592,15 @@ async function initialize() {
   bindEvents();
   byID("automation-app-spec-json").value = pretty(STRUCTURED_APP_SPEC_SAMPLE);
   setAutomationInputMode("natural_language");
-  loadAgentControlSamples();
-  loadFeedbackSamples();
   renderAgentControlFlow(null);
   renderAutomationRun(null);
   switchView("agent-control");
   window.lucide?.createIcons();
-  await Promise.all([refreshHealth(), loadAgentControlFlows(), loadAgents()]);
+  await Promise.all([
+    refreshHealth(),
+    loadAgentControlFlows("", false),
+    loadAgents(),
+  ]);
 }
 
 document.addEventListener("DOMContentLoaded", initialize);
