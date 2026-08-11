@@ -196,6 +196,37 @@ func TestControlAppDoesNotPreloadExperimentEvidence(t *testing.T) {
 	}
 }
 
+func TestControlAppSeparatesManifestFlowStages(t *testing.T) {
+	server := echo.New()
+	Register(server)
+	html := requestBody(t, server, "/")
+	javascript := requestBody(t, server, "/assets/app.js")
+
+	for _, expected := range []string{
+		`id="manifest-initial-flow-id"`,
+		`id="manifest-optimized-flow-id"`,
+		`id="experiment-manifest-initial-flow-id"`,
+		`id="experiment-manifest-optimized-flow-id"`,
+		`Revision 1 · 배포 판단`,
+		`Revision 2 · 운영 최적화`,
+		`Flow 미생성`,
+	} {
+		if !strings.Contains(html, expected) {
+			t.Fatalf("missing separated Manifest Flow stage contract %q", expected)
+		}
+	}
+
+	for _, expected := range []string{
+		`const flowID = text(flow?.correlation_id, "Flow 미생성");`,
+		"byID(`${prefix}manifest-initial-flow-id`).textContent = flowID;",
+		"byID(`${prefix}manifest-optimized-flow-id`).textContent = flowID;",
+	} {
+		if !strings.Contains(javascript, expected) {
+			t.Fatalf("missing Manifest Flow stage renderer %q", expected)
+		}
+	}
+}
+
 func TestControlAppContainsPolicyRegistryAndExperimentResults(t *testing.T) {
 	server := echo.New()
 	Register(server)

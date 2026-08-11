@@ -198,18 +198,26 @@
               <small>통신 규약 스키마는 1.0이며 Revision은 동일 Flow 안의 생성 순서입니다.</small>
             </div>
             <div class="manifest-output-grid">
-              <section>
+              <section class="manifest-stage-card">
                 <div class="manifest-revision-heading">
-                  <strong>초기 Manifest</strong>
+                  <div class="manifest-revision-title">
+                    <small>REVISION 1</small>
+                    <strong>Revision 1 · 배포 판단</strong>
+                  </div>
                   <span id="manifest-initial-status">생성 대기</span>
                 </div>
+                <div class="manifest-flow-id"><span>FLOW ID</span><code id="manifest-initial-flow-id">Flow 미생성</code></div>
                 <pre class="json-output manifest-json" id="manifest-initial-json">DEPLOY 승인 후 생성됩니다.</pre>
               </section>
-              <section>
+              <section class="manifest-stage-card">
                 <div class="manifest-revision-heading">
-                  <strong>최적화 Manifest</strong>
+                  <div class="manifest-revision-title">
+                    <small>REVISION 2</small>
+                    <strong>Revision 2 · 운영 최적화</strong>
+                  </div>
                   <span id="manifest-optimized-status">Feedback 후 생성 대기</span>
                 </div>
+                <div class="manifest-flow-id"><span>FLOW ID</span><code id="manifest-optimized-flow-id">Flow 미생성</code></div>
                 <pre class="json-output manifest-json" id="manifest-optimized-json">승인된 SCALE_OUT 또는 SCALE_IN 판단 후 생성됩니다.</pre>
               </section>
             </div>
@@ -377,8 +385,11 @@
               <section class="experiment-sequence-step">
                 <div class="experiment-sequence-heading">
                   <span class="experiment-sequence-number">1</span>
-                  <div><strong>Manifest Revision 1</strong><small>요구사항 분석·인프라 추천·배포 판단 결과</small></div>
-                  <span id="experiment-manifest-initial-status">생성 대기</span>
+                  <div><strong>Manifest Revision 1 · 배포 판단</strong><small>요구사항 분석·인프라 추천·배포 판단 결과</small></div>
+                  <div class="manifest-stage-state">
+                    <span id="experiment-manifest-initial-status">생성 대기</span>
+                    <code id="experiment-manifest-initial-flow-id">Flow 미생성</code>
+                  </div>
                 </div>
                 <pre class="json-output manifest-json" id="experiment-manifest-initial-json">DEPLOY 승인 후 생성됩니다.</pre>
               </section>
@@ -447,8 +458,11 @@
               <section class="experiment-sequence-step">
                 <div class="experiment-sequence-heading">
                   <span class="experiment-sequence-number">5</span>
-                  <div><strong>Manifest Revision 2</strong><small>승인된 SCALE_OUT 또는 SCALE_IN을 반영한 최종 산출물</small></div>
-                  <span id="experiment-manifest-optimized-status">Feedback 후 생성 대기</span>
+                  <div><strong>Manifest Revision 2 · 운영 최적화</strong><small>승인된 SCALE_OUT 또는 SCALE_IN을 반영한 최종 산출물</small></div>
+                  <div class="manifest-stage-state">
+                    <span id="experiment-manifest-optimized-status">Feedback 후 생성 대기</span>
+                    <code id="experiment-manifest-optimized-flow-id">Flow 미생성</code>
+                  </div>
                 </div>
                 <pre class="json-output manifest-json" id="experiment-manifest-optimized-json">승인된 SCALE_OUT 또는 SCALE_IN 판단 후 생성됩니다.</pre>
               </section>

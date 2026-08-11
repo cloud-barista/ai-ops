@@ -353,6 +353,7 @@ function manifestPayload(revision) {
 
 function renderManifestOutput(prefix, flow) {
   const revisions = manifestRevisions(flow);
+  const flowID = text(flow?.correlation_id, "Flow 미생성");
   const initial = revisions.find((revision) => Number(revision.revision) === 1) || null;
   const optimized = [...revisions]
     .reverse()
@@ -361,6 +362,8 @@ function renderManifestOutput(prefix, flow) {
   const initialJSON = byID(`${prefix}manifest-initial-json`);
   const optimizedStatus = byID(`${prefix}manifest-optimized-status`);
   const optimizedJSON = byID(`${prefix}manifest-optimized-json`);
+  byID(`${prefix}manifest-initial-flow-id`).textContent = flowID;
+  byID(`${prefix}manifest-optimized-flow-id`).textContent = flowID;
 
   initialStatus.textContent = initial
     ? `생성 완료 · Revision ${text(initial.revision)}`
