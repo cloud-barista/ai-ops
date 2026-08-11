@@ -407,17 +407,19 @@ test("a new run stops at Revision 1 until deployment status and Feedback are sen
     },
   );
   try {
-    await page.waitForFunction(() => (
-      document.getElementById("agent-control-flow-id").textContent === "flow-old-001"
-    ));
-    assert.equal(
-      JSON.parse(await page.locator("#deployment-status-json").inputValue()).correlation_id,
-      "flow-old-001",
-    );
+    assert.equal(await page.locator('[data-view="agent-control"]').isVisible(), true);
+    assert.equal(await page.locator('[data-view="results"]').isVisible(), false);
+    assert.equal(await page.locator("#deployment-status-json").inputValue(), "");
 
     await page.locator("#automation-run-submit").click();
     await page.waitForTimeout(250);
     assert.equal(requests.length, 1, JSON.stringify(consoleErrors));
+    assert.equal(await page.locator('[data-view="agent-control"]').isVisible(), true);
+    assert.equal(await page.locator('[data-view="results"]').isVisible(), false);
+    assert.match(
+      await page.locator("#automation-run-completion").textContent(),
+      /Revision 1 생성 완료 · flow-web-001/,
+    );
     assert.equal(
       await page.locator(".flow-list-item.is-active [data-flow-id]").getAttribute("data-flow-id"),
       "flow-web-001",

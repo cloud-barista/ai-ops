@@ -812,6 +812,9 @@ function renderAutomationRun(run) {
 async function submitAutomationRun(event) {
   event.preventDefault();
   const form = event.currentTarget;
+  const completion = byID("automation-run-completion");
+  completion.hidden = true;
+  completion.textContent = "";
   setBusy(form, true, "자동 실행 중...");
   try {
     const run = await apiRequest(API.automationRuns, {
@@ -823,10 +826,16 @@ async function submitAutomationRun(event) {
     }
     renderAutomationRun(run);
     renderExperimentFlows();
-    switchView("results");
     const action = run.flow?.decision?.action || run.flow?.state || run.status;
+    const flowID = text(run.flow?.correlation_id, run.correlation_id, "Flow ID 없음");
+    const completionLabel =
+      action === "DEPLOY"
+        ? "Revision 1 생성 완료"
+        : `배포 판단 완료 · ${text(action)}`;
+    completion.textContent = `${completionLabel} · ${flowID}`;
+    completion.hidden = false;
     showToast(
-      `${text(action)} 결정과 배포 요구 스펙이 생성되었습니다.`,
+      `${completionLabel} · ${flowID}`,
       action === "DEPLOY" ? "success" : "warning",
     );
   } catch (error) {

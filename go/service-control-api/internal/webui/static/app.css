@@ -762,10 +762,25 @@ select:focus {
 
 .workflow-actions-primary {
   display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .workflow-actions-primary .button {
   min-width: 180px;
+}
+
+.automation-run-completion {
+  min-width: 0;
+  margin-right: auto;
+  color: var(--teal-dark);
+  font-size: 12px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.automation-run-completion[hidden] {
+  display: none;
 }
 
 .button,

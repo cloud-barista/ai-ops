@@ -227,6 +227,33 @@ func TestControlAppSeparatesManifestFlowStages(t *testing.T) {
 	}
 }
 
+func TestAutomationRunStaysOnCurrentView(t *testing.T) {
+	server := echo.New()
+	Register(server)
+	html := requestBody(t, server, "/")
+	javascript := requestBody(t, server, "/assets/app.js")
+
+	if !strings.Contains(html, `id="automation-run-completion"`) {
+		t.Fatal("missing persistent Revision 1 completion status")
+	}
+
+	submitRun := regexp.MustCompile(`(?s)async function submitAutomationRun\(event\) \{(.*?)\n\}`).FindStringSubmatch(javascript)
+	if len(submitRun) != 2 {
+		t.Fatal("submitAutomationRun function not found")
+	}
+	if strings.Contains(submitRun[1], `switchView("results")`) {
+		t.Fatal("Revision 1 execution must not navigate to the results view")
+	}
+	for _, expected := range []string{
+		`Revision 1 생성 완료`,
+		`automation-run-completion`,
+	} {
+		if !strings.Contains(submitRun[1], expected) {
+			t.Fatalf("missing current-view completion behavior %q", expected)
+		}
+	}
+}
+
 func TestControlAppContainsPolicyRegistryAndExperimentResults(t *testing.T) {
 	server := echo.New()
 	Register(server)
