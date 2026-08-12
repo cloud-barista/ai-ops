@@ -18,6 +18,8 @@ bounded Request snapshot
   -> HANDOFF_READY / not_submitted
 ~~~
 
+통합 시 첫 Safeguard는 geon의 live Requirement Analyzer나 기존 full-Manifest LLM보다 먼저 실행한다. geon이 승인한 `INITIAL` revision 뒤에서는 LLM_Op이 AppDeploy 전용 prepare-only 투영만 담당하며, `OperationOptimizationAgent`와 `OPTIMIZED` revision은 처리하지 않는다. 별도 구현도 이 순서와 상태·action 계약을 기준으로 삼는다. 자세한 역할 기준은 `../coordination/llm-op-guard-first-integration-standard.md`에 있다.
+
 두 LLM 단계는 전체 Manifest나 보안 정책을 작성하지 않는다. 보안 정책과 non-LLM field injection은 Go 코드가 소유한다. 해당 identity 값의 인증·registry binding은 공개 route 전 integration 책임이다.
 
 ## 주요 구현
@@ -40,6 +42,8 @@ bounded Request snapshot
 | --- | --- | --- |
 | `NewOfflineFixturePlanner` | 고정 provider/model evidence + pre-recorded review/Proposal JSON demo | 구조적으로 없음 |
 | `PrepareWithConfig` | system clock을 소유한 향후 OpenAI-compatible Qwen integration | 기본 `AllowLiveCompletion=false` |
+| `ReviewRequest` → approved Flow → `PrepareApproved` | offline Guard-first 분리 검증 | 구조적으로 없음; trusted in-process |
+| `ReviewWithConfig` → approved Flow → `PrepareApprovedWithConfig` | live Guard-first Go integration | 기본 disabled; HTTP resume API가 아님 |
 
 임의 completion client를 받는 constructor는 package-private다. Proposal-only 내부 `Planner`는 test 구성 요소이며 integration이 직접 호출하면 안 된다.
 

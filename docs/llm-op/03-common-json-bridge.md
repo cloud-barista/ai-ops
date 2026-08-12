@@ -10,14 +10,32 @@
 
 이 브리지는 모델을 선택하지 않는다. caller가 미리 바인딩한 `llmop.Request.CandidateID`를 그대로 보존하며, `ApplicationContext.ModelRecommendation`과 `InferenceConfiguration`은 읽지 않는다.
 
+`Project`는 기존 fixture와 pre-decision 호환용이다. 최신 geon과 연결할 때 사용해야 할 기준 구현은 `ProjectApprovedInitialFlow`다. 후자는 최초 LLM_Op Safeguard 증거, 원본 analysis request, 승인된 geon `Flow`, trusted AppVersion registry resolver를 함께 받아 `DEPLOY_APPROVED`인 `INITIAL` revision 1만 투영한다. 현재 공개 route/orchestrator에는 아직 연결하지 않았으므로, post-decision 통합을 추가할 때 `Project`만 직접 호출해서는 안 된다.
+
+## Guard-first 공식 연결
+
+공식 연결은 다음 세 진입점을 순서대로 사용한다.
+
+1. `llmop.ReviewWithConfig` 또는 offline `SafeguardedPlanner.ReviewRequest`가 비신뢰 자연어를 deterministic preflight와 최초 Safeguard로 검토한다.
+2. `allow_request`의 `SafeguardStageResult`만 geon 분석·추천·결정으로 전달하고, `llmopbridge.ProjectApprovedInitialFlow`가 승인된 `INITIAL` revision과 trusted AppVersion binding을 결합한다.
+3. trusted in-process orchestration의 `SafeguardedPlanner.PrepareApproved` 또는 live Go integration용 `llmop.PrepareApprovedWithConfig`가 최초 승인 binding을 재계산한 뒤 Proposal만 한 번 호출한다.
+
+이 분리 경로에서도 모델 호출은 정상 성공 기준으로 **Safeguard 1회 + Proposal 1회**다. 두 번째 진입점은 Safeguard LLM을 반복 호출하지 않는다. 최초 binding에서 예외적으로 제외되는 값은 geon이 생성한 `PlanningConstraints`뿐이며, 사용자 요청·관측·candidate·policy·`app_version_id` 등 나머지 값이 바뀌면 Proposal 전에 fail-closed한다. 이 후반 진입점은 현재 같은 module의 trusted orchestration 전용이며 public HTTP API가 아니다.
+
+브리지는 공개 continuation의 형태와 Flow 간 identity를 검증하지만, 정규화 결과·policy·candidate 설정까지 가지고 있지 않으므로 SHA-256 binding의 진위를 단독으로 증명하지 않는다. 최종 재계산 권위는 `PrepareApproved`에 있다. 이 binding은 감사·연결 증거이며 배포 권한이나 bearer token이 아니다.
+
 ## 입력과 출력
 
-입력은 caller-bound `llmop.Request` template과 Common JSON 세 envelope다. template에는 integration이 제공한 `app_version_id`, 요청자, completion candidate binding, 선택적 deployment/Target hint 및 관측값만 들어간다. 자연어 요청, correlation/trace, prepare-only policy와 planning constraints는 브리지가 Common JSON에서 채운다. 이 template 값이 등록·인증됐는지는 현재 bridge가 증명하지 않는다.
+기존 `Project` 입력은 caller-bound `llmop.Request` template과 Common JSON 세 envelope다. template에는 integration이 제공한 `app_version_id`, 요청자, completion candidate binding, 선택적 deployment/Target hint 및 관측값만 들어간다. 자연어 요청, correlation/trace, prepare-only policy와 planning constraints는 브리지가 Common JSON에서 채운다. 이 template 값이 등록·인증됐는지는 기존 bridge가 증명하지 않는다.
+
+`ProjectApprovedInitialFlow` 입력은 planning constraints가 아직 없는 최초 safeguarded Request, `SafeguardStageResult`, 원본 `ApplicationAnalysisRequestEnvelope`, 전체 `agentcontrol.Flow`, trusted AppVersion resolver다. resolver가 Common JSON `app_id/app_version`을 AppDeploy `app_version_id`에 결합하며 caller 값과 정확히 일치해야 한다.
 
 출력은 다음 두 부분이다.
 
 - `Projection.Request`: offline에서는 `NewOfflineFixturePlanner(...).Prepare`, 향후 live에서는 `PrepareWithConfig`에 전달할 요청
 - `Projection.Evidence`: Common JSON join에 사용한 message/profile/recommendation/snapshot/resource-candidate ID
+
+승인 Flow 경로의 출력은 `ApprovedInitialFlowProjection`이다. enriched `Request`와 deep-copied `SafeguardStageResult`를 한 묶음으로 반환한다. `Evidence`에는 최초 safeguard continuation, decision/revision/phase/trigger, active deployment message/request/manifest ID, revision SHA-256 fingerprint, AppVersion tuple, 서로 분리된 LLM candidate/resource candidate ID가 포함된다. 이 출력 Request·Safeguard 쌍은 반드시 `PrepareApproved` 계열에 함께 전달하고 일반 `Prepare`로 Safeguard를 중복 실행하지 않는다.
 
 Evidence의 Profile ID, Resource candidate ID, Snapshot ID는 AppDeploy `target_profile_id`가 아니다. Resource candidate ID와 completion `candidate_id`도 서로 다른 namespace다.
 
@@ -44,6 +62,18 @@ Evidence의 Profile ID, Resource candidate ID, Snapshot ID는 AppDeploy `target_
 이 검사는 Common JSON에서 투영하는 필드의 lossless join을 보장할 뿐, template 전체를 인증하거나 모든 `llmop.Request` 규칙을 끝내지 않는다. caller가 넣은 `OperationContext`와 template identity의 나머지 검사는 반드시 downstream `Prepare`의 Request Guard와 Normalizer를 통과해야 한다.
 
 이 join 검증은 producer 인증, 메시지 서명·소유권, `occurred_at` freshness/순서, replay/고유성을 증명하지 않는다. `Projection.Evidence`도 현재 final `llmop.Result.Evidence`에 자동 보존되지 않고 Request와 digest로 결합되지 않는다. 공개 route 전에 trusted producer, replay policy, immutable evidence binding을 별도 계약으로 추가해야 한다.
+
+승인 Flow 경로는 위 검증에 더해 다음을 fail-closed한다.
+
+- 최초 safeguard가 `SAFEGUARD_APPROVED/allow_request`가 아니거나 analysis의 user request와 정확히 다름
+- geon `Flow.State != DEPLOY_APPROVED`, decision이 `DEPLOY`가 아님, Flow/Agent Guard가 승인되지 않음
+- correlation/trace/profile/app/version/selected resource candidate/decision identity 불일치
+- active request가 최신 revision과 정확히 같지 않음
+- revision이 하나가 아니거나 `Revision 1 / INITIAL / DEPLOY`가 아님
+- deployment/optimization/scaling 상태가 이미 존재함
+- Profile에 missing field, assumption 또는 warning이 남음. structured provenance code가 없는 현재 버전은 전부 fail-closed하며 caller는 이를 성공으로 바꾸지 말고 사용자 명확화로 매핑해야 함
+- trusted registry의 AppVersion binding과 최초 safeguarded `app_version_id` 불일치
+- Common JSON DesiredDeploymentSpec과 Manifest의 lossless identity/resource/runtime mapping 불일치
 
 ## 무손실 매핑
 
@@ -122,7 +152,7 @@ Evidence의 Profile ID, Resource candidate ID, Snapshot ID는 AppDeploy `target_
 
 ## 이후 AppDeploy 인계
 
-브리지 출력은 공식 two-stage pipeline의 입력이다. offline은 `NewOfflineFixturePlanner`, live는 기본 차단된 `PrepareWithConfig`만 사용한다. 결정적 Request Guard → 자연어 Safeguard review → 별도 Proposal → semantic/AppDeploy Guard를 모두 통과한 뒤에만 다음 exact body가 준비된다. 내부 `llmop.Planner` 또는 package-private client constructor를 통합 경로로 사용하지 않는다.
+기존 pre-decision 브리지 출력은 일반 two-stage pipeline의 입력이다. 승인 Flow 브리지 출력은 `PrepareApproved` 계열의 입력이다. 공식 Guard-first 통합은 최초 `ReviewRequest/ReviewWithConfig` → geon → `ProjectApprovedInitialFlow` → trusted in-process `PrepareApproved/PrepareApprovedWithConfig` 순서만 사용한다. 결정적 Request Guard → 자연어 Safeguard review → geon 승인 → binding 재검증 → 별도 Proposal → semantic/AppDeploy Guard를 모두 통과한 뒤에만 다음 exact body가 준비된다. 내부 `llmop.Planner` 또는 package-private client constructor를 통합 경로로 사용하지 않는다. `PrepareApprovedWithConfig`는 Go integration API이지 HTTP body 계약이 아니다. 외부 경계를 넘기려면 opaque server record 또는 HMAC/서명 seal을 먼저 설계한다.
 
 ~~~go
 appdeploy.DeploymentCreateRequest{

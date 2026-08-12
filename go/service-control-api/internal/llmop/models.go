@@ -13,6 +13,7 @@ const (
 	ModePrepareOnly = "prepare_only"
 
 	StatusHandoffReady         = "HANDOFF_READY"
+	StatusSafeguardApproved    = "SAFEGUARD_APPROVED"
 	StatusClarificationNeeded = "CLARIFICATION_REQUIRED"
 	StatusRequestRejected      = "REQUEST_REJECTED"
 	StatusManifestRejected     = "MANIFEST_REJECTED"

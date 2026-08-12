@@ -1,12 +1,14 @@
 # 전달용: LLM_Op과 geon의 협업 경계
 
+> **2026-08-12 통합 기준:** 최신 역할·실행 순서의 normative 요약은 [LLM_Op Guard-first 연결 기준](llm-op-guard-first-integration-standard.md)이다. 최초 LLM_Op Safeguard를 어떤 live Requirement Analyzer보다 먼저 실행하고, `allow_request`인 경우에만 geon이 canonical `Flow`·`DesiredDeploymentSpec`·`INITIAL` revision을 만든다. 그 승인 결과는 `ProjectApprovedInitialFlow`와 trusted in-process `PrepareApproved/PrepareApprovedWithConfig`로 AppDeploy prepare-only body에 투영한다. 별도 구현도 이 순서와 fail-closed 의미를 호환 기준으로 삼으며, `OPTIMIZED` revision과 Operation Optimization은 geon 소유다.
+
 ## 전달 목적
 
 이 문서는 LLM_Op 브랜치에서 작성한 geon 작업자용 인수인계 문서다. geon의 기존 Planner·ControlRun 작업을 중단하거나 대체하지 않고, 최신 `통합 다이어그램 (초안)`의 자연어 → ApplicationProfile/상태 분석 → Safe Guard·Repair → Manifest 흐름을 안전하게 연결하기 위한 합의안을 제시한다. 구조도 제안안 B는 두 LLM/Guard 단계의 상세 참고다. 요구사항정의서상 SFR-OPS-04~06은 2027 항목이며, 이 PR은 2026 선행 PoC·부분 구현이다.
 
 LLM_Op은 자연어 요청·상태·로그 입력에서 prepare-only DeploymentManifest 초안을 만드는 흐름을 주도한다. 통합 다이어그램의 LLM 선택기는 현재 범위가 아니며, `candidate_id`는 상위 계층이 이미 지정한 구성을 결합하기 위한 값이다. 실제 Qwen API와 AppDeployer POST는 이번 검증에서 호출하지 않는다.
 
-이 문서의 원격 공유는 base=`geon`, head=`LLM_Op`인 Draft PR만 사용한다. geon 브랜치에 직접 push하거나 별도 cherry-pick을 요구하지 않는다.
+주 구현의 원격 공유는 base=`geon`, head=`LLM_Op`인 Draft PR을 사용한다. geon 작업자가 기준 파일을 브랜치 관점에서 바로 발견할 수 있도록 Guard-first 기준 문서 하나만 담은 별도 docs-only PR을 열 수 있지만, geon 브랜치에 직접 push하거나 runtime code cherry-pick을 요구하지 않는다.
 
 Draft PR을 만들 때 geon 최신 커밋 작성자인 @gunsun2000을 멘션하고, 해당 PR 하나를 결합점·계약 변경·상호 버그 공유 채널로 유지한다.
 
@@ -77,7 +79,7 @@ LLMOperationResult
   + handoff submission state and informational next route
 ~~~
 
-offline 공식 진입점은 `llmop.NewOfflineFixturePlanner(...).Prepare`, 향후 live 진입점은 `llmop.PrepareWithConfig`다. 내부 `llmop.Planner`와 package-private client constructor를 geon 통합 코드가 직접 호출하면 안 된다.
+단일-process offline 공식 진입점은 `llmop.NewOfflineFixturePlanner(...).Prepare`, 단일-process live 진입점은 `llmop.PrepareWithConfig`다. Guard-first geon 연결은 offline `ReviewRequest → ProjectApprovedInitialFlow → PrepareApproved`, live Go integration `ReviewWithConfig → ProjectApprovedInitialFlow → PrepareApprovedWithConfig`를 사용한다. 후반 진입점은 최초 safeguard binding을 다시 계산하고 Proposal만 호출하므로 Safeguard LLM을 반복 호출하지 않는다. plain SHA-256 continuation은 인증 seal이 아니므로 외부 caller에게 resume API로 노출하지 않는다. 프로세스 경계를 넘기려면 server-side opaque record 또는 HMAC/서명 seal이 먼저 필요하다. 내부 `llmop.Planner`와 package-private client constructor를 geon 통합 코드가 직접 호출하면 안 된다.
 
 1차 구현의 잠정 Guard ceiling은 사용자 요청 8,000 rune, raw field 32 KiB/text envelope 2 MiB, 관측 age 10분, 미래·부모 timestamp skew 1분, 입력 log 500개, 보존 log 50개, resource/runtime-health/alarm 각 100개, status bucket 50개, message 2,000 rune, 짧은 필드 128 rune, Qwen user message 128 KiB(system message 제외), completion content 64 KiB다. non-empty parameters는 v1alpha1에서 전부 거부하며 Manifest에 복사하지 않는다. Manifest 생성 action은 confidence 0.5 이상이어야 하고 CPU 256·GPU 16·memory 2Ti·storage 64Ti 전역 상한과 exact 자원 계약을 모두 지켜야 한다. 이 값들은 실제 운영 데이터와 AppDeployer 정책을 확인하기 전의 provisional safety envelope다.
 
@@ -109,7 +111,7 @@ GET  /api/v1/resources/inventory
 - 브라우저는 모델 API나 AppDeploy를 호출하지 않는다. prompt 복사와 raw JSON 검증만 수행하며, 실제 Go prompt 상수와 byte-identical한지 Node contract test로 감시한다.
 - geon이 webui.go의 embed 목록이나 /assets route를 수정할 때는 llm_op_demo 4개 asset과 /llm-op-demo route를 보존하거나 충돌을 이 Draft PR에 알린다.
 - geon의 `go/service-control-api/internal/deploymentplanner`, `go/service-control-api/internal/api/server.go`, 기존 OpenAPI를 수정해야 하는 순간에는 선행 협의를 한다.
-- 공유는 LLM_Op Draft PR에서만 수행하고 geon 브랜치에 직접 push·cherry-pick하지 않는다. 병합 가능한 변경이 합의되면 PR 안에서 작은 독립 커밋으로 분리한다.
+- 주 구현 공유는 LLM_Op Draft PR에서 수행하고 geon 브랜치에 직접 push·runtime code cherry-pick하지 않는다. Guard-first 기준 파일 하나를 전달하는 docs-only PR은 허용하며, 병합 가능한 구현 변경이 합의되면 PR #1 안에서 작은 독립 커밋으로 분리한다.
 - AppDeployer 변경은 계약 불일치가 확인된 경우에만 별도 이슈 또는 협업 요청으로 제안한다.
 
 ## 검토가 필요한 미결정 사항

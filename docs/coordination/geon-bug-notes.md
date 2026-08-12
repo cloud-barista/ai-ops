@@ -4,7 +4,7 @@
 
 LLM_Op 정적 검토 중 발견한 geon/AppDeployer 경계의 문제를 공유한다. 이 문서는 geon 코드를 수정하지 않으며, geon 작업자가 재현·수정 여부를 결정할 수 있도록 근거와 예상 영향을 기록한다.
 
-이 내용은 2026-08-05 기준 소스·OpenAPI·Schema의 정적 비교 결과다. Go 테스트나 AppDeployer 종단간 실행으로 재현한 결과는 아니므로, geon 쪽 실행 환경에서 재현 여부를 확인해야 한다.
+초기 항목은 2026-08-05 기준이고, 항목 8은 `geon@1999d79`를 2026-08-12에 정적으로 검토한 결과다. Go 테스트나 AppDeployer 종단간 실행으로 재현한 결과는 아니므로, geon 쪽 실행 환경에서 재현 여부를 확인해야 한다.
 
 ## 확인된 버그
 
@@ -88,6 +88,25 @@ LLM_Op 대응:
 - Common JSON bridge는 Profile 또는 선택 Resource candidate 어느 쪽의 device-memory minimum도 조용히 버리지 않고 fail-closed한다.
 - 현재 bridge 성공 fixture는 실제 geon 정책과 맞는 CPU-only Profile을 기준으로 둔다. 별도 경계 fixture와 실제 `LocalRequirementAnalyzer` + checked-in catalog 회귀 test는 device-memory가 있는 GPU Common JSON 경로가 명시적 오류로 끝나도록 고정한다.
 - AppDeploy schema 확장 또는 resource recommendation과 최종 Target을 연결하는 신뢰 계약이 합의되기 전에는 기존 geon 자연어 GPU Common JSON 경로의 종단간 성공을 주장하지 않는다.
+
+### 8. LocalRequirementAnalyzer의 `GPU 0` 및 replica 기본값이 Guard-first 연결을 막음
+
+- `LocalRequirementAnalyzer`는 자연어에 `gpu` 문자열이 있으면 수량이 0이어도 accelerator를 `Required=true`로 만든다. 따라서 LLM_Op의 명시적 CPU-only 문법인 `GPU 0`이 geon에서는 required GPU count 0이라는 모순된 Profile이 될 수 있다.
+- replica를 명시하지 않으면 `Minimum replica count defaulted to 1` assumption이 남는다.
+- Guard-first approved bridge는 hidden default로 AppDeploy 초안을 만들지 않기 위해 missing field, assumption 또는 warning이 있는 Profile을 clarification으로 fail-closed한다.
+- 결과적으로 `CPU 2, GPU 0, memory 4Gi, storage 20Gi`처럼 LLM_Op 단독 경로에서 유효한 대표 CPU 요청도 현재 LocalRequirementAnalyzer를 거치면 approved Flow 연결에 성공하지 않을 수 있다.
+
+권장 검토:
+
+1. `GPU 0`을 명시적 CPU-only 요구로 해석해 `Required=false`, count/memory 0으로 만든다.
+2. resource별 `explicit/defaulted/inferred`와 replica provenance를 구조화해 downstream이 실제 투영 필드만 판단할 수 있게 한다.
+3. 사용자에게 replica를 요구할지, trusted policy default로 허용할지 계약을 명시한다.
+4. 최초 LLM_Op Safeguard → 실제 `LocalRequirementAnalyzer` → recommendation/decision/revision → approved bridge 회귀 test를 추가한다.
+
+LLM_Op 대응:
+
+- 이번 기준 구현은 문제를 추측 보정하지 않고 fail-closed하며, 실제 geon analyzer를 통과한 CPU/GPU 종단 성공을 주장하지 않는다.
+- 구조화 provenance와 GPU 0 의미가 합의되면 bridge fixture와 47개 scenario catalog를 함께 갱신한다.
 
 ## 상호 공유 방식
 

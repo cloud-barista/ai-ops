@@ -21,6 +21,17 @@ jobs:
             go/aiops-guard/go.mod
             go/service-control-api/go.sum
 
+      - name: Set up Node.js for browser contract tests
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Test dependency-free browser contracts
+        run: |
+          cd go/service-control-api
+          node --test internal/webui/manifest_stages_test.js \
+            internal/webui/llm_op_demo_test.js
+
       - name: Test Go guard
         run: |
           cd go/aiops-guard

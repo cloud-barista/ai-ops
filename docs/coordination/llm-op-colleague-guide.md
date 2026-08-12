@@ -12,16 +12,18 @@
 - 작업 브랜치: <https://github.com/cloud-barista/ai-ops/tree/LLM_Op>
 - `geon`과 변경 비교: <https://github.com/cloud-barista/ai-ops/compare/geon...LLM_Op>
 - 병합용 Draft PR: <https://github.com/cloud-barista/ai-ops/pull/1>
-- 이 문서 작성 시점의 기준 커밋: `1fb3d14`
-- 원격 CI 성공 증적: <https://github.com/cloud-barista/ai-ops/actions/runs/31152533878>
+- 이 문서의 geon 최신화 기준: `geon@1999d79`, `LLM_Op@59c8a9b` 이후 통합 변경
+- 기존 원격 CI 성공 증적: <https://github.com/cloud-barista/ai-ops/actions/runs/31154048774> (최신 통합 커밋은 새 CI로 재검증)
 
-현재 PR 방향은 `LLM_Op → geon`이다. `LLM_Op`은 `geon`을 기준으로 만든 3개 연속 커밋이며, 세 커밋이 하나의 파이프라인을 구성한다. 따라서 마지막 커밋만 따로 cherry-pick하기보다 PR 전체를 검토하고 병합하는 것이 안전하다.
+현재 PR 방향은 `LLM_Op → geon`이다. 초기 4개 LLM_Op 커밋과 최신 geon 통합·Guard-first 계약 변경이 하나의 안전 파이프라인을 구성하므로 마지막 커밋만 따로 cherry-pick하지 말고 PR 전체를 검토한다.
 
 ## 2. 한 문장 요약
 
 `LLM_Op`은 **사용자의 자연어 운영 요청과 외부에서 전달받은 서버 상태·로그·모니터링 정보를 안전하게 정규화하고, 두 단계 LLM의 구조화된 출력을 결정적 Guard로 검증한 뒤, AppDeploy 담당자가 받을 수 있는 `DeploymentCreateRequest` 초안을 만드는 계층**이다.
 
 실제 LLM API 과금, 실제 AppDeploy 호출 및 실제 배포는 수행하지 않는다.
+
+통합의 기준 순서는 **LLM_Op 최초 Safeguard → geon의 DEPLOY 판단과 canonical `INITIAL` revision → LLM_Op AppDeploy prepare-only 투영**이다. 별도 구현을 만들더라도 이 순서, allow/clarify/reject action, fail-closed 상태와 금지 필드 계약을 호환 기준으로 삼는다. 세부 규범은 `llm-op-guard-first-integration-standard.md`에 있다.
 
 ## 3. 처리 흐름
 
@@ -37,6 +39,10 @@ Operation Context 정규화
 LLM ① Safeguard Review
   - allow_request / request_clarification / reject_request
   ↓ allow_request일 때만 진행
+geon Requirement/Profile/Recommendation/DEPLOY Guard
+  ↓
+canonical Flow + DesiredDeploymentSpec + INITIAL revision
+  ↓ 승인된 초기 Flow와 최초 Safeguard binding 검증
 LLM ② Manifest Proposal
   - action, reason, confidence, CPU/메모리/GPU/스토리지 제안
   ↓
@@ -98,6 +104,7 @@ ai-ops/
 협업용 문서는 `docs/coordination/`에 있다.
 
 - `to-geon-llm-op-handoff.md`: 양쪽 작업 범위, 제공 계약, 충돌 회피 및 검토 요청
+- `llm-op-guard-first-integration-standard.md`: 별도 구현도 따라야 할 최초 Safeguard 순서, 단일 권위와 금지 fallback 기준
 - `geon-bug-notes.md`: 통합 과정에서 발견한 잠재 결함과 계약 위험
 - `geon-draft-pr-message.md`: Draft PR 설명의 원본
 - `llm-op-colleague-guide.md`: 현재 읽고 있는 단일 인계 문서
@@ -136,15 +143,16 @@ Parser는 알려지지 않은 필드, 중복 JSON key, trailing data, 과도한 
 | `request_guard.go` | LLM 전 prompt injection, secret, 명령, 범위, 자원 문법 검사 |
 | `normalizer.go` | freshness, 시각 관계, 입력 상한, 정렬, redaction |
 | `safeguard_harness.go` | LLM ① 프롬프트·출력 검증 및 다음 단계 제어 |
+| `safeguard_stage.go` | 최초 승인 continuation과 요청·관측·policy·candidate SHA-256 binding |
 | `planner.go` | LLM ② 프롬프트, strict JSON, 제안 검증 및 request 생성 |
 | `semantic_guard.go` | 사용자 자원 의도, 추천값, runtime readiness의 정확한 일치 검증 |
-| `provider.go` | caller-pinned provider 경계와 live completion 기본 차단 |
+| `provider.go` | caller-pinned provider 경계, live completion 기본 차단, split live Go integration |
 
 동일 디렉터리의 `*_test.go`들은 injection, secret, freshness, strict JSON, 자원 상한, ID 유출, completion envelope, 성공 fixture와 실패 상태를 검증한다.
 
 ### 4.5 geon 연결 계층
 
-`go/service-control-api/internal/llmopbridge/bridge.go`는 geon의 다음 Common JSON 체인을 LLM_Op 요청으로 투영한다.
+`go/service-control-api/internal/llmopbridge/bridge.go`는 기존 pre-decision fixture 체인을 투영하고, `approved_flow.go`의 `ProjectApprovedInitialFlow`는 최초 Safeguard와 geon의 승인된 `INITIAL` revision을 결합하는 기준 구현이다. `approved_flow_test.go`에는 Safeguard → 승인 Flow bridge → Proposal의 offline 종단 및 drift 회귀 검사가 있다. 실제 route/orchestrator 호출부는 아직 연결하지 않았다.
 
 ```text
 application.analysis.request
@@ -155,13 +163,15 @@ application.analysis.request
 
 기존 geon 흐름이나 `deploymentplanner.GenerateInput`을 변경하지 않았다. 현재 AppDeploy 계약으로 손실 없이 표현하기 어려운 topology, SLO, cost, multi-replica 및 GPU device-memory 요구는 조용히 버리지 않고 fail-closed로 거부한다.
 
+주의: 현재 geon `LocalRequirementAnalyzer`는 replica 미지정을 assumption으로 남기고 `GPU 0`도 GPU-required로 해석한다. 따라서 새 approved bridge의 성공 fixture는 계약 수준의 명시 Profile이며 실제 local analyzer CPU/GPU 종단 성공을 증명하지 않는다. 이 차이는 `geon-bug-notes.md` 항목 8에 재현 조건으로 기록했다.
+
 ### 4.6 시연 구현
 
 - `cmd/llmop-demo/`: 저장된 fixture와 고정 시각으로 전체 pipeline을 실행하는 오프라인 CLI
 - `internal/webui/static/llm_op_demo.html`: 단계 설명과 입력·출력을 보여주는 브라우저 화면
 - `llm_op_demo_contract.js`: 8개 대표 시나리오, prompt, strict JSON 및 preview 생성
 - `llm_op_demo.js`: 복사, 붙여넣기, 단계 잠금, 결과 표시와 호출 원장
-- `llm_op_demo_test.js`: 10개 브라우저 계약 테스트
+- `llm_op_demo_test.js`와 `manifest_stages_test.js`: dependency-free Node 계약 테스트 11건
 - `open-llm-op-demo.cmd`: Go 서버 없이 HTML을 기본 브라우저로 여는 launcher
 
 ## 5. 동료가 직접 시연하는 방법
@@ -250,14 +260,13 @@ git push origin LLM_Op
 
 ## 7. 검증 상태
 
-- GitHub Actions에서 두 Go 모듈의 `go test ./...` 성공
-- 두 Go 모듈의 `go vet ./...` 성공
-- Go CLI 확인 성공
-- team validation 성공
-- 브라우저 Node 계약 테스트 10건 성공
+- 이전 LLM_Op 커밋은 GitHub Actions에서 두 Go 모듈의 `go test ./...`, `go vet ./...`, Go CLI와 team validation 성공
+- 최신 geon 통합·Guard-first 변경은 새 원격 CI로 재검증 필요
+- dependency-free 브라우저 Node 계약 테스트 11건 성공
+- geon Playwright 테스트는 저장소에 선언된 package/lockfile이 없어 현재 CI 범위 밖
 - 작업 트리 기준 demo fixture 및 문서 교차 참조 확인
 
-문서에 남아 있는 "로컬에서 Go를 실행하지 않았다"는 표현은 이 Windows PC의 보안 정책 때문에 로컬 Go binary를 실행하지 않았다는 의미다. 현재 커밋은 원격 GitHub Actions에서 Go test와 vet을 실제로 통과했다.
+문서에 남아 있는 "로컬에서 Go를 실행하지 않았다"는 표현은 이 Windows PC의 보안 정책 때문에 로컬 Go binary를 실행하지 않았다는 의미다. 최신 커밋의 Go test와 vet 결과는 푸시 뒤 원격 GitHub Actions를 기준으로 확인한다.
 
 ## 8. 구현 완료 범위와 의도적으로 제외한 범위
 
@@ -281,7 +290,7 @@ git push origin LLM_Op
 - 인증된 운영용 LLM HTTP endpoint
 - target, runtime, cloud provider, credential 선택
 - AppDeploy POST와 실제 배포
-- 승인, idempotency, 배포 검증과 feedback loop
+- 승인, idempotency, 실제 배포 검증. geon의 Operation Optimization/feedback loop는 최신 통합 기준에는 존재하지만 LLM_Op 소유가 아님
 - SLO, cost, multi-replica, GPU device-memory 요구의 배포 계약 확장
 
 따라서 이 브랜치는 **안전한 LLM 계획 생성 계층과 시연 가능한 계약 구현**까지 완료한 상태다. 운영 배포가 완료된 것은 아니다.
@@ -290,7 +299,7 @@ git push origin LLM_Op
 
 동료 또는 GPT에게 다음 질문을 중심으로 검토를 요청하면 된다.
 
-1. geon 서비스의 어느 HTTP/API 계층이 `llmop.SafeguardedPlanner`를 호출해야 하는가?
+1. geon의 어느 trusted in-process orchestrator가 `ReviewWithConfig → ProjectApprovedInitialFlow → PrepareApprovedWithConfig`를 연결할 것인가? 외부 resume HTTP API는 만들지 않는가?
 2. Operation Context Adapter 구현자는 `08-operation-context-adapter-contract.md`를 그대로 제공할 수 있는가?
 3. AppDeploy 담당자는 `prepared_request`와 `not_submitted` 인계 형식을 수용할 수 있는가?
 4. geon의 최신 변경과 공유 web UI/CI 파일에 충돌이 생기지 않았는가?

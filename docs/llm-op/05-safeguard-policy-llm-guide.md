@@ -20,11 +20,16 @@ LLM은 guard policy를 편집하지 않고, requester 권한·Target·provider·
   -> bounded normalized projection
   -> [비신뢰] Safeguard review LLM
   -> strict JSON / identity / text validation
+  -> [연결 시] SAFEGUARD_APPROVED continuation
+  -> [geon] Requirement/Profile/Recommendation/DEPLOY Guard/INITIAL revision
+  -> [LLM_Op] continuation binding 재검산
   -> [비신뢰] Manifest Proposal LLM
   -> strict JSON / exact semantic guard / readiness guard
   -> [신뢰] Go mapper + AppDeploy Manifest Guard
   -> POST하지 않은 DeploymentCreateRequest
 ~~~
+
+단일-process `Prepare/PrepareWithConfig`는 위 흐름을 연속 실행한다. geon과 분리할 때는 `ReviewRequest/ReviewWithConfig` → `ProjectApprovedInitialFlow` → trusted in-process `PrepareApproved`를 사용한다. 최초 Safeguard는 geon의 live analyzer보다 먼저 실행하고 allow 이외 결과를 다른 planner로 우회하지 않는다. 후반 진입점은 Safeguard LLM을 반복하지 않고 SHA-256 continuation을 재계산한 뒤 Proposal만 호출한다. `PlanningConstraints`만 trusted enrichment로 제외되며 다른 요청·관측·policy·candidate·AppVersion 값은 최초 결정에 결합된다. SHA-256은 인증 seal이 아니므로 외부 resume API는 server-side opaque record나 HMAC/서명이 마련되기 전까지 금지한다.
 
 신뢰되는 값도 출처가 구분돼야 한다.
 
@@ -176,7 +181,8 @@ offline demo:
 
 live integration:
 
-- `PrepareWithConfig`
+- 단일-process: `PrepareWithConfig`
+- Guard-first 분리: `ReviewWithConfig` → approved geon Flow → trusted in-process `PrepareApproved`
 - 기본 `AllowLiveCompletion=false`
 - 현재 `actual_model` evidence는 configured label이며 provider attestation이 아님
 - live release blocker는 `04-implementation-completeness-audit.md` 참조
@@ -198,6 +204,7 @@ live integration:
 
 | 상태 | 의미 |
 | --- | --- |
+| `SAFEGUARD_APPROVED` | 최초 Request Guard와 Safeguard가 downstream planning만 허용; Manifest·POST 권한 없음 |
 | `REQUEST_REJECTED` | deterministic input/policy/scope 실패 또는 LLM reject action |
 | `CLARIFICATION_REQUIRED` | LLM이 free-text 명확화 요청; Manifest와 handoff 없음 |
 | `MODEL_UNAVAILABLE` | candidate/client/completion/review 계약 실패 |
@@ -218,6 +225,9 @@ semantic internal code는 현재 wire Result에 직접 노출되지 않는다. s
 - [ ] structured constraints와 telemetry가 trusted builder에서만 오는가
 - [ ] target hint에 trusted snapshot 또는 별도 readiness-unknown 상태가 있는가
 - [ ] rejected status를 legacy planner fallback으로 성공 변환하지 않는가
+- [ ] 최초 Safeguard가 모든 live analyzer·Manifest LLM보다 먼저 실행되는가
+- [ ] `PrepareApproved`가 continuation을 재검산하고 Safeguard를 반복 호출하지 않는가
+- [ ] geon `INITIAL` revision과 LLM_Op AppDeploy body를 캐스팅·병렬 제출하지 않는가
 - [ ] only `HANDOFF_READY`가 다음 단계로 가며 여전히 POST하지 않는가
 - [ ] live egress/secret/model response/cost gate가 모두 구현됐는가
 - [ ] trusted clock과 evaluated-at/prompt/config/policy digest가 evidence에 남는가

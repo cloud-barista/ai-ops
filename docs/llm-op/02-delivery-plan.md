@@ -31,6 +31,7 @@ model selection, Qwen server 운영, Target/Runtime 선택, 실제 배포는 mil
 | M9 | Common JSON bridge | supported single-node subset lossless projection | 코드 작성됨 |
 | M10 | demo data | 4 service metadata, caller-pinned Qwen intent, 47 scenarios | 정적 catalog 작성됨 |
 | M11 | 수동 브라우저 lab | 별도 /llm-op-demo, 대표 8개 흐름, prompt copy, raw JSON gate, not-submitted handoff | 코드·문서·Node contract test 작성됨 |
+| M12 | Guard-first geon 연결 | 최초 Safeguard continuation, 승인된 INITIAL revision·trusted AppVersion 결합, Proposal-only resume | 코드·문서·회귀 test 작성됨; 원격 Go CI 검증 필요 |
 
 “코드 작성됨”은 Go test 통과와 동일하지 않다. 현재 보안 규칙상 Go toolchain을 실행하지 않았다. M11의 순수 JavaScript contract test는 Node로 실행했으며 Go server route의 compile·serve 성공을 대신하지 않는다.
 
@@ -73,7 +74,7 @@ model selection, Qwen server 운영, Target/Runtime 선택, 실제 배포는 mil
 
 ## 통합 단계의 불변식
 
-geon 또는 다른 caller는 다음을 지켜야 한다.
+geon 또는 다른 caller는 다음을 지켜야 한다. 별도 구현을 하더라도 이 순서와 상태 의미를 LLM_Op 호환 기준으로 삼는다.
 
 1. `requested_by`를 인증 principal에서 설정하고 body 값을 신뢰하지 않는다.
 2. registry에서 Common JSON `app_id/app_version`과 AppDeploy `app_version_id`를 동일 등록 항목으로 결합한다.
@@ -83,9 +84,13 @@ geon 또는 다른 caller는 다음을 지켜야 한다.
 6. target hint가 있으면 trusted snapshot을 요구하거나 readiness-unknown을 별도 상태로 표현한다.
 7. LLM_Op reject/clarify/error를 legacy full-Manifest planner fallback으로 성공 변환하지 않는다.
 8. 내부 Proposal-only `Planner`를 직접 호출하지 않는다.
-9. live는 system clock을 소유한 `PrepareWithConfig`로만 들어오고, offline은 고정 evidence의 `NewOfflineFixturePlanner`로만 들어온다.
+9. 단일-process live는 `PrepareWithConfig`, Guard-first live Go integration은 `ReviewWithConfig/PrepareApprovedWithConfig`, offline은 고정 evidence의 `NewOfflineFixturePlanner`를 사용한다. 후반 resume는 외부 HTTP body가 아니라 trusted in-process 경계다.
 10. only `HANDOFF_READY`가 다음 단계로 갈 수 있지만, 이 상태만으로 POST하지 않는다.
 11. AppDeploy 제출 전 동일 Manifest를 다시 검증하고 승인·idempotency를 확인한다.
+12. 비신뢰 자연어는 `ReviewRequest/ReviewWithConfig`를 통과하기 전에 live Requirement Analyzer나 Manifest LLM으로 보내지 않는다.
+13. `allow_request` continuation과 승인된 geon `INITIAL` revision은 `ProjectApprovedInitialFlow`로 결합하고, trusted in-process `PrepareApproved`에서 binding을 재검산한 뒤 Proposal만 호출한다. 외부 resume API는 opaque server record 또는 HMAC/서명 seal 전까지 만들지 않는다.
+14. `request_clarification`·`reject_request`·오류를 기존 analyzer나 full-Manifest generator로 우회하지 않는다.
+15. Revision 2 이상의 Operation Optimization은 geon이 소유하며 현재 LLM_Op 초기 handoff에 넣지 않는다.
 
 ## 다음 milestone: route 통합 전
 
@@ -99,6 +104,7 @@ geon 또는 다른 caller는 다음을 지켜야 한다.
 - Projection evidence를 final Result/audit record와 digest로 결합
 - stable error code와 clarification `missing_fields`/question/resume 계약
 - status mapping 소유자와 retryability
+- guard-first continuation의 server-side one-time/idempotency record, expiry와 replay 방지
 - AppDeploy 승인 verifier와 idempotency key
 - exact supported fields를 가진 parameters 대체 schema
 - Request/Result/Safeguard/Proposal machine-readable JSON Schema 또는 OpenAPI component

@@ -31,7 +31,7 @@
 - AppDeployer 제출 adapter와 승인 reference 검증 adapter는 아직 없음
 - Repair는 자동 값 수정·재호출이 아니라 clarify/reject로 fail-closed하며 사용자 왕복·재시도 계약은 후속 범위
 - 필수 ID 누락, 비-`prepare_only` mode, 임의 approval reference, parameter 경계 위반은 `REQUEST_REJECTED`; Safeguard review의 `reject_request`와 Proposal의 `reject_unsafe_request`도 같은 상태 사용
-- offline 공식 종단 진입점은 `llmop.NewOfflineFixturePlanner(...).Prepare`, 향후 live 진입점은 system clock을 소유한 `llmop.PrepareWithConfig`; 내부 `llmop.Planner` 직접 호출은 review를 우회하므로 Proposal 단위 테스트 외 통합 경로에서 사용 금지
+- offline 공식 종단 진입점은 `llmop.NewOfflineFixturePlanner(...).Prepare`, 단일-process live 진입점은 system clock을 소유한 `llmop.PrepareWithConfig`; Guard-first 연결은 offline `ReviewRequest/PrepareApproved`, live Go integration `ReviewWithConfig/PrepareApprovedWithConfig` 사이에 `ProjectApprovedInitialFlow`를 둠. resume 함수는 외부 HTTP body가 아닌 trusted in-process 경계이며, 내부 `llmop.Planner` 직접 호출은 review를 우회하므로 통합 경로에서 사용 금지
 - `REQUEST_REJECTED`, `CLARIFICATION_REQUIRED`, `MODEL_UNAVAILABLE`, `MANIFEST_REJECTED`, `CONFIGURATION_ERROR`를 기존 full-Manifest planner fallback으로 성공 변환하지 않으며, only `HANDOFF_READY`가 다음 단계로 갈 수 있어도 POST는 별도 승인 전 0회
 
 ## geon과 겹치지 않도록 한 부분

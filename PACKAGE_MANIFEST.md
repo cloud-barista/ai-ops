@@ -6,7 +6,7 @@
 
 | 경로 | 설명 |
 | --- | --- |
-| `go/service-control-api/` | LLM Deployment Manifest 생성, 요청·Manifest 이중 Go Guard, AppDeploy 상태 추적과 Agent Registry를 수행하는 Go Echo API/CLI |
+| `go/service-control-api/` | 자연어 배포 판단, `OperationOptimizationAgent`의 `KEEP/SCALE_OUT/SCALE_IN` 제안, Manifest revision 보존, LLM Deployment Manifest 생성, 요청·Manifest 이중 Go Guard와 Agent Registry를 수행하는 Go Echo API/CLI |
 | `contracts/appdeploy/deployment_manifest.schema.json` | Planner 연계에 사용하는 AppDeploy Manifest 계약 snapshot |
 | `go/aiops-guard/` | 서비스 제어 action을 허용 범위 안에서 검증하는 독립 Go 안전 게이트 |
 | `config/agent_registry.json` | 에이전트 registry와 bounded action 메타데이터 |
@@ -26,7 +26,8 @@
 | `examples/appdeploy/deployment-create-request.json` | Planner가 최신 AppDeploy에 전달하는 Manifest handoff 예시 |
 | `examples/appdeploy/deployment-response.json` | AppDeploy가 선택한 실제 Target과 배포 상태 응답 예시 |
 | `go/service-control-api/internal/llmop/` | 자연어 Safeguard review, bounded Manifest Proposal, 결정적 guard와 prepare-only AppDeploy handoff 선행 PoC |
-| `go/service-control-api/internal/llmopbridge/` | geon Common JSON의 supported single-node subset을 LLM_Op 계약으로 투영하는 bridge |
+| `go/service-control-api/internal/llmopbridge/` | geon Common JSON의 supported single-node subset과 승인된 `INITIAL` revision을 LLM_Op 계약으로 fail-closed 투영하는 bridge |
+| `docs/coordination/llm-op-guard-first-integration-standard.md` | LLM_Op 최초 Safeguard를 기준으로 한 geon 연결 순서, 단일 권위, 금지 fallback과 별도 구현 호환 규범 |
 | `go/service-control-api/cmd/llmop-demo/` | 실제 API·model weight·AppDeploy POST가 없는 offline fixture demo CLI |
 | `examples/llm-op/` | AI 서비스 metadata, 고정 Qwen intended-model binding, golden fixture, 47개 정적 scenario catalog |
 | go/service-control-api/internal/webui/static/llm_op_demo* | 두 단계 prompt 복사·raw JSON 붙여넣기·대표 8개 흐름을 제공하는 no-call 브라우저 lab |

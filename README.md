@@ -58,7 +58,9 @@ Git Bash, Linux 또는 macOS:
 
 ### LLM_Op 수동 시연 페이지
 
-이 페이지는 `LLM_Op` 브랜치에만 있으며 GitHub에 push하거나 Draft PR을 열어도 공개 웹사이트로 배포되지는 않습니다. `main` 또는 `geon`을 checkout한 상태에서는 페이지 파일과 route가 없습니다.
+이 페이지는 `LLM_Op`의 별도 연구 lab이며, `geon` 최신 변경을 반영한 통합 브랜치에도 `/llm-op-demo` route와 전용 asset을 보존합니다. 아직 `geon`에 병합되기 전 checkout에는 이 route가 없을 수 있고, GitHub에 push하거나 Draft PR을 여는 것만으로 공개 웹사이트에 배포되지는 않습니다.
+
+통합 순서의 기준은 **LLM_Op 최초 Safeguard → geon 배포 판단·canonical Revision → 승인된 초기 Revision의 AppDeploy prepare-only 투영**입니다. 별도 구현을 만들더라도 비신뢰 자연어를 live Requirement Analyzer나 Manifest LLM에 먼저 보내거나, LLM_Op 거부 결과를 legacy 경로로 우회해서는 안 됩니다. 상세 기준은 [Guard-first 연결 기준](docs/coordination/llm-op-guard-first-integration-standard.md)을 따릅니다.
 
 Go 서버 없이 페이지 흐름만 시연하려면 `LLM_Op` 브랜치의 저장소 루트에서 다음 파일을 실행합니다.
 

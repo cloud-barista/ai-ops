@@ -125,6 +125,224 @@ func (pipeline SafeguardedPlanner) Prepare(
 	)
 }
 
+// ReviewRequest runs only the guard-first boundary: request snapshotting,
+// deterministic validation, observation normalization, and the bounded
+// natural-language safeguard review. It never calls the proposal client and
+// never creates a Manifest or AppDeploy handoff.
+func (pipeline SafeguardedPlanner) ReviewRequest(
+	ctx context.Context,
+	candidate llmclient.Candidate,
+	guardPolicy plannerguard.Policy,
+	request Request,
+) (SafeguardStageResult, error) {
+	requestSnapshot, err := cloneRequest(request)
+	if err != nil {
+		result := NewResult(request)
+		rejectRequest(&result, "request could not be snapshotted into the bounded JSON contract")
+		return newSafeguardStageResult(result), &StageError{Status: result.Status, Cause: err}
+	}
+	request = requestSnapshot
+	if request.Application.PlanningConstraints != nil {
+		result := NewResult(request)
+		rejectRequest(
+			&result,
+			"guard-first review requires planning constraints to be absent before trusted enrichment",
+		)
+		return newSafeguardStageResult(result), &StageError{
+			Status: result.Status,
+			Cause:  fmt.Errorf("pre-geon planning constraints must be absent"),
+		}
+	}
+	result, normalized, _, err := preflightRequest(
+		ctx,
+		pipeline.planner.normalizer,
+		guardPolicy,
+		request,
+	)
+	if err != nil {
+		return newSafeguardStageResult(result), err
+	}
+	return pipeline.reviewStageNormalized(
+		ctx,
+		candidate,
+		guardPolicy,
+		request,
+		result,
+		normalized,
+	)
+}
+
+// PrepareApproved resumes the pipeline after geon has enriched an approved
+// request with trusted PlanningConstraints. It re-runs deterministic preflight,
+// verifies that every originally reviewed field is bound to approvedStage, and
+// calls only the proposal client. PlanningConstraints are the sole enrichment
+// excluded from the first-stage binding and remain subject to all downstream
+// request, proposal, semantic, and Manifest guards.
+func (pipeline SafeguardedPlanner) PrepareApproved(
+	ctx context.Context,
+	candidate llmclient.Candidate,
+	guardPolicy plannerguard.Policy,
+	request Request,
+	approvedStage SafeguardStageResult,
+) (Result, error) {
+	requestSnapshot, err := cloneRequest(request)
+	if err != nil {
+		result := NewResult(request)
+		rejectRequest(&result, "request could not be snapshotted into the bounded JSON contract")
+		return result, &StageError{Status: result.Status, Cause: err}
+	}
+	request = requestSnapshot
+	result, normalized, prompt, err := preflightRequest(
+		ctx,
+		pipeline.planner.normalizer,
+		guardPolicy,
+		request,
+	)
+	if err != nil {
+		return result, err
+	}
+	return pipeline.prepareApprovedNormalized(
+		ctx,
+		candidate,
+		guardPolicy,
+		request,
+		approvedStage,
+		result,
+		normalized,
+		prompt,
+	)
+}
+
+func (pipeline SafeguardedPlanner) prepareApprovedNormalized(
+	ctx context.Context,
+	candidate llmclient.Candidate,
+	guardPolicy plannerguard.Policy,
+	request Request,
+	approvedStage SafeguardStageResult,
+	result Result,
+	normalized NormalizedContext,
+	prompt []byte,
+) (Result, error) {
+	if pipeline.offlineFixture {
+		if err := validateOfflineFixtureCandidate(candidate); err != nil {
+			rejectApprovedContinuation(
+				&result,
+				normalized,
+				"approved safeguard continuation could not be verified",
+			)
+			return result, &StageError{Status: result.Status, Cause: err}
+		}
+	}
+	review, err := verifyApprovedContinuation(
+		approvedStage,
+		request,
+		normalized,
+		result.Safeguard.Request,
+		candidate,
+		guardPolicy,
+	)
+	if err != nil {
+		rejectApprovedContinuation(
+			&result,
+			normalized,
+			"approved safeguard continuation could not be verified",
+		)
+		return result, &StageError{Status: result.Status, Cause: err}
+	}
+	result.Status = StatusSafeguardApproved
+	result.Decision = Decision{
+		Action:            SafeguardDecisionAllow,
+		ReasonCode:        review.ReasonCode,
+		Reason:            review.Reason,
+		Confidence:        copyConfidence(review.Confidence),
+		ObservationStatus: normalized.ObservationStatus,
+	}
+	result.Evidence.SafeguardReview = copySafeguardReviewEvidence(approvedStage.Review)
+	result.Safeguard.Manifest = ManifestGuard{
+		Status: "not_generated",
+		Reason: "approved safeguard evidence was verified; proposal generation has not run",
+	}
+	return pipeline.planner.prepareNormalized(
+		ctx,
+		candidate,
+		guardPolicy,
+		request,
+		result,
+		normalized,
+		prompt,
+	)
+}
+
+func (pipeline SafeguardedPlanner) reviewStageNormalized(
+	ctx context.Context,
+	candidate llmclient.Candidate,
+	guardPolicy plannerguard.Policy,
+	request Request,
+	result Result,
+	normalized NormalizedContext,
+) (SafeguardStageResult, error) {
+	result, review, approved, err := pipeline.reviewNormalized(
+		ctx,
+		candidate,
+		guardPolicy,
+		request,
+		result,
+		normalized,
+	)
+	stage := newSafeguardStageResult(result)
+	if err != nil || !approved {
+		return stage, err
+	}
+	if err := approveSafeguardStage(
+		&stage,
+		request,
+		normalized,
+		candidate,
+		guardPolicy,
+		review,
+	); err != nil {
+		stage.Status = StatusConfigurationError
+		stage.Decision = Decision{
+			Action:            "none",
+			Reason:            "safeguard continuation evidence could not be created",
+			ObservationStatus: normalized.ObservationStatus,
+		}
+		stage.Approved = false
+		stage.Continuation = nil
+		return stage, &StageError{Status: stage.Status, Cause: err}
+	}
+	return stage, nil
+}
+
+func rejectApprovedContinuation(
+	result *Result,
+	normalized NormalizedContext,
+	publicReason string,
+) {
+	clearPreparedHandoff(result)
+	result.Status = StatusRequestRejected
+	result.Decision = Decision{
+		Action:            ActionRejectUnsafe,
+		Reason:            publicReason,
+		ObservationStatus: normalized.ObservationStatus,
+	}
+	result.Safeguard.Request.Valid = false
+	result.Safeguard.Request.Status = "rejected"
+	result.Safeguard.Request.Reason = publicReason
+	result.Safeguard.Request.Checks = append(
+		result.Safeguard.Request.Checks,
+		plannerguard.Check{
+			Name:   "safeguard_continuation",
+			Passed: false,
+			Reason: publicReason,
+		},
+	)
+	result.Safeguard.Manifest = ManifestGuard{
+		Status: "not_generated",
+		Reason: "proposal generation did not run",
+	}
+}
+
 func (pipeline SafeguardedPlanner) prepareNormalized(
 	ctx context.Context,
 	candidate llmclient.Candidate,
@@ -134,15 +352,45 @@ func (pipeline SafeguardedPlanner) prepareNormalized(
 	normalized NormalizedContext,
 	prompt []byte,
 ) (Result, error) {
+	result, _, approved, err := pipeline.reviewNormalized(
+		ctx,
+		candidate,
+		guardPolicy,
+		request,
+		result,
+		normalized,
+	)
+	if err != nil || !approved {
+		return result, err
+	}
+	return pipeline.planner.prepareNormalized(
+		ctx,
+		candidate,
+		guardPolicy,
+		request,
+		result,
+		normalized,
+		prompt,
+	)
+}
+
+func (pipeline SafeguardedPlanner) reviewNormalized(
+	ctx context.Context,
+	candidate llmclient.Candidate,
+	guardPolicy plannerguard.Policy,
+	request Request,
+	result Result,
+	normalized NormalizedContext,
+) (Result, SafeguardReview, bool, error) {
 	if pipeline.offlineFixture {
 		if err := validateOfflineFixtureCandidate(candidate); err != nil {
 			rejectModel(&result, normalized, "offline fixture candidate violates the fixed evidence contract")
-			return result, &StageError{Status: result.Status, Cause: err}
+			return result, SafeguardReview{}, false, &StageError{Status: result.Status, Cause: err}
 		}
 	}
 	if err := validateCandidate(candidate, request); err != nil {
 		rejectModel(&result, normalized, "configured Qwen safeguard candidate is unavailable")
-		return result, &StageError{Status: result.Status, Cause: err}
+		return result, SafeguardReview{}, false, &StageError{Status: result.Status, Cause: err}
 	}
 	result.Evidence.SafeguardReview = &SafeguardReviewEvidence{
 		Provider:    candidate.Provider,
@@ -152,7 +400,7 @@ func (pipeline SafeguardedPlanner) prepareNormalized(
 	if pipeline.safeguardClient == nil {
 		err := fmt.Errorf("natural-language safeguard completion client is required")
 		rejectModel(&result, normalized, "Qwen safeguard completion client is unavailable")
-		return result, &StageError{Status: result.Status, Cause: err}
+		return result, SafeguardReview{}, false, &StageError{Status: result.Status, Cause: err}
 	}
 	safeguardPrompt, err := buildSafeguardPrompt(request, normalized)
 	if err != nil {
@@ -161,7 +409,7 @@ func (pipeline SafeguardedPlanner) prepareNormalized(
 			normalized,
 			"bounded Qwen safeguard prompt exceeds the request envelope",
 		)
-		return result, &StageError{Status: result.Status, Cause: err}
+		return result, SafeguardReview{}, false, &StageError{Status: result.Status, Cause: err}
 	}
 
 	completion, err := pipeline.safeguardClient.Complete(
@@ -172,26 +420,26 @@ func (pipeline SafeguardedPlanner) prepareNormalized(
 	)
 	if err != nil {
 		rejectModel(&result, normalized, "Qwen safeguard review was unavailable")
-		return result, &StageError{Status: result.Status, Cause: err}
+		return result, SafeguardReview{}, false, &StageError{Status: result.Status, Cause: err}
 	}
 	if err := validateCompletionEnvelope(completion); err != nil {
 		rejectModel(&result, normalized, "Qwen safeguard review was outside the bounded response envelope")
-		return result, &StageError{Status: result.Status, Cause: err}
+		return result, SafeguardReview{}, false, &StageError{Status: result.Status, Cause: err}
 	}
 	if err := validateCompletionIdentity(completion, candidate); err != nil {
 		rejectModel(&result, normalized, "Qwen safeguard evidence did not match the configured candidate")
-		return result, &StageError{Status: result.Status, Cause: err}
+		return result, SafeguardReview{}, false, &StageError{Status: result.Status, Cause: err}
 	}
 	result.Evidence.SafeguardReview.LatencyMS = completion.LatencyMS
 
 	review, err := parseSafeguardReview(completion.Content)
 	if err != nil {
 		rejectModel(&result, normalized, "Qwen safeguard review failed the bounded output contract")
-		return result, &StageError{Status: result.Status, Cause: err}
+		return result, SafeguardReview{}, false, &StageError{Status: result.Status, Cause: err}
 	}
 	if err := validateSafeguardReview(review, request, candidate, guardPolicy); err != nil {
 		rejectModel(&result, normalized, "Qwen safeguard review failed the bounded output contract")
-		return result, &StageError{Status: result.Status, Cause: err}
+		return result, SafeguardReview{}, false, &StageError{Status: result.Status, Cause: err}
 	}
 	result.Evidence.SafeguardReview.Decision = review.Decision
 	result.Evidence.SafeguardReview.ReasonCode = review.ReasonCode
@@ -212,7 +460,7 @@ func (pipeline SafeguardedPlanner) prepareNormalized(
 			Status: "not_generated",
 			Reason: "Qwen safeguard requested clarification before proposal generation",
 		}
-		return result, nil
+		return result, review, false, nil
 	case SafeguardDecisionReject:
 		clearPreparedHandoff(&result)
 		result.Status = StatusRequestRejected
@@ -227,18 +475,23 @@ func (pipeline SafeguardedPlanner) prepareNormalized(
 			Status: "not_generated",
 			Reason: "Qwen safeguard rejected the request before proposal generation",
 		}
-		return result, nil
+		return result, review, false, nil
 	}
 
-	return pipeline.planner.prepareNormalized(
-		ctx,
-		candidate,
-		guardPolicy,
-		request,
-		result,
-		normalized,
-		prompt,
-	)
+	clearPreparedHandoff(&result)
+	result.Status = StatusSafeguardApproved
+	result.Decision = Decision{
+		Action:            SafeguardDecisionAllow,
+		ReasonCode:        review.ReasonCode,
+		Reason:            review.Reason,
+		Confidence:        copyConfidence(review.Confidence),
+		ObservationStatus: normalized.ObservationStatus,
+	}
+	result.Safeguard.Manifest = ManifestGuard{
+		Status: "not_generated",
+		Reason: "request safeguard approved downstream planning; proposal generation has not run",
+	}
+	return result, review, true, nil
 }
 
 func validateOfflineFixtureCandidate(candidate llmclient.Candidate) error {

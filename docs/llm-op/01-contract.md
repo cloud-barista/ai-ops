@@ -85,6 +85,8 @@ deployment ID가 있으면 logs, metrics, alarms가 같은 deployment scope여�
 
 ## 두 LLM 단계
 
+geon과 분리 연결할 때도 논리적으로는 같은 두 단계다. `ReviewRequest/ReviewWithConfig`가 1단계만 실행하고 승인 continuation을 내보낸다. 이 최초 요청에는 `PlanningConstraints`가 없어야 한다. geon의 승인된 `INITIAL` revision을 결합한 뒤 trusted in-process `PrepareApproved/PrepareApprovedWithConfig`가 continuation의 SHA-256 binding을 재계산하고 2단계만 실행한다. 따라서 성공 흐름의 completion 수는 두 번이며 Safeguard를 반복하지 않는다. `PlanningConstraints`만 승인 뒤 trusted enrichment로 허용되고, 그 외 최초 요청 필드는 binding 대상이다. plain SHA-256은 인증 seal이 아니므로 외부 caller에게 이 resume 경로를 노출하지 않는다.
+
 ### 1. Safeguard review
 
 출력:
@@ -180,7 +182,7 @@ snapshot boolean은 실제 수량 capacity나 schedulability를 증명하지 않
 
 ## 모델 연결 경계
 
-production live entrypoint는 `PrepareWithConfig`다. 이 public entrypoint는 내부 `NewNormalizer`의 system clock을 사용하며 caller가 freshness 시각을 바꿀 수 없다. `ProviderOptions.AllowLiveCompletion=false`가 기본이며 false이면 HTTP client 호출 전에 `CONFIGURATION_ERROR`다. true는 현재 release blocker를 통과했다는 뜻이 아니므로 데모에서 사용하지 않는다.
+production live 단일-process entrypoint는 `PrepareWithConfig`다. Guard-first Go integration은 `ReviewWithConfig`와 `PrepareApprovedWithConfig` 쌍이며, 후반 resume는 trusted in-process orchestration 전용이다. 이 public Go entrypoint들은 내부 `NewNormalizer`의 system clock을 사용하며 caller가 freshness 시각을 바꿀 수 없다. Go 함수가 exported라는 사실은 HTTP caller 권한을 뜻하지 않는다. `ProviderOptions.AllowLiveCompletion=false`가 기본이며 false이면 HTTP client 호출 전에 `CONFIGURATION_ERROR`다. true는 현재 release blocker를 통과했다는 뜻이 아니므로 데모에서 사용하지 않는다.
 
 public offline entrypoint는 `NewOfflineFixturePlanner`다. pre-recorded review/Proposal JSON 문자열만 받고 endpoint, API key, HTTP client가 없다. provider와 actual-model evidence는 아래 두 fixture label로 고정되며 다른 label, endpoint, API-key field를 가진 Candidate는 completion 전에 거부된다.
 
@@ -198,6 +200,7 @@ demo binding:
 
 | status | 의미 | prepared request |
 | --- | --- | --- |
+| `SAFEGUARD_APPROVED` | 최초 Request Guard와 Safeguard review가 동일 요청의 downstream planning만 허용 | 없음; 권한·배포 승인이 아닌 continuation evidence만 있음 |
 | `HANDOFF_READY` | exact draft body가 모든 현재 guard를 통과 | 있음, POST 안 함 |
 | `CLARIFICATION_REQUIRED` | 모델 free-text clarification | 없음 |
 | `REQUEST_REJECTED` | deterministic guard 또는 모델 reject | 없음 |
