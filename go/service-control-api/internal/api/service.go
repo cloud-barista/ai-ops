@@ -26,6 +26,7 @@ type Service struct {
 	controlRuns        *controlrun.Store
 	agentDispatcher    *agentDispatcher
 	agentControl       *agentcontrol.Service
+	operationRuntime   agentcontrol.OperationOptimizationRuntime
 	automationRunner   *agentcontrol.AutomationRunner
 }
 
@@ -38,6 +39,9 @@ func NewService(config ServerConfig) Service {
 		if defaultAgent := strings.TrimSpace(registry.Defaults[agentcontrol.AutomationCapability]); defaultAgent != "" {
 			internalExecutors[defaultAgent] = newInternalDecisionAgentExecutor()
 		}
+		if defaultAgent := strings.TrimSpace(registry.Defaults[agentcontrol.OperationOptimizationCapability]); defaultAgent != "" {
+			internalExecutors[defaultAgent] = newInternalOperationOptimizationExecutor()
+		}
 	}
 	dispatcher := newAgentDispatcher(
 		internalExecutors,
@@ -47,10 +51,12 @@ func NewService(config ServerConfig) Service {
 		),
 	)
 	decisionRuntime := newDecisionAgentRuntime(config, runtimeAgents, dispatcher)
-	agentControlService := agentcontrol.NewServiceWithDecisionRuntime(
+	operationRuntime := newOperationOptimizationRuntime(config, runtimeAgents, dispatcher)
+	agentControlService := agentcontrol.NewServiceWithRuntimes(
 		reasoner,
 		authorizer,
 		decisionRuntime,
+		operationRuntime,
 	)
 	resourceCatalog, _ := agentcontrol.LoadResourceCatalog(config.ResourceCatalogPath)
 	deploymentAdapter, _ := agentcontrol.NewDeploymentAdapter(config.DeploymentAdapterMode)
@@ -61,6 +67,7 @@ func NewService(config ServerConfig) Service {
 		controlRuns:        controlrun.NewStore(),
 		agentDispatcher:    dispatcher,
 		agentControl:       agentControlService,
+		operationRuntime:   operationRuntime,
 		automationRunner: agentcontrol.NewAutomationRunnerWithAdapter(
 			newAgentControlRequirementAnalyzer(config, llmclient.NewClient(nil)),
 			agentcontrol.CatalogResourceRecommender{Catalog: resourceCatalog},
@@ -93,20 +100,22 @@ func (service Service) ListAgents(ctx context.Context) (map[string]any, error) {
 		registry.Agents[index].Source = agentSourceConfiguration
 	}
 	runtimeAgents := service.runtimeAgents.list()
-	eligibleAgents := eligibleDecisionAgents(registry, runtimeAgents)
+	eligibleDecision := eligibleDecisionAgents(registry, runtimeAgents)
+	eligibleOperation := eligibleOperationAgents(registry, runtimeAgents)
 	registry.Agents = append(registry.Agents, runtimeAgents...)
 	sort.SliceStable(registry.Agents, func(i, j int) bool {
 		return registry.Agents[i].Name < registry.Agents[j].Name
 	})
 	return map[string]any{
-		"command":                  "list-agents",
-		"registry":                 path,
-		"version":                  registry.Version,
-		"defaults":                 registry.Defaults,
-		"persistence":              "configuration_and_process_memory",
-		"runtime_agent_count":      service.runtimeAgents.count(),
-		"agents":                   registry.Agents,
-		"eligible_decision_agents": eligibleAgents,
+		"command":                   "list-agents",
+		"registry":                  path,
+		"version":                   registry.Version,
+		"defaults":                  registry.Defaults,
+		"persistence":               "configuration_and_process_memory",
+		"runtime_agent_count":       service.runtimeAgents.count(),
+		"agents":                    registry.Agents,
+		"eligible_decision_agents":  eligibleDecision,
+		"eligible_operation_agents": eligibleOperation,
 	}, nil
 }
 

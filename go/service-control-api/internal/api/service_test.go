@@ -44,32 +44,70 @@ func TestSelectOpsLLMMatchesConfiguredBaseline(t *testing.T) {
 	}
 }
 
-func TestValidateAgentActionUsesRegistryBounds(t *testing.T) {
+func TestValidateAgentActionSeparatesAutomationPlanningFromOperations(t *testing.T) {
 	service := NewService(NewServerConfig())
 
-	valid, err := service.ValidateAgentAction(
-		context.Background(),
-		"AIApplicationAutomationAgent",
+	for _, action := range []string{
+		"generate_deployment_decision",
+		"generate_desired_deployment_spec",
+		"generate_deployment_manifest",
+		"submit_deployment_manifest",
+		"summarize_deployment_feedback",
+		"observe_deployment_status",
 		"observe_status",
-	)
-	if err != nil {
-		t.Fatalf("ValidateAgentAction returned error: %v", err)
-	}
-	if !valid {
-		t.Fatal("expected observe_status to be valid")
+	} {
+		valid, err := service.ValidateAgentAction(context.Background(), "AIApplicationAutomationAgent", action)
+		if err != nil || !valid {
+			t.Fatalf("expected planning or feedback action %q to remain valid: valid=%t err=%v", action, valid, err)
+		}
 	}
 
-	valid, err = service.ValidateAgentAction(
-		context.Background(),
-		"AIApplicationAutomationAgent",
-		"restart_vm",
-	)
+	for _, action := range []string{
+		"deploy_application",
+		"scale_out_application",
+		"restart_application",
+		"rollback_application",
+		"stop_application",
+	} {
+		valid, err := service.ValidateAgentAction(context.Background(), "AIApplicationAutomationAgent", action)
+		if err != nil {
+			t.Fatalf("validate forbidden action %q: %v", action, err)
+		}
+		if valid {
+			t.Fatalf("expected operation action %q to be denied for the automation Agent", action)
+		}
+	}
+}
+
+func TestServiceListAgentsReturnsOperationOptimizationAgent(t *testing.T) {
+	service := NewService(NewServerConfig())
+
+	result, err := service.ListAgents(context.Background())
 	if err != nil {
-		t.Fatalf("ValidateAgentAction returned error for known agent: %v", err)
+		t.Fatalf("ListAgents returned error: %v", err)
 	}
-	if valid {
-		t.Fatal("expected restart_vm to be invalid for application agent")
+
+	defaults, ok := result["defaults"].(map[string]string)
+	if !ok || defaults["ai_application_operation_optimization"] != "OperationOptimizationAgent" {
+		t.Fatalf("operation default = %#v", result["defaults"])
 	}
+	agents, ok := result["agents"].([]AgentProfile)
+	if !ok || !hasNamedAgent(agents, "OperationOptimizationAgent") {
+		t.Fatalf("operation Agent missing from agents: %#v", result["agents"])
+	}
+	eligible, ok := result["eligible_operation_agents"].([]AgentProfile)
+	if !ok || !hasNamedAgent(eligible, "OperationOptimizationAgent") {
+		t.Fatalf("eligible operation Agents = %#v", result["eligible_operation_agents"])
+	}
+}
+
+func hasNamedAgent(agents []AgentProfile, name string) bool {
+	for _, agent := range agents {
+		if agent.Name == name {
+			return true
+		}
+	}
+	return false
 }
 
 func TestValidateVMSuitabilityUsesRecordedVMInsteadOfRankingCandidates(t *testing.T) {

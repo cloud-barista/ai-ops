@@ -40,14 +40,14 @@ func TestAutonomyDecisionPlannerUsesBoundedQwenContext(t *testing.T) {
 	}
 }
 
-func TestAutonomyActionAuthorizerUsesAgentRegistry(t *testing.T) {
+func TestAutonomyActionAuthorizerRejectsOperationActionsForAutomationAgent(t *testing.T) {
 	authorizer := newAutonomyActionAuthorizer(NewServerConfig())
 	approved, _, err := authorizer.Validate(context.Background(), string(autonomy.ActionRollback))
 	if err != nil {
-		t.Fatalf("authorize registered action: %v", err)
+		t.Fatalf("authorize operation action: %v", err)
 	}
-	if !approved {
-		t.Fatal("expected rollback_application to be authorized after registry extension")
+	if approved {
+		t.Fatal("expected rollback_application to be denied for the automation Agent")
 	}
 	approved, _, err = authorizer.Validate(context.Background(), "delete_infrastructure")
 	if err != nil {

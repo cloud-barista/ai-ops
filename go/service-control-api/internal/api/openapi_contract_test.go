@@ -159,6 +159,25 @@ func TestSubmissionOpenAPIIncludesAgentControlDeletionAndScalingDecision(t *test
 			t.Fatalf("submission OpenAPI path %s is missing DELETE", path)
 		}
 	}
+	optimizationFeedback := paths["/api/v1/agent-control/optimization-feedback"].(map[string]any)["post"].(map[string]any)
+	parameters, ok := optimizationFeedback["parameters"].([]any)
+	if !ok {
+		t.Fatalf("optimization feedback does not document query parameters: %#v", optimizationFeedback)
+	}
+	for _, parameter := range parameters {
+		item := parameter.(map[string]any)
+		if item["name"] != "operation_agent" || item["in"] != "query" {
+			continue
+		}
+		schema := item["schema"].(map[string]any)
+		if schema["type"] != "string" || item["required"] == true {
+			t.Fatalf("operation_agent query parameter=%#v", item)
+		}
+		goto operationAgentQueryDocumented
+	}
+	t.Fatal("optimization feedback is missing the optional operation_agent query parameter")
+
+operationAgentQueryDocumented:
 
 	schemas := document["components"].(map[string]any)["schemas"].(map[string]any)
 	flowProperties := schemas["AgentControlFlow"].(map[string]any)["properties"].(map[string]any)
@@ -166,12 +185,38 @@ func TestSubmissionOpenAPIIncludesAgentControlDeletionAndScalingDecision(t *test
 	if scalingReference != "#/components/schemas/ScalingDecision" {
 		t.Fatalf("scaling_decision schema reference=%#v", scalingReference)
 	}
+	for _, field := range []string{"requested_operation_agent", "operation_agent_execution"} {
+		if _, ok := flowProperties[field]; !ok {
+			t.Fatalf("AgentControlFlow is missing operation Agent evidence field %q", field)
+		}
+	}
+	if reference := flowProperties["operation_agent_execution"].(map[string]any)["$ref"]; reference != "#/components/schemas/OperationOptimizationResult" {
+		t.Fatalf("operation_agent_execution schema reference=%#v", reference)
+	}
+	operationExecution := schemas["OperationOptimizationResult"].(map[string]any)
+	if required := operationExecution["required"].([]any); len(required) != 2 ||
+		required[0] != "run_id" || required[1] != "status" {
+		t.Fatalf("OperationOptimizationResult required fields=%#v, want run_id and status", required)
+	}
+	if _, ok := operationExecution["properties"].(map[string]any)["run_id"]; !ok {
+		t.Fatalf("OperationOptimizationResult is missing run_id: %#v", operationExecution)
+	}
+	if description, _ := operationExecution["description"].(string); !strings.Contains(description, "Terminal failed or rejected") {
+		t.Fatalf("OperationOptimizationResult does not document terminal evidence semantics: %#v", operationExecution)
+	}
 
 	scaling := schemas["ScalingDecision"].(map[string]any)
 	properties := scaling["properties"].(map[string]any)
 	action := properties["action"].(map[string]any)
+	reason := properties["reason"].(map[string]any)
+	if reason["minLength"] != 1 || reason["maxLength"] != 8000 {
+		t.Fatalf("ScalingDecision reason bounds=%#v", reason)
+	}
 	actionValues := action["enum"].([]any)
-	for _, expected := range []string{"NO_ACTION", "SCALE_OUT", "SCALE_IN"} {
+	if description, _ := action["description"].(string); !strings.Contains(description, "NO_ACTION") {
+		t.Fatalf("ScalingDecision action does not document legacy NO_ACTION compatibility: %#v", action)
+	}
+	for _, expected := range []string{"KEEP", "SCALE_OUT", "SCALE_IN"} {
 		found := false
 		for _, value := range actionValues {
 			if value == expected {
@@ -183,6 +228,53 @@ func TestSubmissionOpenAPIIncludesAgentControlDeletionAndScalingDecision(t *test
 			t.Fatalf("ScalingDecision action enum is missing %q: %#v", expected, actionValues)
 		}
 	}
+}
+
+func TestGeneratedSwaggerDocumentsCanonicalOperationScalingAction(t *testing.T) {
+	config := NewServerConfig()
+	for _, path := range []string{
+		config.path("go", "service-control-api", "docs", "swagger", "swagger.json"),
+		config.path("go", "service-control-api", "docs", "swagger", "swagger.yaml"),
+	} {
+		content, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("read generated Swagger %s: %v", path, err)
+		}
+		var document map[string]any
+		if err := yaml.Unmarshal(content, &document); err != nil {
+			t.Fatalf("parse generated Swagger %s: %v", path, err)
+		}
+		definitions := document["definitions"].(map[string]any)
+		operationProperties := definitions["agentcontrol.OperationOptimizationResult"].(map[string]any)["properties"].(map[string]any)
+		if _, ok := operationProperties["run_id"]; !ok {
+			t.Fatalf("generated Swagger %s operation result is missing run_id: %#v", path, operationProperties)
+		}
+		action := definitions["agentcontrol.ScalingDecision"].(map[string]any)["properties"].(map[string]any)["action"].(map[string]any)
+		actionValues, ok := action["enum"].([]any)
+		if !ok {
+			t.Fatalf("generated Swagger %s action is missing its canonical enum: %#v", path, action)
+		}
+		for _, expected := range []string{"KEEP", "SCALE_OUT", "SCALE_IN"} {
+			if !containsOpenAPIEnum(actionValues, expected) {
+				t.Fatalf("generated Swagger %s action enum missing %q: %#v", path, expected, actionValues)
+			}
+		}
+		description, _ := action["description"].(string)
+		for _, expected := range []string{"NO_ACTION", "proposal/result", "normalized to KEEP"} {
+			if !strings.Contains(description, expected) {
+				t.Fatalf("generated Swagger %s action description missing %q: %#v", path, expected, action)
+			}
+		}
+	}
+}
+
+func containsOpenAPIEnum(values []any, expected string) bool {
+	for _, value := range values {
+		if value == expected {
+			return true
+		}
+	}
+	return false
 }
 
 func TestSubmissionOpenAPIIncludesGuardedAgentExecution(t *testing.T) {

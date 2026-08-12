@@ -197,6 +197,7 @@ func (handler restHandler) RestPostDeploymentStatus(context echo.Context) error 
 // @Accept json
 // @Produce json
 // @Param request body agentcontrol.OptimizationFeedbackEnvelope true "Optimization feedback message"
+// @Param operation_agent query string false "Optional operation Agent name; empty uses the Registry default."
 // @Success 202 {object} agentcontrol.Flow
 // @Failure 400 {object} ErrorResponse
 // @Router /api/v1/agent-control/optimization-feedback [post]
@@ -205,9 +206,10 @@ func (handler restHandler) RestPostOptimizationFeedback(context echo.Context) er
 	if message, err := bindAndValidate(context, &request); err != nil {
 		return jsonError(context, http.StatusBadRequest, message, err)
 	}
-	flow, err := handler.service.agentControl.ReceiveOptimizationFeedback(
+	flow, err := handler.service.agentControl.ReceiveOptimizationFeedbackForAgent(
 		context.Request().Context(),
 		request,
+		context.QueryParam("operation_agent"),
 	)
 	if err != nil {
 		return jsonError(context, http.StatusBadRequest, "Optimization feedback could not be accepted", err)

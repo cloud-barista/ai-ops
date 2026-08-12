@@ -24,6 +24,15 @@
 
 핵심 산출물은 실제 VM 배포 명령이 아니라 **검증 근거가 포함된 배포 결정과 플랫폼 중립적인 `DesiredDeploymentSpec`**입니다.
 
+The two core Agents and their bounded outputs are:
+
+```text
+Request -> AIApplicationAutomationAgent -> Guards -> DesiredDeploymentSpec
+Deployment Feedback -> OperationOptimizationAgent -> Guards -> scaling recommendation
+```
+
+Guards are outside both Agents. `DesiredDeploymentSpec` is the approved deployment-planning output; `KEEP`, `SCALE_OUT`, and `SCALE_IN` are recommendations only and never execute VM control or AppDeploy.
+
 ## 실행
 
 [Go 1.25 이상](https://go.dev/dl/)을 설치하고 저장소를 받습니다.
@@ -61,17 +70,83 @@ Go 서버 없이 페이지 흐름만 시연하려면 `LLM_Op` 브랜치의 저�
 
 ## 웹 실험 순서
 
-### 1. 자동화 실행
+웹 실험은 **배포 판단 실험**과 **배포 후 운영 최적화 실험**을 하나의 Flow로 연결합니다.
 
-1. **자연어 요청** 또는 **구조화 App Spec**을 선택합니다.
-2. **배포 판단 Agent**를 선택합니다.
-3. 요청을 입력하고 **자동 분석 및 판단**을 누릅니다.
-4. `ApplicationProfile`, `ResourceRecommendation`, Agent 판단과 Guard 결과를 확인합니다.
-5. 승인된 경우 생성된 `DesiredDeploymentSpec`을 확인합니다.
+```text
+자연어 요청 또는 App Spec
+→ 요구사항 분석
+→ 인프라 추천
+→ 배포 판단 Agent + Go Guard
+→ Manifest Revision 1
+→ 배포 상태 전송
+→ 성능 Feedback 전송
+→ OperationOptimizationAgent + Scaling Guard
+→ Manifest Revision 2
+```
+
+### 1. 배포 판단과 Manifest Revision 1
+
+1. `자동화 에이전트` 화면에서 **자연어 요청** 또는 **구조화 App Spec**을 선택합니다.
+2. 배포 판단 Agent를 선택합니다. 기본값은 `AIApplicationAutomationAgent (Internal)`입니다.
+3. 자연어 요청 또는 App Spec을 입력하고 **자동 분석 및 판단**을 누릅니다.
+4. 다음 단계가 서버에서 자동으로 실행됩니다.
+   - Requirement Analyzer → `ApplicationProfile`
+   - Mock Resource Recommender → `ResourceRecommendation`
+   - Agent Registry 권한 확인
+   - 선택 Agent의 `DEPLOY / REJECT / RETRY` 판단
+   - Request Guard와 Result Guard 검증
+5. 실행이 끝나면 `실험 결과` 화면으로 이동합니다.
+6. `Manifest Revision 1`에서 최초 배포용 `DesiredDeploymentSpec`을 확인합니다.
+
+Revision 1은 **최초 배포 판단 결과**입니다. 이 단계에서는 아직 배포 상태나 성능 Feedback을 보내지 않습니다.
+
+### 2. 배포 상태 전송
+
+1. `실험 결과`에서 방금 생성된 Flow를 선택합니다.
+2. `배포 상태 전송` 영역의 `deployment.status.changed JSON`을 확인합니다.
+3. 실제 외부 시스템에서 받은 메시지를 넣거나 **SLO 위반 샘플** 버튼으로 시험 데이터를 불러옵니다.
+4. **2. 배포 상태 전송**을 누릅니다.
+
+이 단계는 배포 실행 자체가 아니라, 공통 JSON 형식의 배포 결과를 geon에 전달하는 단계입니다. 상태가 저장되면 다음 Feedback 단계가 활성화됩니다.
+
+### 3. 성능 Feedback 전송과 운영 최적화
+
+1. `optimization.feedback.created JSON`을 확인합니다.
+2. 필요하면 SLO 위반 샘플을 사용합니다.
+3. **3. 성능 Feedback 전송**을 누릅니다.
+
+Feedback이 접수되면 다음 처리가 자동으로 이어집니다.
+
+```text
+OperationOptimizationAgent
+→ Request Guard
+→ Result Guard
+→ Scaling Guard
+→ KEEP / SCALE_OUT / SCALE_IN
+```
+
+별도의 운영 최적화 실행 버튼을 다시 누르는 방식이 아닙니다. Feedback 전송이 운영 최적화 Agent 실행의 입력이 됩니다.
+
+### 4. Manifest Revision 2 확인
+
+운영 최적화 판단이 승인되면 `Manifest Revision 2`가 생성됩니다.
+
+- `KEEP`: 기존 배포 요구 스펙 유지
+- `SCALE_OUT`: Replica 증가를 반영한 최적화 Manifest
+- `SCALE_IN`: Replica 감소를 반영한 최적화 Manifest
+
+따라서 최종 시연 결과는 다음 두 개입니다.
+
+| 결과 | 의미 |
+| --- | --- |
+| `Manifest Revision 1` | 최초 배포를 위한 승인된 `DesiredDeploymentSpec` |
+| `Manifest Revision 2` | Feedback과 Scaling Guard 결과를 반영한 최적화 `DesiredDeploymentSpec` |
+
+`deployment.status.changed`와 `optimization.feedback.created`는 Manifest가 아닙니다. 두 JSON은 배포 결과와 성능 관측을 전달하는 통신 메시지입니다. `전체 Flow 실행 기록`도 감사용 기록이며 Manifest가 아닙니다.
+
+### 5. Agent 및 정책
 
 기본 `AIApplicationAutomationAgent (Internal)`은 별도 Agent 서버 없이 실행됩니다.
-
-### 2. Agent 및 정책
 
 배포 판단에 사용할 Agent의 상태, capability와 bounded action을 관리합니다.
 
@@ -82,7 +157,7 @@ required action:     generate_deployment_decision
 
 Runtime Agent는 Registry에 등록하는 것만으로 실행되지 않습니다. 선택하려면 등록한 `endpoint + invocation_path`에서 응답하는 별도 HTTP Agent 서버가 실행 중이어야 합니다.
 
-### 3. 실험 결과
+### 6. 실험 결과
 
 동일한 Flow에서 다음 증거를 확인합니다.
 
@@ -91,7 +166,9 @@ Runtime Agent는 Registry에 등록하는 것만으로 실행되지 않습니다
 - Request, Result, Domain Guard 결과
 - `DesiredDeploymentSpec`
 - Adapter 전달 상태
-- 선택적 Feedback과 스케일링 판단
+- 배포 상태와 성능 Feedback
+- `OperationOptimizationAgent`와 Scaling Guard 결과
+- `Manifest Revision 1`과 `Manifest Revision 2`
 
 ## 결과 해석
 
@@ -106,22 +183,37 @@ Runtime Agent는 Registry에 등록하는 것만으로 실행되지 않습니다
 
 `SIMULATED`와 `READY`는 실제 VM 배포 성공을 의미하지 않습니다.
 
-## 선택적 Qwen 비교
+## 선택적 추론 방식 비교
 
-핵심 자동화 실행에는 Ollama가 필요하지 않습니다. Qwen은 **실험 결과 → 추론 방식 비교**에서 다음 방식을 비교할 때만 사용합니다.
+`추론 방식 비교`는 핵심 배포 Flow에 필요한 단계가 아니라, 선택적으로 실행하는 평가 기능입니다. 선택한 Flow에서 비교 실행을 누르면 다음 세 경로를 비교합니다.
 
 ```text
-규칙 기반
-Qwen 단순 추론
-Qwen 제안 + Go Guard
+규칙 기반 판단
+Qwen 원시 제안
+Qwen 제안 + Go Guard 검증
 ```
+
+비교 결과에는 실행 여부, Action, 후보 자원, Guard 상태, 지연시간과 판단 일치 여부가 기록됩니다. 기본 설정의 Qwen 후보는 비활성화되어 있으므로, Ollama를 연결하지 않으면 Qwen 경로가 `provider_unavailable` 또는 `skipped`로 기록됩니다. 이 경우 핵심 배포 판단은 정상적으로 실행되지만, Qwen 비교 실험은 완료된 것으로 해석하면 안 됩니다.
 
 ```bash
 ollama pull qwen3.5:4b
 ollama list
 ```
 
-Ollama가 꺼져 있어도 핵심 배포 판단은 실행되며, Qwen 비교만 `provider_unavailable`로 기록됩니다.
+Git Bash에서 Qwen 비교를 실제 실행하려면 Ollama를 켠 뒤 다음 설정으로 서버를 다시 시작합니다.
+
+```bash
+export AIOPS_LLM_CANDIDATES_PATH="config/ops_llm_eval_candidates.local_ollama.json"
+./run-agent-control.sh
+```
+
+서버를 다시 시작한 뒤 새 Flow를 생성하고 `실험 결과 → 추론 방식 비교 → 비교 실행`을 누릅니다.
+
+## 고급 프로토콜 검증
+
+`고급 프로토콜 검증`은 외부 팀과 합의한 **Common JSON v1.0 통신 형식을 수동으로 시험하는 개발자용 기능**입니다. Application Context와 Resource Recommendation 메시지를 직접 입력해 계약 형식과 Flow 연결을 확인할 때 사용합니다.
+
+일반적인 교수님 시연에서는 `자동화 에이전트`의 자연어 요청부터 시작하는 기본 Flow만 사용하면 됩니다. 고급 프로토콜 검증은 통신 계약 증거가 필요할 때 별도로 보여줍니다.
 
 ## CLI 실행
 

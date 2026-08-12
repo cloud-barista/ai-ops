@@ -121,14 +121,9 @@ func TestControlAppContainsSingleAutomationWorkflow(t *testing.T) {
 		`id="decision-agent-select"`,
 		`배포 판단 Agent`,
 		`자동 분석 및 판단`,
-		`data-agent-control-stage="requirement"`,
-		`data-agent-control-stage="recommendation"`,
-		`data-agent-control-stage="decision"`,
-		`data-agent-control-stage="adapter"`,
 		`요구사항 분석`,
 		`인프라 추천`,
-		`Agent 배포 판단`,
-		`Adapter 전달`,
+		`배포 판단`,
 		`id="automation-analysis-mode"`,
 		`id="agent-control-adapter"`,
 		`id="agent-control-adapter-status"`,
@@ -148,9 +143,9 @@ func TestControlAppContainsSingleAutomationWorkflow(t *testing.T) {
 		`id="load-agent-control-sample"`,
 		`id="run-protocol-flow"`,
 		`id="agent-control-result-json"`,
-		`Desired Deployment Spec`,
-		`Mock simulation`,
-		`External handoff ready`,
+		`Revision 1`,
+		`배포 상태`,
+		`성능 Feedback`,
 	} {
 		if !strings.Contains(html, expected) {
 			t.Fatalf("missing automation workflow contract %q", expected)
@@ -171,20 +166,103 @@ func TestControlAppContainsCollapsibleExperimentGuide(t *testing.T) {
 	for _, expected := range []string{
 		`<details class="experiment-guide" id="experiment-guide">`,
 		`실험 진행 방법`,
-		`입력 방식 선택`,
-		`자동 분석 및 판단 실행`,
-		`판단 결과 확인`,
-		`선택 실험`,
-		`DesiredDeploymentSpec`,
-		`Feedback`,
+		`입력 방식과 Agent 선택`,
+		`Revision 1 생성`,
+		`배포 상태 전송`,
+		`성능 Feedback 전송`,
+		`운영 최적화 판단`,
+		`Revision 2 확인`,
 	} {
 		if !strings.Contains(html, expected) {
 			t.Fatalf("missing collapsible experiment guide contract %q", expected)
 		}
 	}
+	if count := strings.Count(html, `class="experiment-guide-step"`); count != 6 {
+		t.Fatalf("expected 6 separate experiment guide steps, got %d", count)
+	}
 
 	if strings.Contains(html, `<details class="experiment-guide" id="experiment-guide" open>`) {
 		t.Fatal("experiment guide must be collapsed by default")
+	}
+}
+
+func TestControlAppDoesNotPreloadExperimentEvidence(t *testing.T) {
+	server := echo.New()
+	Register(server)
+	javascript := requestBody(t, server, "/assets/app.js")
+
+	initialize := regexp.MustCompile(`(?s)async function initialize\(\) \{(.*?)\n\}`).FindStringSubmatch(javascript)
+	if len(initialize) != 2 {
+		t.Fatal("initialize function not found")
+	}
+	for _, preload := range []string{
+		`loadAgentControlSamples();`,
+		`loadFeedbackSamples();`,
+	} {
+		if strings.Contains(initialize[1], preload) {
+			t.Fatalf("experiment evidence must not be preloaded at startup: %s", preload)
+		}
+	}
+	if !strings.Contains(initialize[1], `loadAgentControlFlows("", false)`) {
+		t.Fatal("startup must load the saved Flow list without selecting previous evidence")
+	}
+}
+
+func TestControlAppSeparatesManifestFlowStages(t *testing.T) {
+	server := echo.New()
+	Register(server)
+	html := requestBody(t, server, "/")
+	javascript := requestBody(t, server, "/assets/app.js")
+
+	for _, expected := range []string{
+		`id="manifest-initial-flow-id"`,
+		`id="manifest-optimized-flow-id"`,
+		`id="experiment-manifest-initial-flow-id"`,
+		`id="experiment-manifest-optimized-flow-id"`,
+		`Revision 1 · 배포 판단`,
+		`Revision 2 · 운영 최적화`,
+		`Flow 미생성`,
+	} {
+		if !strings.Contains(html, expected) {
+			t.Fatalf("missing separated Manifest Flow stage contract %q", expected)
+		}
+	}
+
+	for _, expected := range []string{
+		`const flowID = text(flow?.correlation_id, "Flow 미생성");`,
+		"byID(`${prefix}manifest-initial-flow-id`).textContent = flowID;",
+		"byID(`${prefix}manifest-optimized-flow-id`).textContent = flowID;",
+	} {
+		if !strings.Contains(javascript, expected) {
+			t.Fatalf("missing Manifest Flow stage renderer %q", expected)
+		}
+	}
+}
+
+func TestAutomationRunStaysOnCurrentView(t *testing.T) {
+	server := echo.New()
+	Register(server)
+	html := requestBody(t, server, "/")
+	javascript := requestBody(t, server, "/assets/app.js")
+
+	if !strings.Contains(html, `id="automation-run-completion"`) {
+		t.Fatal("missing persistent Revision 1 completion status")
+	}
+
+	submitRun := regexp.MustCompile(`(?s)async function submitAutomationRun\(event\) \{(.*?)\n\}`).FindStringSubmatch(javascript)
+	if len(submitRun) != 2 {
+		t.Fatal("submitAutomationRun function not found")
+	}
+	if strings.Contains(submitRun[1], `switchView("results")`) {
+		t.Fatal("Revision 1 execution must not navigate to the results view")
+	}
+	for _, expected := range []string{
+		`Revision 1 생성 완료`,
+		`automation-run-completion`,
+	} {
+		if !strings.Contains(submitRun[1], expected) {
+			t.Fatalf("missing current-view completion behavior %q", expected)
+		}
 	}
 }
 
@@ -198,6 +276,11 @@ func TestControlAppContainsPolicyRegistryAndExperimentResults(t *testing.T) {
 		`AIApplicationAutomationAgent`,
 		`ai_application_automation`,
 		`generate_deployment_decision`,
+		`OperationOptimizationAgent`,
+		`ai_application_operation_optimization`,
+		`generate_scaling_decision`,
+		`운영 최적화 Agent`,
+		`Scaling Guard`,
 		`id="agent-table-body"`,
 		`id="open-agent-dialog"`,
 		`id="agent-registration-form"`,
@@ -210,6 +293,8 @@ func TestControlAppContainsPolicyRegistryAndExperimentResults(t *testing.T) {
 		`id="reasoning-comparison-form"`,
 		`id="deployment-status-form"`,
 		`id="optimization-feedback-form"`,
+		`id="optimization-operation-agent-select"`,
+		`id="experiment-operation-evidence"`,
 		`application.analysis.request`,
 		`/api/v1/agent-control/application-analysis-requests`,
 	} {
@@ -236,6 +321,12 @@ func TestControlAppJavaScriptUsesOnlyFocusedWebAPIs(t *testing.T) {
 		`eligibleDecisionAgents`,
 		`renderDecisionAgentOptions`,
 		`decision_agent`,
+		`eligibleOperationAgents`,
+		`renderOperationAgentOptions`,
+		`operation_agent`,
+		`renderOperationEvidence`,
+		`const decision = flow.scaling_decision || {};`,
+		`권고 없음`,
 		`submitAutomationRun`,
 		`submitProtocolFlow`,
 		`renderAutomationRun`,
@@ -247,6 +338,10 @@ func TestControlAppJavaScriptUsesOnlyFocusedWebAPIs(t *testing.T) {
 		if !strings.Contains(javascript, expected) {
 			t.Fatalf("missing focused JavaScript contract %q", expected)
 		}
+	}
+
+	if strings.Contains(javascript, `flow.scaling_decision || execution.decision`) {
+		t.Fatal("visible scaling recommendation must not fall back to an unapproved operation Agent decision")
 	}
 
 	for _, removed := range []string{
@@ -275,7 +370,7 @@ func TestControlAppUsesReadableKorean(t *testing.T) {
 		"자동 분석 및 판단",
 		"요구사항 분석",
 		"인프라 추천",
-		"Agent 배포 판단",
+		"배포 판단",
 		"분석 방식",
 		"Registry 권한",
 		"Go Guard",
@@ -312,7 +407,6 @@ func TestControlAppResponsiveStylesProtectFixedWorkflowElements(t *testing.T) {
 		`.automation-evidence-grid`,
 		`.automation-input-grid`,
 		`.results-layout`,
-		`.agent-control-stage-flow`,
 		`.experiment-guide`,
 		`.experiment-guide-steps`,
 		`.table-wrap`,

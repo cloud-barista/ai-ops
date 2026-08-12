@@ -2,19 +2,20 @@ package agentcontrol
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
 const scalingLowUtilizationPercent = 30.0
 
-func evaluateScalingDecision(flow Flow, now time.Time) *ScalingDecision {
+func ProposeRuleBasedScalingDecision(flow Flow, now time.Time) *ScalingDecision {
 	if flow.DeploymentStatus == nil {
 		return nil
 	}
 
 	current, minimum, maximum := scalingReplicaBounds(flow)
 	decision := &ScalingDecision{
-		Action:          ScalingActionNoAction,
+		Action:          ScalingActionKeep,
 		CurrentReplicas: current,
 		DesiredReplicas: current,
 		CreatedAt:       now.UTC().Format(time.RFC3339Nano),
@@ -53,18 +54,34 @@ func evaluateScalingDecision(flow Flow, now time.Time) *ScalingDecision {
 		decision.Action = ScalingActionScaleIn
 		decision.DesiredReplicas = current - 1
 		decision.Reason = "Healthy SLO and sustained low utilization allow one bounded replica decrease."
-		decision.Evidence = []string{
-			fmt.Sprintf("cpu_average_percent=%.2f", resource.CPUAveragePercent),
-			fmt.Sprintf(
-				"accelerator_average_percent=%.2f",
-				resource.AcceleratorAveragePercent,
-			),
-		}
+		decision.Evidence = scalingLowUtilizationEvidence(resource)
 		return decision
 	}
 
 	decision.Reason = "SLO and utilization remain within the configured operating range."
 	return decision
+}
+
+func scalingLowUtilizationEvidence(resource ResourceMetrics) []string {
+	return []string{
+		fmt.Sprintf("cpu_average_percent=%.2f", resource.CPUAveragePercent),
+		fmt.Sprintf(
+			"accelerator_average_percent=%.2f",
+			resource.AcceleratorAveragePercent,
+		),
+	}
+}
+
+func evaluateScalingDecision(flow Flow, now time.Time) *ScalingDecision {
+	return ProposeRuleBasedScalingDecision(flow, now)
+}
+
+func NormalizeScalingAction(action string) string {
+	action = strings.TrimSpace(action)
+	if action == ScalingActionNoAction {
+		return ScalingActionKeep
+	}
+	return action
 }
 
 func scalingReplicaBounds(flow Flow) (current int, minimum int, maximum int) {

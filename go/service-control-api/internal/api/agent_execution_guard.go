@@ -61,6 +61,10 @@ func validateAgentExecutionResult(
 	result AgentExecutionResult,
 ) GuardDecision {
 	switch {
+	case strings.TrimSpace(request.RunID) == "":
+		return rejectedGuardDecision("Agent request run_id is required")
+	case strings.TrimSpace(result.RunID) == "":
+		return rejectedGuardDecision("Agent result run_id is required")
 	case result.RunID != request.RunID:
 		return rejectedGuardDecision("Agent result run_id does not match the dispatched run")
 	case result.Agent != request.Agent || result.Agent != agent.Name:
@@ -78,6 +82,7 @@ func validateAgentExecutionResult(
 		return rejectedGuardDecision("DeploymentManifest result is missing Manifest Guard evidence")
 	case result.Manifest == nil &&
 		!(request.Action == agentcontrol.AutomationDecisionAction && result.DomainValidation == "deployment_decision") &&
+		!(request.Action == agentcontrol.OperationOptimizationDecisionAction && result.DomainValidation == "scaling_decision") &&
 		result.DomainValidation != "not_registered":
 		return rejectedGuardDecision("Agent result must declare domain validation status")
 	}

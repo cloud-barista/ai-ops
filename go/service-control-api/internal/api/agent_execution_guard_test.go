@@ -1,6 +1,9 @@
 package api
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestValidateAgentExecutionRequestRejectsUnregisteredCapabilityAndAction(t *testing.T) {
 	agent := executionGuardTestAgent()
@@ -87,6 +90,40 @@ func TestValidateAgentExecutionResultRejectsMismatchedRunAgentAndAction(t *testi
 			decision := validateAgentExecutionResult(agent, request, test.result)
 			if decision.Valid || decision.Status != "rejected" {
 				t.Fatalf("mismatched result was not rejected: %#v", decision)
+			}
+		})
+	}
+}
+
+func TestValidateAgentExecutionResultRejectsEmptyRequestOrResultRunID(t *testing.T) {
+	agent := executionGuardTestAgent()
+	tests := []struct {
+		name       string
+		requestID  string
+		resultID   string
+		wantReason string
+	}{
+		{name: "empty request run id", requestID: "   ", resultID: "run-001", wantReason: "request run_id is required"},
+		{name: "empty result run id", requestID: "run-001", resultID: "   ", wantReason: "result run_id is required"},
+		{name: "both run ids empty", requestID: "", resultID: "", wantReason: "request run_id is required"},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			request := AgentDispatchRequest{
+				RunID: test.requestID, Agent: agent.Name,
+				Capability: "deployment_review", Action: "review_deployment_plan",
+			}
+			result := AgentExecutionResult{
+				RunID: test.resultID, Agent: agent.Name, Status: "completed",
+				Proposal:         AgentProposal{Action: "review_deployment_plan"},
+				DomainValidation: "not_registered",
+			}
+
+			decision := validateAgentExecutionResult(agent, request, result)
+			if decision.Valid || decision.Status != "rejected" ||
+				!strings.Contains(decision.Reason, test.wantReason) {
+				t.Fatalf("empty run_id result Guard = %#v", decision)
 			}
 		})
 	}

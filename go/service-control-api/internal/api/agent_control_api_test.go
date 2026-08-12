@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 
@@ -431,6 +432,141 @@ func TestAgentControlFeedbackAPI(t *testing.T) {
 	}
 }
 
+func TestAgentControlFeedbackAPISelectsOperationAgentFromQuery(t *testing.T) {
+	server := NewServer(NewServerConfig())
+	postAgentControlInputPair(t, server)
+
+	status := apiDeploymentStatusEnvelope()
+	statusResponse := performJSONRequest(
+		t,
+		server,
+		http.MethodPost,
+		"/api/v1/agent-control/deployment-status",
+		marshalAgentControlMessage(t, status),
+	)
+	if statusResponse.Code != http.StatusAccepted {
+		t.Fatalf("deployment status: code=%d body=%s", statusResponse.Code, statusResponse.Body.String())
+	}
+
+	body := marshalAgentControlMessage(t, apiOptimizationFeedbackEnvelope())
+	if strings.Contains(body, "operation_agent") {
+		t.Fatalf("Common JSON feedback body must not contain operation_agent: %s", body)
+	}
+	feedbackResponse := performJSONRequest(
+		t,
+		server,
+		http.MethodPost,
+		"/api/v1/agent-control/optimization-feedback?operation_agent=OperationOptimizationAgent",
+		body,
+	)
+	if feedbackResponse.Code != http.StatusAccepted {
+		t.Fatalf("optimization feedback: code=%d body=%s", feedbackResponse.Code, feedbackResponse.Body.String())
+	}
+	if !strings.Contains(feedbackResponse.Body.String(), `"requested_operation_agent":"OperationOptimizationAgent"`) ||
+		!strings.Contains(feedbackResponse.Body.String(), `"operation_agent_execution"`) {
+		t.Fatalf("operation Agent selection was not recorded: %s", feedbackResponse.Body.String())
+	}
+}
+
+func TestAgentControlFeedbackAPISanitizesFailedRuntimeOperationAgentResult(t *testing.T) {
+	const sensitiveMessage = "Authorization: Bearer super-secret-token"
+	const sensitiveProposal = "private endpoint https://runtime.internal/token"
+	runtimeAgent := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+		var dispatched AgentDispatchRequest
+		if err := json.NewDecoder(request.Body).Decode(&dispatched); err != nil {
+			t.Errorf("decode Runtime Agent request: %v", err)
+		}
+		response.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(response).Encode(AgentExecutionResult{
+			RunID:   dispatched.RunID,
+			Agent:   dispatched.Agent,
+			Status:  "failed",
+			Message: sensitiveMessage,
+			Proposal: AgentProposal{
+				Action: dispatched.Action,
+				Parameters: map[string]any{
+					"action":           agentcontrol.ScalingActionScaleOut,
+					"current_replicas": 1,
+					"desired_replicas": 2,
+					"reason":           sensitiveProposal,
+					"evidence":         []string{sensitiveProposal},
+				},
+			},
+			DomainValidation: "scaling_decision",
+		})
+	}))
+	defer runtimeAgent.Close()
+
+	server := NewServer(NewServerConfig())
+	registration := performJSONRequest(
+		t,
+		server,
+		http.MethodPost,
+		"/api/v1/agents",
+		`{
+			"name":"RuntimeOperationAgent",
+			"version":"1.0.0",
+			"role":"Generate one bounded scaling recommendation.",
+			"endpoint":"`+runtimeAgent.URL+`",
+			"invocation_path":"/execute",
+			"capabilities":["ai_application_operation_optimization"],
+			"bounded_actions":["generate_scaling_decision"],
+			"enabled":true
+		}`,
+	)
+	if registration.Code != http.StatusCreated {
+		t.Fatalf("register Runtime operation Agent: code=%d body=%s", registration.Code, registration.Body.String())
+	}
+	postAgentControlInputPair(t, server)
+	statusResponse := performJSONRequest(
+		t,
+		server,
+		http.MethodPost,
+		"/api/v1/agent-control/deployment-status",
+		marshalAgentControlMessage(t, apiDeploymentStatusEnvelope()),
+	)
+	if statusResponse.Code != http.StatusAccepted {
+		t.Fatalf("deployment status: code=%d body=%s", statusResponse.Code, statusResponse.Body.String())
+	}
+	response := performJSONRequest(
+		t,
+		server,
+		http.MethodPost,
+		"/api/v1/agent-control/optimization-feedback?operation_agent=RuntimeOperationAgent",
+		marshalAgentControlMessage(t, apiOptimizationFeedbackEnvelope()),
+	)
+	if response.Code != http.StatusAccepted {
+		t.Fatalf("optimization feedback: code=%d body=%s", response.Code, response.Body.String())
+	}
+	if strings.Contains(response.Body.String(), sensitiveMessage) || strings.Contains(response.Body.String(), sensitiveProposal) {
+		t.Fatalf("accepted Flow leaked Runtime Agent content: %s", response.Body.String())
+	}
+	var flow agentcontrol.Flow
+	if err := json.Unmarshal(response.Body.Bytes(), &flow); err != nil {
+		t.Fatalf("decode optimization feedback Flow: %v", err)
+	}
+	if flow.OperationAgentExecution == nil ||
+		flow.OperationAgentExecution.Status != "failed" ||
+		flow.OperationAgentExecution.Message != "Operation Agent execution failed." {
+		t.Fatalf("safe Runtime Agent evidence = %#v", flow.OperationAgentExecution)
+	}
+	if flow.OperationAgentExecution.ResultGuard.Status != agentcontrol.GuardRejected ||
+		flow.ScalingDecision != nil {
+		t.Fatalf("failed Runtime Agent Flow = %#v", flow)
+	}
+}
+
+func TestOptimizationFeedbackHandlerDocumentsOperationAgentQuery(t *testing.T) {
+	source, err := os.ReadFile("agent_control_api.go")
+	if err != nil {
+		t.Fatalf("read handler source: %v", err)
+	}
+	annotation := `// @Param operation_agent query string false "Optional operation Agent name; empty uses the Registry default."`
+	if !strings.Contains(string(source), annotation) {
+		t.Fatalf("optimization feedback query annotation missing: %s", annotation)
+	}
+}
+
 func TestAgentControlDeletesFlowAPI(t *testing.T) {
 	server := NewServer(NewServerConfig())
 	postAgentControlInputPair(t, server)
@@ -684,5 +820,58 @@ func apiResourceRecommendationEnvelope() agentcontrol.ResourceRecommendationEnve
 				},
 			},
 		},
+	}
+}
+
+func apiDeploymentStatusEnvelope() agentcontrol.DeploymentStatusEnvelope {
+	return agentcontrol.DeploymentStatusEnvelope{
+		Envelope: agentcontrol.Envelope{
+			ContractVersion: agentcontrol.ContractVersionV1,
+			MessageID:       "msg-deployment-api-001",
+			MessageType:     agentcontrol.MessageDeploymentStatusChanged,
+			OccurredAt:      "2026-07-29T05:10:00Z",
+			CorrelationID:   "flow-api-001",
+			TraceID:         "trace-api-001",
+			Source:          agentcontrol.Endpoint{System: "deployment-orchestrator", Component: "runtime-adapter"},
+			Target:          agentcontrol.Endpoint{System: "khu-geon", Component: "agent-control"},
+		},
+		Data: agentcontrol.DeploymentStatusData{DeploymentStatus: agentcontrol.DeploymentStatus{
+			DeploymentID: "deployment-api-001",
+			DecisionID:   "decision-flow-api-001",
+			State:        agentcontrol.DeploymentStateRunning,
+			Message:      "The application is running.",
+			UpdatedAt:    "2026-07-29T05:10:00Z",
+		}},
+	}
+}
+
+func apiOptimizationFeedbackEnvelope() agentcontrol.OptimizationFeedbackEnvelope {
+	return agentcontrol.OptimizationFeedbackEnvelope{
+		Envelope: agentcontrol.Envelope{
+			ContractVersion: agentcontrol.ContractVersionV1,
+			MessageID:       "msg-feedback-api-001",
+			MessageType:     agentcontrol.MessageOptimizationFeedbackCreated,
+			OccurredAt:      "2026-07-29T05:30:00Z",
+			CorrelationID:   "flow-api-001",
+			TraceID:         "trace-api-001",
+			Source:          agentcontrol.Endpoint{System: "deployment-orchestrator", Component: "monitoring"},
+			Target:          agentcontrol.Endpoint{System: "khu-geon", Component: "agent-control"},
+		},
+		Data: agentcontrol.OptimizationFeedbackData{OptimizationFeedback: agentcontrol.OptimizationFeedback{
+			FeedbackID:   "feedback-api-001",
+			DecisionID:   "decision-flow-api-001",
+			DeploymentID: "deployment-api-001",
+			Outcome:      agentcontrol.FeedbackOutcomeSucceeded,
+			ObservationWindow: agentcontrol.ObservationWindow{
+				StartedAt: "2026-07-29T05:10:00Z",
+				EndedAt:   "2026-07-29T05:30:00Z",
+			},
+			Metrics: agentcontrol.OptimizationMetrics{
+				Resource:  agentcontrol.ResourceMetrics{CPUAveragePercent: 50, AcceleratorAveragePercent: 75},
+				Inference: agentcontrol.InferenceMetrics{LatencyP95MS: 1200, ThroughputRPS: 6.4},
+				Cost:      agentcontrol.CostMetrics{Currency: "KRW", EstimatedCost: 800},
+			},
+			CreatedAt: "2026-07-29T05:30:00Z",
+		}},
 	}
 }
