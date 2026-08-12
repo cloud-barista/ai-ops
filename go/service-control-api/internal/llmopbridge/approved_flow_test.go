@@ -530,6 +530,11 @@ func validApprovedInitialFlowInput() ApprovedInitialFlowInput {
 	}
 	runtime := agentcontrol.RuntimeConfiguration{RestartPolicy: "ON_FAILURE"}
 	runtime.Command = append([]string(nil), profile.Artifact.Entrypoint...)
+	deploymentArtifact := *profile.Artifact
+	deploymentArtifact.Entrypoint = append(
+		[]string(nil),
+		profile.Artifact.Entrypoint...,
+	)
 	spec := agentcontrol.DesiredDeploymentSpec{
 		SpecVersion:            agentcontrol.ContractVersionV1,
 		DecisionID:             decision.DecisionID,
@@ -554,6 +559,7 @@ func validApprovedInitialFlowInput() ApprovedInitialFlowInput {
 				Application: agentcontrol.DeploymentApplication{
 					AppID:      profile.AppID,
 					AppVersion: profile.AppVersion,
+					Artifact:   &deploymentArtifact,
 				},
 				DeploymentManifest: agentcontrol.DeploymentManifest{
 					ManifestID:             "manifest-bridge-001",
