@@ -62,6 +62,18 @@ Git Bash, Linux 또는 macOS:
 
 통합 순서의 기준은 **LLM_Op 최초 Safeguard → geon 배포 판단·canonical Revision → 승인된 초기 Revision의 AppDeploy prepare-only 투영**입니다. 별도 구현을 만들더라도 비신뢰 자연어를 live Requirement Analyzer나 Manifest LLM에 먼저 보내거나, LLM_Op 거부 결과를 legacy 경로로 우회해서는 안 됩니다. 상세 기준은 [Guard-first 연결 기준](docs/coordination/llm-op-guard-first-integration-standard.md)을 따릅니다.
 
+현재 Go 통합 경계는 `internal/trustedorchestration`에 구현되어 있습니다.
+
+```text
+LLM_Op ReviewWithConfig
+→ allow_request만 geon AutomationRunner 실행
+→ canonical Flow + INITIAL Revision 1
+→ ProjectApprovedInitialFlow 재검증
+→ APPROVED_FLOW_READY
+```
+
+`REQUEST_REJECTED`, `CLARIFICATION_REQUIRED`, 모델 오류 또는 불완전한 승인 증거에는 geon을 실행하지 않습니다. `APPROVED_FLOW_READY`는 승인된 Revision 1의 prepare-only 투영 준비 상태이며, AppDeploy POST나 실제 VM 배포 성공을 뜻하지 않습니다.
+
 Go 서버 없이 페이지 흐름만 시연하려면 `LLM_Op` 브랜치의 저장소 루트에서 다음 파일을 실행합니다.
 
 ```powershell
@@ -69,6 +81,13 @@ Go 서버 없이 페이지 흐름만 시연하려면 `LLM_Op` 브랜치의 저�
 ```
 
 이 방식은 로컬 HTML, CSS, JavaScript만 열며 모델 API와 AppDeploy를 호출하지 않습니다. 통합 서버 route를 확인하려면 먼저 `.\run-agent-control.cmd`를 실행하고 [healthz](http://127.0.0.1:18080/healthz)가 응답하는지 확인한 뒤 [LLM_Op demo](http://127.0.0.1:18080/llm-op-demo)를 엽니다. 환경변수 없이 `go run ./cmd/service-control-api`만 실행하면 기본 포트는 `8080`입니다.
+
+Guard-first 연결 테스트:
+
+```bash
+cd go/service-control-api
+go test ./internal/llmop ./internal/llmopbridge ./internal/trustedorchestration -count=1
+```
 
 ## 웹 실험 순서
 

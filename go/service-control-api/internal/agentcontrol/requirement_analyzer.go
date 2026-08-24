@@ -73,12 +73,13 @@ func analyzeNaturalLanguage(input AutomationRunInput) (RequirementAnalysisResult
 		assumptions = append(assumptions, "Storage requirement defaulted to 20 GiB.")
 	}
 
-	gpuRequired := strings.Contains(normalized, "gpu") ||
+	gpuMentioned := strings.Contains(normalized, "gpu") ||
 		strings.Contains(normalized, "그래픽 가속기")
+	gpuCount, gpuCountExplicit := extractCountAfterLabel(normalized, []string{"gpu"})
+	gpuRequired := gpuMentioned && (!gpuCountExplicit || gpuCount > 0)
 	accelerator := AcceleratorRequirements{}
 	if gpuRequired {
-		gpuCount, found := extractCountAfterLabel(normalized, []string{"gpu"})
-		if !found {
+		if !gpuCountExplicit {
 			gpuCount = defaultGPUCount
 			assumptions = append(assumptions, "GPU count defaulted to 1.")
 		}

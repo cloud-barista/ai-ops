@@ -2,6 +2,7 @@ package agentcontrol
 
 import (
 	"context"
+	"strings"
 	"testing"
 )
 
@@ -56,6 +57,27 @@ func TestLocalRequirementAnalyzerParsesEnglishCPURequest(t *testing.T) {
 	}
 	if requirements.Deployment.ReplicasMin != 1 {
 		t.Fatalf("replicas_min = %d, want 1", requirements.Deployment.ReplicasMin)
+	}
+}
+
+func TestLocalRequirementAnalyzerTreatsExplicitGPUZeroAsCPUOnly(t *testing.T) {
+	analyzer := LocalRequirementAnalyzer{}
+	result, err := analyzer.Analyze(context.Background(), AutomationRunInput{
+		InputType: InputTypeNaturalLanguage,
+		Request:   "Deploy with GPU 0, CPU 4 cores, memory 8GiB, storage 20GiB, and 1 replica.",
+	})
+	if err != nil {
+		t.Fatalf("analyze explicit GPU zero request: %v", err)
+	}
+
+	accelerator := result.ApplicationProfile.Requirements.Accelerator
+	if accelerator.Required || accelerator.CountMin != 0 || accelerator.MemoryMiBMinPerDevice != 0 {
+		t.Fatalf("GPU 0 must remain CPU-only, got %#v", accelerator)
+	}
+	for _, assumption := range result.Evidence.Assumptions {
+		if strings.Contains(assumption, "GPU") {
+			t.Fatalf("explicit GPU 0 must not add a GPU default assumption: %q", assumption)
+		}
 	}
 }
 

@@ -46,6 +46,12 @@ LLM_Op의 별도 수동 시연은 현재 `LLM_Op`과 geon 최신화 통합 브�
 
 공식 연결에서는 LLM_Op 최초 Safeguard가 모든 live Requirement Analyzer·Manifest LLM보다 먼저 실행되어야 한다. geon은 승인된 `Flow`, `DesiredDeploymentSpec`, `ManifestRevision`을 소유하고, LLM_Op은 승인된 `INITIAL` revision의 AppDeploy `prepare_only` 초안과 Safeguard 증거를 소유한다. Operation Optimization과 `Revision 2`는 LLM_Op 범위가 아니다. 별도 구현도 [Guard-first 연결 기준](../../docs/coordination/llm-op-guard-first-integration-standard.md)의 순서와 fail-closed 결과를 따라야 한다.
 
+신뢰된 단일 프로세스 연결은 `internal/trustedorchestration`이 `ReviewWithConfig → AutomationRunner.RunAnalysisRequest → ProjectApprovedInitialFlow` 순서를 강제한다. allow 이외 결과와 불완전한 continuation은 geon 실행 전에 종료된다. 현재 결과 `APPROVED_FLOW_READY`는 `not_submitted` prepare-only 증거이며 실제 AppDeploy 호출이나 VM 배포가 아니다.
+
+```bash
+go test ./internal/llmop ./internal/llmopbridge ./internal/trustedorchestration -count=1
+```
+
 ## VS Code F5 실행
 
 저장소 루트에 포함된 VS Code 구성으로 실행하는 방법을 권장합니다.
