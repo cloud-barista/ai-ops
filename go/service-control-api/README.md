@@ -42,6 +42,10 @@ Git Bash, Linux 또는 macOS:
 
 실행 후 [http://127.0.0.1:18080/](http://127.0.0.1:18080/)을 엽니다. 종료할 때는 `Ctrl+C`를 누릅니다.
 
+LLM_Op의 별도 수동 시연은 현재 `LLM_Op`과 geon 최신화 통합 브랜치에서 제공하며, GitHub에 push한 것만으로 호스팅되지 않는다. 병합 전 `geon` checkout에는 route가 없을 수 있다. 서버 없이 보려면 저장소 루트의 `.\open-llm-op-demo.cmd`를 실행한다. 통합 route를 보려면 먼저 위 launcher로 서버를 실행하고 [healthz](http://127.0.0.1:18080/healthz)를 확인한 뒤 [http://127.0.0.1:18080/llm-op-demo](http://127.0.0.1:18080/llm-op-demo)를 연다. 환경변수 없이 `go run ./cmd/service-control-api`를 직접 실행했다면 포트는 `18080`이 아니라 기본값 `8080`이다. 페이지는 모델 API나 AppDeploy를 호출하지 않으며, 저장 예시 재생 또는 두 단계 prompt 복사·raw JSON 붙여넣기를 지원한다. 상세 절차는 [수동 2단계 LLM 브라우저 시연](../../docs/llm-op/07-manual-two-stage-browser-demo.md)을 참조한다.
+
+공식 연결에서는 LLM_Op 최초 Safeguard가 모든 live Requirement Analyzer·Manifest LLM보다 먼저 실행되어야 한다. geon은 승인된 `Flow`, `DesiredDeploymentSpec`, `ManifestRevision`을 소유하고, LLM_Op은 승인된 `INITIAL` revision의 AppDeploy `prepare_only` 초안과 Safeguard 증거를 소유한다. Operation Optimization과 `Revision 2`는 LLM_Op 범위가 아니다. 별도 구현도 [Guard-first 연결 기준](../../docs/coordination/llm-op-guard-first-integration-standard.md)의 순서와 fail-closed 결과를 따라야 한다.
+
 ## VS Code F5 실행
 
 저장소 루트에 포함된 VS Code 구성으로 실행하는 방법을 권장합니다.

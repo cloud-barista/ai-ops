@@ -1,0 +1,14 @@
+{
+  "action": "create_deployment_manifest",
+  "reason_code": "FRESH_LATENCY_SIGNAL_AND_EXPLICIT_GPU_REQUIREMENT",
+  "reason": "Recent latency evidence and the explicit request support a GPU deployment plan.",
+  "confidence": 0.95,
+  "accelerator": "nvidia",
+  "resources": {
+    "cpu": "4",
+    "memory": "16Gi",
+    "gpu": "1",
+    "storage": "20Gi"
+  },
+  "assumptions": []
+}

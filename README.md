@@ -56,6 +56,20 @@ Git Bash, Linux 또는 macOS:
 
 실행 후 [http://127.0.0.1:18080/](http://127.0.0.1:18080/)을 엽니다. 종료는 `Ctrl+C`입니다.
 
+### LLM_Op 수동 시연 페이지
+
+이 페이지는 `LLM_Op`의 별도 연구 lab이며, `geon` 최신 변경을 반영한 통합 브랜치에도 `/llm-op-demo` route와 전용 asset을 보존합니다. 아직 `geon`에 병합되기 전 checkout에는 이 route가 없을 수 있고, GitHub에 push하거나 Draft PR을 여는 것만으로 공개 웹사이트에 배포되지는 않습니다.
+
+통합 순서의 기준은 **LLM_Op 최초 Safeguard → geon 배포 판단·canonical Revision → 승인된 초기 Revision의 AppDeploy prepare-only 투영**입니다. 별도 구현을 만들더라도 비신뢰 자연어를 live Requirement Analyzer나 Manifest LLM에 먼저 보내거나, LLM_Op 거부 결과를 legacy 경로로 우회해서는 안 됩니다. 상세 기준은 [Guard-first 연결 기준](docs/coordination/llm-op-guard-first-integration-standard.md)을 따릅니다.
+
+Go 서버 없이 페이지 흐름만 시연하려면 `LLM_Op` 브랜치의 저장소 루트에서 다음 파일을 실행합니다.
+
+```powershell
+.\open-llm-op-demo.cmd
+```
+
+이 방식은 로컬 HTML, CSS, JavaScript만 열며 모델 API와 AppDeploy를 호출하지 않습니다. 통합 서버 route를 확인하려면 먼저 `.\run-agent-control.cmd`를 실행하고 [healthz](http://127.0.0.1:18080/healthz)가 응답하는지 확인한 뒤 [LLM_Op demo](http://127.0.0.1:18080/llm-op-demo)를 엽니다. 환경변수 없이 `go run ./cmd/service-control-api`만 실행하면 기본 포트는 `8080`입니다.
+
 ## 웹 실험 순서
 
 웹 실험은 **배포 판단 실험**과 **배포 후 운영 최적화 실험**을 하나의 Flow로 연결합니다.

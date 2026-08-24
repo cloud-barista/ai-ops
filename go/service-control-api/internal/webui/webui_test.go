@@ -21,9 +21,21 @@ func TestRegisterServesEmbeddedControlApp(t *testing.T) {
 	}{
 		{path: "/", contentType: "text/html", contains: "geon Agent Control"},
 		{path: "/", contentType: "text/html", contains: `rel="icon" href="data:,"`},
+		{path: "/llm-op-demo", contentType: "text/html", contains: "LLM_Op · 수동 2단계 시연"},
+		{path: "/llm-op-demo", contentType: "text/html", contains: `href="./llm_op_demo.css"`},
+		{path: "/llm-op-demo/", contentType: "text/html", contains: "모델 API 0 · AppDeploy POST 0"},
 		{path: "/assets/app.css", contentType: "text/css", contains: ":root"},
 		{path: "/assets/manifest_stages.js", contentType: "text/javascript", contains: "buildManifestStageViewModel"},
 		{path: "/assets/app.js", contentType: "text/javascript", contains: "submitAutomationRun"},
+		{path: "/assets/llm-op-demo.css", contentType: "text/css", contains: ".scenario-layout"},
+		{path: "/assets/llm-op-demo-contract.js", contentType: "text/javascript", contains: "validateSafeguardResponse"},
+		{path: "/assets/llm-op-demo.js", contentType: "text/javascript", contains: "validateProposal"},
+		{path: "/llm_op_demo.css", contentType: "text/css", contains: ".scenario-layout"},
+		{path: "/llm_op_demo_contract.js", contentType: "text/javascript", contains: "validateSafeguardResponse"},
+		{path: "/llm_op_demo.js", contentType: "text/javascript", contains: "validateProposal"},
+		{path: "/llm-op-demo/llm_op_demo.css", contentType: "text/css", contains: ".scenario-layout"},
+		{path: "/llm-op-demo/llm_op_demo_contract.js", contentType: "text/javascript", contains: "validateSafeguardResponse"},
+		{path: "/llm-op-demo/llm_op_demo.js", contentType: "text/javascript", contains: "validateProposal"},
 	}
 
 	for _, test := range tests {
