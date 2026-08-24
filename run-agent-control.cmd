@@ -4,6 +4,8 @@ setlocal
 set "AIOPS_REPO_ROOT=%~dp0"
 if not defined AIOPS_BIND_ADDRESS set "AIOPS_BIND_ADDRESS=127.0.0.1"
 if not defined AIOPS_DEPLOYMENT_ADAPTER set "AIOPS_DEPLOYMENT_ADAPTER=mock"
+if not defined AIOPS_LLM_CANDIDATES_PATH set "AIOPS_LLM_CANDIDATES_PATH=config/ops_llm_eval_candidates.local_ollama.json"
+if not defined AIOPS_LLMOP_ALLOW_LIVE_COMPLETION set "AIOPS_LLMOP_ALLOW_LIVE_COMPLETION=true"
 if not defined PORT set "PORT=18080"
 
 where go >nul 2>&1
@@ -20,4 +22,5 @@ if errorlevel 1 (
 
 echo Starting geon Agent Control at http://%AIOPS_BIND_ADDRESS%:%PORT%/
 echo Deployment adapter: %AIOPS_DEPLOYMENT_ADAPTER%
+echo LLM_Op Safeguard: Qwen via Ollama
 go run ./cmd/service-control-api

@@ -82,6 +82,10 @@ definitions:
     properties:
       application:
         $ref: '#/definitions/agentcontrol.AnalysisRequestApplication'
+      requested_decision_agent:
+        type: string
+      structured_app_spec:
+        $ref: '#/definitions/agentcontrol.StructuredAppSpec'
     type: object
   agentcontrol.ApplicationAnalysisRequestEnvelope:
     properties:
@@ -1861,6 +1865,28 @@ definitions:
         minimum: 1
         type: integer
     type: object
+  api.TrustedAutomationRunErrorResponse:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+      result:
+        $ref: '#/definitions/trustedorchestration.Result'
+    type: object
+  api.TrustedAutomationRunRequest:
+    properties:
+      app_version_id:
+        type: string
+      candidate_id:
+        type: string
+      input:
+        $ref: '#/definitions/agentcontrol.AutomationRunInput'
+    required:
+    - app_version_id
+    - candidate_id
+    - input
+    type: object
   api.VMCompatibilityCheck:
     properties:
       actual:
@@ -1984,6 +2010,25 @@ definitions:
       version:
         type: string
     type: object
+  appdeploy.DeploymentAlarmSummary:
+    properties:
+      count:
+        type: integer
+      error_code:
+        type: string
+      latest_at:
+        type: string
+      latest_deployment_id:
+        type: string
+      latest_message:
+        type: string
+      latest_stage:
+        type: string
+      retryable:
+        type: boolean
+      severity:
+        type: string
+    type: object
   appdeploy.DeploymentLog:
     properties:
       component:
@@ -2018,6 +2063,21 @@ definitions:
     properties:
       name:
         type: string
+    type: object
+  appdeploy.DeploymentMonitorSummary:
+    properties:
+      active:
+        type: integer
+      by_status:
+        additionalProperties:
+          type: integer
+        type: object
+      failed:
+        type: integer
+      stopped:
+        type: integer
+      total:
+        type: integer
     type: object
   appdeploy.DeploymentRequirements:
     properties:
@@ -2080,6 +2140,25 @@ definitions:
       target_profile_id:
         type: string
     type: object
+  appdeploy.MonitoringSummaryResponse:
+    properties:
+      alarms:
+        items:
+          $ref: '#/definitions/appdeploy.DeploymentAlarmSummary'
+        type: array
+      deployments:
+        $ref: '#/definitions/appdeploy.DeploymentMonitorSummary'
+      generated_at:
+        type: string
+      request_id:
+        type: string
+      runtime_health:
+        items:
+          $ref: '#/definitions/appdeploy.RuntimeHealthSnapshot'
+        type: array
+      status:
+        type: string
+    type: object
   appdeploy.PackageBuildResponse:
     properties:
       app_spec:
@@ -2136,6 +2215,25 @@ definitions:
       memory:
         type: string
       storage:
+        type: string
+    type: object
+  appdeploy.RuntimeHealthSnapshot:
+    properties:
+      cpu_available:
+        type: boolean
+      gpu_available:
+        type: boolean
+      last_checked_at:
+        type: string
+      memory_available:
+        type: boolean
+      runtime_health:
+        type: string
+      status:
+        type: string
+      storage_available:
+        type: boolean
+      target_profile_id:
         type: string
     type: object
   controlrun.AgentExecution:
@@ -2349,6 +2447,327 @@ definitions:
       terminal:
         type: boolean
     type: object
+  llmop.Application:
+    properties:
+      app_version_id:
+        type: string
+      deployment_id:
+        type: string
+      parameters:
+        additionalProperties: {}
+        type: object
+      planning_constraints:
+        $ref: '#/definitions/llmop.PlanningConstraints'
+      target_profile_id:
+        type: string
+      user_request:
+        maxLength: 8000
+        type: string
+    required:
+    - app_version_id
+    - user_request
+    type: object
+  llmop.ApprovedContinuationEvidence:
+    properties:
+      binding_algorithm:
+        type: string
+      candidate_id:
+        type: string
+      confidence:
+        type: number
+      correlation_id:
+        type: string
+      observation_status:
+        type: string
+      policy_version:
+        type: string
+      request_binding:
+        type: string
+      request_id:
+        type: string
+      review_decision:
+        type: string
+      review_reason_code:
+        type: string
+      stage:
+        type: string
+      submission_mode:
+        type: string
+      trace_id:
+        type: string
+    type: object
+  llmop.Decision:
+    properties:
+      action:
+        type: string
+      assumptions:
+        items:
+          type: string
+        type: array
+      confidence:
+        type: number
+      observation_status:
+        type: string
+      reason:
+        type: string
+      reason_code:
+        type: string
+    type: object
+  llmop.InputSummary:
+    properties:
+      dropped_logs:
+        type: integer
+      logs_included:
+        type: boolean
+      metrics_included:
+        type: boolean
+      monitoring_included:
+        type: boolean
+      observation_status:
+        type: string
+      redacted_values:
+        type: integer
+      resource_snapshot_included:
+        type: boolean
+      stale_sources:
+        items:
+          type: string
+        type: array
+    type: object
+  llmop.LogObservation:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/appdeploy.DeploymentLog'
+        type: array
+      observed_at:
+        type: string
+      source:
+        type: string
+    type: object
+  llmop.MetricsObservation:
+    properties:
+      deployment_id:
+        type: string
+      error_rate:
+        type: number
+      latency_p95_ms:
+        type: number
+      observed_at:
+        type: string
+      sample_count:
+        type: integer
+      source:
+        type: string
+      throughput_rps:
+        type: number
+    type: object
+  llmop.MonitoringObservation:
+    properties:
+      observed_at:
+        type: string
+      source:
+        type: string
+      summary:
+        $ref: '#/definitions/appdeploy.MonitoringSummaryResponse'
+    type: object
+  llmop.OperationContext:
+    properties:
+      deployment_logs:
+        $ref: '#/definitions/llmop.LogObservation'
+      metrics_summary:
+        $ref: '#/definitions/llmop.MetricsObservation'
+      monitoring_summary:
+        $ref: '#/definitions/llmop.MonitoringObservation'
+      resource_snapshot:
+        $ref: '#/definitions/llmop.ResourceSnapshot'
+    type: object
+  llmop.PlanningConstraints:
+    properties:
+      accelerator:
+        type: string
+      cpu_cores_min:
+        type: integer
+      gpu_count_min:
+        type: integer
+      memory_mib_min:
+        type: integer
+      recommendation_feasible:
+        type: boolean
+      recommended_resources:
+        $ref: '#/definitions/llmop.RecommendedResources'
+      source_profile_id:
+        type: string
+      source_recommendation_id:
+        type: string
+      storage_gib_min:
+        type: integer
+    type: object
+  llmop.RecommendedResources:
+    properties:
+      accelerator:
+        type: string
+      cpu_cores:
+        type: integer
+      gpu_count:
+        type: integer
+      memory_mib:
+        type: integer
+      storage_gib:
+        type: integer
+    type: object
+  llmop.Request:
+    properties:
+      api_version:
+        type: string
+      application:
+        $ref: '#/definitions/llmop.Application'
+      candidate_id:
+        type: string
+      correlation_id:
+        type: string
+      operation_context:
+        $ref: '#/definitions/llmop.OperationContext'
+      policy:
+        $ref: '#/definitions/llmop.RequestPolicy'
+      request_id:
+        type: string
+      requested_by:
+        type: string
+      trace_id:
+        type: string
+    required:
+    - api_version
+    - application
+    - candidate_id
+    - correlation_id
+    - policy
+    - request_id
+    - requested_by
+    type: object
+  llmop.RequestPolicy:
+    properties:
+      approval_reference:
+        type: string
+      mode:
+        type: string
+    required:
+    - mode
+    type: object
+  llmop.ResourceSnapshot:
+    properties:
+      observed_at:
+        type: string
+      source:
+        type: string
+      targets:
+        items:
+          $ref: '#/definitions/appdeploy.RuntimeHealthSnapshot'
+        type: array
+    type: object
+  llmop.SafeguardReviewEvidence:
+    properties:
+      actual_model:
+        type: string
+      candidate_id:
+        type: string
+      confidence:
+        type: number
+      decision:
+        type: string
+      latency_ms:
+        type: integer
+      provider:
+        type: string
+      reason_code:
+        type: string
+    type: object
+  llmop.SafeguardStageResult:
+    properties:
+      api_version:
+        type: string
+      approved:
+        type: boolean
+      continuation:
+        $ref: '#/definitions/llmop.ApprovedContinuationEvidence'
+      correlation_id:
+        type: string
+      decision:
+        $ref: '#/definitions/llmop.Decision'
+      input:
+        $ref: '#/definitions/llmop.InputSummary'
+      request_guard:
+        $ref: '#/definitions/plannerguard.Decision'
+      request_id:
+        type: string
+      review:
+        $ref: '#/definitions/llmop.SafeguardReviewEvidence'
+      stage:
+        type: string
+      status:
+        type: string
+      trace_id:
+        type: string
+    type: object
+  llmopbridge.ApprovedInitialFlowEvidence:
+    properties:
+      app_id:
+        type: string
+      app_version:
+        type: string
+      app_version_id:
+        type: string
+      decision_id:
+        type: string
+      deployment_request_id:
+        type: string
+      deployment_request_message_id:
+        type: string
+      llm_candidate_id:
+        type: string
+      manifest_fingerprint:
+        type: string
+      manifest_id:
+        type: string
+      phase:
+        type: string
+      projection:
+        $ref: '#/definitions/llmopbridge.Evidence'
+      revision:
+        type: integer
+      safeguard_continuation:
+        $ref: '#/definitions/llmop.ApprovedContinuationEvidence'
+      selected_resource_candidate_id:
+        type: string
+      trigger_action:
+        type: string
+    type: object
+  llmopbridge.ApprovedInitialFlowProjection:
+    properties:
+      evidence:
+        $ref: '#/definitions/llmopbridge.ApprovedInitialFlowEvidence'
+      request:
+        $ref: '#/definitions/llmop.Request'
+      safeguard:
+        $ref: '#/definitions/llmop.SafeguardStageResult'
+    type: object
+  llmopbridge.Evidence:
+    properties:
+      analysis_message_id:
+        type: string
+      application_context_message_id:
+        type: string
+      resource_recommendation_message_id:
+        type: string
+      selected_resource_candidate_id:
+        type: string
+      source_profile_id:
+        type: string
+      source_recommendation_id:
+        type: string
+      source_snapshot_id:
+        type: string
+    type: object
   plannerguard.Check:
     properties:
       name:
@@ -2372,6 +2791,19 @@ definitions:
         type: string
       valid:
         type: boolean
+    type: object
+  trustedorchestration.Result:
+    properties:
+      approved_projection:
+        $ref: '#/definitions/llmopbridge.ApprovedInitialFlowProjection'
+      automation_run:
+        $ref: '#/definitions/agentcontrol.AutomationRun'
+      idempotent_replay:
+        type: boolean
+      safeguard:
+        $ref: '#/definitions/llmop.SafeguardStageResult'
+      status:
+        type: string
     type: object
 info:
   contact: {}
@@ -2446,36 +2878,6 @@ paths:
           schema:
             $ref: '#/definitions/api.ErrorResponse'
       summary: Receive an Application Context message
-      tags:
-      - AI Application Automation Agent
-  /api/v1/agent-control/automation-runs:
-    post:
-      consumes:
-      - application/json
-      description: Accept one natural-language request or structured App Spec, resolve
-        the selected or default eligible decision Agent from Agent Registry, dispatch
-        its DEPLOY/REJECT/RETRY decision, and validate the result with external Go
-        Guards before producing a DesiredDeploymentSpec.
-      operationId: PostAgentControlAutomationRun
-      parameters:
-      - description: One-shot automation request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/agentcontrol.AutomationRunInput'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/agentcontrol.AutomationRun'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-      summary: Run requirement analysis, resource recommendation, and Agent decision
       tags:
       - AI Application Automation Agent
   /api/v1/agent-control/automation-runs/{run_id}:
@@ -2700,6 +3102,39 @@ paths:
           schema:
             $ref: '#/definitions/api.ErrorResponse'
       summary: Receive a Resource Recommendation message
+      tags:
+      - AI Application Automation Agent
+  /api/v1/agent-control/trusted-automation-runs:
+    post:
+      consumes:
+      - application/json
+      description: Review the exact request with LLM_Op, stop non-approved requests,
+        and run geon requirement analysis, resource recommendation, Agent decision,
+        and Guards only after approval. This endpoint does not submit to AppDeploy.
+      operationId: PostTrustedAutomationRun
+      parameters:
+      - description: Guard-first automation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.TrustedAutomationRunRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Safeguard or geon terminal decision
+          schema:
+            $ref: '#/definitions/trustedorchestration.Result'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/trustedorchestration.Result'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.TrustedAutomationRunErrorResponse'
+      summary: Run LLM_Op Safeguard before the geon Revision 1 workflow
       tags:
       - AI Application Automation Agent
   /api/v1/agents:

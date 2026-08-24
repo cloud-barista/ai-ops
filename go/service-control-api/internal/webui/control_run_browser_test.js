@@ -266,8 +266,9 @@ async function browserPage({
       });
       return;
     }
-    if (pathname === "/api/v1/agent-control/automation-runs" && method === "POST") {
-      const input = request.postDataJSON();
+    if (pathname === "/api/v1/agent-control/trusted-automation-runs" && method === "POST") {
+      const trustedRequest = request.postDataJSON();
+      const input = trustedRequest.input;
       requests.push({ method, pathname, body: input });
       const run = currentAutomationRun(input);
       const existing = flows.findIndex(
@@ -278,7 +279,11 @@ async function browserPage({
       await route.fulfill({
         status: 201,
         contentType: "application/json",
-        body: JSON.stringify(run),
+        body: JSON.stringify({
+          status: "APPROVED_FLOW_READY",
+          safeguard: { status: "SAFEGUARD_APPROVED", approved: true },
+          automation_run: run,
+        }),
       });
       return;
     }
@@ -471,17 +476,17 @@ test("replayed one-shot automation results project one stable ControlRun Flow", 
     await page.locator("#decision-agent-select").selectOption("RuntimeDeploymentAgent");
 
     const firstRequest = page.waitForRequest((request) => (
-      new URL(request.url()).pathname === "/api/v1/agent-control/automation-runs"
+      new URL(request.url()).pathname === "/api/v1/agent-control/trusted-automation-runs"
     ));
     await page.locator("#automation-run-submit").click();
     await firstRequest;
     await page.waitForFunction(() => (
-      document.getElementById("agent-control-flow-id").textContent === "run-stable-001"
+      document.getElementById("agent-control-flow-id").textContent === "flow-stable-001"
     ));
 
     await page.locator('[data-view-target="agent-control"]').click();
     const secondRequest = page.waitForRequest((request) => (
-      new URL(request.url()).pathname === "/api/v1/agent-control/automation-runs"
+      new URL(request.url()).pathname === "/api/v1/agent-control/trusted-automation-runs"
     ));
     await page.locator("#automation-run-submit").click();
     await secondRequest;
@@ -493,7 +498,7 @@ test("replayed one-shot automation results project one stable ControlRun Flow", 
     assert.deepEqual(requests[0], requests[1]);
     assert.deepEqual(requests[0], {
       method: "POST",
-      pathname: "/api/v1/agent-control/automation-runs",
+      pathname: "/api/v1/agent-control/trusted-automation-runs",
       body: {
         input_type: "natural_language",
         request: "Deploy the current GPU inference service.",

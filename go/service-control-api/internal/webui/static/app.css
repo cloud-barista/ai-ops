@@ -1032,9 +1032,13 @@ select:focus {
 }
 
 .manifest-stage-state span {
-  color: var(--teal-dark);
-  font-size: 10px;
-  font-weight: 800;
+	min-width: 0;
+	max-width: 100%;
+	color: var(--teal-dark);
+	font-size: 10px;
+	font-weight: 800;
+	overflow-wrap: anywhere;
+	word-break: break-word;
 }
 
 .manifest-revision-heading strong {
@@ -1838,6 +1842,44 @@ dialog::backdrop {
 }
 
 @media (max-width: 620px) {
+	.experiment-sequence-heading {
+		grid-template-columns: 28px minmax(0, 1fr);
+		align-items: start;
+	}
+
+	.experiment-sequence-heading > :nth-child(n + 3) {
+		grid-column: 2;
+		justify-self: stretch;
+	}
+
+	.experiment-sequence-heading .manifest-stage-state {
+		justify-items: start;
+		width: 100%;
+		text-align: left;
+	}
+
+	.manifest-revision-heading {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.manifest-revision-heading span {
+		justify-self: start;
+		width: 100%;
+		white-space: normal;
+		word-break: break-word;
+	}
+
+	.manifest-flow-id {
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr);
+	}
+
+	.manifest-flow-id code {
+		white-space: normal;
+		word-break: break-all;
+	}
+
   .experiment-disclosure > summary {
     flex-wrap: wrap;
   }

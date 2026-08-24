@@ -6,6 +6,7 @@
 
 ```text
 Natural-language request or Structured App Spec
+→ LLM_Op Qwen Safeguard
 → Requirement Analyzer
 → ApplicationProfile
 → Mock Resource Recommender
@@ -31,12 +32,14 @@ Natural-language request or Structured App Spec
 Windows PowerShell 또는 VS Code 터미널:
 
 ```powershell
+ollama pull qwen3.5:4b
 .\run-agent-control.cmd
 ```
 
 Git Bash, Linux 또는 macOS:
 
 ```bash
+ollama pull qwen3.5:4b
 ./run-agent-control.sh
 ```
 
@@ -46,7 +49,7 @@ LLM_Op의 별도 수동 시연은 현재 `LLM_Op`과 geon 최신화 통합 브�
 
 공식 연결에서는 LLM_Op 최초 Safeguard가 모든 live Requirement Analyzer·Manifest LLM보다 먼저 실행되어야 한다. geon은 승인된 `Flow`, `DesiredDeploymentSpec`, `ManifestRevision`을 소유하고, LLM_Op은 승인된 `INITIAL` revision의 AppDeploy `prepare_only` 초안과 Safeguard 증거를 소유한다. Operation Optimization과 `Revision 2`는 LLM_Op 범위가 아니다. 별도 구현도 [Guard-first 연결 기준](../../docs/coordination/llm-op-guard-first-integration-standard.md)의 순서와 fail-closed 결과를 따라야 한다.
 
-신뢰된 단일 프로세스 연결은 `internal/trustedorchestration`이 `ReviewWithConfig → AutomationRunner.RunAnalysisRequest → ProjectApprovedInitialFlow` 순서를 강제한다. allow 이외 결과와 불완전한 continuation은 geon 실행 전에 종료된다. 현재 결과 `APPROVED_FLOW_READY`는 `not_submitted` prepare-only 증거이며 실제 AppDeploy 호출이나 VM 배포가 아니다.
+신뢰된 단일 프로세스 연결은 `internal/trustedorchestration`이 `ReviewWithConfig → AutomationRunner.RunAnalysisRequest` 순서를 강제한다. 웹 기본 경로는 여기서 canonical Revision 1을 반환하며 AppDeploy에 제출하지 않는다. 선택적인 후속 통합 경로만 `ProjectApprovedInitialFlow`로 prepare-only 요청을 투영한다. allow 이외 결과와 불완전한 continuation은 geon 실행 전에 종료된다.
 
 ```bash
 go test ./internal/llmop ./internal/llmopbridge ./internal/trustedorchestration -count=1
@@ -69,6 +72,8 @@ F5 구성은 저장소 루트, 18080 포트와 Mock Adapter를 자동으로 설�
 AIOPS_REPO_ROOT=${workspaceFolder}
 AIOPS_BIND_ADDRESS=127.0.0.1
 AIOPS_DEPLOYMENT_ADAPTER=mock
+AIOPS_LLM_CANDIDATES_PATH=config/ops_llm_eval_candidates.local_ollama.json
+AIOPS_LLMOP_ALLOW_LIVE_COMPLETION=true
 PORT=18080
 ```
 
@@ -213,7 +218,7 @@ SLO 위반 샘플은 p95 지연시간을 `2600 ms`로 설정합니다. 기본 SL
 
 ## Qwen 비교 실험
 
-핵심 결정적 판단에는 Ollama가 필수가 아닙니다. **실험 결과 → 추론 방식 비교**에서만 Qwen endpoint를 호출합니다.
+메인 `Revision 1 생성`은 LLM_Op의 최초 자연어 Safeguard를 실제 실행하므로 Ollama가 필요합니다. **실험 결과 → 추론 방식 비교**도 같은 로컬 Qwen endpoint를 사용합니다.
 
 ```bash
 ollama pull qwen3.5:4b
@@ -227,27 +232,31 @@ export AIOPS_LLM_CANDIDATES_PATH="config/ops_llm_eval_candidates.local_ollama.js
 config/ops_llm_eval_candidates.local_ollama.json
 ```
 
-환경 변수 없이 서버를 시작하면 제출용 기본 후보 설정을 사용하므로 로컬 후보가 비활성화될 수 있습니다. 로컬 비교 실험에서는 위 환경 변수를 설정한 뒤 서버를 시작합니다. Ollama가 꺼져 있으면 규칙 기반 결과는 유지되고 Qwen 실행 상태만 `provider_unavailable`로 기록됩니다. 이를 성공 결과로 위장하지 않습니다.
+저장소 루트의 `run-agent-control.cmd`와 `run-agent-control.sh`는 위 로컬 후보와 live Safeguard를 자동 설정합니다. Ollama가 꺼져 있으면 최초 Safeguard가 fail-closed로 종료되고 Revision 1은 생성되지 않습니다.
 
 ## API 순서
 
-### 핵심 배포 판단
+### Guard-first 핵심 배포 판단
 
 ```text
-POST /api/v1/agent-control/automation-runs
+POST /api/v1/agent-control/trusted-automation-runs
 GET  /api/v1/agent-control/automation-runs/{run_id}
 ```
 
 자연어 입력 예:
 
 ```bash
-curl -s -X POST http://127.0.0.1:18080/api/v1/agent-control/automation-runs \
+curl -s -X POST http://127.0.0.1:18080/api/v1/agent-control/trusted-automation-runs \
   -H "Content-Type: application/json" \
   -d '{
-    "input_type": "natural_language",
-    "request": "GPU 1개, CPU 4코어, 메모리 8GiB로 AI 추론 서비스를 배포해 주세요.",
-    "requested_by": "researcher",
-    "decision_agent": "AIApplicationAutomationAgent"
+    "app_version_id": "appver-geon-poc-001",
+    "candidate_id": "qwen3.5-ops-planner",
+    "input": {
+      "input_type": "natural_language",
+      "request": "GPU 1개, CPU 4코어, 메모리 8GiB, 스토리지 20GiB로 AI 추론 서비스를 배포해 주세요.",
+      "requested_by": "geon-web",
+      "decision_agent": "AIApplicationAutomationAgent"
+    }
   }'
 ```
 
@@ -286,14 +295,14 @@ Flow는 현재 프로세스 메모리에 저장됩니다. 서버를 재시작하
 
 The main Flow uses `AIApplicationAutomationAgent` for the deployment decision and `OperationOptimizationAgent` after deployment Feedback. Request, Result, Domain, and Scaling Guards remain outside both Agents. `DesiredDeploymentSpec` is produced only after the first Agent passes Guard validation; the second Agent emits a scaling recommendation and does not execute VM control or AppDeploy.
 
-1. Start the server with the Mock Adapter, then submit `POST /api/v1/agent-control/automation-runs` and verify the first Agent's approved Guards and `DesiredDeploymentSpec`.
+1. Start Ollama and the server with the Mock Adapter, then submit `POST /api/v1/agent-control/trusted-automation-runs` and verify the LLM_Op Safeguard approval, the first Agent's approved Guards, and `DesiredDeploymentSpec`.
 2. Send `POST /api/v1/agent-control/deployment-status` with `RUNNING` and matching `correlation_id`, `trace_id`, and `profile_id`.
 3. Send `POST /api/v1/agent-control/optimization-feedback?operation_agent=OperationOptimizationAgent` with SLO and resource Feedback. Omitting the query uses the Registry default Operation Agent.
 4. Read `GET /api/v1/agent-control/flows/{correlation_id}` and verify `requested_operation_agent`, `operation_agent_execution`, its three Guards, and `scaling_decision`. A normal result is `KEEP`; the SLO-violation sample is `SCALE_OUT 1 -> 2`.
 
 `NO_ACTION` remains accepted only as a legacy Operation Agent proposal/result value, not an `optimization-feedback` client request, and is normalized to `KEEP` before Guard validation. New results emit `KEEP`. `SIMULATED` is Mock Adapter evidence, not real deployment, VM control, AppDeploy execution, or scaling execution.
 
-The main two-Agent Mock Flow does not require Ollama. Optional Qwen comparison and a Qwen-backed registered-Agent execution endpoint may require a configured provider. Selecting a Runtime Agent requires its registered `endpoint + invocation_path` to serve the execution request; an endpoint failure is recorded and never falls back to an Internal Agent.
+The Guard-first web Flow requires Ollama for the initial LLM_Op Safeguard. The deployment and operation decisions remain deterministic Agent/Guard steps after that approval. Selecting a Runtime Agent additionally requires its registered `endpoint + invocation_path` to serve the execution request; an endpoint failure is recorded and never falls back to an Internal Agent.
 
 ### Agent Registry
 

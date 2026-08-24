@@ -59,6 +59,57 @@ func TestOrchestratorRunsApprovedRequestThroughGeon(t *testing.T) {
 	}
 }
 
+func TestOrchestratorRunApprovedFlowDoesNotRequireAppDeployResolver(t *testing.T) {
+	input := approvedTestInput()
+	orchestrator := NewFlowOnly(
+		&recordingReviewer{result: approvedSafeguard(input.Request)},
+		integrationAutomationRunner(),
+	)
+
+	result, err := orchestrator.RunApprovedFlow(context.Background(), input)
+	if err != nil {
+		t.Fatalf("run approved geon Flow: %v", err)
+	}
+	if result.Status != StatusApprovedFlowReady {
+		t.Fatalf("status = %q, want %q", result.Status, StatusApprovedFlowReady)
+	}
+	if result.AutomationRun == nil || result.AutomationRun.Flow == nil {
+		t.Fatal("approved flow-only orchestration did not retain Revision 1")
+	}
+	if result.ApprovedProjection != nil {
+		t.Fatal("flow-only orchestration must not claim an AppDeploy projection")
+	}
+}
+
+func TestOrchestratorTreatsSafeguardRejectionErrorAsAuditableStop(t *testing.T) {
+	input := approvedTestInput()
+	runner := &recordingFlowRunner{}
+	stage := llmop.SafeguardStageResult{
+		APIVersion:    llmop.APIVersion,
+		Stage:         llmop.SafeguardStageName,
+		RequestID:     input.Request.RequestID,
+		CorrelationID: input.Request.CorrelationID,
+		TraceID:       input.Request.TraceID,
+		Status:        llmop.StatusRequestRejected,
+		Decision:      llmop.Decision{Action: llmop.SafeguardDecisionReject},
+	}
+	orchestrator := NewFlowOnly(
+		&recordingReviewer{result: stage, err: &llmop.StageError{
+			Status: llmop.StatusRequestRejected,
+			Cause:  context.Canceled,
+		}},
+		runner,
+	)
+
+	result, err := orchestrator.RunApprovedFlow(context.Background(), input)
+	if err != nil {
+		t.Fatalf("request rejection must remain an auditable result: %v", err)
+	}
+	if result.Status != StatusSafeguardStopped || runner.calls != 0 {
+		t.Fatalf("unexpected rejected result: %#v, runner calls=%d", result, runner.calls)
+	}
+}
+
 func TestOrchestratorStopsNonApprovedSafeguardBeforeGeon(t *testing.T) {
 	tests := []struct {
 		name   string

@@ -147,7 +147,9 @@ type ApplicationAnalysisRequestEnvelope struct {
 }
 
 type ApplicationAnalysisRequestData struct {
-	Application AnalysisRequestApplication `json:"application"`
+	Application            AnalysisRequestApplication `json:"application"`
+	RequestedDecisionAgent string                     `json:"requested_decision_agent,omitempty"`
+	StructuredAppSpec      *StructuredAppSpec         `json:"structured_app_spec,omitempty"`
 }
 
 type AnalysisRequestApplication struct {

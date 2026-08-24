@@ -46,6 +46,19 @@ func TestParseSafeguardReviewRejectsDuplicateObjectKeys(t *testing.T) {
 	}
 }
 
+func TestSafeguardPromptDoesNotRequireDeploymentIdentifierForPreparation(t *testing.T) {
+	for _, required := range []string{
+		"request_scope booleans are informational only",
+		"false deployment_id_present value is not missing planning information",
+		"BOUNDED_RESOURCE_PLAN",
+		"set reason to exactly: The request is a bounded prepare-only resource planning request.",
+	} {
+		if !strings.Contains(naturalLanguageSafeguardSystemPrompt, required) {
+			t.Fatalf("safeguard prompt omitted prepare-only boundary: %q", required)
+		}
+	}
+}
+
 func TestSafeguardedPlannerRunsReviewBeforeManifestProposal(t *testing.T) {
 	now := mustTime(t, "2026-08-05T14:05:00+09:00")
 	safeguardClient := &capturingCompletionClient{content: `{

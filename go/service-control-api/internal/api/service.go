@@ -16,18 +16,28 @@ import (
 	"kyunghee-aiops/service-control-api/internal/autonomy"
 	"kyunghee-aiops/service-control-api/internal/controlrun"
 	"kyunghee-aiops/service-control-api/internal/llmclient"
+	"kyunghee-aiops/service-control-api/internal/trustedorchestration"
 )
 
+type trustedFlowOrchestrator interface {
+	RunApprovedFlow(
+		context.Context,
+		trustedorchestration.Input,
+	) (trustedorchestration.Result, error)
+}
+
 type Service struct {
-	config             ServerConfig
-	runtimeAgents      *runtimeAgentStore
-	automationFeedback *automationFeedbackStore
-	autonomyManager    *autonomy.Manager
-	controlRuns        *controlrun.Store
-	agentDispatcher    *agentDispatcher
-	agentControl       *agentcontrol.Service
-	operationRuntime   agentcontrol.OperationOptimizationRuntime
-	automationRunner   *agentcontrol.AutomationRunner
+	config                  ServerConfig
+	runtimeAgents           *runtimeAgentStore
+	automationFeedback      *automationFeedbackStore
+	autonomyManager         *autonomy.Manager
+	controlRuns             *controlrun.Store
+	agentDispatcher         *agentDispatcher
+	agentControl            *agentcontrol.Service
+	operationRuntime        agentcontrol.OperationOptimizationRuntime
+	automationRunner        *agentcontrol.AutomationRunner
+	trustedAutomationRunner *agentcontrol.AutomationRunner
+	trustedOrchestration    trustedFlowOrchestrator
 }
 
 func NewService(config ServerConfig) Service {
@@ -60,19 +70,35 @@ func NewService(config ServerConfig) Service {
 	)
 	resourceCatalog, _ := agentcontrol.LoadResourceCatalog(config.ResourceCatalogPath)
 	deploymentAdapter, _ := agentcontrol.NewDeploymentAdapter(config.DeploymentAdapterMode)
+	automationRunner := agentcontrol.NewAutomationRunnerWithAdapter(
+		newAgentControlRequirementAnalyzer(config, llmclient.NewClient(nil)),
+		agentcontrol.CatalogResourceRecommender{Catalog: resourceCatalog},
+		agentControlService,
+		deploymentAdapter,
+	)
+	trustedAutomationRunner := agentcontrol.NewAutomationRunnerWithAdapter(
+		newAgentControlRequirementAnalyzer(config, llmclient.NewClient(nil)),
+		agentcontrol.CatalogResourceRecommender{Catalog: resourceCatalog},
+		agentControlService,
+		agentcontrol.MockDeploymentAdapter{},
+	)
 	service := Service{
-		config:             config,
-		runtimeAgents:      runtimeAgents,
-		automationFeedback: newAutomationFeedbackStore(),
-		controlRuns:        controlrun.NewStore(),
-		agentDispatcher:    dispatcher,
-		agentControl:       agentControlService,
-		operationRuntime:   operationRuntime,
-		automationRunner: agentcontrol.NewAutomationRunnerWithAdapter(
-			newAgentControlRequirementAnalyzer(config, llmclient.NewClient(nil)),
-			agentcontrol.CatalogResourceRecommender{Catalog: resourceCatalog},
-			agentControlService,
-			deploymentAdapter,
+		config:                  config,
+		runtimeAgents:           runtimeAgents,
+		automationFeedback:      newAutomationFeedbackStore(),
+		controlRuns:             controlrun.NewStore(),
+		agentDispatcher:         dispatcher,
+		agentControl:            agentControlService,
+		operationRuntime:        operationRuntime,
+		automationRunner:        automationRunner,
+		trustedAutomationRunner: trustedAutomationRunner,
+		trustedOrchestration: trustedorchestration.NewFlowOnly(
+			trustedorchestration.ConfigReviewer{
+				CandidateConfigPath: config.LLMCandidatesPath,
+				GuardPolicyPath:     config.PlannerGuardPolicyPath,
+				AllowLiveCompletion: config.LLMOpAllowLiveCompletion,
+			},
+			trustedAutomationRunner,
 		),
 	}
 	var control autonomy.AppDeployControl

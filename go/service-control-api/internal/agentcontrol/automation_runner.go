@@ -329,10 +329,13 @@ func automationInputFromAnalysisRequest(
 	if component := strings.TrimSpace(request.Source.Component); component != "" {
 		requestedBy += "/" + component
 	}
-	return AutomationRunInput{
+	input := AutomationRunInput{
 		InputType:   InputTypeNaturalLanguage,
 		Request:     application.UserRequest,
 		RequestedBy: requestedBy,
+		DecisionAgent: strings.TrimSpace(
+			request.Data.RequestedDecisionAgent,
+		),
 		AppSpec: &StructuredAppSpec{
 			AppID:          application.AppID,
 			AppVersion:     application.AppVersion,
@@ -342,6 +345,12 @@ func automationInputFromAnalysisRequest(
 			Labels:         labels,
 		},
 	}
+	if request.Data.StructuredAppSpec != nil {
+		structured := *request.Data.StructuredAppSpec
+		input.InputType = InputTypeStructured
+		input.AppSpec = &structured
+	}
+	return input
 }
 
 func validateApplicationAnalysisRequest(request ApplicationAnalysisRequestEnvelope) error {

@@ -59,34 +59,6 @@ type AgentControlReasoningComparisonRequest struct {
 	CandidateID string `json:"candidate_id" validate:"required"`
 }
 
-// RestPostAutomationRun godoc
-// @ID PostAgentControlAutomationRun
-// @Summary Run requirement analysis, resource recommendation, and Agent decision
-// @Description Accept one natural-language request or structured App Spec, resolve the selected or default eligible decision Agent from Agent Registry, dispatch its DEPLOY/REJECT/RETRY decision, and validate the result with external Go Guards before producing a DesiredDeploymentSpec.
-// @Tags AI Application Automation Agent
-// @Accept json
-// @Produce json
-// @Param request body agentcontrol.AutomationRunInput true "One-shot automation request"
-// @Success 201 {object} agentcontrol.AutomationRun
-// @Failure 400 {object} ErrorResponse
-// @Router /api/v1/agent-control/automation-runs [post]
-func (handler restHandler) RestPostAutomationRun(context echo.Context) error {
-	var request agentcontrol.AutomationRunInput
-	if message, err := bindAndValidate(context, &request); err != nil {
-		return jsonError(context, http.StatusBadRequest, message, err)
-	}
-	run, err := handler.service.automationRunner.Run(context.Request().Context(), request)
-	if err != nil {
-		return jsonError(
-			context,
-			http.StatusBadRequest,
-			"Automatic Agent Control flow could not be completed",
-			err,
-		)
-	}
-	return context.JSON(http.StatusCreated, run)
-}
-
 // RestGetAutomationRun godoc
 // @ID GetAgentControlAutomationRun
 // @Summary Get one automatic three-stage Agent run

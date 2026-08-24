@@ -54,15 +54,46 @@ func New(
 	return &Orchestrator{reviewer: reviewer, runner: runner, resolve: resolve}
 }
 
+func NewFlowOnly(reviewer Reviewer, runner FlowRunner) *Orchestrator {
+	return &Orchestrator{reviewer: reviewer, runner: runner}
+}
+
 func (orchestrator *Orchestrator) Run(
+	ctx context.Context,
+	input Input,
+) (Result, error) {
+	if orchestrator == nil || orchestrator.resolve == nil {
+		return Result{}, fmt.Errorf("trusted AppDeploy app version resolver is not configured")
+	}
+	result, err := orchestrator.RunApprovedFlow(ctx, input)
+	if err != nil || result.Status != StatusApprovedFlowReady {
+		return result, err
+	}
+
+	projection, err := llmopbridge.ProjectApprovedInitialFlow(
+		llmopbridge.ApprovedInitialFlowInput{
+			Request:         input.Request,
+			Safeguard:       result.Safeguard,
+			AnalysisRequest: input.AnalysisRequest,
+			Flow:            *result.AutomationRun.Flow,
+		},
+		orchestrator.resolve,
+	)
+	if err != nil {
+		return result, fmt.Errorf("project approved geon Flow: %w", err)
+	}
+	result.ApprovedProjection = &projection
+	return result, nil
+}
+
+func (orchestrator *Orchestrator) RunApprovedFlow(
 	ctx context.Context,
 	input Input,
 ) (Result, error) {
 	if err := ctx.Err(); err != nil {
 		return Result{}, err
 	}
-	if orchestrator == nil || orchestrator.reviewer == nil ||
-		orchestrator.runner == nil || orchestrator.resolve == nil {
+	if orchestrator == nil || orchestrator.reviewer == nil || orchestrator.runner == nil {
 		return Result{}, fmt.Errorf("trusted orchestration dependencies are not configured")
 	}
 	if err := validateInputIdentity(input); err != nil {
@@ -72,6 +103,10 @@ func (orchestrator *Orchestrator) Run(
 	safeguard, err := orchestrator.reviewer.Review(ctx, input.Request)
 	result := Result{Safeguard: safeguard}
 	if err != nil {
+		if isAuditableSafeguardStop(safeguard) {
+			result.Status = StatusSafeguardStopped
+			return result, nil
+		}
 		return result, fmt.Errorf("review untrusted request: %w", err)
 	}
 	if !safeguard.Approved {
@@ -98,22 +133,13 @@ func (orchestrator *Orchestrator) Run(
 		result.Status = StatusGeonRejected
 		return result, nil
 	}
-
-	projection, err := llmopbridge.ProjectApprovedInitialFlow(
-		llmopbridge.ApprovedInitialFlowInput{
-			Request:         input.Request,
-			Safeguard:       safeguard,
-			AnalysisRequest: input.AnalysisRequest,
-			Flow:            *run.Flow,
-		},
-		orchestrator.resolve,
-	)
-	if err != nil {
-		return result, fmt.Errorf("project approved geon Flow: %w", err)
-	}
 	result.Status = StatusApprovedFlowReady
-	result.ApprovedProjection = &projection
 	return result, nil
+}
+
+func isAuditableSafeguardStop(stage llmop.SafeguardStageResult) bool {
+	return stage.Status == llmop.StatusRequestRejected ||
+		stage.Status == llmop.StatusClarificationNeeded
 }
 
 func validateSafeguardApproval(stage llmop.SafeguardStageResult) error {

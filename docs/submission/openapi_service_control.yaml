@@ -73,29 +73,35 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /api/v1/agent-control/automation-runs:
+  /api/v1/agent-control/trusted-automation-runs:
     post:
-      operationId: PostAgentControlAutomationRun
-      summary: Run the automatic three-stage AI application Agent flow
+      operationId: PostTrustedAutomationRun
+      summary: Run LLM_Op Safeguard before the geon Revision 1 flow
       description: >
-        Accepts one natural-language request or structured App Spec and
-        automatically executes Requirement Analyzer, mock Resource Recommender,
-        Agent Registry authorization, AIApplicationAutomationAgent decision,
-        and Go Guard validation. This endpoint produces a platform-neutral
-        DesiredDeploymentSpec and does not execute a real deployment.
+        Binds one natural-language request or structured App Spec to the Qwen
+        Safeguard review. Only allow_request continues to Requirement Analyzer,
+        mock Resource Recommender, Agent Registry authorization, Agent decision,
+        Go Guards, DesiredDeploymentSpec, and Manifest Revision 1. The trusted
+        path always uses the Mock Adapter and never submits to AppDeploy or a VM.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AutomationRunInput"
+              $ref: "#/components/schemas/TrustedAutomationRunRequest"
       responses:
         "201":
-          description: Automatic Agent run completed
+          description: Safeguard approved and geon Revision 1 flow completed
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AutomationRun"
+                $ref: "#/components/schemas/TrustedAutomationRunResult"
+        "200":
+          description: Safeguard or geon returned a terminal decision without Revision 1
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrustedAutomationRunResult"
         "400":
           $ref: "#/components/responses/BadRequest"
   /api/v1/agent-control/automation-runs/{run_id}:
@@ -1012,6 +1018,26 @@ components:
           schema:
             $ref: "#/components/schemas/ErrorResponse"
   schemas:
+    TrustedAutomationRunRequest:
+      type: object
+      required: [app_version_id, candidate_id, input]
+      properties:
+        app_version_id: {type: string}
+        candidate_id: {type: string}
+        input:
+          $ref: "#/components/schemas/AutomationRunInput"
+    TrustedAutomationRunResult:
+      type: object
+      required: [status, safeguard]
+      properties:
+        status:
+          type: string
+          enum: [APPROVED_FLOW_READY, SAFEGUARD_STOPPED, FLOW_STOPPED]
+        safeguard:
+          type: object
+          additionalProperties: true
+        automation_run:
+          $ref: "#/components/schemas/AutomationRun"
     AutomationRunInput:
       type: object
       required: [input_type]

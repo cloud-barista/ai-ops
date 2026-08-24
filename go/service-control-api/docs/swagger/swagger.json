@@ -106,47 +106,6 @@
                 }
             }
         },
-        "/api/v1/agent-control/automation-runs": {
-            "post": {
-                "description": "Accept one natural-language request or structured App Spec, resolve the selected or default eligible decision Agent from Agent Registry, dispatch its DEPLOY/REJECT/RETRY decision, and validate the result with external Go Guards before producing a DesiredDeploymentSpec.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "AI Application Automation Agent"
-                ],
-                "summary": "Run requirement analysis, resource recommendation, and Agent decision",
-                "operationId": "PostAgentControlAutomationRun",
-                "parameters": [
-                    {
-                        "description": "One-shot automation request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/agentcontrol.AutomationRunInput"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/agentcontrol.AutomationRun"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/agent-control/automation-runs/{run_id}": {
             "get": {
                 "description": "Return requirement analysis, resource recommendation, Agent decision, Guard evidence, and Desired Deployment Spec for one run_id.",
@@ -468,6 +427,53 @@
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agent-control/trusted-automation-runs": {
+            "post": {
+                "description": "Review the exact request with LLM_Op, stop non-approved requests, and run geon requirement analysis, resource recommendation, Agent decision, and Guards only after approval. This endpoint does not submit to AppDeploy.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "Run LLM_Op Safeguard before the geon Revision 1 workflow",
+                "operationId": "PostTrustedAutomationRun",
+                "parameters": [
+                    {
+                        "description": "Guard-first automation request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.TrustedAutomationRunRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Safeguard or geon terminal decision",
+                        "schema": {
+                            "$ref": "#/definitions/trustedorchestration.Result"
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/trustedorchestration.Result"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.TrustedAutomationRunErrorResponse"
                         }
                     }
                 }
@@ -1878,6 +1884,12 @@
             "properties": {
                 "application": {
                     "$ref": "#/definitions/agentcontrol.AnalysisRequestApplication"
+                },
+                "requested_decision_agent": {
+                    "type": "string"
+                },
+                "structured_app_spec": {
+                    "$ref": "#/definitions/agentcontrol.StructuredAppSpec"
                 }
             }
         },
@@ -4550,6 +4562,39 @@
                 }
             }
         },
+        "api.TrustedAutomationRunErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "result": {
+                    "$ref": "#/definitions/trustedorchestration.Result"
+                }
+            }
+        },
+        "api.TrustedAutomationRunRequest": {
+            "type": "object",
+            "required": [
+                "app_version_id",
+                "candidate_id",
+                "input"
+            ],
+            "properties": {
+                "app_version_id": {
+                    "type": "string"
+                },
+                "candidate_id": {
+                    "type": "string"
+                },
+                "input": {
+                    "$ref": "#/definitions/agentcontrol.AutomationRunInput"
+                }
+            }
+        },
         "api.VMCompatibilityCheck": {
             "type": "object",
             "properties": {
@@ -4735,6 +4780,35 @@
                 }
             }
         },
+        "appdeploy.DeploymentAlarmSummary": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "error_code": {
+                    "type": "string"
+                },
+                "latest_at": {
+                    "type": "string"
+                },
+                "latest_deployment_id": {
+                    "type": "string"
+                },
+                "latest_message": {
+                    "type": "string"
+                },
+                "latest_stage": {
+                    "type": "string"
+                },
+                "retryable": {
+                    "type": "boolean"
+                },
+                "severity": {
+                    "type": "string"
+                }
+            }
+        },
         "appdeploy.DeploymentLog": {
             "type": "object",
             "properties": {
@@ -4786,6 +4860,29 @@
             "properties": {
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "appdeploy.DeploymentMonitorSummary": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "integer"
+                },
+                "by_status": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "failed": {
+                    "type": "integer"
+                },
+                "stopped": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },
@@ -4881,6 +4978,35 @@
                 }
             }
         },
+        "appdeploy.MonitoringSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "alarms": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/appdeploy.DeploymentAlarmSummary"
+                    }
+                },
+                "deployments": {
+                    "$ref": "#/definitions/appdeploy.DeploymentMonitorSummary"
+                },
+                "generated_at": {
+                    "type": "string"
+                },
+                "request_id": {
+                    "type": "string"
+                },
+                "runtime_health": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/appdeploy.RuntimeHealthSnapshot"
+                    }
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "appdeploy.PackageBuildResponse": {
             "type": "object",
             "properties": {
@@ -4966,6 +5092,35 @@
                     "type": "string"
                 },
                 "storage": {
+                    "type": "string"
+                }
+            }
+        },
+        "appdeploy.RuntimeHealthSnapshot": {
+            "type": "object",
+            "properties": {
+                "cpu_available": {
+                    "type": "boolean"
+                },
+                "gpu_available": {
+                    "type": "boolean"
+                },
+                "last_checked_at": {
+                    "type": "string"
+                },
+                "memory_available": {
+                    "type": "boolean"
+                },
+                "runtime_health": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "storage_available": {
+                    "type": "boolean"
+                },
+                "target_profile_id": {
                     "type": "string"
                 }
             }
@@ -5272,6 +5427,492 @@
                 }
             }
         },
+        "llmop.Application": {
+            "type": "object",
+            "required": [
+                "app_version_id",
+                "user_request"
+            ],
+            "properties": {
+                "app_version_id": {
+                    "type": "string"
+                },
+                "deployment_id": {
+                    "type": "string"
+                },
+                "parameters": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "planning_constraints": {
+                    "$ref": "#/definitions/llmop.PlanningConstraints"
+                },
+                "target_profile_id": {
+                    "type": "string"
+                },
+                "user_request": {
+                    "type": "string",
+                    "maxLength": 8000
+                }
+            }
+        },
+        "llmop.ApprovedContinuationEvidence": {
+            "type": "object",
+            "properties": {
+                "binding_algorithm": {
+                    "type": "string"
+                },
+                "candidate_id": {
+                    "type": "string"
+                },
+                "confidence": {
+                    "type": "number"
+                },
+                "correlation_id": {
+                    "type": "string"
+                },
+                "observation_status": {
+                    "type": "string"
+                },
+                "policy_version": {
+                    "type": "string"
+                },
+                "request_binding": {
+                    "type": "string"
+                },
+                "request_id": {
+                    "type": "string"
+                },
+                "review_decision": {
+                    "type": "string"
+                },
+                "review_reason_code": {
+                    "type": "string"
+                },
+                "stage": {
+                    "type": "string"
+                },
+                "submission_mode": {
+                    "type": "string"
+                },
+                "trace_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "llmop.Decision": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "assumptions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "confidence": {
+                    "type": "number"
+                },
+                "observation_status": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "reason_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "llmop.InputSummary": {
+            "type": "object",
+            "properties": {
+                "dropped_logs": {
+                    "type": "integer"
+                },
+                "logs_included": {
+                    "type": "boolean"
+                },
+                "metrics_included": {
+                    "type": "boolean"
+                },
+                "monitoring_included": {
+                    "type": "boolean"
+                },
+                "observation_status": {
+                    "type": "string"
+                },
+                "redacted_values": {
+                    "type": "integer"
+                },
+                "resource_snapshot_included": {
+                    "type": "boolean"
+                },
+                "stale_sources": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "llmop.LogObservation": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/appdeploy.DeploymentLog"
+                    }
+                },
+                "observed_at": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                }
+            }
+        },
+        "llmop.MetricsObservation": {
+            "type": "object",
+            "properties": {
+                "deployment_id": {
+                    "type": "string"
+                },
+                "error_rate": {
+                    "type": "number"
+                },
+                "latency_p95_ms": {
+                    "type": "number"
+                },
+                "observed_at": {
+                    "type": "string"
+                },
+                "sample_count": {
+                    "type": "integer"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "throughput_rps": {
+                    "type": "number"
+                }
+            }
+        },
+        "llmop.MonitoringObservation": {
+            "type": "object",
+            "properties": {
+                "observed_at": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "summary": {
+                    "$ref": "#/definitions/appdeploy.MonitoringSummaryResponse"
+                }
+            }
+        },
+        "llmop.OperationContext": {
+            "type": "object",
+            "properties": {
+                "deployment_logs": {
+                    "$ref": "#/definitions/llmop.LogObservation"
+                },
+                "metrics_summary": {
+                    "$ref": "#/definitions/llmop.MetricsObservation"
+                },
+                "monitoring_summary": {
+                    "$ref": "#/definitions/llmop.MonitoringObservation"
+                },
+                "resource_snapshot": {
+                    "$ref": "#/definitions/llmop.ResourceSnapshot"
+                }
+            }
+        },
+        "llmop.PlanningConstraints": {
+            "type": "object",
+            "properties": {
+                "accelerator": {
+                    "type": "string"
+                },
+                "cpu_cores_min": {
+                    "type": "integer"
+                },
+                "gpu_count_min": {
+                    "type": "integer"
+                },
+                "memory_mib_min": {
+                    "type": "integer"
+                },
+                "recommendation_feasible": {
+                    "type": "boolean"
+                },
+                "recommended_resources": {
+                    "$ref": "#/definitions/llmop.RecommendedResources"
+                },
+                "source_profile_id": {
+                    "type": "string"
+                },
+                "source_recommendation_id": {
+                    "type": "string"
+                },
+                "storage_gib_min": {
+                    "type": "integer"
+                }
+            }
+        },
+        "llmop.RecommendedResources": {
+            "type": "object",
+            "properties": {
+                "accelerator": {
+                    "type": "string"
+                },
+                "cpu_cores": {
+                    "type": "integer"
+                },
+                "gpu_count": {
+                    "type": "integer"
+                },
+                "memory_mib": {
+                    "type": "integer"
+                },
+                "storage_gib": {
+                    "type": "integer"
+                }
+            }
+        },
+        "llmop.Request": {
+            "type": "object",
+            "required": [
+                "api_version",
+                "application",
+                "candidate_id",
+                "correlation_id",
+                "policy",
+                "request_id",
+                "requested_by"
+            ],
+            "properties": {
+                "api_version": {
+                    "type": "string"
+                },
+                "application": {
+                    "$ref": "#/definitions/llmop.Application"
+                },
+                "candidate_id": {
+                    "type": "string"
+                },
+                "correlation_id": {
+                    "type": "string"
+                },
+                "operation_context": {
+                    "$ref": "#/definitions/llmop.OperationContext"
+                },
+                "policy": {
+                    "$ref": "#/definitions/llmop.RequestPolicy"
+                },
+                "request_id": {
+                    "type": "string"
+                },
+                "requested_by": {
+                    "type": "string"
+                },
+                "trace_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "llmop.RequestPolicy": {
+            "type": "object",
+            "required": [
+                "mode"
+            ],
+            "properties": {
+                "approval_reference": {
+                    "type": "string"
+                },
+                "mode": {
+                    "type": "string"
+                }
+            }
+        },
+        "llmop.ResourceSnapshot": {
+            "type": "object",
+            "properties": {
+                "observed_at": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "targets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/appdeploy.RuntimeHealthSnapshot"
+                    }
+                }
+            }
+        },
+        "llmop.SafeguardReviewEvidence": {
+            "type": "object",
+            "properties": {
+                "actual_model": {
+                    "type": "string"
+                },
+                "candidate_id": {
+                    "type": "string"
+                },
+                "confidence": {
+                    "type": "number"
+                },
+                "decision": {
+                    "type": "string"
+                },
+                "latency_ms": {
+                    "type": "integer"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "reason_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "llmop.SafeguardStageResult": {
+            "type": "object",
+            "properties": {
+                "api_version": {
+                    "type": "string"
+                },
+                "approved": {
+                    "type": "boolean"
+                },
+                "continuation": {
+                    "$ref": "#/definitions/llmop.ApprovedContinuationEvidence"
+                },
+                "correlation_id": {
+                    "type": "string"
+                },
+                "decision": {
+                    "$ref": "#/definitions/llmop.Decision"
+                },
+                "input": {
+                    "$ref": "#/definitions/llmop.InputSummary"
+                },
+                "request_guard": {
+                    "$ref": "#/definitions/plannerguard.Decision"
+                },
+                "request_id": {
+                    "type": "string"
+                },
+                "review": {
+                    "$ref": "#/definitions/llmop.SafeguardReviewEvidence"
+                },
+                "stage": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "trace_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "llmopbridge.ApprovedInitialFlowEvidence": {
+            "type": "object",
+            "properties": {
+                "app_id": {
+                    "type": "string"
+                },
+                "app_version": {
+                    "type": "string"
+                },
+                "app_version_id": {
+                    "type": "string"
+                },
+                "decision_id": {
+                    "type": "string"
+                },
+                "deployment_request_id": {
+                    "type": "string"
+                },
+                "deployment_request_message_id": {
+                    "type": "string"
+                },
+                "llm_candidate_id": {
+                    "type": "string"
+                },
+                "manifest_fingerprint": {
+                    "type": "string"
+                },
+                "manifest_id": {
+                    "type": "string"
+                },
+                "phase": {
+                    "type": "string"
+                },
+                "projection": {
+                    "$ref": "#/definitions/llmopbridge.Evidence"
+                },
+                "revision": {
+                    "type": "integer"
+                },
+                "safeguard_continuation": {
+                    "$ref": "#/definitions/llmop.ApprovedContinuationEvidence"
+                },
+                "selected_resource_candidate_id": {
+                    "type": "string"
+                },
+                "trigger_action": {
+                    "type": "string"
+                }
+            }
+        },
+        "llmopbridge.ApprovedInitialFlowProjection": {
+            "type": "object",
+            "properties": {
+                "evidence": {
+                    "$ref": "#/definitions/llmopbridge.ApprovedInitialFlowEvidence"
+                },
+                "request": {
+                    "$ref": "#/definitions/llmop.Request"
+                },
+                "safeguard": {
+                    "$ref": "#/definitions/llmop.SafeguardStageResult"
+                }
+            }
+        },
+        "llmopbridge.Evidence": {
+            "type": "object",
+            "properties": {
+                "analysis_message_id": {
+                    "type": "string"
+                },
+                "application_context_message_id": {
+                    "type": "string"
+                },
+                "resource_recommendation_message_id": {
+                    "type": "string"
+                },
+                "selected_resource_candidate_id": {
+                    "type": "string"
+                },
+                "source_profile_id": {
+                    "type": "string"
+                },
+                "source_recommendation_id": {
+                    "type": "string"
+                },
+                "source_snapshot_id": {
+                    "type": "string"
+                }
+            }
+        },
         "plannerguard.Check": {
             "type": "object",
             "properties": {
@@ -5306,6 +5947,26 @@
                 },
                 "valid": {
                     "type": "boolean"
+                }
+            }
+        },
+        "trustedorchestration.Result": {
+            "type": "object",
+            "properties": {
+                "approved_projection": {
+                    "$ref": "#/definitions/llmopbridge.ApprovedInitialFlowProjection"
+                },
+                "automation_run": {
+                    "$ref": "#/definitions/agentcontrol.AutomationRun"
+                },
+                "idempotent_replay": {
+                    "type": "boolean"
+                },
+                "safeguard": {
+                    "$ref": "#/definitions/llmop.SafeguardStageResult"
+                },
+                "status": {
+                    "type": "string"
                 }
             }
         }

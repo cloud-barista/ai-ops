@@ -3,7 +3,7 @@
 const API = Object.freeze({
   health: "/healthz",
   agents: "/api/v1/agents",
-  automationRuns: "/api/v1/agent-control/automation-runs",
+  trustedAutomationRuns: "/api/v1/agent-control/trusted-automation-runs",
   applicationContexts: "/api/v1/agent-control/application-contexts",
   resourceRecommendations: "/api/v1/agent-control/resource-recommendations",
   deploymentStatus: "/api/v1/agent-control/deployment-status",
@@ -159,6 +159,7 @@ const state = {
   agentDefaults: {},
   activeFlowID: "",
   activeAutomationRun: null,
+  activeTrustedResult: null,
   activeView: "agent-control",
 };
 
@@ -748,17 +749,28 @@ function renderAgentControlFlow(flow) {
   renderExperimentDetail(flow);
 }
 
-function renderAutomationRun(run) {
+function renderAutomationRun(run, trustedResult = null) {
   state.activeAutomationRun = run || null;
+  state.activeTrustedResult = trustedResult || null;
   if (!run) {
-    byID("automation-analysis-mode").textContent = "-";
-    byID("agent-control-adapter").textContent = "-";
-    byID("agent-control-adapter-status").textContent = "-";
-    byID("automation-application-profile-json").textContent =
-      "아직 생성되지 않았습니다.";
-    byID("automation-resource-recommendation-json").textContent =
-      "아직 생성되지 않았습니다.";
-    renderAgentControlStages(null);
+	state.activeFlowID = "";
+	renderAgentControlFlow(null);
+	byID("llmop-safeguard-status").textContent = text(
+	  trustedResult?.safeguard?.status,
+	);
+	byID("agent-control-status").textContent = text(
+	  trustedResult?.status,
+	  "WAITING",
+	);
+	byID("automation-application-profile-json").textContent =
+	  "아직 생성되지 않았습니다.";
+	byID("automation-resource-recommendation-json").textContent =
+	  "아직 생성되지 않았습니다.";
+	byID("agent-control-result-json").textContent = trustedResult
+	  ? pretty(trustedResult)
+	  : "아직 실행 결과가 없습니다.";
+	byID("deployment-status-json").value = "";
+	byID("optimization-feedback-json").value = "";
     return;
   }
 
@@ -768,7 +780,11 @@ function renderAutomationRun(run) {
   const recommendation = run.resource_recommendation || {};
   const submission = run.deployment_submission || {};
   const mode = analysis.evidence?.mode || analysis.mode || "-";
-  byID("agent-control-flow-id").textContent = run.run_id || run.correlation_id;
+	byID("llmop-safeguard-status").textContent = text(
+	  trustedResult?.safeguard?.status,
+	);
+  byID("agent-control-flow-id").textContent =
+    flow?.correlation_id || run.correlation_id || run.run_id;
   byID("agent-control-status").textContent = text(
     flow?.state,
     run.status,
@@ -787,6 +803,8 @@ function renderAutomationRun(run) {
     recommendation,
   );
   byID("agent-control-result-json").textContent = pretty({
+	llm_op_safeguard: trustedResult?.safeguard,
+	trusted_orchestration_status: trustedResult?.status,
     run_id: run.run_id,
     correlation_id: run.correlation_id,
     trace_id: run.trace_id,
@@ -817,14 +835,29 @@ async function submitAutomationRun(event) {
   completion.textContent = "";
   setBusy(form, true, "자동 실행 중...");
   try {
-    const run = await apiRequest(API.automationRuns, {
+    const trustedResult = await apiRequest(API.trustedAutomationRuns, {
       method: "POST",
-      body: JSON.stringify(buildAutomationRunPayload()),
+      body: JSON.stringify({
+		app_version_id: "appver-geon-poc-001",
+		candidate_id: "qwen3.5-ops-planner",
+		input: buildAutomationRunPayload(),
+	  }),
     });
+	const run = trustedResult.automation_run;
+	if (!run) {
+	  renderAutomationRun(null, trustedResult);
+	  byID("agent-control-status").textContent = text(trustedResult.status);
+	  byID("agent-control-result-json").textContent = pretty(trustedResult);
+	  const safeguardStatus = text(trustedResult.safeguard?.status, trustedResult.status);
+	  completion.textContent = `Safeguard 중단 · ${safeguardStatus}`;
+	  completion.hidden = false;
+	  showToast(completion.textContent, "warning");
+	  return;
+	}
     if (run.flow) {
       upsertFlow(run.flow);
     }
-    renderAutomationRun(run);
+    renderAutomationRun(run, trustedResult);
     renderExperimentFlows();
     const action = run.flow?.decision?.action || run.flow?.state || run.status;
     const flowID = text(run.flow?.correlation_id, run.correlation_id, "Flow ID 없음");
@@ -832,10 +865,10 @@ async function submitAutomationRun(event) {
       action === "DEPLOY"
         ? "Revision 1 생성 완료"
         : `배포 판단 완료 · ${text(action)}`;
-    completion.textContent = `${completionLabel} · ${flowID}`;
+    completion.textContent = `Safeguard 승인 · ${completionLabel} · ${flowID}`;
     completion.hidden = false;
     showToast(
-      `${completionLabel} · ${flowID}`,
+      `Safeguard 승인 · ${completionLabel} · ${flowID}`,
       action === "DEPLOY" ? "success" : "warning",
     );
   } catch (error) {

@@ -11,6 +11,7 @@
 
 ```text
 사용자 요청
+→ LLM_Op Qwen Safeguard
 → Requirement Analyzer
 → ApplicationProfile
 → Mock Resource Recommender
@@ -45,16 +46,19 @@ cd ai-ops
 Windows PowerShell 또는 VS Code 터미널:
 
 ```powershell
+ollama pull qwen3.5:4b
 .\run-agent-control.cmd
 ```
 
 Git Bash, Linux 또는 macOS:
 
 ```bash
+ollama pull qwen3.5:4b
 ./run-agent-control.sh
 ```
 
 실행 후 [http://127.0.0.1:18080/](http://127.0.0.1:18080/)을 엽니다. 종료는 `Ctrl+C`입니다.
+메인 `Revision 1 생성`은 최초 Qwen Safeguard를 실제 호출하므로 Ollama가 실행 중이어야 합니다. AppDeploy와 실제 VM은 이 독립 PoC 실행에 필요하지 않습니다.
 
 ### LLM_Op 수동 시연 페이지
 
@@ -68,11 +72,10 @@ Git Bash, Linux 또는 macOS:
 LLM_Op ReviewWithConfig
 → allow_request만 geon AutomationRunner 실행
 → canonical Flow + INITIAL Revision 1
-→ ProjectApprovedInitialFlow 재검증
 → APPROVED_FLOW_READY
 ```
 
-`REQUEST_REJECTED`, `CLARIFICATION_REQUIRED`, 모델 오류 또는 불완전한 승인 증거에는 geon을 실행하지 않습니다. `APPROVED_FLOW_READY`는 승인된 Revision 1의 prepare-only 투영 준비 상태이며, AppDeploy POST나 실제 VM 배포 성공을 뜻하지 않습니다.
+`REQUEST_REJECTED`, `CLARIFICATION_REQUIRED`, 모델 오류 또는 불완전한 승인 증거에는 geon을 실행하지 않습니다. `APPROVED_FLOW_READY`는 검증된 Revision 1이 생성됐다는 뜻이며, AppDeploy POST나 실제 VM 배포 성공을 뜻하지 않습니다.
 
 Go 서버 없이 페이지 흐름만 시연하려면 `LLM_Op` 브랜치의 저장소 루트에서 다음 파일을 실행합니다.
 
@@ -95,6 +98,7 @@ go test ./internal/llmop ./internal/llmopbridge ./internal/trustedorchestration 
 
 ```text
 자연어 요청 또는 App Spec
+→ LLM_Op Qwen Safeguard
 → 요구사항 분석
 → 인프라 추천
 → 배포 판단 Agent + Go Guard
@@ -111,13 +115,14 @@ go test ./internal/llmop ./internal/llmopbridge ./internal/trustedorchestration 
 2. 배포 판단 Agent를 선택합니다. 기본값은 `AIApplicationAutomationAgent (Internal)`입니다.
 3. 자연어 요청 또는 App Spec을 입력하고 **자동 분석 및 판단**을 누릅니다.
 4. 다음 단계가 서버에서 자동으로 실행됩니다.
+   - LLM_Op Qwen Safeguard → `allow_request / request_clarification / reject_request`
    - Requirement Analyzer → `ApplicationProfile`
    - Mock Resource Recommender → `ResourceRecommendation`
    - Agent Registry 권한 확인
    - 선택 Agent의 `DEPLOY / REJECT / RETRY` 판단
    - Request Guard와 Result Guard 검증
-5. 실행이 끝나면 `실험 결과` 화면으로 이동합니다.
-6. `Manifest Revision 1`에서 최초 배포용 `DesiredDeploymentSpec`을 확인합니다.
+5. 성공하면 현재 화면에 `Safeguard 승인 · Revision 1 생성 완료 · Flow ID`가 표시됩니다.
+6. 사이드 메뉴의 `실험 결과`를 직접 눌러 `Manifest Revision 1`과 `DesiredDeploymentSpec`을 확인합니다.
 
 Revision 1은 **최초 배포 판단 결과**입니다. 이 단계에서는 아직 배포 상태나 성능 Feedback을 보내지 않습니다.
 
@@ -214,7 +219,7 @@ Qwen 원시 제안
 Qwen 제안 + Go Guard 검증
 ```
 
-비교 결과에는 실행 여부, Action, 후보 자원, Guard 상태, 지연시간과 판단 일치 여부가 기록됩니다. 기본 설정의 Qwen 후보는 비활성화되어 있으므로, Ollama를 연결하지 않으면 Qwen 경로가 `provider_unavailable` 또는 `skipped`로 기록됩니다. 이 경우 핵심 배포 판단은 정상적으로 실행되지만, Qwen 비교 실험은 완료된 것으로 해석하면 안 됩니다.
+비교 결과에는 실행 여부, Action, 후보 자원, Guard 상태, 지연시간과 판단 일치 여부가 기록됩니다. 메인 실행 스크립트는 로컬 Ollama 후보를 기본 사용합니다. Ollama가 꺼져 있으면 최초 Safeguard에서 실패하므로 Revision 1도 생성되지 않습니다.
 
 ```bash
 ollama pull qwen3.5:4b

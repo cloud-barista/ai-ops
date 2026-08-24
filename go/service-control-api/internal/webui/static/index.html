@@ -61,9 +61,9 @@
           <div>
             <p class="section-label">CORE WORKFLOW</p>
             <h2>자동 분석 및 판단</h2>
-            <p>요청을 입력하면 Revision 1을 먼저 만들고, 배포 상태와 성능 Feedback을 차례로 전송한 뒤 Revision 2를 생성합니다.</p>
+            <p>요청을 LLM_Op Safeguard로 먼저 검증한 뒤 승인된 요청만 Revision 1 생성과 후속 운영 최적화로 연결합니다.</p>
           </div>
-          <span class="scope-badge">AppDeploy 없이 실행 가능</span>
+          <span class="scope-badge">Qwen Safeguard · AppDeploy 없이 실행</span>
         </div>
 
         <details class="experiment-guide" id="experiment-guide">
@@ -81,7 +81,7 @@
             </li>
             <li class="experiment-guide-step">
               <span>2</span>
-              <div><strong>Revision 1 생성</strong><p><b>1. Revision 1 생성</b>을 누르면 요구사항 분석·인프라 추천·Agent 판단·Guard 검증 후 최초 Manifest만 생성됩니다.</p></div>
+              <div><strong>Safeguard와 Revision 1</strong><p><b>1. Revision 1 생성</b>을 누르면 LLM_Op Safeguard가 먼저 실행되고, 승인된 요청만 요구사항 분석·인프라 추천·Agent 판단·Guard 검증을 거쳐 최초 Manifest를 생성합니다.</p></div>
             </li>
             <li class="experiment-guide-step">
               <span>3</span>
@@ -175,6 +175,7 @@
           </div>
           <div class="decision-summary">
             <div><span>실행 상태</span><strong id="agent-control-status">WAITING</strong></div>
+            <div><span>LLM_Op Safeguard</span><strong id="llmop-safeguard-status">-</strong></div>
             <div><span>분석 방식</span><strong id="automation-analysis-mode">-</strong></div>
             <div><span>선택 후보</span><strong id="agent-control-candidate">-</strong></div>
             <div><span>선택 Agent</span><strong id="agent-control-agent-name">-</strong></div>

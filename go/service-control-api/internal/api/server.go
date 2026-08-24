@@ -115,7 +115,10 @@ func NewServer(config ServerConfig) *echo.Echo {
 	)
 	server.POST(pathAgentControl+"/application-contexts", handler.RestPostApplicationContext)
 	server.POST(pathAgentControl+"/resource-recommendations", handler.RestPostResourceRecommendation)
-	server.POST(pathAgentControl+"/automation-runs", handler.RestPostAutomationRun)
+	server.POST(
+		pathAgentControl+"/trusted-automation-runs",
+		handler.RestPostTrustedAutomationRun,
+	)
 	server.GET(pathAgentControl+"/automation-runs/:run_id", handler.RestGetAutomationRun)
 	server.POST(pathAgentControl+"/deployment-status", handler.RestPostDeploymentStatus)
 	server.POST(pathAgentControl+"/optimization-feedback", handler.RestPostOptimizationFeedback)

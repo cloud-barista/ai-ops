@@ -249,9 +249,25 @@ async function browserPage(viewport = { width: 1280, height: 900 }, scenario = {
       await route.fulfill({ contentType: "application/json", body: JSON.stringify({ flows }) });
       return;
     }
-    if (pathname === "/api/v1/agent-control/automation-runs" && request.method() === "POST") {
-      const input = request.postDataJSON();
+    if (pathname === "/api/v1/agent-control/trusted-automation-runs" && request.method() === "POST") {
+      const trustedRequest = request.postDataJSON();
+      const input = trustedRequest.input;
       requests.push(input);
+	  if (scenario.rejectAfterFirst && requests.length > 1) {
+		await route.fulfill({
+		  status: 200,
+		  contentType: "application/json",
+		  body: JSON.stringify({
+			status: "SAFEGUARD_STOPPED",
+			safeguard: {
+			  status: "SAFEGUARD_REJECTED",
+			  approved: false,
+			  decision: { action: "reject_request" },
+			},
+		  }),
+		});
+		return;
+	  }
       const run = completedRun(input);
       if (scenario.preserveExistingFlows) {
         flows.unshift(run.flow);
@@ -261,7 +277,11 @@ async function browserPage(viewport = { width: 1280, height: 900 }, scenario = {
       await route.fulfill({
         status: 201,
         contentType: "application/json",
-        body: JSON.stringify(run),
+        body: JSON.stringify({
+          status: "APPROVED_FLOW_READY",
+          safeguard: { status: "SAFEGUARD_APPROVED", approved: true },
+          automation_run: run,
+        }),
       });
       return;
     }
@@ -470,6 +490,32 @@ test("a new run stops at Revision 1 until deployment status and Feedback are sen
   }
 });
 
+test("a Safeguard stop clears the previous successful Flow evidence", async () => {
+  const { browser, page, requests, consoleErrors } = await browserPage(
+    { width: 1280, height: 900 },
+    { rejectAfterFirst: true },
+  );
+  try {
+    await page.locator("#automation-run-submit").click();
+    await page.waitForTimeout(100);
+    assert.equal(requests.length, 1, JSON.stringify(consoleErrors));
+    assert.equal(await page.locator("#agent-control-flow-id").textContent(), "flow-web-001");
+    assert.match(await page.locator("#manifest-initial-status").textContent(), /Revision 1/);
+
+    await page.locator("#automation-run-submit").click();
+    await page.waitForTimeout(100);
+    assert.equal(requests.length, 2, JSON.stringify(consoleErrors));
+    assert.equal(await page.locator("#agent-control-flow-id").textContent(), "실행 대기");
+    assert.equal(await page.locator("#agent-control-status").textContent(), "SAFEGUARD_STOPPED");
+    assert.match(await page.locator("#automation-run-completion").textContent(), /Safeguard 중단/);
+    assert.equal(await page.locator("#manifest-initial-status").textContent(), "생성 대기");
+    assert.equal(await page.locator("#deployment-status-json").inputValue(), "");
+    assert.equal(await page.locator("#optimization-feedback-json").inputValue(), "");
+  } finally {
+    await browser.close();
+  }
+});
+
 test("results view exposes experiment actions in the required execution order", async () => {
   const { browser, page, consoleErrors } = await browserPage();
   try {
@@ -477,10 +523,8 @@ test("results view exposes experiment actions in the required execution order", 
     await page.waitForFunction(() => (
       document.getElementById("manifest-initial-status").textContent.includes("Revision 1")
     ));
-    assert.equal(
-      await page.locator('[data-view-target="results"]').evaluate((item) => item.classList.contains("is-active")),
-      true,
-    );
+	assert.equal(await page.locator('[data-view="agent-control"]').isVisible(), true);
+	await page.locator('[data-view-target="results"]').click();
 
     const workflow = await page.evaluate(() => {
       const items = [
@@ -513,6 +557,7 @@ test("full Flow record is separated from Manifest output and collapsed by defaul
     await page.waitForFunction(() => (
       document.getElementById("experiment-manifest-initial-status").textContent.includes("Revision 1")
     ));
+	await page.locator('[data-view-target="results"]').click();
 
     const disclosure = page.locator("#experiment-flow-record");
     assert.equal(await disclosure.count(), 1);
@@ -601,7 +646,7 @@ test("experiment guide starts collapsed and can be opened without horizontal ove
       await page.locator("#experiment-guide > summary").click();
 
       assert.equal(await page.locator(".experiment-guide-steps").isVisible(), true);
-      assert.equal(await page.locator(".experiment-guide-step").count(), 4);
+      assert.equal(await page.locator(".experiment-guide-step").count(), 6);
       const layout = await page.evaluate(() => ({
         clientWidth: document.documentElement.clientWidth,
         scrollWidth: document.documentElement.scrollWidth,

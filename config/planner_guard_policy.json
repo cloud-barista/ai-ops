@@ -3,7 +3,8 @@
   "max_request_length": 8000,
   "allowed_requesters": [
     "ai-ops-geon-planner",
-    "ai-agent"
+    "ai-agent",
+    "geon-web"
   ],
   "forbidden_request_terms": [
     "kubernetes",

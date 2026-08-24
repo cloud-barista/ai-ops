@@ -94,8 +94,9 @@ func TestOpenAPIDocumentsAutomaticThreeStageAgentFlow(t *testing.T) {
 		}
 		for _, expected := range []string{
 			"/api/v1/agent-control/application-analysis-requests",
-			"/api/v1/agent-control/automation-runs",
+			"/api/v1/agent-control/trusted-automation-runs",
 			"/api/v1/agent-control/automation-runs/{run_id}",
+			"TrustedAutomationRunRequest",
 			"ApplicationAnalysisRequestEnvelope",
 			"AutomationRun",
 			"AutomationRunInput",
@@ -109,6 +110,30 @@ func TestOpenAPIDocumentsAutomaticThreeStageAgentFlow(t *testing.T) {
 				t.Fatalf("OpenAPI %s is missing %q", path, expected)
 			}
 		}
+	}
+}
+
+func TestSubmissionOpenAPIExposesOnlyTheSafeguardedAutomationPOST(t *testing.T) {
+	config := NewServerConfig()
+	content, err := os.ReadFile(config.OpenAPIPath)
+	if err != nil {
+		t.Fatalf("read submission OpenAPI: %v", err)
+	}
+	var document map[string]any
+	if err := yaml.Unmarshal(content, &document); err != nil {
+		t.Fatalf("parse submission OpenAPI: %v", err)
+	}
+	paths, ok := document["paths"].(map[string]any)
+	if !ok {
+		t.Fatalf("OpenAPI paths = %#v", document["paths"])
+	}
+	trusted, ok := paths["/api/v1/agent-control/trusted-automation-runs"].(map[string]any)
+	if !ok || trusted["post"] == nil {
+		t.Fatalf("trusted automation POST is missing: %#v", trusted)
+	}
+	legacy, ok := paths["/api/v1/agent-control/automation-runs"].(map[string]any)
+	if ok && legacy["post"] != nil {
+		t.Fatalf("unsafe legacy automation POST is still documented: %#v", legacy)
 	}
 }
 

@@ -12,17 +12,18 @@ import (
 )
 
 type ServerConfig struct {
-	RepoRoot               string
-	OpenAPIPath            string
-	LLMCandidatesPath      string
-	ResourceCatalogPath    string
-	PlannerGuardPolicyPath string
-	AppDeployBaseURL       string
-	DeploymentAdapterMode  string
-	AppUploadMaxBytes      int64
-	BindAddress            string
-	AutonomyAdminToken     string
-	AgentExecutionTimeout  time.Duration
+	RepoRoot                 string
+	OpenAPIPath              string
+	LLMCandidatesPath        string
+	ResourceCatalogPath      string
+	PlannerGuardPolicyPath   string
+	AppDeployBaseURL         string
+	DeploymentAdapterMode    string
+	AppUploadMaxBytes        int64
+	BindAddress              string
+	AutonomyAdminToken       string
+	AgentExecutionTimeout    time.Duration
+	LLMOpAllowLiveCompletion bool
 }
 
 func NewServerConfig() ServerConfig {
@@ -80,17 +81,18 @@ func NewServerConfig() ServerConfig {
 		deploymentAdapterMode = "mock"
 	}
 	return ServerConfig{
-		RepoRoot:               repoRoot,
-		OpenAPIPath:            openAPIPath,
-		LLMCandidatesPath:      llmCandidatesPath,
-		ResourceCatalogPath:    resourceCatalogPath,
-		PlannerGuardPolicyPath: plannerGuardPolicyPath,
-		AppDeployBaseURL:       viper.GetString("APPDEPLOY_BASE_URL"),
-		DeploymentAdapterMode:  deploymentAdapterMode,
-		AppUploadMaxBytes:      appUploadMaxBytes,
-		BindAddress:            bindAddress,
-		AutonomyAdminToken:     viper.GetString("AUTONOMY_ADMIN_TOKEN"),
-		AgentExecutionTimeout:  time.Duration(agentExecutionTimeoutSeconds) * time.Second,
+		RepoRoot:                 repoRoot,
+		OpenAPIPath:              openAPIPath,
+		LLMCandidatesPath:        llmCandidatesPath,
+		ResourceCatalogPath:      resourceCatalogPath,
+		PlannerGuardPolicyPath:   plannerGuardPolicyPath,
+		AppDeployBaseURL:         viper.GetString("APPDEPLOY_BASE_URL"),
+		DeploymentAdapterMode:    deploymentAdapterMode,
+		AppUploadMaxBytes:        appUploadMaxBytes,
+		BindAddress:              bindAddress,
+		AutonomyAdminToken:       viper.GetString("AUTONOMY_ADMIN_TOKEN"),
+		AgentExecutionTimeout:    time.Duration(agentExecutionTimeoutSeconds) * time.Second,
+		LLMOpAllowLiveCompletion: viper.GetBool("LLMOP_ALLOW_LIVE_COMPLETION"),
 	}
 }
 

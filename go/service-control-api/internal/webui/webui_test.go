@@ -118,6 +118,7 @@ func TestControlAppContainsSingleAutomationWorkflow(t *testing.T) {
 		`id="automation-request"`,
 		`id="automation-app-spec-json"`,
 		`id="automation-run-submit"`,
+		`id="llmop-safeguard-status"`,
 		`id="decision-agent-select"`,
 		`배포 판단 Agent`,
 		`자동 분석 및 판단`,
@@ -311,7 +312,7 @@ func TestControlAppJavaScriptUsesOnlyFocusedWebAPIs(t *testing.T) {
 
 	for _, expected := range []string{
 		`agents: "/api/v1/agents"`,
-		`automationRuns: "/api/v1/agent-control/automation-runs"`,
+		`trustedAutomationRuns: "/api/v1/agent-control/trusted-automation-runs"`,
 		`applicationContexts: "/api/v1/agent-control/application-contexts"`,
 		`resourceRecommendations: "/api/v1/agent-control/resource-recommendations"`,
 		`deploymentStatus: "/api/v1/agent-control/deployment-status"`,

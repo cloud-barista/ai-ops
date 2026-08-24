@@ -20,7 +20,7 @@ lint:
 
 swag:
 	cd $(SERVICE_CONTROL_DIR) && $(GO) run github.com/swaggo/swag/cmd/swag@$(SWAG_VERSION) init \
-		-d cmd/service-control-api,internal/api,internal/agentcontrol,internal/controlrun,internal/appdeploy,internal/deploymentplanner,internal/plannerguard \
+		-d cmd/service-control-api,internal/api,internal/agentcontrol,internal/controlrun,internal/appdeploy,internal/deploymentplanner,internal/plannerguard,internal/trustedorchestration,internal/llmop,internal/llmopbridge \
 		-g main.go \
 		-o docs/swagger \
 		--parseInternal --outputTypes json,yaml
