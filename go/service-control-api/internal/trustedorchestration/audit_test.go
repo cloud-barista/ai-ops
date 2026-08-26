@@ -65,7 +65,7 @@ func TestApprovedFlowRecordsEveryTrustedStageInOrder(t *testing.T) {
 		}
 	}
 	completed := recorder.events[len(recorder.events)-1]
-	if completed.Evidence.CandidateIDSHA256 == "" ||
+	if completed.Evidence.SelectedResourceSHA256 == "" ||
 		completed.Evidence.Resources == nil ||
 		completed.Evidence.Resources.AcceleratorType != "NONE" {
 		t.Fatalf("bounded geon evidence = %#v", completed.Evidence)
