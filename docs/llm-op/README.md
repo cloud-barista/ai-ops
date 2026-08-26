@@ -79,8 +79,9 @@ resource snapshot 미제공은 unknown으로 남아 draft handoff가 가능하�
 - `06-demo-scenarios.md`: AI service catalog, 47개 입력 시나리오, offline demo
 - 07-manual-two-stage-browser-demo.md: 복사·붙여넣기 방식의 2단계 LLM 브라우저 시연 실행서
 - 08-operation-context-adapter-contract.md: 외부 상태·로그 Adapter의 입력 형식과 책임 경계
+- `09-execution-audit-evidence.md`: trusted automation 실행 감사 파일, 비저장 정보, 무결성·장애 계약
 - `../../examples/llm-op/README.md`: fixture 실행 입력과 expected output
-- ../../schemas/llm-op/: 두 LLM raw JSON 출력의 기계 판독 schema
+- `../../schemas/llm-op/`: 두 LLM raw JSON 출력과 trusted automation 감사 요약의 기계 판독 schema
 
 ## 검증 상태
 

@@ -24,6 +24,8 @@ type ServerConfig struct {
 	AutonomyAdminToken       string
 	AgentExecutionTimeout    time.Duration
 	LLMOpAllowLiveCompletion bool
+	ExecutionAuditDir        string
+	ExecutionAuditRequired   bool
 }
 
 func NewServerConfig() ServerConfig {
@@ -56,6 +58,13 @@ func NewServerConfig() ServerConfig {
 	} else if !filepath.IsAbs(plannerGuardPolicyPath) {
 		plannerGuardPolicyPath = filepath.Join(repoRoot, plannerGuardPolicyPath)
 	}
+	executionAuditDir := strings.TrimSpace(viper.GetString("EXECUTION_AUDIT_DIR"))
+	if executionAuditDir == "" {
+		executionAuditDir = filepath.Join(repoRoot, "runs", "trusted-automation")
+	} else if !filepath.IsAbs(executionAuditDir) {
+		executionAuditDir = filepath.Join(repoRoot, executionAuditDir)
+	}
+	viper.SetDefault("EXECUTION_AUDIT_REQUIRED", true)
 	bindAddress := strings.TrimSpace(viper.GetString("BIND_ADDRESS"))
 	if bindAddress == "" {
 		bindAddress = "127.0.0.1"
@@ -93,16 +102,21 @@ func NewServerConfig() ServerConfig {
 		AutonomyAdminToken:       viper.GetString("AUTONOMY_ADMIN_TOKEN"),
 		AgentExecutionTimeout:    time.Duration(agentExecutionTimeoutSeconds) * time.Second,
 		LLMOpAllowLiveCompletion: viper.GetBool("LLMOP_ALLOW_LIVE_COMPLETION"),
+		ExecutionAuditDir:        executionAuditDir,
+		ExecutionAuditRequired:   viper.GetBool("EXECUTION_AUDIT_REQUIRED"),
 	}
 }
 
 func ValidateServerConfig(config ServerConfig) error {
 	switch config.DeploymentAdapterMode {
 	case "mock", "handoff":
-		return nil
 	default:
 		return fmt.Errorf("deployment adapter mode must be mock or handoff")
 	}
+	if config.ExecutionAuditRequired && strings.TrimSpace(config.ExecutionAuditDir) == "" {
+		return fmt.Errorf("execution audit directory is required")
+	}
+	return nil
 }
 
 func findRepoRoot() string {

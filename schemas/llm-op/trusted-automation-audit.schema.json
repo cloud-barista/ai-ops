@@ -1,0 +1,674 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cloud-barista.github.io/ai-ops/schemas/llm-op/trusted-automation-audit.schema.json",
+  "title": "Trusted Automation Audit Summary",
+  "description": "Typed, secret-minimized summary.json for one Guard-first trusted automation attempt. Validate each events.jsonl line against $defs.audit_event.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "audit_id",
+    "kind",
+    "status",
+	"persistence_status",
+    "complete",
+    "started_at",
+    "completed_at",
+    "duration_ms",
+    "identity",
+    "request_summary",
+    "timeline",
+    "result_summary",
+    "integrity",
+    "artifacts"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "ai-ops.trusted-automation-audit/v1"
+    },
+    "audit_id": {
+      "$ref": "#/$defs/audit_id"
+    },
+    "kind": {
+      "const": "trusted_automation_run"
+    },
+    "status": {
+      "$ref": "#/$defs/terminal_status"
+    },
+	"persistence_status": {
+	  "type": "string",
+	  "enum": [
+		"COMPLETE",
+		"DEGRADED"
+	  ]
+	},
+    "complete": {
+      "type": "boolean"
+    },
+    "started_at": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "completed_at": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "duration_ms": {
+      "$ref": "#/$defs/duration_ms"
+    },
+    "identity": {
+      "$ref": "#/$defs/identity"
+    },
+    "request_summary": {
+      "$ref": "#/$defs/request_summary"
+    },
+    "timeline": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "$ref": "#/$defs/audit_event"
+      }
+    },
+    "result_summary": {
+      "$ref": "#/$defs/result_summary"
+    },
+    "failure": {
+      "$ref": "#/$defs/failure"
+    },
+    "integrity": {
+      "$ref": "#/$defs/summary_integrity"
+    },
+    "artifacts": {
+      "$ref": "#/$defs/artifacts"
+    }
+  },
+  "$defs": {
+    "audit_id": {
+      "type": "string",
+      "pattern": "^audit-[a-f0-9]{24}$"
+    },
+    "safe_identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "safe_label": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/+-]*$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "maxLength": 40
+    },
+    "duration_ms": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 86400000
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "reason_code": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9_]{2,79}$"
+    },
+    "terminal_status": {
+      "type": "string",
+      "enum": [
+        "APPROVED_FLOW_READY",
+        "SAFEGUARD_STOPPED",
+        "GEON_REJECTED",
+        "HANDOFF_READY",
+        "AUDIT_FAILED",
+        "ERROR"
+      ]
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "request_id": {
+          "$ref": "#/$defs/safe_identifier"
+        },
+        "message_id": {
+          "$ref": "#/$defs/safe_identifier"
+        },
+        "correlation_id": {
+          "$ref": "#/$defs/safe_identifier"
+        },
+        "trace_id": {
+          "$ref": "#/$defs/safe_identifier"
+        },
+        "run_id": {
+          "$ref": "#/$defs/safe_identifier"
+        }
+      }
+    },
+    "request_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "input_type",
+        "candidate_id_sha256",
+        "payload_sha256",
+        "structured_input",
+        "raw_payload_stored",
+        "raw_model_content_stored"
+      ],
+      "properties": {
+        "input_type": {
+          "type": "string",
+          "enum": [
+            "natural_language",
+			"structured",
+			"invalid"
+          ]
+        },
+        "candidate_id_sha256": {
+		  "$ref": "#/$defs/sha256"
+        },
+        "payload_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "user_request_rune_count": {
+          "type": "integer",
+		  "minimum": 1
+        },
+        "structured_input": {
+          "type": "boolean"
+        },
+        "requested_by_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "app_version_id_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "raw_payload_stored": {
+          "const": false
+        },
+        "raw_model_content_stored": {
+          "const": false
+        }
+      }
+    },
+    "resource_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "accelerator_required"
+      ],
+      "properties": {
+        "cpu_cores_min": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 256
+        },
+        "memory_mib_min": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2097152
+        },
+        "storage_gib_min": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65536
+        },
+        "accelerator_required": {
+          "type": "boolean"
+        },
+        "accelerator_type": {
+          "type": "string",
+          "enum": [
+            "GPU",
+            "NVIDIA_GPU",
+			"NONE",
+			"OTHER"
+          ]
+        },
+        "accelerator_count_min": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 16
+        },
+        "accelerator_memory_mib_per_device": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1048576
+        },
+        "replicas_min": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1024
+        },
+        "replicas_max": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1024
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "input_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "output_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "policy_version": {
+          "$ref": "#/$defs/safe_label"
+        },
+        "candidate_id_sha256": {
+		  "$ref": "#/$defs/sha256"
+        },
+        "provider": {
+          "$ref": "#/$defs/safe_label"
+        },
+        "actual_model": {
+          "$ref": "#/$defs/safe_label"
+        },
+        "model_latency_ms": {
+          "$ref": "#/$defs/duration_ms"
+        },
+        "decision": {
+          "type": "string",
+          "enum": [
+            "allow_request",
+            "request_clarification",
+            "reject_request"
+          ]
+        },
+        "reason_code": {
+          "$ref": "#/$defs/reason_code"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "approved": {
+          "type": "boolean"
+        },
+        "request_guard_status": {
+          "type": "string",
+          "enum": [
+            "approved",
+            "rejected"
+          ]
+        },
+        "request_guard_valid": {
+          "type": "boolean"
+        },
+        "request_binding": {
+          "$ref": "#/$defs/sha256"
+        },
+        "binding_algorithm": {
+          "type": "string",
+          "enum": [
+            "sha256",
+            "SHA-256"
+          ]
+        },
+        "analysis_mode": {
+          "type": "string",
+          "enum": [
+            "local_rule",
+            "structured",
+            "qwen"
+          ]
+        },
+        "catalog_version": {
+          "$ref": "#/$defs/safe_label"
+        },
+        "recommendation_status": {
+          "$ref": "#/$defs/reason_code"
+        },
+        "selected_resource_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "resources": {
+          "$ref": "#/$defs/resource_summary"
+        },
+        "agent_name": {
+          "$ref": "#/$defs/safe_label"
+        },
+        "agent_authorized": {
+          "type": "boolean"
+        },
+        "flow_state": {
+          "$ref": "#/$defs/reason_code"
+        },
+        "guard_status": {
+          "$ref": "#/$defs/reason_code"
+        },
+        "revision_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1024
+        },
+        "latest_revision_phase": {
+          "type": "string",
+          "enum": [
+            "INITIAL",
+            "OPTIMIZED"
+          ]
+        },
+        "desired_deployment_spec_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "submission_mode": {
+          "type": "string",
+          "enum": [
+            "prepare_only",
+            "simulated",
+            "handoff_ready",
+            "not_submitted"
+          ]
+        },
+        "deployment_adapter": {
+          "type": "string",
+          "enum": [
+            "mock",
+            "handoff"
+          ]
+        },
+        "deployment_submission_status": {
+          "type": "string",
+          "enum": [
+            "SIMULATED",
+            "READY",
+            "FAILED"
+          ]
+        },
+        "deployment_submission_simulated": {
+          "type": "boolean"
+        },
+        "idempotent_replay": {
+          "type": "boolean"
+        },
+        "orchestration_status": {
+          "$ref": "#/$defs/terminal_status"
+        }
+      }
+    },
+    "event_integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "payload_sha256",
+        "authenticated"
+      ],
+      "properties": {
+        "algorithm": {
+          "const": "sha256"
+        },
+        "previous_event_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "payload_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "authenticated": {
+          "const": false
+        }
+      }
+    },
+    "audit_event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "audit_id",
+        "sequence",
+        "recorded_at",
+        "identity",
+        "stage",
+        "action",
+        "outcome",
+        "integrity"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "ai-ops.trusted-automation-audit/v1"
+        },
+        "audit_id": {
+          "$ref": "#/$defs/audit_id"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "recorded_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "identity": {
+          "$ref": "#/$defs/identity"
+        },
+        "stage": {
+          "type": "string",
+          "enum": [
+            "request",
+            "safeguard",
+            "geon_revision_flow",
+            "approved_projection",
+            "terminal_response"
+          ]
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "request_received",
+            "request_binding_completed",
+            "review_started",
+            "review_completed",
+            "approval_binding_validated",
+            "revision_flow_started",
+            "revision_flow_completed",
+            "prepare_only_projection_started",
+            "prepare_only_projection_completed",
+            "response_finalized"
+          ]
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "accepted_for_binding",
+            "bound",
+            "started",
+            "approved",
+            "validated",
+            "prepared",
+            "completed",
+            "stopped",
+            "rejected",
+            "failed",
+            "degraded"
+          ]
+        },
+        "duration_ms": {
+          "$ref": "#/$defs/duration_ms"
+        },
+        "error_code": {
+          "$ref": "#/$defs/reason_code"
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        },
+        "integrity": {
+          "$ref": "#/$defs/event_integrity"
+        }
+      }
+    },
+    "result_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "final_status",
+        "safeguard_approved",
+        "deployment_simulated",
+        "idempotent_replay",
+        "approved_projection_prepared"
+      ],
+      "properties": {
+        "final_status": {
+          "$ref": "#/$defs/terminal_status"
+        },
+        "safeguard_status": {
+          "$ref": "#/$defs/reason_code"
+        },
+        "safeguard_approved": {
+          "type": "boolean"
+        },
+        "safeguard_decision": {
+          "type": "string",
+          "enum": [
+            "allow_request",
+            "request_clarification",
+            "reject_request"
+          ]
+        },
+        "safeguard_reason_code": {
+          "$ref": "#/$defs/reason_code"
+        },
+        "automation_status": {
+          "type": "string",
+          "enum": [
+            "COMPLETED",
+            "FAILED"
+          ]
+        },
+        "analysis_mode": {
+          "type": "string",
+          "enum": [
+            "local_rule",
+            "structured",
+            "qwen"
+          ]
+        },
+        "flow_state": {
+          "$ref": "#/$defs/reason_code"
+        },
+        "guard_status": {
+          "$ref": "#/$defs/reason_code"
+        },
+        "revision_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1024
+        },
+        "latest_revision_phase": {
+          "type": "string",
+          "enum": [
+            "INITIAL",
+            "OPTIMIZED"
+          ]
+        },
+        "desired_deployment_spec_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "deployment_adapter": {
+          "type": "string",
+          "enum": [
+            "mock",
+            "handoff"
+          ]
+        },
+        "deployment_submission_status": {
+          "type": "string",
+          "enum": [
+            "SIMULATED",
+            "READY",
+            "FAILED"
+          ]
+        },
+        "deployment_simulated": {
+          "type": "boolean"
+        },
+        "idempotent_replay": {
+          "type": "boolean"
+        },
+        "approved_projection_prepared": {
+          "type": "boolean"
+        }
+      }
+    },
+    "failure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stage",
+        "code"
+      ],
+      "properties": {
+        "stage": {
+          "type": "string",
+          "enum": [
+            "request",
+            "safeguard",
+            "geon_revision_flow",
+            "approved_projection",
+            "terminal_response",
+            "audit_persistence",
+            "configuration",
+            "request_binding",
+            "trusted_orchestration"
+          ]
+        },
+        "code": {
+          "$ref": "#/$defs/reason_code"
+        }
+      }
+    },
+    "summary_integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "last_event_sha256",
+        "payload_sha256",
+        "authenticated"
+      ],
+      "properties": {
+        "algorithm": {
+          "const": "sha256"
+        },
+        "last_event_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "payload_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "authenticated": {
+          "const": false
+        }
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "events_path",
+        "summary_path"
+      ],
+      "properties": {
+        "events_path": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}/audit-[a-f0-9]{24}/events\\.jsonl$"
+        },
+        "summary_path": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}/audit-[a-f0-9]{24}/summary\\.json$"
+        }
+      }
+    }
+  },
+  "$comment": "Raw user request, requested_by, AppVersion ID, artifact, labels, prompt, completion, credentials, endpoint and provider error text are intentionally excluded. SHA-256 payload links detect modification but are not authenticated provenance."
+}

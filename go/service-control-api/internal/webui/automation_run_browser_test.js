@@ -264,6 +264,12 @@ async function browserPage(viewport = { width: 1280, height: 900 }, scenario = {
 			  approved: false,
 			  decision: { action: "reject_request" },
 			},
+			audit: {
+			  audit_id: "audit-111111111111111111111111",
+			  persistence_status: "COMPLETE",
+			  event_count: 4,
+			  summary_path: "2026-08-26/audit-111111111111111111111111/summary.json",
+			},
 		  }),
 		});
 		return;
@@ -281,6 +287,12 @@ async function browserPage(viewport = { width: 1280, height: 900 }, scenario = {
           status: "APPROVED_FLOW_READY",
           safeguard: { status: "SAFEGUARD_APPROVED", approved: true },
           automation_run: run,
+		  audit: {
+			audit_id: "audit-222222222222222222222222",
+			persistence_status: "COMPLETE",
+			event_count: 7,
+			summary_path: "2026-08-26/audit-222222222222222222222222/summary.json",
+		  },
         }),
       });
       return;
@@ -700,6 +712,14 @@ test("one natural-language input executes the deployment-to-feedback sequence in
     assert.equal(await page.locator("#agent-control-result-guard").textContent(), "APPROVED");
     assert.equal(await page.locator("#agent-control-guard").textContent(), "APPROVED");
     assert.equal(await page.locator("#agent-control-adapter").textContent(), "mock");
+	assert.equal(
+	  await page.locator("#execution-audit-status").textContent(),
+	  "COMPLETE · 7 events",
+	);
+	assert.match(
+	  await page.locator("#execution-audit-path").textContent(),
+	  /summary\.json$/,
+	);
     assert.equal(
       await page.locator("#agent-control-adapter-status").textContent(),
       "SIMULATED",

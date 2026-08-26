@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"kyunghee-aiops/service-control-api/internal/agentcontrol"
+	"kyunghee-aiops/service-control-api/internal/audittrail"
 	"kyunghee-aiops/service-control-api/internal/llmop"
 	"kyunghee-aiops/service-control-api/internal/llmopbridge"
 )
@@ -70,6 +72,15 @@ func (orchestrator *Orchestrator) Run(
 		return result, err
 	}
 
+	projectionStartedAt := time.Now().UTC()
+	if err := recordStageStarted(
+		ctx,
+		audittrail.StageApprovedProjection,
+		"prepare_only_projection_started",
+		result.AutomationRun.Flow,
+	); err != nil {
+		return result, wrapAuditError(audittrail.StageApprovedProjection, err)
+	}
 	projection, err := llmopbridge.ProjectApprovedInitialFlow(
 		llmopbridge.ApprovedInitialFlowInput{
 			Request:         input.Request,
@@ -80,7 +91,25 @@ func (orchestrator *Orchestrator) Run(
 		orchestrator.resolve,
 	)
 	if err != nil {
+		if recordErr := recordApprovedProjection(
+			ctx,
+			projectionStartedAt,
+			projection,
+			"failed",
+			"APPROVED_PROJECTION_FAILED",
+		); recordErr != nil {
+			return result, wrapAuditError(audittrail.StageApprovedProjection, recordErr)
+		}
 		return result, fmt.Errorf("project approved geon Flow: %w", err)
+	}
+	if err := recordApprovedProjection(
+		ctx,
+		projectionStartedAt,
+		projection,
+		"prepared",
+		"",
+	); err != nil {
+		return result, wrapAuditError(audittrail.StageApprovedProjection, err)
 	}
 	result.ApprovedProjection = &projection
 	return result, nil
@@ -100,40 +129,162 @@ func (orchestrator *Orchestrator) RunApprovedFlow(
 		return Result{}, err
 	}
 
+	safeguardStartedAt := time.Now().UTC()
+	if err := recordStageStarted(
+		ctx,
+		audittrail.StageSafeguard,
+		"review_started",
+		input.Request,
+	); err != nil {
+		return Result{}, wrapAuditError(audittrail.StageSafeguard, err)
+	}
 	safeguard, err := orchestrator.reviewer.Review(ctx, input.Request)
 	result := Result{Safeguard: safeguard}
 	if err != nil {
 		if isAuditableSafeguardStop(safeguard) {
 			result.Status = StatusSafeguardStopped
+			if recordErr := recordSafeguardReview(
+				ctx,
+				safeguardStartedAt,
+				input.Request,
+				safeguard,
+				"stopped",
+				"",
+			); recordErr != nil {
+				return result, wrapAuditError(audittrail.StageSafeguard, recordErr)
+			}
 			return result, nil
+		}
+		if recordErr := recordSafeguardReview(
+			ctx,
+			safeguardStartedAt,
+			input.Request,
+			safeguard,
+			"failed",
+			"SAFEGUARD_REVIEW_FAILED",
+		); recordErr != nil {
+			return result, wrapAuditError(audittrail.StageSafeguard, recordErr)
 		}
 		return result, fmt.Errorf("review untrusted request: %w", err)
 	}
 	if !safeguard.Approved {
 		result.Status = StatusSafeguardStopped
+		if recordErr := recordSafeguardReview(
+			ctx,
+			safeguardStartedAt,
+			input.Request,
+			safeguard,
+			"stopped",
+			"",
+		); recordErr != nil {
+			return result, wrapAuditError(audittrail.StageSafeguard, recordErr)
+		}
 		return result, nil
 	}
+	if err := recordSafeguardReview(
+		ctx,
+		safeguardStartedAt,
+		input.Request,
+		safeguard,
+		"approved",
+		"",
+	); err != nil {
+		return result, wrapAuditError(audittrail.StageSafeguard, err)
+	}
 	if err := validateSafeguardApproval(safeguard); err != nil {
+		if recordErr := recordSafeguardBinding(
+			ctx,
+			safeguard,
+			"failed",
+			"SAFEGUARD_EVIDENCE_INCOMPLETE",
+		); recordErr != nil {
+			return result, wrapAuditError(audittrail.StageSafeguard, recordErr)
+		}
 		return result, err
 	}
+	if err := recordSafeguardBinding(ctx, safeguard, "validated", ""); err != nil {
+		return result, wrapAuditError(audittrail.StageSafeguard, err)
+	}
 
+	geonStartedAt := time.Now().UTC()
+	if err := recordStageStarted(
+		ctx,
+		audittrail.StageGeon,
+		"revision_flow_started",
+		input.AnalysisRequest,
+	); err != nil {
+		return result, wrapAuditError(audittrail.StageGeon, err)
+	}
 	run, replayed, err := orchestrator.runner.RunAnalysisRequest(ctx, input.AnalysisRequest)
 	result.AutomationRun = &run
 	result.IdempotentReplay = replayed
+	if bindErr := bindAutomationRunIdentity(ctx, run); bindErr != nil {
+		return result, wrapAuditError(audittrail.StageGeon, bindErr)
+	}
 	if err != nil {
+		if recordErr := recordGeonRun(
+			ctx,
+			geonStartedAt,
+			run,
+			replayed,
+			"failed",
+			"GEON_AUTOMATION_FAILED",
+		); recordErr != nil {
+			return result, wrapAuditError(audittrail.StageGeon, recordErr)
+		}
 		return result, fmt.Errorf("run geon automation Flow: %w", err)
 	}
 	if run.Flow == nil {
+		if recordErr := recordGeonRun(
+			ctx,
+			geonStartedAt,
+			run,
+			replayed,
+			"failed",
+			"GEON_FLOW_MISSING",
+		); recordErr != nil {
+			return result, wrapAuditError(audittrail.StageGeon, recordErr)
+		}
 		return result, fmt.Errorf("geon automation run did not retain a Flow")
 	}
 	if run.Status != agentcontrol.AutomationRunStatusCompleted {
+		if recordErr := recordGeonRun(
+			ctx,
+			geonStartedAt,
+			run,
+			replayed,
+			"failed",
+			"GEON_RUN_INCOMPLETE",
+		); recordErr != nil {
+			return result, wrapAuditError(audittrail.StageGeon, recordErr)
+		}
 		return result, fmt.Errorf("geon automation run did not complete")
 	}
 	if run.Flow.State != agentcontrol.StateDecisionApproved {
 		result.Status = StatusGeonRejected
+		if recordErr := recordGeonRun(
+			ctx,
+			geonStartedAt,
+			run,
+			replayed,
+			"rejected",
+			"",
+		); recordErr != nil {
+			return result, wrapAuditError(audittrail.StageGeon, recordErr)
+		}
 		return result, nil
 	}
 	result.Status = StatusApprovedFlowReady
+	if err := recordGeonRun(
+		ctx,
+		geonStartedAt,
+		run,
+		replayed,
+		"approved",
+		"",
+	); err != nil {
+		return result, wrapAuditError(audittrail.StageGeon, err)
+	}
 	return result, nil
 }
 

@@ -12,6 +12,7 @@ import (
 
 	"kyunghee-aiops/service-control-api/internal/agentcontrol"
 	"kyunghee-aiops/service-control-api/internal/appdeploy"
+	"kyunghee-aiops/service-control-api/internal/audittrail"
 	"kyunghee-aiops/service-control-api/internal/automation"
 	"kyunghee-aiops/service-control-api/internal/autonomy"
 	"kyunghee-aiops/service-control-api/internal/controlrun"
@@ -38,6 +39,8 @@ type Service struct {
 	automationRunner        *agentcontrol.AutomationRunner
 	trustedAutomationRunner *agentcontrol.AutomationRunner
 	trustedOrchestration    trustedFlowOrchestrator
+	trustedAuditStore       *audittrail.FileStore
+	trustedAuditRequired    bool
 }
 
 func NewService(config ServerConfig) Service {
@@ -92,6 +95,8 @@ func NewService(config ServerConfig) Service {
 		operationRuntime:        operationRuntime,
 		automationRunner:        automationRunner,
 		trustedAutomationRunner: trustedAutomationRunner,
+		trustedAuditStore:       audittrail.NewFileStore(config.ExecutionAuditDir),
+		trustedAuditRequired:    config.ExecutionAuditRequired,
 		trustedOrchestration: trustedorchestration.NewFlowOnly(
 			trustedorchestration.ConfigReviewer{
 				CandidateConfigPath: config.LLMCandidatesPath,

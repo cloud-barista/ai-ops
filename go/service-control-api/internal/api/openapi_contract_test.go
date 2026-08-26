@@ -137,6 +137,191 @@ func TestSubmissionOpenAPIExposesOnlyTheSafeguardedAutomationPOST(t *testing.T) 
 	}
 }
 
+func TestOpenAPIDocumentsTrustedAutomationAuditAndSafeErrors(t *testing.T) {
+	type documentExpectation struct {
+		path           string
+		swagger2       bool
+		responseSchema string
+		auditSchema    string
+		errorSchema    string
+	}
+	config := NewServerConfig()
+	documents := []documentExpectation{
+		{
+			path:           config.OpenAPIPath,
+			responseSchema: "TrustedAutomationRunResult",
+			auditSchema:    "ExecutionAuditReference",
+			errorSchema:    "TrustedAutomationRunErrorResponse",
+		},
+		{
+			path:           config.path("go", "service-control-api", "docs", "swagger", "swagger.json"),
+			swagger2:       true,
+			responseSchema: "api.TrustedAutomationRunResponse",
+			auditSchema:    "audittrail.Reference",
+			errorSchema:    "api.TrustedAutomationRunErrorResponse",
+		},
+		{
+			path:           config.path("go", "service-control-api", "docs", "swagger", "swagger.yaml"),
+			swagger2:       true,
+			responseSchema: "api.TrustedAutomationRunResponse",
+			auditSchema:    "audittrail.Reference",
+			errorSchema:    "api.TrustedAutomationRunErrorResponse",
+		},
+	}
+
+	for _, document := range documents {
+		content, err := os.ReadFile(document.path)
+		if err != nil {
+			t.Fatalf("read OpenAPI %s: %v", document.path, err)
+		}
+		var parsed map[string]any
+		if err := yaml.Unmarshal(content, &parsed); err != nil {
+			t.Fatalf("parse OpenAPI %s: %v", document.path, err)
+		}
+
+		paths := requireOpenAPIObject(t, parsed, "paths", document.path)
+		trusted := requireOpenAPIObject(
+			t,
+			paths,
+			"/api/v1/agent-control/trusted-automation-runs",
+			document.path,
+		)
+		post := requireOpenAPIObject(t, trusted, "post", document.path)
+		responses := requireOpenAPIObject(t, post, "responses", document.path)
+
+		responseRef := openAPISchemaRef(document.swagger2, document.responseSchema)
+		errorRef := openAPISchemaRef(document.swagger2, document.errorSchema)
+		for _, status := range []string{"200", "201"} {
+			if actual := openAPIResponseSchemaRef(t, responses, status, document.swagger2, document.path); actual != responseRef {
+				t.Fatalf("OpenAPI %s trusted response %s ref=%q, want %q", document.path, status, actual, responseRef)
+			}
+		}
+		for _, status := range []string{"400", "500"} {
+			if actual := openAPIResponseSchemaRef(t, responses, status, document.swagger2, document.path); actual != errorRef {
+				t.Fatalf("OpenAPI %s trusted error %s ref=%q, want %q", document.path, status, actual, errorRef)
+			}
+		}
+
+		schemas := openAPISchemas(t, parsed, document.swagger2, document.path)
+		response := requireOpenAPIObject(t, schemas, document.responseSchema, document.path)
+		responseProperties := requireOpenAPIObject(t, response, "properties", document.path)
+		status := requireOpenAPIObject(t, responseProperties, "status", document.path)
+		statusValues, ok := status["enum"].([]any)
+		if !ok || !containsOpenAPIEnum(statusValues, "GEON_REJECTED") {
+			t.Fatalf("OpenAPI %s trusted status enum=%#v, missing GEON_REJECTED", document.path, status["enum"])
+		}
+		audit := requireOpenAPIObject(t, responseProperties, "audit", document.path)
+		if reference, _ := audit["$ref"].(string); reference != openAPISchemaRef(document.swagger2, document.auditSchema) {
+			t.Fatalf("OpenAPI %s audit ref=%q", document.path, reference)
+		}
+
+		auditSchema := requireOpenAPIObject(t, schemas, document.auditSchema, document.path)
+		auditProperties := requireOpenAPIObject(t, auditSchema, "properties", document.path)
+		for _, field := range []string{
+			"schema_version",
+			"audit_id",
+			"persistence_status",
+			"complete",
+			"event_count",
+			"relative_directory",
+			"events_path",
+			"summary_path",
+			"last_event_sha256",
+			"summary_sha256",
+		} {
+			if _, ok := auditProperties[field]; !ok {
+				t.Fatalf("OpenAPI %s audit reference is missing %q", document.path, field)
+			}
+		}
+		persistence := requireOpenAPIObject(t, auditProperties, "persistence_status", document.path)
+		persistenceValues, ok := persistence["enum"].([]any)
+		if !ok {
+			t.Fatalf("OpenAPI %s persistence_status enum=%#v", document.path, persistence["enum"])
+		}
+		for _, expected := range []string{"RECORDING", "COMPLETE", "DEGRADED"} {
+			if !containsOpenAPIEnum(persistenceValues, expected) {
+				t.Fatalf("OpenAPI %s persistence_status enum missing %q: %#v", document.path, expected, persistenceValues)
+			}
+		}
+
+		errorSchema := requireOpenAPIObject(t, schemas, document.errorSchema, document.path)
+		errorProperties := requireOpenAPIObject(t, errorSchema, "properties", document.path)
+		if _, unsafe := errorProperties["error"]; unsafe {
+			t.Fatalf("OpenAPI %s trusted error exposes an unbounded error string", document.path)
+		}
+		for _, field := range []string{"message", "error_code", "result"} {
+			if _, ok := errorProperties[field]; !ok {
+				t.Fatalf("OpenAPI %s trusted error is missing %q", document.path, field)
+			}
+		}
+		result := requireOpenAPIObject(t, errorProperties, "result", document.path)
+		if reference, _ := result["$ref"].(string); reference != responseRef {
+			t.Fatalf("OpenAPI %s trusted error result ref=%q, want %q", document.path, reference, responseRef)
+		}
+		errorCode := requireOpenAPIObject(t, errorProperties, "error_code", document.path)
+		errorValues, ok := errorCode["enum"].([]any)
+		if !ok || !containsOpenAPIEnum(errorValues, "AUDIT_PERSISTENCE_FAILED") {
+			t.Fatalf("OpenAPI %s error_code enum=%#v, missing AUDIT_PERSISTENCE_FAILED", document.path, errorCode["enum"])
+		}
+	}
+}
+
+func openAPISchemaRef(swagger2 bool, schema string) string {
+	if swagger2 {
+		return "#/definitions/" + schema
+	}
+	return "#/components/schemas/" + schema
+}
+
+func openAPISchemas(
+	t *testing.T,
+	document map[string]any,
+	swagger2 bool,
+	path string,
+) map[string]any {
+	t.Helper()
+	if swagger2 {
+		return requireOpenAPIObject(t, document, "definitions", path)
+	}
+	components := requireOpenAPIObject(t, document, "components", path)
+	return requireOpenAPIObject(t, components, "schemas", path)
+}
+
+func openAPIResponseSchemaRef(
+	t *testing.T,
+	responses map[string]any,
+	status string,
+	swagger2 bool,
+	path string,
+) string {
+	t.Helper()
+	response := requireOpenAPIObject(t, responses, status, path)
+	if swagger2 {
+		schema := requireOpenAPIObject(t, response, "schema", path)
+		reference, _ := schema["$ref"].(string)
+		return reference
+	}
+	content := requireOpenAPIObject(t, response, "content", path)
+	mediaType := requireOpenAPIObject(t, content, "application/json", path)
+	schema := requireOpenAPIObject(t, mediaType, "schema", path)
+	reference, _ := schema["$ref"].(string)
+	return reference
+}
+
+func requireOpenAPIObject(
+	t *testing.T,
+	parent map[string]any,
+	key string,
+	path string,
+) map[string]any {
+	t.Helper()
+	value, ok := parent[key].(map[string]any)
+	if !ok {
+		t.Fatalf("OpenAPI %s field %q=%#v is not an object", path, key, parent[key])
+	}
+	return value
+}
+
 func TestOpenAPIDocumentsRegistrySelectedDecisionAgent(t *testing.T) {
 	config := NewServerConfig()
 	documents := []string{

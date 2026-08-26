@@ -749,6 +749,18 @@ function renderAgentControlFlow(flow) {
   renderExperimentDetail(flow);
 }
 
+function renderExecutionAudit(audit) {
+  byID("execution-audit-id").textContent = text(audit?.audit_id);
+  const status = text(audit?.persistence_status);
+  const eventCount = Number.isInteger(audit?.event_count)
+    ? `${audit.event_count} events`
+    : "event 수 미확인";
+  byID("execution-audit-status").textContent = audit
+    ? `${status} · ${eventCount}`
+    : "-";
+  byID("execution-audit-path").textContent = text(audit?.summary_path);
+}
+
 function renderAutomationRun(run, trustedResult = null) {
   state.activeAutomationRun = run || null;
   state.activeTrustedResult = trustedResult || null;
@@ -762,6 +774,7 @@ function renderAutomationRun(run, trustedResult = null) {
 	  trustedResult?.status,
 	  "WAITING",
 	);
+	renderExecutionAudit(trustedResult?.audit);
 	byID("automation-application-profile-json").textContent =
 	  "아직 생성되지 않았습니다.";
 	byID("automation-resource-recommendation-json").textContent =
@@ -783,6 +796,7 @@ function renderAutomationRun(run, trustedResult = null) {
 	byID("llmop-safeguard-status").textContent = text(
 	  trustedResult?.safeguard?.status,
 	);
+	renderExecutionAudit(trustedResult?.audit);
   byID("agent-control-flow-id").textContent =
     flow?.correlation_id || run.correlation_id || run.run_id;
   byID("agent-control-status").textContent = text(
@@ -805,6 +819,7 @@ function renderAutomationRun(run, trustedResult = null) {
   byID("agent-control-result-json").textContent = pretty({
 	llm_op_safeguard: trustedResult?.safeguard,
 	trusted_orchestration_status: trustedResult?.status,
+	execution_audit: trustedResult?.audit,
     run_id: run.run_id,
     correlation_id: run.correlation_id,
     trace_id: run.trace_id,
@@ -849,7 +864,8 @@ async function submitAutomationRun(event) {
 	  byID("agent-control-status").textContent = text(trustedResult.status);
 	  byID("agent-control-result-json").textContent = pretty(trustedResult);
 	  const safeguardStatus = text(trustedResult.safeguard?.status, trustedResult.status);
-	  completion.textContent = `Safeguard 중단 · ${safeguardStatus}`;
+	  const auditID = text(trustedResult.audit?.audit_id, "증적 없음");
+	  completion.textContent = `Safeguard 중단 · ${safeguardStatus} · ${auditID}`;
 	  completion.hidden = false;
 	  showToast(completion.textContent, "warning");
 	  return;
@@ -865,13 +881,16 @@ async function submitAutomationRun(event) {
       action === "DEPLOY"
         ? "Revision 1 생성 완료"
         : `배포 판단 완료 · ${text(action)}`;
-    completion.textContent = `Safeguard 승인 · ${completionLabel} · ${flowID}`;
+	const auditID = text(trustedResult.audit?.audit_id, "증적 없음");
+	completion.textContent = `Safeguard 승인 · ${completionLabel} · ${flowID} · ${auditID}`;
     completion.hidden = false;
     showToast(
-      `Safeguard 승인 · ${completionLabel} · ${flowID}`,
+	  `Safeguard 승인 · ${completionLabel} · ${flowID} · ${auditID}`,
       action === "DEPLOY" ? "success" : "warning",
     );
   } catch (error) {
+	const failedResult = error.payload?.result || null;
+	renderAutomationRun(null, failedResult);
     byID("agent-control-result-json").textContent = pretty(
       error.payload || { message: error.message },
     );

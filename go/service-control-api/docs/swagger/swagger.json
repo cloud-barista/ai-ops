@@ -461,17 +461,23 @@
                     "200": {
                         "description": "Safeguard or geon terminal decision",
                         "schema": {
-                            "$ref": "#/definitions/trustedorchestration.Result"
+                            "$ref": "#/definitions/api.TrustedAutomationRunResponse"
                         }
                     },
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/trustedorchestration.Result"
+                            "$ref": "#/definitions/api.TrustedAutomationRunResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.TrustedAutomationRunErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Required execution evidence could not be persisted",
                         "schema": {
                             "$ref": "#/definitions/api.TrustedAutomationRunErrorResponse"
                         }
@@ -3424,6 +3430,60 @@
                 }
             }
         },
+        "audittrail.Reference": {
+            "type": "object",
+            "required": [
+                "schema_version",
+                "audit_id",
+                "persistence_status",
+                "complete",
+                "event_count"
+            ],
+            "properties": {
+                "audit_id": {
+                    "type": "string",
+                    "pattern": "^audit-[a-f0-9]{24}$"
+                },
+                "complete": {
+                    "type": "boolean"
+                },
+                "event_count": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "events_path": {
+                    "type": "string"
+                },
+                "last_event_sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                },
+                "persistence_status": {
+                    "type": "string",
+                    "enum": [
+                        "RECORDING",
+                        "COMPLETE",
+                        "DEGRADED"
+                    ]
+                },
+                "relative_directory": {
+                    "type": "string"
+                },
+                "schema_version": {
+                    "type": "string",
+                    "enum": [
+                        "ai-ops.trusted-automation-audit/v1"
+                    ]
+                },
+                "summary_path": {
+                    "type": "string"
+                },
+                "summary_sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                }
+            }
+        },
         "api.AgentControlReasoningComparisonRequest": {
             "type": "object",
             "required": [
@@ -4564,15 +4624,27 @@
         },
         "api.TrustedAutomationRunErrorResponse": {
             "type": "object",
+            "required": [
+                "message",
+                "error_code",
+                "result"
+            ],
             "properties": {
-                "error": {
-                    "type": "string"
+                "error_code": {
+                    "type": "string",
+                    "enum": [
+                        "AUDIT_PERSISTENCE_FAILED",
+                        "AUDIT_IDENTITY_MISMATCH",
+                        "REQUEST_CANCELED",
+                        "REQUEST_DEADLINE_EXCEEDED",
+                        "TRUSTED_AUTOMATION_FAILED"
+                    ]
                 },
                 "message": {
                     "type": "string"
                 },
                 "result": {
-                    "$ref": "#/definitions/trustedorchestration.Result"
+                    "$ref": "#/definitions/api.TrustedAutomationRunResponse"
                 }
             }
         },
@@ -4592,6 +4664,40 @@
                 },
                 "input": {
                     "$ref": "#/definitions/agentcontrol.AutomationRunInput"
+                }
+            }
+        },
+        "api.TrustedAutomationRunResponse": {
+            "type": "object",
+            "required": [
+                "status",
+                "safeguard",
+                "audit"
+            ],
+            "properties": {
+                "approved_projection": {
+                    "$ref": "#/definitions/llmopbridge.ApprovedInitialFlowProjection"
+                },
+                "audit": {
+                    "$ref": "#/definitions/audittrail.Reference"
+                },
+                "automation_run": {
+                    "$ref": "#/definitions/agentcontrol.AutomationRun"
+                },
+                "idempotent_replay": {
+                    "type": "boolean"
+                },
+                "safeguard": {
+                    "$ref": "#/definitions/llmop.SafeguardStageResult"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "APPROVED_FLOW_READY",
+                        "SAFEGUARD_STOPPED",
+                        "GEON_REJECTED",
+                        "ERROR"
+                    ]
                 }
             }
         },
@@ -5947,26 +6053,6 @@
                 },
                 "valid": {
                     "type": "boolean"
-                }
-            }
-        },
-        "trustedorchestration.Result": {
-            "type": "object",
-            "properties": {
-                "approved_projection": {
-                    "$ref": "#/definitions/llmopbridge.ApprovedInitialFlowProjection"
-                },
-                "automation_run": {
-                    "$ref": "#/definitions/agentcontrol.AutomationRun"
-                },
-                "idempotent_replay": {
-                    "type": "boolean"
-                },
-                "safeguard": {
-                    "$ref": "#/definitions/llmop.SafeguardStageResult"
-                },
-                "status": {
-                    "type": "string"
                 }
             }
         }

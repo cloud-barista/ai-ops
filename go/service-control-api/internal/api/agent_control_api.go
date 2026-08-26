@@ -71,7 +71,14 @@ type AgentControlReasoningComparisonRequest struct {
 // @Router /api/v1/agent-control/automation-runs/{run_id} [get]
 func (handler restHandler) RestGetAutomationRun(context echo.Context) error {
 	runID := context.Param("run_id")
-	run, ok := handler.service.automationRunner.Get(runID)
+	var run agentcontrol.AutomationRun
+	ok := false
+	if handler.service.automationRunner != nil {
+		run, ok = handler.service.automationRunner.Get(runID)
+	}
+	if !ok && handler.service.trustedAutomationRunner != nil {
+		run, ok = handler.service.trustedAutomationRunner.Get(runID)
+	}
 	if !ok {
 		return jsonError(
 			context,

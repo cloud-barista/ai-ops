@@ -4,15 +4,19 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/rs/zerolog/log"
 
 	"kyunghee-aiops/service-control-api/internal/agentcontrol"
+	"kyunghee-aiops/service-control-api/internal/audittrail"
 	"kyunghee-aiops/service-control-api/internal/llmop"
+	"kyunghee-aiops/service-control-api/internal/llmopbridge"
 	"kyunghee-aiops/service-control-api/internal/trustedorchestration"
 )
 
@@ -23,9 +27,18 @@ type TrustedAutomationRunRequest struct {
 }
 
 type TrustedAutomationRunErrorResponse struct {
-	Message string                      `json:"message"`
-	Error   string                      `json:"error"`
-	Result  trustedorchestration.Result `json:"result"`
+	Message   string                       `json:"message"`
+	ErrorCode string                       `json:"error_code"`
+	Result    TrustedAutomationRunResponse `json:"result"`
+}
+
+type TrustedAutomationRunResponse struct {
+	Status             string                                     `json:"status"`
+	Safeguard          llmop.SafeguardStageResult                 `json:"safeguard"`
+	AutomationRun      *agentcontrol.AutomationRun                `json:"automation_run,omitempty"`
+	IdempotentReplay   bool                                       `json:"idempotent_replay,omitempty"`
+	ApprovedProjection *llmopbridge.ApprovedInitialFlowProjection `json:"approved_projection,omitempty"`
+	Audit              audittrail.Reference                       `json:"audit"`
 }
 
 // RestPostTrustedAutomationRun godoc
@@ -36,26 +49,55 @@ type TrustedAutomationRunErrorResponse struct {
 // @Accept json
 // @Produce json
 // @Param request body TrustedAutomationRunRequest true "Guard-first automation request"
-// @Success 201 {object} trustedorchestration.Result
-// @Success 200 {object} trustedorchestration.Result "Safeguard or geon terminal decision"
+// @Success 201 {object} TrustedAutomationRunResponse
+// @Success 200 {object} TrustedAutomationRunResponse "Safeguard or geon terminal decision"
 // @Failure 400 {object} TrustedAutomationRunErrorResponse
+// @Failure 500 {object} TrustedAutomationRunErrorResponse
 // @Router /api/v1/agent-control/trusted-automation-runs [post]
 func (handler restHandler) RestPostTrustedAutomationRun(context echo.Context) error {
 	var request TrustedAutomationRunRequest
-	if message, err := bindAndValidate(context, &request); err != nil {
-		return jsonError(context, http.StatusBadRequest, message, err)
+	if _, err := bindAndValidate(context, &request); err != nil {
+		result := TrustedAutomationRunResponse{
+			Status: "ERROR",
+			Audit:  degradedAuditReference(),
+		}
+		log.Warn().
+			Str("error_code", "TRUSTED_AUTOMATION_FAILED").
+			Str("audit_id", result.Audit.AuditID).
+			Msg("trusted automation request binding failed")
+		return context.JSON(http.StatusBadRequest, TrustedAutomationRunErrorResponse{
+			Message:   "Guard-first automation request could not be bound",
+			ErrorCode: "TRUSTED_AUTOMATION_FAILED",
+			Result:    result,
+		})
 	}
 	result, err := handler.service.RunTrustedAutomation(
 		context.Request().Context(),
 		request,
 	)
 	if err != nil {
-		return context.JSON(http.StatusBadRequest, TrustedAutomationRunErrorResponse{
+		status := http.StatusBadRequest
+		if errors.Is(err, audittrail.ErrPersistence) {
+			status = http.StatusInternalServerError
+		}
+		log.Error().
+			Str("error_code", trustedAutomationErrorCode(err)).
+			Str("audit_id", result.Audit.AuditID).
+			Str("audit_persistence_status", result.Audit.PersistenceStatus).
+			Str("correlation_id", result.Safeguard.CorrelationID).
+			Msg("trusted automation request failed")
+		return context.JSON(status, TrustedAutomationRunErrorResponse{
 			Message: "Guard-first automation request could not be processed",
-			Error:   err.Error(),
-			Result:  result,
+			ErrorCode: trustedAutomationErrorCode(err),
+			Result:    result,
 		})
 	}
+	log.Info().
+		Str("audit_id", result.Audit.AuditID).
+		Str("audit_persistence_status", result.Audit.PersistenceStatus).
+		Str("correlation_id", result.Safeguard.CorrelationID).
+		Str("status", result.Status).
+		Msg("trusted automation request completed")
 	if result.Status == trustedorchestration.StatusApprovedFlowReady {
 		return context.JSON(http.StatusCreated, result)
 	}
@@ -65,15 +107,137 @@ func (handler restHandler) RestPostTrustedAutomationRun(context echo.Context) er
 func (service Service) RunTrustedAutomation(
 	ctx context.Context,
 	request TrustedAutomationRunRequest,
-) (trustedorchestration.Result, error) {
+) (TrustedAutomationRunResponse, error) {
+	startedAt := time.Now().UTC()
+	response := TrustedAutomationRunResponse{
+		Status: "ERROR",
+		Audit:  degradedAuditReference(),
+	}
+	requestSummary, err := buildTrustedAuditRequestSummary(request)
+	if err != nil {
+		return response, err
+	}
+	var session *audittrail.Session
+	if service.trustedAuditStore != nil {
+		var reference audittrail.Reference
+		session, reference, err = service.trustedAuditStore.Start(audittrail.StartMetadata{
+			StartedAt: startedAt,
+			Request:   requestSummary,
+		})
+		response.Audit = reference
+	} else {
+		err = fmt.Errorf("%w: audit store is not configured", audittrail.ErrPersistence)
+	}
+	if err != nil && service.trustedAuditRequired {
+		return response, err
+	}
+	var recorder audittrail.Recorder
+	if session != nil {
+		recorder = session
+		if !service.trustedAuditRequired {
+			recorder = audittrail.BestEffort(recorder)
+		}
+	}
+	finishAudit := func(
+		result trustedorchestration.Result,
+		runErr error,
+		failureStage string,
+	) error {
+		if session == nil {
+			return nil
+		}
+		reference, finalizeErr := finalizeTrustedAudit(
+			session,
+			result,
+			runErr,
+			failureStage,
+			time.Now().UTC(),
+		)
+		response.Audit = reference
+		if finalizeErr != nil && service.trustedAuditRequired {
+			return finalizeErr
+		}
+		return nil
+	}
 	if service.trustedOrchestration == nil {
-		return trustedorchestration.Result{}, fmt.Errorf("trusted orchestration is not configured")
+		runErr := fmt.Errorf("trusted orchestration is not configured")
+		if finalizeErr := finishAudit(trustedorchestration.Result{}, runErr, "configuration"); finalizeErr != nil {
+			return response, finalizeErr
+		}
+		return response, runErr
 	}
 	input, err := buildTrustedOrchestrationInput(request)
 	if err != nil {
-		return trustedorchestration.Result{}, err
+		if recorder != nil {
+			if recordErr := recorder.Record(audittrail.Event{
+				Stage:     audittrail.StageRequest,
+				Action:    "request_binding_completed",
+				Outcome:   "rejected",
+				ErrorCode: "REQUEST_BINDING_REJECTED",
+			}); recordErr != nil {
+				if finalizeErr := finishAudit(trustedorchestration.Result{}, recordErr, "audit_persistence"); finalizeErr != nil {
+					return response, finalizeErr
+				}
+				return response, recordErr
+			}
+		}
+		if finalizeErr := finishAudit(trustedorchestration.Result{}, err, "request_binding"); finalizeErr != nil {
+			return response, finalizeErr
+		}
+		return response, err
 	}
-	return service.trustedOrchestration.RunApprovedFlow(ctx, input)
+	if recorder != nil {
+		if err := recorder.BindIdentity(trustedAuditInputIdentity(input)); err != nil {
+			if finalizeErr := finishAudit(trustedorchestration.Result{}, err, "request_binding"); finalizeErr != nil {
+				return response, finalizeErr
+			}
+			return response, err
+		}
+		inputDigest, digestErr := audittrail.DigestJSON(input)
+		if digestErr != nil {
+			if finalizeErr := finishAudit(trustedorchestration.Result{}, digestErr, "request_binding"); finalizeErr != nil {
+				return response, finalizeErr
+			}
+			return response, digestErr
+		}
+		if err := recorder.Record(audittrail.Event{
+			Stage:   audittrail.StageRequest,
+			Action:  "request_binding_completed",
+			Outcome: "bound",
+			Evidence: audittrail.Evidence{
+				InputSHA256: inputDigest,
+			},
+		}); err != nil {
+			if finalizeErr := finishAudit(trustedorchestration.Result{}, err, "audit_persistence"); finalizeErr != nil {
+				return response, finalizeErr
+			}
+			return response, err
+		}
+		ctx = audittrail.WithRecorder(ctx, recorder)
+	}
+	result, runErr := service.trustedOrchestration.RunApprovedFlow(ctx, input)
+	if result.Status != "" {
+		response.Status = result.Status
+	}
+	response.Safeguard = result.Safeguard
+	response.AutomationRun = result.AutomationRun
+	response.IdempotentReplay = result.IdempotentReplay
+	response.ApprovedProjection = result.ApprovedProjection
+	if recorder != nil {
+		if result.AutomationRun != nil {
+			if bindErr := recorder.BindIdentity(audittrail.Identity{
+				CorrelationID: result.AutomationRun.CorrelationID,
+				TraceID:       result.AutomationRun.TraceID,
+				RunID:         result.AutomationRun.RunID,
+			}); bindErr != nil && runErr == nil {
+				runErr = bindErr
+			}
+		}
+		if finalizeErr := finishAudit(result, runErr, "trusted_orchestration"); finalizeErr != nil {
+			return response, finalizeErr
+		}
+	}
+	return response, runErr
 }
 
 func buildTrustedOrchestrationInput(

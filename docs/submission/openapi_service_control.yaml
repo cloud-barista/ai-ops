@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: AI Service Control API
-  version: "0.5.0"
+  version: "0.6.0"
   description: >
     Go Echo contract for the KHU AI application automation Agent. The core flow
     joins ApplicationProfile and ResourceRecommendation messages, authorizes the
@@ -103,7 +103,17 @@ paths:
               schema:
                 $ref: "#/components/schemas/TrustedAutomationRunResult"
         "400":
-          $ref: "#/components/responses/BadRequest"
+          description: Request binding, Safeguard, or geon processing failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrustedAutomationRunErrorResponse"
+        "500":
+          description: Required execution evidence could not be persisted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrustedAutomationRunErrorResponse"
   /api/v1/agent-control/automation-runs/{run_id}:
     get:
       operationId: GetAgentControlAutomationRun
@@ -1028,16 +1038,52 @@ components:
           $ref: "#/components/schemas/AutomationRunInput"
     TrustedAutomationRunResult:
       type: object
-      required: [status, safeguard]
+      required: [status, safeguard, audit]
       properties:
         status:
           type: string
-          enum: [APPROVED_FLOW_READY, SAFEGUARD_STOPPED, FLOW_STOPPED]
+          enum: [APPROVED_FLOW_READY, SAFEGUARD_STOPPED, GEON_REJECTED, ERROR]
         safeguard:
           type: object
           additionalProperties: true
         automation_run:
           $ref: "#/components/schemas/AutomationRun"
+        idempotent_replay: {type: boolean}
+        audit:
+          $ref: "#/components/schemas/ExecutionAuditReference"
+    TrustedAutomationRunErrorResponse:
+      type: object
+      required: [message, error_code, result]
+      properties:
+        message: {type: string}
+        error_code:
+          type: string
+          enum:
+            - AUDIT_PERSISTENCE_FAILED
+            - AUDIT_IDENTITY_MISMATCH
+            - REQUEST_CANCELED
+            - REQUEST_DEADLINE_EXCEEDED
+            - TRUSTED_AUTOMATION_FAILED
+        result:
+          $ref: "#/components/schemas/TrustedAutomationRunResult"
+    ExecutionAuditReference:
+      type: object
+      required: [schema_version, audit_id, persistence_status, complete, event_count]
+      properties:
+        schema_version:
+          type: string
+          enum: [ai-ops.trusted-automation-audit/v1]
+        audit_id: {type: string, pattern: '^audit-[a-f0-9]{24}$'}
+        persistence_status:
+          type: string
+          enum: [RECORDING, COMPLETE, DEGRADED]
+        complete: {type: boolean}
+        event_count: {type: integer, minimum: 0}
+        relative_directory: {type: string}
+        events_path: {type: string}
+        summary_path: {type: string}
+        last_event_sha256: {type: string, pattern: '^[a-f0-9]{64}$'}
+        summary_sha256: {type: string, pattern: '^[a-f0-9]{64}$'}
     AutomationRunInput:
       type: object
       required: [input_type]

@@ -51,6 +51,16 @@ LLM_Op의 별도 수동 시연은 현재 `LLM_Op`과 geon 최신화 통합 브�
 
 신뢰된 단일 프로세스 연결은 `internal/trustedorchestration`이 `ReviewWithConfig → AutomationRunner.RunAnalysisRequest` 순서를 강제한다. 웹 기본 경로는 여기서 canonical Revision 1을 반환하며 AppDeploy에 제출하지 않는다. 선택적인 후속 통합 경로만 `ProjectApprovedInitialFlow`로 prepare-only 요청을 투영한다. allow 이외 결과와 불완전한 continuation은 geon 실행 전에 종료된다.
 
+각 trusted automation attempt는 분석 가능한 실행 증적을 다음처럼 저장한다.
+
+```text
+runs/trusted-automation/YYYY-MM-DD/audit-<opaque-id>/
+├── events.jsonl  # request → Safeguard → geon → terminal 순서와 SHA-256 chain
+└── summary.json  # identity, 요청 digest, timeline, 최종 결과, 실패 code, 파일 reference
+```
+
+API와 웹 결과에는 `audit_id`, `persistence_status`, event 수, 상대 `summary_path`가 표시된다. 사용자 요청·prompt·completion·provider 오류 원문은 저장하지 않고 typed allowlist와 digest만 남긴다. 기본 `AIOPS_EXECUTION_AUDIT_REQUIRED=true`는 최초 증적을 만들 수 없으면 geon 실행 전에 중단한다. 개발용 `false`에서는 실행 결과와 함께 `DEGRADED`, `complete=false`를 명시한다. 상세 형식과 검증법은 [Trusted Automation 실행 감사 증적 계약](../../docs/llm-op/09-execution-audit-evidence.md)을 따른다.
+
 ```bash
 go test ./internal/llmop ./internal/llmopbridge ./internal/trustedorchestration -count=1
 ```
@@ -74,6 +84,8 @@ AIOPS_BIND_ADDRESS=127.0.0.1
 AIOPS_DEPLOYMENT_ADAPTER=mock
 AIOPS_LLM_CANDIDATES_PATH=config/ops_llm_eval_candidates.local_ollama.json
 AIOPS_LLMOP_ALLOW_LIVE_COMPLETION=true
+AIOPS_EXECUTION_AUDIT_DIR=runs/trusted-automation
+AIOPS_EXECUTION_AUDIT_REQUIRED=true
 PORT=18080
 ```
 
@@ -261,6 +273,8 @@ curl -s -X POST http://127.0.0.1:18080/api/v1/agent-control/trusted-automation-r
 ```
 
 구조화 입력은 `input_type`을 `structured`로 지정하고 `app_spec`에 CPU, 메모리, 스토리지, GPU 요구량을 전달합니다.
+
+성공·Safeguard 중단·geon 거부 응답 모두 `audit` reference를 포함한다. `GET /api/v1/agent-control/automation-runs/{run_id}`는 trusted 경로에서 생성한 run도 조회한다. 파일 자체는 HTTP로 공개하지 않으며 서버 운영자가 응답의 상대 `summary_path`를 audit root와 결합해 확인한다.
 
 ### 고급 Common JSON 검증
 
