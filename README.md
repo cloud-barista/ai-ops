@@ -7,6 +7,8 @@
 
 ## 프로젝트 역할
 
+외부 입력 수신 → geon 판단 → AppDeployer 전송·상태 조회는 [연동 실행 안내](docs/coordination/geon-appdeploy-integration.md)를 참고하세요. 기본 실행은 Mock이며, 실제 전송은 별도 활성화가 필요합니다.
+
 `geon`은 자연어 요청 또는 구조화된 App Spec을 받아 다음 과정을 한 번에 실행합니다.
 
 ```text

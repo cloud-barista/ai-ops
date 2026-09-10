@@ -114,6 +114,10 @@ func NewServer(config ServerConfig) *echo.Echo {
 		handler.RestPostApplicationAnalysisRequest,
 	)
 	server.POST(pathAgentControl+"/application-contexts", handler.RestPostApplicationContext)
+	server.POST(pathAgentControl+"/external-flows", handler.RestPostExternalFlow)
+	server.GET(pathAgentControl+"/integration", handler.RestGetFlowIntegration)
+	server.POST(pathAgentControl+"/flows/:correlation_id/appdeploy/:action", handler.RestPostFlowDelivery)
+	server.GET(pathAgentControl+"/flows/:correlation_id/appdeploy", handler.RestGetFlowDelivery)
 	server.POST(pathAgentControl+"/resource-recommendations", handler.RestPostResourceRecommendation)
 	server.POST(
 		pathAgentControl+"/trusted-automation-runs",

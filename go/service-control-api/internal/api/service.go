@@ -38,6 +38,7 @@ type Service struct {
 	automationRunner        *agentcontrol.AutomationRunner
 	trustedAutomationRunner *agentcontrol.AutomationRunner
 	trustedOrchestration    trustedFlowOrchestrator
+	flowDelivery            *flowDeliveryStore
 }
 
 func NewService(config ServerConfig) Service {
@@ -83,6 +84,7 @@ func NewService(config ServerConfig) Service {
 		agentcontrol.MockDeploymentAdapter{},
 	)
 	service := Service{
+		flowDelivery:            &flowDeliveryStore{},
 		config:                  config,
 		runtimeAgents:           runtimeAgents,
 		automationFeedback:      newAutomationFeedbackStore(),

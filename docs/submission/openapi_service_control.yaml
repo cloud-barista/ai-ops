@@ -14,6 +14,79 @@ info:
 servers:
   - url: http://127.0.0.1:18080
 paths:
+  /api/v1/agent-control/external-flows:
+    post:
+      summary: Validate and join an external input pair atomically
+      description: Matching correlation_id, trace_id and profile_id are required. Identical replays return the existing Flow; conflicting reuse is rejected.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [application_context, resource_recommendation]
+              properties:
+                application_context: {$ref: '#/components/schemas/ApplicationContextEnvelope'}
+                resource_recommendation: {$ref: '#/components/schemas/ResourceRecommendationEnvelope'}
+                decision_agent: {type: string}
+      responses:
+        '202':
+          description: Joined Flow and guarded Agent decision
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AgentControlFlow'}
+        '400': {description: Invalid or conflicting external pair}
+  /api/v1/agent-control/integration:
+    get:
+      summary: Inspect configured AppDeployer integration
+      responses:
+        '200':
+          description: Availability without exposing destination credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  configured: {type: boolean}
+                  submit_enabled: {type: boolean}
+                  external_input_path: {type: string}
+  /api/v1/agent-control/flows/{correlation_id}/appdeploy/{action}:
+    post:
+      summary: Prepare or explicitly submit approved initial Revision 1
+      description: Requires an App Registry identity match. Only one node and one replica are supported. Registered AppSpec settings and AppDeployer placement are used; inference settings and GPU VRAM minima are not enforced. Submission attempts are journaled and uncertain results are not automatically retried.
+      parameters:
+        - {name: correlation_id, in: path, required: true, schema: {type: string}}
+        - {name: action, in: path, required: true, schema: {type: string, enum: [prepare, submit]}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [app_version_id]
+              properties:
+                app_version_id: {type: string}
+                accept_projection_limits: {type: boolean, description: Must be true for submission}
+      responses:
+        '200':
+          description: Prepared request or durable delivery receipt
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/FlowDelivery'}
+        '400': {description: Invalid request}
+        '409': {description: Submission disabled, invalid binding, unapproved Flow or unconfirmed upstream response}
+  /api/v1/agent-control/flows/{correlation_id}/appdeploy:
+    get:
+      summary: Query real deployment state and raw metrics for a recorded delivery
+      parameters:
+        - {name: correlation_id, in: path, required: true, schema: {type: string}}
+      responses:
+        '200':
+          description: Receipt with status and available metrics; no synthetic optimization feedback
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/FlowDelivery'}
+        '409': {description: Missing receipt, changed destination or upstream query failure}
   /healthz:
     get:
       summary: Check service health
@@ -1550,6 +1623,21 @@ components:
             count: {type: integer, minimum: 0}
             memory_mib_min_per_device: {type: integer, minimum: 0}
         isolation: {type: string}
+    FlowDelivery:
+      type: object
+      properties:
+        correlation_id: {type: string}
+        decision_id: {type: string}
+        revision: {type: integer, enum: [1]}
+        status: {type: string, enum: [PREPARED, SUBMISSION_UNKNOWN, SUBMITTED]}
+        manifest_sha256: {type: string}
+        destination_sha256: {type: string}
+        request: {type: object, additionalProperties: true}
+        deployment: {type: object, additionalProperties: true}
+        metrics: {type: object, additionalProperties: true}
+        limitations: {type: array, items: {type: string}}
+        flow: {$ref: '#/components/schemas/AgentControlFlow'}
+        updated_at: {type: string, format: date-time}
     AgentControlFlow:
       type: object
       required: [correlation_id, trace_id, state, updated_at]

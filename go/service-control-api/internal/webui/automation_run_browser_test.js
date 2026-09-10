@@ -575,6 +575,45 @@ test("full Flow record is separated from Manifest output and collapsed by defaul
   }
 });
 
+test("agent control identifies the exact Manifest outputs and full Flow record", async () => {
+  const { browser, page, consoleErrors } = await browserPage();
+  try {
+    assert.equal(await page.getByText("One-shot Agent Run", { exact: true }).count(), 0);
+    await page.locator("#automation-run-submit").click();
+    await page.waitForFunction(() => (
+      document.getElementById("manifest-initial-status").textContent.includes("Revision 1")
+    ));
+
+    const record = page.locator("#agent-control-flow-record");
+    assert.equal(await record.count(), 1);
+    assert.equal(await record.isVisible(), true);
+    assert.match(await record.getByRole("heading").textContent(), /전체 Flow 실행 기록/);
+    assert.doesNotMatch(await record.textContent(), /Manifest 아님/);
+    assert.match(await record.textContent(), /Manifest를 포함한 전체 처리 과정 기록/);
+    assert.match(await record.textContent(), /배포용 Manifest는 위 Revision 창/);
+    assert.match(
+      await page.locator("#manifest-initial-stage").textContent(),
+      /초기 DeploymentManifest · Revision 1/,
+    );
+    assert.match(
+      await page.locator("#manifest-initial-stage").textContent(),
+      /배포 판단 후 생성된 실제 전달용 Manifest JSON/,
+    );
+    assert.match(
+      await page.locator("#manifest-optimized-stage").textContent(),
+      /최적화 DeploymentManifest · Revision 2/,
+    );
+    assert.match(
+      await page.locator("#manifest-optimized-stage").textContent(),
+      /운영 Feedback과 스케일링 판단을 반영한 실제 Manifest JSON/,
+    );
+    assert.match(await page.locator("#agent-control-result-json").textContent(), /flow-web-001/);
+    assert.deepEqual(consoleErrors, []);
+  } finally {
+    await browser.close();
+  }
+});
+
 test("manifest and feedback controls never overlap with long experiment values", async () => {
   for (const viewport of [{ width: 1280, height: 900 }, { width: 390, height: 844 }]) {
     const { browser, page, consoleErrors } = await browserPage(viewport);

@@ -18,6 +18,8 @@ type ServerConfig struct {
 	ResourceCatalogPath      string
 	PlannerGuardPolicyPath   string
 	AppDeployBaseURL         string
+	AppDeploySubmitEnabled   bool
+	AppDeployDeliveryDir     string
 	DeploymentAdapterMode    string
 	AppUploadMaxBytes        int64
 	BindAddress              string
@@ -87,6 +89,8 @@ func NewServerConfig() ServerConfig {
 		ResourceCatalogPath:      resourceCatalogPath,
 		PlannerGuardPolicyPath:   plannerGuardPolicyPath,
 		AppDeployBaseURL:         viper.GetString("APPDEPLOY_BASE_URL"),
+		AppDeploySubmitEnabled:   viper.GetBool("APPDEPLOY_SUBMIT_ENABLED"),
+		AppDeployDeliveryDir:     viper.GetString("APPDEPLOY_DELIVERY_DIR"),
 		DeploymentAdapterMode:    deploymentAdapterMode,
 		AppUploadMaxBytes:        appUploadMaxBytes,
 		BindAddress:              bindAddress,

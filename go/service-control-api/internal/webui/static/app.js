@@ -621,6 +621,7 @@ function syncFeedbackControls(flow) {
 
 function renderExperimentDetail(flow) {
   syncFeedbackControls(flow);
+  window.renderFlowDelivery?.(flow);
   if (!flow) {
     byID("experiment-agent-summary").textContent = "Flow를 선택하세요.";
     byID("experiment-decision-summary").textContent = "Flow를 선택하세요.";
@@ -910,13 +911,9 @@ async function submitProtocolFlow(event) {
     );
     validateJoinedInputs(applicationContext, resourceRecommendation);
 
-    await apiRequest(API.applicationContexts, {
+    const flow = await apiRequest("/api/v1/agent-control/external-flows", {
       method: "POST",
-      body: JSON.stringify(applicationContext),
-    });
-    const flow = await apiRequest(API.resourceRecommendations, {
-      method: "POST",
-      body: JSON.stringify(resourceRecommendation),
+      body: JSON.stringify({ application_context: applicationContext, resource_recommendation: resourceRecommendation, decision_agent: byID("decision-agent-select").value }),
     });
     upsertFlow(flow);
     renderAgentControlFlow(flow);
@@ -1414,6 +1411,12 @@ function loadFeedbackSamples(flow = activeFlow()) {
   if (!selectedFlow?.correlation_id) {
     byID("deployment-status-json").value = "";
     byID("optimization-feedback-json").value = "";
+    return;
+  }
+  if (selectedFlow.deployment_status?.source?.system === "appdeployer") {
+    byID("deployment-status-json").value = pretty(selectedFlow.deployment_status);
+    byID("optimization-feedback-json").value = selectedFlow.optimization_feedback ? pretty(selectedFlow.optimization_feedback) : "";
+    byID("optimization-feedback-json").placeholder = "실측 optimization.feedback.created JSON";
     return;
   }
   const samples = buildFeedbackSamples(selectedFlow);

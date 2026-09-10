@@ -183,6 +183,45 @@
                 }
             }
         },
+        "/api/v1/agent-control/external-flows": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "Receive analyzed external inputs atomically",
+                "parameters": [
+                    {
+                        "description": "Matching Common JSON input pair",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.ExternalFlowRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.Flow"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/agent-control/flows": {
             "get": {
                 "description": "Return Application Context and Resource Recommendation correlation flows.",
@@ -296,6 +335,94 @@
                 }
             }
         },
+        "/api/v1/agent-control/flows/{correlation_id}/appdeploy": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "Refresh the recorded AppDeployer deployment and attach its status to the same Flow",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Flow ID",
+                        "name": "correlation_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.FlowDelivery"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agent-control/flows/{correlation_id}/appdeploy/{action}": {
+            "post": {
+                "description": "Server configuration enables submission. Requests are constructed from stored approved Revision 1 and an authoritative App Registry match. Attempts are persisted before POST; uncertain attempts are never automatically retried.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "Prepare or submit an approved initial Flow to AppDeployer",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Flow ID",
+                        "name": "correlation_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "prepare or submit",
+                        "name": "action",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Registered app version",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.FlowDeliveryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.FlowDelivery"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/agent-control/flows/{correlation_id}/reasoning-comparisons": {
             "post": {
                 "description": "Compare the deterministic rule-based decision, the raw Qwen proposal, and the same proposal after Go Guard validation.",
@@ -339,6 +466,26 @@
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agent-control/integration": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Application Automation Agent"
+                ],
+                "summary": "Get AppDeployer integration availability",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 }
@@ -4071,6 +4218,78 @@
                 }
             }
         },
+        "api.ExternalFlowRequest": {
+            "type": "object",
+            "properties": {
+                "application_context": {
+                    "$ref": "#/definitions/agentcontrol.ApplicationContextEnvelope"
+                },
+                "decision_agent": {
+                    "type": "string"
+                },
+                "resource_recommendation": {
+                    "$ref": "#/definitions/agentcontrol.ResourceRecommendationEnvelope"
+                }
+            }
+        },
+        "api.FlowDelivery": {
+            "type": "object",
+            "properties": {
+                "correlation_id": {
+                    "type": "string"
+                },
+                "decision_id": {
+                    "type": "string"
+                },
+                "deployment": {
+                    "$ref": "#/definitions/appdeploy.DeploymentResponse"
+                },
+                "destination_sha256": {
+                    "type": "string"
+                },
+                "flow": {
+                    "$ref": "#/definitions/agentcontrol.Flow"
+                },
+                "limitations": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "manifest_sha256": {
+                    "type": "string"
+                },
+                "metrics": {
+                    "$ref": "#/definitions/appdeploy.DeploymentMetricsResponse"
+                },
+                "request": {
+                    "$ref": "#/definitions/appdeploy.DeploymentCreateRequest"
+                },
+                "revision": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.FlowDeliveryRequest": {
+            "type": "object",
+            "required": [
+                "app_version_id"
+            ],
+            "properties": {
+                "accept_projection_limits": {
+                    "type": "boolean"
+                },
+                "app_version_id": {
+                    "type": "string"
+                }
+            }
+        },
         "api.GuardDecision": {
             "type": "object",
             "properties": {
@@ -4809,6 +5028,14 @@
                 }
             }
         },
+        "appdeploy.DeploymentCreateRequest": {
+            "type": "object",
+            "properties": {
+                "manifest": {
+                    "$ref": "#/definitions/appdeploy.DeploymentManifest"
+                }
+            }
+        },
         "appdeploy.DeploymentLog": {
             "type": "object",
             "properties": {
@@ -4859,6 +5086,26 @@
             "type": "object",
             "properties": {
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "appdeploy.DeploymentMetricsResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/appdeploy.InferenceMetricRecord"
+                    }
+                },
+                "metrics": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/appdeploy.InferenceMetricRecord"
+                    }
+                },
+                "request_id": {
                     "type": "string"
                 }
             }
@@ -4974,6 +5221,42 @@
                     "$ref": "#/definitions/appdeploy.ResourceRequirements"
                 },
                 "target_profile_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "appdeploy.InferenceMetricRecord": {
+            "type": "object",
+            "properties": {
+                "deployment_id": {
+                    "type": "string"
+                },
+                "error_count": {
+                    "type": "integer"
+                },
+                "latency_ms": {
+                    "type": "number"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "metric_id": {
+                    "type": "string"
+                },
+                "quality_score": {
+                    "type": "number"
+                },
+                "request_count": {
+                    "type": "integer"
+                },
+                "request_id": {
+                    "type": "string"
+                },
+                "throughput_rps": {
+                    "type": "number"
+                },
+                "timestamp": {
                     "type": "string"
                 }
             }

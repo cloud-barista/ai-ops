@@ -985,6 +985,14 @@ select:focus {
   min-width: 0;
 }
 
+.manifest-revision-title p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
 .manifest-revision-title small {
   color: var(--teal-dark);
   font-size: 9px;
@@ -1453,6 +1461,41 @@ td small {
 
 .flow-record-disclosure > .result-json {
   margin: 0;
+}
+
+.flow-record-panel {
+  background: #f5f8f7;
+}
+
+.flow-record-panel-heading {
+  display: grid;
+  gap: 5px;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.flow-record-panel-heading > small {
+  color: var(--teal-dark);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.flow-record-title-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.flow-record-title-row h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.flow-record-panel-heading p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
 }
 
 .experiment-disclosure {
@@ -2001,3 +2044,7 @@ dialog::backdrop {
     grid-column: auto;
   }
 }
+/* Keep execution consent independent of full-width text input sizing. */
+.flow-delivery-consent { display: flex; align-items: flex-start; gap: 8px; margin-block: 12px; }
+.flow-delivery-consent input[type="checkbox"] { width: 16px; height: 16px; min-height: 16px; flex: 0 0 16px; margin-top: 3px; }
+#flow-delivery-status { overflow-wrap: anywhere; }

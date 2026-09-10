@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light">
   <title>geon Agent Control</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="/assets/app.css">
+  <link rel="stylesheet" href="/assets/app.css?v=20260825-manifest-labels">
 </head>
 <body>
   <div class="app-shell">
@@ -110,7 +110,6 @@
               <p class="section-label">INPUT</p>
               <h3 id="automation-input-title">어플리케이션 요청</h3>
             </div>
-            <span class="contract-label">One-shot Agent Run</span>
           </div>
 
           <form id="automation-run-form">
@@ -200,22 +199,24 @@
               <small>통신 규약 스키마는 1.0이며 Revision은 동일 Flow 안의 생성 순서입니다.</small>
             </div>
             <div class="manifest-output-grid">
-              <section class="manifest-stage-card">
+              <section class="manifest-stage-card" id="manifest-initial-stage">
                 <div class="manifest-revision-heading">
                   <div class="manifest-revision-title">
                     <small>REVISION 1</small>
-                    <strong>Revision 1 · 배포 판단</strong>
+                    <strong>초기 DeploymentManifest · Revision 1</strong>
+                    <p>배포 판단 후 생성된 실제 전달용 Manifest JSON</p>
                   </div>
                   <span id="manifest-initial-status">생성 대기</span>
                 </div>
                 <div class="manifest-flow-id"><span>FLOW ID</span><code id="manifest-initial-flow-id">Flow 미생성</code></div>
                 <pre class="json-output manifest-json" id="manifest-initial-json">DEPLOY 승인 후 생성됩니다.</pre>
               </section>
-              <section class="manifest-stage-card">
+              <section class="manifest-stage-card" id="manifest-optimized-stage">
                 <div class="manifest-revision-heading">
                   <div class="manifest-revision-title">
                     <small>REVISION 2</small>
-                    <strong>Revision 2 · 운영 최적화</strong>
+                    <strong>최적화 DeploymentManifest · Revision 2</strong>
+                    <p>운영 Feedback과 스케일링 판단을 반영한 실제 Manifest JSON</p>
                   </div>
                   <span id="manifest-optimized-status">Feedback 후 생성 대기</span>
                 </div>
@@ -224,7 +225,16 @@
               </section>
             </div>
           </section>
-          <pre class="json-output" id="agent-control-result-json">아직 실행 결과가 없습니다.</pre>
+          <section class="flow-record-panel" id="agent-control-flow-record" aria-labelledby="agent-control-flow-record-title">
+            <div class="flow-record-panel-heading">
+              <small>FULL FLOW RECORD</small>
+              <div class="flow-record-title-row">
+                <h3 id="agent-control-flow-record-title">전체 Flow 실행 기록</h3>
+              </div>
+              <p>Manifest를 포함한 전체 처리 과정 기록입니다. 배포용 Manifest는 위 Revision 창에서 확인합니다.</p>
+            </div>
+            <pre class="json-output" id="agent-control-result-json">아직 실행 결과가 없습니다.</pre>
+          </section>
         </section>
 
         <details class="panel experiment-disclosure automation-evidence" id="automation-evidence">
@@ -266,7 +276,7 @@
                 <i data-lucide="file-input" aria-hidden="true"></i><span>프로토콜 샘플</span>
               </button>
               <button class="button button-secondary" id="run-protocol-flow" type="submit">
-                <i data-lucide="flask-conical" aria-hidden="true"></i><span>고급 검증 실행</span>
+                <i data-lucide="flask-conical" aria-hidden="true"></i><span>외부 결과로 배포 판단</span>
               </button>
             </div>
           </form>
@@ -397,6 +407,20 @@
               </section>
 
               <section class="experiment-sequence-step" id="experiment-feedback">
+                <div class="experiment-sequence-form" id="flow-delivery-controls">
+                  <strong>AppDeployer 연동</strong>
+                  <p id="flow-delivery-availability" role="status">연결 설정 확인 중</p>
+                  <label class="field"><span>등록된 App Version ID</span><input id="flow-delivery-app-version" placeholder="appver-..." autocomplete="off"></label>
+                  <label class="flow-delivery-consent"><input id="flow-delivery-accept" type="checkbox"><span>등록 AppSpec 실행 설정과 AppDeployer 자원 선택을 사용하며, geon의 GPU VRAM 조건·추론 설정은 적용되지 않음을 확인했습니다.</span></label>
+                  <div class="workflow-actions">
+                    <button class="button button-secondary" id="flow-delivery-prepare" type="button" disabled><i data-lucide="file-check" aria-hidden="true"></i><span>전송 요청 확인</span></button>
+                    <button class="button button-primary" id="flow-delivery-submit" type="button" disabled><i data-lucide="send" aria-hidden="true"></i><span>AppDeployer 배포 요청</span></button>
+                    <button class="button button-secondary" id="flow-delivery-refresh" type="button" disabled><i data-lucide="refresh-cw" aria-hidden="true"></i><span>실제 배포 상태 조회</span></button>
+                  </div>
+                  <p id="flow-delivery-status" role="status">전송 전</p>
+                  <small>등록 앱의 실행 설정을 사용합니다. Revision 2 자동 적용은 지원하지 않습니다.</small>
+                  <details><summary>AppDeployer 요청·응답·원본 지표</summary><pre class="json-output compact" id="flow-delivery-json">{}</pre></details>
+                </div>
                 <div class="experiment-sequence-heading">
                   <span class="experiment-sequence-number">2</span>
                   <div><strong>배포 상태 전송</strong><small>Revision 1과 같은 Flow의 deployment.status.changed를 연결합니다.</small></div>
@@ -541,5 +565,6 @@
   <div class="toast-region" id="toast-region" aria-live="polite"></div>
   <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
   <script src="/assets/app.js"></script>
+  <script src="/assets/flow_delivery.js"></script>
 </body>
 </html>

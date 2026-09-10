@@ -7,7 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-//go:embed static/index.html static/app.css static/app.js static/manifest_stages.js static/llm_op_demo.html static/llm_op_demo.css static/llm_op_demo_contract.js static/llm_op_demo.js
+//go:embed static/index.html static/app.css static/app.js static/flow_delivery.js static/manifest_stages.js static/llm_op_demo.html static/llm_op_demo.css static/llm_op_demo_contract.js static/llm_op_demo.js
 var assets embed.FS
 
 func Register(server *echo.Echo) {
@@ -17,6 +17,7 @@ func Register(server *echo.Echo) {
 	server.GET("/assets/app.css", serveEmbedded("static/app.css", "text/css; charset=utf-8"))
 	server.GET("/assets/manifest_stages.js", serveEmbedded("static/manifest_stages.js", "text/javascript; charset=utf-8"))
 	server.GET("/assets/app.js", serveEmbedded("static/app.js", "text/javascript; charset=utf-8"))
+	server.GET("/assets/flow_delivery.js", serveEmbedded("static/flow_delivery.js", "text/javascript; charset=utf-8"))
 	server.GET("/assets/llm-op-demo.css", serveEmbedded("static/llm_op_demo.css", "text/css; charset=utf-8"))
 	server.GET("/assets/llm-op-demo-contract.js", serveEmbedded("static/llm_op_demo_contract.js", "text/javascript; charset=utf-8"))
 	server.GET("/assets/llm-op-demo.js", serveEmbedded("static/llm_op_demo.js", "text/javascript; charset=utf-8"))

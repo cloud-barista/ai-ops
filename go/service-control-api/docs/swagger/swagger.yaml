@@ -1533,6 +1533,53 @@ definitions:
     - role
     - version
     type: object
+  api.ExternalFlowRequest:
+    properties:
+      application_context:
+        $ref: '#/definitions/agentcontrol.ApplicationContextEnvelope'
+      decision_agent:
+        type: string
+      resource_recommendation:
+        $ref: '#/definitions/agentcontrol.ResourceRecommendationEnvelope'
+    type: object
+  api.FlowDelivery:
+    properties:
+      correlation_id:
+        type: string
+      decision_id:
+        type: string
+      deployment:
+        $ref: '#/definitions/appdeploy.DeploymentResponse'
+      destination_sha256:
+        type: string
+      flow:
+        $ref: '#/definitions/agentcontrol.Flow'
+      limitations:
+        items:
+          type: string
+        type: array
+      manifest_sha256:
+        type: string
+      metrics:
+        $ref: '#/definitions/appdeploy.DeploymentMetricsResponse'
+      request:
+        $ref: '#/definitions/appdeploy.DeploymentCreateRequest'
+      revision:
+        type: integer
+      status:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  api.FlowDeliveryRequest:
+    properties:
+      accept_projection_limits:
+        type: boolean
+      app_version_id:
+        type: string
+    required:
+    - app_version_id
+    type: object
   api.GuardDecision:
     properties:
       reason:
@@ -2029,6 +2076,11 @@ definitions:
       severity:
         type: string
     type: object
+  appdeploy.DeploymentCreateRequest:
+    properties:
+      manifest:
+        $ref: '#/definitions/appdeploy.DeploymentManifest'
+    type: object
   appdeploy.DeploymentLog:
     properties:
       component:
@@ -2062,6 +2114,19 @@ definitions:
   appdeploy.DeploymentMetadata:
     properties:
       name:
+        type: string
+    type: object
+  appdeploy.DeploymentMetricsResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/appdeploy.InferenceMetricRecord'
+        type: array
+      metrics:
+        items:
+          $ref: '#/definitions/appdeploy.InferenceMetricRecord'
+        type: array
+      request_id:
         type: string
     type: object
   appdeploy.DeploymentMonitorSummary:
@@ -2138,6 +2203,30 @@ definitions:
       resources:
         $ref: '#/definitions/appdeploy.ResourceRequirements'
       target_profile_id:
+        type: string
+    type: object
+  appdeploy.InferenceMetricRecord:
+    properties:
+      deployment_id:
+        type: string
+      error_count:
+        type: integer
+      latency_ms:
+        type: number
+      metadata:
+        additionalProperties: {}
+        type: object
+      metric_id:
+        type: string
+      quality_score:
+        type: number
+      request_count:
+        type: integer
+      request_id:
+        type: string
+      throughput_rps:
+        type: number
+      timestamp:
         type: string
     type: object
   appdeploy.MonitoringSummaryResponse:
@@ -2933,6 +3022,31 @@ paths:
       summary: Receive a deployment status message
       tags:
       - AI Application Automation Agent
+  /api/v1/agent-control/external-flows:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Matching Common JSON input pair
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.ExternalFlowRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/agentcontrol.Flow'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Receive analyzed external inputs atomically
+      tags:
+      - AI Application Automation Agent
   /api/v1/agent-control/flows:
     delete:
       description: Clear the in-memory Agent Control experiment records.
@@ -3011,6 +3125,67 @@ paths:
       summary: Get a joined Agent Control input
       tags:
       - AI Application Automation Agent
+  /api/v1/agent-control/flows/{correlation_id}/appdeploy:
+    get:
+      parameters:
+      - description: Flow ID
+        in: path
+        name: correlation_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.FlowDelivery'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Refresh the recorded AppDeployer deployment and attach its status to
+        the same Flow
+      tags:
+      - AI Application Automation Agent
+  /api/v1/agent-control/flows/{correlation_id}/appdeploy/{action}:
+    post:
+      consumes:
+      - application/json
+      description: Server configuration enables submission. Requests are constructed
+        from stored approved Revision 1 and an authoritative App Registry match. Attempts
+        are persisted before POST; uncertain attempts are never automatically retried.
+      parameters:
+      - description: Flow ID
+        in: path
+        name: correlation_id
+        required: true
+        type: string
+      - description: prepare or submit
+        in: path
+        name: action
+        required: true
+        type: string
+      - description: Registered app version
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.FlowDeliveryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.FlowDelivery'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Prepare or submit an approved initial Flow to AppDeployer
+      tags:
+      - AI Application Automation Agent
   /api/v1/agent-control/flows/{correlation_id}/reasoning-comparisons:
     post:
       consumes:
@@ -3042,6 +3217,19 @@ paths:
           schema:
             $ref: '#/definitions/api.ErrorResponse'
       summary: Compare simple and validated Qwen reasoning
+      tags:
+      - AI Application Automation Agent
+  /api/v1/agent-control/integration:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get AppDeployer integration availability
       tags:
       - AI Application Automation Agent
   /api/v1/agent-control/optimization-feedback:
