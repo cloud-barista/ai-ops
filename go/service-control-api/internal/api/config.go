@@ -11,6 +11,11 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	requirementAnalysisModeLocalRule = "local_rule"
+	requirementAnalysisModeQwen      = "qwen"
+)
+
 type ServerConfig struct {
 	RepoRoot                 string
 	OpenAPIPath              string
@@ -26,6 +31,7 @@ type ServerConfig struct {
 	AutonomyAdminToken       string
 	AgentExecutionTimeout    time.Duration
 	LLMOpAllowLiveCompletion bool
+	RequirementAnalysisMode  string
 }
 
 func NewServerConfig() ServerConfig {
@@ -82,6 +88,12 @@ func NewServerConfig() ServerConfig {
 	if deploymentAdapterMode == "" {
 		deploymentAdapterMode = "mock"
 	}
+	requirementAnalysisMode := strings.ToLower(
+		strings.TrimSpace(viper.GetString("REQUIREMENT_ANALYSIS_MODE")),
+	)
+	if requirementAnalysisMode == "" {
+		requirementAnalysisMode = requirementAnalysisModeLocalRule
+	}
 	return ServerConfig{
 		RepoRoot:                 repoRoot,
 		OpenAPIPath:              openAPIPath,
@@ -97,15 +109,21 @@ func NewServerConfig() ServerConfig {
 		AutonomyAdminToken:       viper.GetString("AUTONOMY_ADMIN_TOKEN"),
 		AgentExecutionTimeout:    time.Duration(agentExecutionTimeoutSeconds) * time.Second,
 		LLMOpAllowLiveCompletion: viper.GetBool("LLMOP_ALLOW_LIVE_COMPLETION"),
+		RequirementAnalysisMode:  requirementAnalysisMode,
 	}
 }
 
 func ValidateServerConfig(config ServerConfig) error {
 	switch config.DeploymentAdapterMode {
 	case "mock", "handoff":
-		return nil
 	default:
 		return fmt.Errorf("deployment adapter mode must be mock or handoff")
+	}
+	switch config.RequirementAnalysisMode {
+	case requirementAnalysisModeLocalRule, requirementAnalysisModeQwen:
+		return nil
+	default:
+		return fmt.Errorf("requirement analysis mode must be local_rule or qwen")
 	}
 }
 

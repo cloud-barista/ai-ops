@@ -55,10 +55,6 @@ func (handler restHandler) RestPostApplicationAnalysisRequest(context echo.Conte
 	return context.JSON(http.StatusCreated, run)
 }
 
-type AgentControlReasoningComparisonRequest struct {
-	CandidateID string `json:"candidate_id" validate:"required"`
-}
-
 // RestGetAutomationRun godoc
 // @ID GetAgentControlAutomationRun
 // @Summary Get one automatic three-stage Agent run

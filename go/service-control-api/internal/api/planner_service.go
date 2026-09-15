@@ -32,7 +32,7 @@ func (service Service) RunAppDeployPlannerWithConfig(
 		return deploymentplanner.Response{}, err
 	}
 	if strings.TrimSpace(appDeployBaseURL) == "" {
-		return deploymentplanner.Response{}, fmt.Errorf("AppDeploy base URL is required")
+		return deploymentplanner.Response{}, fmt.Errorf("appDeploy base URL is required")
 	}
 	if strings.TrimSpace(request.RequestedBy) == "" {
 		request.RequestedBy = "ai-ops-geon-planner"

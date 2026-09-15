@@ -18,7 +18,7 @@ func resolveDecisionAgent(
 		requestedName = strings.TrimSpace(registry.Defaults[agentcontrol.AutomationCapability])
 		if requestedName == "" {
 			return AgentProfile{}, fmt.Errorf(
-				"Agent Registry default is required for capability %s",
+				"agent Registry default is required for capability %s",
 				agentcontrol.AutomationCapability,
 			)
 		}

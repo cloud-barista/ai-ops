@@ -78,13 +78,13 @@ func (planner autonomyDecisionPlanner) Plan(ctx context.Context, input autonomy.
 	}
 	proposal := planned.Proposal
 	if !contains(autonomyAllowedActions, proposal.Action) {
-		return autonomy.Decision{}, fmt.Errorf("Qwen proposed an Action outside the autonomy allowlist")
+		return autonomy.Decision{}, fmt.Errorf("qwen proposed an Action outside the autonomy allowlist")
 	}
 	if proposal.RequiredCapability != autonomyRequiredCapability {
-		return autonomy.Decision{}, fmt.Errorf("Qwen proposal required_capability does not match the autonomy capability")
+		return autonomy.Decision{}, fmt.Errorf("qwen proposal required_capability does not match the autonomy capability")
 	}
 	if containsSecretLikeKey(proposal.Parameters) {
-		return autonomy.Decision{}, fmt.Errorf("Qwen proposal contains a forbidden secret-shaped parameter")
+		return autonomy.Decision{}, fmt.Errorf("qwen proposal contains a forbidden secret-shaped parameter")
 	}
 	return autonomy.Decision{
 		Action: autonomy.Action(proposal.Action), Reason: proposal.Reason, Confidence: proposal.Confidence,

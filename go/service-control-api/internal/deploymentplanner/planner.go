@@ -74,7 +74,7 @@ func (planner Planner) PlanAndDeploy(ctx context.Context, request Request) (Resp
 		return result, fmt.Errorf("deployment manifest generator is required")
 	}
 	if planner.deployer == nil {
-		return result, fmt.Errorf("AppDeploy client is required")
+		return result, fmt.Errorf("appDeploy client is required")
 	}
 	if request.MaxPollAttempts <= 0 {
 		request.MaxPollAttempts = 60
@@ -107,7 +107,7 @@ func (planner Planner) DeployApprovedManifest(ctx context.Context, request Deplo
 		return result, err
 	}
 	if planner.deployer == nil {
-		return result, fmt.Errorf("AppDeploy client is required")
+		return result, fmt.Errorf("appDeploy client is required")
 	}
 	if request.MaxPollAttempts <= 0 {
 		request.MaxPollAttempts = 60

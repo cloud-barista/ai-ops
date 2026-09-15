@@ -42,7 +42,7 @@ func TestResolveDemoBindingRejectsNetworkOrServiceMismatch(t *testing.T) {
 
 func validDemoCatalog() demoCatalog {
 	return demoCatalog{
-		SchemaVersion: demoCatalogVersion,
+		SchemaVersion:   demoCatalogVersion,
 		ExecutionPolicy: demoExecutionPolicy{Mode: "offline_fixture_only"},
 		PlannerModelBindings: []demoPlannerModelBinding{{
 			CandidateID:             "qwen3.5-ops-planner",

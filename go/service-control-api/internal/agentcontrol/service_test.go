@@ -1182,8 +1182,11 @@ func TestServiceRecordsUnavailableReasoningProvider(t *testing.T) {
 	if comparison.SimpleInference.ExecutionStatus != ReasoningProviderUnavailable {
 		t.Fatalf("execution status = %q", comparison.SimpleInference.ExecutionStatus)
 	}
-	if !strings.Contains(comparison.SimpleInference.Error, "connection refused") {
-		t.Fatalf("provider error was not recorded: %#v", comparison.SimpleInference)
+	if comparison.SimpleInference.Error != "provider_unavailable" {
+		t.Fatalf("provider error code=%q, want provider_unavailable", comparison.SimpleInference.Error)
+	}
+	if strings.Contains(comparison.SimpleInference.Error, "connection refused") {
+		t.Fatalf("provider internals leaked into the comparison: %#v", comparison.SimpleInference)
 	}
 }
 

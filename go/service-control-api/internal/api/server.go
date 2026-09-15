@@ -14,6 +14,7 @@ import (
 
 const (
 	pathHealthz        = "/healthz"
+	pathReadyz         = "/geon/readyz"
 	pathOpenAPI        = "/openapi.yaml"
 	pathAgents         = "/api/v1/agents"
 	pathOpsLLMSelect   = "/api/v1/ops-llm/select"
@@ -75,6 +76,7 @@ func NewServer(config ServerConfig) *echo.Echo {
 	webui.Register(server)
 
 	server.GET(pathHealthz, handler.RestGetHealthz)
+	server.GET(pathReadyz, handler.RestGetReadyz)
 	server.GET(pathOpenAPI, handler.RestGetOpenAPI)
 	server.GET(pathAgents, handler.RestGetAgents)
 	server.POST(pathAgents, handler.RestPostAgent)
@@ -176,6 +178,29 @@ func (handler restHandler) RestGetHealthz(context echo.Context) error {
 	return context.JSON(http.StatusOK, map[string]string{
 		"status":  "ok",
 		"service": "service-control-api",
+	})
+}
+
+// RestGetReadyz godoc
+// @ID GetGeonReadyz
+// @Summary Check whether geon is ready to serve requests
+// @Description Validate the service configuration and required local resources. Return 503 without internal details when the service is not ready.
+// @Tags Service Control
+// @Produce json
+// @Success 200 {object} ReadinessResponse
+// @Failure 503 {object} ReadinessResponse
+// @Router /geon/readyz [get]
+func (handler restHandler) RestGetReadyz(context echo.Context) error {
+	if err := handler.service.Ready(context.Request().Context()); err != nil {
+		log.Error().Err(err).Msg("geon readiness check failed")
+		return context.JSON(http.StatusServiceUnavailable, ReadinessResponse{
+			Status:  "not_ready",
+			Service: "geon",
+		})
+	}
+	return context.JSON(http.StatusOK, ReadinessResponse{
+		Status:  "ready",
+		Service: "geon",
 	})
 }
 

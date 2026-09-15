@@ -23,27 +23,27 @@ const proposalSystemPrompt = `You are the bounded LLM operation planner for the 
 const userPromptPrefix = "LLM operation input: "
 
 const (
-	ActionCreateManifest       = "create_deployment_manifest"
-	ActionRequestClarification = "request_clarification"
-	ActionRejectUnsafe         = "reject_unsafe_request"
-	maxPromptBytes             = 128 << 10
-	maxProposalBytes           = 64 << 10
+	ActionCreateManifest        = "create_deployment_manifest"
+	ActionRequestClarification  = "request_clarification"
+	ActionRejectUnsafe          = "reject_unsafe_request"
+	maxPromptBytes              = 128 << 10
+	maxProposalBytes            = 64 << 10
 	maxRawObservationFieldBytes = 32 << 10
 	maxRawRequestEnvelopeBytes  = 2 << 20
 	maxCompletionJSONDepth      = 16
 	maxCompletionJSONNodes      = 1000
-	maxCPUCount                = uint64(256)
-	maxGPUCount                = uint64(16)
-	maxMemoryMi                = uint64(2 * 1024 * 1024)
-	maxStorageMi               = uint64(64 * 1024 * 1024)
-	minCreateConfidence        = 0.5
+	maxCPUCount                 = uint64(256)
+	maxGPUCount                 = uint64(16)
+	maxMemoryMi                 = uint64(2 * 1024 * 1024)
+	maxStorageMi                = uint64(64 * 1024 * 1024)
+	minCreateConfidence         = 0.5
 )
 
 var (
-	reasonCodePattern = regexp.MustCompile(`^[A-Z][A-Z0-9_]{2,79}$`)
-	quantityPattern   = regexp.MustCompile(`^([1-9][0-9]*)(Mi|Gi|Ti)$`)
-	positiveCountPattern = regexp.MustCompile(`^[1-9][0-9]*$`)
-	gpuCountPattern      = regexp.MustCompile(`^(0|[1-9][0-9]*)$`)
+	reasonCodePattern        = regexp.MustCompile(`^[A-Z][A-Z0-9_]{2,79}$`)
+	quantityPattern          = regexp.MustCompile(`^([1-9][0-9]*)(Mi|Gi|Ti)$`)
+	positiveCountPattern     = regexp.MustCompile(`^[1-9][0-9]*$`)
+	gpuCountPattern          = regexp.MustCompile(`^(0|[1-9][0-9]*)$`)
 	forbiddenReasonCodeToken = regexp.MustCompile(
 		`(^|_)(APP_VERSION_ID|DEPLOYMENT_ID|TARGET_ID|TARGET_PROFILE_ID|TARGET_VM_ID|VM_ID|PROVIDER|CLOUD_PROVIDER|CLOUD_A|CLOUD_B|CLOUD_C|RUNTIME|RUNTIME_ADAPTER|ENDPOINT|COMMAND|SHELL|PASSWORD|TOKEN|SECRET|AUTHORIZATION|BEARER|CREDENTIAL|API_KEY|ACCESS_KEY|PRIVATE_KEY|KUBERNETES|KUBECTL|DOCKER|CONTAINER|SSH|AWS|AZURE|GCP|HELM|TERRAFORM|ANSIBLE|OLLAMA|PYTHON|NODE|JAVA|GOLANG|LOCALHOST|UNIX_SOCKET)($|_)`,
 	)
@@ -192,7 +192,7 @@ func (planner Planner) prepareNormalized(
 		ActualModel: candidate.ActualModel,
 	}
 	if planner.client == nil {
-		err := fmt.Errorf("LLM completion client is required")
+		err := fmt.Errorf("completion client for LLM is required")
 		rejectModel(&result, normalized, "Qwen completion client is unavailable")
 		return result, &StageError{Status: result.Status, Cause: err}
 	}
@@ -366,7 +366,7 @@ func buildStagePrompt(
 			"deployment_id_present":  strings.TrimSpace(request.Application.DeploymentID) != "",
 		},
 		"operation_context": promptContext,
-		"required_output": requiredOutput,
+		"required_output":   requiredOutput,
 	})
 	if err != nil {
 		return nil, redactedIdentifiers, err
@@ -397,11 +397,11 @@ func boundedPromptContext(request Request, normalized NormalizedContext) map[str
 		}
 		if recommended := constraints.RecommendedResources; recommended != nil {
 			planningConstraints["recommended_resources"] = map[string]any{
-				"cpu_cores":    recommended.CPUCores,
-				"memory_mib":   recommended.MemoryMiB,
-				"gpu_count":    recommended.GPUCount,
-				"storage_gib":  recommended.StorageGiB,
-				"accelerator":  recommended.Accelerator,
+				"cpu_cores":   recommended.CPUCores,
+				"memory_mib":  recommended.MemoryMiB,
+				"gpu_count":   recommended.GPUCount,
+				"storage_gib": recommended.StorageGiB,
+				"accelerator": recommended.Accelerator,
 			}
 		}
 		result["planning_constraints"] = planningConstraints
@@ -568,7 +568,7 @@ func validateCandidate(candidate llmclient.Candidate, request Request) error {
 	if strings.TrimSpace(candidate.Provider) == "" ||
 		normalizeIdentifierForComparison(candidate.Provider) == "" ||
 		strings.TrimSpace(candidate.ActualModel) == "" {
-		return fmt.Errorf("Qwen candidate provider and actual_model are required")
+		return fmt.Errorf("qwen candidate provider and actual_model are required")
 	}
 	if candidate.Provider != strings.TrimSpace(candidate.Provider) ||
 		candidate.ActualModel != strings.TrimSpace(candidate.ActualModel) ||
@@ -576,26 +576,26 @@ func validateCandidate(candidate llmclient.Candidate, request Request) error {
 		utf8.RuneCountInString(candidate.ActualModel) > 256 ||
 		!displayTextSafe(candidate.Provider) ||
 		!displayTextSafe(candidate.ActualModel) {
-		return fmt.Errorf("Qwen candidate provider and actual_model must be bounded display-safe labels")
+		return fmt.Errorf("qwen candidate provider and actual_model must be bounded display-safe labels")
 	}
 	if !candidate.JSONMode {
-		return fmt.Errorf("Qwen candidate must enable JSON mode")
+		return fmt.Errorf("qwen candidate must enable JSON mode")
 	}
 	return nil
 }
 
 func validateCompletionEnvelope(completion llmclient.Completion) error {
 	if completion.Status != "executed" {
-		return fmt.Errorf("Qwen completion status must be executed")
+		return fmt.Errorf("qwen completion status must be executed")
 	}
 	if completion.LatencyMS < 0 {
-		return fmt.Errorf("Qwen completion latency_ms must be non-negative")
+		return fmt.Errorf("qwen completion latency_ms must be non-negative")
 	}
 	if strings.TrimSpace(completion.Content) == "" {
-		return fmt.Errorf("Qwen completion content is required")
+		return fmt.Errorf("qwen completion content is required")
 	}
 	if len(completion.Content) > maxProposalBytes {
-		return fmt.Errorf("Qwen completion exceeds %d bytes", maxProposalBytes)
+		return fmt.Errorf("qwen completion exceeds %d bytes", maxProposalBytes)
 	}
 	return nil
 }
@@ -605,20 +605,20 @@ func validateCompletionIdentity(
 	candidate llmclient.Candidate,
 ) error {
 	if completion.CandidateID != candidate.CandidateID {
-		return fmt.Errorf("Qwen completion candidate_id mismatch")
+		return fmt.Errorf("qwen completion candidate_id mismatch")
 	}
 	if completion.Provider != candidate.Provider {
-		return fmt.Errorf("Qwen completion provider mismatch")
+		return fmt.Errorf("qwen completion provider mismatch")
 	}
 	if completion.ActualModel != candidate.ActualModel {
-		return fmt.Errorf("Qwen completion actual_model mismatch")
+		return fmt.Errorf("qwen completion actual_model mismatch")
 	}
 	return nil
 }
 
 func parseProposal(content string) (Proposal, error) {
 	if strings.TrimSpace(content) == "" || len(content) > maxProposalBytes {
-		return Proposal{}, fmt.Errorf("Qwen operation proposal is outside the bounded envelope")
+		return Proposal{}, fmt.Errorf("qwen operation proposal is outside the bounded envelope")
 	}
 	content = strings.TrimSpace(content)
 	if err := validateUniqueJSONKeys(content); err != nil {
@@ -661,7 +661,7 @@ func validateUniqueJSONKeys(content string) error {
 
 func consumeUniqueJSONValue(decoder *json.Decoder, depth int, nodes *int) error {
 	if depth > maxCompletionJSONDepth || *nodes >= maxCompletionJSONNodes {
-		return fmt.Errorf("JSON value exceeds the bounded depth or node limit")
+		return fmt.Errorf("value in JSON exceeds the bounded depth or node limit")
 	}
 	*nodes = *nodes + 1
 	token, err := decoder.Token()
@@ -682,10 +682,10 @@ func consumeUniqueJSONValue(decoder *json.Decoder, depth int, nodes *int) error 
 			}
 			key, ok := keyToken.(string)
 			if !ok {
-				return fmt.Errorf("JSON object key is not a string")
+				return fmt.Errorf("object key in JSON is not a string")
 			}
 			if key != strings.ToLower(key) {
-				return fmt.Errorf("JSON object key %q is not canonical lowercase", key)
+				return fmt.Errorf("object key %q in JSON is not canonical lowercase", key)
 			}
 			if _, exists := seen[key]; exists {
 				return fmt.Errorf("duplicate JSON object key %q", key)
@@ -1049,7 +1049,7 @@ func buildManifest(request Request, proposal Proposal) (appdeploy.DeploymentMani
 // snapshot is being made; later mutations cannot affect validation or handoff.
 func cloneRequest(source Request) (Request, error) {
 	if !requestSnapshotEnvelopeBounded(source) {
-		return Request{}, fmt.Errorf("LLM operation request exceeds the pre-snapshot envelope")
+		return Request{}, fmt.Errorf("operation request for LLM exceeds the pre-snapshot envelope")
 	}
 	content, err := json.Marshal(source)
 	if err != nil {

@@ -25,6 +25,24 @@ func TestSubmissionOpenAPIIsValidYAML(t *testing.T) {
 	}
 }
 
+func TestOpenAPIDocumentsGeonReadinessEndpoint(t *testing.T) {
+	config := NewServerConfig()
+	documents := []string{
+		config.OpenAPIPath,
+		config.path("go", "service-control-api", "docs", "swagger", "swagger.json"),
+		config.path("go", "service-control-api", "docs", "swagger", "swagger.yaml"),
+	}
+	for _, path := range documents {
+		content, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("read OpenAPI %s: %v", path, err)
+		}
+		if !strings.Contains(string(content), "/geon/readyz") {
+			t.Fatalf("OpenAPI %s is missing /geon/readyz", path)
+		}
+	}
+}
+
 func TestSubmissionOpenAPIIncludesControlRunWorkflow(t *testing.T) {
 	config := NewServerConfig()
 	content, err := os.ReadFile(config.OpenAPIPath)

@@ -27,7 +27,10 @@ func TestAgentControlRequirementAnalyzerUsesConfiguredQwen(t *testing.T) {
 		}`,
 	}
 	analyzer := newAgentControlRequirementAnalyzer(
-		ServerConfig{LLMCandidatesPath: writeAgentControlCandidateConfig(t)},
+		ServerConfig{
+			LLMCandidatesPath:       writeAgentControlCandidateConfig(t),
+			RequirementAnalysisMode: requirementAnalysisModeQwen,
+		},
 		completion,
 	)
 
@@ -67,7 +70,10 @@ func TestAgentControlRequirementAnalyzerKeepsDefaultScaleOutHeadroom(t *testing.
 		}`,
 	}
 	analyzer := newAgentControlRequirementAnalyzer(
-		ServerConfig{LLMCandidatesPath: writeAgentControlCandidateConfig(t)},
+		ServerConfig{
+			LLMCandidatesPath:       writeAgentControlCandidateConfig(t),
+			RequirementAnalysisMode: requirementAnalysisModeQwen,
+		},
 		completion,
 	)
 
@@ -88,10 +94,31 @@ func TestAgentControlRequirementAnalyzerKeepsDefaultScaleOutHeadroom(t *testing.
 	}
 }
 
-func TestAgentControlRequirementAnalyzerLabelsLocalFallback(t *testing.T) {
+func TestAgentControlRequirementAnalyzerDoesNotFallbackAfterProviderFailure(t *testing.T) {
 	analyzer := newAgentControlRequirementAnalyzer(
-		ServerConfig{LLMCandidatesPath: writeAgentControlCandidateConfig(t)},
+		ServerConfig{
+			LLMCandidatesPath:       writeAgentControlCandidateConfig(t),
+			RequirementAnalysisMode: requirementAnalysisModeQwen,
+		},
 		&capturingRequirementCompletion{err: errors.New("provider unavailable")},
+	)
+
+	_, err := analyzer.Analyze(context.Background(), agentcontrol.AutomationRunInput{
+		InputType: agentcontrol.InputTypeNaturalLanguage,
+		Request:   "CPU 2코어, 메모리 4GiB, 스토리지 20GiB 서비스 배포",
+	})
+	if err == nil {
+		t.Fatal("expected provider failure, got nil")
+	}
+	if !strings.Contains(err.Error(), "qwen requirement analysis failed") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestAgentControlRequirementAnalyzerUsesExplicitLocalRuleMode(t *testing.T) {
+	analyzer := newAgentControlRequirementAnalyzer(
+		ServerConfig{RequirementAnalysisMode: requirementAnalysisModeLocalRule},
+		&capturingRequirementCompletion{err: errors.New("must not be called")},
 	)
 
 	result, err := analyzer.Analyze(context.Background(), agentcontrol.AutomationRunInput{
@@ -99,19 +126,10 @@ func TestAgentControlRequirementAnalyzerLabelsLocalFallback(t *testing.T) {
 		Request:   "CPU 2코어, 메모리 4GiB, 스토리지 20GiB 서비스 배포",
 	})
 	if err != nil {
-		t.Fatalf("fallback analysis: %v", err)
+		t.Fatalf("explicit local analysis: %v", err)
 	}
 	if result.Mode != agentcontrol.AnalysisModeLocalRule {
-		t.Fatalf("fallback mode = %q, want local_rule", result.Mode)
-	}
-	found := false
-	for _, assumption := range result.Evidence.Assumptions {
-		if strings.Contains(assumption, "Qwen") {
-			found = true
-		}
-	}
-	if !found {
-		t.Fatalf("Qwen fallback was not disclosed: %#v", result.Evidence)
+		t.Fatalf("analysis mode = %q, want local_rule", result.Mode)
 	}
 }
 

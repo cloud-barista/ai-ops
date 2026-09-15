@@ -145,7 +145,7 @@ func (runner *AutomationRunner) RunAnalysisRequest(
 	)
 	record := analysisRequestRecord{Fingerprint: fingerprint, RunID: run.RunID}
 	if runErr != nil {
-		record.Error = runErr.Error()
+		record.Error = "application analysis request failed"
 	}
 	runner.protocolRequests[request.MessageID] = record
 	return run, false, runErr

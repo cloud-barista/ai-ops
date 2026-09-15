@@ -405,19 +405,19 @@ func TestValidateRequestRequiresDeploymentScopeOnMetricsAndLogs(t *testing.T) {
 		context OperationContext
 	}{
 		{
-			name: "metrics missing deployment id",
+			name:    "metrics missing deployment id",
 			context: OperationContext{MetricsSummary: &MetricsObservation{}},
 		},
 		{
-			name: "metrics deployment mismatch",
+			name:    "metrics deployment mismatch",
 			context: OperationContext{MetricsSummary: &MetricsObservation{DeploymentID: "dep-other"}},
 		},
 		{
-			name: "log missing deployment id",
+			name:    "log missing deployment id",
 			context: OperationContext{DeploymentLogs: &LogObservation{Items: []appdeploy.DeploymentLog{{Message: "scoped log"}}}},
 		},
 		{
-			name: "log deployment mismatch",
+			name:    "log deployment mismatch",
 			context: OperationContext{DeploymentLogs: &LogObservation{Items: []appdeploy.DeploymentLog{{DeploymentID: "dep-other"}}}},
 		},
 	}
@@ -470,8 +470,8 @@ func TestValidateRequestAcceptsFullyScopedObservations(t *testing.T) {
 	request := guardedRequest()
 	request.OperationContext = OperationContext{
 		MonitoringSummary: scopedMonitoringSummary("dep-trusted"),
-		DeploymentLogs: &LogObservation{Items: []appdeploy.DeploymentLog{{DeploymentID: "dep-trusted"}}},
-		MetricsSummary: &MetricsObservation{DeploymentID: "dep-trusted"},
+		DeploymentLogs:    &LogObservation{Items: []appdeploy.DeploymentLog{{DeploymentID: "dep-trusted"}}},
+		MetricsSummary:    &MetricsObservation{DeploymentID: "dep-trusted"},
 	}
 
 	decision := ValidateRequest(request, guardPolicyWithoutSensitiveKeys())

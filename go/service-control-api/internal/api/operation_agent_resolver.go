@@ -18,7 +18,7 @@ func resolveOperationAgent(
 		requestedName = strings.TrimSpace(registry.Defaults[agentcontrol.OperationOptimizationCapability])
 		if requestedName == "" {
 			return AgentProfile{}, fmt.Errorf(
-				"Agent Registry default is required for capability %s",
+				"agent Registry default is required for capability %s",
 				agentcontrol.OperationOptimizationCapability,
 			)
 		}

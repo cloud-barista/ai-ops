@@ -21,7 +21,7 @@ func resolvePlannerAgent(registry AgentRegistry, requestedName string, action st
 				return validatePlannerAgent(agent, action)
 			}
 		}
-		return controlrun.AgentSelection{}, fmt.Errorf("Planner Agent is not registered: %s", requestedName)
+		return controlrun.AgentSelection{}, fmt.Errorf("planner Agent is not registered: %s", requestedName)
 	}
 
 	eligible := make([]controlrun.AgentSelection, 0, 1)
@@ -54,21 +54,21 @@ func validatePlannerAgent(agent AgentProfile, action string) (controlrun.AgentSe
 		source = agentSourceConfiguration
 	}
 	if source != agentSourceConfiguration {
-		return controlrun.AgentSelection{}, fmt.Errorf("Planner Agent must be an internal configuration Agent: %s", agent.Name)
+		return controlrun.AgentSelection{}, fmt.Errorf("planner Agent must be an internal configuration Agent: %s", agent.Name)
 	}
 	if !agent.Enabled {
-		return controlrun.AgentSelection{}, fmt.Errorf("Planner Agent is disabled: %s", agent.Name)
+		return controlrun.AgentSelection{}, fmt.Errorf("planner Agent is disabled: %s", agent.Name)
 	}
 	if !contains(agent.Capabilities, capabilityDeploymentManifestPlanning) {
 		return controlrun.AgentSelection{}, fmt.Errorf(
-			"Planner Agent %s does not provide capability %s",
+			"planner Agent %s does not provide capability %s",
 			agent.Name,
 			capabilityDeploymentManifestPlanning,
 		)
 	}
 	if !contains(agent.BoundedActions, action) {
 		return controlrun.AgentSelection{}, fmt.Errorf(
-			"Planner Agent %s does not authorize action %s",
+			"planner Agent %s does not authorize action %s",
 			agent.Name,
 			action,
 		)

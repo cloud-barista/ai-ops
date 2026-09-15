@@ -63,7 +63,7 @@ go test ./internal/llmop ./internal/llmopbridge ./internal/trustedorchestration 
 2. 권장 확장 `golang.go`를 설치하고 VS Code를 다시 시작합니다.
 3. **Run and Debug**에서 `geon: Agent Control (18080)`을 선택합니다.
 4. `F5`를 누릅니다.
-5. [http://127.0.0.1:18080/healthz](http://127.0.0.1:18080/healthz)가 `status=ok`인지 확인합니다.
+5. [http://127.0.0.1:18080/healthz](http://127.0.0.1:18080/healthz)가 `status=ok`이고 [http://127.0.0.1:18080/geon/readyz](http://127.0.0.1:18080/geon/readyz)가 `status=ready`인지 확인합니다.
 6. [http://127.0.0.1:18080/](http://127.0.0.1:18080/)에서 실험을 시작합니다.
 
 F5 구성은 저장소 루트, 18080 포트와 Mock Adapter를 자동으로 설정합니다.
@@ -72,6 +72,7 @@ F5 구성은 저장소 루트, 18080 포트와 Mock Adapter를 자동으로 설�
 AIOPS_REPO_ROOT=${workspaceFolder}
 AIOPS_BIND_ADDRESS=127.0.0.1
 AIOPS_DEPLOYMENT_ADAPTER=mock
+AIOPS_REQUIREMENT_ANALYSIS_MODE=local_rule
 AIOPS_LLM_CANDIDATES_PATH=config/ops_llm_eval_candidates.local_ollama.json
 AIOPS_LLMOP_ALLOW_LIVE_COMPLETION=true
 PORT=18080
@@ -101,6 +102,7 @@ Windows Git Bash에서 저장소 내부로 이동한 뒤 실행합니다.
 export PATH="/c/Program Files/Go/bin:$PATH"
 export AIOPS_REPO_ROOT="$(git rev-parse --show-toplevel)"
 export AIOPS_BIND_ADDRESS="127.0.0.1"
+export AIOPS_REQUIREMENT_ANALYSIS_MODE="local_rule"
 export PORT=18080
 
 cd "$AIOPS_REPO_ROOT/go/service-control-api"
@@ -112,7 +114,10 @@ go run ./cmd/service-control-api
 
 ```bash
 curl http://127.0.0.1:18080/healthz
+curl http://127.0.0.1:18080/geon/readyz
 ```
+
+`AIOPS_REQUIREMENT_ANALYSIS_MODE`은 자연어 요구사항 분석 방식을 명시적으로 선택합니다. 기본값 `local_rule`은 재현 가능한 규칙 분석이고, `qwen`은 실제 Qwen 후보를 호출합니다. `qwen` 모드의 호출 또는 파싱 실패는 자동 fallback 없이 오류로 반환됩니다.
 
 웹:
 

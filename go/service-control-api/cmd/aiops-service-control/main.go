@@ -449,7 +449,7 @@ func loadVMResourceSnapshot(path string) (api.VMResourceSnapshot, error) {
 		return api.VMResourceSnapshot{}, err
 	}
 	if snapshot.ID == "" || snapshot.Source == "" || snapshot.Accelerator == "" {
-		return api.VMResourceSnapshot{}, fmt.Errorf("VM resource snapshot is missing id, source, or accelerator")
+		return api.VMResourceSnapshot{}, fmt.Errorf("resource snapshot for VM is missing id, source, or accelerator")
 	}
 	return snapshot, nil
 }

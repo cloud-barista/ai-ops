@@ -527,7 +527,7 @@ func buildSafeguardPrompt(
 
 func parseSafeguardReview(content string) (SafeguardReview, error) {
 	if strings.TrimSpace(content) == "" || len(content) > maxProposalBytes {
-		return SafeguardReview{}, fmt.Errorf("Qwen safeguard review is outside the bounded envelope")
+		return SafeguardReview{}, fmt.Errorf("qwen safeguard review is outside the bounded envelope")
 	}
 	if err := validateUniqueJSONKeys(strings.TrimSpace(content)); err != nil {
 		return SafeguardReview{}, fmt.Errorf("parse Qwen safeguard review: %w", err)

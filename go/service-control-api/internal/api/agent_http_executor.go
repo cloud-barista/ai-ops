@@ -11,6 +11,8 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/rs/zerolog/log"
 )
 
 const maxAgentResponseBytes = 1 << 20
@@ -86,7 +88,11 @@ func (executor *httpAgentExecutor) Execute(
 	if err != nil {
 		return AgentExecutionResult{}, fmt.Errorf("invoke runtime Agent: %w", err)
 	}
-	defer response.Body.Close()
+	defer func() {
+		if closeErr := response.Body.Close(); closeErr != nil {
+			log.Warn().Err(closeErr).Msg("close runtime Agent response body")
+		}
+	}()
 	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
 		return AgentExecutionResult{}, fmt.Errorf(
 			"runtime Agent returned HTTP status %d",

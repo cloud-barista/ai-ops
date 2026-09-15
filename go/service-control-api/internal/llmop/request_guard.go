@@ -10,10 +10,10 @@ import (
 )
 
 const (
-	maxUserRequestRunes = 8000
-	maxParameterBytes = 64 << 10
-	maxParameterDepth = 16
-	maxParameterNodes = 1000
+	maxUserRequestRunes  = 8000
+	maxParameterBytes    = 64 << 10
+	maxParameterDepth    = 16
+	maxParameterNodes    = 1000
 	maxParameterKeyRunes = 128
 )
 

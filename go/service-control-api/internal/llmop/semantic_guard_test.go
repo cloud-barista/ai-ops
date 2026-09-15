@@ -377,7 +377,7 @@ func TestSemanticGuardRejectsCrossSourceRuntimeContradiction(t *testing.T) {
 		TargetProfileID: request.OperationContext.ResourceSnapshot.Targets[0].TargetProfileID,
 		Status:          "available",
 		RuntimeHealth:   "down",
-		LastCheckedAt:    request.OperationContext.MonitoringSummary.Summary.GeneratedAt,
+		LastCheckedAt:   request.OperationContext.MonitoringSummary.Summary.GeneratedAt,
 	}}
 
 	result, err := prepareSemanticProposal(

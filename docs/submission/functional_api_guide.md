@@ -14,6 +14,7 @@ go run ./cmd/service-control-api
 | Method | Path | 기능 |
 | --- | --- | --- |
 | `GET` | `/healthz` | 상태 확인 |
+| `GET` | `/geon/readyz` | geon 설정과 필수 로컬 의존성 준비 상태 확인 |
 | `GET` | `/openapi.yaml` | OpenAPI 계약 |
 | `GET`, `POST` | `/api/v1/agents` | 에이전트 조회·외부 등록 |
 | `POST` | `/api/v1/agents/{name}/actions/{action}/validate` | bounded Action 검증 |
@@ -87,9 +88,12 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/automation/action-proposals \
 export AIOPS_LLM_CANDIDATES_PATH=../../config/ops_llm_eval_candidates.local_ollama.json
 export AIOPS_PLANNER_GUARD_POLICY_PATH=../../config/planner_guard_policy.json
 export AIOPS_APPDEPLOY_BASE_URL=http://127.0.0.1:8081/api/v1
+export AIOPS_REQUIREMENT_ANALYSIS_MODE=local_rule
 
 go run ./cmd/service-control-api
 ```
+
+`AIOPS_REQUIREMENT_ANALYSIS_MODE=local_rule`은 재현 가능한 규칙 기반 요구사항 분석을 사용합니다. 실제 Qwen 호출을 검증할 때만 `qwen`으로 바꾸며, Qwen 호출이나 응답 파싱이 실패하면 규칙 기반 결과로 자동 대체하지 않고 요청을 실패 처리합니다.
 
 다른 터미널에서 요청합니다.
 

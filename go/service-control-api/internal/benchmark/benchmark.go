@@ -12,6 +12,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/rs/zerolog/log"
+
 	"kyunghee-aiops/service-control-api/internal/llmclient"
 )
 
@@ -191,7 +193,8 @@ func RunOpsLLMBenchmark(options RunOptions) (RunResult, error) {
 				output.RawResponse = executed.RawResponse
 				output.ParsedResponse = executed.ParsedResponse
 				if callErr != nil {
-					output.Error = callErr.Error()
+					log.Error().Err(callErr).Str("candidate_id", candidate.CandidateID).Msg("benchmark provider request failed")
+					output.Error = "provider benchmark request failed"
 				}
 				if output.BenchmarkStatus == "executed" {
 					status = "executed"

@@ -406,8 +406,8 @@ func TestHardeningNormalizerRejectsInvalidMetrics(t *testing.T) {
 			metrics := &MetricsObservation{
 				Source:        "appdeploy-metrics",
 				ObservedAt:    now,
-				DeploymentID: "dep-observed-001",
-				LatencyP95MS: 10,
+				DeploymentID:  "dep-observed-001",
+				LatencyP95MS:  10,
 				ThroughputRPS: 20,
 				ErrorRate:     0.1,
 				SampleCount:   10,

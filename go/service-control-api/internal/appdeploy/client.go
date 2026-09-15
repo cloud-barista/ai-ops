@@ -25,10 +25,10 @@ func NewClient(baseURL string, httpClient *http.Client) (Client, error) {
 		return Client{}, fmt.Errorf("parse AppDeploy base URL: %w", err)
 	}
 	if parsed.Scheme != "http" && parsed.Scheme != "https" {
-		return Client{}, fmt.Errorf("AppDeploy base URL must use http or https")
+		return Client{}, fmt.Errorf("appDeploy base URL must use http or https")
 	}
 	if parsed.Host == "" || parsed.User != nil || parsed.RawQuery != "" || parsed.Fragment != "" {
-		return Client{}, fmt.Errorf("AppDeploy base URL must not contain credentials, query parameters, or fragments")
+		return Client{}, fmt.Errorf("appDeploy base URL must not contain credentials, query parameters, or fragments")
 	}
 	parsed.Path = strings.TrimRight(parsed.Path, "/")
 	if httpClient == nil {
@@ -48,7 +48,7 @@ func (client Client) CreateDeployment(ctx context.Context, manifest DeploymentMa
 		return response, err
 	}
 	if strings.TrimSpace(response.DeploymentID) == "" {
-		return response, fmt.Errorf("AppDeploy response did not contain deployment_id")
+		return response, fmt.Errorf("appDeploy response did not contain deployment_id")
 	}
 	return response, nil
 }
@@ -144,7 +144,7 @@ func (client Client) doJSON(ctx context.Context, method string, path string, inp
 		return err
 	}
 	if len(content) > maxResponseBytes {
-		return fmt.Errorf("AppDeploy response exceeds %d bytes", maxResponseBytes)
+		return fmt.Errorf("appDeploy response exceeds %d bytes", maxResponseBytes)
 	}
 	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
 		return decodeAPIError(response.StatusCode, content)

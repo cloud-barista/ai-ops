@@ -72,7 +72,7 @@ type ApprovedInitialFlowEvidence struct {
 }
 
 type ApprovedInitialFlowProjection struct {
-	Request   llmop.Request                `json:"request"`
+	Request   llmop.Request               `json:"request"`
 	Safeguard llmop.SafeguardStageResult  `json:"safeguard"`
 	Evidence  ApprovedInitialFlowEvidence `json:"evidence"`
 }
@@ -153,10 +153,10 @@ func ProjectApprovedInitialFlow(
 			AppID:                       binding.AppID,
 			AppVersion:                  binding.AppVersion,
 			AppVersionID:                binding.AppVersionID,
-			LLMCandidateID:               projection.Request.CandidateID,
+			LLMCandidateID:              projection.Request.CandidateID,
 			SelectedResourceCandidateID: resourceCandidateID,
-			SafeguardContinuation:        continuation,
-			Projection:                   projection.Evidence,
+			SafeguardContinuation:       continuation,
+			Projection:                  projection.Evidence,
 		},
 	}, nil
 }
@@ -166,7 +166,7 @@ func validateApprovedInitialFlow(
 	flow agentcontrol.Flow,
 ) (agentcontrol.ManifestRevision, error) {
 	if flow.State != agentcontrol.StateDecisionApproved {
-		return agentcontrol.ManifestRevision{}, fmt.Errorf("Flow state must be DEPLOY_APPROVED")
+		return agentcontrol.ManifestRevision{}, fmt.Errorf("flow state must be DEPLOY_APPROVED")
 	}
 	if err := requireLLMOpStrongIdentifier("Flow correlation_id", flow.CorrelationID); err != nil {
 		return agentcontrol.ManifestRevision{}, err
@@ -175,7 +175,7 @@ func validateApprovedInitialFlow(
 		return agentcontrol.ManifestRevision{}, err
 	}
 	if flow.Decision == nil || flow.Decision.Action != agentcontrol.ActionDeploy {
-		return agentcontrol.ManifestRevision{}, fmt.Errorf("Flow decision must be DEPLOY")
+		return agentcontrol.ManifestRevision{}, fmt.Errorf("flow decision must be DEPLOY")
 	}
 	if strings.TrimSpace(flow.Decision.Reason) == "" ||
 		strings.TrimSpace(flow.Decision.ReasoningMode) == "" ||
@@ -188,7 +188,7 @@ func validateApprovedInitialFlow(
 		return agentcontrol.ManifestRevision{}, err
 	}
 	if flow.Guard == nil || flow.Guard.Status != agentcontrol.GuardApproved {
-		return agentcontrol.ManifestRevision{}, fmt.Errorf("Flow Guard must be APPROVED")
+		return agentcontrol.ManifestRevision{}, fmt.Errorf("flow Guard must be APPROVED")
 	}
 	if len(flow.Guard.Checks) == 0 || len(flow.Guard.Issues) != 0 {
 		return agentcontrol.ManifestRevision{}, fmt.Errorf("approved Flow Guard must contain passed checks and no issues")
@@ -199,7 +199,7 @@ func validateApprovedInitialFlow(
 		}
 	}
 	if flow.AgentAuthorization == nil || !flow.AgentAuthorization.Authorized {
-		return agentcontrol.ManifestRevision{}, fmt.Errorf("Flow automation Agent authorization must be present and authorized")
+		return agentcontrol.ManifestRevision{}, fmt.Errorf("flow automation Agent authorization must be present and authorized")
 	}
 	if err := requireBridgeIdentifier(
 		"Flow authorized decision agent name",
@@ -209,7 +209,7 @@ func validateApprovedInitialFlow(
 	}
 	if flow.AgentAuthorization.Capability != agentcontrol.AutomationCapability ||
 		flow.AgentAuthorization.Action != agentcontrol.AutomationDecisionAction {
-		return agentcontrol.ManifestRevision{}, fmt.Errorf("Flow automation Agent authorization binding is invalid")
+		return agentcontrol.ManifestRevision{}, fmt.Errorf("flow automation Agent authorization binding is invalid")
 	}
 	if flow.RequestedDecisionAgent != "" {
 		if err := requireBridgeIdentifier("Flow requested decision agent", flow.RequestedDecisionAgent); err != nil {
@@ -241,7 +241,7 @@ func validateApprovedInitialFlow(
 			!reflect.DeepEqual(executionDecision.CorrectionRequest, flow.Decision.CorrectionRequest) ||
 			(strings.TrimSpace(executionDecision.ReasoningMode) != "" &&
 				executionDecision.ReasoningMode != flow.Decision.ReasoningMode) {
-			return agentcontrol.ManifestRevision{}, fmt.Errorf("Decision Agent execution evidence does not match the approved Flow")
+			return agentcontrol.ManifestRevision{}, fmt.Errorf("decision Agent execution evidence does not match the approved Flow")
 		}
 		if err := validateApprovedAgentGuard("request", flow.AgentExecution.RequestGuard); err != nil {
 			return agentcontrol.ManifestRevision{}, err
@@ -257,13 +257,13 @@ func validateApprovedInitialFlow(
 	recommendation := flow.ResourceRecommendation.Data.ResourceRecommendation
 	if profile.Artifact == nil ||
 		!reflect.DeepEqual(*profile.Artifact, analysis.Data.Application.Artifact) {
-		return agentcontrol.ManifestRevision{}, fmt.Errorf("ApplicationProfile artifact must match the original analysis request")
+		return agentcontrol.ManifestRevision{}, fmt.Errorf("applicationProfile artifact must match the original analysis request")
 	}
 	if err := validateExplicitResourceProvenance(profile.Analysis); err != nil {
 		return agentcontrol.ManifestRevision{}, err
 	}
 	if flow.ProfileID != profile.ProfileID || recommendation.ProfileID != profile.ProfileID {
-		return agentcontrol.ManifestRevision{}, fmt.Errorf("Flow, ApplicationProfile, and ResourceRecommendation profile_id values must match")
+		return agentcontrol.ManifestRevision{}, fmt.Errorf("flow, ApplicationProfile, and ResourceRecommendation profile_id values must match")
 	}
 	if flow.CorrelationID != analysis.CorrelationID ||
 		flow.CorrelationID != flow.ApplicationContext.CorrelationID ||
@@ -277,14 +277,14 @@ func validateApprovedInitialFlow(
 	}
 	if flow.Decision.SelectedCandidateID == "" ||
 		flow.Decision.SelectedCandidateID != recommendation.SelectedCandidateID {
-		return agentcontrol.ManifestRevision{}, fmt.Errorf("DEPLOY decision selected candidate must match ResourceRecommendation")
+		return agentcontrol.ManifestRevision{}, fmt.Errorf("selected candidate for DEPLOY decision must match ResourceRecommendation")
 	}
 	if flow.DeploymentPlan == nil ||
 		flow.DeploymentPlan.ProfileID != profile.ProfileID ||
 		flow.DeploymentPlan.AppID != profile.AppID ||
 		flow.DeploymentPlan.AppVersion != profile.AppVersion ||
 		flow.DeploymentPlan.SelectedCandidateID != recommendation.SelectedCandidateID {
-		return agentcontrol.ManifestRevision{}, fmt.Errorf("DeploymentPlan identity must match the approved planning inputs")
+		return agentcontrol.ManifestRevision{}, fmt.Errorf("deploymentPlan identity must match the approved planning inputs")
 	}
 	selectedCandidate, err := approvedSelectedCandidate(recommendation)
 	if err != nil {
@@ -296,7 +296,7 @@ func validateApprovedInitialFlow(
 			flow.DeploymentPlan.InferenceConfiguration,
 			flow.ApplicationContext.Data.ModelRecommendation.InferenceConfiguration,
 		) {
-		return agentcontrol.ManifestRevision{}, fmt.Errorf("DeploymentPlan must be a lossless projection of the selected resource and model recommendation")
+		return agentcontrol.ManifestRevision{}, fmt.Errorf("deploymentPlan must be a lossless projection of the selected resource and model recommendation")
 	}
 
 	if len(flow.ManifestRevisions) != 1 {
@@ -305,10 +305,10 @@ func validateApprovedInitialFlow(
 	revision := flow.ManifestRevisions[0]
 	if revision.Revision != 1 || revision.Phase != agentcontrol.ManifestPhaseInitial ||
 		revision.TriggerAction != agentcontrol.ActionDeploy {
-		return agentcontrol.ManifestRevision{}, fmt.Errorf("Manifest revision must be revision 1, INITIAL, and triggered by DEPLOY")
+		return agentcontrol.ManifestRevision{}, fmt.Errorf("manifest revision must be revision 1, INITIAL, and triggered by DEPLOY")
 	}
 	if _, err := time.Parse(time.RFC3339Nano, revision.CreatedAt); err != nil {
-		return agentcontrol.ManifestRevision{}, fmt.Errorf("Manifest revision created_at must be RFC3339: %w", err)
+		return agentcontrol.ManifestRevision{}, fmt.Errorf("manifest revision created_at must be RFC3339: %w", err)
 	}
 	if flow.DesiredDeploymentSpec == nil || flow.DeploymentRequest == nil {
 		return agentcontrol.ManifestRevision{}, fmt.Errorf("approved Flow must expose an active DesiredDeploymentSpec and deployment request")
@@ -418,11 +418,11 @@ func validateApprovedSafeguard(
 
 func validateApprovedAgentGuard(label string, guard agentcontrol.GuardResult) error {
 	if guard.Status != agentcontrol.GuardApproved || len(guard.Checks) == 0 || len(guard.Issues) != 0 {
-		return fmt.Errorf("Decision Agent %s guard must contain only approved checks", label)
+		return fmt.Errorf("decision Agent %s guard must contain only approved checks", label)
 	}
 	for _, check := range guard.Checks {
 		if strings.TrimSpace(check.Name) == "" || !check.Passed {
-			return fmt.Errorf("Decision Agent %s guard must contain only approved checks", label)
+			return fmt.Errorf("decision Agent %s guard must contain only approved checks", label)
 		}
 	}
 	return nil
@@ -430,10 +430,10 @@ func validateApprovedAgentGuard(label string, guard agentcontrol.GuardResult) er
 
 func validateExplicitResourceProvenance(analysis agentcontrol.AnalysisSummary) error {
 	if len(analysis.MissingFields) != 0 {
-		return fmt.Errorf("ApplicationProfile contains missing fields; clarification is required before LLM_Op handoff")
+		return fmt.Errorf("applicationProfile contains missing fields; clarification is required before LLM_Op handoff")
 	}
 	if len(analysis.Assumptions) != 0 || len(analysis.Warnings) != 0 {
-		return fmt.Errorf("ApplicationProfile contains assumptions or warnings; clarification is required before LLM_Op handoff")
+		return fmt.Errorf("applicationProfile contains assumptions or warnings; clarification is required before LLM_Op handoff")
 	}
 	return nil
 }
@@ -505,7 +505,7 @@ func validateApprovedRevisionIdentity(
 		return err
 	}
 	if spec.SpecVersion != agentcontrol.ContractVersionV1 || manifest.ManifestVersion != spec.SpecVersion {
-		return fmt.Errorf("DesiredDeploymentSpec and Manifest schema versions must match Common JSON v1")
+		return fmt.Errorf("desiredDeploymentSpec and Manifest schema versions must match Common JSON v1")
 	}
 	if spec.DecisionID != decisionID || request.DecisionID != decisionID || manifest.DecisionID != decisionID {
 		return fmt.Errorf("decision_id must match across Flow, spec, request, and Manifest")
@@ -525,7 +525,7 @@ func validateApprovedRevisionIdentity(
 		!reflect.DeepEqual(plan.DesiredInfrastructure, spec.DesiredInfrastructure) ||
 		!reflect.DeepEqual(plan.InferenceConfiguration, spec.InferenceConfiguration) ||
 		!reflect.DeepEqual(plan.ResourceHints, spec.PolicyHints) {
-		return fmt.Errorf("DesiredDeploymentSpec must be a lossless projection of the approved DeploymentPlan")
+		return fmt.Errorf("desiredDeploymentSpec must be a lossless projection of the approved DeploymentPlan")
 	}
 	if !reflect.DeepEqual(spec.Application, manifest.Application) ||
 		spec.TargetRuntime != manifest.TargetRuntime ||
@@ -560,7 +560,7 @@ func fingerprintApprovedRevision(
 		TraceID       string                          `json:"trace_id"`
 		ProfileID     string                          `json:"profile_id"`
 		Decision      agentcontrol.AutomationDecision `json:"decision"`
-		Revision      agentcontrol.ManifestRevision    `json:"revision"`
+		Revision      agentcontrol.ManifestRevision   `json:"revision"`
 	}{
 		CorrelationID: flow.CorrelationID,
 		TraceID:       flow.TraceID,

@@ -17,9 +17,9 @@ const agentControlRequirementSystemPrompt = `You are the bounded Requirement Ana
 const requirementAnalyzerCandidateID = "qwen3.5-ops-planner"
 
 type agentControlRequirementAnalyzer struct {
-	config   ServerConfig
-	client   agentControlCompletionClient
-	fallback agentcontrol.LocalRequirementAnalyzer
+	config        ServerConfig
+	client        agentControlCompletionClient
+	localAnalyzer agentcontrol.LocalRequirementAnalyzer
 }
 
 func newAgentControlRequirementAnalyzer(
@@ -27,9 +27,9 @@ func newAgentControlRequirementAnalyzer(
 	client agentControlCompletionClient,
 ) agentControlRequirementAnalyzer {
 	return agentControlRequirementAnalyzer{
-		config:   config,
-		client:   client,
-		fallback: agentcontrol.LocalRequirementAnalyzer{},
+		config:        config,
+		client:        client,
+		localAnalyzer: agentcontrol.LocalRequirementAnalyzer{},
 	}
 }
 
@@ -38,23 +38,34 @@ func (analyzer agentControlRequirementAnalyzer) Analyze(
 	input agentcontrol.AutomationRunInput,
 ) (agentcontrol.RequirementAnalysisResult, error) {
 	if input.InputType != agentcontrol.InputTypeNaturalLanguage {
-		return analyzer.fallback.Analyze(ctx, input)
+		return analyzer.localAnalyzer.Analyze(ctx, input)
 	}
-
-	fallback, err := analyzer.fallback.Analyze(ctx, input)
-	if err != nil {
-		return agentcontrol.RequirementAnalysisResult{}, err
+	if analyzer.config.RequirementAnalysisMode == requirementAnalysisModeLocalRule {
+		return analyzer.localAnalyzer.Analyze(ctx, input)
+	}
+	if analyzer.config.RequirementAnalysisMode != requirementAnalysisModeQwen {
+		return agentcontrol.RequirementAnalysisResult{}, fmt.Errorf(
+			"requirement analysis mode is not configured",
+		)
 	}
 	if analyzer.client == nil {
-		return labelRequirementFallback(fallback), nil
+		return agentcontrol.RequirementAnalysisResult{}, fmt.Errorf(
+			"qwen requirement analysis failed: completion client is not configured",
+		)
 	}
 	candidateConfig, err := llmclient.LoadCandidateConfig(analyzer.config.LLMCandidatesPath)
 	if err != nil {
-		return labelRequirementFallback(fallback), nil
+		return agentcontrol.RequirementAnalysisResult{}, fmt.Errorf(
+			"qwen requirement analysis failed: load candidate configuration: %w",
+			err,
+		)
 	}
 	candidate, err := llmclient.FindEnabledCandidate(candidateConfig, requirementAnalyzerCandidateID)
 	if err != nil {
-		return labelRequirementFallback(fallback), nil
+		return agentcontrol.RequirementAnalysisResult{}, fmt.Errorf(
+			"qwen requirement analysis failed: select candidate: %w",
+			err,
+		)
 	}
 	completion, err := analyzer.client.Complete(
 		ctx,
@@ -63,20 +74,29 @@ func (analyzer agentControlRequirementAnalyzer) Analyze(
 		"Application request: "+strings.TrimSpace(input.Request),
 	)
 	if err != nil {
-		return labelRequirementFallback(fallback), nil
+		return agentcontrol.RequirementAnalysisResult{}, fmt.Errorf(
+			"qwen requirement analysis failed: complete request: %w",
+			err,
+		)
 	}
 	spec, err := parseStructuredAppSpec(completion.Content)
 	if err != nil {
-		return labelRequirementFallback(fallback), nil
+		return agentcontrol.RequirementAnalysisResult{}, fmt.Errorf(
+			"qwen requirement analysis failed: %w",
+			err,
+		)
 	}
-	replicaBoundsNormalized := normalizeNaturalLanguageReplicaBounds(&spec, fallback)
-	result, err := analyzer.fallback.Analyze(ctx, agentcontrol.AutomationRunInput{
+	replicaBoundsNormalized := normalizeNaturalLanguageReplicaBounds(&spec)
+	result, err := analyzer.localAnalyzer.Analyze(ctx, agentcontrol.AutomationRunInput{
 		InputType:   agentcontrol.InputTypeStructured,
 		RequestedBy: input.RequestedBy,
 		AppSpec:     &spec,
 	})
 	if err != nil {
-		return labelRequirementFallback(fallback), nil
+		return agentcontrol.RequirementAnalysisResult{}, fmt.Errorf(
+			"qwen requirement analysis failed: validate structured result: %w",
+			err,
+		)
 	}
 	result.Mode = agentcontrol.AnalysisModeQwen
 	result.Evidence = agentcontrol.RequirementAnalysisEvidence{
@@ -101,16 +121,14 @@ func (analyzer agentControlRequirementAnalyzer) Analyze(
 
 func normalizeNaturalLanguageReplicaBounds(
 	spec *agentcontrol.StructuredAppSpec,
-	fallback agentcontrol.RequirementAnalysisResult,
 ) bool {
-	fallbackBounds := fallback.ApplicationProfile.Requirements.Deployment
 	normalized := false
 	if spec.ReplicasMin <= 0 {
-		spec.ReplicasMin = fallbackBounds.ReplicasMin
+		spec.ReplicasMin = 1
 		normalized = true
 	}
-	if spec.ReplicasMax < fallbackBounds.ReplicasMax {
-		spec.ReplicasMax = fallbackBounds.ReplicasMax
+	if spec.ReplicasMax < 2 {
+		spec.ReplicasMax = 2
 		normalized = true
 	}
 	if spec.ReplicasMax < spec.ReplicasMin {
@@ -135,20 +153,4 @@ func parseStructuredAppSpec(content string) (agentcontrol.StructuredAppSpec, err
 		return spec, fmt.Errorf("parse structured App Spec: %w", err)
 	}
 	return spec, nil
-}
-
-func labelRequirementFallback(
-	result agentcontrol.RequirementAnalysisResult,
-) agentcontrol.RequirementAnalysisResult {
-	result.Mode = agentcontrol.AnalysisModeLocalRule
-	result.Evidence.Mode = agentcontrol.AnalysisModeLocalRule
-	result.Evidence.Assumptions = append(
-		result.Evidence.Assumptions,
-		"Qwen was unavailable or disabled; local rule analysis was used.",
-	)
-	result.ApplicationProfile.Analysis.Assumptions = append(
-		result.ApplicationProfile.Analysis.Assumptions,
-		"Qwen was unavailable or disabled; local rule analysis was used.",
-	)
-	return result
 }

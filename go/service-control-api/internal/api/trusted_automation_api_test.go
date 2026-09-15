@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"strings"
 	"testing"
@@ -155,6 +156,42 @@ func TestTrustedAutomationRunAPIRejectsMissingTrustBinding(t *testing.T) {
 	)
 	if response.Code != http.StatusBadRequest || fake.calls != 0 {
 		t.Fatalf("missing trust binding: code=%d calls=%d body=%s", response.Code, fake.calls, response.Body.String())
+	}
+}
+
+func TestTrustedAutomationRunAPIDoesNotExposeInternalError(t *testing.T) {
+	const internalDetail = "provider token=secret-value"
+	fake := &recordingTrustedFlowOrchestrator{err: errors.New(internalDetail)}
+	server := echo.New()
+	server.Validator = requestValidator{validator: playgroundvalidator.New()}
+	handler := restHandler{service: Service{trustedOrchestration: fake}}
+	server.POST(
+		pathAgentControl+"/trusted-automation-runs",
+		handler.RestPostTrustedAutomationRun,
+	)
+
+	response := performJSONRequest(
+		t,
+		server,
+		http.MethodPost,
+		"/api/v1/agent-control/trusted-automation-runs",
+		`{
+			"app_version_id":"appver-geon-poc-001",
+			"candidate_id":"qwen3.5-ops-planner",
+			"input":{
+				"input_type":"natural_language",
+				"request":"GPU 1개로 배포해 주세요."
+			}
+		}`,
+	)
+	if response.Code != http.StatusBadRequest {
+		t.Fatalf("trusted automation failure: code=%d body=%s", response.Code, response.Body.String())
+	}
+	if strings.Contains(response.Body.String(), internalDetail) {
+		t.Fatalf("response exposed an internal error: %s", response.Body.String())
+	}
+	if !strings.Contains(response.Body.String(), `"error":"trusted_automation_failed"`) {
+		t.Fatalf("response omitted the stable error code: %s", response.Body.String())
 	}
 }
 

@@ -8,6 +8,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/rs/zerolog/log"
 )
 
 type Reasoner interface {
@@ -406,6 +408,7 @@ func (service *Service) CompareReasoning(
 		modelResult.CandidateID = candidateID
 	}
 	if err != nil {
+		log.Error().Err(err).Str("candidate_id", candidateID).Msg("reasoning provider request failed")
 		executionStatus := strings.TrimSpace(modelResult.ExecutionStatus)
 		if executionStatus == "" || executionStatus == "not_executed" {
 			executionStatus = ReasoningProviderUnavailable
@@ -418,7 +421,7 @@ func (service *Service) CompareReasoning(
 			ActualModel:     modelResult.ActualModel,
 			LatencyMS:       modelResult.LatencyMS,
 			GuardStatus:     GuardNotApplied,
-			Error:           err.Error(),
+			Error:           ReasoningProviderUnavailable,
 		}
 		comparison.ValidatedInference.Error = "validation was skipped because the provider did not return a proposal"
 		if storeErr := service.storeReasoningComparison(flow, comparison); storeErr != nil {
@@ -550,7 +553,7 @@ func (service *Service) storeReasoningComparison(
 	current, ok := service.flows[source.CorrelationID]
 	if !ok || current.Decision == nil || source.Decision == nil ||
 		current.Decision.DecisionID != source.Decision.DecisionID {
-		return fmt.Errorf("Agent Control flow changed while reasoning comparison was running")
+		return fmt.Errorf("agent Control flow changed while reasoning comparison was running")
 	}
 	value := comparison
 	current.ReasoningComparison = &value
@@ -658,8 +661,9 @@ func (service *Service) evaluateFlowLegacy(ctx context.Context, flow Flow) Flow 
 			Action:     AutomationDecisionAction,
 		})
 		if err != nil {
+			log.Error().Err(err).Msg("Agent Registry authorization failed")
 			result.Authorized = false
-			result.Reason = "Agent Registry authorization failed: " + err.Error()
+			result.Reason = "Agent Registry authorization failed."
 		}
 		authorization = result
 	}

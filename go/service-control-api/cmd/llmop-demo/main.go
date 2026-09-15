@@ -109,7 +109,7 @@ func decodeJSONFile(path string, output any) error {
 	var extra any
 	if err := decoder.Decode(&extra); err != io.EOF {
 		if err == nil {
-			return errors.New("JSON fixture contains multiple values")
+			return errors.New("fixture JSON contains multiple values")
 		}
 		return fmt.Errorf("decode trailing JSON fixture data: %w", err)
 	}

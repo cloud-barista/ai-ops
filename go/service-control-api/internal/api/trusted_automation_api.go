@@ -10,23 +10,12 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/rs/zerolog/log"
 
 	"kyunghee-aiops/service-control-api/internal/agentcontrol"
 	"kyunghee-aiops/service-control-api/internal/llmop"
 	"kyunghee-aiops/service-control-api/internal/trustedorchestration"
 )
-
-type TrustedAutomationRunRequest struct {
-	AppVersionID string                          `json:"app_version_id" validate:"required"`
-	CandidateID  string                          `json:"candidate_id" validate:"required"`
-	Input        agentcontrol.AutomationRunInput `json:"input" validate:"required"`
-}
-
-type TrustedAutomationRunErrorResponse struct {
-	Message string                      `json:"message"`
-	Error   string                      `json:"error"`
-	Result  trustedorchestration.Result `json:"result"`
-}
 
 // RestPostTrustedAutomationRun godoc
 // @ID PostTrustedAutomationRun
@@ -50,9 +39,10 @@ func (handler restHandler) RestPostTrustedAutomationRun(context echo.Context) er
 		request,
 	)
 	if err != nil {
+		log.Error().Err(err).Msg("trusted automation request failed")
 		return context.JSON(http.StatusBadRequest, TrustedAutomationRunErrorResponse{
 			Message: "Guard-first automation request could not be processed",
-			Error:   err.Error(),
+			Error:   "trusted_automation_failed",
 			Result:  result,
 		})
 	}

@@ -104,13 +104,13 @@ func TestReviewRequestDoesNotIssueContinuationForNonAllowDecisions(t *testing.T)
 		wantStatus string
 	}{
 		{
-			name: "clarification",
-			content: `{"decision":"request_clarification","reason_code":"RESOURCE_VALUES_REQUIRED","reason":"Explicit resource intent is required.","confidence":0.9}`,
+			name:       "clarification",
+			content:    `{"decision":"request_clarification","reason_code":"RESOURCE_VALUES_REQUIRED","reason":"Explicit resource intent is required.","confidence":0.9}`,
 			wantStatus: StatusClarificationNeeded,
 		},
 		{
-			name: "rejection",
-			content: `{"decision":"reject_request","reason_code":"RESPONSIBILITY_BOUNDARY","reason":"The request is outside the bounded responsibility.","confidence":0.9}`,
+			name:       "rejection",
+			content:    `{"decision":"reject_request","reason_code":"RESPONSIBILITY_BOUNDARY","reason":"The request is outside the bounded responsibility.","confidence":0.9}`,
 			wantStatus: StatusRequestRejected,
 		},
 	}
@@ -212,8 +212,8 @@ func TestPrepareApprovedRejectsChangedBoundInputsBeforeProposal(t *testing.T) {
 	}
 
 	tests := []struct {
-		name      string
-		mutate    func(*Request, *llmclient.Candidate, *plannerguard.Policy, *SafeguardStageResult)
+		name   string
+		mutate func(*Request, *llmclient.Candidate, *plannerguard.Policy, *SafeguardStageResult)
 	}{
 		{
 			name: "user request",

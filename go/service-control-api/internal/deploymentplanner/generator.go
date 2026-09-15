@@ -58,7 +58,7 @@ func (generator Generator) Generate(ctx context.Context, candidate llmclient.Can
 		return result, err
 	}
 	if generator.client == nil {
-		return result, fmt.Errorf("LLM completion client is required")
+		return result, fmt.Errorf("completion client for LLM is required")
 	}
 	if strings.TrimSpace(input.NaturalLanguageRequest) == "" {
 		return result, fmt.Errorf("natural language deployment request is required")
@@ -74,7 +74,7 @@ func (generator Generator) Generate(ctx context.Context, candidate llmclient.Can
 	}
 	if err := appdeploy.ValidateRequirementsSecretKeys(input.Requirements); err != nil {
 		result.ExecutionStatus = "rejected"
-		result.GuardReason = err.Error()
+		result.GuardReason = "deployment requirements contain unsupported sensitive fields"
 		return result, fmt.Errorf("deployment requirements rejected before Qwen: %w", err)
 	}
 
@@ -108,7 +108,7 @@ func (generator Generator) Generate(ctx context.Context, candidate llmclient.Can
 	result.LatencyMS = completion.LatencyMS
 	if err != nil {
 		result.ExecutionStatus = "llm_failed"
-		return result, fmt.Errorf("LLM deployment manifest call failed: %w", err)
+		return result, fmt.Errorf("deployment manifest call to LLM failed: %w", err)
 	}
 
 	manifest, err := parseManifest(completion.Content)
@@ -134,7 +134,7 @@ func (generator Generator) Generate(ctx context.Context, candidate llmclient.Can
 		Requirements:    input.Requirements,
 	}); err != nil {
 		result.ExecutionStatus = "rejected"
-		result.GuardReason = err.Error()
+		result.GuardReason = "deployment manifest failed contract validation"
 		return result, fmt.Errorf("deployment manifest Go Guard rejected the proposal: %w", err)
 	}
 	result.ExecutionStatus = "executed"

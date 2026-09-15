@@ -45,7 +45,7 @@ func (runtime *registryDecisionAgentRuntime) Decide(
 	agent, err := resolveDecisionAgent(registry, runtime.runtimeAgents.list(), request.RequestedAgent)
 	if err != nil {
 		result.AgentName = strings.TrimSpace(request.RequestedAgent)
-		result.RequestGuard = agentControlGuard(rejectedGuardDecision(err.Error()), "agent_registry")
+		result.RequestGuard = agentControlGuard(rejectedGuardDecision("Decision Agent authorization failed."), "agent_registry")
 		result.Message = "Decision Agent authorization was rejected."
 		return result, err
 	}
@@ -54,7 +54,7 @@ func (runtime *registryDecisionAgentRuntime) Decide(
 
 	input, err := decisionRuntimeInput(request)
 	if err != nil {
-		result.RequestGuard = agentControlGuard(rejectedGuardDecision(err.Error()), "agent_request")
+		result.RequestGuard = agentControlGuard(rejectedGuardDecision("Decision Agent input could not be encoded."), "agent_request")
 		result.Message = "Decision Agent input could not be encoded."
 		return result, err
 	}
@@ -97,7 +97,7 @@ func (runtime *registryDecisionAgentRuntime) Decide(
 	}
 	decision, err := decodeDecisionProposal(execution.Proposal.Parameters)
 	if err != nil {
-		result.ResultGuard = agentControlGuard(rejectedGuardDecision(err.Error()), "agent_result_guard")
+		result.ResultGuard = agentControlGuard(rejectedGuardDecision("Decision Agent proposal could not be decoded."), "agent_result_guard")
 		return result, err
 	}
 	result.Decision = decision

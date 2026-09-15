@@ -54,13 +54,13 @@ func (service Service) ConfigureAutonomy(config autonomy.Config) error {
 	if runID != "" {
 		run, ok := service.controlRuns.Get(runID)
 		if !ok {
-			return fmt.Errorf("ControlRun was not found: %s", runID)
+			return fmt.Errorf("controlRun was not found: %s", runID)
 		}
 		if run.Status != controlrun.StatusDeployed || run.Deployment == nil || strings.TrimSpace(run.Deployment.DeploymentID) == "" {
-			return fmt.Errorf("ControlRun is not linked to a deployed application: %s", runID)
+			return fmt.Errorf("controlRun is not linked to a deployed application: %s", runID)
 		}
 		if strings.TrimSpace(config.DeploymentID) != "" && config.DeploymentID != run.Deployment.DeploymentID {
-			return fmt.Errorf("Autonomy deployment_id does not match the ControlRun deployment")
+			return fmt.Errorf("autonomy deployment_id does not match the ControlRun deployment")
 		}
 		config.RunID = runID
 		config.DeploymentID = run.Deployment.DeploymentID
@@ -91,7 +91,7 @@ func (service Service) SubmitControlRunWithDeployer(
 		return run, err
 	}
 	if !result.Valid {
-		return run, fmt.Errorf("AppDeploy did not reach a successful terminal state: %s", result.Status)
+		return run, fmt.Errorf("appDeploy did not reach a successful terminal state: %s", result.Status)
 	}
 	return run, nil
 }
@@ -108,10 +108,10 @@ func (service Service) submitControlRunWithDeployerResult(
 	runID = normalizeControlRunID(runID)
 	run, ok := service.controlRuns.Get(runID)
 	if !ok {
-		return controlrun.Run{}, deploymentplanner.Response{}, fmt.Errorf("ControlRun was not found: %s", runID)
+		return controlrun.Run{}, deploymentplanner.Response{}, fmt.Errorf("controlRun was not found: %s", runID)
 	}
 	if run.Status != controlrun.StatusManifestApproved && run.Status != controlrun.StatusAppDeployFailed {
-		return run, deploymentplanner.Response{}, fmt.Errorf("ControlRun status %s cannot be submitted", run.Status)
+		return run, deploymentplanner.Response{}, fmt.Errorf("controlRun status %s cannot be submitted", run.Status)
 	}
 
 	registry, err := loadAgentRegistry(service.config.path("config", "agent_registry.json"))
@@ -124,7 +124,7 @@ func (service Service) submitControlRunWithDeployerResult(
 			run.Stages = append(run.Stages, completedControlRunStage(
 				"agent_registry_submit",
 				"rejected",
-				err.Error(),
+				"Manifest submission was not authorized by the Agent Registry.",
 				map[string]any{"agent": run.SelectedAgent.Name, "action": actionSubmitDeploymentManifest},
 			))
 			return nil
@@ -171,7 +171,7 @@ func (service Service) submitControlRunWithDeployerResult(
 		stageReason = result.Status
 		runStatus = controlrun.StatusAppDeployFailed
 		if deployErr != nil {
-			stageReason = deployErr.Error()
+			stageReason = "AppDeploy submission or status polling failed."
 		}
 	}
 	run, err = service.controlRuns.Update(runID, func(run *controlrun.Run) error {
@@ -208,10 +208,10 @@ func (service Service) failControlRunSubmission(runID string, cause error) (cont
 	runID = normalizeControlRunID(runID)
 	run, ok := service.controlRuns.Get(runID)
 	if !ok {
-		return controlrun.Run{}, fmt.Errorf("ControlRun was not found: %s", runID)
+		return controlrun.Run{}, fmt.Errorf("controlRun was not found: %s", runID)
 	}
 	if run.Status != controlrun.StatusManifestApproved && run.Status != controlrun.StatusAppDeployFailed {
-		return run, fmt.Errorf("ControlRun status %s cannot be submitted", run.Status)
+		return run, fmt.Errorf("controlRun status %s cannot be submitted", run.Status)
 	}
 	run, err := service.controlRuns.Update(runID, func(run *controlrun.Run) error {
 		run.Status = controlrun.StatusAppDeployFailed
@@ -306,7 +306,7 @@ func (service Service) continueGuardedManifestPlanning(
 ) (controlrun.Run, error) {
 	run, ok := service.controlRuns.Get(runID)
 	if !ok {
-		return controlrun.Run{}, fmt.Errorf("ControlRun was not found: %s", runID)
+		return controlrun.Run{}, fmt.Errorf("controlRun was not found: %s", runID)
 	}
 	if err := ensureContext(ctx); err != nil {
 		run, updateErr := service.controlRuns.Update(run.RunID, func(run *controlrun.Run) error {
@@ -330,7 +330,7 @@ func (service Service) continueGuardedManifestPlanning(
 	request = normalizeCreateControlRunRequest(request)
 	policy, err := plannerguard.LoadPolicy(guardPolicyPath)
 	if err != nil {
-		return service.rejectControlRun(run.RunID, controlrun.StatusRequestRejected, "request_guard", err.Error(), nil)
+		return service.rejectControlRun(run.RunID, controlrun.StatusRequestRejected, "request_guard", "Request Guard policy could not be loaded.", nil)
 	}
 	requestGuard := plannerguard.ValidateRequest(plannerguard.Request{
 		NaturalLanguageRequest: request.NaturalLanguageRequest,
@@ -356,16 +356,16 @@ func (service Service) continueGuardedManifestPlanning(
 		return run, err
 	}
 	if !requestGuard.Valid {
-		return run, fmt.Errorf("Go Request Guard rejected the deployment request: %s", requestGuard.Reason)
+		return run, fmt.Errorf("go Request Guard rejected the deployment request: %s", requestGuard.Reason)
 	}
 
 	registry, err := loadAgentRegistry(service.config.path("config", "agent_registry.json"))
 	if err != nil {
-		return service.rejectControlRun(run.RunID, controlrun.StatusAgentRejected, "agent_registry", err.Error(), nil)
+		return service.rejectControlRun(run.RunID, controlrun.StatusAgentRejected, "agent_registry", "Agent Registry could not be loaded.", nil)
 	}
 	selection, err := resolvePlannerAgent(registry, request.AgentName, actionGenerateDeploymentManifest)
 	if err != nil {
-		return service.rejectControlRun(run.RunID, controlrun.StatusAgentRejected, "agent_registry", err.Error(), nil)
+		return service.rejectControlRun(run.RunID, controlrun.StatusAgentRejected, "agent_registry", "Manifest Planner Agent authorization failed.", nil)
 	}
 	run, err = service.controlRuns.Update(run.RunID, func(run *controlrun.Run) error {
 		run.SelectedAgent = selection
@@ -384,7 +384,7 @@ func (service Service) continueGuardedManifestPlanning(
 
 	selectedAgent, err := findAgent(registry.Agents, selection.Name)
 	if err != nil {
-		return service.rejectControlRun(run.RunID, controlrun.StatusManifestRejected, "agent_dispatch", err.Error(), nil)
+		return service.rejectControlRun(run.RunID, controlrun.StatusManifestRejected, "agent_dispatch", "Manifest Planner Agent is unavailable.", nil)
 	}
 	selectedAgent.Source = selection.Source
 	dispatcher := newAgentDispatcher(
@@ -412,7 +412,7 @@ func (service Service) continueGuardedManifestPlanning(
 	dispatchReason := "Agent Dispatcher completed AIApplicationAutomationAgent"
 	if generationErr != nil {
 		dispatchStatus = "rejected"
-		dispatchReason = generationErr.Error()
+		dispatchReason = "Deployment Manifest generation failed."
 	}
 	run, err = service.controlRuns.Update(run.RunID, func(run *controlrun.Run) error {
 		run.Execution = controlRunAgentExecution(execution, "")
@@ -442,7 +442,7 @@ func (service Service) continueGuardedManifestPlanning(
 		requirementsSafe = false
 		generation.ExecutionStatus = "rejected"
 		generation.GuardValid = false
-		generation.GuardReason = err.Error()
+		generation.GuardReason = "Deployment Manifest contains unsupported sensitive requirement fields."
 		if generationErr == nil {
 			generationErr = fmt.Errorf("deployment manifest Go Guard rejected the proposal: %w", err)
 		}
@@ -451,7 +451,7 @@ func (service Service) continueGuardedManifestPlanning(
 	qwenReason := "Qwen generated a DeploymentManifest candidate"
 	if generationErr != nil {
 		qwenStatus = "rejected"
-		qwenReason = generationErr.Error()
+		qwenReason = "Qwen Manifest generation failed."
 	}
 	run, err = service.controlRuns.Update(run.RunID, func(run *controlrun.Run) error {
 		if requirementsSafe {
@@ -508,7 +508,7 @@ func (service Service) continueGuardedManifestPlanning(
 	runStatus := controlrun.StatusManifestApproved
 	if manifestErr != nil {
 		guardStatus = "rejected"
-		guardReason = manifestErr.Error()
+		guardReason = "Deployment Manifest failed contract validation."
 		runStatus = controlrun.StatusManifestRejected
 	}
 	run, err = service.controlRuns.Update(run.RunID, func(run *controlrun.Run) error {
@@ -529,7 +529,7 @@ func (service Service) continueGuardedManifestPlanning(
 		return run, err
 	}
 	if manifestErr != nil {
-		return run, fmt.Errorf("DeploymentManifest Go Guard rejected the proposal: %w", manifestErr)
+		return run, fmt.Errorf("deploymentManifest Go Guard rejected the proposal: %w", manifestErr)
 	}
 	return run, nil
 }

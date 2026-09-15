@@ -24,17 +24,17 @@ const (
 // exact normalized request. It intentionally contains no Manifest, proposal,
 // target, runtime, or AppDeploy submission payload.
 type SafeguardStageResult struct {
-	APIVersion    string                         `json:"api_version"`
-	Stage         string                         `json:"stage"`
-	RequestID     string                         `json:"request_id,omitempty"`
-	CorrelationID string                         `json:"correlation_id,omitempty"`
-	TraceID       string                         `json:"trace_id,omitempty"`
-	Status        string                         `json:"status"`
-	Approved      bool                           `json:"approved"`
-	Decision      Decision                       `json:"decision"`
-	RequestGuard  plannerguard.Decision          `json:"request_guard"`
-	Review        *SafeguardReviewEvidence       `json:"review,omitempty"`
-	Input         InputSummary                   `json:"input"`
+	APIVersion    string                        `json:"api_version"`
+	Stage         string                        `json:"stage"`
+	RequestID     string                        `json:"request_id,omitempty"`
+	CorrelationID string                        `json:"correlation_id,omitempty"`
+	TraceID       string                        `json:"trace_id,omitempty"`
+	Status        string                        `json:"status"`
+	Approved      bool                          `json:"approved"`
+	Decision      Decision                      `json:"decision"`
+	RequestGuard  plannerguard.Decision         `json:"request_guard"`
+	Review        *SafeguardReviewEvidence      `json:"review,omitempty"`
+	Input         InputSummary                  `json:"input"`
 	Continuation  *ApprovedContinuationEvidence `json:"continuation,omitempty"`
 }
 
@@ -43,29 +43,29 @@ type SafeguardStageResult struct {
 // safeguard decision that were reviewed. The binding is audit evidence, not a
 // bearer token: it authorizes neither deployment nor AppDeploy submission.
 type ApprovedContinuationEvidence struct {
-	Stage              string   `json:"stage"`
-	RequestID          string   `json:"request_id"`
-	CorrelationID      string   `json:"correlation_id"`
-	TraceID            string   `json:"trace_id,omitempty"`
-	PolicyVersion      string   `json:"policy_version"`
-	CandidateID        string   `json:"candidate_id"`
-	ReviewDecision     string   `json:"review_decision"`
-	ReviewReasonCode   string   `json:"review_reason_code"`
-	Confidence         *float64 `json:"confidence"`
-	ObservationStatus  string   `json:"observation_status"`
-	BindingAlgorithm   string   `json:"binding_algorithm"`
-	RequestBinding     string   `json:"request_binding"`
-	SubmissionMode     string   `json:"submission_mode"`
+	Stage             string   `json:"stage"`
+	RequestID         string   `json:"request_id"`
+	CorrelationID     string   `json:"correlation_id"`
+	TraceID           string   `json:"trace_id,omitempty"`
+	PolicyVersion     string   `json:"policy_version"`
+	CandidateID       string   `json:"candidate_id"`
+	ReviewDecision    string   `json:"review_decision"`
+	ReviewReasonCode  string   `json:"review_reason_code"`
+	Confidence        *float64 `json:"confidence"`
+	ObservationStatus string   `json:"observation_status"`
+	BindingAlgorithm  string   `json:"binding_algorithm"`
+	RequestBinding    string   `json:"request_binding"`
+	SubmissionMode    string   `json:"submission_mode"`
 }
 
 type safeguardBindingEnvelope struct {
-	APIVersion    string                  `json:"api_version"`
-	Stage         string                  `json:"stage"`
-	Request       Request                 `json:"request"`
-	Normalized    NormalizedContext       `json:"normalized"`
-	Policy        plannerguard.Policy     `json:"policy"`
-	Candidate     llmclient.Candidate     `json:"candidate"`
-	Review        SafeguardReview         `json:"review"`
+	APIVersion     string                  `json:"api_version"`
+	Stage          string                  `json:"stage"`
+	Request        Request                 `json:"request"`
+	Normalized     NormalizedContext       `json:"normalized"`
+	Policy         plannerguard.Policy     `json:"policy"`
+	Candidate      llmclient.Candidate     `json:"candidate"`
+	Review         SafeguardReview         `json:"review"`
 	ReviewEvidence SafeguardReviewEvidence `json:"review_evidence"`
 }
 

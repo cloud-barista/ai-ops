@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
+	"github.com/rs/zerolog/log"
 
 	"kyunghee-aiops/service-control-api/internal/appdeploy"
 	"kyunghee-aiops/service-control-api/internal/controlrun"
@@ -22,13 +23,6 @@ var (
 	applicationNonNegativeInteger = regexp.MustCompile(`^[0-9]+$`)
 	applicationMemoryQuantity     = regexp.MustCompile(`^[1-9][0-9]*(Mi|Gi|Ti)$`)
 )
-
-// PackageControlRunErrorResponse documents the flat fields returned by either
-// an ErrorResponse before Run creation or a persisted Run after creation.
-type PackageControlRunErrorResponse struct {
-	ErrorResponse
-	controlrun.Run
-}
 
 // RestPostControlRunFromPackage godoc
 // @ID CreateControlRunFromPackage
@@ -73,7 +67,11 @@ func (handler restHandler) RestPostControlRunFromPackage(context echo.Context) e
 	)
 	parseErr := request.ParseMultipartForm(applicationUploadMemoryBytes)
 	if request.MultipartForm != nil {
-		defer request.MultipartForm.RemoveAll()
+		defer func() {
+			if removeErr := request.MultipartForm.RemoveAll(); removeErr != nil {
+				log.Warn().Err(removeErr).Msg("remove temporary multipart files")
+			}
+		}()
 	}
 	if parseErr != nil {
 		if isApplicationUploadTooLarge(parseErr) {
@@ -91,7 +89,11 @@ func (handler restHandler) RestPostControlRunFromPackage(context echo.Context) e
 	if err != nil {
 		return jsonError(context, http.StatusBadRequest, "Application source is required", err)
 	}
-	defer source.Close()
+	defer func() {
+		if closeErr := source.Close(); closeErr != nil {
+			log.Warn().Err(closeErr).Msg("close uploaded application source")
+		}
+	}()
 	if header.Size <= 0 {
 		return jsonError(
 			context,

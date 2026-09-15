@@ -12,13 +12,13 @@ const (
 
 	ModePrepareOnly = "prepare_only"
 
-	StatusHandoffReady         = "HANDOFF_READY"
-	StatusSafeguardApproved    = "SAFEGUARD_APPROVED"
+	StatusHandoffReady        = "HANDOFF_READY"
+	StatusSafeguardApproved   = "SAFEGUARD_APPROVED"
 	StatusClarificationNeeded = "CLARIFICATION_REQUIRED"
-	StatusRequestRejected      = "REQUEST_REJECTED"
-	StatusManifestRejected     = "MANIFEST_REJECTED"
-	StatusModelUnavailable     = "MODEL_UNAVAILABLE"
-	StatusConfigurationError   = "CONFIGURATION_ERROR"
+	StatusRequestRejected     = "REQUEST_REJECTED"
+	StatusManifestRejected    = "MANIFEST_REJECTED"
+	StatusModelUnavailable    = "MODEL_UNAVAILABLE"
+	StatusConfigurationError  = "CONFIGURATION_ERROR"
 )
 
 type Request struct {
@@ -70,10 +70,10 @@ type RecommendedResources struct {
 }
 
 type OperationContext struct {
-	ResourceSnapshot  *ResourceSnapshot     `json:"resource_snapshot,omitempty"`
+	ResourceSnapshot  *ResourceSnapshot      `json:"resource_snapshot,omitempty"`
 	MonitoringSummary *MonitoringObservation `json:"monitoring_summary,omitempty"`
-	DeploymentLogs    *LogObservation       `json:"deployment_logs,omitempty"`
-	MetricsSummary    *MetricsObservation   `json:"metrics_summary,omitempty"`
+	DeploymentLogs    *LogObservation        `json:"deployment_logs,omitempty"`
+	MetricsSummary    *MetricsObservation    `json:"metrics_summary,omitempty"`
 }
 
 type ResourceSnapshot struct {
@@ -131,12 +131,12 @@ type NormalizedContext struct {
 }
 
 type Decision struct {
-	Action            string    `json:"action"`
-	ReasonCode        string    `json:"reason_code,omitempty"`
-	Reason            string    `json:"reason"`
-	Confidence        *float64  `json:"confidence,omitempty"`
-	Assumptions       []string  `json:"assumptions,omitempty"`
-	ObservationStatus string    `json:"observation_status"`
+	Action            string   `json:"action"`
+	ReasonCode        string   `json:"reason_code,omitempty"`
+	Reason            string   `json:"reason"`
+	Confidence        *float64 `json:"confidence,omitempty"`
+	Assumptions       []string `json:"assumptions,omitempty"`
+	ObservationStatus string   `json:"observation_status"`
 }
 
 type ManifestGuard struct {
@@ -168,14 +168,14 @@ type SafeguardReviewEvidence struct {
 }
 
 type InputSummary struct {
-	ObservationStatus       string   `json:"observation_status"`
+	ObservationStatus        string   `json:"observation_status"`
 	ResourceSnapshotIncluded bool     `json:"resource_snapshot_included"`
-	MonitoringIncluded      bool     `json:"monitoring_included"`
-	LogsIncluded            bool     `json:"logs_included"`
-	MetricsIncluded         bool     `json:"metrics_included"`
-	RedactedValues          int      `json:"redacted_values"`
-	DroppedLogs             int      `json:"dropped_logs"`
-	StaleSources            []string `json:"stale_sources,omitempty"`
+	MonitoringIncluded       bool     `json:"monitoring_included"`
+	LogsIncluded             bool     `json:"logs_included"`
+	MetricsIncluded          bool     `json:"metrics_included"`
+	RedactedValues           int      `json:"redacted_values"`
+	DroppedLogs              int      `json:"dropped_logs"`
+	StaleSources             []string `json:"stale_sources,omitempty"`
 }
 
 type Evidence struct {
@@ -185,8 +185,8 @@ type Evidence struct {
 }
 
 type Handoff struct {
-	SubmissionMode  string                              `json:"submission_mode"`
-	NextEndpoint    string                              `json:"next_endpoint,omitempty"`
+	SubmissionMode  string                             `json:"submission_mode"`
+	NextEndpoint    string                             `json:"next_endpoint,omitempty"`
 	PreparedRequest *appdeploy.DeploymentCreateRequest `json:"prepared_request,omitempty"`
 }
 

@@ -72,10 +72,6 @@ func scalingLowUtilizationEvidence(resource ResourceMetrics) []string {
 	}
 }
 
-func evaluateScalingDecision(flow Flow, now time.Time) *ScalingDecision {
-	return ProposeRuleBasedScalingDecision(flow, now)
-}
-
 func NormalizeScalingAction(action string) string {
 	action = strings.TrimSpace(action)
 	if action == ScalingActionNoAction {

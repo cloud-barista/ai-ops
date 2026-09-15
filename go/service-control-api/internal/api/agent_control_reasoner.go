@@ -40,7 +40,7 @@ func (reasoner agentControlReasoner) Propose(
 		CandidateID:     candidateID,
 	}
 	if reasoner.client == nil {
-		return result, fmt.Errorf("LLM completion client is required")
+		return result, fmt.Errorf("completion client for LLM is required")
 	}
 	candidateConfig, err := llmclient.LoadCandidateConfig(reasoner.config.LLMCandidatesPath)
 	if err != nil {

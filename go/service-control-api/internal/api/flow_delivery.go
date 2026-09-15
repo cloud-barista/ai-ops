@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -15,36 +16,10 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/rs/zerolog/log"
 	"kyunghee-aiops/service-control-api/internal/agentcontrol"
 	"kyunghee-aiops/service-control-api/internal/appdeploy"
 )
-
-type ExternalFlowRequest struct {
-	ApplicationContext     agentcontrol.ApplicationContextEnvelope     `json:"application_context"`
-	ResourceRecommendation agentcontrol.ResourceRecommendationEnvelope `json:"resource_recommendation"`
-	DecisionAgent          string                                      `json:"decision_agent,omitempty"`
-	InputOrigin            string                                      `json:"input_origin,omitempty"`
-}
-
-type FlowDeliveryRequest struct {
-	AppVersionID           string `json:"app_version_id" validate:"required"`
-	AcceptProjectionLimits bool   `json:"accept_projection_limits"`
-}
-
-type FlowDelivery struct {
-	CorrelationID     string                               `json:"correlation_id"`
-	DecisionID        string                               `json:"decision_id"`
-	Revision          int                                  `json:"revision"`
-	Status            string                               `json:"status"`
-	ManifestSHA256    string                               `json:"manifest_sha256"`
-	Request           appdeploy.DeploymentCreateRequest    `json:"request"`
-	Deployment        *appdeploy.DeploymentResponse        `json:"deployment,omitempty"`
-	Metrics           *appdeploy.DeploymentMetricsResponse `json:"metrics,omitempty"`
-	Flow              *agentcontrol.Flow                   `json:"flow,omitempty"`
-	UpdatedAt         string                               `json:"updated_at"`
-	DestinationSHA256 string                               `json:"destination_sha256"`
-	Limitations       []string                             `json:"limitations"`
-}
 
 type flowDeliveryStore struct{ mu sync.Mutex }
 
@@ -151,7 +126,11 @@ func saveDelivery(path string, record FlowDelivery, exclusive bool) error {
 	if err != nil {
 		return err
 	}
-	defer os.Remove(file.Name())
+	defer func() {
+		if removeErr := os.Remove(file.Name()); removeErr != nil && !errors.Is(removeErr, os.ErrNotExist) {
+			log.Warn().Err(removeErr).Msg("remove temporary Flow delivery file")
+		}
+	}()
 	_, err = file.Write(data)
 	if err == nil {
 		err = file.Sync()
@@ -171,27 +150,27 @@ func (s Service) deliverFlow(ctx context.Context, id string, request FlowDeliver
 	defer s.flowDelivery.mu.Unlock()
 	var result FlowDelivery
 	if submit && !s.config.AppDeploySubmitEnabled {
-		return result, fmt.Errorf("AppDeployer submission is disabled on this server")
+		return result, fmt.Errorf("appDeployer submission is disabled on this server")
 	}
 	if submit && !request.AcceptProjectionLimits {
-		return result, fmt.Errorf("Review the prepared request limitations and explicitly accept the AppSpec execution settings and AppDeployer target selection")
+		return result, fmt.Errorf("review the prepared request limitations and explicitly accept the AppSpec execution settings and AppDeployer target selection")
 	}
 	client, err := appdeploy.NewClient(s.config.AppDeployBaseURL, nil)
 	if err != nil {
-		return result, fmt.Errorf("Configure AIOPS_APPDEPLOY_BASE_URL first")
+		return result, fmt.Errorf("configure AIOPS_APPDEPLOY_BASE_URL first")
 	}
 	if existing, readErr := s.readDelivery(id); readErr == nil {
 		if existing.Request.Manifest.Spec.AppVersionID != request.AppVersionID || existing.DestinationSHA256 != deliveryHash(s.config.AppDeployBaseURL) {
-			return result, fmt.Errorf("Flow already has a different delivery binding")
+			return result, fmt.Errorf("flow already has a different delivery binding")
 		}
 		return existing, nil
 	} else if !os.IsNotExist(readErr) {
-		return result, fmt.Errorf("Delivery journal is unreadable; submission blocked")
+		return result, fmt.Errorf("delivery journal is unreadable; submission blocked")
 	}
 	err = s.agentControl.WithApprovedInitialFlow(id, func(flow agentcontrol.Flow) error {
 		apps, err := client.ListApps(ctx)
 		if err != nil {
-			return fmt.Errorf("AppDeployer App Registry is unavailable")
+			return fmt.Errorf("appDeployer App Registry is unavailable")
 		}
 		profile := flow.ApplicationContext.Data.ApplicationProfile
 		var registered *appdeploy.AppRegistrationResponse
@@ -203,17 +182,17 @@ func (s Service) deliverFlow(ctx context.Context, id string, request FlowDeliver
 			}
 		}
 		if registered == nil {
-			return fmt.Errorf("Registered app name or app_id and version must match the Flow ApplicationProfile")
+			return fmt.Errorf("registered app name or app_id and version must match the Flow ApplicationProfile")
 		}
 		canonical := flow.ManifestRevisions[0].DeploymentRequest.Data.DeploymentRequest.DeploymentManifest
 		infra := canonical.DesiredInfrastructure
 		if infra.NodeCount != 1 || canonical.InferenceConfiguration.Replicas != 1 {
-			return fmt.Errorf("This integration supports one initial node and one replica; multi-node deployment requires an AppDeployer contract")
+			return fmt.Errorf("this integration supports one initial node and one replica; multi-node deployment requires an AppDeployer contract")
 		}
 		runtime, accelerator := "cpu", "none"
 		if infra.Accelerator.Count > 0 {
 			if infra.Accelerator.Type != "GPU" {
-				return fmt.Errorf("Unsupported accelerator type")
+				return fmt.Errorf("unsupported accelerator type")
 			}
 			runtime, accelerator = "gpu", "nvidia"
 		}
@@ -223,16 +202,16 @@ func (s Service) deliverFlow(ctx context.Context, id string, request FlowDeliver
 			} `json:"runtime"`
 		}
 		if json.Unmarshal(registered.AppSpec, &appSpec) != nil || appSpec.Runtime.Type != runtime {
-			return fmt.Errorf("Registered application runtime does not match approved resources")
+			return fmt.Errorf("registered application runtime does not match approved resources")
 		}
 		resources := appdeploy.ResourceRequirements{CPU: strconv.Itoa(infra.CPUCoresPerNode), Memory: strconv.Itoa(infra.MemoryMiBPerNode) + "Mi", GPU: strconv.Itoa(infra.Accelerator.Count), Storage: strconv.Itoa(infra.StorageGiBPerNode) + "Gi"}
 		manifest := appdeploy.DeploymentManifest{SchemaVersion: appdeploy.ManifestSchemaVersion, Kind: appdeploy.ManifestKind, Metadata: appdeploy.DeploymentMetadata{Name: canonical.ManifestID}, Spec: appdeploy.DeploymentSpec{AppVersionID: registered.AppVersionID, Accelerator: accelerator, Resources: resources, RequestedBy: "ai-ops-geon-planner", Requirements: &appdeploy.DeploymentRequirements{Runtime: runtime, Resources: resources, Accelerator: accelerator, CostPolicy: "min_cost"}}}
 		manifest.Spec.Requirements.SLO = map[string]any{"latency_p95_ms_max": profile.Requirements.SLO.LatencyP95MSMax, "throughput_rps_min": profile.Requirements.SLO.ThroughputRPSMin}
 		if profile.Requirements.Cost.CostPerHourMax != 0 {
-			return fmt.Errorf("Hourly cost limit cannot yet be enforced by the AppDeployer contract")
+			return fmt.Errorf("hourly cost limit cannot yet be enforced by the AppDeployer contract")
 		}
 		if err := appdeploy.ValidateManifest(manifest, appdeploy.ManifestConstraints{AppVersionID: registered.AppVersionID, RuntimeType: runtime, RequestedBy: "ai-ops-geon-planner", Requirements: manifest.Spec.Requirements}); err != nil {
-			return fmt.Errorf("Manifest conversion failed validation")
+			return fmt.Errorf("manifest conversion failed validation")
 		}
 		result = FlowDelivery{CorrelationID: id, DecisionID: flow.Decision.DecisionID, Revision: 1, Status: "PREPARED", ManifestSHA256: deliveryHash(canonical), DestinationSHA256: deliveryHash(s.config.AppDeployBaseURL), Request: appdeploy.DeploymentCreateRequest{Manifest: manifest}, UpdatedAt: time.Now().UTC().Format(time.RFC3339Nano)}
 		result.Limitations = []string{
@@ -245,19 +224,19 @@ func (s Service) deliverFlow(ctx context.Context, id string, request FlowDeliver
 		}
 		result.Status = "SUBMISSION_UNKNOWN"
 		if err := saveDelivery(s.deliveryPath(id), result, true); err != nil {
-			return fmt.Errorf("Could not reserve delivery journal; no request sent")
+			return fmt.Errorf("could not reserve delivery journal; no request sent")
 		}
 		response, err := client.CreateDeployment(ctx, manifest)
 		if err != nil {
-			return fmt.Errorf("AppDeployer response was not confirmed; delivery remains SUBMISSION_UNKNOWN and must be reconciled before any retry")
+			return fmt.Errorf("appDeployer response was not confirmed; delivery remains SUBMISSION_UNKNOWN and must be reconciled before any retry")
 		}
 		if response.AppVersionID != registered.AppVersionID {
-			return fmt.Errorf("AppDeployer returned a mismatched app version; reconcile delivery before retry")
+			return fmt.Errorf("appDeployer returned a mismatched app version; reconcile delivery before retry")
 		}
 		result.Status = "SUBMITTED"
 		result.Deployment = &response
 		if err := saveDelivery(s.deliveryPath(id), result, false); err != nil {
-			return fmt.Errorf("Request may have succeeded but its receipt was not persisted; reconcile before retry")
+			return fmt.Errorf("request may have succeeded but its receipt was not persisted; reconcile before retry")
 		}
 		return nil
 	})
@@ -285,24 +264,24 @@ func (s Service) refreshDelivery(ctx context.Context, id string) (FlowDelivery, 
 	defer s.flowDelivery.mu.Unlock()
 	record, err := s.readDelivery(id)
 	if err != nil {
-		return record, fmt.Errorf("No readable delivery receipt exists for this Flow")
+		return record, fmt.Errorf("no readable delivery receipt exists for this Flow")
 	}
 	if record.DestinationSHA256 != deliveryHash(s.config.AppDeployBaseURL) {
-		return record, fmt.Errorf("Configured AppDeployer differs from the original destination")
+		return record, fmt.Errorf("configured AppDeployer differs from the original destination")
 	}
 	if record.Deployment == nil {
 		return record, nil
 	}
 	client, err := appdeploy.NewClient(s.config.AppDeployBaseURL, nil)
 	if err != nil {
-		return record, fmt.Errorf("AppDeployer is not configured")
+		return record, fmt.Errorf("appDeployer is not configured")
 	}
 	deployment, err := client.GetDeployment(ctx, record.Deployment.DeploymentID)
 	if err != nil {
-		return record, fmt.Errorf("AppDeployer status query failed")
+		return record, fmt.Errorf("appDeployer status query failed")
 	}
 	if deployment.DeploymentID != record.Deployment.DeploymentID || deployment.AppVersionID != record.Request.Manifest.Spec.AppVersionID {
-		return record, fmt.Errorf("AppDeployer response identity mismatch")
+		return record, fmt.Errorf("appDeployer response identity mismatch")
 	}
 	record.Deployment = &deployment
 	record.UpdatedAt = time.Now().UTC().Format(time.RFC3339Nano)
@@ -325,7 +304,7 @@ func (s Service) refreshDelivery(ctx context.Context, id string) (FlowDelivery, 
 			message := agentcontrol.DeploymentStatusEnvelope{Envelope: agentcontrol.Envelope{ContractVersion: "1.0", MessageID: "msg-appdeploy-" + deliveryHash(deployment), MessageType: agentcontrol.MessageDeploymentStatusChanged, OccurredAt: record.UpdatedAt, CorrelationID: id, TraceID: flow.TraceID, CausationID: flow.ManifestRevisions[0].DeploymentRequest.MessageID, Source: agentcontrol.Endpoint{System: "appdeployer", Component: "deployment-orchestrator"}, Target: agentcontrol.Endpoint{System: "khu-agent-control", Component: "automation-agent"}}, Data: agentcontrol.DeploymentStatusData{DeploymentStatus: agentcontrol.DeploymentStatus{DeploymentID: deployment.DeploymentID, DecisionID: record.DecisionID, State: status, Message: "AppDeployer status: " + deployment.Status, UpdatedAt: record.UpdatedAt, ActualInfrastructure: agentcontrol.ActualInfrastructure{ResourceIDs: []string{deployment.TargetProfileID}}}}}
 			updated, err := s.agentControl.ReceiveDeploymentStatus(ctx, message)
 			if err != nil {
-				return record, fmt.Errorf("AppDeployer status could not be attached to Flow")
+				return record, fmt.Errorf("appDeployer status could not be attached to Flow")
 			}
 			record.Flow = &updated
 		}

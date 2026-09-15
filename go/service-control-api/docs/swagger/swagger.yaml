@@ -567,6 +567,8 @@ definitions:
         $ref: '#/definitions/agentcontrol.FeedbackSummary'
       guard:
         $ref: '#/definitions/agentcontrol.GuardResult'
+      input_origin:
+        type: string
       manifest_revisions:
         items:
           $ref: '#/definitions/agentcontrol.ManifestRevision'
@@ -1102,21 +1104,21 @@ definitions:
   api.AgentExecutionErrorResponse:
     properties:
       execution:
-        $ref: '#/definitions/api.AgentExecutionResult'
+        $ref: '#/definitions/model.AgentExecutionResult'
       message:
         type: string
       reason:
         type: string
       request_guard:
-        $ref: '#/definitions/api.GuardDecision'
+        $ref: '#/definitions/model.GuardDecision'
       request_id:
         type: string
       result_guard:
-        $ref: '#/definitions/api.GuardDecision'
+        $ref: '#/definitions/model.GuardDecision'
       run_id:
         type: string
       selected_agent:
-        $ref: '#/definitions/api.AgentProfile'
+        $ref: '#/definitions/model.AgentProfile'
       valid:
         type: boolean
     type: object
@@ -1139,44 +1141,17 @@ definitions:
   api.AgentExecutionResponse:
     properties:
       execution:
-        $ref: '#/definitions/api.AgentExecutionResult'
+        $ref: '#/definitions/model.AgentExecutionResult'
       request_guard:
-        $ref: '#/definitions/api.GuardDecision'
+        $ref: '#/definitions/model.GuardDecision'
       request_id:
         type: string
       result_guard:
-        $ref: '#/definitions/api.GuardDecision'
+        $ref: '#/definitions/model.GuardDecision'
       run_id:
         type: string
       selected_agent:
-        $ref: '#/definitions/api.AgentProfile'
-    type: object
-  api.AgentExecutionResult:
-    properties:
-      agent:
-        type: string
-      domain_validation:
-        type: string
-      evidence:
-        additionalProperties: {}
-        type: object
-      generation:
-        $ref: '#/definitions/deploymentplanner.GenerateResult'
-      latency_ms:
-        type: integer
-      manifest:
-        $ref: '#/definitions/appdeploy.DeploymentManifest'
-      message:
-        type: string
-      proposal:
-        $ref: '#/definitions/api.AgentProposal'
-      result:
-        additionalProperties: {}
-        type: object
-      run_id:
-        type: string
-      status:
-        type: string
+        $ref: '#/definitions/model.AgentProfile'
     type: object
   api.AgentInvocationPlan:
     properties:
@@ -1249,44 +1224,6 @@ definitions:
         type: string
       version:
         type: string
-    type: object
-  api.AgentProposal:
-    properties:
-      action:
-        type: string
-      parameters:
-        additionalProperties: {}
-        type: object
-    type: object
-  api.AgentReview:
-    properties:
-      action:
-        type: string
-      agent:
-        type: string
-      approved:
-        type: boolean
-      parameters:
-        additionalProperties:
-          type: string
-        type: object
-      reason:
-        type: string
-      reviewer_type:
-        type: string
-      reward:
-        type: number
-      skipped:
-        type: boolean
-    type: object
-  api.AgentReviews:
-    properties:
-      application:
-        $ref: '#/definitions/api.AgentReview'
-      cost:
-        $ref: '#/definitions/api.AgentReview'
-      infrastructure:
-        $ref: '#/definitions/api.AgentReview'
     type: object
   api.AppDeployPlannerRequest:
     properties:
@@ -1404,49 +1341,18 @@ definitions:
     - candidate_id
     - natural_language_request
     type: object
-  api.DeploymentPlan:
-    properties:
-      allowed_actions:
-        items:
-          type: string
-        type: array
-      execution_status:
-        type: string
-      executor_type:
-        type: string
-      feedback_required:
-        type: boolean
-      preconditions:
-        items:
-          type: string
-        type: array
-      requested_action:
-        type: string
-      required_capability:
-        type: string
-      selected_executor:
-        type: string
-      service_name:
-        type: string
-      target_accelerator:
-        type: string
-      target_vm_id:
-        type: string
-      workload:
-        type: string
-    type: object
   api.DeploymentPlanResponse:
     properties:
       action:
         type: string
       checks:
         items:
-          $ref: '#/definitions/api.VMCompatibilityCheck'
+          $ref: '#/definitions/model.VMCompatibilityCheck'
         type: array
       compatibility_status:
         type: string
       deployment_plan:
-        $ref: '#/definitions/api.DeploymentPlan'
+        $ref: '#/definitions/model.DeploymentPlan'
       evidence_status:
         type: string
       performance_status:
@@ -1465,19 +1371,6 @@ definitions:
         type: string
       workload:
         type: string
-    type: object
-  api.DeploymentValidation:
-    properties:
-      checks:
-        items:
-          type: string
-        type: array
-      mode:
-        type: string
-      reason:
-        type: string
-      valid:
-        type: boolean
     type: object
   api.ErrorResponse:
     properties:
@@ -1539,8 +1432,13 @@ definitions:
         $ref: '#/definitions/agentcontrol.ApplicationContextEnvelope'
       decision_agent:
         type: string
+      input_origin:
+        type: string
       resource_recommendation:
         $ref: '#/definitions/agentcontrol.ResourceRecommendationEnvelope'
+    required:
+    - application_context
+    - resource_recommendation
     type: object
   api.FlowDelivery:
     properties:
@@ -1580,54 +1478,6 @@ definitions:
     required:
     - app_version_id
     type: object
-  api.GuardDecision:
-    properties:
-      reason:
-        type: string
-      status:
-        type: string
-      valid:
-        type: boolean
-    type: object
-  api.GuardValidation:
-    properties:
-      backend:
-        type: string
-      boundary:
-        type: string
-      checked_actions:
-        items:
-          type: string
-        type: array
-      mode:
-        type: string
-      operation_resource:
-        type: string
-      operation_service:
-        type: string
-      reason:
-        type: string
-      runtime_wired:
-        type: boolean
-      valid:
-        type: boolean
-    type: object
-  api.LLMActionProposal:
-    properties:
-      action:
-        type: string
-      confidence:
-        type: number
-      parameters:
-        additionalProperties: {}
-        type: object
-      reason:
-        type: string
-      required_capability:
-        type: string
-      target_vm_id:
-        type: string
-    type: object
   api.LLMAutomationActionRequest:
     properties:
       candidate_id:
@@ -1640,7 +1490,7 @@ definitions:
         example: run-0123456789abcdef
         type: string
       target_vm:
-        $ref: '#/definitions/api.VMResourceSnapshot'
+        $ref: '#/definitions/model.VMResourceSnapshot'
       workload:
         example: llm-chat-inference
         type: string
@@ -1654,11 +1504,11 @@ definitions:
       correlation_id:
         type: string
       decision:
-        $ref: '#/definitions/api.LLMDecisionResult'
+        $ref: '#/definitions/model.LLMDecisionResult'
       guard:
-        $ref: '#/definitions/api.GuardDecision'
+        $ref: '#/definitions/model.GuardDecision'
       handoff:
-        $ref: '#/definitions/api.AgentInvocationPlan'
+        $ref: '#/definitions/model.AgentInvocationPlan'
       run_id:
         type: string
       status:
@@ -1666,63 +1516,7 @@ definitions:
       valid:
         type: boolean
       vm_compatibility:
-        $ref: '#/definitions/api.VMCompatibilityResponse'
-    type: object
-  api.LLMDecisionResult:
-    properties:
-      actual_model:
-        type: string
-      candidate_id:
-        type: string
-      decision_execution_status:
-        type: string
-      latency_ms:
-        type: integer
-      proposal:
-        $ref: '#/definitions/api.LLMActionProposal'
-      provider:
-        type: string
-    type: object
-  api.OperationReadiness:
-    properties:
-      reason:
-        type: string
-      service:
-        type: string
-      skipped:
-        type: boolean
-      target_resource:
-        type: string
-      valid:
-        type: boolean
-    type: object
-  api.OpsLLMRankedItem:
-    properties:
-      actual_model:
-        type: string
-      benchmark_status:
-        type: string
-      evaluation_source:
-        type: string
-      evaluation_type:
-        type: string
-      metrics:
-        additionalProperties:
-          format: float64
-          type: number
-        type: object
-      model:
-        type: string
-      notes:
-        items:
-          type: string
-        type: array
-      provider:
-        type: string
-      role:
-        type: string
-      score:
-        type: number
+        $ref: '#/definitions/model.VMCompatibilityResponse'
     type: object
   api.OpsLLMSelectRequest:
     properties:
@@ -1742,7 +1536,7 @@ definitions:
         type: string
       ranking:
         items:
-          $ref: '#/definitions/api.OpsLLMRankedItem'
+          $ref: '#/definitions/model.OpsLLMRankedItem'
         type: array
       rationale:
         type: string
@@ -1810,6 +1604,15 @@ definitions:
         example: false
         type: boolean
     type: object
+  api.ReadinessResponse:
+    properties:
+      service:
+        example: geon
+        type: string
+      status:
+        example: ready
+        type: string
+    type: object
   api.ServiceOperationsRequest:
     properties:
       guard_backend:
@@ -1839,7 +1642,7 @@ definitions:
         example: llm-chat-inference
         type: string
       target_vm:
-        $ref: '#/definitions/api.VMResourceSnapshot'
+        $ref: '#/definitions/model.VMResourceSnapshot'
       vm_requirements:
         example: config/vm_workload_requirements.json
         type: string
@@ -1853,7 +1656,7 @@ definitions:
   api.ServiceOperationsResponse:
     properties:
       agent_reviews:
-        $ref: '#/definitions/api.AgentReviews'
+        $ref: '#/definitions/model.AgentReviews'
       benchmark_status:
         type: string
       command:
@@ -1863,9 +1666,9 @@ definitions:
       deployment_execution_mode:
         type: string
       deployment_plan:
-        $ref: '#/definitions/api.DeploymentPlan'
+        $ref: '#/definitions/model.DeploymentPlan'
       deployment_validation:
-        $ref: '#/definitions/api.DeploymentValidation'
+        $ref: '#/definitions/model.DeploymentValidation'
       evaluation_source:
         type: string
       evaluation_type:
@@ -1873,17 +1676,17 @@ definitions:
       guard_backend:
         type: string
       guard_validation:
-        $ref: '#/definitions/api.GuardValidation'
+        $ref: '#/definitions/model.GuardValidation'
       inference_deployment_plan:
-        $ref: '#/definitions/api.DeploymentPlanResponse'
+        $ref: '#/definitions/model.DeploymentPlanResponse'
       llm_automation_action:
-        $ref: '#/definitions/api.LLMAutomationActionResponse'
+        $ref: '#/definitions/model.LLMAutomationActionResponse'
       metadata:
         additionalProperties:
           type: string
         type: object
       operation:
-        $ref: '#/definitions/api.OperationReadiness'
+        $ref: '#/definitions/model.OperationReadiness'
       operation_pipeline_ready:
         type: boolean
       runtime_model:
@@ -1934,23 +1737,10 @@ definitions:
     - candidate_id
     - input
     type: object
-  api.VMCompatibilityCheck:
-    properties:
-      actual:
-        type: string
-      name:
-        type: string
-      reason:
-        type: string
-      required:
-        type: string
-      status:
-        type: string
-    type: object
   api.VMCompatibilityRequest:
     properties:
       target_vm:
-        $ref: '#/definitions/api.VMResourceSnapshot'
+        $ref: '#/definitions/model.VMResourceSnapshot'
       workload:
         example: llm-chat-inference
         type: string
@@ -1964,7 +1754,7 @@ definitions:
         type: string
       checks:
         items:
-          $ref: '#/definitions/api.VMCompatibilityCheck'
+          $ref: '#/definitions/model.VMCompatibilityCheck'
         type: array
       compatibility_status:
         type: string
@@ -1986,61 +1776,6 @@ definitions:
         type: string
       workload:
         type: string
-    type: object
-  api.VMPerformanceEvidence:
-    properties:
-      cost_per_hour:
-        type: number
-      latency_ms:
-        type: number
-      measured_at:
-        type: string
-      source:
-        type: string
-      status:
-        type: string
-      throughput_rps:
-        type: number
-    type: object
-  api.VMResourceSnapshot:
-    properties:
-      accelerator:
-        type: string
-      availability_zone:
-        type: string
-      collected_at:
-        type: string
-      cpu_cores:
-        type: integer
-      cuda_version:
-        type: string
-      driver_version:
-        type: string
-      evidence_status:
-        type: string
-      gpu_memory_mib:
-        type: integer
-      gpu_model:
-        type: string
-      id:
-        type: string
-      instance_type:
-        type: string
-      memory_gb:
-        type: number
-      performance:
-        $ref: '#/definitions/api.VMPerformanceEvidence'
-      provider:
-        type: string
-      region:
-        type: string
-      source:
-        type: string
-    required:
-    - accelerator
-    - evidence_status
-    - id
-    - source
     type: object
   appdeploy.AppRegistrationResponse:
     properties:
@@ -2856,6 +2591,425 @@ definitions:
         type: string
       source_snapshot_id:
         type: string
+    type: object
+  model.AgentExecutionResult:
+    properties:
+      agent:
+        type: string
+      domain_validation:
+        type: string
+      evidence:
+        additionalProperties: {}
+        type: object
+      generation:
+        $ref: '#/definitions/deploymentplanner.GenerateResult'
+      latency_ms:
+        type: integer
+      manifest:
+        $ref: '#/definitions/appdeploy.DeploymentManifest'
+      message:
+        type: string
+      proposal:
+        $ref: '#/definitions/model.AgentProposal'
+      result:
+        additionalProperties: {}
+        type: object
+      run_id:
+        type: string
+      status:
+        type: string
+    type: object
+  model.AgentInvocationPlan:
+    properties:
+      action:
+        type: string
+      agent:
+        type: string
+      capability:
+        type: string
+      execution_status:
+        type: string
+      parameters:
+        additionalProperties: {}
+        type: object
+      reason:
+        type: string
+      target_url:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  model.AgentProfile:
+    properties:
+      auth_token_env:
+        type: string
+      bounded_actions:
+        items:
+          type: string
+        type: array
+      capabilities:
+        items:
+          type: string
+        type: array
+      enabled:
+        type: boolean
+      endpoint:
+        type: string
+      invocation_path:
+        type: string
+      korean_name:
+        type: string
+      name:
+        type: string
+      registered_at:
+        type: string
+      responsibilities:
+        items:
+          type: string
+        type: array
+      reward_signals:
+        items:
+          type: string
+        type: array
+      role:
+        type: string
+      source:
+        type: string
+      version:
+        type: string
+    type: object
+  model.AgentProposal:
+    properties:
+      action:
+        type: string
+      parameters:
+        additionalProperties: {}
+        type: object
+    type: object
+  model.AgentReview:
+    properties:
+      action:
+        type: string
+      agent:
+        type: string
+      approved:
+        type: boolean
+      parameters:
+        additionalProperties:
+          type: string
+        type: object
+      reason:
+        type: string
+      reviewer_type:
+        type: string
+      reward:
+        type: number
+      skipped:
+        type: boolean
+    type: object
+  model.AgentReviews:
+    properties:
+      application:
+        $ref: '#/definitions/model.AgentReview'
+      cost:
+        $ref: '#/definitions/model.AgentReview'
+      infrastructure:
+        $ref: '#/definitions/model.AgentReview'
+    type: object
+  model.DeploymentPlan:
+    properties:
+      allowed_actions:
+        items:
+          type: string
+        type: array
+      execution_status:
+        type: string
+      executor_type:
+        type: string
+      feedback_required:
+        type: boolean
+      preconditions:
+        items:
+          type: string
+        type: array
+      requested_action:
+        type: string
+      required_capability:
+        type: string
+      selected_executor:
+        type: string
+      service_name:
+        type: string
+      target_accelerator:
+        type: string
+      target_vm_id:
+        type: string
+      workload:
+        type: string
+    type: object
+  model.DeploymentPlanResponse:
+    properties:
+      action:
+        type: string
+      checks:
+        items:
+          $ref: '#/definitions/model.VMCompatibilityCheck'
+        type: array
+      compatibility_status:
+        type: string
+      deployment_plan:
+        $ref: '#/definitions/model.DeploymentPlan'
+      evidence_status:
+        type: string
+      performance_status:
+        type: string
+      reason:
+        type: string
+      resource_checks_passed:
+        type: boolean
+      resource_source:
+        type: string
+      target_vm_id:
+        type: string
+      valid:
+        type: boolean
+      validation_mode:
+        type: string
+      workload:
+        type: string
+    type: object
+  model.DeploymentValidation:
+    properties:
+      checks:
+        items:
+          type: string
+        type: array
+      mode:
+        type: string
+      reason:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  model.GuardDecision:
+    properties:
+      reason:
+        type: string
+      status:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  model.GuardValidation:
+    properties:
+      backend:
+        type: string
+      boundary:
+        type: string
+      checked_actions:
+        items:
+          type: string
+        type: array
+      mode:
+        type: string
+      operation_resource:
+        type: string
+      operation_service:
+        type: string
+      reason:
+        type: string
+      runtime_wired:
+        type: boolean
+      valid:
+        type: boolean
+    type: object
+  model.LLMActionProposal:
+    properties:
+      action:
+        type: string
+      confidence:
+        type: number
+      parameters:
+        additionalProperties: {}
+        type: object
+      reason:
+        type: string
+      required_capability:
+        type: string
+      target_vm_id:
+        type: string
+    type: object
+  model.LLMAutomationActionResponse:
+    properties:
+      correlation_id:
+        type: string
+      decision:
+        $ref: '#/definitions/model.LLMDecisionResult'
+      guard:
+        $ref: '#/definitions/model.GuardDecision'
+      handoff:
+        $ref: '#/definitions/model.AgentInvocationPlan'
+      run_id:
+        type: string
+      status:
+        type: string
+      valid:
+        type: boolean
+      vm_compatibility:
+        $ref: '#/definitions/model.VMCompatibilityResponse'
+    type: object
+  model.LLMDecisionResult:
+    properties:
+      actual_model:
+        type: string
+      candidate_id:
+        type: string
+      decision_execution_status:
+        type: string
+      latency_ms:
+        type: integer
+      proposal:
+        $ref: '#/definitions/model.LLMActionProposal'
+      provider:
+        type: string
+    type: object
+  model.OperationReadiness:
+    properties:
+      reason:
+        type: string
+      service:
+        type: string
+      skipped:
+        type: boolean
+      target_resource:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  model.OpsLLMRankedItem:
+    properties:
+      actual_model:
+        type: string
+      benchmark_status:
+        type: string
+      evaluation_source:
+        type: string
+      evaluation_type:
+        type: string
+      metrics:
+        additionalProperties:
+          format: float64
+          type: number
+        type: object
+      model:
+        type: string
+      notes:
+        items:
+          type: string
+        type: array
+      provider:
+        type: string
+      role:
+        type: string
+      score:
+        type: number
+    type: object
+  model.VMCompatibilityCheck:
+    properties:
+      actual:
+        type: string
+      name:
+        type: string
+      reason:
+        type: string
+      required:
+        type: string
+      status:
+        type: string
+    type: object
+  model.VMCompatibilityResponse:
+    properties:
+      action:
+        type: string
+      checks:
+        items:
+          $ref: '#/definitions/model.VMCompatibilityCheck'
+        type: array
+      compatibility_status:
+        type: string
+      evidence_status:
+        type: string
+      performance_status:
+        type: string
+      reason:
+        type: string
+      resource_checks_passed:
+        type: boolean
+      resource_source:
+        type: string
+      target_vm_id:
+        type: string
+      valid:
+        type: boolean
+      validation_mode:
+        type: string
+      workload:
+        type: string
+    type: object
+  model.VMPerformanceEvidence:
+    properties:
+      cost_per_hour:
+        type: number
+      latency_ms:
+        type: number
+      measured_at:
+        type: string
+      source:
+        type: string
+      status:
+        type: string
+      throughput_rps:
+        type: number
+    type: object
+  model.VMResourceSnapshot:
+    properties:
+      accelerator:
+        type: string
+      availability_zone:
+        type: string
+      collected_at:
+        type: string
+      cpu_cores:
+        type: integer
+      cuda_version:
+        type: string
+      driver_version:
+        type: string
+      evidence_status:
+        type: string
+      gpu_memory_mib:
+        type: integer
+      gpu_model:
+        type: string
+      id:
+        type: string
+      instance_type:
+        type: string
+      memory_gb:
+        type: number
+      performance:
+        $ref: '#/definitions/model.VMPerformanceEvidence'
+      provider:
+        type: string
+      region:
+        type: string
+      source:
+        type: string
+    required:
+    - accelerator
+    - evidence_status
+    - id
+    - source
     type: object
   plannerguard.Check:
     properties:
@@ -4179,6 +4333,25 @@ paths:
           schema:
             $ref: '#/definitions/api.ErrorResponse'
       summary: Run service-control operation planning
+      tags:
+      - Service Control
+  /geon/readyz:
+    get:
+      description: Validate the service configuration and required local resources.
+        Return 503 without internal details when the service is not ready.
+      operationId: GetGeonReadyz
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.ReadinessResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/api.ReadinessResponse'
+      summary: Check whether geon is ready to serve requests
       tags:
       - Service Control
   /healthz:

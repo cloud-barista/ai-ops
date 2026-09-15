@@ -10,12 +10,12 @@ import (
 )
 
 var (
-	errAgentExecutionNotFound       = errors.New("Agent execution target was not found")
-	errAgentExecutionUnauthorized   = errors.New("Agent execution request was not authorized")
-	errAgentExecutionNotImplemented = errors.New("Agent execution is not implemented")
-	errAgentExecutionTimeout        = errors.New("Agent execution timed out")
-	errAgentExecutionUpstream       = errors.New("Agent execution endpoint failed")
-	errAgentExecutionResultRejected = errors.New("Agent execution result was rejected")
+	errAgentExecutionNotFound       = errors.New("agent execution target was not found")
+	errAgentExecutionUnauthorized   = errors.New("agent execution request was not authorized")
+	errAgentExecutionNotImplemented = errors.New("agent execution is not implemented")
+	errAgentExecutionTimeout        = errors.New("agent execution timed out")
+	errAgentExecutionUpstream       = errors.New("agent execution endpoint failed")
+	errAgentExecutionResultRejected = errors.New("agent execution result was rejected")
 )
 
 func (service Service) ExecuteAgent(
@@ -82,7 +82,7 @@ func (service Service) ExecuteAgentWithDispatcher(
 			run.Stages = append(run.Stages, completedControlRunStage(
 				"agent_registry",
 				"rejected",
-				err.Error(),
+				"Requested Agent was not found or is unavailable.",
 				map[string]any{"agent": agentName},
 			))
 			return nil
@@ -148,7 +148,7 @@ func (service Service) ExecuteAgentWithDispatcher(
 		failedExecution.RunID = runID
 		failedExecution.Agent = agent.Name
 		failedExecution.Status = "failed"
-		failedExecution.Message = dispatchErr.Error()
+		failedExecution.Message = "Agent execution failed."
 		failedExecution.DomainValidation = "not_registered"
 		response.Execution = failedExecution
 		_, _ = service.controlRuns.Update(runID, func(run *controlrun.Run) error {
@@ -157,7 +157,7 @@ func (service Service) ExecuteAgentWithDispatcher(
 			run.Stages = append(run.Stages, completedControlRunStage(
 				"agent_dispatch",
 				"rejected",
-				dispatchErr.Error(),
+				"Agent execution failed.",
 				nil,
 			))
 			return nil

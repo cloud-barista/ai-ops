@@ -26,7 +26,7 @@ func (executor *internalDecisionAgentExecutor) Execute(
 		return AgentExecutionResult{}, err
 	}
 	if executor == nil {
-		return AgentExecutionResult{}, fmt.Errorf("Internal decision Agent executor is required")
+		return AgentExecutionResult{}, fmt.Errorf("internal decision Agent executor is required")
 	}
 	profile, err := decodeDecisionInput[agentcontrol.ApplicationProfile](request.Input, "application_profile")
 	if err != nil {

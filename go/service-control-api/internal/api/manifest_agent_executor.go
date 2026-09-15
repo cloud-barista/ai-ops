@@ -44,17 +44,17 @@ func (executor *manifestAgentExecutor) Execute(
 
 	input, err := decodeManifestAgentInput(request.Input)
 	if err != nil {
-		result.Message = err.Error()
+		result.Message = "Manifest Agent input is invalid."
 		return result, err
 	}
 	candidates, err := llmclient.LoadCandidateConfig(executor.candidatesPath)
 	if err != nil {
-		result.Message = err.Error()
+		result.Message = "LLM candidate configuration could not be loaded."
 		return result, err
 	}
 	candidate, err := llmclient.FindEnabledCandidate(candidates, input.CandidateID)
 	if err != nil {
-		result.Message = err.Error()
+		result.Message = "Requested LLM candidate is unavailable."
 		return result, err
 	}
 	generation, generationErr := executor.generator.Generate(ctx, candidate, deploymentplanner.GenerateInput{
@@ -73,7 +73,7 @@ func (executor *manifestAgentExecutor) Execute(
 		"actual_model": generation.ActualModel,
 	}
 	if generationErr != nil {
-		result.Message = generationErr.Error()
+		result.Message = "Deployment Manifest generation failed."
 		return result, generationErr
 	}
 	result.Status = "completed"
@@ -96,7 +96,7 @@ func decodeManifestAgentInput(values map[string]any) (CreateControlRunRequest, e
 	}
 	if request.NaturalLanguageRequest == "" || request.AppVersionID == "" || request.CandidateID == "" {
 		return request, fmt.Errorf(
-			"Manifest Agent input requires natural_language_request, app_version_id, and candidate_id",
+			"manifest Agent input requires natural_language_request, app_version_id, and candidate_id",
 		)
 	}
 	return request, nil

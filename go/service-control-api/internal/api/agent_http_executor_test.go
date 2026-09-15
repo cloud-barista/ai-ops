@@ -41,7 +41,7 @@ func TestHTTPAgentExecutorPostsContractAndReturnsEnvelope(t *testing.T) {
 			}
 		}
 		response.Header().Set("Content-Type", "application/json")
-		fmt.Fprint(response, `{
+		if _, err := fmt.Fprint(response, `{
 			"run_id":"run-001",
 			"agent":"ExternalResearchAgent",
 			"status":"completed",
@@ -49,7 +49,9 @@ func TestHTTPAgentExecutorPostsContractAndReturnsEnvelope(t *testing.T) {
 			"result":{"review":"approved"},
 			"evidence":{"source":"external-test"},
 			"message":"review completed"
-		}`)
+		}`); err != nil {
+			t.Errorf("write runtime Agent response: %v", err)
+		}
 	}))
 	defer server.Close()
 
@@ -78,7 +80,9 @@ func TestHTTPAgentExecutorRejectsRedirectAndNon2xx(t *testing.T) {
 		case "/failed":
 			http.Error(response, "failed", http.StatusBadGateway)
 		default:
-			fmt.Fprint(response, `{"status":"unexpected"}`)
+			if _, err := fmt.Fprint(response, `{"status":"unexpected"}`); err != nil {
+				t.Errorf("write unexpected response: %v", err)
+			}
 		}
 	}))
 	defer server.Close()
@@ -99,11 +103,15 @@ func TestHTTPAgentExecutorRejectsOversizedAndInvalidJSONResponses(t *testing.T) 
 	server := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
 		if request.URL.Path == "/oversized" {
 			response.Header().Set("Content-Type", "application/json")
-			fmt.Fprint(response, `{"payload":"`+strings.Repeat("a", maxAgentResponseBytes)+`"}`)
+			if _, err := fmt.Fprint(response, `{"payload":"`+strings.Repeat("a", maxAgentResponseBytes)+`"}`); err != nil {
+				t.Errorf("write oversized response: %v", err)
+			}
 			return
 		}
 		response.Header().Set("Content-Type", "application/json")
-		fmt.Fprint(response, `{invalid-json`)
+		if _, err := fmt.Fprint(response, `{invalid-json`); err != nil {
+			t.Errorf("write invalid response: %v", err)
+		}
 	}))
 	defer server.Close()
 
@@ -123,7 +131,9 @@ func TestHTTPAgentExecutorRejectsOversizedAndInvalidJSONResponses(t *testing.T) 
 func TestHTTPAgentExecutorTimesOut(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
 		time.Sleep(100 * time.Millisecond)
-		fmt.Fprint(response, `{}`)
+		if _, err := fmt.Fprint(response, `{}`); err != nil {
+			t.Errorf("write delayed response: %v", err)
+		}
 	}))
 	defer server.Close()
 

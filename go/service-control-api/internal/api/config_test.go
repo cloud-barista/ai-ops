@@ -48,6 +48,30 @@ func TestValidateServerConfigRejectsUnknownDeploymentAdapter(t *testing.T) {
 	}
 }
 
+func TestNewServerConfigDefaultsRequirementAnalysisToLocalRule(t *testing.T) {
+	resetConfigTestEnvironment(t)
+	t.Setenv("AIOPS_REQUIREMENT_ANALYSIS_MODE", "")
+
+	config := NewServerConfig()
+
+	if config.RequirementAnalysisMode != requirementAnalysisModeLocalRule {
+		t.Fatalf(
+			"requirement analysis mode = %q, want local_rule",
+			config.RequirementAnalysisMode,
+		)
+	}
+}
+
+func TestValidateServerConfigRejectsUnknownRequirementAnalysisMode(t *testing.T) {
+	config := NewServerConfig()
+	config.RequirementAnalysisMode = "automatic_fallback"
+
+	err := ValidateServerConfig(config)
+	if err == nil {
+		t.Fatal("unknown requirement analysis mode was accepted")
+	}
+}
+
 func resetConfigTestEnvironment(t *testing.T) {
 	t.Helper()
 	viper.Reset()

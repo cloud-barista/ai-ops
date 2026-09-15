@@ -41,6 +41,25 @@ type Service struct {
 	flowDelivery            *flowDeliveryStore
 }
 
+func (service Service) Ready(ctx context.Context) error {
+	if err := ensureContext(ctx); err != nil {
+		return err
+	}
+	if err := ValidateServerConfig(service.config); err != nil {
+		return fmt.Errorf("validate server configuration: %w", err)
+	}
+	if _, err := loadAgentRegistry(service.config.path("config", "agent_registry.json")); err != nil {
+		return fmt.Errorf("load Agent Registry: %w", err)
+	}
+	if _, err := agentcontrol.LoadResourceCatalog(service.config.ResourceCatalogPath); err != nil {
+		return fmt.Errorf("load resource catalog: %w", err)
+	}
+	if _, err := llmclient.LoadCandidateConfig(service.config.LLMCandidatesPath); err != nil {
+		return fmt.Errorf("load LLM candidate configuration: %w", err)
+	}
+	return nil
+}
+
 func NewService(config ServerConfig) Service {
 	reasoner := newAgentControlReasoner(config, llmclient.NewClient(nil))
 	authorizer := newAgentControlRegistryAuthorizer(config)
@@ -733,10 +752,10 @@ func (service Service) validateOperationalControlRun(runID string) error {
 	}
 	run, ok := service.controlRuns.Get(runID)
 	if !ok {
-		return fmt.Errorf("ControlRun was not found: %s", runID)
+		return fmt.Errorf("controlRun was not found: %s", runID)
 	}
 	if run.Status != controlrun.StatusDeployed || run.Deployment == nil || strings.TrimSpace(run.Deployment.DeploymentID) == "" {
-		return fmt.Errorf("ControlRun is not linked to a deployed application: %s", runID)
+		return fmt.Errorf("controlRun is not linked to a deployed application: %s", runID)
 	}
 	return nil
 }

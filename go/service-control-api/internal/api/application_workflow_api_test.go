@@ -53,7 +53,11 @@ func (fake *applicationWorkflowAPIFake) handler(t *testing.T) http.Handler {
 				http.Error(writer, "missing source", http.StatusBadRequest)
 				return
 			}
-			defer file.Close()
+			defer func() {
+				if closeErr := file.Close(); closeErr != nil {
+					t.Errorf("close forwarded source: %v", closeErr)
+				}
+			}()
 			content, err := io.ReadAll(file)
 			if err != nil {
 				t.Errorf("read forwarded source content: %v", err)

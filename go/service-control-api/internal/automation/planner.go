@@ -62,7 +62,7 @@ func (planner Planner) Plan(ctx context.Context, candidate llmclient.Candidate, 
 		ActualModel:     candidate.ActualModel,
 	}
 	if planner.client == nil {
-		return result, fmt.Errorf("LLM completion client is required")
+		return result, fmt.Errorf("completion client for LLM is required")
 	}
 	if strings.TrimSpace(input.TargetVMID) == "" {
 		return result, fmt.Errorf("target VM id is required")
@@ -82,7 +82,7 @@ func (planner Planner) Plan(ctx context.Context, candidate llmclient.Candidate, 
 	result.LatencyMS = completion.LatencyMS
 	if err != nil {
 		result.ExecutionStatus = "llm_failed"
-		return result, fmt.Errorf("LLM decision call failed: %w", err)
+		return result, fmt.Errorf("decision call to LLM failed: %w", err)
 	}
 	proposal, err := parseActionProposal(completion.Content)
 	if err != nil {

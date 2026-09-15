@@ -16,7 +16,7 @@ import (
 
 func TestProjectRejectsUnsafeProjectedIdentifiers(t *testing.T) {
 	input := validBridgeInput()
-	input.AnalysisRequest.Envelope.MessageID = "message\u202eunsafe"
+	input.AnalysisRequest.MessageID = "message\u202eunsafe"
 
 	if _, err := Project(input); err == nil {
 		t.Fatal("unsafe Common JSON identifiers must not reach Projection evidence")

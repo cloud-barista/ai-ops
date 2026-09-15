@@ -29,6 +29,42 @@ func TestHealthz(t *testing.T) {
 	}
 }
 
+func TestGeonReadyz(t *testing.T) {
+	server := NewServer(NewServerConfig())
+	request := httptest.NewRequest(http.MethodGet, "/geon/readyz", nil)
+	response := httptest.NewRecorder()
+
+	server.ServeHTTP(response, request)
+
+	if response.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d: %s", response.Code, response.Body.String())
+	}
+	if !strings.Contains(response.Body.String(), `"status":"ready"`) ||
+		!strings.Contains(response.Body.String(), `"service":"geon"`) {
+		t.Fatalf("unexpected body: %s", response.Body.String())
+	}
+}
+
+func TestGeonReadyzReturnsServiceUnavailableForInvalidConfiguration(t *testing.T) {
+	config := NewServerConfig()
+	config.DeploymentAdapterMode = "invalid"
+	server := NewServer(config)
+	request := httptest.NewRequest(http.MethodGet, "/geon/readyz", nil)
+	response := httptest.NewRecorder()
+
+	server.ServeHTTP(response, request)
+
+	if response.Code != http.StatusServiceUnavailable {
+		t.Fatalf("expected status 503, got %d: %s", response.Code, response.Body.String())
+	}
+	if !strings.Contains(response.Body.String(), `"status":"not_ready"`) {
+		t.Fatalf("unexpected body: %s", response.Body.String())
+	}
+	if strings.Contains(response.Body.String(), "deployment adapter mode") {
+		t.Fatalf("readiness response exposed an internal error: %s", response.Body.String())
+	}
+}
+
 func TestDeleteRuntimeAgentAPI(t *testing.T) {
 	server := NewServer(NewServerConfig())
 	registration := `{
@@ -373,14 +409,16 @@ func TestExternalAgentExecutionAPIFlow(t *testing.T) {
 			t.Errorf("decode dispatched Agent request: %v", err)
 		}
 		response.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(response, `{
+		if _, err := fmt.Fprintf(response, `{
 			"run_id":%q,
 			"agent":%q,
 			"status":"completed",
 			"proposal":{"action":%q,"parameters":{"decision":"approved"}},
 			"result":{"review":"approved"},
 			"evidence":{"source":"external-test"}
-		}`, dispatched.RunID, dispatched.Agent, dispatched.Action)
+		}`, dispatched.RunID, dispatched.Agent, dispatched.Action); err != nil {
+			t.Errorf("write external Agent response: %v", err)
+		}
 	}))
 	defer external.Close()
 
@@ -440,7 +478,7 @@ func TestExternalAgentExecutionAPIRejectionReturnsRunAndGuardReason(t *testing.T
 			t.Fatalf("decode Agent request: %v", err)
 		}
 		writer.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(writer, `{
+		if _, err := fmt.Fprintf(writer, `{
 			"run_id":"run-mismatched",
 			"agent":%q,
 			"status":"completed",
@@ -448,7 +486,9 @@ func TestExternalAgentExecutionAPIRejectionReturnsRunAndGuardReason(t *testing.T
 			"result":{"review":"approved"},
 			"message":%q,
 			"domain_validation":"not_registered"
-		}`, dispatched.Agent, dispatched.Action, sensitiveMessage)
+		}`, dispatched.Agent, dispatched.Action, sensitiveMessage); err != nil {
+			t.Errorf("write rejected Agent response: %v", err)
+		}
 	}))
 	defer external.Close()
 

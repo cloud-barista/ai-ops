@@ -26,7 +26,7 @@ func (executor *internalOperationOptimizationExecutor) Execute(
 		return AgentExecutionResult{}, err
 	}
 	if executor == nil {
-		return AgentExecutionResult{}, fmt.Errorf("Internal operation optimization Agent executor is required")
+		return AgentExecutionResult{}, fmt.Errorf("internal operation optimization Agent executor is required")
 	}
 	input, err := decodeDecisionInput[trustedOperationInputSnapshot](request.Input, "operation_input")
 	if err != nil {

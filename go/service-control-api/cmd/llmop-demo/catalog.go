@@ -18,10 +18,10 @@ var (
 )
 
 type demoCatalog struct {
-	SchemaVersion         string                    `json:"schema_version"`
-	ExecutionPolicy       demoExecutionPolicy       `json:"execution_policy"`
+	SchemaVersion        string                    `json:"schema_version"`
+	ExecutionPolicy      demoExecutionPolicy       `json:"execution_policy"`
 	PlannerModelBindings []demoPlannerModelBinding `json:"planner_model_bindings"`
-	AIServices            []demoAIService            `json:"ai_services"`
+	AIServices           []demoAIService           `json:"ai_services"`
 }
 
 type demoExecutionPolicy struct {

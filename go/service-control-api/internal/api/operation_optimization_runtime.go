@@ -57,7 +57,7 @@ func (runtime *registryOperationOptimizationRuntime) Optimize(
 	agent, err := resolveOperationAgent(registry, runtime.runtimeAgents.list(), request.RequestedAgent)
 	if err != nil {
 		result.AgentName = strings.TrimSpace(request.RequestedAgent)
-		result.RequestGuard = agentControlGuard(rejectedGuardDecision(err.Error()), "agent_registry")
+		result.RequestGuard = agentControlGuard(rejectedGuardDecision("Operation optimization Agent authorization failed."), "agent_registry")
 		result.Message = "Operation optimization Agent authorization was rejected."
 		return result, err
 	}
@@ -74,7 +74,7 @@ func (runtime *registryOperationOptimizationRuntime) Optimize(
 
 	input, err := operationOptimizationRuntimeInput(request)
 	if err != nil {
-		result.RequestGuard = agentControlGuard(rejectedGuardDecision(err.Error()), "agent_request")
+		result.RequestGuard = agentControlGuard(rejectedGuardDecision("Operation optimization Agent input could not be encoded."), "agent_request")
 		result.Message = "Operation optimization Agent input could not be encoded."
 		return result, err
 	}
@@ -132,7 +132,7 @@ func (runtime *registryOperationOptimizationRuntime) Optimize(
 	}
 	decision, err := decodeScalingDecisionProposal(execution.Proposal.Parameters)
 	if err != nil {
-		result.ResultGuard = agentControlGuard(rejectedGuardDecision(err.Error()), "agent_result_guard")
+		result.ResultGuard = agentControlGuard(rejectedGuardDecision("Operation optimization proposal could not be decoded."), "agent_result_guard")
 		return result, err
 	}
 	result.Decision = decision

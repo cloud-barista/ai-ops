@@ -122,7 +122,7 @@ func Project(input Input) (Projection, error) {
 		return Projection{}, fmt.Errorf("analysis application identity does not match ApplicationProfile")
 	}
 	if recommendation.ProfileID != profile.ProfileID {
-		return Projection{}, fmt.Errorf("ResourceRecommendation profile_id does not match ApplicationProfile")
+		return Projection{}, fmt.Errorf("resourceRecommendation profile_id does not match ApplicationProfile")
 	}
 	if recommendation.Status != recommendationStatusFound {
 		return Projection{}, fmt.Errorf("resource recommendation status must be FOUND")
@@ -208,11 +208,11 @@ func validateMessageChain(
 ) error {
 	if applicationContext.CorrelationID != analysis.CorrelationID ||
 		resourceMessage.CorrelationID != analysis.CorrelationID {
-		return fmt.Errorf("Common JSON correlation_id values do not match")
+		return fmt.Errorf("common JSON correlation_id values do not match")
 	}
 	if applicationContext.TraceID != analysis.TraceID ||
 		resourceMessage.TraceID != analysis.TraceID {
-		return fmt.Errorf("Common JSON trace_id values do not match")
+		return fmt.Errorf("common JSON trace_id values do not match")
 	}
 	if applicationContext.CausationID != analysis.MessageID {
 		return fmt.Errorf("application context causation_id does not match analysis message_id")
@@ -399,7 +399,7 @@ func validateSelectedCandidate(
 	if compute.CPUCoresMin <= 0 || compute.CPUCoresMin > maxCPUCount ||
 		compute.MemoryMiBMin <= 0 || compute.MemoryMiBMin > maxMemoryMiB ||
 		compute.StorageGiBMin <= 0 || compute.StorageGiBMin > maxStorageGiB {
-		return fmt.Errorf("ApplicationProfile compute minima cannot be projected")
+		return fmt.Errorf("applicationProfile compute minima cannot be projected")
 	}
 	if actual.NodeCount != 1 ||
 		actual.CPUCoresPerNode < compute.CPUCoresMin ||
@@ -426,7 +426,7 @@ func validateSelectedCandidate(
 	} else if strings.TrimSpace(actual.Accelerator.Type) != "" ||
 		actual.Accelerator.Count != 0 ||
 		actual.Accelerator.MemoryMiBMinPerDevice != 0 {
-		return fmt.Errorf("CPU-only ApplicationProfile cannot project a GPU resource candidate")
+		return fmt.Errorf("application profile without an accelerator cannot project a GPU resource candidate")
 	}
 	return nil
 }
@@ -441,15 +441,15 @@ func projectConstraints(
 	if compute.CPUCoresMin <= 0 || compute.CPUCoresMin > maxCPUCount ||
 		compute.MemoryMiBMin <= 0 || compute.MemoryMiBMin > maxMemoryMiB ||
 		compute.StorageGiBMin <= 0 || compute.StorageGiBMin > maxStorageGiB {
-		return llmop.PlanningConstraints{}, fmt.Errorf("ApplicationProfile compute minima cannot be projected")
+		return llmop.PlanningConstraints{}, fmt.Errorf("applicationProfile compute minima cannot be projected")
 	}
 	if requirements.SLO.LatencyP95MSMax != 0 ||
 		requirements.SLO.ThroughputRPSMin != 0 {
-		return llmop.PlanningConstraints{}, fmt.Errorf("ApplicationProfile SLO values are not represented by the llmop v1alpha1 bridge")
+		return llmop.PlanningConstraints{}, fmt.Errorf("applicationProfile SLO values are not represented by the llmop v1alpha1 bridge")
 	}
 	if strings.TrimSpace(requirements.Cost.Currency) != "" ||
 		requirements.Cost.CostPerHourMax != 0 {
-		return llmop.PlanningConstraints{}, fmt.Errorf("ApplicationProfile cost values are not represented by the llmop v1alpha1 bridge")
+		return llmop.PlanningConstraints{}, fmt.Errorf("applicationProfile cost values are not represented by the llmop v1alpha1 bridge")
 	}
 	accelerator, gpuMinimum, err := projectAccelerator(requirements.Accelerator)
 	if err != nil {
@@ -497,7 +497,7 @@ func projectAccelerator(
 		return "", 0, fmt.Errorf("accelerator type is unsupported by AppDeploy v1")
 	}
 	if requirements.MemoryMiBMinPerDevice != 0 {
-		return "", 0, fmt.Errorf("GPU device memory minimum is not represented by AppDeploy v1")
+		return "", 0, fmt.Errorf("device memory minimum for GPU is not represented by AppDeploy v1")
 	}
 	return "nvidia", uint64(requirements.CountMin), nil
 }

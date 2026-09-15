@@ -27,7 +27,7 @@ func (dispatcher *agentDispatcher) Dispatch(
 	request AgentDispatchRequest,
 ) (AgentExecutionResult, error) {
 	if dispatcher == nil {
-		return AgentExecutionResult{}, fmt.Errorf("Agent Dispatcher is required")
+		return AgentExecutionResult{}, fmt.Errorf("agent Dispatcher is required")
 	}
 	var executor agentExecutor
 	switch agent.Source {

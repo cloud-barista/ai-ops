@@ -252,6 +252,7 @@ export PATH="/c/Program Files/Go/bin:$PATH"
 export AIOPS_REPO_ROOT="$(git rev-parse --show-toplevel)"
 export AIOPS_BIND_ADDRESS="127.0.0.1"
 export AIOPS_DEPLOYMENT_ADAPTER="mock"
+export AIOPS_REQUIREMENT_ANALYSIS_MODE="local_rule"
 export PORT=18080
 
 cd "$AIOPS_REPO_ROOT/go/service-control-api"

@@ -49,7 +49,11 @@ func TestClientBuildPackageStreamsMultipartContract(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		defer file.Close()
+		defer func() {
+			if closeErr := file.Close(); closeErr != nil {
+				t.Errorf("close uploaded source: %v", closeErr)
+			}
+		}()
 		content, err := io.ReadAll(file)
 		if err != nil {
 			t.Fatal(err)

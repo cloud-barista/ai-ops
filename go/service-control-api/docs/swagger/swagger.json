@@ -1853,6 +1853,33 @@
                 }
             }
         },
+        "/geon/readyz": {
+            "get": {
+                "description": "Validate the service configuration and required local resources. Return 503 without internal details when the service is not ready.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Service Control"
+                ],
+                "summary": "Check whether geon is ready to serve requests",
+                "operationId": "GetGeonReadyz",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.ReadinessResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/api.ReadinessResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/healthz": {
             "get": {
                 "description": "Return a lightweight readiness response for the Go service-control API.",
@@ -2775,6 +2802,9 @@
                 "guard": {
                     "$ref": "#/definitions/agentcontrol.GuardResult"
                 },
+                "input_origin": {
+                    "type": "string"
+                },
                 "manifest_revisions": {
                     "type": "array",
                     "items": {
@@ -3586,7 +3616,7 @@
             "type": "object",
             "properties": {
                 "execution": {
-                    "$ref": "#/definitions/api.AgentExecutionResult"
+                    "$ref": "#/definitions/model.AgentExecutionResult"
                 },
                 "message": {
                     "type": "string"
@@ -3595,19 +3625,19 @@
                     "type": "string"
                 },
                 "request_guard": {
-                    "$ref": "#/definitions/api.GuardDecision"
+                    "$ref": "#/definitions/model.GuardDecision"
                 },
                 "request_id": {
                     "type": "string"
                 },
                 "result_guard": {
-                    "$ref": "#/definitions/api.GuardDecision"
+                    "$ref": "#/definitions/model.GuardDecision"
                 },
                 "run_id": {
                     "type": "string"
                 },
                 "selected_agent": {
-                    "$ref": "#/definitions/api.AgentProfile"
+                    "$ref": "#/definitions/model.AgentProfile"
                 },
                 "valid": {
                     "type": "boolean"
@@ -3641,62 +3671,22 @@
             "type": "object",
             "properties": {
                 "execution": {
-                    "$ref": "#/definitions/api.AgentExecutionResult"
+                    "$ref": "#/definitions/model.AgentExecutionResult"
                 },
                 "request_guard": {
-                    "$ref": "#/definitions/api.GuardDecision"
+                    "$ref": "#/definitions/model.GuardDecision"
                 },
                 "request_id": {
                     "type": "string"
                 },
                 "result_guard": {
-                    "$ref": "#/definitions/api.GuardDecision"
+                    "$ref": "#/definitions/model.GuardDecision"
                 },
                 "run_id": {
                     "type": "string"
                 },
                 "selected_agent": {
-                    "$ref": "#/definitions/api.AgentProfile"
-                }
-            }
-        },
-        "api.AgentExecutionResult": {
-            "type": "object",
-            "properties": {
-                "agent": {
-                    "type": "string"
-                },
-                "domain_validation": {
-                    "type": "string"
-                },
-                "evidence": {
-                    "type": "object",
-                    "additionalProperties": {}
-                },
-                "generation": {
-                    "$ref": "#/definitions/deploymentplanner.GenerateResult"
-                },
-                "latency_ms": {
-                    "type": "integer"
-                },
-                "manifest": {
-                    "$ref": "#/definitions/appdeploy.DeploymentManifest"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "proposal": {
-                    "$ref": "#/definitions/api.AgentProposal"
-                },
-                "result": {
-                    "type": "object",
-                    "additionalProperties": {}
-                },
-                "run_id": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
+                    "$ref": "#/definitions/model.AgentProfile"
                 }
             }
         },
@@ -3805,64 +3795,6 @@
                 },
                 "version": {
                     "type": "string"
-                }
-            }
-        },
-        "api.AgentProposal": {
-            "type": "object",
-            "properties": {
-                "action": {
-                    "type": "string"
-                },
-                "parameters": {
-                    "type": "object",
-                    "additionalProperties": {}
-                }
-            }
-        },
-        "api.AgentReview": {
-            "type": "object",
-            "properties": {
-                "action": {
-                    "type": "string"
-                },
-                "agent": {
-                    "type": "string"
-                },
-                "approved": {
-                    "type": "boolean"
-                },
-                "parameters": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                "reason": {
-                    "type": "string"
-                },
-                "reviewer_type": {
-                    "type": "string"
-                },
-                "reward": {
-                    "type": "number"
-                },
-                "skipped": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "api.AgentReviews": {
-            "type": "object",
-            "properties": {
-                "application": {
-                    "$ref": "#/definitions/api.AgentReview"
-                },
-                "cost": {
-                    "$ref": "#/definitions/api.AgentReview"
-                },
-                "infrastructure": {
-                    "$ref": "#/definitions/api.AgentReview"
                 }
             }
         },
@@ -4027,53 +3959,6 @@
                 }
             }
         },
-        "api.DeploymentPlan": {
-            "type": "object",
-            "properties": {
-                "allowed_actions": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "execution_status": {
-                    "type": "string"
-                },
-                "executor_type": {
-                    "type": "string"
-                },
-                "feedback_required": {
-                    "type": "boolean"
-                },
-                "preconditions": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "requested_action": {
-                    "type": "string"
-                },
-                "required_capability": {
-                    "type": "string"
-                },
-                "selected_executor": {
-                    "type": "string"
-                },
-                "service_name": {
-                    "type": "string"
-                },
-                "target_accelerator": {
-                    "type": "string"
-                },
-                "target_vm_id": {
-                    "type": "string"
-                },
-                "workload": {
-                    "type": "string"
-                }
-            }
-        },
         "api.DeploymentPlanResponse": {
             "type": "object",
             "properties": {
@@ -4083,14 +3968,14 @@
                 "checks": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/api.VMCompatibilityCheck"
+                        "$ref": "#/definitions/model.VMCompatibilityCheck"
                     }
                 },
                 "compatibility_status": {
                     "type": "string"
                 },
                 "deployment_plan": {
-                    "$ref": "#/definitions/api.DeploymentPlan"
+                    "$ref": "#/definitions/model.DeploymentPlan"
                 },
                 "evidence_status": {
                     "type": "string"
@@ -4118,26 +4003,6 @@
                 },
                 "workload": {
                     "type": "string"
-                }
-            }
-        },
-        "api.DeploymentValidation": {
-            "type": "object",
-            "properties": {
-                "checks": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "mode": {
-                    "type": "string"
-                },
-                "reason": {
-                    "type": "string"
-                },
-                "valid": {
-                    "type": "boolean"
                 }
             }
         },
@@ -4220,11 +4085,18 @@
         },
         "api.ExternalFlowRequest": {
             "type": "object",
+            "required": [
+                "application_context",
+                "resource_recommendation"
+            ],
             "properties": {
                 "application_context": {
                     "$ref": "#/definitions/agentcontrol.ApplicationContextEnvelope"
                 },
                 "decision_agent": {
+                    "type": "string"
+                },
+                "input_origin": {
                     "type": "string"
                 },
                 "resource_recommendation": {
@@ -4290,79 +4162,6 @@
                 }
             }
         },
-        "api.GuardDecision": {
-            "type": "object",
-            "properties": {
-                "reason": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "valid": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "api.GuardValidation": {
-            "type": "object",
-            "properties": {
-                "backend": {
-                    "type": "string"
-                },
-                "boundary": {
-                    "type": "string"
-                },
-                "checked_actions": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "mode": {
-                    "type": "string"
-                },
-                "operation_resource": {
-                    "type": "string"
-                },
-                "operation_service": {
-                    "type": "string"
-                },
-                "reason": {
-                    "type": "string"
-                },
-                "runtime_wired": {
-                    "type": "boolean"
-                },
-                "valid": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "api.LLMActionProposal": {
-            "type": "object",
-            "properties": {
-                "action": {
-                    "type": "string"
-                },
-                "confidence": {
-                    "type": "number"
-                },
-                "parameters": {
-                    "type": "object",
-                    "additionalProperties": {}
-                },
-                "reason": {
-                    "type": "string"
-                },
-                "required_capability": {
-                    "type": "string"
-                },
-                "target_vm_id": {
-                    "type": "string"
-                }
-            }
-        },
         "api.LLMAutomationActionRequest": {
             "type": "object",
             "required": [
@@ -4384,7 +4183,7 @@
                     "example": "run-0123456789abcdef"
                 },
                 "target_vm": {
-                    "$ref": "#/definitions/api.VMResourceSnapshot"
+                    "$ref": "#/definitions/model.VMResourceSnapshot"
                 },
                 "workload": {
                     "type": "string",
@@ -4399,13 +4198,13 @@
                     "type": "string"
                 },
                 "decision": {
-                    "$ref": "#/definitions/api.LLMDecisionResult"
+                    "$ref": "#/definitions/model.LLMDecisionResult"
                 },
                 "guard": {
-                    "$ref": "#/definitions/api.GuardDecision"
+                    "$ref": "#/definitions/model.GuardDecision"
                 },
                 "handoff": {
-                    "$ref": "#/definitions/api.AgentInvocationPlan"
+                    "$ref": "#/definitions/model.AgentInvocationPlan"
                 },
                 "run_id": {
                     "type": "string"
@@ -4417,92 +4216,7 @@
                     "type": "boolean"
                 },
                 "vm_compatibility": {
-                    "$ref": "#/definitions/api.VMCompatibilityResponse"
-                }
-            }
-        },
-        "api.LLMDecisionResult": {
-            "type": "object",
-            "properties": {
-                "actual_model": {
-                    "type": "string"
-                },
-                "candidate_id": {
-                    "type": "string"
-                },
-                "decision_execution_status": {
-                    "type": "string"
-                },
-                "latency_ms": {
-                    "type": "integer"
-                },
-                "proposal": {
-                    "$ref": "#/definitions/api.LLMActionProposal"
-                },
-                "provider": {
-                    "type": "string"
-                }
-            }
-        },
-        "api.OperationReadiness": {
-            "type": "object",
-            "properties": {
-                "reason": {
-                    "type": "string"
-                },
-                "service": {
-                    "type": "string"
-                },
-                "skipped": {
-                    "type": "boolean"
-                },
-                "target_resource": {
-                    "type": "string"
-                },
-                "valid": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "api.OpsLLMRankedItem": {
-            "type": "object",
-            "properties": {
-                "actual_model": {
-                    "type": "string"
-                },
-                "benchmark_status": {
-                    "type": "string"
-                },
-                "evaluation_source": {
-                    "type": "string"
-                },
-                "evaluation_type": {
-                    "type": "string"
-                },
-                "metrics": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "number",
-                        "format": "float64"
-                    }
-                },
-                "model": {
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "provider": {
-                    "type": "string"
-                },
-                "role": {
-                    "type": "string"
-                },
-                "score": {
-                    "type": "number"
+                    "$ref": "#/definitions/model.VMCompatibilityResponse"
                 }
             }
         },
@@ -4533,7 +4247,7 @@
                 "ranking": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/api.OpsLLMRankedItem"
+                        "$ref": "#/definitions/model.OpsLLMRankedItem"
                     }
                 },
                 "rationale": {
@@ -4635,6 +4349,19 @@
                 }
             }
         },
+        "api.ReadinessResponse": {
+            "type": "object",
+            "properties": {
+                "service": {
+                    "type": "string",
+                    "example": "geon"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "ready"
+                }
+            }
+        },
         "api.ServiceOperationsRequest": {
             "type": "object",
             "required": [
@@ -4678,7 +4405,7 @@
                     "example": "llm-chat-inference"
                 },
                 "target_vm": {
-                    "$ref": "#/definitions/api.VMResourceSnapshot"
+                    "$ref": "#/definitions/model.VMResourceSnapshot"
                 },
                 "vm_requirements": {
                     "type": "string",
@@ -4694,7 +4421,7 @@
             "type": "object",
             "properties": {
                 "agent_reviews": {
-                    "$ref": "#/definitions/api.AgentReviews"
+                    "$ref": "#/definitions/model.AgentReviews"
                 },
                 "benchmark_status": {
                     "type": "string"
@@ -4709,10 +4436,10 @@
                     "type": "string"
                 },
                 "deployment_plan": {
-                    "$ref": "#/definitions/api.DeploymentPlan"
+                    "$ref": "#/definitions/model.DeploymentPlan"
                 },
                 "deployment_validation": {
-                    "$ref": "#/definitions/api.DeploymentValidation"
+                    "$ref": "#/definitions/model.DeploymentValidation"
                 },
                 "evaluation_source": {
                     "type": "string"
@@ -4724,13 +4451,13 @@
                     "type": "string"
                 },
                 "guard_validation": {
-                    "$ref": "#/definitions/api.GuardValidation"
+                    "$ref": "#/definitions/model.GuardValidation"
                 },
                 "inference_deployment_plan": {
-                    "$ref": "#/definitions/api.DeploymentPlanResponse"
+                    "$ref": "#/definitions/model.DeploymentPlanResponse"
                 },
                 "llm_automation_action": {
-                    "$ref": "#/definitions/api.LLMAutomationActionResponse"
+                    "$ref": "#/definitions/model.LLMAutomationActionResponse"
                 },
                 "metadata": {
                     "type": "object",
@@ -4739,7 +4466,7 @@
                     }
                 },
                 "operation": {
-                    "$ref": "#/definitions/api.OperationReadiness"
+                    "$ref": "#/definitions/model.OperationReadiness"
                 },
                 "operation_pipeline_ready": {
                     "type": "boolean"
@@ -4814,26 +4541,6 @@
                 }
             }
         },
-        "api.VMCompatibilityCheck": {
-            "type": "object",
-            "properties": {
-                "actual": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "reason": {
-                    "type": "string"
-                },
-                "required": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
         "api.VMCompatibilityRequest": {
             "type": "object",
             "required": [
@@ -4842,7 +4549,7 @@
             ],
             "properties": {
                 "target_vm": {
-                    "$ref": "#/definitions/api.VMResourceSnapshot"
+                    "$ref": "#/definitions/model.VMResourceSnapshot"
                 },
                 "workload": {
                     "type": "string",
@@ -4859,7 +4566,7 @@
                 "checks": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/api.VMCompatibilityCheck"
+                        "$ref": "#/definitions/model.VMCompatibilityCheck"
                     }
                 },
                 "compatibility_status": {
@@ -4890,88 +4597,6 @@
                     "type": "string"
                 },
                 "workload": {
-                    "type": "string"
-                }
-            }
-        },
-        "api.VMPerformanceEvidence": {
-            "type": "object",
-            "properties": {
-                "cost_per_hour": {
-                    "type": "number"
-                },
-                "latency_ms": {
-                    "type": "number"
-                },
-                "measured_at": {
-                    "type": "string"
-                },
-                "source": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "throughput_rps": {
-                    "type": "number"
-                }
-            }
-        },
-        "api.VMResourceSnapshot": {
-            "type": "object",
-            "required": [
-                "accelerator",
-                "evidence_status",
-                "id",
-                "source"
-            ],
-            "properties": {
-                "accelerator": {
-                    "type": "string"
-                },
-                "availability_zone": {
-                    "type": "string"
-                },
-                "collected_at": {
-                    "type": "string"
-                },
-                "cpu_cores": {
-                    "type": "integer"
-                },
-                "cuda_version": {
-                    "type": "string"
-                },
-                "driver_version": {
-                    "type": "string"
-                },
-                "evidence_status": {
-                    "type": "string"
-                },
-                "gpu_memory_mib": {
-                    "type": "integer"
-                },
-                "gpu_model": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "instance_type": {
-                    "type": "string"
-                },
-                "memory_gb": {
-                    "type": "number"
-                },
-                "performance": {
-                    "$ref": "#/definitions/api.VMPerformanceEvidence"
-                },
-                "provider": {
-                    "type": "string"
-                },
-                "region": {
-                    "type": "string"
-                },
-                "source": {
                     "type": "string"
                 }
             }
@@ -6192,6 +5817,640 @@
                     "type": "string"
                 },
                 "source_snapshot_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.AgentExecutionResult": {
+            "type": "object",
+            "properties": {
+                "agent": {
+                    "type": "string"
+                },
+                "domain_validation": {
+                    "type": "string"
+                },
+                "evidence": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "generation": {
+                    "$ref": "#/definitions/deploymentplanner.GenerateResult"
+                },
+                "latency_ms": {
+                    "type": "integer"
+                },
+                "manifest": {
+                    "$ref": "#/definitions/appdeploy.DeploymentManifest"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "proposal": {
+                    "$ref": "#/definitions/model.AgentProposal"
+                },
+                "result": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "run_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.AgentInvocationPlan": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "agent": {
+                    "type": "string"
+                },
+                "capability": {
+                    "type": "string"
+                },
+                "execution_status": {
+                    "type": "string"
+                },
+                "parameters": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "target_url": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "model.AgentProfile": {
+            "type": "object",
+            "properties": {
+                "auth_token_env": {
+                    "type": "string"
+                },
+                "bounded_actions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "capabilities": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "endpoint": {
+                    "type": "string"
+                },
+                "invocation_path": {
+                    "type": "string"
+                },
+                "korean_name": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "registered_at": {
+                    "type": "string"
+                },
+                "responsibilities": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "reward_signals": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "role": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.AgentProposal": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "parameters": {
+                    "type": "object",
+                    "additionalProperties": {}
+                }
+            }
+        },
+        "model.AgentReview": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "agent": {
+                    "type": "string"
+                },
+                "approved": {
+                    "type": "boolean"
+                },
+                "parameters": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "reviewer_type": {
+                    "type": "string"
+                },
+                "reward": {
+                    "type": "number"
+                },
+                "skipped": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "model.AgentReviews": {
+            "type": "object",
+            "properties": {
+                "application": {
+                    "$ref": "#/definitions/model.AgentReview"
+                },
+                "cost": {
+                    "$ref": "#/definitions/model.AgentReview"
+                },
+                "infrastructure": {
+                    "$ref": "#/definitions/model.AgentReview"
+                }
+            }
+        },
+        "model.DeploymentPlan": {
+            "type": "object",
+            "properties": {
+                "allowed_actions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "execution_status": {
+                    "type": "string"
+                },
+                "executor_type": {
+                    "type": "string"
+                },
+                "feedback_required": {
+                    "type": "boolean"
+                },
+                "preconditions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "requested_action": {
+                    "type": "string"
+                },
+                "required_capability": {
+                    "type": "string"
+                },
+                "selected_executor": {
+                    "type": "string"
+                },
+                "service_name": {
+                    "type": "string"
+                },
+                "target_accelerator": {
+                    "type": "string"
+                },
+                "target_vm_id": {
+                    "type": "string"
+                },
+                "workload": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.DeploymentPlanResponse": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "checks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.VMCompatibilityCheck"
+                    }
+                },
+                "compatibility_status": {
+                    "type": "string"
+                },
+                "deployment_plan": {
+                    "$ref": "#/definitions/model.DeploymentPlan"
+                },
+                "evidence_status": {
+                    "type": "string"
+                },
+                "performance_status": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "resource_checks_passed": {
+                    "type": "boolean"
+                },
+                "resource_source": {
+                    "type": "string"
+                },
+                "target_vm_id": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                },
+                "validation_mode": {
+                    "type": "string"
+                },
+                "workload": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.DeploymentValidation": {
+            "type": "object",
+            "properties": {
+                "checks": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "mode": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "model.GuardDecision": {
+            "type": "object",
+            "properties": {
+                "reason": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "model.GuardValidation": {
+            "type": "object",
+            "properties": {
+                "backend": {
+                    "type": "string"
+                },
+                "boundary": {
+                    "type": "string"
+                },
+                "checked_actions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "mode": {
+                    "type": "string"
+                },
+                "operation_resource": {
+                    "type": "string"
+                },
+                "operation_service": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "runtime_wired": {
+                    "type": "boolean"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "model.LLMActionProposal": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "confidence": {
+                    "type": "number"
+                },
+                "parameters": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "required_capability": {
+                    "type": "string"
+                },
+                "target_vm_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.LLMAutomationActionResponse": {
+            "type": "object",
+            "properties": {
+                "correlation_id": {
+                    "type": "string"
+                },
+                "decision": {
+                    "$ref": "#/definitions/model.LLMDecisionResult"
+                },
+                "guard": {
+                    "$ref": "#/definitions/model.GuardDecision"
+                },
+                "handoff": {
+                    "$ref": "#/definitions/model.AgentInvocationPlan"
+                },
+                "run_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                },
+                "vm_compatibility": {
+                    "$ref": "#/definitions/model.VMCompatibilityResponse"
+                }
+            }
+        },
+        "model.LLMDecisionResult": {
+            "type": "object",
+            "properties": {
+                "actual_model": {
+                    "type": "string"
+                },
+                "candidate_id": {
+                    "type": "string"
+                },
+                "decision_execution_status": {
+                    "type": "string"
+                },
+                "latency_ms": {
+                    "type": "integer"
+                },
+                "proposal": {
+                    "$ref": "#/definitions/model.LLMActionProposal"
+                },
+                "provider": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.OperationReadiness": {
+            "type": "object",
+            "properties": {
+                "reason": {
+                    "type": "string"
+                },
+                "service": {
+                    "type": "string"
+                },
+                "skipped": {
+                    "type": "boolean"
+                },
+                "target_resource": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "model.OpsLLMRankedItem": {
+            "type": "object",
+            "properties": {
+                "actual_model": {
+                    "type": "string"
+                },
+                "benchmark_status": {
+                    "type": "string"
+                },
+                "evaluation_source": {
+                    "type": "string"
+                },
+                "evaluation_type": {
+                    "type": "string"
+                },
+                "metrics": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "number",
+                        "format": "float64"
+                    }
+                },
+                "model": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "number"
+                }
+            }
+        },
+        "model.VMCompatibilityCheck": {
+            "type": "object",
+            "properties": {
+                "actual": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "required": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.VMCompatibilityResponse": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "checks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.VMCompatibilityCheck"
+                    }
+                },
+                "compatibility_status": {
+                    "type": "string"
+                },
+                "evidence_status": {
+                    "type": "string"
+                },
+                "performance_status": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "resource_checks_passed": {
+                    "type": "boolean"
+                },
+                "resource_source": {
+                    "type": "string"
+                },
+                "target_vm_id": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                },
+                "validation_mode": {
+                    "type": "string"
+                },
+                "workload": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.VMPerformanceEvidence": {
+            "type": "object",
+            "properties": {
+                "cost_per_hour": {
+                    "type": "number"
+                },
+                "latency_ms": {
+                    "type": "number"
+                },
+                "measured_at": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "throughput_rps": {
+                    "type": "number"
+                }
+            }
+        },
+        "model.VMResourceSnapshot": {
+            "type": "object",
+            "required": [
+                "accelerator",
+                "evidence_status",
+                "id",
+                "source"
+            ],
+            "properties": {
+                "accelerator": {
+                    "type": "string"
+                },
+                "availability_zone": {
+                    "type": "string"
+                },
+                "collected_at": {
+                    "type": "string"
+                },
+                "cpu_cores": {
+                    "type": "integer"
+                },
+                "cuda_version": {
+                    "type": "string"
+                },
+                "driver_version": {
+                    "type": "string"
+                },
+                "evidence_status": {
+                    "type": "string"
+                },
+                "gpu_memory_mib": {
+                    "type": "integer"
+                },
+                "gpu_model": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "instance_type": {
+                    "type": "string"
+                },
+                "memory_gb": {
+                    "type": "number"
+                },
+                "performance": {
+                    "$ref": "#/definitions/model.VMPerformanceEvidence"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "region": {
+                    "type": "string"
+                },
+                "source": {
                     "type": "string"
                 }
             }
