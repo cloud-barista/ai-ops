@@ -23,6 +23,7 @@ type ExternalFlowRequest struct {
 	ApplicationContext     agentcontrol.ApplicationContextEnvelope     `json:"application_context"`
 	ResourceRecommendation agentcontrol.ResourceRecommendationEnvelope `json:"resource_recommendation"`
 	DecisionAgent          string                                      `json:"decision_agent,omitempty"`
+	InputOrigin            string                                      `json:"input_origin,omitempty"`
 }
 
 type FlowDeliveryRequest struct {
@@ -61,7 +62,7 @@ func (h restHandler) RestPostExternalFlow(c echo.Context) error {
 	if err := c.Bind(&request); err != nil {
 		return jsonError(c, 400, "Invalid external input pair", err)
 	}
-	flow, err := h.service.agentControl.ReceiveExternalInputs(c.Request().Context(), request.ApplicationContext, request.ResourceRecommendation, request.DecisionAgent)
+	flow, err := h.service.agentControl.ReceiveExternalInputsFrom(c.Request().Context(), request.ApplicationContext, request.ResourceRecommendation, request.DecisionAgent, request.InputOrigin)
 	if err != nil {
 		return jsonError(c, 400, "External input pair was rejected", err)
 	}

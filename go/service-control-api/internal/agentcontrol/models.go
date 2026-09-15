@@ -606,6 +606,7 @@ type ReasoningComparison struct {
 type Flow struct {
 	CorrelationID           string                           `json:"correlation_id"`
 	TraceID                 string                           `json:"trace_id"`
+	InputOrigin             string                           `json:"input_origin,omitempty"`
 	ProfileID               string                           `json:"profile_id,omitempty"`
 	AutomationRunID         string                           `json:"automation_run_id,omitempty"`
 	RequestedDecisionAgent  string                           `json:"requested_decision_agent,omitempty"`

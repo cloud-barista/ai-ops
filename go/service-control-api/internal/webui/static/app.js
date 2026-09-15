@@ -148,7 +148,7 @@ const STRUCTURED_APP_SPEC_SAMPLE = Object.freeze({
   accelerator_count: 1,
   accelerator_memory_mib: 16384,
   replicas_min: 1,
-  replicas_max: 1,
+  replicas_max: 2,
 });
 
 const state = {
@@ -216,7 +216,11 @@ function showToast(message, tone = "info") {
 }
 
 function setBusy(form, busy, label) {
-  const button = form.querySelector('button[type="submit"]');
+  const button =
+    form.querySelector('button[type="submit"]') ||
+    Array.from(document.querySelectorAll('button[type="submit"][form]')).find(
+      (candidate) => candidate.form === form,
+    );
   if (!button) return;
   const span = button.querySelector("span");
   if (span) {
@@ -378,6 +382,13 @@ function renderManifestOutput(prefix, flow) {
   optimizedJSON.textContent = optimized
     ? pretty(manifestPayload(optimized))
     : "승인된 SCALE_OUT 또는 SCALE_IN 판단 후 생성됩니다.";
+
+  if (prefix === "experiment-") {
+    byID("experiment-manifest-initial-artifact").hidden = !initial;
+    byID("experiment-manifest-optimized-artifact").hidden = !optimized;
+    byID("experiment-artifacts-empty").hidden = Boolean(initial || optimized);
+    byID("experiment-revision2-waiting").hidden = !initial || Boolean(optimized);
+  }
 }
 
 function renderManifestOutputs(flow) {
@@ -544,11 +555,127 @@ function renderFeedback(flow) {
 function scalingSummary(flow) {
   const scaling = flow?.scaling_decision;
   if (!scaling) {
-    return "배포 상태와 성능 Feedback을 기다리고 있습니다.";
+    return "아직 판단하지 않음";
   }
-  return `${text(scaling.action)} · ${text(scaling.current_replicas)} → ${text(
-    scaling.desired_replicas,
-  )} · ${text(scaling.reason)}`;
+  if (scaling.action === "SCALE_OUT") {
+    return `실행 수 ${text(scaling.current_replicas)}개 → ${text(scaling.desired_replicas)}개로 확장`;
+  }
+  if (scaling.action === "SCALE_IN") {
+    return `실행 수 ${text(scaling.current_replicas)}개 → ${text(scaling.desired_replicas)}개로 축소`;
+  }
+  if (scaling.action === "KEEP") return "현재 구성 유지";
+  return text(scaling.action, "판단 결과 없음");
+}
+
+function deploymentDecisionSummary(flow) {
+  const action = flow?.decision?.action || flow?.state;
+  if (action === "DEPLOY" || action === "DEPLOY_APPROVED") return "배포 가능";
+  if (action === "REJECT" || action === "REJECTED") return "배포 불가";
+  if (action === "RETRY" || action === "RETRY_REQUIRED") return "요구사항 재확인 필요";
+  return text(action, "아직 판단하지 않음");
+}
+
+function deploymentStateSummary(flow) {
+  const status = flow?.deployment_status?.data?.deployment_status;
+  if (!status) return "아직 결과 없음";
+  const labels = {
+    RUNNING: "실행 중",
+    SUCCEEDED: "배포 성공",
+    FAILED: "배포 실패",
+    STOPPED: "실행 중지",
+  };
+  return labels[status.state] || text(status.state, "상태 확인 필요");
+}
+
+function experimentSourceLabel(flow) {
+  const origin = String(flow?.input_origin || "").trim().toLowerCase();
+  if (origin === "jang-automation-runner") return "Jang 분석·추천 수신";
+  if (origin) return `외부 수신 · ${flow.input_origin}`;
+  return "geon 내부 실행";
+}
+
+function setExperimentStageStates(states) {
+  [
+    "experiment-progress-revision1",
+    "experiment-progress-deployment",
+    "experiment-progress-feedback",
+    "experiment-progress-operation",
+  ].forEach((id, index) => {
+    byID(id).dataset.state = states[index] || "pending";
+  });
+}
+
+function renderExperimentOverview(flow) {
+  const completion = byID("experiment-completion-status");
+  const nextTitle = byID("experiment-next-action-title");
+  const nextCopy = byID("experiment-next-action-copy");
+  if (!flow) {
+    completion.textContent = "Flow 선택 대기";
+    completion.dataset.status = "waiting";
+    nextTitle.textContent = "실험 결과를 선택하세요.";
+    nextCopy.textContent = "왼쪽 목록에서 Flow를 선택하면 다음 실행 단계가 표시됩니다.";
+    byID("experiment-source-summary").textContent = "출처 대기";
+    byID("experiment-flow-id-summary").textContent = "Flow 미선택";
+    byID("experiment-deployment-summary").textContent = "아직 결과 없음";
+    setExperimentStageStates(["pending", "pending", "pending", "pending"]);
+    return;
+  }
+
+  const revisions = manifestRevisions(flow);
+  const hasRevision1 = revisions.some((revision) => Number(revision.revision) === 1);
+  const hasDeployment = Boolean(flow.deployment_status);
+  const hasFeedback = Boolean(flow.optimization_feedback);
+  const hasOperation = Boolean(flow.operation_agent_execution);
+  const hasRevision2 = revisions.some((revision) => revision.phase === "OPTIMIZED");
+  const scalingAction = flow.scaling_decision?.action;
+  const decisionAction = flow.decision?.action;
+  const terminalDecision = Boolean(
+    decisionAction && decisionAction !== "DEPLOY" && !hasRevision1,
+  );
+
+  byID("experiment-source-summary").textContent = experimentSourceLabel(flow);
+  byID("experiment-flow-id-summary").textContent = text(flow.correlation_id);
+  byID("experiment-deployment-summary").textContent = deploymentStateSummary(flow);
+
+  if (terminalDecision) {
+    completion.textContent = "판단 완료";
+    completion.dataset.status = "complete";
+    nextTitle.textContent = deploymentDecisionSummary(flow);
+    nextCopy.textContent = decisionAction === "RETRY"
+      ? "요구사항 또는 인프라 추천을 수정한 뒤 새 실험을 실행하세요."
+      : "배포 조건을 충족하지 않아 후속 배포 단계는 실행하지 않습니다.";
+    setExperimentStageStates(["complete", "skipped", "skipped", "skipped"]);
+  } else if (!hasRevision1) {
+    completion.textContent = "현재 단계 · 1/4";
+    completion.dataset.status = "running";
+    nextTitle.textContent = "Revision 1을 생성하세요.";
+    nextCopy.textContent = "요구사항과 인프라 추천을 검증해 첫 배포 Manifest를 생성합니다.";
+    setExperimentStageStates(["current", "pending", "pending", "pending"]);
+  } else if (!hasDeployment) {
+    completion.textContent = "현재 단계 · 2/4";
+    completion.dataset.status = "running";
+    nextTitle.textContent = "배포 상태를 연결하세요.";
+    nextCopy.textContent = "Revision 1에 따라 실행한 배포 결과를 같은 Flow에 기록합니다.";
+    setExperimentStageStates(["complete", "current", "pending", "pending"]);
+  } else if (!hasFeedback) {
+    completion.textContent = "현재 단계 · 3/4";
+    completion.dataset.status = "running";
+    nextTitle.textContent = "성능 Feedback을 전송하세요.";
+    nextCopy.textContent = "운영 지표를 보내면 OperationOptimizationAgent와 Scaling Guard가 실행됩니다.";
+    setExperimentStageStates(["complete", "complete", "current", "pending"]);
+  } else if (hasOperation && (hasRevision2 || scalingAction === "KEEP")) {
+    completion.textContent = "실험 완료";
+    completion.dataset.status = "complete";
+    nextTitle.textContent = hasRevision2 ? "운영 최적화가 완료되었습니다." : "현재 배포 구성을 유지합니다.";
+    nextCopy.textContent = `운영 최적화 판단 ${text(scalingAction)}이 같은 Flow에 기록되었습니다.`;
+    setExperimentStageStates(["complete", "complete", "complete", "complete"]);
+  } else {
+    completion.textContent = "현재 단계 · 4/4";
+    completion.dataset.status = "running";
+    nextTitle.textContent = "운영 최적화 결과를 확인하세요.";
+    nextCopy.textContent = "Agent 판단과 Scaling Guard 결과를 처리하고 있습니다.";
+    setExperimentStageStates(["complete", "complete", "complete", "current"]);
+  }
 }
 
 function renderOperationEvidence(flow) {
@@ -601,7 +728,9 @@ function renderOperationEvidence(flow) {
 function syncFeedbackControls(flow) {
   const statusSubmit = byID("deployment-status-submit");
   const feedbackSubmit = byID("optimization-feedback-submit");
-  const statusBlocked = !flow || Boolean(flow.deployment_status);
+  const revisions = manifestRevisions(flow);
+  const hasRevision1 = revisions.some((revision) => Number(revision.revision) === 1);
+  const statusBlocked = !flow || !hasRevision1 || Boolean(flow.deployment_status);
   statusSubmit.disabled = statusBlocked;
   statusSubmit.toggleAttribute("disabled", statusBlocked);
   statusSubmit.title = !flow
@@ -609,6 +738,8 @@ function syncFeedbackControls(flow) {
     : flow.deployment_status
       ? "배포 상태가 이미 같은 Flow에 연결되었습니다."
       : "Revision 1에 배포 상태를 연결합니다.";
+  statusSubmit.classList.toggle("is-next-action", Boolean(flow) && !statusBlocked);
+  statusSubmit.hidden = statusBlocked;
   const feedbackBlocked = !flow?.deployment_status || Boolean(flow.optimization_feedback);
   feedbackSubmit.disabled = feedbackBlocked;
   feedbackSubmit.toggleAttribute("disabled", feedbackBlocked);
@@ -617,16 +748,45 @@ function syncFeedbackControls(flow) {
     : flow.optimization_feedback
       ? "성능 Feedback이 이미 같은 Flow에 연결되었습니다."
       : "성능 Feedback을 전송하여 운영 최적화 판단을 실행합니다.";
+  feedbackSubmit.classList.toggle("is-next-action", Boolean(flow?.deployment_status) && !feedbackBlocked);
+  feedbackSubmit.hidden = feedbackBlocked;
+  const terminalDecision = Boolean(
+    flow?.decision?.action && flow.decision.action !== "DEPLOY" && !hasRevision1,
+  );
+  const experimentComplete = Boolean(
+    flow?.optimization_feedback && flow?.operation_agent_execution,
+  );
+  const completeMessage = byID("experiment-action-complete");
+  completeMessage.hidden = !terminalDecision && !experimentComplete;
+  completeMessage.textContent = terminalDecision
+    ? "배포 판단이 완료되어 후속 단계가 종료되었습니다."
+    : "필수 실험이 완료되었습니다.";
+
+  const description = byID("experiment-action-description");
+  if (!flow) {
+    description.textContent = "선택한 Flow의 다음 단계만 활성화됩니다.";
+  } else if (!statusBlocked) {
+    description.textContent = "AppDeployer의 배포 실행 상태를 전송합니다.";
+  } else if (!feedbackBlocked) {
+    description.textContent = "운영 성능 지표를 전송해 최적화 판단을 실행합니다.";
+  } else if (terminalDecision) {
+    description.textContent = "배포 조건을 충족하지 않아 추가 전송이 필요하지 않습니다.";
+  } else if (experimentComplete) {
+    description.textContent = "모든 필수 단계가 같은 Flow에 기록되었습니다.";
+  } else {
+    description.textContent = "현재 단계의 결과를 기다리고 있습니다.";
+  }
 }
 
 function renderExperimentDetail(flow) {
   syncFeedbackControls(flow);
   window.renderFlowDelivery?.(flow);
+  renderExperimentOverview(flow);
   if (!flow) {
     byID("experiment-agent-summary").textContent = "Flow를 선택하세요.";
-    byID("experiment-decision-summary").textContent = "Flow를 선택하세요.";
+    byID("experiment-decision-summary").textContent = "아직 판단하지 않음";
     byID("experiment-scaling-summary").textContent =
-      "배포 상태와 성능 Feedback을 기다리고 있습니다.";
+      "아직 판단하지 않음";
     byID("experiment-flow-json").textContent = "{}";
     renderReasoningComparison(null);
     renderFeedback(null);
@@ -635,14 +795,11 @@ function renderExperimentDetail(flow) {
     loadFeedbackSamples(null);
     return;
   }
-  const decision = flow.decision || {};
-  const guard = flow.guard || {};
   const execution = flow.agent_execution || {};
   byID("experiment-agent-summary").textContent = execution.agent_name
     ? `${execution.agent_name} · ${text(execution.source)} · ${text(execution.status)}`
     : text(flow.agent_authorization?.agent_name, "Agent 증거 없음");
-  byID("experiment-decision-summary").textContent =
-    `${text(decision.action, flow.state)} · Guard ${text(guard.status)}`;
+  byID("experiment-decision-summary").textContent = deploymentDecisionSummary(flow);
   byID("experiment-scaling-summary").textContent = scalingSummary(flow);
   byID("experiment-flow-json").textContent = pretty(flow);
   renderReasoningComparison(flow.reasoning_comparison);
@@ -998,7 +1155,7 @@ function renderExperimentFlows() {
       createElement(
         "span",
         "",
-        `${text(flow.decision?.action, flow.state)} · ${displayTimestamp(flow.updated_at)}`,
+        `${experimentSourceLabel(flow)} · ${text(flow.decision?.action, flow.state)} · ${displayTimestamp(flow.updated_at)}`,
       ),
     );
     const remove = createElement("button", "icon-button danger-icon");

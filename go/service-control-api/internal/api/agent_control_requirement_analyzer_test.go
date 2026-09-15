@@ -50,6 +50,44 @@ func TestAgentControlRequirementAnalyzerUsesConfiguredQwen(t *testing.T) {
 	}
 }
 
+func TestAgentControlRequirementAnalyzerKeepsDefaultScaleOutHeadroom(t *testing.T) {
+	completion := &capturingRequirementCompletion{
+		content: `{
+			"app_id":"qwen-service",
+			"app_version":"1.0.0",
+			"workload_type":"LLM_INFERENCE",
+			"cpu_cores":4,
+			"memory_mib":8192,
+			"storage_gib":20,
+			"accelerator_type":"GPU",
+			"accelerator_count":1,
+			"accelerator_memory_mib":16384,
+			"replicas_min":1,
+			"replicas_max":1
+		}`,
+	}
+	analyzer := newAgentControlRequirementAnalyzer(
+		ServerConfig{LLMCandidatesPath: writeAgentControlCandidateConfig(t)},
+		completion,
+	)
+
+	result, err := analyzer.Analyze(context.Background(), agentcontrol.AutomationRunInput{
+		InputType: agentcontrol.InputTypeNaturalLanguage,
+		Request:   "GPU 1개, CPU 4코어로 AI 추론 서비스를 배포해 주세요.",
+	})
+	if err != nil {
+		t.Fatalf("analyze with Qwen: %v", err)
+	}
+	deployment := result.ApplicationProfile.Requirements.Deployment
+	if deployment.ReplicasMin != 1 || deployment.ReplicasMax != 2 {
+		t.Fatalf("replica bounds = %d..%d, want 1..2", deployment.ReplicasMin, deployment.ReplicasMax)
+	}
+	if len(result.ApplicationProfile.Analysis.Assumptions) == 0 ||
+		!strings.Contains(result.ApplicationProfile.Analysis.Assumptions[0], "scale-out") {
+		t.Fatalf("normalization assumption missing: %#v", result.ApplicationProfile.Analysis.Assumptions)
+	}
+}
+
 func TestAgentControlRequirementAnalyzerLabelsLocalFallback(t *testing.T) {
 	analyzer := newAgentControlRequirementAnalyzer(
 		ServerConfig{LLMCandidatesPath: writeAgentControlCandidateConfig(t)},

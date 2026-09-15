@@ -10,6 +10,12 @@ import (
 // ReceiveExternalInputs validates the pair before publishing either input.
 // Replays cannot replace a completed Flow with a different upstream payload.
 func (service *Service) ReceiveExternalInputs(ctx context.Context, application ApplicationContextEnvelope, recommendation ResourceRecommendationEnvelope, agent string) (Flow, error) {
+	return service.ReceiveExternalInputsFrom(ctx, application, recommendation, agent, "external-api")
+}
+
+// ReceiveExternalInputsFrom records the integration origin with the immutable
+// input pair so the UI can distinguish external handoffs from local runs.
+func (service *Service) ReceiveExternalInputsFrom(ctx context.Context, application ApplicationContextEnvelope, recommendation ResourceRecommendationEnvelope, agent, inputOrigin string) (Flow, error) {
 	if err := ctx.Err(); err != nil {
 		return Flow{}, err
 	}
@@ -28,17 +34,21 @@ func (service *Service) ReceiveExternalInputs(ctx context.Context, application A
 	if application.CorrelationID != recommendation.CorrelationID || application.TraceID != recommendation.TraceID || application.Data.ApplicationProfile.ProfileID != recommendation.Data.ResourceRecommendation.ProfileID {
 		return Flow{}, fmt.Errorf("external input identities must match")
 	}
+	origin := strings.TrimSpace(inputOrigin)
+	if origin == "" {
+		origin = "external-api"
+	}
 	service.mu.Lock()
 	defer service.mu.Unlock()
 	if existing, ok := service.flows[application.CorrelationID]; ok {
-		if reflect.DeepEqual(existing.ApplicationContext, &application) && reflect.DeepEqual(existing.ResourceRecommendation, &recommendation) && existing.RequestedDecisionAgent == strings.TrimSpace(agent) {
+		if reflect.DeepEqual(existing.ApplicationContext, &application) && reflect.DeepEqual(existing.ResourceRecommendation, &recommendation) && existing.RequestedDecisionAgent == strings.TrimSpace(agent) && existing.InputOrigin == origin {
 			return cloneFlow(existing), nil
 		}
 		return Flow{}, fmt.Errorf("correlation_id already belongs to another input; use a new Flow")
 	}
 	appCopy := cloneApplicationContextEnvelope(application)
 	recCopy := cloneResourceRecommendationEnvelope(recommendation)
-	flow := Flow{CorrelationID: application.CorrelationID, TraceID: application.TraceID, ProfileID: application.Data.ApplicationProfile.ProfileID, ApplicationContext: &appCopy, ResourceRecommendation: &recCopy, RequestedDecisionAgent: strings.TrimSpace(agent), State: StateReady, UpdatedAt: service.now().Format("2006-01-02T15:04:05.999999999Z07:00")}
+	flow := Flow{CorrelationID: application.CorrelationID, TraceID: application.TraceID, InputOrigin: origin, ProfileID: application.Data.ApplicationProfile.ProfileID, ApplicationContext: &appCopy, ResourceRecommendation: &recCopy, RequestedDecisionAgent: strings.TrimSpace(agent), State: StateReady, UpdatedAt: service.now().Format("2006-01-02T15:04:05.999999999Z07:00")}
 	flow = service.evaluateFlow(ctx, flow)
 	service.flows[flow.CorrelationID] = cloneFlow(flow)
 	return cloneFlow(flow), nil

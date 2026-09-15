@@ -1294,6 +1294,681 @@ td small {
   min-width: 0;
 }
 
+.experiment-overview {
+  border-bottom: 1px solid var(--line);
+  background: #ffffff;
+}
+
+.experiment-status-line {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-soft);
+}
+
+.experiment-status-line > div:first-child {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.experiment-status-line strong,
+.experiment-status-line small,
+.experiment-flow-identity code {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.experiment-status-line strong {
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.experiment-status-line small {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.experiment-completion {
+  width: fit-content;
+  padding: 4px 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  color: var(--muted);
+  background: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.experiment-completion[data-status="running"] {
+  border-color: #e4c486;
+  color: var(--amber);
+  background: var(--amber-soft);
+}
+
+.experiment-completion[data-status="complete"] {
+  border-color: #86c7b6;
+  color: var(--teal-dark);
+  background: var(--teal-soft);
+}
+
+.experiment-flow-identity {
+  display: grid;
+  justify-items: end;
+  min-width: 180px;
+  max-width: 42%;
+  gap: 6px;
+  text-align: right;
+}
+
+.experiment-flow-identity span {
+  color: var(--teal-dark);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.experiment-flow-identity code {
+  font-family: "Cascadia Code", Consolas, monospace;
+  font-size: 10px;
+  word-break: break-all;
+}
+
+.experiment-key-results {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-bottom: 1px solid var(--line);
+}
+
+.experiment-key-results > div,
+.developer-summary-grid > div {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  padding: 14px 16px;
+  border-right: 1px solid var(--line);
+}
+
+.experiment-key-results > div:last-child {
+  border-right: 0;
+}
+
+.experiment-key-results span,
+.developer-summary-grid span {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.experiment-key-results strong,
+.developer-summary-grid strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.experiment-progress {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.experiment-progress li {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  align-items: center;
+  min-width: 0;
+  min-height: 68px;
+  gap: 9px;
+  padding: 10px 12px;
+  border-right: 1px solid var(--line);
+  background: #ffffff;
+}
+
+.experiment-progress li:last-child {
+  border-right: 0;
+}
+
+.experiment-progress li > span {
+  display: inline-grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  color: var(--muted);
+  background: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.experiment-progress li > div {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.experiment-progress strong,
+.experiment-progress small {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.experiment-progress strong {
+  font-size: 11px;
+}
+
+.experiment-progress small {
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+.experiment-progress li[data-state="complete"] {
+  background: var(--teal-soft);
+}
+
+.experiment-progress li[data-state="complete"] > span {
+  border-color: var(--teal);
+  color: #ffffff;
+  background: var(--teal);
+}
+
+.experiment-progress li[data-state="current"] {
+  box-shadow: inset 0 -3px 0 var(--amber);
+  background: var(--amber-soft);
+}
+
+.experiment-progress li[data-state="current"] > span {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+
+.experiment-progress li[data-state="skipped"] {
+  background: #f2f5f4;
+}
+
+.experiment-progress li[data-state="skipped"] > span {
+  color: #ffffff;
+  background: #71807c;
+}
+
+.experiment-next-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 16px;
+  border-top: 1px solid var(--line);
+}
+
+.experiment-next-actions .button:not(.is-next-action) {
+  color: var(--muted);
+  background: #dfe6e3;
+}
+
+.experiment-next-actions .button:disabled {
+  cursor: not-allowed;
+}
+
+.experiment-artifacts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-bottom: 1px solid var(--line);
+}
+
+.manifest-artifact {
+  min-width: 0;
+  border-right: 1px solid var(--line);
+}
+
+.manifest-artifact:last-child {
+  border-right: 0;
+}
+
+.manifest-artifact summary {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.45fr) minmax(0, 1fr) 18px;
+  align-items: center;
+  min-height: 72px;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.manifest-artifact summary::-webkit-details-marker {
+  display: none;
+}
+
+.manifest-artifact summary > span:first-child {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.manifest-artifact summary small {
+  color: var(--teal-dark);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.manifest-artifact summary strong {
+  font-size: 13px;
+}
+
+.manifest-artifact summary svg {
+  width: 16px;
+  height: 16px;
+  color: var(--muted);
+}
+
+.manifest-artifact details[open] summary {
+  border-bottom: 1px solid var(--line);
+}
+
+.manifest-artifact details[open] summary svg {
+  transform: rotate(180deg);
+}
+
+.experiment-developer-details {
+  border-top: 0;
+  background: #f5f8f7;
+}
+
+.results-layout {
+  grid-template-areas: "history detail";
+  grid-template-columns: minmax(210px, 0.25fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 14px;
+}
+
+.experiment-detail-panel {
+  grid-area: detail;
+  min-width: 0;
+}
+
+.experiment-detail-panel > .panel-header {
+  align-items: center;
+}
+
+.experiment-stage-track {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--line);
+  list-style: none;
+}
+
+.experiment-stage-track li {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  align-items: center;
+  min-width: 0;
+  min-height: 70px;
+  gap: 10px;
+  padding: 13px 14px;
+  border-right: 1px solid var(--line);
+  background: #ffffff;
+}
+
+.experiment-stage-track li:last-child {
+  border-right: 0;
+}
+
+.experiment-stage-track li > span {
+  display: inline-grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  color: var(--muted);
+  background: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.experiment-stage-track li > div {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.experiment-stage-track strong,
+.experiment-stage-track small {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.experiment-stage-track strong {
+  font-size: 11px;
+}
+
+.experiment-stage-track small {
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+.experiment-stage-track li[data-state="complete"] > span,
+.experiment-stage-track li[data-state="current"] > span {
+  border-color: var(--teal);
+  color: #ffffff;
+  background: var(--teal);
+}
+
+.experiment-stage-track li[data-state="current"] {
+  background: var(--teal-soft);
+}
+
+.experiment-stage-track li[data-state="skipped"] {
+  color: var(--muted);
+  background: #f2f5f4;
+}
+
+.experiment-stage-track li[data-state="skipped"] > span {
+  color: #ffffff;
+  background: #71807c;
+}
+
+.experiment-stage-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(250px, 0.34fr);
+  align-items: stretch;
+  gap: 14px;
+  padding: 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-soft);
+}
+
+.experiment-current-stage,
+.experiment-completed-results {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.experiment-overview {
+  border-bottom: 0;
+  border-radius: inherit;
+}
+
+.experiment-status-line {
+  display: grid;
+  justify-content: stretch;
+  gap: 6px;
+  padding: 24px 28px 20px;
+  border-bottom: 0;
+  background: #ffffff;
+}
+
+.experiment-status-line strong {
+  margin-top: 3px;
+  font-size: 20px;
+  line-height: 1.35;
+}
+
+.experiment-completion {
+  padding: 0;
+  border: 0;
+  color: var(--teal-dark);
+  background: transparent;
+  font-size: 10px;
+}
+
+.experiment-completion[data-status="running"],
+.experiment-completion[data-status="complete"] {
+  border: 0;
+  color: var(--teal-dark);
+  background: transparent;
+}
+
+.experiment-flow-identity {
+  min-width: 0;
+  max-width: 48%;
+}
+
+.experiment-key-results {
+  margin: 0 28px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.experiment-key-results > div {
+  padding: 13px 0;
+  border-right: 0;
+}
+
+.experiment-key-results strong {
+  font-size: 12px;
+}
+
+.experiment-next-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 78px;
+  gap: 16px;
+  padding: 16px 28px;
+  border-top: 0;
+}
+
+.experiment-next-actions > div:first-child {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.experiment-next-actions > div:first-child span {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.experiment-next-actions > div:first-child strong {
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.experiment-next-actions .button {
+  flex: 0 0 auto;
+}
+
+#experiment-action-complete {
+  margin: 0;
+  color: var(--teal-dark);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.experiment-completed-results {
+  padding: 16px;
+}
+
+.experiment-completed-heading {
+  padding-bottom: 11px;
+  font-size: 12px;
+}
+
+.experiment-artifacts {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  border-bottom: 0;
+}
+
+.experiment-artifacts-empty {
+  margin: 0;
+  padding: 24px 10px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 11px;
+}
+
+.manifest-artifact {
+  border: 1px solid var(--line);
+  border-radius: 5px;
+}
+
+.manifest-artifact:last-child {
+  border-right: 1px solid var(--line);
+}
+
+.manifest-artifact summary {
+  grid-template-columns: minmax(0, 1fr) 16px;
+  min-height: 0;
+  padding: 12px;
+}
+
+.manifest-artifact summary .manifest-stage-state {
+  grid-column: 1 / -1;
+  justify-items: start;
+  text-align: left;
+}
+
+.manifest-artifact .manifest-json {
+  max-height: 280px;
+}
+
+.experiment-revision2-waiting {
+  margin: 12px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+.experiment-developer-details {
+  margin: 0;
+  border-top: 0;
+}
+
+.experiment-history-panel > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 54px;
+  gap: 14px;
+  padding: 12px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.experiment-history-panel {
+  grid-area: history;
+  min-width: 0;
+}
+
+.experiment-history-panel > summary::-webkit-details-marker {
+  display: none;
+}
+
+.experiment-history-panel > summary > span {
+  display: grid;
+  gap: 2px;
+}
+
+.experiment-history-panel > summary small {
+  color: var(--teal-dark);
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.experiment-history-panel > summary strong {
+  font-size: 12px;
+}
+
+.experiment-history-panel > summary svg {
+  width: 16px;
+  height: 16px;
+  color: var(--muted);
+}
+
+.experiment-history-panel[open] > summary {
+  border-bottom: 1px solid var(--line);
+}
+
+.experiment-history-panel[open] > summary svg {
+  transform: rotate(180deg);
+}
+
+.experiment-history-body .panel-header {
+  background: var(--surface-soft);
+}
+
+.experiment-history-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.experiment-history-body .flow-list {
+  max-height: 320px;
+}
+
+.developer-section {
+  min-width: 0;
+  padding: 16px;
+  border-bottom: 1px solid var(--line);
+  background: #ffffff;
+}
+
+.developer-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.developer-section-heading p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.protocol-input-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.protocol-input-grid .protocol-form {
+  padding: 0;
+}
+
+.developer-summary-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  margin: -16px -16px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.developer-summary-grid > div {
+  border-right: 0;
+}
+
+.flow-record-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 12px;
+  border-top: 1px solid var(--line);
+  background: #ffffff;
+}
+
 .flow-list {
   display: grid;
   max-height: 560px;
@@ -1833,8 +2508,40 @@ dialog::backdrop {
   .automation-evidence-grid,
   .manifest-output-grid,
   .results-layout,
-  .feedback-input-grid {
+  .experiment-stage-workspace,
+  .feedback-input-grid,
+  .protocol-input-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .results-layout {
+    grid-template-areas:
+      "detail"
+      "history";
+  }
+
+  .experiment-stage-track {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .experiment-stage-track li:nth-child(even) {
+    border-right: 0;
+  }
+
+  .experiment-stage-track li:nth-child(n + 3) {
+    border-top: 1px solid var(--line);
+  }
+
+  .experiment-artifacts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .manifest-artifact {
+    border-right: 0;
+  }
+
+  .manifest-artifact + .manifest-artifact {
+    border-top: 1px solid var(--line);
   }
 
   .experiment-guide-steps {
@@ -1885,6 +2592,75 @@ dialog::backdrop {
 }
 
 @media (max-width: 620px) {
+	.experiment-detail-panel > .panel-header {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+
+	.experiment-status-line {
+		padding: 20px;
+	}
+
+	.experiment-flow-identity {
+		justify-items: start;
+		width: 100%;
+		max-width: none;
+		text-align: left;
+	}
+
+	.experiment-key-results {
+		grid-template-columns: minmax(0, 1fr);
+		margin: 0 20px;
+	}
+
+	.experiment-key-results > div {
+		border-right: 0;
+		border-bottom: 1px solid var(--line);
+	}
+
+	.experiment-key-results > div:last-child {
+		border-bottom: 0;
+	}
+
+	.experiment-progress {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.experiment-progress li {
+		min-height: 56px;
+		border-right: 0;
+		border-bottom: 1px solid var(--line);
+	}
+
+	.experiment-progress li:last-child {
+		border-bottom: 0;
+	}
+
+	.experiment-next-actions {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		padding: 16px 20px 20px;
+	}
+
+	.experiment-next-actions .button {
+		width: 100%;
+	}
+
+	.manifest-artifact summary {
+		grid-template-columns: minmax(0, 1fr) 18px;
+	}
+
+	.manifest-artifact summary .manifest-stage-state {
+		grid-column: 1 / -1;
+		justify-items: start;
+		text-align: left;
+	}
+
+	.developer-section-heading {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+
 	.experiment-sequence-heading {
 		grid-template-columns: 28px minmax(0, 1fr);
 		align-items: start;

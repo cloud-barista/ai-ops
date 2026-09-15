@@ -12,7 +12,7 @@ import (
 	"kyunghee-aiops/service-control-api/internal/llmclient"
 )
 
-const agentControlRequirementSystemPrompt = `You are the bounded Requirement Analyzer for the KHU AI Application Automation Agent PoC. Convert only the supplied natural-language application request into exactly one JSON object with these fields: app_id, app_version, workload_type, cpu_cores, memory_mib, storage_gib, accelerator_type, accelerator_count, accelerator_memory_mib, replicas_min, replicas_max. Use integers for every numeric field. Use an empty accelerator_type and zero accelerator values when no accelerator is requested. Do not create VM IDs, provider IDs, credentials, secrets, shell commands, manifests, or deployment actions. Return JSON only.`
+const agentControlRequirementSystemPrompt = `You are the bounded Requirement Analyzer for the KHU AI Application Automation Agent PoC. Convert only the supplied natural-language application request into exactly one JSON object with these fields: app_id, app_version, workload_type, cpu_cores, memory_mib, storage_gib, accelerator_type, accelerator_count, accelerator_memory_mib, replicas_min, replicas_max. Use integers for every numeric field. When the request does not specify replica bounds, use replicas_min=1 and replicas_max=2 so one bounded scale-out step remains available. Use an empty accelerator_type and zero accelerator values when no accelerator is requested. Do not create VM IDs, provider IDs, credentials, secrets, shell commands, manifests, or deployment actions. Return JSON only.`
 
 const requirementAnalyzerCandidateID = "qwen3.5-ops-planner"
 
@@ -69,6 +69,7 @@ func (analyzer agentControlRequirementAnalyzer) Analyze(
 	if err != nil {
 		return labelRequirementFallback(fallback), nil
 	}
+	replicaBoundsNormalized := normalizeNaturalLanguageReplicaBounds(&spec, fallback)
 	result, err := analyzer.fallback.Analyze(ctx, agentcontrol.AutomationRunInput{
 		InputType:   agentcontrol.InputTypeStructured,
 		RequestedBy: input.RequestedBy,
@@ -87,7 +88,36 @@ func (analyzer agentControlRequirementAnalyzer) Analyze(
 		LatencyMS:   completion.LatencyMS,
 	}
 	result.ApplicationProfile.Analysis.Confidence = 0.9
+	if replicaBoundsNormalized {
+		const assumption = "Maximum replica count defaulted to 2 for one bounded scale-out step."
+		result.Evidence.Assumptions = append(result.Evidence.Assumptions, assumption)
+		result.ApplicationProfile.Analysis.Assumptions = append(
+			result.ApplicationProfile.Analysis.Assumptions,
+			assumption,
+		)
+	}
 	return result, nil
+}
+
+func normalizeNaturalLanguageReplicaBounds(
+	spec *agentcontrol.StructuredAppSpec,
+	fallback agentcontrol.RequirementAnalysisResult,
+) bool {
+	fallbackBounds := fallback.ApplicationProfile.Requirements.Deployment
+	normalized := false
+	if spec.ReplicasMin <= 0 {
+		spec.ReplicasMin = fallbackBounds.ReplicasMin
+		normalized = true
+	}
+	if spec.ReplicasMax < fallbackBounds.ReplicasMax {
+		spec.ReplicasMax = fallbackBounds.ReplicasMax
+		normalized = true
+	}
+	if spec.ReplicasMax < spec.ReplicasMin {
+		spec.ReplicasMax = spec.ReplicasMin
+		normalized = true
+	}
+	return normalized
 }
 
 func parseStructuredAppSpec(content string) (agentcontrol.StructuredAppSpec, error) {

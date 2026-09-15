@@ -211,6 +211,7 @@ async function browserPage({
     "index.html",
     "app.css",
     "app.js",
+    "flow_delivery.js",
   ].map(async (name) => [name, await fs.readFile(path.join(staticDir, name), "utf8")])));
   const flows = [...initialFlows];
   const requests = [];
@@ -233,6 +234,7 @@ async function browserPage({
       "/": ["text/html; charset=utf-8", assets["index.html"]],
       "/assets/app.css": ["text/css; charset=utf-8", assets["app.css"]],
       "/assets/app.js": ["text/javascript; charset=utf-8", assets["app.js"]],
+      "/assets/flow_delivery.js": ["text/javascript; charset=utf-8", assets["flow_delivery.js"]],
     }[pathname];
     if (asset) {
       await route.fulfill({ contentType: asset[0], body: asset[1] });
@@ -263,6 +265,13 @@ async function browserPage({
       await route.fulfill({
         contentType: "application/json",
         body: JSON.stringify({ flows }),
+      });
+      return;
+    }
+    if (pathname === "/api/v1/agent-control/integration" && method === "GET") {
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({ configured: false, submit_enabled: false }),
       });
       return;
     }
@@ -459,9 +468,23 @@ test("current navigation, Agent policy, and layout replace the removed legacy me
       await page.locator('[data-view-target="results"]').click();
       const resultsLayout = await layoutSnapshot(page, {
         navItems: ".primary-nav > .nav-item",
-        flowControls: ".flow-list-item > *",
+        experimentStages: ".experiment-stage-track > li",
       });
-      assertLayout(resultsLayout, { navItems: 3, flowControls: 2 });
+      assertLayout(resultsLayout, { navItems: 3, experimentStages: 4 });
+      assert.equal(await page.locator("#experiment-history").evaluate((element) => element.open), true);
+      const resultPanels = await page.evaluate(() => {
+        const history = document.getElementById("experiment-history").getBoundingClientRect();
+        const detail = document.querySelector(".experiment-detail-panel").getBoundingClientRect();
+        return {
+          history: { left: history.left, right: history.right, top: history.top },
+          detail: { left: detail.left, right: detail.right, top: detail.top, bottom: detail.bottom },
+        };
+      });
+      if (viewport.width > 900) {
+        assert.equal(resultPanels.history.right <= resultPanels.detail.left, true, JSON.stringify(resultPanels));
+      } else {
+        assert.equal(resultPanels.history.top >= resultPanels.detail.bottom, true, JSON.stringify(resultPanels));
+      }
       assert.deepEqual(consoleErrors, []);
     } finally {
       await browser.close();
@@ -557,7 +580,7 @@ test("results select the newest Flow and keep active evidence and Feedback sampl
       "flow-newer-002",
     );
     assert.match(await page.locator("#experiment-agent-summary").textContent(), /RuntimeDeploymentAgent.*runtime.*completed/);
-    assert.match(await page.locator("#experiment-scaling-summary").textContent(), /SCALE_OUT/);
+    assert.equal(await page.locator("#experiment-scaling-summary").textContent(), "실행 수 1개 → 2개로 확장");
 
     await page.locator('.flow-select[data-flow-id="flow-older-001"]').click();
     await page.waitForFunction(() => (
@@ -567,11 +590,12 @@ test("results select the newest Flow and keep active evidence and Feedback sampl
       await page.locator("#experiment-flow-list .flow-list-item.is-active .flow-select").getAttribute("data-flow-id"),
       "flow-older-001",
     );
-    assert.match(await page.locator("#experiment-scaling-summary").textContent(), /KEEP/);
+    assert.equal(await page.locator("#experiment-scaling-summary").textContent(), "현재 구성 유지");
     const rawFlow = JSON.parse(await page.locator("#experiment-flow-json").textContent());
     assert.equal(rawFlow.correlation_id, "flow-older-001");
     assert.equal(rawFlow.requested_operation_agent, "OperationOptimizationAgent");
 
+    await page.locator("#experiment-developer-details > summary").click();
     await page.locator("#load-agent-control-feedback-sample").click();
     const statusSample = JSON.parse(await page.locator("#deployment-status-json").inputValue());
     const feedbackSample = JSON.parse(await page.locator("#optimization-feedback-json").inputValue());

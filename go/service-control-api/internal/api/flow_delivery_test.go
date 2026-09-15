@@ -145,6 +145,21 @@ func TestExternalPairAtomicAndConflict(t *testing.T) {
 	}
 }
 
+func TestExternalPairRecordsImmutableInputOrigin(t *testing.T) {
+	s := NewService(NewServerConfig())
+	app, rec := apiApplicationContextEnvelope(), apiResourceRecommendationEnvelope()
+	flow, err := s.agentControl.ReceiveExternalInputsFrom(context.Background(), app, rec, "", "jang-automation-runner")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if flow.InputOrigin != "jang-automation-runner" {
+		t.Fatalf("input origin was not recorded: %+v", flow)
+	}
+	if _, err := s.agentControl.ReceiveExternalInputsFrom(context.Background(), app, rec, "", "another-system"); err == nil {
+		t.Fatal("replay changed the immutable input origin")
+	}
+}
+
 func TestDeliveryRequiresAcceptanceAndApprovedAgent(t *testing.T) {
 	s, calls := deliveryFixture(t, false)
 	ctx := context.Background()

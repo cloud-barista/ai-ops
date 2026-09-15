@@ -203,6 +203,7 @@ async function browserPage(viewport = { width: 1280, height: 900 }, scenario = {
     "index.html",
     "app.css",
     "app.js",
+    "flow_delivery.js",
   ].map(async (name) => [name, await fs.readFile(path.join(staticDir, name), "utf8")])));
   const requests = [];
   const feedbackRequests = [];
@@ -225,6 +226,7 @@ async function browserPage(viewport = { width: 1280, height: 900 }, scenario = {
       "/": ["text/html; charset=utf-8", assets["index.html"]],
       "/assets/app.css": ["text/css; charset=utf-8", assets["app.css"]],
       "/assets/app.js": ["text/javascript; charset=utf-8", assets["app.js"]],
+      "/assets/flow_delivery.js": ["text/javascript; charset=utf-8", assets["flow_delivery.js"]],
     }[pathname];
     if (asset) {
       await route.fulfill({ contentType: asset[0], body: asset[1] });
@@ -247,6 +249,13 @@ async function browserPage(viewport = { width: 1280, height: 900 }, scenario = {
     }
     if (pathname === "/api/v1/agent-control/flows") {
       await route.fulfill({ contentType: "application/json", body: JSON.stringify({ flows }) });
+      return;
+    }
+    if (pathname === "/api/v1/agent-control/integration") {
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({ configured: false, submit_enabled: false }),
+      });
       return;
     }
     if (pathname === "/api/v1/agent-control/trusted-automation-runs" && request.method() === "POST") {
@@ -459,8 +468,8 @@ test("a new run stops at Revision 1 until deployment status and Feedback are sen
     assert.match(await page.locator("#manifest-optimized-status").textContent(), /Feedback 후 생성 대기/);
 
     await page.locator('[data-view-target="results"]').click();
-    const statusButton = page.locator("#deployment-status-form button[type=submit]");
-    const feedbackButton = page.locator("#optimization-feedback-form button[type=submit]");
+    const statusButton = page.locator("#deployment-status-submit");
+    const feedbackButton = page.locator("#optimization-feedback-submit");
     assert.equal(await statusButton.textContent(), "2. 배포 상태 전송");
     assert.equal(await feedbackButton.textContent(), "3. 성능 Feedback 전송");
     assert.equal(await statusButton.isDisabled(), false);
@@ -471,6 +480,7 @@ test("a new run stops at Revision 1 until deployment status and Feedback are sen
     assert.equal(feedbackRequests.length, 0);
     assert.equal(await statusButton.isDisabled(), true);
     assert.equal(await feedbackButton.isDisabled(), false);
+    assert.equal(await page.locator('[data-view="results"]').isVisible(), true);
     assert.match(await page.locator("#experiment-manifest-optimized-status").textContent(), /Feedback 후 생성 대기/);
     await feedbackButton.click();
     await page.waitForTimeout(50);
@@ -483,6 +493,7 @@ test("a new run stops at Revision 1 until deployment status and Feedback are sen
     );
     assert.match(await page.locator("#experiment-manifest-initial-status").textContent(), /Revision 1/);
     assert.equal(await feedbackButton.isDisabled(), true);
+    assert.equal(await page.locator('[data-view="results"]').isVisible(), true);
     assert.match(await page.locator("#experiment-manifest-optimized-status").textContent(), /Revision 2/);
     assert.deepEqual(consoleErrors, []);
   } finally {
@@ -516,7 +527,7 @@ test("a Safeguard stop clears the previous successful Flow evidence", async () =
   }
 });
 
-test("results view exposes experiment actions in the required execution order", async () => {
+test("results view exposes a compact summary and experiment actions in the required order", async () => {
   const { browser, page, consoleErrors } = await browserPage();
   try {
     await page.locator("#automation-run-submit").click();
@@ -528,22 +539,51 @@ test("results view exposes experiment actions in the required execution order", 
 
     const workflow = await page.evaluate(() => {
       const items = [
-        document.getElementById("experiment-manifest-initial-status").closest("section"),
-        document.getElementById("deployment-status-form"),
-        document.getElementById("optimization-feedback-form"),
-        document.getElementById("experiment-operation-evidence"),
-        document.getElementById("experiment-manifest-optimized-status").closest("section"),
+        document.getElementById("experiment-progress-revision1"),
+        document.getElementById("experiment-progress-deployment"),
+        document.getElementById("experiment-progress-feedback"),
+        document.getElementById("experiment-progress-operation"),
       ];
+      const statusButton = document.getElementById("deployment-status-submit");
+      const feedbackButton = document.getElementById("optimization-feedback-submit");
       return {
         visible: items.map((item) => item.checkVisibility()),
         ordered: items.slice(0, -1).map((item, index) => (
           Boolean(item.compareDocumentPosition(items[index + 1]) & Node.DOCUMENT_POSITION_FOLLOWING)
         )),
+        states: items.map((item) => item.dataset.state),
+        actionOrder: Boolean(statusButton.compareDocumentPosition(feedbackButton) & Node.DOCUMENT_POSITION_FOLLOWING),
+        actionsVisible: [statusButton.checkVisibility(), feedbackButton.checkVisibility()],
+        developerOpen: document.getElementById("experiment-developer-details").open,
+        rawInputsVisible: document.getElementById("deployment-status-form").checkVisibility(),
       };
     });
 
-    assert.deepEqual(workflow.visible, [true, true, true, true, true]);
-    assert.deepEqual(workflow.ordered, [true, true, true, true]);
+    assert.deepEqual(workflow.visible, [true, true, true, true]);
+    assert.deepEqual(workflow.ordered, [true, true, true]);
+    assert.deepEqual(workflow.states, ["complete", "current", "pending", "pending"]);
+    assert.equal(workflow.actionOrder, true);
+    assert.deepEqual(workflow.actionsVisible, [true, false]);
+    assert.equal(workflow.developerOpen, false);
+    assert.equal(workflow.rawInputsVisible, false);
+    assert.deepEqual(consoleErrors, []);
+  } finally {
+    await browser.close();
+  }
+});
+
+test("results view identifies a Jang input handoff", async () => {
+  const externalFlow = completedRun({ input_type: "natural_language" }).flow;
+  externalFlow.input_origin = "jang-automation-runner";
+  const { browser, page, consoleErrors } = await browserPage(
+    { width: 1280, height: 900 },
+    { initialFlows: [externalFlow] },
+  );
+  try {
+    await page.locator('[data-view-target="results"]').click();
+    await page.locator('[data-flow-id="flow-web-001"]').click();
+    assert.equal(await page.locator("#experiment-source-summary").textContent(), "Jang 분석·추천 수신");
+    assert.match(await page.locator(".flow-list-item.is-active").textContent(), /Jang 분석·추천 수신/);
     assert.deepEqual(consoleErrors, []);
   } finally {
     await browser.close();
@@ -559,11 +599,14 @@ test("full Flow record is separated from Manifest output and collapsed by defaul
     ));
 	await page.locator('[data-view-target="results"]').click();
 
+    const developer = page.locator("#experiment-developer-details");
+    assert.equal(await developer.getAttribute("open"), null);
+    await developer.locator(":scope > summary").click();
     const disclosure = page.locator("#experiment-flow-record");
     assert.equal(await disclosure.count(), 1);
     assert.equal(await disclosure.getAttribute("open"), null);
     assert.match(await disclosure.locator("summary").textContent(), /전체 Flow 실행 기록/);
-    assert.match(await disclosure.locator("summary").textContent(), /Manifest가 아닌/);
+    assert.doesNotMatch(await disclosure.locator("summary").textContent(), /Manifest가 아닌/);
     assert.equal(await page.locator("#experiment-flow-json").isVisible(), false);
 
     await disclosure.locator("summary").click();
@@ -751,11 +794,11 @@ test("one natural-language input executes the deployment-to-feedback sequence in
     assert.match(await page.locator("#automation-application-profile-json").textContent(), /profile-web-001/);
     assert.match(await page.locator("#automation-resource-recommendation-json").textContent(), /mock-gpu-l4/);
     await page.locator('[data-view-target="results"]').click();
-    await page.locator("#deployment-status-form button[type=submit]").click();
+    await page.locator("#deployment-status-submit").click();
     await page.waitForTimeout(50);
     assert.equal(deploymentStatusRequests.length, 1);
     assert.equal(feedbackRequests.length, 0);
-    await page.locator("#optimization-feedback-form button[type=submit]").click();
+    await page.locator("#optimization-feedback-submit").click();
     await page.waitForFunction(() => (
       document.getElementById("manifest-optimized-status").textContent.includes("Revision 2")
     ));
@@ -822,9 +865,9 @@ test("optimization feedback selects an operation Agent and renders guarded scali
       document.getElementById("manifest-initial-status").textContent.includes("Revision 1")
     ));
     await page.locator('[data-view-target="results"]').click();
-    await page.locator("#deployment-status-form button[type=submit]").click();
+    await page.locator("#deployment-status-submit").click();
     await page.waitForTimeout(50);
-    await page.locator("#optimization-feedback-form button[type=submit]").click();
+    await page.locator("#optimization-feedback-submit").click();
     await page.waitForFunction(() => (
       document.getElementById("experiment-operation-scaling").textContent.includes("SCALE_OUT 1 -> 2")
     ));
@@ -873,9 +916,9 @@ test("rejected operation Agent proposals are not shown as scaling recommendation
       document.getElementById("manifest-initial-status").textContent.includes("Revision 1")
     ));
     await page.locator('[data-view-target="results"]').click();
-    await page.locator("#deployment-status-form button[type=submit]").click();
+    await page.locator("#deployment-status-submit").click();
     await page.waitForTimeout(50);
-    await page.locator("#optimization-feedback-form button[type=submit]").click();
+    await page.locator("#optimization-feedback-submit").click();
     await page.waitForFunction(() => (
       document.getElementById("experiment-operation-result-guard").textContent === "REJECTED"
     ));
@@ -909,9 +952,9 @@ test("mobile guarded feedback wraps long optimization evidence without overlap",
       document.getElementById("manifest-initial-status").textContent.includes("Revision 1")
     ));
     await page.locator('[data-view-target="results"]').click();
-    await page.locator("#deployment-status-form button[type=submit]").click();
+    await page.locator("#deployment-status-submit").click();
     await page.waitForTimeout(50);
-    await page.locator("#optimization-feedback-form button[type=submit]").click();
+    await page.locator("#optimization-feedback-submit").click();
     await page.waitForFunction(() => (
       document.getElementById("experiment-operation-evidence").hidden === false
     ));

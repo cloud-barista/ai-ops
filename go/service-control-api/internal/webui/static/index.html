@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light">
   <title>geon Agent Control</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="/assets/app.css?v=20260825-manifest-labels">
+  <link rel="stylesheet" href="/assets/app.css?v=20260914-guided-results">
 </head>
 <body>
   <div class="app-shell">
@@ -340,76 +340,114 @@
       </section>
 
       <section class="view" data-view="results" hidden>
-        <div class="view-heading">
-          <div>
-            <p class="section-label">EXPERIMENT EVIDENCE</p>
-            <h2>실험 결과</h2>
-            <p>배포 판단, 검증 근거, 추론 비교, Feedback과 스케일링 판단을 하나의 Flow로 확인합니다.</p>
-          </div>
-          <button class="icon-button" id="refresh-experiment-flows" type="button" title="실험 결과 새로고침" aria-label="실험 결과 새로고침">
-            <i data-lucide="refresh-cw" aria-hidden="true"></i>
-          </button>
-        </div>
-
         <div class="results-layout">
-          <section class="panel flow-list-panel" aria-labelledby="experiment-list-title">
-            <div class="panel-header">
-              <div>
-                <p class="section-label">RUNS</p>
-                <h3 id="experiment-list-title">Agent Control Flow</h3>
-              </div>
-              <button class="icon-button danger-icon" id="clear-experiment-flows" type="button" title="전체 기록 삭제" aria-label="전체 기록 삭제">
-                <i data-lucide="trash-2" aria-hidden="true"></i>
-              </button>
-            </div>
-            <div class="flow-list" id="experiment-flow-list">
-              <p class="empty-state">저장된 실험 결과가 없습니다.</p>
-            </div>
-          </section>
-
           <section class="panel experiment-detail-panel" aria-labelledby="experiment-detail-title">
             <div class="panel-header">
               <div>
-                <p class="section-label">SELECTED FLOW</p>
-                <h3 id="experiment-detail-title">판단 및 스케일링 결과</h3>
+                <p class="section-label">GUIDED EXPERIMENT</p>
+                <h3 id="experiment-detail-title">실험 진행</h3>
               </div>
-              <button class="icon-button" type="button" data-copy-target="experiment-flow-json" title="Flow JSON 복사" aria-label="Flow JSON 복사">
-                <i data-lucide="copy" aria-hidden="true"></i>
-              </button>
-            </div>
-            <div class="experiment-summary-block">
-              <span>실행 Agent</span>
-              <strong id="experiment-agent-summary">Flow를 선택하세요.</strong>
-            </div>
-            <div class="experiment-summary-block">
-              <span>배포 판단</span>
-              <strong id="experiment-decision-summary">Flow를 선택하세요.</strong>
-            </div>
-            <div class="experiment-summary-block scaling">
-              <span>스케일링 판단</span>
-              <strong id="experiment-scaling-summary">배포 상태와 성능 Feedback을 기다리고 있습니다.</strong>
-            </div>
-            <section class="experiment-sequence" aria-label="Flow 실험 실행 순서">
-              <div class="manifest-output-heading">
-                <div><span>ORDERED WORKFLOW</span><strong>실제 실험 실행 순서</strong></div>
-                <small>앞 단계가 완료되어야 다음 전송 버튼이 활성화됩니다.</small>
+              <div class="experiment-flow-identity">
+                <span id="experiment-source-summary">출처 대기</span>
+                <code id="experiment-flow-id-summary">Flow 미선택</code>
               </div>
-              <section class="experiment-sequence-step">
-                <div class="experiment-sequence-heading">
-                  <span class="experiment-sequence-number">1</span>
-                  <div><strong>Manifest Revision 1 · 배포 판단</strong><small>요구사항 분석·인프라 추천·배포 판단 결과</small></div>
-                  <div class="manifest-stage-state">
-                    <span id="experiment-manifest-initial-status">생성 대기</span>
-                    <code id="experiment-manifest-initial-flow-id">Flow 미생성</code>
+            </div>
+
+            <ol class="experiment-stage-track" aria-label="실험 진행 단계">
+              <li id="experiment-progress-revision1" data-state="pending">
+                <span>1</span>
+                <div><strong>배포 판단</strong><small>Revision 1 생성</small></div>
+              </li>
+              <li id="experiment-progress-deployment" data-state="pending">
+                <span>2</span>
+                <div><strong>배포 상태</strong><small>실행 결과 연결</small></div>
+              </li>
+              <li id="experiment-progress-feedback" data-state="pending">
+                <span>3</span>
+                <div><strong>성능 Feedback</strong><small>운영 지표 입력</small></div>
+              </li>
+              <li id="experiment-progress-operation" data-state="pending">
+                <span>4</span>
+                <div><strong>운영 최적화</strong><small>Revision 2 생성</small></div>
+              </li>
+            </ol>
+
+            <div class="experiment-stage-workspace">
+              <div class="experiment-current-stage">
+                <div class="experiment-overview">
+                  <div class="experiment-status-line">
+                    <span class="experiment-completion" id="experiment-completion-status" data-status="waiting">Flow 선택 대기</span>
+                    <strong id="experiment-next-action-title">실험 결과를 선택하세요.</strong>
+                    <small id="experiment-next-action-copy">아래 실험 기록에서 확인할 Flow를 선택하세요.</small>
+                  </div>
+
+                  <div class="experiment-key-results" aria-label="핵심 실험 결과">
+                    <div>
+                      <span>배포 판단</span>
+                      <strong id="experiment-decision-summary">Flow를 선택하세요.</strong>
+                    </div>
+                    <div>
+                      <span>배포 결과</span>
+                      <strong id="experiment-deployment-summary">상태 수신 대기</strong>
+                    </div>
+                    <div>
+                      <span>운영 조정</span>
+                      <strong id="experiment-scaling-summary">Feedback 수신 대기</strong>
+                    </div>
+                  </div>
+
+                  <div class="experiment-next-actions" aria-label="현재 실행할 단계">
+                    <div>
+                      <span>지금 누를 버튼</span>
+                      <strong id="experiment-action-description">선택한 Flow의 다음 단계만 활성화됩니다.</strong>
+                    </div>
+                    <button class="button button-primary" id="deployment-status-submit" type="submit" form="deployment-status-form">2. 배포 상태 전송</button>
+                    <button class="button button-primary" id="optimization-feedback-submit" type="submit" form="optimization-feedback-form">3. 성능 Feedback 전송</button>
+                    <p id="experiment-action-complete" hidden>필수 실험이 완료되었습니다.</p>
                   </div>
                 </div>
-                <pre class="json-output manifest-json" id="experiment-manifest-initial-json">DEPLOY 승인 후 생성됩니다.</pre>
-              </section>
+              </div>
 
-              <section class="experiment-sequence-step" id="experiment-feedback">
-                <div class="experiment-sequence-form" id="flow-delivery-controls">
-                  <strong>AppDeployer 연동</strong>
-                  <p id="flow-delivery-availability" role="status">연결 설정 확인 중</p>
+              <aside class="experiment-completed-results" aria-labelledby="experiment-artifacts-title">
+                <div class="experiment-completed-heading">
+                  <strong id="experiment-artifacts-title">완료된 결과</strong>
+                </div>
+                <div class="experiment-artifacts" aria-label="Manifest 산출물">
+                  <p class="experiment-artifacts-empty" id="experiment-artifacts-empty">아직 생성된 Manifest가 없습니다.</p>
+                  <section class="manifest-artifact" id="experiment-manifest-initial-artifact" hidden>
+                    <details>
+                      <summary>
+                        <span><small>배포 판단 결과</small><strong>Revision 1 · 배포 Manifest</strong></span>
+                        <span class="manifest-stage-state"><span id="experiment-manifest-initial-status">생성 대기</span><code class="sr-only" id="experiment-manifest-initial-flow-id">Flow 미생성</code></span>
+                        <i data-lucide="chevron-down" aria-hidden="true"></i>
+                      </summary>
+                      <pre class="json-output manifest-json" id="experiment-manifest-initial-json">DEPLOY 승인 후 생성됩니다.</pre>
+                    </details>
+                  </section>
+                  <section class="manifest-artifact" id="experiment-manifest-optimized-artifact" hidden>
+                    <details>
+                      <summary>
+                        <span><small>운영 최적화 결과</small><strong>Revision 2 · 최적화 Manifest</strong></span>
+                        <span class="manifest-stage-state"><span id="experiment-manifest-optimized-status">Feedback 후 생성 대기</span><code class="sr-only" id="experiment-manifest-optimized-flow-id">Flow 미생성</code></span>
+                        <i data-lucide="chevron-down" aria-hidden="true"></i>
+                      </summary>
+                      <pre class="json-output manifest-json" id="experiment-manifest-optimized-json">승인된 SCALE_OUT 또는 SCALE_IN 판단 후 생성됩니다.</pre>
+                    </details>
+                  </section>
+                </div>
+                <p class="experiment-revision2-waiting" id="experiment-revision2-waiting">성능 Feedback 전송 후 운영 최적화 판단과 Revision 2가 추가됩니다.</p>
+              </aside>
+            </div>
+
+            <details class="experiment-disclosure experiment-developer-details" id="experiment-developer-details">
+              <summary>
+                <span><small>DETAILS</small><strong>상세 기록 및 외부 연동</strong></span>
+                <span class="disclosure-summary-note">Guard, 원본 JSON, AppDeployer가 필요할 때만 펼쳐보세요.</span>
+                <i data-lucide="chevron-down" aria-hidden="true"></i>
+              </summary>
+              <div class="disclosure-body" id="experiment-feedback">
+                <section class="developer-section" id="flow-delivery-controls">
+                  <div class="developer-section-heading"><strong>AppDeployer 연동</strong><p id="flow-delivery-availability" role="status">연결 설정 확인 중</p></div>
                   <label class="field"><span>등록된 App Version ID</span><input id="flow-delivery-app-version" placeholder="appver-..." autocomplete="off"></label>
                   <label class="flow-delivery-consent"><input id="flow-delivery-accept" type="checkbox"><span>등록 AppSpec 실행 설정과 AppDeployer 자원 선택을 사용하며, geon의 GPU VRAM 조건·추론 설정은 적용되지 않음을 확인했습니다.</span></label>
                   <div class="workflow-actions">
@@ -420,91 +458,83 @@
                   <p id="flow-delivery-status" role="status">전송 전</p>
                   <small>등록 앱의 실행 설정을 사용합니다. Revision 2 자동 적용은 지원하지 않습니다.</small>
                   <details><summary>AppDeployer 요청·응답·원본 지표</summary><pre class="json-output compact" id="flow-delivery-json">{}</pre></details>
-                </div>
-                <div class="experiment-sequence-heading">
-                  <span class="experiment-sequence-number">2</span>
-                  <div><strong>배포 상태 전송</strong><small>Revision 1과 같은 Flow의 deployment.status.changed를 연결합니다.</small></div>
-                  <button class="button button-secondary" id="load-agent-control-feedback-sample" type="button">
-                    <i data-lucide="file-input" aria-hidden="true"></i><span>SLO 위반 샘플</span>
-                  </button>
-                </div>
-                <form id="deployment-status-form" class="protocol-form experiment-sequence-form">
-                  <label class="field">
-                    <span>deployment.status.changed JSON</span>
-                    <textarea id="deployment-status-json" rows="9" spellcheck="false" required></textarea>
-                  </label>
-                  <button class="button button-primary" id="deployment-status-submit" type="submit">2. 배포 상태 전송</button>
-                </form>
-              </section>
+                </section>
 
-              <section class="experiment-sequence-step">
-                <div class="experiment-sequence-heading">
-                  <span class="experiment-sequence-number">3</span>
-                  <div><strong>성능 Feedback 전송</strong><small>배포 상태 수신 후 운영 최적화 Agent를 실행합니다.</small></div>
-                </div>
-                <div class="operation-agent-picker">
-                  <label class="field">
-                    <span>운영 최적화 Agent</span>
-                    <select id="optimization-operation-agent-select" aria-describedby="optimization-operation-agent-help"></select>
-                    <small id="optimization-operation-agent-help">Registry에서 스케일링 권한을 가진 Agent만 표시합니다.</small>
-                  </label>
-                </div>
-                <form id="optimization-feedback-form" class="protocol-form experiment-sequence-form">
-                  <label class="field">
-                    <span>optimization.feedback.created JSON</span>
-                    <textarea id="optimization-feedback-json" rows="9" spellcheck="false" required></textarea>
-                  </label>
-                  <button class="button button-primary" id="optimization-feedback-submit" type="submit">3. 성능 Feedback 전송</button>
-                </form>
-              </section>
-
-              <section class="experiment-sequence-step">
-                <div class="experiment-sequence-heading">
-                  <span class="experiment-sequence-number">4</span>
-                  <div><strong>운영 최적화 판단</strong><small>OperationOptimizationAgent와 Scaling Guard 실행 결과</small></div>
-                </div>
-                <section class="operation-evidence" id="experiment-operation-evidence" aria-label="운영 최적화 Agent 실행 결과">
-                  <div><span>운영 최적화 Agent</span><strong id="experiment-operation-agent">Feedback 전송 대기</strong></div>
-                  <div><span>Request Guard</span><strong id="experiment-operation-request-guard">-</strong></div>
-                  <div><span>Result Guard</span><strong id="experiment-operation-result-guard">-</strong></div>
-                  <div><span>Scaling Guard</span><strong id="experiment-operation-scaling-guard">-</strong></div>
-                  <div><span>스케일링 권고</span><strong id="experiment-operation-scaling">-</strong></div>
-                  <div class="operation-evidence-wide">
-                    <span>사유 및 근거</span>
-                    <strong id="experiment-operation-reason">성능 Feedback 전송 후 생성됩니다.</strong>
-                    <small id="experiment-operation-evidence-list">-</small>
+                <section class="developer-section protocol-inputs">
+                  <div class="developer-section-heading">
+                    <strong>배포 상태·성능 Feedback 입력</strong>
+                    <button class="button button-secondary" id="load-agent-control-feedback-sample" type="button"><i data-lucide="file-input" aria-hidden="true"></i><span>SLO 위반 샘플</span></button>
+                  </div>
+                  <div class="operation-agent-picker">
+                    <label class="field">
+                      <span>운영 최적화 Agent</span>
+                      <select id="optimization-operation-agent-select" aria-describedby="optimization-operation-agent-help"></select>
+                      <small id="optimization-operation-agent-help">Registry에서 스케일링 권한을 가진 Agent만 표시합니다.</small>
+                    </label>
+                  </div>
+                  <div class="protocol-input-grid">
+                    <form id="deployment-status-form" class="protocol-form">
+                      <label class="field"><span>deployment.status.changed JSON</span><textarea id="deployment-status-json" rows="9" spellcheck="false" required></textarea></label>
+                    </form>
+                    <form id="optimization-feedback-form" class="protocol-form">
+                      <label class="field"><span>optimization.feedback.created JSON</span><textarea id="optimization-feedback-json" rows="9" spellcheck="false" required></textarea></label>
+                    </form>
                   </div>
                 </section>
-                <div class="feedback-result" id="agent-control-feedback-summary">
-                  <span>배포 결과</span><strong>아직 수신되지 않았습니다.</strong>
-                </div>
-                <pre class="json-output compact" id="agent-control-feedback-json">배포 상태와 성능 Feedback이 같은 Flow에 기록됩니다.</pre>
-              </section>
 
-              <section class="experiment-sequence-step">
-                <div class="experiment-sequence-heading">
-                  <span class="experiment-sequence-number">5</span>
-                  <div><strong>Manifest Revision 2 · 운영 최적화</strong><small>승인된 SCALE_OUT 또는 SCALE_IN을 반영한 최종 산출물</small></div>
-                  <div class="manifest-stage-state">
-                    <span id="experiment-manifest-optimized-status">Feedback 후 생성 대기</span>
-                    <code id="experiment-manifest-optimized-flow-id">Flow 미생성</code>
+                <section class="developer-section">
+                  <div class="developer-summary-grid">
+                    <div><span>실행 Agent</span><strong id="experiment-agent-summary">Flow를 선택하세요.</strong></div>
                   </div>
-                </div>
-                <pre class="json-output manifest-json" id="experiment-manifest-optimized-json">승인된 SCALE_OUT 또는 SCALE_IN 판단 후 생성됩니다.</pre>
-              </section>
-            </section>
-            <details class="flow-record-disclosure" id="experiment-flow-record">
-              <summary>
-                <span class="flow-record-heading">
-                  <small>FULL FLOW RECORD</small>
-                  <strong>전체 Flow 실행 기록</strong>
-                  <span>Manifest가 아닌 요구사항 분석·인프라 추천·Agent·Guard·배포 상태·Feedback의 전체 감사 기록입니다.</span>
-                </span>
-                <i data-lucide="chevron-down" aria-hidden="true"></i>
-              </summary>
-              <pre class="json-output result-json" id="experiment-flow-json">{}</pre>
+                  <section class="operation-evidence" id="experiment-operation-evidence" aria-label="운영 최적화 Agent 실행 결과">
+                    <div><span>운영 최적화 Agent</span><strong id="experiment-operation-agent">Feedback 전송 대기</strong></div>
+                    <div><span>Request Guard</span><strong id="experiment-operation-request-guard">-</strong></div>
+                    <div><span>Result Guard</span><strong id="experiment-operation-result-guard">-</strong></div>
+                    <div><span>Scaling Guard</span><strong id="experiment-operation-scaling-guard">-</strong></div>
+                    <div><span>스케일링 권고</span><strong id="experiment-operation-scaling">-</strong></div>
+                    <div class="operation-evidence-wide"><span>사유 및 근거</span><strong id="experiment-operation-reason">성능 Feedback 전송 후 생성됩니다.</strong><small id="experiment-operation-evidence-list">-</small></div>
+                  </section>
+                  <div class="feedback-result" id="agent-control-feedback-summary"><span>배포 결과</span><strong>아직 수신되지 않았습니다.</strong></div>
+                  <pre class="json-output compact" id="agent-control-feedback-json">배포 상태와 성능 Feedback이 같은 Flow에 기록됩니다.</pre>
+                </section>
+
+                <details class="flow-record-disclosure" id="experiment-flow-record">
+                  <summary>
+                    <span class="flow-record-heading"><small>FULL FLOW RECORD</small><strong>전체 Flow 실행 기록</strong><span>요구사항 분석·인프라 추천·Agent·Guard·배포 상태·Feedback의 전체 감사 기록입니다.</span></span>
+                    <i data-lucide="chevron-down" aria-hidden="true"></i>
+                  </summary>
+                  <div class="flow-record-actions"><button class="icon-button" type="button" data-copy-target="experiment-flow-json" title="Flow JSON 복사" aria-label="Flow JSON 복사"><i data-lucide="copy" aria-hidden="true"></i></button></div>
+                  <pre class="json-output result-json" id="experiment-flow-json">{}</pre>
+                </details>
+              </div>
             </details>
           </section>
+
+          <details class="panel experiment-history-panel" id="experiment-history" open>
+            <summary>
+              <span><small>HISTORY</small><strong>실험 기록</strong></span>
+              <i data-lucide="chevron-down" aria-hidden="true"></i>
+            </summary>
+            <div class="experiment-history-body">
+              <div class="panel-header">
+                <div>
+                  <p class="section-label">SAVED FLOWS</p>
+                  <h3 id="experiment-list-title">실험 기록</h3>
+                </div>
+                <div class="experiment-history-actions">
+                  <button class="icon-button" id="refresh-experiment-flows" type="button" title="실험 결과 새로고침" aria-label="실험 결과 새로고침">
+                    <i data-lucide="refresh-cw" aria-hidden="true"></i>
+                  </button>
+                  <button class="icon-button danger-icon" id="clear-experiment-flows" type="button" title="전체 기록 삭제" aria-label="전체 기록 삭제">
+                    <i data-lucide="trash-2" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="flow-list" id="experiment-flow-list">
+                <p class="empty-state">저장된 실험 결과가 없습니다.</p>
+              </div>
+            </div>
+          </details>
         </div>
 
         <details class="panel experiment-disclosure" id="experiment-reasoning">
@@ -564,7 +594,7 @@
 
   <div class="toast-region" id="toast-region" aria-live="polite"></div>
   <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
-  <script src="/assets/app.js"></script>
+  <script src="/assets/app.js?v=20260914-guided-results"></script>
   <script src="/assets/flow_delivery.js"></script>
 </body>
 </html>

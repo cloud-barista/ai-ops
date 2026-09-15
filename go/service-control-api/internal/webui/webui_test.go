@@ -220,9 +220,14 @@ func TestControlAppSeparatesManifestFlowStages(t *testing.T) {
 		`id="manifest-optimized-flow-id"`,
 		`id="experiment-manifest-initial-flow-id"`,
 		`id="experiment-manifest-optimized-flow-id"`,
-		`Revision 1 · 배포 판단`,
-		`Revision 2 · 운영 최적화`,
+		`Revision 1 · 배포 Manifest`,
+		`Revision 2 · 최적화 Manifest`,
 		`Flow 미생성`,
+		`id="experiment-completion-status"`,
+		`id="experiment-source-summary"`,
+		`id="experiment-developer-details"`,
+		`id="experiment-progress-operation"`,
+		`id="experiment-history"`,
 	} {
 		if !strings.Contains(html, expected) {
 			t.Fatalf("missing separated Manifest Flow stage contract %q", expected)
@@ -408,6 +413,8 @@ func TestControlAppResponsiveStylesProtectFixedWorkflowElements(t *testing.T) {
 		`.automation-evidence-grid`,
 		`.automation-input-grid`,
 		`.results-layout`,
+		`.experiment-stage-track`,
+		`.experiment-stage-workspace`,
 		`.experiment-guide`,
 		`.experiment-guide-steps`,
 		`.table-wrap`,
