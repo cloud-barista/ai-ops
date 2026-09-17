@@ -19,6 +19,7 @@ const (
 type ServerConfig struct {
 	RepoRoot                 string
 	OpenAPIPath              string
+	FocusedOpenAPIPath       string
 	LLMCandidatesPath        string
 	ResourceCatalogPath      string
 	PlannerGuardPolicyPath   string
@@ -32,6 +33,7 @@ type ServerConfig struct {
 	AgentExecutionTimeout    time.Duration
 	LLMOpAllowLiveCompletion bool
 	RequirementAnalysisMode  string
+	LegacyAPIEnabled         bool
 }
 
 func NewServerConfig() ServerConfig {
@@ -45,6 +47,12 @@ func NewServerConfig() ServerConfig {
 	openAPIPath := viper.GetString("OPENAPI_PATH")
 	if openAPIPath == "" {
 		openAPIPath = filepath.Join(repoRoot, "docs", "submission", "openapi_service_control.yaml")
+	}
+	focusedOpenAPIPath := viper.GetString("FOCUSED_OPENAPI_PATH")
+	if focusedOpenAPIPath == "" {
+		focusedOpenAPIPath = filepath.Join(repoRoot, "docs", "openapi_deployment_agent.yaml")
+	} else if !filepath.IsAbs(focusedOpenAPIPath) {
+		focusedOpenAPIPath = filepath.Join(repoRoot, focusedOpenAPIPath)
 	}
 	llmCandidatesPath := viper.GetString("LLM_CANDIDATES_PATH")
 	if llmCandidatesPath == "" {
@@ -97,6 +105,7 @@ func NewServerConfig() ServerConfig {
 	return ServerConfig{
 		RepoRoot:                 repoRoot,
 		OpenAPIPath:              openAPIPath,
+		FocusedOpenAPIPath:       focusedOpenAPIPath,
 		LLMCandidatesPath:        llmCandidatesPath,
 		ResourceCatalogPath:      resourceCatalogPath,
 		PlannerGuardPolicyPath:   plannerGuardPolicyPath,
@@ -110,6 +119,7 @@ func NewServerConfig() ServerConfig {
 		AgentExecutionTimeout:    time.Duration(agentExecutionTimeoutSeconds) * time.Second,
 		LLMOpAllowLiveCompletion: viper.GetBool("LLMOP_ALLOW_LIVE_COMPLETION"),
 		RequirementAnalysisMode:  requirementAnalysisMode,
+		LegacyAPIEnabled:         viper.GetBool("LEGACY_API_ENABLED"),
 	}
 }
 

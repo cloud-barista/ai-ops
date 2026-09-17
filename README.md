@@ -1,31 +1,27 @@
-# Kyung Hee AIOps: geon
+# AI-MCMP Deployment Agent
 
-> AI 응용의 요구사항 분석, 인프라 추천, 배포 판단과 안전 검증을 연결하는 Go 기반 자동화 Agent PoC
+> `ApplicationProfile + ResourceRecommendation`을 입력으로 받아 검증된 배포 판단과 계획을 만드는 Go 기반 자동화 Agent PoC
 
 [![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go&logoColor=white)](go/service-control-api/go.mod)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
 ## 프로젝트 역할
 
-외부 입력 수신 → geon 판단 → AppDeployer 전송·상태 조회는 [연동 실행 안내](docs/coordination/geon-appdeploy-integration.md)를 참고하세요. 기본 실행은 Mock이며, 실제 전송은 별도 활성화가 필요합니다.
+정식 실행 경로는 upstream 결과부터 시작합니다.
 
-`geon`은 자연어 요청 또는 구조화된 App Spec을 받아 다음 과정을 한 번에 실행합니다.
+외부 입력 수신 → deployment-agent 판단 → AppDeployer 준비·선택적 전송과 상태 조회는 [연동 실행 안내](docs/coordination/geon-appdeploy-integration.md)를 참고하세요. 실제 전송은 별도 활성화가 필요합니다.
 
 ```text
-사용자 요청
-→ LLM_Op Qwen Safeguard
-→ Requirement Analyzer
-→ ApplicationProfile
-→ Mock Resource Recommender
-→ ResourceRecommendation
+llmop ApplicationProfile ─┐
+                          ├→ correlation/profile 검증
+resource_ops 추천 결과 ───┘
 → Registry에서 배포 판단 Agent 선택
 → DEPLOY / REJECT / RETRY
 → Go Guard
-→ DesiredDeploymentSpec
-→ Mock simulation 또는 External handoff ready
+→ DeploymentPlan + DesiredDeploymentSpec
 ```
 
-핵심 산출물은 실제 VM 배포 명령이 아니라 **검증 근거가 포함된 배포 결정과 플랫폼 중립적인 `DesiredDeploymentSpec`**입니다.
+자연어 분석과 ApplicationProfile 생성은 `llmop`, 자원 수집·정규화·필터·점수·추천은 `resource_ops` 책임입니다. deployment_agent는 이를 다시 수행하지 않습니다.
 
 The two core Agents and their bounded outputs are:
 
@@ -48,19 +44,27 @@ cd ai-ops
 Windows PowerShell 또는 VS Code 터미널:
 
 ```powershell
-ollama pull qwen3.5:4b
 .\run-agent-control.cmd
 ```
 
 Git Bash, Linux 또는 macOS:
 
 ```bash
-ollama pull qwen3.5:4b
 ./run-agent-control.sh
 ```
 
-실행 후 [http://127.0.0.1:18080/](http://127.0.0.1:18080/)을 엽니다. 종료는 `Ctrl+C`입니다.
-메인 `Revision 1 생성`은 최초 Qwen Safeguard를 실제 호출하므로 Ollama가 실행 중이어야 합니다. AppDeploy와 실제 VM은 이 독립 PoC 실행에 필요하지 않습니다.
+정식 입력은 `POST http://127.0.0.1:18080/api/v1/deployment-plans`, 계약은 `GET /openapi.yaml`에서 확인합니다. AppDeploy와 실제 VM은 계획 생성에 필요하지 않습니다.
+
+세 서비스 계약과 재현 스크립트는 [통합 파이프라인](docs/integration_pipeline.md)에 정리되어 있습니다.
+
+## Legacy all-in-one prototype
+
+기존 자체 요구사항 분석기, Mock Resource Recommender, LLM_Op safeguard, Autonomy, 웹 UI와 중복 API는 코드와 route 등록부를 보존하되 기본 서버에서는 노출하지 않습니다. 명시적으로 재현할 때만 다음을 설정합니다.
+
+```bash
+export AIOPS_LEGACY_API_ENABLED=true
+./run-agent-control.sh
+```
 
 ### LLM_Op 수동 시연 페이지
 

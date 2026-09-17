@@ -766,6 +766,7 @@ func (service *Service) evaluateFlowLegacy(ctx context.Context, flow Flow) Flow 
 	}
 	flow.DeploymentPlan = &DeploymentPlan{
 		PlanID:                 "plan-" + flow.CorrelationID,
+		Operation:              ActionDeploy,
 		ProfileID:              profile.ProfileID,
 		AppID:                  profile.AppID,
 		AppVersion:             profile.AppVersion,
@@ -834,6 +835,7 @@ func (service *Service) applyDecisionAgentResult(
 		flow.State = StateDecisionApproved
 		flow.DeploymentPlan = &DeploymentPlan{
 			PlanID:                 "plan-" + flow.CorrelationID,
+			Operation:              decision.Action,
 			ProfileID:              profile.ProfileID,
 			AppID:                  profile.AppID,
 			AppVersion:             profile.AppVersion,
@@ -1047,7 +1049,8 @@ func buildDesiredDeploymentSpec(flow Flow) DesiredDeploymentSpec {
 	return DesiredDeploymentSpec{
 		SpecVersion:            ContractVersionV1,
 		DecisionID:             decision.DecisionID,
-		Application:            ManifestApplication{AppID: profile.AppID, AppVersion: profile.AppVersion},
+		Operation:              decision.Action,
+		Application:            manifestApplicationFromProfile(profile),
 		TargetRuntime:          plan.TargetRuntime,
 		DesiredInfrastructure:  plan.DesiredInfrastructure,
 		InferenceConfiguration: plan.InferenceConfiguration,
@@ -1092,6 +1095,7 @@ func buildDeploymentCreateRequest(flow Flow, createdAt string) DeploymentCreateR
 			DeploymentRequest: DeploymentRequest{
 				RequestID:  requestID,
 				DecisionID: decision.DecisionID,
+				Operation:  spec.Operation,
 				Application: DeploymentApplication{
 					AppID:      profile.AppID,
 					AppVersion: profile.AppVersion,
@@ -1101,6 +1105,7 @@ func buildDeploymentCreateRequest(flow Flow, createdAt string) DeploymentCreateR
 					ManifestID:             "manifest-" + flow.CorrelationID,
 					ManifestVersion:        spec.SpecVersion,
 					DecisionID:             spec.DecisionID,
+					Operation:              spec.Operation,
 					Application:            spec.Application,
 					TargetRuntime:          spec.TargetRuntime,
 					DesiredInfrastructure:  spec.DesiredInfrastructure,
@@ -1132,7 +1137,7 @@ func appendInitialManifestRevision(
 	revision := ManifestRevision{
 		Revision:              revisionNumber,
 		Phase:                 ManifestPhaseInitial,
-		TriggerAction:         ActionDeploy,
+		TriggerAction:         nonEmptyOperation(spec.Operation, ActionDeploy),
 		CreatedAt:             createdAt,
 		DesiredDeploymentSpec: cloneDesiredDeploymentSpec(spec),
 		DeploymentRequest:     cloneDeploymentCreateRequestEnvelope(request),
@@ -1215,7 +1220,7 @@ func validateResourceRecommendation(recommendation ResourceRecommendation) error
 		return fmt.Errorf("resource_recommendation.profile_id is required")
 	case strings.TrimSpace(recommendation.Status) == "":
 		return fmt.Errorf("resource_recommendation.status is required")
-	case len(recommendation.Candidates) == 0:
+	case len(recommendation.Candidates) == 0 && recommendation.Status != StateRetryRequired:
 		return fmt.Errorf("resource_recommendation.candidates is required")
 	}
 	for _, candidate := range recommendation.Candidates {
@@ -1431,6 +1436,10 @@ func cloneFlow(flow Flow) Flow {
 		value := cloneDeploymentStatusEnvelope(*flow.DeploymentStatus)
 		result.DeploymentStatus = &value
 	}
+	if flow.DeploymentContext != nil {
+		value := *flow.DeploymentContext
+		result.DeploymentContext = &value
+	}
 	if flow.OptimizationFeedback != nil {
 		value := cloneOptimizationFeedbackEnvelope(*flow.OptimizationFeedback)
 		result.OptimizationFeedback = &value
@@ -1452,6 +1461,13 @@ func cloneFlow(flow Flow) Flow {
 	if flow.ReasoningComparison != nil {
 		value := *flow.ReasoningComparison
 		result.ReasoningComparison = &value
+	}
+	if flow.ShadowPolicyAssessments != nil {
+		result.ShadowPolicyAssessments = make([]ShadowPolicyAssessment, len(flow.ShadowPolicyAssessments))
+		for index, assessment := range flow.ShadowPolicyAssessments {
+			assessment.Warnings = append([]string(nil), assessment.Warnings...)
+			result.ShadowPolicyAssessments[index] = assessment
+		}
 	}
 	return result
 }
@@ -1577,6 +1593,7 @@ func cloneResourceRecommendationEnvelope(
 	for index, candidate := range message.Data.ResourceRecommendation.Candidates {
 		candidate.ResourceHints = append([]string(nil), candidate.ResourceHints...)
 		candidate.RejectionReasons = append([]string(nil), candidate.RejectionReasons...)
+		candidate.DesiredInfrastructure = cloneDesiredInfrastructure(candidate.DesiredInfrastructure)
 		result.Data.ResourceRecommendation.Candidates[index] = candidate
 	}
 	return result
@@ -1597,6 +1614,8 @@ func cloneDeploymentCreateRequestEnvelope(
 	}
 	manifest := &request.DeploymentManifest
 	sourceManifest := message.Data.DeploymentRequest.DeploymentManifest
+	manifest.Application = cloneManifestApplication(sourceManifest.Application)
+	manifest.DesiredInfrastructure = cloneDesiredInfrastructure(sourceManifest.DesiredInfrastructure)
 	manifest.ResourceHints = append([]string(nil), sourceManifest.ResourceHints...)
 	manifest.Runtime.Command = append([]string(nil), sourceManifest.Runtime.Command...)
 	manifest.Runtime.Args = append([]string(nil), sourceManifest.Runtime.Args...)
@@ -1612,6 +1631,8 @@ func cloneDeploymentCreateRequestEnvelope(
 
 func cloneDesiredDeploymentSpec(spec DesiredDeploymentSpec) DesiredDeploymentSpec {
 	result := spec
+	result.Application = cloneManifestApplication(spec.Application)
+	result.DesiredInfrastructure = cloneDesiredInfrastructure(spec.DesiredInfrastructure)
 	result.PolicyHints = append([]string(nil), spec.PolicyHints...)
 	result.Runtime.Command = append([]string(nil), spec.Runtime.Command...)
 	result.Runtime.Args = append([]string(nil), spec.Runtime.Args...)
@@ -1623,6 +1644,51 @@ func cloneDesiredDeploymentSpec(spec DesiredDeploymentSpec) DesiredDeploymentSpe
 		}
 	}
 	return result
+}
+
+func manifestApplicationFromProfile(profile ApplicationProfile) ManifestApplication {
+	application := ManifestApplication{AppID: profile.AppID, AppVersion: profile.AppVersion}
+	if profile.Artifact != nil {
+		artifact := *profile.Artifact
+		artifact.Entrypoint = append([]string(nil), profile.Artifact.Entrypoint...)
+		application.Artifact = &artifact
+	}
+	return application
+}
+
+func cloneManifestApplication(application ManifestApplication) ManifestApplication {
+	result := application
+	if application.Artifact != nil {
+		artifact := *application.Artifact
+		artifact.Entrypoint = append([]string(nil), application.Artifact.Entrypoint...)
+		result.Artifact = &artifact
+	}
+	return result
+}
+
+func cloneDesiredInfrastructure(value DesiredInfrastructure) DesiredInfrastructure {
+	result := value
+	result.Placement.RequiredLabels = cloneStringMap(value.Placement.RequiredLabels)
+	result.Placement.PreferredLabels = cloneStringMap(value.Placement.PreferredLabels)
+	return result
+}
+
+func cloneStringMap(value map[string]string) map[string]string {
+	if value == nil {
+		return nil
+	}
+	result := make(map[string]string, len(value))
+	for key, item := range value {
+		result[key] = item
+	}
+	return result
+}
+
+func nonEmptyOperation(value string, fallback string) string {
+	if strings.TrimSpace(value) == "" {
+		return fallback
+	}
+	return value
 }
 
 func cloneDeploymentStatusEnvelope(message DeploymentStatusEnvelope) DeploymentStatusEnvelope {

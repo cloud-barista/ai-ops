@@ -1,11 +1,26 @@
 package api
 
 import (
+	"os"
 	"strings"
 	"testing"
 
 	"github.com/spf13/viper"
 )
+
+func TestNewServerConfigDefaultsToFocusedAPI(t *testing.T) {
+	resetConfigTestEnvironment(t)
+	t.Setenv("AIOPS_LEGACY_API_ENABLED", "")
+
+	config := NewServerConfig()
+
+	if config.LegacyAPIEnabled {
+		t.Fatal("legacy API must be opt-in")
+	}
+	if _, err := os.Stat(config.FocusedOpenAPIPath); err != nil {
+		t.Fatalf("focused OpenAPI path is unavailable: %v", err)
+	}
+}
 
 func TestNewServerConfigDefaultsDeploymentAdapterToMock(t *testing.T) {
 	resetConfigTestEnvironment(t)

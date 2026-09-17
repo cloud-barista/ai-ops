@@ -1,29 +1,25 @@
-# Service Control API
+# Deployment Agent API
 
 ## 역할
 
-이 서비스는 경희대학교 AI 어플리케이션 자동화 에이전트 PoC의 Go 실행 모듈입니다.
+이 서비스는 LLM_Op의 `ApplicationProfile`과 resource_ops의 `ResourceRecommendation`을 입력으로 받는 AI 어플리케이션 자동화 에이전트 PoC입니다.
 
 ```text
-Natural-language request or Structured App Spec
-→ LLM_Op Qwen Safeguard
-→ Requirement Analyzer
-→ ApplicationProfile
-→ Mock Resource Recommender
-→ ResourceRecommendation
+ApplicationProfile + ResourceRecommendation
+→ identity/correlation validation
 → Agent Registry에서 배포 판단 Agent 선택
 → Internal executor 또는 Runtime HTTP endpoint 호출
 → Request Guard / Result Guard
 → DEPLOY / REJECT / RETRY
 → Domain Go Guard
-→ DesiredDeploymentSpec
+→ DeploymentPlan + DesiredDeploymentSpec
 → deployment.status.changed
 → optimization.feedback.created
 → OperationOptimizationAgent
 → KEEP / SCALE_OUT / SCALE_IN recommendation
 ```
 
-핵심 Flow는 AppDeploy, VM, Kubernetes 없이 로컬에서 독립 실행할 수 있습니다. 실제 배포와 플랫폼 전용 변환은 외부 시스템의 책임입니다.
+정식 endpoint는 `POST /api/v1/deployment-plans`입니다. 자연어 분석과 리소스 추천은 수행하지 않습니다. 실제 배포와 플랫폼 전용 변환은 외부 시스템의 책임입니다.
 
 ## 바로 실행
 
@@ -32,18 +28,25 @@ Natural-language request or Structured App Spec
 Windows PowerShell 또는 VS Code 터미널:
 
 ```powershell
-ollama pull qwen3.5:4b
 .\run-agent-control.cmd
 ```
 
 Git Bash, Linux 또는 macOS:
 
 ```bash
-ollama pull qwen3.5:4b
 ./run-agent-control.sh
 ```
 
-실행 후 [http://127.0.0.1:18080/](http://127.0.0.1:18080/)을 엽니다. 종료할 때는 `Ctrl+C`를 누릅니다.
+실행 후 [healthz](http://127.0.0.1:18080/healthz)와 [focused OpenAPI](http://127.0.0.1:18080/openapi.yaml)를 확인합니다. 종료할 때는 `Ctrl+C`를 누릅니다.
+
+## Legacy all-in-one 실행
+
+아래의 LLM_Op safeguard, 내부 Requirement Analyzer, Mock Resource Recommender, 웹 UI, Autonomy 설명은 보존된 legacy prototype에만 해당합니다. 기본 서버에는 이 route들이 등록되지 않습니다.
+
+```bash
+export AIOPS_LEGACY_API_ENABLED=true
+./run-agent-control.sh
+```
 
 LLM_Op의 별도 수동 시연은 현재 `LLM_Op`과 geon 최신화 통합 브랜치에서 제공하며, GitHub에 push한 것만으로 호스팅되지 않는다. 병합 전 `geon` checkout에는 route가 없을 수 있다. 서버 없이 보려면 저장소 루트의 `.\open-llm-op-demo.cmd`를 실행한다. 통합 route를 보려면 먼저 위 launcher로 서버를 실행하고 [healthz](http://127.0.0.1:18080/healthz)를 확인한 뒤 [http://127.0.0.1:18080/llm-op-demo](http://127.0.0.1:18080/llm-op-demo)를 연다. 환경변수 없이 `go run ./cmd/service-control-api`를 직접 실행했다면 포트는 `18080`이 아니라 기본값 `8080`이다. 페이지는 모델 API나 AppDeploy를 호출하지 않으며, 저장 예시 재생 또는 두 단계 prompt 복사·raw JSON 붙여넣기를 지원한다. 상세 절차는 [수동 2단계 LLM 브라우저 시연](../../docs/llm-op/07-manual-two-stage-browser-demo.md)을 참조한다.
 

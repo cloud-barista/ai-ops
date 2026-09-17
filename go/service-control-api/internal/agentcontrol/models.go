@@ -14,6 +14,7 @@ const (
 	StateWaitingForRecommendation   = "WAITING_FOR_RESOURCE_RECOMMENDATION"
 	StateReady                      = "READY"
 	StateDecisionApproved           = "DEPLOY_APPROVED"
+	StateUpdateApproved             = "UPDATE_APPROVED"
 	StateDecisionRejected           = "REJECTED"
 	StateRetryRequired              = "RETRY_REQUIRED"
 	StateAgentAuthorizationRejected = "AGENT_AUTHORIZATION_REJECTED"
@@ -21,6 +22,7 @@ const (
 	StateAgentResultRejected        = "AGENT_RESULT_REJECTED"
 
 	ActionDeploy = "DEPLOY"
+	ActionUpdate = "UPDATE"
 	ActionReject = "REJECT"
 	ActionRetry  = "RETRY"
 
@@ -292,6 +294,15 @@ type DesiredInfrastructure struct {
 	StorageGiBPerNode int                   `json:"storage_gib_per_node"`
 	Accelerator       AcceleratorAllocation `json:"accelerator,omitempty"`
 	Isolation         string                `json:"isolation"`
+	Placement         PlacementConstraints  `json:"placement,omitempty"`
+}
+
+// PlacementConstraints remains platform-neutral: ETRI/CSP adapters translate
+// labels and affinity after KHU has made its recommendation.
+type PlacementConstraints struct {
+	RequiredLabels  map[string]string `json:"required_labels,omitempty"`
+	PreferredLabels map[string]string `json:"preferred_labels,omitempty"`
+	AntiAffinity    bool              `json:"anti_affinity,omitempty"`
 }
 
 type AcceleratorAllocation struct {
@@ -349,6 +360,7 @@ type AgentAuthorization struct {
 
 type DeploymentPlan struct {
 	PlanID                 string                 `json:"plan_id"`
+	Operation              string                 `json:"operation,omitempty"`
 	ProfileID              string                 `json:"profile_id"`
 	AppID                  string                 `json:"app_id"`
 	AppVersion             string                 `json:"app_version"`
@@ -385,6 +397,7 @@ type DeploymentCreateRequestData struct {
 type DesiredDeploymentSpec struct {
 	SpecVersion            string                 `json:"spec_version"`
 	DecisionID             string                 `json:"decision_id"`
+	Operation              string                 `json:"operation,omitempty"`
 	Application            ManifestApplication    `json:"application"`
 	TargetRuntime          string                 `json:"target_runtime"`
 	DesiredInfrastructure  DesiredInfrastructure  `json:"desired_infrastructure"`
@@ -397,6 +410,7 @@ type DesiredDeploymentSpec struct {
 type DeploymentRequest struct {
 	RequestID          string                `json:"request_id"`
 	DecisionID         string                `json:"decision_id"`
+	Operation          string                `json:"operation,omitempty"`
 	Application        DeploymentApplication `json:"application"`
 	DeploymentManifest DeploymentManifest    `json:"deployment_manifest"`
 }
@@ -411,6 +425,7 @@ type DeploymentManifest struct {
 	ManifestID             string                 `json:"manifest_id"`
 	ManifestVersion        string                 `json:"manifest_version"`
 	DecisionID             string                 `json:"decision_id"`
+	Operation              string                 `json:"operation,omitempty"`
 	Application            ManifestApplication    `json:"application"`
 	TargetRuntime          string                 `json:"target_runtime"`
 	DesiredInfrastructure  DesiredInfrastructure  `json:"desired_infrastructure"`
@@ -433,8 +448,9 @@ type ManifestRevision struct {
 }
 
 type ManifestApplication struct {
-	AppID      string `json:"app_id"`
-	AppVersion string `json:"app_version"`
+	AppID      string    `json:"app_id"`
+	AppVersion string    `json:"app_version"`
+	Artifact   *Artifact `json:"artifact,omitempty"`
 }
 
 type RuntimeConfiguration struct {
@@ -550,6 +566,38 @@ type ScalingDecision struct {
 	CreatedAt       string   `json:"created_at"`
 }
 
+// DeploymentContext identifies an existing deployment logically, never by VM
+// ID. It enables a guarded UPDATE decision and model shadow evaluation.
+type DeploymentContext struct {
+	DeploymentRef     string `json:"deployment_ref,omitempty"`
+	CurrentSpecDigest string `json:"current_spec_digest,omitempty"`
+	CurrentReplicas   int    `json:"current_replicas,omitempty"`
+	SpecDrift         bool   `json:"spec_drift,omitempty"`
+	CooldownActive    bool   `json:"cooldown_active,omitempty"`
+}
+
+// ShadowPolicyAssessment records model evidence only. It never authorizes an
+// adapter operation; the deterministic Go guard remains authoritative.
+type ShadowPolicyAssessment struct {
+	Phase               string   `json:"phase"`
+	Mode                string   `json:"mode"`
+	ModelVersion        string   `json:"model_version,omitempty"`
+	DatasetSHA256       string   `json:"dataset_sha256,omitempty"`
+	ArtifactSHA256      string   `json:"artifact_sha256,omitempty"`
+	ProposedAction      string   `json:"proposed_action"`
+	SelectedCandidateID string   `json:"selected_candidate_id,omitempty"`
+	DesiredReplicas     int      `json:"desired_replicas,omitempty"`
+	ExpectedUtility     float64  `json:"expected_utility,omitempty"`
+	Confidence          float64  `json:"confidence,omitempty"`
+	OODRatio            float64  `json:"ood_ratio,omitempty"`
+	RuleAction          string   `json:"rule_action,omitempty"`
+	RuleCandidateID     string   `json:"rule_candidate_id,omitempty"`
+	GuardStatus         string   `json:"guard_status"`
+	GuardReason         string   `json:"guard_reason,omitempty"`
+	Warnings            []string `json:"warnings,omitempty"`
+	CreatedAt           string   `json:"created_at"`
+}
+
 type ReasoningInput struct {
 	ApplicationProfile     ApplicationProfile     `json:"application_profile"`
 	ResourceRecommendation ResourceRecommendation `json:"resource_recommendation"`
@@ -611,7 +659,7 @@ type Flow struct {
 	AutomationRunID         string                           `json:"automation_run_id,omitempty"`
 	RequestedDecisionAgent  string                           `json:"requested_decision_agent,omitempty"`
 	RequestedOperationAgent string                           `json:"requested_operation_agent,omitempty"`
-	State                   string                           `json:"state" enums:"WAITING_FOR_APPLICATION_CONTEXT,WAITING_FOR_RESOURCE_RECOMMENDATION,READY,AGENT_AUTHORIZATION_REJECTED,AGENT_EXECUTION_FAILED,AGENT_RESULT_REJECTED,DEPLOY_APPROVED,REJECTED,RETRY_REQUIRED"`
+	State                   string                           `json:"state" enums:"WAITING_FOR_APPLICATION_CONTEXT,WAITING_FOR_RESOURCE_RECOMMENDATION,READY,AGENT_AUTHORIZATION_REJECTED,AGENT_EXECUTION_FAILED,AGENT_RESULT_REJECTED,DEPLOY_APPROVED,UPDATE_APPROVED,REJECTED,RETRY_REQUIRED"`
 	ApplicationContext      *ApplicationContextEnvelope      `json:"application_context,omitempty"`
 	ResourceRecommendation  *ResourceRecommendationEnvelope  `json:"resource_recommendation,omitempty"`
 	AgentAuthorization      *AgentAuthorization              `json:"agent_authorization,omitempty"`
@@ -623,10 +671,12 @@ type Flow struct {
 	DeploymentRequest       *DeploymentCreateRequestEnvelope `json:"deployment_request,omitempty"`
 	ManifestRevisions       []ManifestRevision               `json:"manifest_revisions,omitempty"`
 	DeploymentStatus        *DeploymentStatusEnvelope        `json:"deployment_status,omitempty"`
+	DeploymentContext       *DeploymentContext               `json:"deployment_context,omitempty"`
 	OptimizationFeedback    *OptimizationFeedbackEnvelope    `json:"optimization_feedback,omitempty"`
 	FeedbackSummary         *FeedbackSummary                 `json:"feedback_summary,omitempty"`
 	OperationAgentExecution *OperationOptimizationResult     `json:"operation_agent_execution,omitempty"`
 	ScalingDecision         *ScalingDecision                 `json:"scaling_decision,omitempty"`
 	ReasoningComparison     *ReasoningComparison             `json:"reasoning_comparison,omitempty"`
+	ShadowPolicyAssessments []ShadowPolicyAssessment         `json:"shadow_policy_assessments,omitempty"`
 	UpdatedAt               string                           `json:"updated_at"`
 }

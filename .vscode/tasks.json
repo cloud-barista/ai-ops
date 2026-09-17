@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "geon: 서버 실행 (18080)",
+      "label": "deployment-agent: focused 서버 실행 (18080)",
       "type": "process",
       "command": "go",
       "args": [
@@ -18,6 +18,7 @@
           "AIOPS_REQUIREMENT_ANALYSIS_MODE": "local_rule",
           "AIOPS_LLM_CANDIDATES_PATH": "config/ops_llm_eval_candidates.local_ollama.json",
           "AIOPS_LLMOP_ALLOW_LIVE_COMPLETION": "true",
+          "AIOPS_LEGACY_API_ENABLED": "false",
           "PORT": "18080"
         }
       },

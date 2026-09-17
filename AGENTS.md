@@ -4,7 +4,8 @@
 
 ## Project Scope
 
-- 본 브랜치는 AI-MCMP 개발 컨벤션을 반영한 Go 기반 service-control prototype이다.
+- 본 브랜치의 정식 경로는 `ApplicationProfile + ResourceRecommendation`을 입력으로 받아 배포 판단, Guard 검증, DeploymentPlan을 생성하는 Go 기반 deployment-agent prototype이다.
+- 자체 자연어 요구 분석, ApplicationProfile 생성, 자원 수집·점수화·추천은 legacy 전용이며 정식 서버 경로에 다시 연결하지 않는다.
 - 기존 구조를 갈아엎지 말고 최소 변경으로 수정한다.
 - production-ready platform 또는 실제 운영 배포 완료를 임의로 주장하지 않는다.
 

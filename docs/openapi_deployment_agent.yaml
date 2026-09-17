@@ -1,0 +1,223 @@
+openapi: 3.0.3
+info:
+  title: AI-MCMP Deployment Agent API
+  version: 1.0.0
+  description: >-
+    Focused deployment-agent boundary. It accepts the ApplicationProfile from
+    llmop and ResourceRecommendation from resource-ops, validates correlation,
+    runs the bounded Agent and Go Guards, and returns a deployment plan or a
+    REJECT/RETRY decision. Legacy all-in-one APIs are not exposed in this mode.
+paths:
+  /healthz:
+    get:
+      operationId: GetDeploymentAgentHealth
+      responses:
+        "200":
+          description: Focused deployment-agent readiness
+  /api/v1/deployment-plans:
+    post:
+      operationId: CreateDeploymentPlanFromResults
+      summary: Generate a guarded deployment plan from upstream results
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeploymentPlanningRequest"
+      responses:
+        "201":
+          description: DEPLOY decision and deployment plan generated
+        "200":
+          description: Valid REJECT or RETRY terminal decision
+        "400":
+          description: Malformed request
+        "422":
+          description: Correlation or domain validation failed
+  /api/v1/agent-control/deployment-status:
+    post:
+      operationId: ReceiveDeploymentStatus
+      responses:
+        "202":
+          description: Deployment result attached to the correlated flow
+  /api/v1/agent-control/optimization-feedback:
+    post:
+      operationId: ReceiveOptimizationFeedback
+      responses:
+        "202":
+          description: Feedback validated and summarized
+  /api/v1/agent-control/flows:
+    get:
+      operationId: ListDeploymentFlows
+      responses:
+        "200":
+          description: Correlated deployment flows
+  /api/v1/agent-control/flows/{correlation_id}:
+    get:
+      operationId: GetDeploymentFlow
+      parameters:
+        - name: correlation_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200": {description: Deployment flow}
+        "404": {description: Flow not found}
+  /api/v1/agent-control/flows/{correlation_id}/reasoning-comparisons:
+    post:
+      operationId: CompareDeploymentReasoning
+      parameters:
+        - name: correlation_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: Rule-based, simple-inference, and validated-inference comparison
+components:
+  schemas:
+    DeploymentPlanningRequest:
+      type: object
+      required:
+        - correlation_id
+        - trace_id
+        - application_profile
+        - resource_recommendation
+      properties:
+        schema_version: {type: string, enum: ["1.0"], default: "1.0"}
+        correlation_id:
+          type: string
+          minLength: 1
+          description: Must equal resource_recommendation.request_id.
+        trace_id: {type: string, minLength: 1}
+        decision_agent: {type: string}
+        application_profile:
+          $ref: "#/components/schemas/ApplicationProfile"
+        resource_recommendation:
+          $ref: "#/components/schemas/ResourceOpsRecommendation"
+      additionalProperties: false
+    ApplicationProfile:
+      type: object
+      required: [profile_id, app_id, app_version, requirements]
+      properties:
+        profile_id: {type: string, minLength: 1}
+        app_id: {type: string, minLength: 1}
+        app_version: {type: string, minLength: 1}
+        artifact:
+          type: object
+          properties:
+            type: {type: string}
+            uri: {type: string}
+            entrypoint: {type: array, items: {type: string}}
+        workload:
+          type: object
+          properties:
+            task_type: {type: string}
+            request_pattern: {type: string}
+            expected_rps: {type: number, minimum: 0}
+        requirements:
+          type: object
+          required: [compute, accelerator, deployment]
+          properties:
+            compute:
+              type: object
+              required: [cpu_cores_min, memory_mib_min, storage_gib_min]
+              properties:
+                cpu_cores_min: {type: integer, minimum: 1}
+                memory_mib_min: {type: integer, minimum: 1}
+                storage_gib_min: {type: integer, minimum: 0}
+            accelerator:
+              type: object
+              required: [required]
+              properties:
+                required: {type: boolean}
+                type: {type: string}
+                count_min: {type: integer, minimum: 0}
+                memory_mib_min_per_device: {type: integer, minimum: 0}
+            deployment:
+              type: object
+              required: [replicas_min, replicas_max, isolation]
+              properties:
+                replicas_min: {type: integer, minimum: 1}
+                replicas_max: {type: integer, minimum: 1}
+                isolation: {type: string}
+            slo: {type: object}
+            cost: {type: object}
+        analysis: {type: object}
+    ResourceOpsRecommendation:
+      type: object
+      required:
+        - schema_version
+        - request_id
+        - profile_id
+        - source
+        - observed_at
+        - query
+        - recommendations
+        - excluded_resources
+        - summary
+        - warnings
+      properties:
+        schema_version: {type: string, enum: ["1.0"]}
+        request_id:
+          type: string
+          minLength: 1
+          description: Must equal the outer correlation_id.
+        profile_id:
+          type: string
+          minLength: 1
+          description: Must equal application_profile.profile_id.
+        source: {type: string, minLength: 1}
+        observed_at: {type: string, format: date-time}
+        query: {type: object}
+        recommendations:
+          type: array
+          items:
+            $ref: "#/components/schemas/RankedResource"
+        excluded_resources: {type: array, items: {type: object}}
+        summary:
+          type: object
+          required: [discovered, feasible, excluded, returned]
+          properties:
+            discovered: {type: integer, minimum: 0}
+            feasible: {type: integer, minimum: 0}
+            excluded: {type: integer, minimum: 0}
+            returned: {type: integer, minimum: 0}
+        warnings: {type: array, items: {type: string}}
+      additionalProperties: false
+    RankedResource:
+      type: object
+      required: [rank, score, resource, score_breakdown, reasons]
+      properties:
+        rank: {type: integer, minimum: 1}
+        score: {type: number, minimum: 0, maximum: 100}
+        resource:
+          type: object
+          required: [resource_id, healthy, observed_at, cpu, memory, storage, accelerators, warnings]
+          properties:
+            resource_id: {type: string, minLength: 1}
+            hostname: {type: string}
+            address: {type: string}
+            provider: {type: string}
+            region: {type: string}
+            resource_type: {type: string}
+            architecture: {type: string}
+            operating_system: {type: string}
+            healthy: {type: boolean}
+            observed_at: {type: string, format: date-time}
+            cpu: {type: object}
+            memory: {type: object}
+            storage: {type: object}
+            accelerators: {type: array, items: {type: object}}
+            labels: {type: object, additionalProperties: {type: string}}
+            warnings: {type: array, items: {type: string}}
+        score_breakdown:
+          type: object
+          required: [health, total]
+          properties:
+            cpu: {type: number, minimum: 0, maximum: 100}
+            memory: {type: number, minimum: 0, maximum: 100}
+            storage: {type: number, minimum: 0, maximum: 100}
+            accelerator: {type: number, minimum: 0, maximum: 100}
+            health: {type: number, minimum: 0, maximum: 100}
+            total: {type: number, minimum: 0, maximum: 100}
+        reasons: {type: array, items: {type: object}}

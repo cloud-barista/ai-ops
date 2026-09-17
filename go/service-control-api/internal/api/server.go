@@ -43,9 +43,24 @@ func (validator requestValidator) Validate(value any) error {
 }
 
 func NewServer(config ServerConfig) *echo.Echo {
+	return newServer(config, NewLegacyService(config), true, registerLegacyRoutes)
+}
+
+// NewFocusedServer exposes only the deployment-agent boundary. NewServer is
+// retained for legacy tests and explicit legacy-mode operation.
+func NewFocusedServer(config ServerConfig) *echo.Echo {
+	return newServer(config, NewFocusedService(config), false, registerFocusedRoutes)
+}
+
+func newServer(
+	config ServerConfig,
+	service Service,
+	registerWebUI bool,
+	registerRoutes func(*echo.Echo, restHandler),
+) *echo.Echo {
 	handler := restHandler{
 		config:  config,
-		service: NewService(config),
+		service: service,
 	}
 
 	server := echo.New()
@@ -73,69 +88,10 @@ func NewServer(config ServerConfig) *echo.Echo {
 			return nil
 		},
 	}))
-	webui.Register(server)
-
-	server.GET(pathHealthz, handler.RestGetHealthz)
-	server.GET(pathReadyz, handler.RestGetReadyz)
-	server.GET(pathOpenAPI, handler.RestGetOpenAPI)
-	server.GET(pathAgents, handler.RestGetAgents)
-	server.POST(pathAgents, handler.RestPostAgent)
-	server.GET(pathAgents+"/:name", handler.RestGetAgent)
-	server.DELETE(pathAgents+"/:name", handler.requireAutonomyAdmin(handler.RestDeleteAgent))
-	server.POST(pathAgents+"/:name/actions/:action/validate", handler.RestPostAgentActionValidate)
-	server.POST(pathAgents+"/:name/invocations/plan", handler.RestPostAgentInvocationPlan)
-	server.POST(pathAgents+"/:name/execute", handler.requireAutonomyAdmin(handler.RestPostAgentExecute))
-	server.POST(pathOpsLLMSelect, handler.RestPostOpsLLMSelect)
-	server.POST(pathVMSuitability, handler.RestPostVMSuitability)
-	server.POST(pathDeploymentPlan, handler.RestPostDeploymentPlan)
-	server.POST(pathAutomationPlan, handler.RestPostLLMAutomationAction)
-	server.POST(pathAutomationFeed, handler.RestPostAutomationFeedback)
-	server.GET(pathAutomationFeed, handler.RestGetAutomationFeedback)
-	server.DELETE(pathAutomationFeed+"/:correlation_id", handler.requireAutonomyAdmin(handler.RestDeleteAutomationFeedback))
-	server.DELETE(pathAutomationFeed, handler.requireAutonomyAdmin(handler.RestDeleteAllAutomationFeedback))
-	server.POST(pathControlRuns, handler.RestPostControlRun)
-	server.POST(pathControlRuns+"/from-package", handler.RestPostControlRunFromPackage)
-	server.POST(pathControlRuns+"/:run_id/submit", handler.RestPostControlRunSubmit)
-	server.GET(pathControlRuns, handler.RestGetControlRuns)
-	server.GET(pathControlRuns+"/:run_id", handler.RestGetControlRun)
-	server.DELETE(pathControlRuns+"/:run_id", handler.requireAutonomyAdmin(handler.RestDeleteControlRun))
-	server.DELETE(pathControlRuns, handler.requireAutonomyAdmin(handler.RestDeleteControlRuns))
-	server.GET(pathAutonomy+"/status", handler.RestGetAutonomyStatus)
-	server.PUT(pathAutonomy+"/config", handler.requireAutonomyAdmin(handler.RestPutAutonomyConfig))
-	server.POST(pathAutonomy+"/start", handler.requireAutonomyAdmin(handler.RestPostAutonomyStart))
-	server.POST(pathAutonomy+"/stop", handler.requireAutonomyAdmin(handler.RestPostAutonomyStop))
-	server.POST(pathAutonomy+"/emergency-stop", handler.requireAutonomyAdmin(handler.RestPostAutonomyEmergencyStop))
-	server.POST(pathAutonomy+"/cycles", handler.requireAutonomyAdmin(handler.RestPostAutonomyCycle))
-	server.GET(pathAutonomy+"/events", handler.RestGetAutonomyEvents)
-	server.DELETE(pathAutonomy+"/events/:sequence", handler.requireAutonomyAdmin(handler.RestDeleteAutonomyEvent))
-	server.DELETE(pathAutonomy+"/events", handler.requireAutonomyAdmin(handler.RestDeleteAutonomyEvents))
-	server.POST(pathPlannerDeploy, handler.RestPostAppDeployPlanner)
-	server.POST(pathServiceOpsRun, handler.RestPostServiceOperationsRun)
-	server.POST(
-		pathAgentControl+"/application-analysis-requests",
-		handler.RestPostApplicationAnalysisRequest,
-	)
-	server.POST(pathAgentControl+"/application-contexts", handler.RestPostApplicationContext)
-	server.POST(pathAgentControl+"/external-flows", handler.RestPostExternalFlow)
-	server.GET(pathAgentControl+"/integration", handler.RestGetFlowIntegration)
-	server.POST(pathAgentControl+"/flows/:correlation_id/appdeploy/:action", handler.RestPostFlowDelivery)
-	server.GET(pathAgentControl+"/flows/:correlation_id/appdeploy", handler.RestGetFlowDelivery)
-	server.POST(pathAgentControl+"/resource-recommendations", handler.RestPostResourceRecommendation)
-	server.POST(
-		pathAgentControl+"/trusted-automation-runs",
-		handler.RestPostTrustedAutomationRun,
-	)
-	server.GET(pathAgentControl+"/automation-runs/:run_id", handler.RestGetAutomationRun)
-	server.POST(pathAgentControl+"/deployment-status", handler.RestPostDeploymentStatus)
-	server.POST(pathAgentControl+"/optimization-feedback", handler.RestPostOptimizationFeedback)
-	server.GET(pathAgentControl+"/flows", handler.RestGetAgentControlFlows)
-	server.DELETE(pathAgentControl+"/flows", handler.RestDeleteAgentControlFlows)
-	server.GET(pathAgentControl+"/flows/:correlation_id", handler.RestGetAgentControlFlow)
-	server.DELETE(pathAgentControl+"/flows/:correlation_id", handler.RestDeleteAgentControlFlow)
-	server.POST(
-		pathAgentControl+"/flows/:correlation_id/reasoning-comparisons",
-		handler.RestPostAgentControlReasoningComparison,
-	)
+	if registerWebUI {
+		webui.Register(server)
+	}
+	registerRoutes(server, handler)
 
 	return server
 }

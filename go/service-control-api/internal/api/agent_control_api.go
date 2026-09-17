@@ -128,6 +128,7 @@ func (handler restHandler) RestPostResourceRecommendation(context echo.Context) 
 	if err != nil {
 		return jsonError(context, http.StatusBadRequest, "Resource Recommendation could not be accepted", err)
 	}
+	flow = handler.maybeEvaluateShadowPolicy(context.Request().Context(), flow, "planning")
 	return context.JSON(http.StatusAccepted, flow)
 }
 
@@ -182,6 +183,7 @@ func (handler restHandler) RestPostOptimizationFeedback(context echo.Context) er
 	if err != nil {
 		return jsonError(context, http.StatusBadRequest, "Optimization feedback could not be accepted", err)
 	}
+	flow = handler.maybeEvaluateShadowPolicy(context.Request().Context(), flow, "operation")
 	return context.JSON(http.StatusAccepted, flow)
 }
 

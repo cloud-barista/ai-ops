@@ -165,7 +165,7 @@ func TestServiceCreatesPlatformNeutralDesiredDeploymentSpec(t *testing.T) {
 		t.Fatal("compatibility deployment request was not created")
 	}
 	manifest := flow.DeploymentRequest.Data.DeploymentRequest.DeploymentManifest
-	if spec.DesiredInfrastructure != manifest.DesiredInfrastructure {
+	if !reflect.DeepEqual(spec.DesiredInfrastructure, manifest.DesiredInfrastructure) {
 		t.Fatalf("spec and compatibility manifest infrastructure differ: %#v %#v", spec, manifest)
 	}
 	if spec.InferenceConfiguration != manifest.InferenceConfiguration {

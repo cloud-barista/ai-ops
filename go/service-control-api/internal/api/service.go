@@ -60,7 +60,58 @@ func (service Service) Ready(ctx context.Context) error {
 	return nil
 }
 
+// NewService is the backwards-compatible constructor for the preserved
+// all-in-one prototype. Focused production entrypoints use NewFocusedService.
 func NewService(config ServerConfig) Service {
+	return NewLegacyService(config)
+}
+
+// NewLegacyService wires the former embedded requirement analyzer, mock
+// resource recommender, safeguard, AppDeploy planner, and autonomy runtime.
+func NewLegacyService(config ServerConfig) Service {
+	service := NewFocusedService(config)
+	resourceCatalog, _ := agentcontrol.LoadResourceCatalog(config.ResourceCatalogPath)
+	deploymentAdapter, _ := agentcontrol.NewDeploymentAdapter(config.DeploymentAdapterMode)
+	automationRunner := agentcontrol.NewAutomationRunnerWithAdapter(
+		newAgentControlRequirementAnalyzer(config, llmclient.NewClient(nil)),
+		agentcontrol.CatalogResourceRecommender{Catalog: resourceCatalog},
+		service.agentControl,
+		deploymentAdapter,
+	)
+	trustedAutomationRunner := agentcontrol.NewAutomationRunnerWithAdapter(
+		newAgentControlRequirementAnalyzer(config, llmclient.NewClient(nil)),
+		agentcontrol.CatalogResourceRecommender{Catalog: resourceCatalog},
+		service.agentControl,
+		agentcontrol.MockDeploymentAdapter{},
+	)
+	service.automationFeedback = newAutomationFeedbackStore()
+	service.controlRuns = controlrun.NewStore()
+	service.automationRunner = automationRunner
+	service.trustedAutomationRunner = trustedAutomationRunner
+	service.trustedOrchestration = trustedorchestration.NewFlowOnly(
+		trustedorchestration.ConfigReviewer{
+			CandidateConfigPath: config.LLMCandidatesPath,
+			GuardPolicyPath:     config.PlannerGuardPolicyPath,
+			AllowLiveCompletion: config.LLMOpAllowLiveCompletion,
+		},
+		trustedAutomationRunner,
+	)
+	var control autonomy.AppDeployControl
+	if strings.TrimSpace(config.AppDeployBaseURL) != "" {
+		client, err := appdeploy.NewClient(config.AppDeployBaseURL, nil)
+		if err == nil {
+			control = client
+		}
+	}
+	planner := newAutonomyDecisionPlanner(config, automation.NewPlanner(llmclient.NewClient(nil)))
+	service.autonomyManager = autonomy.NewManager(control, planner, newAutonomyActionAuthorizer(config))
+	return service
+}
+
+// NewFocusedService constructs only the deployment-agent decision, Guard,
+// planning, reasoning-comparison, and feedback dependencies. Natural-language
+// analysis and infrastructure recommendation remain in the legacy service.
+func NewFocusedService(config ServerConfig) Service {
 	reasoner := newAgentControlReasoner(config, llmclient.NewClient(nil))
 	authorizer := newAgentControlRegistryAuthorizer(config)
 	runtimeAgents := newRuntimeAgentStore()
@@ -88,49 +139,14 @@ func NewService(config ServerConfig) Service {
 		decisionRuntime,
 		operationRuntime,
 	)
-	resourceCatalog, _ := agentcontrol.LoadResourceCatalog(config.ResourceCatalogPath)
-	deploymentAdapter, _ := agentcontrol.NewDeploymentAdapter(config.DeploymentAdapterMode)
-	automationRunner := agentcontrol.NewAutomationRunnerWithAdapter(
-		newAgentControlRequirementAnalyzer(config, llmclient.NewClient(nil)),
-		agentcontrol.CatalogResourceRecommender{Catalog: resourceCatalog},
-		agentControlService,
-		deploymentAdapter,
-	)
-	trustedAutomationRunner := agentcontrol.NewAutomationRunnerWithAdapter(
-		newAgentControlRequirementAnalyzer(config, llmclient.NewClient(nil)),
-		agentcontrol.CatalogResourceRecommender{Catalog: resourceCatalog},
-		agentControlService,
-		agentcontrol.MockDeploymentAdapter{},
-	)
 	service := Service{
-		flowDelivery:            &flowDeliveryStore{},
-		config:                  config,
-		runtimeAgents:           runtimeAgents,
-		automationFeedback:      newAutomationFeedbackStore(),
-		controlRuns:             controlrun.NewStore(),
-		agentDispatcher:         dispatcher,
-		agentControl:            agentControlService,
-		operationRuntime:        operationRuntime,
-		automationRunner:        automationRunner,
-		trustedAutomationRunner: trustedAutomationRunner,
-		trustedOrchestration: trustedorchestration.NewFlowOnly(
-			trustedorchestration.ConfigReviewer{
-				CandidateConfigPath: config.LLMCandidatesPath,
-				GuardPolicyPath:     config.PlannerGuardPolicyPath,
-				AllowLiveCompletion: config.LLMOpAllowLiveCompletion,
-			},
-			trustedAutomationRunner,
-		),
+		config:           config,
+		runtimeAgents:    runtimeAgents,
+		agentDispatcher:  dispatcher,
+		agentControl:     agentControlService,
+		operationRuntime: operationRuntime,
+		flowDelivery:     &flowDeliveryStore{},
 	}
-	var control autonomy.AppDeployControl
-	if strings.TrimSpace(config.AppDeployBaseURL) != "" {
-		client, err := appdeploy.NewClient(config.AppDeployBaseURL, nil)
-		if err == nil {
-			control = client
-		}
-	}
-	planner := newAutonomyDecisionPlanner(config, automation.NewPlanner(llmclient.NewClient(nil)))
-	service.autonomyManager = autonomy.NewManager(control, planner, newAutonomyActionAuthorizer(config))
 	return service
 }
 
