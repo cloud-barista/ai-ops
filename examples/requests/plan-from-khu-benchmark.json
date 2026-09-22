@@ -1,0 +1,153 @@
+{
+  "schema_version": "1.0",
+  "correlation_id": "flow-khu-bert-mini-latency-v11",
+  "trace_id": "trace-flow-khu-bert-mini-latency-v11",
+  "decision_agent": "AIApplicationAutomationAgent",
+  "application_profile": {
+    "profile_id": "profile-khu-bert-mini-latency",
+    "app_id": "bert-mini-latency",
+    "app_version": "benchmark-20260922",
+    "workload": {
+      "task_type": "TEXT_CLASSIFICATION",
+      "request_pattern": "ONLINE",
+      "expected_rps": 100.0
+    },
+    "requirements": {
+      "compute": {
+        "cpu_cores_min": 2,
+        "memory_mib_min": 8192,
+        "storage_gib_min": 20
+      },
+      "accelerator": {
+        "required": false
+      },
+      "deployment": {
+        "replicas_min": 1,
+        "replicas_max": 2,
+        "isolation": "ONE_MAJOR_APP_PER_VM"
+      },
+      "slo": {
+        "latency_p95_ms_max": 10.0,
+        "throughput_rps_min": 100.0
+      },
+      "cost": {
+        "currency": "USD",
+        "cost_per_hour_max": 0.1
+      }
+    },
+    "analysis": {
+      "confidence": 0.9,
+      "assumptions": [
+        "Benchmark examples per second is used as the workload throughput proxy.",
+        "Hourly prices exclude storage, network transfer, startup, and idle costs."
+      ],
+      "warnings": [
+        "L4 GPU measurements use fewer than three independent VM runs and remain provisional."
+      ]
+    }
+  },
+  "resource_recommendation": {
+    "schema_version": "1.0",
+    "request_id": "flow-khu-bert-mini-latency-v11",
+    "profile_id": "profile-khu-bert-mini-latency",
+    "source": "khu-tumblebug-benchmark:v11-v10-l4-20260922",
+    "observed_at": "2026-09-22T00:00:00Z",
+    "query": {
+      "profile_name": "bert-mini-latency",
+      "latency_p95_ms_max": 10.0,
+      "throughput_rps_min": 100.0,
+      "cost_per_hour_max": 0.1,
+      "objective": "cost_after_hard_constraints"
+    },
+    "recommendations": [
+      {
+        "rank": 1,
+        "score": 100.0,
+        "resource": {
+          "resource_id": "aws+us-west-2+m6a.large",
+          "provider": "aws",
+          "region": "us-west-2",
+          "resource_type": "cloud_vm_spec",
+          "architecture": "x86_64",
+          "operating_system": "Ubuntu 22.04",
+          "healthy": true,
+          "observed_at": "2026-09-22T00:00:00Z",
+          "cpu": {
+            "logical_cores": 2,
+            "available_cores": 2.0
+          },
+          "memory": {
+            "total_mib": 8192.0,
+            "available_mib": 8192.0
+          },
+          "storage": {
+            "total_gib": 200.0,
+            "available_gib": 200.0
+          },
+          "accelerators": [],
+          "labels": {
+            "cloud": "aws",
+            "region": "us-west-2",
+            "zone": "us-west-2a",
+            "instance_type": "m6a.large",
+            "benchmark_profile": "bert-mini-latency",
+            "evidence_runs": "3"
+          },
+          "warnings": []
+        },
+        "score_breakdown": {
+          "cpu": 100.0,
+          "memory": 100.0,
+          "storage": 100.0,
+          "health": 100.0,
+          "total": 100.0
+        },
+        "reasons": [
+          {
+            "code": "BENCHMARK_SLO_MET",
+            "message": "3 run(s): 135.388821 examples/s, p95 8.074535 ms, $0.177267 per million examples."
+          },
+          {
+            "code": "COST_PRIORITY",
+            "message": "Ranked by measured cost per million examples after hard constraints."
+          }
+        ]
+      }
+    ],
+    "excluded_resources": [
+      {
+        "resource_id": "aws+us-west-2+m6a.2xlarge",
+        "failures": [
+          {
+            "code": "COST_PER_HOUR_EXCEEDED",
+            "field": "cost_per_hour_usd",
+            "required": 0.1,
+            "actual": 0.3456,
+            "reason": "VM price exceeds the requested hourly budget."
+          }
+        ]
+      },
+      {
+        "resource_id": "aws+us-west-2+g6.8xlarge",
+        "failures": [
+          {
+            "code": "COST_PER_HOUR_EXCEEDED",
+            "field": "cost_per_hour_usd",
+            "required": 0.1,
+            "actual": 2.0144,
+            "reason": "VM price exceeds the requested hourly budget."
+          }
+        ]
+      }
+    ],
+    "summary": {
+      "discovered": 3,
+      "feasible": 1,
+      "excluded": 2,
+      "returned": 1
+    },
+    "warnings": [
+      "L4 GPU measurements use fewer than three independent VM runs and remain provisional."
+    ]
+  }
+}
