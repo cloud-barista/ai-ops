@@ -12,6 +12,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/rs/zerolog/log"
+
 	"kyunghee-aiops/service-control-api/internal/agentcontrol"
 )
 
@@ -189,7 +191,11 @@ func invokeShadowPolicy(ctx context.Context, endpoint string, payload map[string
 	if err != nil {
 		return shadowPolicyResponse{}, err
 	}
-	defer response.Body.Close()
+	defer func() {
+		if closeErr := response.Body.Close(); closeErr != nil {
+			log.Warn().Err(closeErr).Msg("close shadow policy response body")
+		}
+	}()
 	if response.StatusCode < 200 || response.StatusCode >= 300 {
 		return shadowPolicyResponse{}, fmt.Errorf("shadow policy returned HTTP %d", response.StatusCode)
 	}
