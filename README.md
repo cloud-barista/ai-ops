@@ -18,7 +18,7 @@ AI-MCMP의 요구사항 분석, 자원 추천, 배포 및 운영 판단을 구�
 - [platform](platform/): 위 기능을 실행·관측과 연결하는 통합 연구 PoC
 - [research_policy](poc/research_policy/): 실측 실행 기록을 학습하는 보상 예측 및 판단 보류 알고리즘
 
-각 구성 요소의 입력·출력과 실행 방법은 해당 폴더의 README를 참고하세요.
+입출력과 실행 방법은 각 폴더의 README에 정리했습니다.
 
 ## Quick Start
 
@@ -45,4 +45,4 @@ go -C llmop/go/service-control-api test ./...
 
 ## Contributing and License
 
-[기여 방법](CONTRIBUTING.md) · [Apache-2.0](LICENSE)
+[기여 방법](CONTRIBUTING.md) / [Apache-2.0](LICENSE)

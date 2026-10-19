@@ -8,7 +8,7 @@
 
 `deployment_agent`는 두 결과를 함께 받아 실행 가능 여부와 목표 구성을 판단합니다. Guard가 검사한 계획을 Revision으로 기록하고, 별도 적용 요청이 실행 모듈로 전달됩니다. 실행 결과와 목표값을 구분합니다.
 
-`platform`은 이 API들과 외부 AppDeploy 실행 모듈, Prometheus를 하나의 실험 Flow로 연결합니다. 요구사항·선택 자원·계획·실행·관측·운영 판단을 같은 Flow에서 추적합니다. 기관 정식 시스템을 대체하는 제품 UI는 아닙니다.
+`platform`은 이 API들과 외부 AppDeploy 실행 모듈, Prometheus를 하나의 실험 Flow로 연결합니다. 요구사항부터 자원 선택, 배포, 관측과 운영 판단까지 같은 Flow에서 추적합니다.
 
 ## 운영 판단과 연구 정책
 

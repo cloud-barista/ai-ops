@@ -31,11 +31,11 @@ LLM_Op의 모델 호출에는 Ollama 또는 설정 파일에 지정된 provider�
 node platform/server/index.mjs
 ```
 
-`http://127.0.0.1:18100/`에서 화면을 확인할 수 있습니다. 다른 API를 시작하지 않았다면 분석, 추천, 배포 등의 동작은 연결 오류를 표시합니다. 실행된 것처럼 표시하거나 모의 결과로 자동 대체하지 않습니다.
+`http://127.0.0.1:18100/`에서 화면을 확인할 수 있습니다. 분석, 추천, 배포 기능을 사용하려면 해당 API도 함께 실행해야 합니다.
 
 ## Windows 통합 실행
 
-1. 공식 `ai-ops`의 `AppDeployer` 브랜치에서 AppDeploy 모듈을 별도 준비합니다. 통합 실행기는 `cmd/server/main.go`가 있는 모듈 경로를 요구합니다. 다른 팀의 실행 모듈을 이 폴더에 복제하지 않습니다.
+1. `ai-ops`의 `AppDeployer` 브랜치에서 AppDeploy 모듈을 별도 준비합니다. 통합 실행기에는 `cmd/server/main.go`가 있는 모듈 경로를 지정합니다.
 2. `platform/scripts/Setup-LocalAiRuntime.ps1`로 전용 Python 환경과 고정 BERT Tiny revision을 준비합니다. 모델 다운로드가 발생합니다.
 3. `platform/scripts/Setup-Prometheus.ps1`로 로컬 Prometheus를 준비합니다.
 4. 아래 연구 정책 준비를 완료합니다. 원본 학습 DB는 이 저장소에 포함하지 않습니다.
@@ -59,7 +59,7 @@ python platform/research_policy.py build --source-root <policy-source-root> --ar
 python platform/research_policy.py serve --artifact-dir output/khu-platform-validation/research-policy
 ```
 
-DB가 없는 환경에서도 Go 서비스와 플랫폼의 오프라인 단위 검사는 실행할 수 있습니다. 학습 결과나 실측 자료를 임의 생성하여 검증된 연구 결과로 표시하지 않습니다.
+원본 DB 없이도 Go 서비스와 플랫폼의 단위 검사는 실행할 수 있습니다. 정책 학습과 오프라인 평가는 원본 DB가 필요합니다.
 
 ## 클라우드 실행
 
