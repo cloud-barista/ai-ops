@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="LLM_Op의 Safeguard와 Manifest Proposal을 수동 LLM 복사·붙여넣기로 시연하는 무호출 연구 페이지">
+  <title>LLM_Op · 수동 2단계 시연</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./llm_op_demo.css">
+</head>
+<body id="top">
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="LLM_Op 시연 처음으로">
+      <span class="brand-mark" aria-hidden="true">L</span>
+      <span><strong>LLM_Op</strong><small>Manual two-stage lab</small></span>
+    </a>
+    <nav aria-label="페이지 바로가기">
+      <a href="#scenario-lab">시나리오 실행</a>
+      <a href="#catalog-guide">47개 사례</a>
+      <a href="#handoff-guide">협업 경계</a>
+    </nav>
+    <span class="no-call-badge">모델 API 0 · AppDeploy POST 0</span>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">AI-MCMP · PREPARE-ONLY RESEARCH DEMO</p>
+        <h1>자연어 요청이 <span>검증된 Manifest 제안</span>이 되는 과정을 직접 이어봅니다.</h1>
+        <p class="hero-lead">
+          이 페이지는 LLM을 호출하지 않습니다. 시연자는 준비된 입력을 자신의 AI 서비스에 복사하고,
+          받은 raw JSON을 다시 붙여넣어 Safeguard와 Manifest Proposal 두 단계를 순서대로 진행합니다.
+        </p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#scenario-lab">대표 시나리오 실행</a>
+          <a class="button button-ghost" href="#flow-overview">먼저 흐름 이해하기</a>
+        </div>
+      </div>
+      <aside class="hero-status" aria-label="시연 안전 경계">
+        <p class="status-kicker">이 페이지가 하는 일</p>
+        <ul>
+          <li><span>01</span>합성 사용자 요청과 상태를 준비</li>
+          <li><span>02</span>두 단계의 bounded prompt를 구성</li>
+          <li><span>03</span>붙여넣은 raw JSON의 계약을 검사</li>
+          <li><span>04</span>제출하지 않은 인계 초안을 표시</li>
+        </ul>
+        <p class="status-note">일반 채팅 UI에 복사한 결과는 API의 system role 동등성이나 실제 모델 identity를 증명하지 않습니다.</p>
+      </aside>
+    </section>
+
+    <section class="metrics-band" aria-label="시연 범위 요약">
+      <div><strong>8</strong><span>실행 가능한 대표 흐름</span></div>
+      <div><strong>4</strong><span>AI workload 유형</span></div>
+      <div><strong>2</strong><span>수동 LLM completion</span></div>
+      <div><strong>0</strong><span>페이지의 외부 실행 호출</span></div>
+    </section>
+
+    <section class="content-section" id="flow-overview">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">ONE REQUEST, TWO UNTRUSTED COMPLETIONS</p>
+          <h2>어디에서 멈추고, 무엇이 다음으로 넘어가는가</h2>
+        </div>
+        <p>첫 번째 결과가 유효한 allow일 때만 두 번째 입력을 엽니다. 두 번째 결과도 곧바로 명령이 되지 않고 결정적 검증 뒤 AppDeployer 쪽으로 인계할 초안이 됩니다.</p>
+      </div>
+
+      <ol class="flow-map">
+        <li>
+          <span class="flow-index">1</span>
+          <div><strong>사용자·상태 입력</strong><small>자연어 + resource snapshot + monitoring/log/metric</small></div>
+        </li>
+        <li>
+          <span class="flow-index">2</span>
+          <div><strong>결정적 사전 검사</strong><small>비밀, prompt injection, 책임 범위, prepare-only</small></div>
+        </li>
+        <li class="flow-llm">
+          <span class="flow-index">3</span>
+          <div><strong>LLM ① Safeguard</strong><small>allow · clarify · reject 중 하나의 JSON 제안</small></div>
+        </li>
+        <li class="flow-llm">
+          <span class="flow-index">4</span>
+          <div><strong>LLM ② Proposal</strong><small>action + exact CPU·memory·GPU·storage</small></div>
+        </li>
+        <li>
+          <span class="flow-index">5</span>
+          <div><strong>결정적 후단 검사</strong><small>strict JSON + exact semantics + readiness</small></div>
+        </li>
+        <li>
+          <span class="flow-index">6</span>
+          <div><strong>AppDeploy 인계 초안</strong><small>HANDOFF_READY · not_submitted · command 없음</small></div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="lab-section" id="scenario-lab">
+      <div class="section-heading lab-heading">
+        <div>
+          <p class="eyebrow">COPY · ASK · PASTE · VALIDATE</p>
+          <h2>대표 시나리오 실행</h2>
+        </div>
+        <div class="mode-callout">
+          <strong>비용 주의</strong>
+          <span>예시 응답을 쓰면 외부 호출 0회입니다. 자신의 AI 서비스에 직접 입력하면 해당 서비스의 과금·보존 정책이 적용될 수 있습니다.</span>
+        </div>
+      </div>
+
+      <div class="scenario-layout">
+        <aside class="scenario-picker" aria-labelledby="scenario-picker-title">
+          <div class="picker-heading">
+            <div><span>STEP 0</span><h3 id="scenario-picker-title">시나리오 선택</h3></div>
+            <span class="count-pill" id="scenario-count">0</span>
+          </div>
+          <div class="scenario-list" id="scenario-list"></div>
+        </aside>
+
+        <div class="lab-workspace">
+          <section class="scenario-summary panel" aria-labelledby="selected-scenario-title">
+            <div class="panel-topline">
+              <div>
+                <span class="category-pill" id="selected-scenario-category">시나리오</span>
+                <h3 id="selected-scenario-title">시나리오를 선택하세요</h3>
+              </div>
+              <span class="expected-pill" id="selected-expected-status">WAITING</span>
+            </div>
+            <p class="scenario-description" id="selected-scenario-description"></p>
+            <div class="service-strip">
+              <div><span>AI 서비스</span><strong id="selected-service-name">-</strong></div>
+              <div><span>Workload</span><strong id="selected-service-task">-</strong></div>
+              <div><span>Planner binding</span><strong>qwen3.5-ops-planner</strong></div>
+              <div><span>Readiness</span><strong id="selected-readiness">-</strong></div>
+            </div>
+            <label class="field-block" for="selected-user-request">
+              <span><strong>사용자 요청</strong><small>합성 데이터 · 이 화면에서는 수정하지 않음</small></span>
+              <textarea id="selected-user-request" rows="4" readonly></textarea>
+            </label>
+            <details class="context-details">
+              <summary>서버 상태·관측 입력과 학습 포인트 보기</summary>
+              <div class="context-grid">
+                <div>
+                  <h4>정규화된 operation context</h4>
+                  <pre id="selected-context-json" class="code-output"></pre>
+                </div>
+                <div>
+                  <h4>이 사례가 보여주는 것</h4>
+                  <p id="selected-learning"></p>
+                  <dl>
+                    <div><dt>자료 출처</dt><dd id="selected-source"></dd></div>
+                    <div><dt>Catalog ID</dt><dd id="selected-catalog-id"></dd></div>
+                  </dl>
+                </div>
+              </div>
+            </details>
+            <div class="primary-actions">
+              <button class="button button-primary" id="start-scenario" type="button">이 시나리오 시작</button>
+              <button class="button button-ghost" id="reset-scenario" type="button">초기화</button>
+            </div>
+          </section>
+
+          <ol class="stage-rail" aria-label="현재 시연 단계">
+            <li data-demo-stage="input" class="is-current"><span>0</span><strong>입력</strong></li>
+            <li data-demo-stage="preflight"><span>1</span><strong>사전 검사</strong></li>
+            <li data-demo-stage="safeguard"><span>2</span><strong>Safeguard</strong></li>
+            <li data-demo-stage="proposal"><span>3</span><strong>Proposal</strong></li>
+            <li data-demo-stage="handoff"><span>4</span><strong>인계</strong></li>
+          </ol>
+
+          <section class="panel stage-panel" id="preflight-panel" aria-labelledby="preflight-title">
+            <div class="stage-heading">
+              <span class="stage-number">1</span>
+              <div><p>DETERMINISTIC GATE</p><h3 id="preflight-title">LLM 호출 전 사전 검사</h3></div>
+              <span class="stage-status is-waiting" id="preflight-status">WAITING</span>
+            </div>
+            <p id="preflight-reason">시나리오를 시작하면 prepare-only 범위와 보안 경계를 먼저 확인합니다.</p>
+            <code id="preflight-code">-</code>
+          </section>
+
+          <section class="panel stage-panel is-locked" id="safeguard-panel" aria-labelledby="safeguard-title">
+            <div class="stage-heading">
+              <span class="stage-number stage-number-llm">2</span>
+              <div><p>UNTRUSTED COMPLETION 1</p><h3 id="safeguard-title">LLM ① 자연어 Safeguard</h3></div>
+              <span class="stage-status is-waiting" id="safeguard-status">LOCKED</span>
+            </div>
+            <p class="stage-intro">요청이 담당 범위 안에서 충분히 명확한지 판단합니다. 이 단계에서는 Manifest나 자원값을 만들지 않습니다.</p>
+            <div class="prompt-workbench">
+              <div class="prompt-column">
+                <div class="field-heading">
+                  <span><strong>LLM 입력</strong><small>가능하면 system/user role을 분리해 입력</small></span>
+                  <div class="inline-actions">
+                    <button class="mini-button" type="button" data-copy-stage="safeguard" data-copy-part="system">SYSTEM</button>
+                    <button class="mini-button" type="button" data-copy-stage="safeguard" data-copy-part="user">USER</button>
+                    <button class="mini-button is-accent" type="button" data-copy-stage="safeguard" data-copy-part="combined">전체 복사</button>
+                  </div>
+                </div>
+                <textarea id="safeguard-prompt" class="prompt-textarea" rows="16" readonly></textarea>
+              </div>
+              <div class="prompt-column">
+                <div class="field-heading">
+                  <span><strong>LLM raw JSON 응답</strong><small>설명·code fence 없이 원문 그대로</small></span>
+                  <button class="mini-button" id="fill-safeguard-fixture" type="button">예시 응답 넣기</button>
+                </div>
+                <textarea id="safeguard-response" class="prompt-textarea response-input" rows="16" spellcheck="false" placeholder="{&#10;  &quot;decision&quot;: &quot;allow_request&quot;,&#10;  ...&#10;}"></textarea>
+              </div>
+            </div>
+            <div class="validation-row">
+              <button class="button button-primary" id="validate-safeguard" type="button">응답 검증 후 다음 단계</button>
+              <div class="validation-message" id="safeguard-validation" role="status">아직 응답을 검증하지 않았습니다.</div>
+            </div>
+          </section>
+
+          <section class="panel stage-panel is-locked" id="proposal-panel" aria-labelledby="proposal-title">
+            <div class="stage-heading">
+              <span class="stage-number stage-number-llm">3</span>
+              <div><p>UNTRUSTED COMPLETION 2</p><h3 id="proposal-title">LLM ② Manifest Proposal</h3></div>
+              <span class="stage-status is-waiting" id="proposal-status">LOCKED</span>
+            </div>
+            <p class="stage-intro">같은 bounded 입력을 새 completion에 사용합니다. 첫 번째 LLM의 설명은 이 prompt로 전달하지 않습니다.</p>
+            <div class="prompt-workbench">
+              <div class="prompt-column">
+                <div class="field-heading">
+                  <span><strong>LLM 입력</strong><small>전체 Manifest가 아닌 bounded proposal 요청</small></span>
+                  <div class="inline-actions">
+                    <button class="mini-button" type="button" data-copy-stage="proposal" data-copy-part="system">SYSTEM</button>
+                    <button class="mini-button" type="button" data-copy-stage="proposal" data-copy-part="user">USER</button>
+                    <button class="mini-button is-accent" type="button" data-copy-stage="proposal" data-copy-part="combined">전체 복사</button>
+                  </div>
+                </div>
+                <textarea id="proposal-prompt" class="prompt-textarea" rows="18" readonly></textarea>
+              </div>
+              <div class="prompt-column">
+                <div class="field-heading">
+                  <span><strong>LLM raw JSON 응답</strong><small>사람이 key나 자원값을 보정하지 않음</small></span>
+                  <button class="mini-button" id="fill-proposal-fixture" type="button">예시 응답 넣기</button>
+                </div>
+                <textarea id="proposal-response" class="prompt-textarea response-input" rows="18" spellcheck="false" placeholder="{&#10;  &quot;action&quot;: &quot;create_deployment_manifest&quot;,&#10;  ...&#10;}"></textarea>
+              </div>
+            </div>
+            <div class="validation-row">
+              <button class="button button-primary" id="validate-proposal" type="button">두 번째 출력 검증</button>
+              <div class="validation-message" id="proposal-validation" role="status">Safeguard allow를 기다리고 있습니다.</div>
+            </div>
+          </section>
+
+          <section class="panel result-stage is-locked" id="result-panel" aria-labelledby="result-title">
+            <div class="result-heading">
+              <div>
+                <p class="eyebrow">FINAL DEMO EVIDENCE</p>
+                <h3 id="result-title">두 번째 LLM 출력과 인계 결과</h3>
+              </div>
+              <span class="final-status" id="final-status">WAITING</span>
+            </div>
+            <p class="result-summary" id="final-summary">두 단계의 검증 결과가 여기에 표시됩니다.</p>
+            <div class="result-ledger">
+              <div><span>페이지의 모델 API 호출</span><strong>0</strong></div>
+              <div><span>Safeguard 출력 수신</span><strong id="ledger-safeguard">0</strong></div>
+              <div><span>Proposal 출력 수신</span><strong id="ledger-proposal">0</strong></div>
+              <div><span>AppDeploy POST</span><strong>0</strong></div>
+            </div>
+            <div class="result-output-heading">
+              <strong>검증·인계 JSON</strong>
+              <button class="mini-button is-accent" id="copy-final-result" type="button">결과 복사</button>
+            </div>
+            <pre class="code-output result-output" id="final-result-json">아직 결과가 없습니다.</pre>
+            <p class="result-warning">
+              브라우저 검증은 교육용 계약 mirror입니다. authoritative 판정은 동일 raw 출력을 Go parser·semantic guard·AppDeploy Manifest Guard에 다시 넣어야 합니다.
+            </p>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section catalog-section" id="catalog-guide">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">SCENARIO COMMUNICATION MAP</p>
+          <h2>47개 검토 사례를 왜 준비했는가</h2>
+        </div>
+        <p>47개 catalog는 “모두 성공시키는 예제”가 아니라, 어느 단계에서 왜 멈춰야 하는지 합의하기 위한 정적 계약 목록입니다. 이 페이지의 8개는 발표에 적합하도록 실제 context와 응답을 붙인 대표 흐름입니다.</p>
+      </div>
+      <div class="catalog-grid" id="catalog-category-grid"></div>
+      <div class="catalog-notes">
+        <article>
+          <span>정상 경로</span>
+          <h3>exact 자원값이 있는 요청</h3>
+          <p>네 workload 유형 모두 CPU·memory·GPU·storage를 정확히 지정한 성공 예를 제공하여 두 번째 LLM 출력까지 진행할 수 있습니다.</p>
+        </article>
+        <article>
+          <span>질문 경로</span>
+          <h3>부족한 정보를 발명하지 않기</h3>
+          <p>“적당한 사양”처럼 모호하면 Safeguard에서 명확화를 요청하고 Proposal을 호출하지 않습니다.</p>
+        </article>
+        <article>
+          <span>거부 경로</span>
+          <h3>LLM보다 먼저 막을 것</h3>
+          <p>비밀, prompt injection, Target·provider·runtime·명령 요구는 모델 판단에 맡기지 않고 결정적으로 차단합니다.</p>
+        </article>
+        <article>
+          <span>출력 경로</span>
+          <h3>모델의 JSON도 신뢰하지 않기</h3>
+          <p>중복 key, 임의 field, 자원 불일치, 준비되지 않은 상태는 후단 검사에서 fail-closed 처리합니다.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="content-section handoff-section" id="handoff-guide">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">HUMAN + AI COLLABORATION</p>
+          <h2>담당자 사이에서 오해하지 않을 경계</h2>
+        </div>
+        <p>LLM_Op은 명령 실행기가 아닙니다. 자연어와 관측을 bounded proposal로 바꾸고, 다음 팀이 재검증할 수 있는 선언형 입력을 준비합니다.</p>
+      </div>
+      <div class="responsibility-table" role="table" aria-label="협업 역할">
+        <div class="responsibility-row responsibility-head" role="row">
+          <span role="columnheader">주체</span><span role="columnheader">하는 일</span><span role="columnheader">하지 않는 일</span>
+        </div>
+        <div class="responsibility-row" role="row">
+          <strong role="cell">시연자</strong><span role="cell">합성 prompt를 정확히 복사하고 raw 출력을 보존</span><span role="cell">JSON을 고쳐 승인 결과를 만들지 않음</span>
+        </div>
+        <div class="responsibility-row" role="row">
+          <strong role="cell">Safeguard LLM</strong><span role="cell">allow · clarify · reject 제안</span><span role="cell">보안 정책 편집, 자원값 생성, 권한 부여</span>
+        </div>
+        <div class="responsibility-row" role="row">
+          <strong role="cell">Proposal LLM</strong><span role="cell">제한된 action과 exact 자원 proposal 제안</span><span role="cell">Target·provider·runtime·command 선택</span>
+        </div>
+        <div class="responsibility-row" role="row">
+          <strong role="cell">LLM_Op Guard</strong><span role="cell">입출력·semantics·readiness를 결정적으로 검증</span><span role="cell">AppDeploy POST 또는 실제 배포</span>
+        </div>
+        <div class="responsibility-row" role="row">
+          <strong role="cell">AppDeployer 담당</strong><span role="cell">Manifest를 다시 검증하고 target-specific 동작으로 변환</span><span role="cell">LLM 설명만 믿고 실행</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p><strong>LLM_Op manual lab</strong> · prepare-only · synthetic evidence · no secrets</p>
+    <p id="contract-version">contract loading…</p>
+  </footer>
+
+  <div class="toast-region" id="toast-region" aria-live="polite"></div>
+  <script src="./llm_op_demo_contract.js"></script>
+  <script src="./llm_op_demo.js"></script>
+</body>
+</html>

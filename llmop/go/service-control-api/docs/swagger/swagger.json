@@ -1,0 +1,681 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Analyze natural-language or structured application requirements, select a configured LLM when needed, and generate a bounded ApplicationProfile. The service also exposes Ops LLM policy ranking; deployment planning and execution remain outside this service.",
+        "title": "LLM_Op ApplicationProfile and Model Selection API",
+        "contact": {},
+        "license": {
+            "name": "Apache 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "basePath": "/",
+    "paths": {
+        "/api/v1/application-profiles": {
+            "post": {
+                "description": "Validate natural-language or structured App Spec input and return a bounded ApplicationProfile. Natural-language analysis selects an LLM by policy, retries invalid output, and labels bounded local-rule fallback; structured input is converted without an LLM. This endpoint does not recommend infrastructure, select an Agent, create a manifest, submit a deployment, or process runtime feedback.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Application Profiles"
+                ],
+                "summary": "Generate an ApplicationProfile",
+                "operationId": "GenerateApplicationProfile",
+                "parameters": [
+                    {
+                        "description": "Natural-language application requirements",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/applicationprofile.GenerateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/applicationprofile.GenerateResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/profileapi.ErrorResponse"
+                        }
+                    },
+                    "413": {
+                        "description": "Request Entity Too Large",
+                        "schema": {
+                            "$ref": "#/definitions/profileapi.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/profileapi.ErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/profileapi.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/ops-llm/select": {
+            "post": {
+                "description": "Rank configured Ops LLM candidates with a weighted policy. benchmark_status states whether the source metrics came from an executed benchmark; a not_executed result is a policy baseline, not a measured model-quality claim. This endpoint does not invoke the selected model or perform deployment work.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ops LLM Selection"
+                ],
+                "summary": "Rank and select an Ops LLM candidate",
+                "operationId": "SelectOpsLLM",
+                "parameters": [
+                    {
+                        "description": "Ops LLM selection policy",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/llmselection.SelectRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/llmselection.SelectionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/profileapi.ErrorResponse"
+                        }
+                    },
+                    "413": {
+                        "description": "Request Entity Too Large",
+                        "schema": {
+                            "$ref": "#/definitions/profileapi.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/profileapi.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/healthz": {
+            "get": {
+                "description": "Return process readiness and the bounded LLM_Op role.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LLM_Op"
+                ],
+                "summary": "Check LLM_Op API health",
+                "operationId": "GetLLMOpHealthz",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/openapi.yaml": {
+            "get": {
+                "produces": [
+                    "text/yaml"
+                ],
+                "tags": [
+                    "LLM_Op"
+                ],
+                "summary": "Get the LLM_Op OpenAPI specification",
+                "operationId": "GetLLMOpOpenAPI",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/profileapi.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "applicationprofile.AcceleratorRequirements": {
+            "type": "object",
+            "required": [
+                "count_min",
+                "memory_mib_min_per_device",
+                "required"
+            ],
+            "properties": {
+                "count_min": {
+                    "type": "integer"
+                },
+                "memory_mib_min_per_device": {
+                    "type": "integer"
+                },
+                "required": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "applicationprofile.AnalysisEvidence": {
+            "type": "object",
+            "required": [
+                "mode"
+            ],
+            "properties": {
+                "actual_model": {
+                    "type": "string"
+                },
+                "attempts": {
+                    "type": "integer"
+                },
+                "candidate_id": {
+                    "type": "string"
+                },
+                "fallback_reason": {
+                    "type": "string"
+                },
+                "latency_ms": {
+                    "type": "integer"
+                },
+                "mode": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "selection_policy": {
+                    "type": "string"
+                }
+            }
+        },
+        "applicationprofile.AnalysisSummary": {
+            "type": "object",
+            "required": [
+                "confidence"
+            ],
+            "properties": {
+                "assumptions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "confidence": {
+                    "type": "number"
+                },
+                "missing_fields": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "warnings": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "applicationprofile.ApplicationMetadata": {
+            "type": "object",
+            "properties": {
+                "app_id": {
+                    "type": "string"
+                },
+                "app_version": {
+                    "type": "string"
+                },
+                "artifact": {
+                    "$ref": "#/definitions/applicationprofile.Artifact"
+                }
+            }
+        },
+        "applicationprofile.ApplicationProfile": {
+            "type": "object",
+            "required": [
+                "analysis",
+                "app_id",
+                "app_version",
+                "profile_id",
+                "requirements",
+                "workload"
+            ],
+            "properties": {
+                "analysis": {
+                    "$ref": "#/definitions/applicationprofile.AnalysisSummary"
+                },
+                "app_id": {
+                    "type": "string"
+                },
+                "app_version": {
+                    "type": "string"
+                },
+                "artifact": {
+                    "$ref": "#/definitions/applicationprofile.Artifact"
+                },
+                "profile_id": {
+                    "type": "string"
+                },
+                "requirements": {
+                    "$ref": "#/definitions/applicationprofile.ApplicationRequirements"
+                },
+                "workload": {
+                    "$ref": "#/definitions/applicationprofile.WorkloadProfile"
+                }
+            }
+        },
+        "applicationprofile.ApplicationRequirements": {
+            "type": "object",
+            "required": [
+                "accelerator",
+                "compute",
+                "cost",
+                "deployment",
+                "slo"
+            ],
+            "properties": {
+                "accelerator": {
+                    "$ref": "#/definitions/applicationprofile.AcceleratorRequirements"
+                },
+                "compute": {
+                    "$ref": "#/definitions/applicationprofile.ComputeRequirements"
+                },
+                "cost": {
+                    "$ref": "#/definitions/applicationprofile.CostRequirements"
+                },
+                "deployment": {
+                    "$ref": "#/definitions/applicationprofile.DeploymentRequirements"
+                },
+                "slo": {
+                    "$ref": "#/definitions/applicationprofile.SLORequirements"
+                }
+            }
+        },
+        "applicationprofile.Artifact": {
+            "type": "object",
+            "required": [
+                "type",
+                "uri"
+            ],
+            "properties": {
+                "entrypoint": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "type": {
+                    "type": "string"
+                },
+                "uri": {
+                    "type": "string"
+                }
+            }
+        },
+        "applicationprofile.ComputeRequirements": {
+            "type": "object",
+            "required": [
+                "cpu_cores_min",
+                "memory_mib_min",
+                "storage_gib_min"
+            ],
+            "properties": {
+                "cpu_cores_min": {
+                    "type": "integer"
+                },
+                "memory_mib_min": {
+                    "type": "integer"
+                },
+                "storage_gib_min": {
+                    "type": "integer"
+                }
+            }
+        },
+        "applicationprofile.CostRequirements": {
+            "type": "object",
+            "properties": {
+                "cost_per_hour_max": {
+                    "type": "number"
+                },
+                "currency": {
+                    "type": "string"
+                }
+            }
+        },
+        "applicationprofile.DeploymentRequirements": {
+            "type": "object",
+            "required": [
+                "isolation",
+                "replicas_max",
+                "replicas_min"
+            ],
+            "properties": {
+                "isolation": {
+                    "type": "string"
+                },
+                "replicas_max": {
+                    "type": "integer"
+                },
+                "replicas_min": {
+                    "type": "integer"
+                }
+            }
+        },
+        "applicationprofile.GenerateRequest": {
+            "type": "object",
+            "properties": {
+                "app_spec": {
+                    "$ref": "#/definitions/applicationprofile.StructuredAppSpec"
+                },
+                "application": {
+                    "$ref": "#/definitions/applicationprofile.ApplicationMetadata"
+                },
+                "candidate_id": {
+                    "type": "string"
+                },
+                "input_type": {
+                    "type": "string",
+                    "enum": [
+                        "natural_language",
+                        "structured"
+                    ]
+                },
+                "request": {
+                    "type": "string",
+                    "maxLength": 8000
+                },
+                "selection_policy": {
+                    "type": "string",
+                    "example": "quality_first"
+                }
+            }
+        },
+        "applicationprofile.GenerateResult": {
+            "type": "object",
+            "required": [
+                "analysis",
+                "application_profile"
+            ],
+            "properties": {
+                "analysis": {
+                    "$ref": "#/definitions/applicationprofile.AnalysisEvidence"
+                },
+                "application_profile": {
+                    "$ref": "#/definitions/applicationprofile.ApplicationProfile"
+                }
+            }
+        },
+        "applicationprofile.SLORequirements": {
+            "type": "object",
+            "properties": {
+                "latency_p95_ms_max": {
+                    "type": "number"
+                },
+                "throughput_rps_min": {
+                    "type": "number"
+                }
+            }
+        },
+        "applicationprofile.StructuredAppSpec": {
+            "type": "object",
+            "required": [
+                "app_id",
+                "app_version",
+                "cpu_cores",
+                "memory_mib",
+                "storage_gib",
+                "workload_type"
+            ],
+            "properties": {
+                "accelerator_count": {
+                    "type": "integer"
+                },
+                "accelerator_memory_mib_per_device": {
+                    "type": "integer"
+                },
+                "accelerator_type": {
+                    "type": "string"
+                },
+                "app_id": {
+                    "type": "string"
+                },
+                "app_version": {
+                    "type": "string"
+                },
+                "artifact": {
+                    "$ref": "#/definitions/applicationprofile.Artifact"
+                },
+                "cost_currency": {
+                    "type": "string"
+                },
+                "cost_per_hour_max": {
+                    "type": "number"
+                },
+                "cpu_cores": {
+                    "type": "integer"
+                },
+                "expected_rps": {
+                    "type": "number"
+                },
+                "isolation": {
+                    "type": "string"
+                },
+                "latency_p95_ms_max": {
+                    "type": "number"
+                },
+                "memory_mib": {
+                    "type": "integer"
+                },
+                "replicas_max": {
+                    "type": "integer"
+                },
+                "replicas_min": {
+                    "type": "integer"
+                },
+                "request_pattern": {
+                    "type": "string",
+                    "enum": [
+                        "ONLINE",
+                        "BATCH",
+                        "STREAMING"
+                    ]
+                },
+                "storage_gib": {
+                    "type": "integer"
+                },
+                "throughput_rps_min": {
+                    "type": "number"
+                },
+                "workload_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "applicationprofile.WorkloadProfile": {
+            "type": "object",
+            "required": [
+                "request_pattern",
+                "task_type"
+            ],
+            "properties": {
+                "expected_rps": {
+                    "type": "number"
+                },
+                "request_pattern": {
+                    "type": "string"
+                },
+                "task_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "llmselection.RankedItem": {
+            "type": "object",
+            "properties": {
+                "actual_model": {
+                    "type": "string"
+                },
+                "benchmark_status": {
+                    "type": "string"
+                },
+                "candidate_id": {
+                    "type": "string"
+                },
+                "evaluation_source": {
+                    "type": "string"
+                },
+                "evaluation_type": {
+                    "type": "string"
+                },
+                "metrics": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "number",
+                        "format": "float64"
+                    }
+                },
+                "model": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "number"
+                }
+            }
+        },
+        "llmselection.SelectRequest": {
+            "type": "object",
+            "properties": {
+                "policy": {
+                    "type": "string",
+                    "example": "quality_first"
+                }
+            }
+        },
+        "llmselection.SelectionResponse": {
+            "type": "object",
+            "required": [
+                "benchmark_status",
+                "evaluation_source",
+                "evaluation_type",
+                "policy",
+                "ranking",
+                "rationale",
+                "selected_actual_model",
+                "selected_model",
+                "selected_provider",
+                "valid"
+            ],
+            "properties": {
+                "benchmark_status": {
+                    "type": "string"
+                },
+                "evaluation_source": {
+                    "type": "string"
+                },
+                "evaluation_type": {
+                    "type": "string"
+                },
+                "policy": {
+                    "type": "string"
+                },
+                "ranking": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/llmselection.RankedItem"
+                    }
+                },
+                "rationale": {
+                    "type": "string"
+                },
+                "selected_actual_model": {
+                    "type": "string"
+                },
+                "selected_candidate_id": {
+                    "type": "string"
+                },
+                "selected_model": {
+                    "type": "string"
+                },
+                "selected_provider": {
+                    "type": "string"
+                },
+                "selected_score": {
+                    "type": "number"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "profileapi.ErrorResponse": {
+            "type": "object",
+            "required": [
+                "code",
+                "message"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

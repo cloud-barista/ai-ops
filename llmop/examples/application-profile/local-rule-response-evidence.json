@@ -1,0 +1,9 @@
+{
+  "mode": "local_rule",
+  "candidate_id": "qwen3.5-profile-generator",
+  "provider": "local-rule",
+  "actual_model": "bounded-resource-parser-v1",
+  "attempts": 2,
+  "selection_policy": "quality_first",
+  "fallback_reason": "invalid_model_output"
+}

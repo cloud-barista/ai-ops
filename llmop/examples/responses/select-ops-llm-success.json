@@ -1,0 +1,87 @@
+{
+  "selected_candidate_id": "qwen3.5-profile-generator",
+  "selected_model": "primary-ops-llm",
+  "selected_actual_model": "qwen3.5:4b",
+  "selected_provider": "prototype-policy",
+  "evaluation_source": "prototype_policy_config",
+  "evaluation_type": "prototype_policy_baseline",
+  "benchmark_status": "not_executed",
+  "selected_score": 0.891333,
+  "policy": "quality_first",
+  "valid": true,
+  "rationale": "primary-ops-llm ranked first under quality_first because the weighted Ops accuracy, bounded-output validity, consistency, latency, and cost criteria produced the highest score.",
+  "ranking": [
+    {
+      "candidate_id": "qwen3.5-profile-generator",
+      "model": "primary-ops-llm",
+      "actual_model": "qwen3.5:4b",
+      "provider": "prototype-policy",
+      "evaluation_source": "prototype_policy_config",
+      "evaluation_type": "prototype_policy_baseline",
+      "benchmark_status": "not_executed",
+      "role": "Qwen-based natural-language requirement analyzer and ApplicationProfile generator",
+      "score": 0.891333,
+      "metrics": {
+        "accuracy": 1,
+        "metric_success": 0.916667,
+        "action_validity": 1,
+        "consistency": 0.97,
+        "ttd": 1,
+        "cost": 0.25,
+        "latency": 0.666667
+      },
+      "notes": [
+        "Use as the default Qwen candidate for ApplicationProfile generation.",
+        "Highest score under quality_first policy."
+      ]
+    },
+    {
+      "candidate_id": "gemma3-profile-generator",
+      "model": "low-cost-ops-llm",
+      "actual_model": "gemma3:4b",
+      "provider": "prototype-policy",
+      "evaluation_source": "prototype_policy_config",
+      "evaluation_type": "prototype_policy_baseline",
+      "benchmark_status": "not_executed",
+      "role": "low-cost requirement-analysis and profile-validation candidate",
+      "score": 0.877316,
+      "metrics": {
+        "accuracy": 0.833333,
+        "metric_success": 0.833333,
+        "action_validity": 0.94,
+        "consistency": 0.9,
+        "ttd": 0.709828,
+        "cost": 1,
+        "latency": 1
+      },
+      "notes": [
+        "Useful for repeated non-critical test runs where low cost matters.",
+        "Selected under cost_first policy."
+      ]
+    },
+    {
+      "candidate_id": "llama3.2-profile-generator",
+      "model": "profile-cross-check-llm",
+      "actual_model": "llama3.2:3b",
+      "provider": "prototype-policy",
+      "evaluation_source": "prototype_policy_config",
+      "evaluation_type": "prototype_policy_baseline",
+      "benchmark_status": "not_executed",
+      "role": "ApplicationProfile output cross-check candidate",
+      "score": 0.873142,
+      "metrics": {
+        "accuracy": 0.916667,
+        "metric_success": 0.916667,
+        "action_validity": 0.98,
+        "consistency": 0.94,
+        "ttd": 0.840204,
+        "cost": 0.454545,
+        "latency": 0.8
+      },
+      "notes": [
+        "Use as a second model for cross-validation of generated ApplicationProfile fields.",
+        "Complements the primary reasoning model rather than replacing it."
+      ]
+    }
+  ]
+}

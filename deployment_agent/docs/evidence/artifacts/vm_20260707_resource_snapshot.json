@@ -1,0 +1,18 @@
+{
+  "id": "aws-us-west-2-g6-xlarge-l4-20260707",
+  "source": "cb-tumblebug_and_vm_evidence",
+  "evidence_status": "collected",
+  "provider": "aws",
+  "region": "us-west-2",
+  "availability_zone": "us-west-2a",
+  "instance_type": "g6.xlarge",
+  "accelerator": "gpu",
+  "gpu_model": "NVIDIA L4",
+  "gpu_memory_mib": 23034,
+  "driver_version": "595.71.05",
+  "cuda_version": "13.2",
+  "collected_at": "2026-07-07T07:48:03Z",
+  "performance": {
+    "status": "not_measured"
+  }
+}

@@ -1,0 +1,7 @@
+import {localHostSnapshot,localRuntimeDirectory} from '../server/local-host.mjs';import {fileURLToPath} from 'node:url';import {resolve} from 'node:path';import {writeFile} from 'node:fs/promises';
+const host=await localHostSnapshot(),directory=fileURLToPath(new URL('../runtime-app/',import.meta.url));
+const target={target_profile_id:host.id,name:'KHU local PC',vm_type:'Local',csp:'local',status:'READY',cost_weight:1,vm:{},runtime:{runtime_type:'local',operating_mode:'local_process'},supported_runtimes:['cpu'],labels:{execution_target:'local'},capacity:{cpu_cores:host.cpu_cores,memory_bytes:host.memory_available,storage_bytes:host.disk_available},storage:{artifact_dir:directory,log_dir:resolve(localRuntimeDirectory,'app-logs')}};
+const base='http://127.0.0.1:18150/api/v1';let r=await fetch(base+'/target-profiles');if(!r.ok)throw Error('AppDeploy unavailable');const data=await r.json(),items=Array.isArray(data)?data:data.items??data.target_profiles??[];
+const local=items.filter(t=>t.target_profile_id===host.id||t.csp==='local');
+if(!local.length){r=await fetch(base+'/target-profiles',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(target)});if(!r.ok)throw Error('Target registration failed');}else if(local.length!==1||local[0].target_profile_id!==host.id||local[0].runtime?.operating_mode!=='local_process')throw Error('Unexpected local target registry');
+await writeFile(resolve(localRuntimeDirectory,'local-host.json'),JSON.stringify(host,null,2));console.log('Actual local PC target registered; no VM created.');

@@ -1,0 +1,786 @@
+{
+  "schema_version": "khu-cpu-policy/v1",
+  "generated_at_utc": "2026-09-30T06:16:50.053467+00:00",
+  "scope": "historical_cpu_baseline_advisory",
+  "verified_source_run_count": 6,
+  "measurement_count": 72,
+  "source_report_sha256": "a9fa8e639077f6c3c02a8855790160c4799bd880187e173ccfede09a06a41ae3",
+  "sources": [
+    {
+      "run_id": "khu-m6a-2xl-cpu-baseline-v10-20260922",
+      "spec_id": "aws+us-west-2+m6a.2xlarge",
+      "measurement_count": 12,
+      "database_sha256": "b5439b51bc156f924f80adb56388c1dd5b2022e9b67d3562f3bd786e7e07d6e9",
+      "provenance_sha256": "0e39b7e36e42de47777e30d778bd86d6f2a957f4692d513565d6006459e38a96",
+      "collection_complete": true,
+      "sqlite_integrity": "ok"
+    },
+    {
+      "run_id": "khu-m6a-2xl-cpu-baseline-v10b-20260922",
+      "spec_id": "aws+us-west-2+m6a.2xlarge",
+      "measurement_count": 12,
+      "database_sha256": "e88ef07246eb558fed0a395dcc3982902d45aab2a3eba2dddd1d0399a8ecebd7",
+      "provenance_sha256": "eaf5078044b9998631dcdf5fd778df73e4821befa1172022f89e5518ce590591",
+      "collection_complete": true,
+      "sqlite_integrity": "ok"
+    },
+    {
+      "run_id": "khu-m6a-2xl-cpu-baseline-v10c-20260922",
+      "spec_id": "aws+us-west-2+m6a.2xlarge",
+      "measurement_count": 12,
+      "database_sha256": "0fd3562b455394e14e95b64b9808263e9d8d3759278227ee76786d443ee82d3e",
+      "provenance_sha256": "7522c29ca820e30d3b5000a67c581dbeaf07a188f028c0a28b93c8f29ce827d1",
+      "collection_complete": true,
+      "sqlite_integrity": "ok"
+    },
+    {
+      "run_id": "khu-m6a-large-cpu-baseline-v11-20260922",
+      "spec_id": "aws+us-west-2+m6a.large",
+      "measurement_count": 12,
+      "database_sha256": "0b4302807037c33f095c52f91892811b007fabbf2184847a7eff318daf6fa415",
+      "provenance_sha256": "0a7c7903787515d8e467a1e477f60c71d11a1056c196480c9b2f3634bb1b7f8d",
+      "collection_complete": true,
+      "sqlite_integrity": "ok"
+    },
+    {
+      "run_id": "khu-m6a-large-cpu-baseline-v11b-20260922",
+      "spec_id": "aws+us-west-2+m6a.large",
+      "measurement_count": 12,
+      "database_sha256": "f495d49d42f1535eeff8a35f15b69f10632cd507bd4e941f56da2f33b50225f0",
+      "provenance_sha256": "c3d4d8833aa121b368e283bc9fd418732b61a84a80d7f92826b9176470d033a2",
+      "collection_complete": true,
+      "sqlite_integrity": "ok"
+    },
+    {
+      "run_id": "khu-m6a-large-cpu-baseline-v11c-20260922",
+      "spec_id": "aws+us-west-2+m6a.large",
+      "measurement_count": 12,
+      "database_sha256": "b05bd0f6c70a6d931ed5c90b630c67c3d523944f7170da32869903d746675a7d",
+      "provenance_sha256": "2b04cd7aeb3bfa9a0a2ec2bb7f77ed2b47fa11f572c1ffb373e3647fd69cb883",
+      "collection_complete": true,
+      "sqlite_integrity": "ok"
+    }
+  ],
+  "cohorts": [
+    {
+      "batch_size": 1,
+      "dataset": "operations",
+      "image_id": "ami-0eb3161272dc9c6eb",
+      "latency_slo_ms": 0.0,
+      "load_condition": "nominal",
+      "max_length": 64,
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "model_revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+      "parameter_bytes_per_parameter": 4.0,
+      "profile_name": "bert-tiny-latency",
+      "python_version": "3.10.12",
+      "repeats": 12,
+      "replica_count": 1,
+      "request_concurrency": 1,
+      "sample_interval_seconds": 0.1,
+      "seed": 42,
+      "target_throughput_rps": 0.0,
+      "cohort_id": "4f498d6340e50156",
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "cpu_threads": 8,
+          "independent_run_count": 3,
+          "run_ids": [
+            "khu-m6a-2xl-cpu-baseline-v10-20260922",
+            "khu-m6a-2xl-cpu-baseline-v10b-20260922",
+            "khu-m6a-2xl-cpu-baseline-v10c-20260922"
+          ],
+          "median_throughput": 673.452672,
+          "throughput_min": 644.782218,
+          "throughput_max": 683.713038,
+          "median_p95_ms": 1.558222,
+          "p95_min_ms": 1.512274,
+          "p95_max_ms": 1.678223
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "cpu_threads": 2,
+          "independent_run_count": 3,
+          "run_ids": [
+            "khu-m6a-large-cpu-baseline-v11-20260922",
+            "khu-m6a-large-cpu-baseline-v11b-20260922",
+            "khu-m6a-large-cpu-baseline-v11c-20260922"
+          ],
+          "median_throughput": 488.216078,
+          "throughput_min": 482.753033,
+          "throughput_max": 489.389274,
+          "median_p95_ms": 3.174047,
+          "p95_min_ms": 2.783662,
+          "p95_max_ms": 3.310321
+        }
+      ]
+    },
+    {
+      "batch_size": 8,
+      "dataset": "operations",
+      "image_id": "ami-0eb3161272dc9c6eb",
+      "latency_slo_ms": 0.0,
+      "load_condition": "nominal",
+      "max_length": 128,
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "model_revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+      "parameter_bytes_per_parameter": 4.0,
+      "profile_name": "bert-tiny-throughput",
+      "python_version": "3.10.12",
+      "repeats": 12,
+      "replica_count": 1,
+      "request_concurrency": 1,
+      "sample_interval_seconds": 0.1,
+      "seed": 43,
+      "target_throughput_rps": 0.0,
+      "cohort_id": "734bd1a73c77d517",
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "cpu_threads": 8,
+          "independent_run_count": 3,
+          "run_ids": [
+            "khu-m6a-2xl-cpu-baseline-v10-20260922",
+            "khu-m6a-2xl-cpu-baseline-v10b-20260922",
+            "khu-m6a-2xl-cpu-baseline-v10c-20260922"
+          ],
+          "median_throughput": 1284.136094,
+          "throughput_min": 1258.862743,
+          "throughput_max": 1331.349745,
+          "median_p95_ms": 5.990944,
+          "p95_min_ms": 5.902698,
+          "p95_max_ms": 6.197179
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "cpu_threads": 2,
+          "independent_run_count": 3,
+          "run_ids": [
+            "khu-m6a-large-cpu-baseline-v11-20260922",
+            "khu-m6a-large-cpu-baseline-v11b-20260922",
+            "khu-m6a-large-cpu-baseline-v11c-20260922"
+          ],
+          "median_throughput": 570.759772,
+          "throughput_min": 568.700385,
+          "throughput_max": 575.060289,
+          "median_p95_ms": 14.103866,
+          "p95_min_ms": 13.708901,
+          "p95_max_ms": 14.416419
+        }
+      ]
+    },
+    {
+      "batch_size": 8,
+      "dataset": "operations",
+      "image_id": "ami-0eb3161272dc9c6eb",
+      "latency_slo_ms": 0.0,
+      "load_condition": "nominal",
+      "max_length": 128,
+      "model_id": "albert/albert-base-v2",
+      "model_revision": "8e2f239c5f8a2c0f253781ca60135db913e5c80c",
+      "parameter_bytes_per_parameter": 4.0,
+      "profile_name": "albert-base-throughput",
+      "python_version": "3.10.12",
+      "repeats": 8,
+      "replica_count": 1,
+      "request_concurrency": 1,
+      "sample_interval_seconds": 0.1,
+      "seed": 47,
+      "target_throughput_rps": 0.0,
+      "cohort_id": "96de2d8aa27a25e3",
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "cpu_threads": 8,
+          "independent_run_count": 3,
+          "run_ids": [
+            "khu-m6a-2xl-cpu-baseline-v10-20260922",
+            "khu-m6a-2xl-cpu-baseline-v10b-20260922",
+            "khu-m6a-2xl-cpu-baseline-v10c-20260922"
+          ],
+          "median_throughput": 13.143908,
+          "throughput_min": 13.081301,
+          "throughput_max": 13.31566,
+          "median_p95_ms": 615.116399,
+          "p95_min_ms": 598.913471,
+          "p95_max_ms": 619.704259
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "cpu_threads": 2,
+          "independent_run_count": 3,
+          "run_ids": [
+            "khu-m6a-large-cpu-baseline-v11-20260922",
+            "khu-m6a-large-cpu-baseline-v11b-20260922",
+            "khu-m6a-large-cpu-baseline-v11c-20260922"
+          ],
+          "median_throughput": 3.941835,
+          "throughput_min": 3.879198,
+          "throughput_max": 3.99657,
+          "median_p95_ms": 2024.972104,
+          "p95_min_ms": 2001.9077,
+          "p95_max_ms": 2118.203478
+        }
+      ]
+    },
+    {
+      "batch_size": 8,
+      "dataset": "operations",
+      "image_id": "ami-0eb3161272dc9c6eb",
+      "latency_slo_ms": 0.0,
+      "load_condition": "nominal",
+      "max_length": 128,
+      "model_id": "google-bert/bert-base-uncased",
+      "model_revision": "86b5e0934494bd15c9632b12f734a8a67f723594",
+      "parameter_bytes_per_parameter": 4.0,
+      "profile_name": "bert-base-throughput",
+      "python_version": "3.10.12",
+      "repeats": 6,
+      "replica_count": 1,
+      "request_concurrency": 1,
+      "sample_interval_seconds": 0.1,
+      "seed": 51,
+      "target_throughput_rps": 0.0,
+      "cohort_id": "2727fc79e477fe10",
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "cpu_threads": 8,
+          "independent_run_count": 3,
+          "run_ids": [
+            "khu-m6a-2xl-cpu-baseline-v10-20260922",
+            "khu-m6a-2xl-cpu-baseline-v10b-20260922",
+            "khu-m6a-2xl-cpu-baseline-v10c-20260922"
+          ],
+          "median_throughput": 15.30821,
+          "throughput_min": 15.284496,
+          "throughput_max": 15.500252,
+          "median_p95_ms": 514.848549,
+          "p95_min_ms": 505.504312,
+          "p95_max_ms": 515.545938
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "cpu_threads": 2,
+          "independent_run_count": 3,
+          "run_ids": [
+            "khu-m6a-large-cpu-baseline-v11-20260922",
+            "khu-m6a-large-cpu-baseline-v11b-20260922",
+            "khu-m6a-large-cpu-baseline-v11c-20260922"
+          ],
+          "median_throughput": 4.289913,
+          "throughput_min": 4.283995,
+          "throughput_max": 4.316848,
+          "median_p95_ms": 1845.992227,
+          "p95_min_ms": 1828.493881,
+          "p95_max_ms": 1846.778496
+        }
+      ]
+    },
+    {
+      "batch_size": 1,
+      "dataset": "operations",
+      "image_id": "ami-0eb3161272dc9c6eb",
+      "latency_slo_ms": 0.0,
+      "load_condition": "nominal",
+      "max_length": 64,
+      "model_id": "google/bert_uncased_L-4_H-256_A-4",
+      "model_revision": "387825ce42dbb39b87911cdf8e383ee3b25184f8",
+      "parameter_bytes_per_parameter": 4.0,
+      "profile_name": "bert-mini-latency",
+      "python_version": "3.10.12",
+      "repeats": 8,
+      "replica_count": 1,
+      "request_concurrency": 1,
+      "sample_interval_seconds": 0.1,
+      "seed": 45,
+      "target_throughput_rps": 0.0,
+      "cohort_id": "a059473058f83af7",
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "cpu_threads": 8,
+          "independent_run_count": 3,
+          "run_ids": [
+            "khu-m6a-2xl-cpu-baseline-v10-20260922",
+            "khu-m6a-2xl-cpu-baseline-v10b-20260922",
+            "khu-m6a-2xl-cpu-baseline-v10c-20260922"
+          ],
+          "median_throughput": 275.869322,
+          "throughput_min": 269.688686,
+          "throughput_max": 280.926292,
+          "median_p95_ms": 3.743546,
+          "p95_min_ms": 3.642214,
+          "p95_max_ms": 4.168098
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "cpu_threads": 2,
+          "independent_run_count": 3,
+          "run_ids": [
+            "khu-m6a-large-cpu-baseline-v11-20260922",
+            "khu-m6a-large-cpu-baseline-v11b-20260922",
+            "khu-m6a-large-cpu-baseline-v11c-20260922"
+          ],
+          "median_throughput": 136.02814,
+          "throughput_min": 133.111669,
+          "throughput_max": 137.026654,
+          "median_p95_ms": 8.098014,
+          "p95_min_ms": 7.988271,
+          "p95_max_ms": 8.13732
+        }
+      ]
+    },
+    {
+      "batch_size": 8,
+      "dataset": "operations",
+      "image_id": "ami-0eb3161272dc9c6eb",
+      "latency_slo_ms": 0.0,
+      "load_condition": "nominal",
+      "max_length": 128,
+      "model_id": "google/bert_uncased_L-4_H-256_A-4",
+      "model_revision": "387825ce42dbb39b87911cdf8e383ee3b25184f8",
+      "parameter_bytes_per_parameter": 4.0,
+      "profile_name": "bert-mini-throughput",
+      "python_version": "3.10.12",
+      "repeats": 10,
+      "replica_count": 1,
+      "request_concurrency": 1,
+      "sample_interval_seconds": 0.1,
+      "seed": 44,
+      "target_throughput_rps": 0.0,
+      "cohort_id": "a79e1cf6ceb62460",
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "cpu_threads": 8,
+          "independent_run_count": 3,
+          "run_ids": [
+            "khu-m6a-2xl-cpu-baseline-v10-20260922",
+            "khu-m6a-2xl-cpu-baseline-v10b-20260922",
+            "khu-m6a-2xl-cpu-baseline-v10c-20260922"
+          ],
+          "median_throughput": 299.688463,
+          "throughput_min": 290.054644,
+          "throughput_max": 305.488598,
+          "median_p95_ms": 26.326652,
+          "p95_min_ms": 26.089666,
+          "p95_max_ms": 27.298572
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "cpu_threads": 2,
+          "independent_run_count": 3,
+          "run_ids": [
+            "khu-m6a-large-cpu-baseline-v11-20260922",
+            "khu-m6a-large-cpu-baseline-v11b-20260922",
+            "khu-m6a-large-cpu-baseline-v11c-20260922"
+          ],
+          "median_throughput": 97.617094,
+          "throughput_min": 96.903847,
+          "throughput_max": 98.054777,
+          "median_p95_ms": 81.278844,
+          "p95_min_ms": 81.093221,
+          "p95_max_ms": 81.755182
+        }
+      ]
+    },
+    {
+      "batch_size": 8,
+      "dataset": "operations",
+      "image_id": "ami-0eb3161272dc9c6eb",
+      "latency_slo_ms": 0.0,
+      "load_condition": "nominal",
+      "max_length": 128,
+      "model_id": "google/bert_uncased_L-4_H-512_A-8",
+      "model_revision": "606e4d55252882ac25ba1f1d1a182075830f5a90",
+      "parameter_bytes_per_parameter": 4.0,
+      "profile_name": "bert-small-throughput",
+      "python_version": "3.10.12",
+      "repeats": 8,
+      "replica_count": 1,
+      "request_concurrency": 1,
+      "sample_interval_seconds": 0.1,
+      "seed": 48,
+      "target_throughput_rps": 0.0,
+      "cohort_id": "b415a09c6165e9bd",
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "cpu_threads": 8,
+          "independent_run_count": 3,
+          "run_ids": [
+            "khu-m6a-2xl-cpu-baseline-v10-20260922",
+            "khu-m6a-2xl-cpu-baseline-v10b-20260922",
+            "khu-m6a-2xl-cpu-baseline-v10c-20260922"
+          ],
+          "median_throughput": 95.039287,
+          "throughput_min": 93.466301,
+          "throughput_max": 97.388712,
+          "median_p95_ms": 84.152109,
+          "p95_min_ms": 81.229664,
+          "p95_max_ms": 84.439984
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "cpu_threads": 2,
+          "independent_run_count": 3,
+          "run_ids": [
+            "khu-m6a-large-cpu-baseline-v11-20260922",
+            "khu-m6a-large-cpu-baseline-v11b-20260922",
+            "khu-m6a-large-cpu-baseline-v11c-20260922"
+          ],
+          "median_throughput": 28.124698,
+          "throughput_min": 28.080894,
+          "throughput_max": 28.135599,
+          "median_p95_ms": 283.46177,
+          "p95_min_ms": 282.742294,
+          "p95_max_ms": 284.602061
+        }
+      ]
+    },
+    {
+      "batch_size": 1,
+      "dataset": "operations",
+      "image_id": "ami-0eb3161272dc9c6eb",
+      "latency_slo_ms": 0.0,
+      "load_condition": "nominal",
+      "max_length": 64,
+      "model_id": "distilbert/distilbert-base-uncased",
+      "model_revision": "12040accade4e8a0f71eabdb258fecc2e7e948be",
+      "parameter_bytes_per_parameter": 4.0,
+      "profile_name": "distilbert-base-latency",
+      "python_version": "3.10.12",
+      "repeats": 6,
+      "replica_count": 1,
+      "request_concurrency": 1,
+      "sample_interval_seconds": 0.1,
+      "seed": 50,
+      "target_throughput_rps": 0.0,
+      "cohort_id": "2aa7d8f1c12f3404",
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "cpu_threads": 8,
+          "independent_run_count": 3,
+          "run_ids": [
+            "khu-m6a-2xl-cpu-baseline-v10-20260922",
+            "khu-m6a-2xl-cpu-baseline-v10b-20260922",
+            "khu-m6a-2xl-cpu-baseline-v10c-20260922"
+          ],
+          "median_throughput": 30.255746,
+          "throughput_min": 29.722309,
+          "throughput_max": 36.170829,
+          "median_p95_ms": 35.09767,
+          "p95_min_ms": 28.673772,
+          "p95_max_ms": 35.26609
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "cpu_threads": 2,
+          "independent_run_count": 3,
+          "run_ids": [
+            "khu-m6a-large-cpu-baseline-v11-20260922",
+            "khu-m6a-large-cpu-baseline-v11b-20260922",
+            "khu-m6a-large-cpu-baseline-v11c-20260922"
+          ],
+          "median_throughput": 9.875376,
+          "throughput_min": 9.868995,
+          "throughput_max": 10.367701,
+          "median_p95_ms": 107.68938,
+          "p95_min_ms": 100.942394,
+          "p95_max_ms": 108.310777
+        }
+      ]
+    },
+    {
+      "batch_size": 8,
+      "dataset": "operations",
+      "image_id": "ami-0eb3161272dc9c6eb",
+      "latency_slo_ms": 0.0,
+      "load_condition": "nominal",
+      "max_length": 128,
+      "model_id": "distilbert/distilbert-base-uncased",
+      "model_revision": "12040accade4e8a0f71eabdb258fecc2e7e948be",
+      "parameter_bytes_per_parameter": 4.0,
+      "profile_name": "distilbert-base-throughput",
+      "python_version": "3.10.12",
+      "repeats": 8,
+      "replica_count": 1,
+      "request_concurrency": 1,
+      "sample_interval_seconds": 0.1,
+      "seed": 49,
+      "target_throughput_rps": 0.0,
+      "cohort_id": "421f096e3f5fdd44",
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "cpu_threads": 8,
+          "independent_run_count": 3,
+          "run_ids": [
+            "khu-m6a-2xl-cpu-baseline-v10-20260922",
+            "khu-m6a-2xl-cpu-baseline-v10b-20260922",
+            "khu-m6a-2xl-cpu-baseline-v10c-20260922"
+          ],
+          "median_throughput": 30.95041,
+          "throughput_min": 30.480575,
+          "throughput_max": 31.049424,
+          "median_p95_ms": 254.769934,
+          "p95_min_ms": 253.754467,
+          "p95_max_ms": 261.062411
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "cpu_threads": 2,
+          "independent_run_count": 3,
+          "run_ids": [
+            "khu-m6a-large-cpu-baseline-v11-20260922",
+            "khu-m6a-large-cpu-baseline-v11b-20260922",
+            "khu-m6a-large-cpu-baseline-v11c-20260922"
+          ],
+          "median_throughput": 8.627967,
+          "throughput_min": 8.509915,
+          "throughput_max": 8.644706,
+          "median_p95_ms": 916.59473,
+          "p95_min_ms": 913.837681,
+          "p95_max_ms": 932.122745
+        }
+      ]
+    },
+    {
+      "batch_size": 8,
+      "dataset": "operations",
+      "image_id": "ami-0eb3161272dc9c6eb",
+      "latency_slo_ms": 0.0,
+      "load_condition": "nominal",
+      "max_length": 128,
+      "model_id": "google/electra-small-discriminator",
+      "model_revision": "fa8239aadc095e9164941d05878b98afe9b953c3",
+      "parameter_bytes_per_parameter": 4.0,
+      "profile_name": "electra-small-throughput",
+      "python_version": "3.10.12",
+      "repeats": 10,
+      "replica_count": 1,
+      "request_concurrency": 1,
+      "sample_interval_seconds": 0.1,
+      "seed": 46,
+      "target_throughput_rps": 0.0,
+      "cohort_id": "8625f3afcde87241",
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "cpu_threads": 8,
+          "independent_run_count": 3,
+          "run_ids": [
+            "khu-m6a-2xl-cpu-baseline-v10-20260922",
+            "khu-m6a-2xl-cpu-baseline-v10b-20260922",
+            "khu-m6a-2xl-cpu-baseline-v10c-20260922"
+          ],
+          "median_throughput": 101.762119,
+          "throughput_min": 100.369923,
+          "throughput_max": 103.224096,
+          "median_p95_ms": 77.398386,
+          "p95_min_ms": 76.690002,
+          "p95_max_ms": 79.713882
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "cpu_threads": 2,
+          "independent_run_count": 3,
+          "run_ids": [
+            "khu-m6a-large-cpu-baseline-v11-20260922",
+            "khu-m6a-large-cpu-baseline-v11b-20260922",
+            "khu-m6a-large-cpu-baseline-v11c-20260922"
+          ],
+          "median_throughput": 32.418996,
+          "throughput_min": 32.347427,
+          "throughput_max": 32.530662,
+          "median_p95_ms": 247.478287,
+          "p95_min_ms": 243.940135,
+          "p95_max_ms": 248.366111
+        }
+      ]
+    },
+    {
+      "batch_size": 1,
+      "dataset": "operations",
+      "image_id": "ami-0eb3161272dc9c6eb",
+      "latency_slo_ms": 0.0,
+      "load_condition": "nominal",
+      "max_length": 64,
+      "model_id": "FacebookAI/roberta-base",
+      "model_revision": "e2da8e2f811d1448a5b465c236feacd80ffbac7b",
+      "parameter_bytes_per_parameter": 4.0,
+      "profile_name": "roberta-base-latency",
+      "python_version": "3.10.12",
+      "repeats": 6,
+      "replica_count": 1,
+      "request_concurrency": 1,
+      "sample_interval_seconds": 0.1,
+      "seed": 53,
+      "target_throughput_rps": 0.0,
+      "cohort_id": "45e5dbb1ec77f385",
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "cpu_threads": 8,
+          "independent_run_count": 3,
+          "run_ids": [
+            "khu-m6a-2xl-cpu-baseline-v10-20260922",
+            "khu-m6a-2xl-cpu-baseline-v10b-20260922",
+            "khu-m6a-2xl-cpu-baseline-v10c-20260922"
+          ],
+          "median_throughput": 17.541358,
+          "throughput_min": 15.036957,
+          "throughput_max": 18.192256,
+          "median_p95_ms": 59.101271,
+          "p95_min_ms": 56.36576,
+          "p95_max_ms": 69.317213
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "cpu_threads": 2,
+          "independent_run_count": 3,
+          "run_ids": [
+            "khu-m6a-large-cpu-baseline-v11-20260922",
+            "khu-m6a-large-cpu-baseline-v11b-20260922",
+            "khu-m6a-large-cpu-baseline-v11c-20260922"
+          ],
+          "median_throughput": 4.814252,
+          "throughput_min": 4.811611,
+          "throughput_max": 5.080457,
+          "median_p95_ms": 215.254875,
+          "p95_min_ms": 214.274415,
+          "p95_max_ms": 216.796232
+        }
+      ]
+    },
+    {
+      "batch_size": 8,
+      "dataset": "operations",
+      "image_id": "ami-0eb3161272dc9c6eb",
+      "latency_slo_ms": 0.0,
+      "load_condition": "nominal",
+      "max_length": 128,
+      "model_id": "FacebookAI/roberta-base",
+      "model_revision": "e2da8e2f811d1448a5b465c236feacd80ffbac7b",
+      "parameter_bytes_per_parameter": 4.0,
+      "profile_name": "roberta-base-throughput",
+      "python_version": "3.10.12",
+      "repeats": 6,
+      "replica_count": 1,
+      "request_concurrency": 1,
+      "sample_interval_seconds": 0.1,
+      "seed": 52,
+      "target_throughput_rps": 0.0,
+      "cohort_id": "e84e78bdf32f914f",
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "cpu_threads": 8,
+          "independent_run_count": 3,
+          "run_ids": [
+            "khu-m6a-2xl-cpu-baseline-v10-20260922",
+            "khu-m6a-2xl-cpu-baseline-v10b-20260922",
+            "khu-m6a-2xl-cpu-baseline-v10c-20260922"
+          ],
+          "median_throughput": 15.395878,
+          "throughput_min": 15.34195,
+          "throughput_max": 15.471165,
+          "median_p95_ms": 513.751483,
+          "p95_min_ms": 505.903201,
+          "p95_max_ms": 514.39358
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "cpu_threads": 2,
+          "independent_run_count": 3,
+          "run_ids": [
+            "khu-m6a-large-cpu-baseline-v11-20260922",
+            "khu-m6a-large-cpu-baseline-v11b-20260922",
+            "khu-m6a-large-cpu-baseline-v11c-20260922"
+          ],
+          "median_throughput": 4.293571,
+          "throughput_min": 4.276869,
+          "throughput_max": 4.309989,
+          "median_p95_ms": 1850.424662,
+          "p95_min_ms": 1832.19414,
+          "p95_max_ms": 1851.387611
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Observed ranges from three VM sessions are not statistical guarantees or confidence intervals.",
+    "Batch inference latency and closed-loop throughput do not establish service SLOs.",
+    "Fixed classification inputs are repeated; request count is not unique input count.",
+    "Compute estimates exclude startup, idle time, queueing, storage, transfer and taxes.",
+    "GPU and CPU32 recommendation, current VM availability and automatic deployment are not enabled.",
+    "Full package freeze and independent held-out service validation remain unavailable."
+  ],
+  "service_slo_verified": false,
+  "cloud_execution_enabled": false,
+  "price_snapshot": {
+    "region": "us-west-2",
+    "operating_system": "Linux",
+    "purchase_option": "OnDemand",
+    "currency": "USD",
+    "checked_at_utc": "2026-09-30T06:16:50.460436+00:00",
+    "valid_until_utc": "2026-10-01T06:16:50.460436+00:00",
+    "published_at_utc": "2026-09-25T17:45:21Z",
+    "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/US%20West%20(Oregon)/Linux/index.json",
+    "hourly_usd": {
+      "aws+us-west-2+m6a.2xlarge": 0.3456,
+      "aws+us-west-2+m6a.large": 0.0864
+    }
+  }
+}

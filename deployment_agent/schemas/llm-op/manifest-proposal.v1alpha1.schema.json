@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cloud-barista.github.io/ai-ops/schemas/llm-op/manifest-proposal.v1alpha1.schema.json",
+  "title": "LLM_Op Bounded Manifest Proposal",
+  "description": "Untrusted second-stage LLM output. Exact resources, ceilings, text hygiene, readiness, and AppDeploy rules require deterministic validation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "action",
+    "reason_code",
+    "reason",
+    "confidence"
+  ],
+  "properties": {
+    "action": {
+      "type": "string",
+      "enum": [
+        "create_deployment_manifest",
+        "request_clarification",
+        "reject_unsafe_request"
+      ]
+    },
+    "reason_code": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9_]{2,79}$"
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "accelerator": {
+      "type": "string",
+      "enum": [
+        "none",
+        "nvidia"
+      ]
+    },
+    "resources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cpu",
+        "memory",
+        "gpu",
+        "storage"
+      ],
+      "properties": {
+        "cpu": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        },
+        "memory": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)(Mi|Gi|Ti)$"
+        },
+        "gpu": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "storage": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)(Mi|Gi|Ti)$"
+        }
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 500
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "action": {
+            "const": "create_deployment_manifest"
+          }
+        },
+        "required": [
+          "action"
+        ]
+      },
+      "then": {
+        "required": [
+          "accelerator",
+          "resources"
+        ],
+        "properties": {
+          "confidence": {
+            "minimum": 0.5
+          }
+        }
+      },
+      "else": {
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "accelerator"
+              ]
+            },
+            {
+              "required": [
+                "resources"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "$comment": "The JSON Schema checks shape only. Go guards additionally enforce CPU <= 256, memory <= 2Ti, GPU <= 16, storage <= 64Ti, accelerator/GPU consistency, exact user or upstream recommendation matching, secret and identifier hygiene, freshness, readiness, and AppDeploy Manifest validation."
+}

@@ -1,0 +1,5402 @@
+{
+  "schema_version": "khu-campaign-evidence/v1",
+  "campaign_id": "campaign-1g-20260923",
+  "source_state_sha256": "041bbde079fe6e9326d8730d73a063c10eee54a3410c32dec077d39823a9b1ec",
+  "verified_run_count": 11,
+  "campaign_goal_satisfied": false,
+  "automatic_selection_ready": false,
+  "totals": {
+    "canonical_raw_bytes": 1075425283,
+    "raw_target_bytes": 1073741824,
+    "raw_target_reached": true,
+    "durable_bytes": 1238388556,
+    "request_trace_bytes": 952860675,
+    "trace_share_of_raw": 0.886031,
+    "trace_record_count": 1232208,
+    "execution_count": 2278,
+    "unique_model_count": 9,
+    "paired_workload_count": 66
+  },
+  "runs": [
+    {
+      "run_id": "gpu-g6-8xl-l4-exhaustive-r01",
+      "spec_id": "aws+us-west-2+g6.8xlarge",
+      "device": "gpu",
+      "profile_set": "local-exhaustive",
+      "execution_count": 576,
+      "model_count": 9,
+      "canonical_raw_bytes": 5464064,
+      "request_trace_bytes": 0,
+      "trace_record_count": 0,
+      "durable_bytes": 23846386,
+      "archive_sha256": "91e5a70b08e7e168e6b6d378422d3b8340db8470f76b7dff925ee9fae8a2af2b"
+    },
+    {
+      "run_id": "cpu-m6a-large-exhaustive-r01",
+      "spec_id": "aws+us-west-2+m6a.large",
+      "device": "cpu",
+      "profile_set": "local-exhaustive",
+      "execution_count": 64,
+      "model_count": 8,
+      "canonical_raw_bytes": 21889024,
+      "request_trace_bytes": 0,
+      "trace_record_count": 0,
+      "durable_bytes": 42771692,
+      "archive_sha256": "136b6b41e162de5277d997f60b9c6d691c9a268915b319b277a8e478624637e4"
+    },
+    {
+      "run_id": "cpu-m6a-2xl-exhaustive-r01",
+      "spec_id": "aws+us-west-2+m6a.2xlarge",
+      "device": "cpu",
+      "profile_set": "local-exhaustive",
+      "execution_count": 192,
+      "model_count": 8,
+      "canonical_raw_bytes": 26525696,
+      "request_trace_bytes": 0,
+      "trace_record_count": 0,
+      "durable_bytes": 54439895,
+      "archive_sha256": "4b3ccf05a71a9e420399df3d93d4602b13098b5d9671d91570e30958d63f6bc4"
+    },
+    {
+      "run_id": "cpu-m6a-8xl-local32-r01",
+      "spec_id": "aws+us-west-2+m6a.8xlarge",
+      "device": "cpu",
+      "profile_set": "local-exhaustive",
+      "execution_count": 32,
+      "model_count": 8,
+      "canonical_raw_bytes": 2572288,
+      "request_trace_bytes": 0,
+      "trace_record_count": 0,
+      "durable_bytes": 5653589,
+      "archive_sha256": "5fb6b8b4e241e7c1eee702d0ac3f172f2d9c64efc514a4d7533e6ec01728f4af"
+    },
+    {
+      "run_id": "gpu-g6-8xl-l4-exhaustive-r02",
+      "spec_id": "aws+us-west-2+g6.8xlarge",
+      "device": "gpu",
+      "profile_set": "local-exhaustive",
+      "execution_count": 576,
+      "model_count": 9,
+      "canonical_raw_bytes": 5480448,
+      "request_trace_bytes": 0,
+      "trace_record_count": 0,
+      "durable_bytes": 23884898,
+      "archive_sha256": "632a536b550df40d4c5dbb7c1d4ebfcf275f0d4b079c8f913ec9414858d11cad"
+    },
+    {
+      "run_id": "cpu-m6a-large-exhaustive-r02",
+      "spec_id": "aws+us-west-2+m6a.large",
+      "device": "cpu",
+      "profile_set": "local-exhaustive",
+      "execution_count": 64,
+      "model_count": 8,
+      "canonical_raw_bytes": 21422080,
+      "request_trace_bytes": 0,
+      "trace_record_count": 0,
+      "durable_bytes": 41866720,
+      "archive_sha256": "80a5d2ee6c2590792882ab5e8660277e1fc3486d17b0bcfdcfb016b88c27fe75"
+    },
+    {
+      "run_id": "cpu-m6a-2xl-local128-r02",
+      "spec_id": "aws+us-west-2+m6a.2xlarge",
+      "device": "cpu",
+      "profile_set": "local-exhaustive",
+      "execution_count": 128,
+      "model_count": 8,
+      "canonical_raw_bytes": 16781312,
+      "request_trace_bytes": 0,
+      "trace_record_count": 0,
+      "durable_bytes": 34664340,
+      "archive_sha256": "24c2f7ee4568df5fa8e4f97d55a445e9e7a76c9d12a305bf4117f47fb26ed74e"
+    },
+    {
+      "run_id": "cpu-m6a-8xl-local64-r02",
+      "spec_id": "aws+us-west-2+m6a.8xlarge",
+      "device": "cpu",
+      "profile_set": "local-exhaustive",
+      "execution_count": 64,
+      "model_count": 8,
+      "canonical_raw_bytes": 5832704,
+      "request_trace_bytes": 0,
+      "trace_record_count": 0,
+      "durable_bytes": 12618999,
+      "archive_sha256": "c22843bf3a6312dc4551fe72938239ba5c549fc09ecb7aecc9a97cd6c9cd3a8f"
+    },
+    {
+      "run_id": "gpu-g6-8xl-l4-exhaustive-r03",
+      "spec_id": "aws+us-west-2+g6.8xlarge",
+      "device": "gpu",
+      "profile_set": "local-exhaustive",
+      "execution_count": 576,
+      "model_count": 9,
+      "canonical_raw_bytes": 5447680,
+      "request_trace_bytes": 0,
+      "trace_record_count": 0,
+      "durable_bytes": 23816588,
+      "archive_sha256": "74823768767bf7c75e6bfbc69071fc0e890d6cded7711451f2b9c8b565e74899"
+    },
+    {
+      "run_id": "gpu-g6-2xl-l4-dense-v22-20260928",
+      "spec_id": "aws+us-west-2+g6.2xlarge",
+      "device": "gpu",
+      "profile_set": "baseline",
+      "execution_count": 4,
+      "model_count": 2,
+      "canonical_raw_bytes": 734020139,
+      "request_trace_bytes": 724554283,
+      "trace_record_count": 934445,
+      "durable_bytes": 743261079,
+      "archive_sha256": "d764d573cac17eafeb2a2b63f36c979192a59f0d13b689b307feb47f91f834db"
+    },
+    {
+      "run_id": "cpu-m6a-2xl-dense-v23-20260928",
+      "spec_id": "aws+us-west-2+m6a.2xlarge",
+      "device": "cpu",
+      "profile_set": "baseline",
+      "execution_count": 2,
+      "model_count": 1,
+      "canonical_raw_bytes": 229989848,
+      "request_trace_bytes": 228306392,
+      "trace_record_count": 297763,
+      "durable_bytes": 231564370,
+      "archive_sha256": "03ab76dd0cf1a003208260b3cc26ab4b2690a78fc47c4dc9d33ff070a1893e71"
+    }
+  ],
+  "paired_workloads": [
+    {
+      "profile_name": "bert-tiny-latency",
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "model_revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+      "batch_size": 1,
+      "max_length": 64,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "nominal",
+      "target_throughput_rps": 0.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.2xlarge": 1,
+        "aws+us-west-2+m6a.2xlarge": 1
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.2xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 643.272372,
+          "median_latency_p95_ms": 1.523698,
+          "trace_record_count": 287485
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 660.323371,
+          "median_latency_p95_ms": 1.482131,
+          "trace_record_count": 296051
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-tiny-throughput",
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "model_revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+      "batch_size": 8,
+      "max_length": 128,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "nominal",
+      "target_throughput_rps": 0.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.2xlarge": 1,
+        "aws+us-west-2+m6a.2xlarge": 1
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.2xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 3848.365869,
+          "median_latency_p95_ms": 1.532669,
+          "trace_record_count": 288580
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 1516.737368,
+          "median_latency_p95_ms": 4.802366,
+          "trace_record_count": 1712
+        }
+      ]
+    },
+    {
+      "profile_name": "roberta-grid-000",
+      "model_id": "FacebookAI/roberta-base",
+      "model_revision": "e2da8e2f811d1448a5b465c236feacd80ffbac7b",
+      "batch_size": 1,
+      "max_length": 32,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 12.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 155.277893,
+          "median_latency_p95_ms": 6.61984,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 15.505894,
+          "median_latency_p95_ms": 65.937497,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 22.890531,
+          "median_latency_p95_ms": 44.977283,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 19.796098,
+          "median_latency_p95_ms": 60.994889,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 31.178504,
+          "median_latency_p95_ms": 33.085043,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 6.281783,
+          "median_latency_p95_ms": 167.499231,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "roberta-grid-008",
+      "model_id": "FacebookAI/roberta-base",
+      "model_revision": "e2da8e2f811d1448a5b465c236feacd80ffbac7b",
+      "batch_size": 16,
+      "max_length": 352,
+      "request_concurrency": 6,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 1152.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 133.369582,
+          "median_latency_p95_ms": 546.664415,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 2.680144,
+          "median_latency_p95_ms": 26957.079528,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 4.047506,
+          "median_latency_p95_ms": 17897.434136,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 5.138902,
+          "median_latency_p95_ms": 19833.581654,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 4.082231,
+          "median_latency_p95_ms": 17710.997539,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 1.455639,
+          "median_latency_p95_ms": 49658.771301,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "roberta-grid-016",
+      "model_id": "FacebookAI/roberta-base",
+      "model_revision": "e2da8e2f811d1448a5b465c236feacd80ffbac7b",
+      "batch_size": 16,
+      "max_length": 160,
+      "request_concurrency": 3,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 576.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 276.039601,
+          "median_latency_p95_ms": 137.436363,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 6.59509,
+          "median_latency_p95_ms": 5560.940566,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 9.721308,
+          "median_latency_p95_ms": 3755.035722,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 12.351634,
+          "median_latency_p95_ms": 4540.037766,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 6.643677,
+          "median_latency_p95_ms": 5455.906007,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 3.44287,
+          "median_latency_p95_ms": 10544.57913,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "roberta-grid-024",
+      "model_id": "FacebookAI/roberta-base",
+      "model_revision": "e2da8e2f811d1448a5b465c236feacd80ffbac7b",
+      "batch_size": 16,
+      "max_length": 48,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 192.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 1069.181941,
+          "median_latency_p95_ms": 12.347608,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 22.307467,
+          "median_latency_p95_ms": 538.63145,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 32.126004,
+          "median_latency_p95_ms": 375.907569,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 39.757874,
+          "median_latency_p95_ms": 306.293623,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 32,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 84.437936,
+          "median_latency_p95_ms": 147.342711,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 11.338472,
+          "median_latency_p95_ms": 1065.114824,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "roberta-grid-032",
+      "model_id": "FacebookAI/roberta-base",
+      "model_revision": "e2da8e2f811d1448a5b465c236feacd80ffbac7b",
+      "batch_size": 12,
+      "max_length": 416,
+      "request_concurrency": 6,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 864.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 101.767181,
+          "median_latency_p95_ms": 718.340478,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 2.250706,
+          "median_latency_p95_ms": 32187.490773,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 3.354391,
+          "median_latency_p95_ms": 21633.031745,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 4.278357,
+          "median_latency_p95_ms": 21425.593685,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 16,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 11.410231,
+          "median_latency_p95_ms": 6908.297125,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 1.138314,
+          "median_latency_p95_ms": 98961.504586,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "roberta-grid-040",
+      "model_id": "FacebookAI/roberta-base",
+      "model_revision": "e2da8e2f811d1448a5b465c236feacd80ffbac7b",
+      "batch_size": 12,
+      "max_length": 224,
+      "request_concurrency": 3,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 432.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 198.047701,
+          "median_latency_p95_ms": 190.671003,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 4.600205,
+          "median_latency_p95_ms": 7915.568447,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 6.905136,
+          "median_latency_p95_ms": 5280.402224,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 8.589022,
+          "median_latency_p95_ms": 4268.064434,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 15.768859,
+          "median_latency_p95_ms": 2331.609216,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 2.441142,
+          "median_latency_p95_ms": 14864.14533,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "roberta-grid-048",
+      "model_id": "FacebookAI/roberta-base",
+      "model_revision": "e2da8e2f811d1448a5b465c236feacd80ffbac7b",
+      "batch_size": 12,
+      "max_length": 80,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 144.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 545.736409,
+          "median_latency_p95_ms": 23.303612,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 13.415663,
+          "median_latency_p95_ms": 909.143481,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 19.404514,
+          "median_latency_p95_ms": 626.441968,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 24.815351,
+          "median_latency_p95_ms": 491.416999,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 19.899195,
+          "median_latency_p95_ms": 610.976254,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 7.016682,
+          "median_latency_p95_ms": 1716.74044,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "roberta-grid-056",
+      "model_id": "FacebookAI/roberta-base",
+      "model_revision": "e2da8e2f811d1448a5b465c236feacd80ffbac7b",
+      "batch_size": 8,
+      "max_length": 480,
+      "request_concurrency": 6,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 576.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 87.094154,
+          "median_latency_p95_ms": 423.569193,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 1.950547,
+          "median_latency_p95_ms": 18523.188368,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 2.981902,
+          "median_latency_p95_ms": 12100.532376,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 3.741865,
+          "median_latency_p95_ms": 12269.857907,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 1.970382,
+          "median_latency_p95_ms": 18596.661497,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 1.043626,
+          "median_latency_p95_ms": 34618.761327,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "albert-base-grid-000",
+      "model_id": "albert/albert-base-v2",
+      "model_revision": "8e2f239c5f8a2c0f253781ca60135db913e5c80c",
+      "batch_size": 1,
+      "max_length": 32,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 12.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 138.193083,
+          "median_latency_p95_ms": 7.968288,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 15.375091,
+          "median_latency_p95_ms": 66.469716,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 22.148109,
+          "median_latency_p95_ms": 46.907758,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 19.654614,
+          "median_latency_p95_ms": 58.970419,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 16,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 23.598846,
+          "median_latency_p95_ms": 47.821334,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 6.326424,
+          "median_latency_p95_ms": 165.598428,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "albert-base-grid-008",
+      "model_id": "albert/albert-base-v2",
+      "model_revision": "8e2f239c5f8a2c0f253781ca60135db913e5c80c",
+      "batch_size": 16,
+      "max_length": 352,
+      "request_concurrency": 6,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 1152.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 90.897885,
+          "median_latency_p95_ms": 795.044094,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 2.004871,
+          "median_latency_p95_ms": 36028.190072,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 3.037838,
+          "median_latency_p95_ms": 23776.704294,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 3.859681,
+          "median_latency_p95_ms": 18780.030827,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 5.961096,
+          "median_latency_p95_ms": 12159.694484,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 1.17111,
+          "median_latency_p95_ms": 61636.950417,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "albert-base-grid-016",
+      "model_id": "albert/albert-base-v2",
+      "model_revision": "8e2f239c5f8a2c0f253781ca60135db913e5c80c",
+      "batch_size": 16,
+      "max_length": 160,
+      "request_concurrency": 3,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 576.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 212.994105,
+          "median_latency_p95_ms": 179.63678,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 5.753936,
+          "median_latency_p95_ms": 6394.88794,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 8.28444,
+          "median_latency_p95_ms": 4446.461766,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 10.287561,
+          "median_latency_p95_ms": 3543.60471,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 8.470684,
+          "median_latency_p95_ms": 4352.339192,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 3.147787,
+          "median_latency_p95_ms": 11667.871664,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "albert-base-grid-024",
+      "model_id": "albert/albert-base-v2",
+      "model_revision": "8e2f239c5f8a2c0f253781ca60135db913e5c80c",
+      "batch_size": 16,
+      "max_length": 48,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 192.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 895.460833,
+          "median_latency_p95_ms": 14.684356,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 20.151402,
+          "median_latency_p95_ms": 596.787813,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 29.367179,
+          "median_latency_p95_ms": 412.050279,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 35.773722,
+          "median_latency_p95_ms": 340.041103,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 20.386046,
+          "median_latency_p95_ms": 592.161483,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 10.629462,
+          "median_latency_p95_ms": 1138.061168,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "albert-base-grid-032",
+      "model_id": "albert/albert-base-v2",
+      "model_revision": "8e2f239c5f8a2c0f253781ca60135db913e5c80c",
+      "batch_size": 12,
+      "max_length": 416,
+      "request_concurrency": 6,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 864.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 71.979104,
+          "median_latency_p95_ms": 1008.706424,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 1.662671,
+          "median_latency_p95_ms": 43547.522287,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 2.518804,
+          "median_latency_p95_ms": 28723.798469,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 3.196535,
+          "median_latency_p95_ms": 22671.034218,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 32,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 6.980625,
+          "median_latency_p95_ms": 10614.319061,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 0.974719,
+          "median_latency_p95_ms": 74061.83429,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "albert-base-grid-040",
+      "model_id": "albert/albert-base-v2",
+      "model_revision": "8e2f239c5f8a2c0f253781ca60135db913e5c80c",
+      "batch_size": 12,
+      "max_length": 224,
+      "request_concurrency": 3,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 432.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 142.293217,
+          "median_latency_p95_ms": 265.590435,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 4.138892,
+          "median_latency_p95_ms": 9060.238188,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 5.973015,
+          "median_latency_p95_ms": 6076.329888,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 7.366789,
+          "median_latency_p95_ms": 4979.20501,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 16,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 18.628706,
+          "median_latency_p95_ms": 2424.301529,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 2.195473,
+          "median_latency_p95_ms": 20939.780108,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "albert-base-grid-048",
+      "model_id": "albert/albert-base-v2",
+      "model_revision": "8e2f239c5f8a2c0f253781ca60135db913e5c80c",
+      "batch_size": 12,
+      "max_length": 80,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 144.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 452.338797,
+          "median_latency_p95_ms": 28.159728,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 12.106738,
+          "median_latency_p95_ms": 999.388788,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 17.558036,
+          "median_latency_p95_ms": 687.395574,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 21.601087,
+          "median_latency_p95_ms": 562.873066,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 36.361389,
+          "median_latency_p95_ms": 331.358286,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 6.492278,
+          "median_latency_p95_ms": 1857.869281,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "albert-base-grid-056",
+      "model_id": "albert/albert-base-v2",
+      "model_revision": "8e2f239c5f8a2c0f253781ca60135db913e5c80c",
+      "batch_size": 8,
+      "max_length": 480,
+      "request_concurrency": 6,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 576.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 62.86042,
+          "median_latency_p95_ms": 580.621832,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 1.528571,
+          "median_latency_p95_ms": 23680.15645,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 2.314647,
+          "median_latency_p95_ms": 15642.566683,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 2.896674,
+          "median_latency_p95_ms": 13244.128111,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 2.36969,
+          "median_latency_p95_ms": 15288.292185,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 0.876733,
+          "median_latency_p95_ms": 41287.197295,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "distilbert-grid-000",
+      "model_id": "distilbert/distilbert-base-uncased",
+      "model_revision": "12040accade4e8a0f71eabdb258fecc2e7e948be",
+      "batch_size": 1,
+      "max_length": 32,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 12.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 312.032613,
+          "median_latency_p95_ms": 3.278197,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 30.765467,
+          "median_latency_p95_ms": 33.052152,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 48.006969,
+          "median_latency_p95_ms": 21.454859,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 39.546002,
+          "median_latency_p95_ms": 29.837462,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 31.917054,
+          "median_latency_p95_ms": 31.841722,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 12.974225,
+          "median_latency_p95_ms": 83.320464,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "distilbert-grid-008",
+      "model_id": "distilbert/distilbert-base-uncased",
+      "model_revision": "12040accade4e8a0f71eabdb258fecc2e7e948be",
+      "batch_size": 16,
+      "max_length": 352,
+      "request_concurrency": 6,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 1152.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 245.722093,
+          "median_latency_p95_ms": 306.654619,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 5.391317,
+          "median_latency_p95_ms": 13402.707244,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 7.976409,
+          "median_latency_p95_ms": 9109.474074,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 10.265757,
+          "median_latency_p95_ms": 7079.167364,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 32,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 27.195475,
+          "median_latency_p95_ms": 3008.204336,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 2.902363,
+          "median_latency_p95_ms": 24883.050312,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "distilbert-grid-016",
+      "model_id": "distilbert/distilbert-base-uncased",
+      "model_revision": "12040accade4e8a0f71eabdb258fecc2e7e948be",
+      "batch_size": 16,
+      "max_length": 160,
+      "request_concurrency": 3,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 576.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 506.558659,
+          "median_latency_p95_ms": 72.71248,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 13.143774,
+          "median_latency_p95_ms": 2784.006013,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 19.366293,
+          "median_latency_p95_ms": 1893.637312,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 24.607981,
+          "median_latency_p95_ms": 1488.313858,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 16,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 65.049577,
+          "median_latency_p95_ms": 672.125622,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 6.941109,
+          "median_latency_p95_ms": 5226.374903,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "distilbert-grid-024",
+      "model_id": "distilbert/distilbert-base-uncased",
+      "model_revision": "12040accade4e8a0f71eabdb258fecc2e7e948be",
+      "batch_size": 16,
+      "max_length": 48,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 192.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 2208.373014,
+          "median_latency_p95_ms": 6.012863,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 44.21893,
+          "median_latency_p95_ms": 272.111034,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 63.704286,
+          "median_latency_p95_ms": 191.716837,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 79.036172,
+          "median_latency_p95_ms": 154.687246,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 139.498531,
+          "median_latency_p95_ms": 87.991972,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 22.638669,
+          "median_latency_p95_ms": 536.759611,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "distilbert-grid-032",
+      "model_id": "distilbert/distilbert-base-uncased",
+      "model_revision": "12040accade4e8a0f71eabdb258fecc2e7e948be",
+      "batch_size": 12,
+      "max_length": 416,
+      "request_concurrency": 6,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 864.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 185.953811,
+          "median_latency_p95_ms": 401.2777,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 4.473734,
+          "median_latency_p95_ms": 16185.365434,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 6.698632,
+          "median_latency_p95_ms": 10800.389455,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 8.641981,
+          "median_latency_p95_ms": 8385.592697,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 6.801221,
+          "median_latency_p95_ms": 10625.288674,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 2.41354,
+          "median_latency_p95_ms": 29976.724072,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "distilbert-grid-040",
+      "model_id": "distilbert/distilbert-base-uncased",
+      "model_revision": "12040accade4e8a0f71eabdb258fecc2e7e948be",
+      "batch_size": 12,
+      "max_length": 224,
+      "request_concurrency": 3,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 432.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 349.368008,
+          "median_latency_p95_ms": 104.890925,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 9.51123,
+          "median_latency_p95_ms": 3825.185402,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 13.630239,
+          "median_latency_p95_ms": 2667.911182,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 17.428757,
+          "median_latency_p95_ms": 2770.191481,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 9.460848,
+          "median_latency_p95_ms": 3881.988456,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 4.938688,
+          "median_latency_p95_ms": 7329.664791,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "distilbert-grid-048",
+      "model_id": "distilbert/distilbert-base-uncased",
+      "model_revision": "12040accade4e8a0f71eabdb258fecc2e7e948be",
+      "batch_size": 12,
+      "max_length": 80,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 144.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 1123.977519,
+          "median_latency_p95_ms": 12.056001,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 26.80486,
+          "median_latency_p95_ms": 449.442741,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 38.361533,
+          "median_latency_p95_ms": 316.229992,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 49.023542,
+          "median_latency_p95_ms": 249.538347,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 32,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 122.462241,
+          "median_latency_p95_ms": 100.025333,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 14.075558,
+          "median_latency_p95_ms": 855.509453,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "distilbert-grid-056",
+      "model_id": "distilbert/distilbert-base-uncased",
+      "model_revision": "12040accade4e8a0f71eabdb258fecc2e7e948be",
+      "batch_size": 8,
+      "max_length": 480,
+      "request_concurrency": 6,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 576.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 157.1676,
+          "median_latency_p95_ms": 241.599843,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 3.911821,
+          "median_latency_p95_ms": 9244.094673,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 5.880084,
+          "median_latency_p95_ms": 6147.535282,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 7.481641,
+          "median_latency_p95_ms": 4855.357481,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 16,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 19.414079,
+          "median_latency_p95_ms": 2032.644913,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 2.089203,
+          "median_latency_p95_ms": 17302.958711,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-base-grid-000",
+      "model_id": "google-bert/bert-base-uncased",
+      "model_revision": "86b5e0934494bd15c9632b12f734a8a67f723594",
+      "batch_size": 1,
+      "max_length": 32,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 12.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 157.978184,
+          "median_latency_p95_ms": 6.556671,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 15.342372,
+          "median_latency_p95_ms": 65.838853,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 23.208937,
+          "median_latency_p95_ms": 44.337339,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 20.053896,
+          "median_latency_p95_ms": 58.711625,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 24.180082,
+          "median_latency_p95_ms": 42.216635,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 6.338591,
+          "median_latency_p95_ms": 166.23856,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-base-grid-008",
+      "model_id": "google-bert/bert-base-uncased",
+      "model_revision": "86b5e0934494bd15c9632b12f734a8a67f723594",
+      "batch_size": 16,
+      "max_length": 352,
+      "request_concurrency": 6,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 1152.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 122.839929,
+          "median_latency_p95_ms": 601.191819,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 2.716393,
+          "median_latency_p95_ms": 26609.082428,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 3.992787,
+          "median_latency_p95_ms": 18150.776716,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 5.11342,
+          "median_latency_p95_ms": 20039.082948,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 2.721534,
+          "median_latency_p95_ms": 26776.239764,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 1.453201,
+          "median_latency_p95_ms": 49637.689106,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-base-grid-016",
+      "model_id": "google-bert/bert-base-uncased",
+      "model_revision": "86b5e0934494bd15c9632b12f734a8a67f723594",
+      "batch_size": 16,
+      "max_length": 160,
+      "request_concurrency": 3,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 576.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 246.625182,
+          "median_latency_p95_ms": 154.527083,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 6.581706,
+          "median_latency_p95_ms": 5556.818018,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 9.655029,
+          "median_latency_p95_ms": 3775.529813,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 12.204251,
+          "median_latency_p95_ms": 2989.951798,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 32,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 33.574815,
+          "median_latency_p95_ms": 1154.615757,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 3.447609,
+          "median_latency_p95_ms": 10522.309656,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-base-grid-024",
+      "model_id": "google-bert/bert-base-uncased",
+      "model_revision": "86b5e0934494bd15c9632b12f734a8a67f723594",
+      "batch_size": 16,
+      "max_length": 48,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 192.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 1011.402819,
+          "median_latency_p95_ms": 12.942203,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 22.043846,
+          "median_latency_p95_ms": 545.906493,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 32.135323,
+          "median_latency_p95_ms": 377.207237,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 40.59113,
+          "median_latency_p95_ms": 299.727535,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 16,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 83.683188,
+          "median_latency_p95_ms": 173.020562,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 11.301355,
+          "median_latency_p95_ms": 1072.773306,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-base-grid-032",
+      "model_id": "google-bert/bert-base-uncased",
+      "model_revision": "86b5e0934494bd15c9632b12f734a8a67f723594",
+      "batch_size": 12,
+      "max_length": 416,
+      "request_concurrency": 6,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 864.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 91.899488,
+          "median_latency_p95_ms": 804.80604,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 2.26311,
+          "median_latency_p95_ms": 31972.252965,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 3.341804,
+          "median_latency_p95_ms": 21644.318108,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 4.270608,
+          "median_latency_p95_ms": 28400.867304,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 7.479477,
+          "median_latency_p95_ms": 9698.719215,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 1.207948,
+          "median_latency_p95_ms": 59690.232758,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-base-grid-040",
+      "model_id": "google-bert/bert-base-uncased",
+      "model_revision": "86b5e0934494bd15c9632b12f734a8a67f723594",
+      "batch_size": 12,
+      "max_length": 224,
+      "request_concurrency": 3,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 432.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 173.811375,
+          "median_latency_p95_ms": 218.883248,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 4.629464,
+          "median_latency_p95_ms": 7919.462838,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 6.951347,
+          "median_latency_p95_ms": 5207.684673,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 8.801459,
+          "median_latency_p95_ms": 4170.6218,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 6.854127,
+          "median_latency_p95_ms": 5358.261856,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 2.456803,
+          "median_latency_p95_ms": 14807.197552,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-base-grid-048",
+      "model_id": "google-bert/bert-base-uncased",
+      "model_revision": "86b5e0934494bd15c9632b12f734a8a67f723594",
+      "batch_size": 12,
+      "max_length": 80,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 144.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 494.063386,
+          "median_latency_p95_ms": 25.81694,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 13.394305,
+          "median_latency_p95_ms": 902.644679,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 19.516467,
+          "median_latency_p95_ms": 622.879494,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 24.283367,
+          "median_latency_p95_ms": 501.801373,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 13.233486,
+          "median_latency_p95_ms": 966.535395,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 7.008033,
+          "median_latency_p95_ms": 1718.514203,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-base-grid-056",
+      "model_id": "google-bert/bert-base-uncased",
+      "model_revision": "86b5e0934494bd15c9632b12f734a8a67f723594",
+      "batch_size": 8,
+      "max_length": 480,
+      "request_concurrency": 6,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 576.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 77.874854,
+          "median_latency_p95_ms": 477.329241,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 1.969166,
+          "median_latency_p95_ms": 18353.354416,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 2.942284,
+          "median_latency_p95_ms": 12277.572521,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 3.721983,
+          "median_latency_p95_ms": 13416.556177,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 32,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 10.047329,
+          "median_latency_p95_ms": 3728.66839,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 1.043947,
+          "median_latency_p95_ms": 34663.562661,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-tiny-grid-000",
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "model_revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+      "batch_size": 1,
+      "max_length": 32,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 12.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 649.856213,
+          "median_latency_p95_ms": 1.582183,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 769.228976,
+          "median_latency_p95_ms": 1.365599,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 547.872293,
+          "median_latency_p95_ms": 1.934668,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 420.42272,
+          "median_latency_p95_ms": 2.409427,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 800.180185,
+          "median_latency_p95_ms": 1.280532,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 573.315813,
+          "median_latency_p95_ms": 2.999325,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-tiny-grid-008",
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "model_revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+      "batch_size": 16,
+      "max_length": 352,
+      "request_concurrency": 6,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 1152.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 6881.672168,
+          "median_latency_p95_ms": 12.088548,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 291.974006,
+          "median_latency_p95_ms": 286.181063,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 421.716266,
+          "median_latency_p95_ms": 186.380843,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 474.438399,
+          "median_latency_p95_ms": 171.766436,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 32,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 510.033818,
+          "median_latency_p95_ms": 163.605922,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 167.548956,
+          "median_latency_p95_ms": 575.209464,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-tiny-grid-016",
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "model_revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+      "batch_size": 16,
+      "max_length": 160,
+      "request_concurrency": 3,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 576.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 6917.203452,
+          "median_latency_p95_ms": 5.3283,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 712.95237,
+          "median_latency_p95_ms": 57.988259,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 934.343546,
+          "median_latency_p95_ms": 43.989092,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 1028.571562,
+          "median_latency_p95_ms": 38.046236,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 16,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 1064.894287,
+          "median_latency_p95_ms": 38.341269,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 435.833585,
+          "median_latency_p95_ms": 90.629081,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-tiny-grid-024",
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "model_revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+      "batch_size": 16,
+      "max_length": 48,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 192.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 8089.058512,
+          "median_latency_p95_ms": 1.491015,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 2645.022312,
+          "median_latency_p95_ms": 4.597348,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 2494.517564,
+          "median_latency_p95_ms": 4.922375,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 2273.244188,
+          "median_latency_p95_ms": 5.367988,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 3011.573573,
+          "median_latency_p95_ms": 4.13476,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 1566.101637,
+          "median_latency_p95_ms": 8.158881,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-tiny-grid-032",
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "model_revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+      "batch_size": 12,
+      "max_length": 416,
+      "request_concurrency": 6,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 864.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 6809.573527,
+          "median_latency_p95_ms": 19.15709,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 223.847519,
+          "median_latency_p95_ms": 340.908715,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 336.462174,
+          "median_latency_p95_ms": 224.632055,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 381.446801,
+          "median_latency_p95_ms": 248.8792,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 336.877806,
+          "median_latency_p95_ms": 231.665339,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 131.691159,
+          "median_latency_p95_ms": 554.14894,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-tiny-grid-040",
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "model_revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+      "batch_size": 12,
+      "max_length": 224,
+      "request_concurrency": 3,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 432.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 6981.011431,
+          "median_latency_p95_ms": 5.231073,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 532.238848,
+          "median_latency_p95_ms": 68.719848,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 706.685725,
+          "median_latency_p95_ms": 53.511729,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 790.745001,
+          "median_latency_p95_ms": 49.923416,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 535.985256,
+          "median_latency_p95_ms": 80.259245,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 278.947299,
+          "median_latency_p95_ms": 220.356273,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-tiny-grid-048",
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "model_revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+      "batch_size": 12,
+      "max_length": 80,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 144.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 7945.408423,
+          "median_latency_p95_ms": 1.523236,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 1672.581305,
+          "median_latency_p95_ms": 7.394512,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 1769.327806,
+          "median_latency_p95_ms": 7.068893,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 1726.622432,
+          "median_latency_p95_ms": 7.297579,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 32,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 1187.817829,
+          "median_latency_p95_ms": 10.726087,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 999.332801,
+          "median_latency_p95_ms": 12.377763,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-tiny-grid-056",
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "model_revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+      "batch_size": 8,
+      "max_length": 480,
+      "request_concurrency": 6,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 576.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 3439.5888,
+          "median_latency_p95_ms": 18.634616,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 195.268515,
+          "median_latency_p95_ms": 184.721941,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 277.74432,
+          "median_latency_p95_ms": 134.799669,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 306.439372,
+          "median_latency_p95_ms": 127.410314,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 16,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 375.678271,
+          "median_latency_p95_ms": 128.884574,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 112.096415,
+          "median_latency_p95_ms": 331.031145,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-mini-grid-000",
+      "model_id": "google/bert_uncased_L-4_H-256_A-4",
+      "model_revision": "387825ce42dbb39b87911cdf8e383ee3b25184f8",
+      "batch_size": 1,
+      "max_length": 32,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 12.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 397.701341,
+          "median_latency_p95_ms": 2.554525,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 275.221,
+          "median_latency_p95_ms": 4.084071,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 243.10241,
+          "median_latency_p95_ms": 4.31127,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 203.678685,
+          "median_latency_p95_ms": 5.27036,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 250.078245,
+          "median_latency_p95_ms": 4.157612,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 203.35893,
+          "median_latency_p95_ms": 5.172559,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-mini-grid-008",
+      "model_id": "google/bert_uncased_L-4_H-256_A-4",
+      "model_revision": "387825ce42dbb39b87911cdf8e383ee3b25184f8",
+      "batch_size": 16,
+      "max_length": 352,
+      "request_concurrency": 6,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 1152.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 2056.171852,
+          "median_latency_p95_ms": 36.07145,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 53.792572,
+          "median_latency_p95_ms": 1393.487217,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 77.554683,
+          "median_latency_p95_ms": 965.143042,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 97.576364,
+          "median_latency_p95_ms": 1059.656142,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 53.397534,
+          "median_latency_p95_ms": 1445.025233,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 29.274774,
+          "median_latency_p95_ms": 2598.747525,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-mini-grid-016",
+      "model_id": "google/bert_uncased_L-4_H-256_A-4",
+      "model_revision": "387825ce42dbb39b87911cdf8e383ee3b25184f8",
+      "batch_size": 16,
+      "max_length": 160,
+      "request_concurrency": 3,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 576.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 4239.769693,
+          "median_latency_p95_ms": 14.476938,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 138.790795,
+          "median_latency_p95_ms": 268.219578,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 189.467055,
+          "median_latency_p95_ms": 198.051964,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 234.680372,
+          "median_latency_p95_ms": 162.514811,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 32,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 285.550525,
+          "median_latency_p95_ms": 144.77546,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 76.520877,
+          "median_latency_p95_ms": 478.119318,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-mini-grid-024",
+      "model_id": "google/bert_uncased_L-4_H-256_A-4",
+      "model_revision": "387825ce42dbb39b87911cdf8e383ee3b25184f8",
+      "batch_size": 16,
+      "max_length": 48,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 192.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 4721.580451,
+          "median_latency_p95_ms": 3.128722,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 489.103792,
+          "median_latency_p95_ms": 24.726583,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 578.587383,
+          "median_latency_p95_ms": 21.223492,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 659.451112,
+          "median_latency_p95_ms": 18.980437,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 16,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 692.984543,
+          "median_latency_p95_ms": 19.01014,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 264.280551,
+          "median_latency_p95_ms": 46.198183,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-mini-grid-032",
+      "model_id": "google/bert_uncased_L-4_H-256_A-4",
+      "model_revision": "387825ce42dbb39b87911cdf8e383ee3b25184f8",
+      "batch_size": 12,
+      "max_length": 416,
+      "request_concurrency": 6,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 864.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 1648.987408,
+          "median_latency_p95_ms": 74.61952,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 44.060586,
+          "median_latency_p95_ms": 1663.750859,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 63.495549,
+          "median_latency_p95_ms": 1193.564991,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 76.677224,
+          "median_latency_p95_ms": 1335.589801,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 125.388678,
+          "median_latency_p95_ms": 602.727518,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 24.156128,
+          "median_latency_p95_ms": 3015.219221,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-mini-grid-040",
+      "model_id": "google/bert_uncased_L-4_H-256_A-4",
+      "model_revision": "387825ce42dbb39b87911cdf8e383ee3b25184f8",
+      "batch_size": 12,
+      "max_length": 224,
+      "request_concurrency": 3,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 432.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 3675.187726,
+          "median_latency_p95_ms": 15.565086,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 94.956921,
+          "median_latency_p95_ms": 385.813401,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 134.777428,
+          "median_latency_p95_ms": 272.614868,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 162.871669,
+          "median_latency_p95_ms": 227.565251,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 138.073189,
+          "median_latency_p95_ms": 266.175963,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 48.401312,
+          "median_latency_p95_ms": 1050.426242,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-mini-grid-048",
+      "model_id": "google/bert_uncased_L-4_H-256_A-4",
+      "model_revision": "387825ce42dbb39b87911cdf8e383ee3b25184f8",
+      "batch_size": 12,
+      "max_length": 80,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 144.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 4616.567611,
+          "median_latency_p95_ms": 3.357107,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 298.098097,
+          "median_latency_p95_ms": 40.846763,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 365.427687,
+          "median_latency_p95_ms": 33.824548,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 440.562984,
+          "median_latency_p95_ms": 28.123716,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 301.330271,
+          "median_latency_p95_ms": 40.364568,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 161.734524,
+          "median_latency_p95_ms": 75.551185,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-mini-grid-056",
+      "model_id": "google/bert_uncased_L-4_H-256_A-4",
+      "model_revision": "387825ce42dbb39b87911cdf8e383ee3b25184f8",
+      "batch_size": 8,
+      "max_length": 480,
+      "request_concurrency": 6,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 576.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 1342.322225,
+          "median_latency_p95_ms": 39.830899,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 37.806561,
+          "median_latency_p95_ms": 974.549424,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 54.927579,
+          "median_latency_p95_ms": 667.863607,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 66.026851,
+          "median_latency_p95_ms": 562.949651,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 32,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 110.213301,
+          "median_latency_p95_ms": 417.258306,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 20.687934,
+          "median_latency_p95_ms": 1778.697754,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-small-grid-000",
+      "model_id": "google/bert_uncased_L-4_H-512_A-8",
+      "model_revision": "606e4d55252882ac25ba1f1d1a182075830f5a90",
+      "batch_size": 1,
+      "max_length": 32,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 12.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 401.295608,
+          "median_latency_p95_ms": 2.573067,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 91.192985,
+          "median_latency_p95_ms": 11.274544,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 118.08338,
+          "median_latency_p95_ms": 8.965224,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 114.122291,
+          "median_latency_p95_ms": 9.417058,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 32,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 71.036926,
+          "median_latency_p95_ms": 14.225464,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 68.638369,
+          "median_latency_p95_ms": 15.857419,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-small-grid-008",
+      "model_id": "google/bert_uncased_L-4_H-512_A-8",
+      "model_revision": "606e4d55252882ac25ba1f1d1a182075830f5a90",
+      "batch_size": 16,
+      "max_length": 352,
+      "request_concurrency": 6,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 1152.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 772.952448,
+          "median_latency_p95_ms": 94.744142,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 16.203266,
+          "median_latency_p95_ms": 4477.447069,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 24.24408,
+          "median_latency_p95_ms": 3002.188005,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 30.212831,
+          "median_latency_p95_ms": 3422.997777,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 16,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 68.688074,
+          "median_latency_p95_ms": 1336.044781,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 8.892763,
+          "median_latency_p95_ms": 8215.74232,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-small-grid-016",
+      "model_id": "google/bert_uncased_L-4_H-512_A-8",
+      "model_revision": "606e4d55252882ac25ba1f1d1a182075830f5a90",
+      "batch_size": 16,
+      "max_length": 160,
+      "request_concurrency": 3,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 576.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 1676.045041,
+          "median_latency_p95_ms": 24.7528,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 39.895024,
+          "median_latency_p95_ms": 938.180961,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 58.526335,
+          "median_latency_p95_ms": 638.783737,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 72.588565,
+          "median_latency_p95_ms": 516.379281,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 125.118129,
+          "median_latency_p95_ms": 299.419039,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 22.064329,
+          "median_latency_p95_ms": 1657.795853,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-small-grid-024",
+      "model_id": "google/bert_uncased_L-4_H-512_A-8",
+      "model_revision": "606e4d55252882ac25ba1f1d1a182075830f5a90",
+      "batch_size": 16,
+      "max_length": 48,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 192.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 4893.544507,
+          "median_latency_p95_ms": 2.457954,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 141.501923,
+          "median_latency_p95_ms": 85.358637,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 195.364236,
+          "median_latency_p95_ms": 62.189777,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 234.857721,
+          "median_latency_p95_ms": 53.434489,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 199.274745,
+          "median_latency_p95_ms": 60.708849,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 75.397999,
+          "median_latency_p95_ms": 161.395195,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-small-grid-032",
+      "model_id": "google/bert_uncased_L-4_H-512_A-8",
+      "model_revision": "606e4d55252882ac25ba1f1d1a182075830f5a90",
+      "batch_size": 12,
+      "max_length": 416,
+      "request_concurrency": 6,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 864.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 608.98873,
+          "median_latency_p95_ms": 124.358577,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 13.413795,
+          "median_latency_p95_ms": 5408.827219,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 20.281225,
+          "median_latency_p95_ms": 3583.828053,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 24.820289,
+          "median_latency_p95_ms": 2924.496374,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 13.514633,
+          "median_latency_p95_ms": 5363.905878,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 7.343033,
+          "median_latency_p95_ms": 9873.596577,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-small-grid-040",
+      "model_id": "google/bert_uncased_L-4_H-512_A-8",
+      "model_revision": "606e4d55252882ac25ba1f1d1a182075830f5a90",
+      "batch_size": 12,
+      "max_length": 224,
+      "request_concurrency": 3,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 432.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 1125.848375,
+          "median_latency_p95_ms": 33.797558,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 29.352484,
+          "median_latency_p95_ms": 1261.551035,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 42.21788,
+          "median_latency_p95_ms": 879.027904,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 52.628822,
+          "median_latency_p95_ms": 705.307215,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 32,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 106.013839,
+          "median_latency_p95_ms": 424.5967,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 15.484051,
+          "median_latency_p95_ms": 2357.805589,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-small-grid-048",
+      "model_id": "google/bert_uncased_L-4_H-512_A-8",
+      "model_revision": "606e4d55252882ac25ba1f1d1a182075830f5a90",
+      "batch_size": 12,
+      "max_length": 80,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 144.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 3706.789692,
+          "median_latency_p95_ms": 3.324943,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 86.044582,
+          "median_latency_p95_ms": 140.796765,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 120.581832,
+          "median_latency_p95_ms": 100.431123,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 147.615227,
+          "median_latency_p95_ms": 82.677659,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 16,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 203.332021,
+          "median_latency_p95_ms": 63.187571,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 46.021825,
+          "median_latency_p95_ms": 262.246071,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "bert-small-grid-056",
+      "model_id": "google/bert_uncased_L-4_H-512_A-8",
+      "model_revision": "606e4d55252882ac25ba1f1d1a182075830f5a90",
+      "batch_size": 8,
+      "max_length": 480,
+      "request_concurrency": 6,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 576.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 499.732307,
+          "median_latency_p95_ms": 73.481659,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 12.229237,
+          "median_latency_p95_ms": 2980.37599,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 18.564282,
+          "median_latency_p95_ms": 1953.497845,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 22.865988,
+          "median_latency_p95_ms": 1739.598109,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 39.777311,
+          "median_latency_p95_ms": 919.976003,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 6.569499,
+          "median_latency_p95_ms": 5516.985148,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "electra-small-grid-000",
+      "model_id": "google/electra-small-discriminator",
+      "model_revision": "fa8239aadc095e9164941d05878b98afe9b953c3",
+      "batch_size": 1,
+      "max_length": 32,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 12.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 133.867481,
+          "median_latency_p95_ms": 8.554964,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 82.858664,
+          "median_latency_p95_ms": 12.823206,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 69.881309,
+          "median_latency_p95_ms": 15.684617,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 61.575644,
+          "median_latency_p95_ms": 17.310873,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 74.677881,
+          "median_latency_p95_ms": 14.308067,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 64.940754,
+          "median_latency_p95_ms": 16.555262,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "electra-small-grid-008",
+      "model_id": "google/electra-small-discriminator",
+      "model_revision": "fa8239aadc095e9164941d05878b98afe9b953c3",
+      "batch_size": 16,
+      "max_length": 352,
+      "request_concurrency": 6,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 1152.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 534.810116,
+          "median_latency_p95_ms": 139.671274,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 16.653566,
+          "median_latency_p95_ms": 4420.077471,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 23.235704,
+          "median_latency_p95_ms": 3188.077313,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 27.828842,
+          "median_latency_p95_ms": 2702.68801,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 23.46184,
+          "median_latency_p95_ms": 3168.172746,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 9.348499,
+          "median_latency_p95_ms": 7863.801267,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "electra-small-grid-016",
+      "model_id": "google/electra-small-discriminator",
+      "model_revision": "fa8239aadc095e9164941d05878b98afe9b953c3",
+      "batch_size": 16,
+      "max_length": 160,
+      "request_concurrency": 3,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 576.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 1438.55278,
+          "median_latency_p95_ms": 25.825017,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 47.514217,
+          "median_latency_p95_ms": 762.571407,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 61.972769,
+          "median_latency_p95_ms": 589.191628,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 76.259816,
+          "median_latency_p95_ms": 632.299421,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 47.431985,
+          "median_latency_p95_ms": 784.705107,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 25.638428,
+          "median_latency_p95_ms": 1416.176197,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "electra-small-grid-024",
+      "model_id": "google/electra-small-discriminator",
+      "model_revision": "fa8239aadc095e9164941d05878b98afe9b953c3",
+      "batch_size": 16,
+      "max_length": 48,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 192.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 2,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 1565.245447,
+          "median_latency_p95_ms": 7.807496,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 164.909617,
+          "median_latency_p95_ms": 73.283721,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 191.480254,
+          "median_latency_p95_ms": 63.372896,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 210.875408,
+          "median_latency_p95_ms": 57.958286,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 32,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 165.835071,
+          "median_latency_p95_ms": 74.1995,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 89.084023,
+          "median_latency_p95_ms": 136.597836,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "electra-small-grid-032",
+      "model_id": "google/electra-small-discriminator",
+      "model_revision": "fa8239aadc095e9164941d05878b98afe9b953c3",
+      "batch_size": 12,
+      "max_length": 416,
+      "request_concurrency": 6,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 864.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 390.862664,
+          "median_latency_p95_ms": 190.343101,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 12.935872,
+          "median_latency_p95_ms": 5741.431999,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 18.151307,
+          "median_latency_p95_ms": 4134.29412,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 21.47712,
+          "median_latency_p95_ms": 3496.377259,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 16,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 42.90756,
+          "median_latency_p95_ms": 2055.104876,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 7.331688,
+          "median_latency_p95_ms": 10325.762906,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "electra-small-grid-040",
+      "model_id": "google/electra-small-discriminator",
+      "model_revision": "fa8239aadc095e9164941d05878b98afe9b953c3",
+      "batch_size": 12,
+      "max_length": 224,
+      "request_concurrency": 3,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 432.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 1117.474993,
+          "median_latency_p95_ms": 33.794875,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 31.204222,
+          "median_latency_p95_ms": 1182.344044,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 41.919429,
+          "median_latency_p95_ms": 871.506851,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 51.05478,
+          "median_latency_p95_ms": 1144.872786,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 79.841097,
+          "median_latency_p95_ms": 469.939558,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 15.358266,
+          "median_latency_p95_ms": 3358.995439,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "electra-small-grid-048",
+      "model_id": "google/electra-small-discriminator",
+      "model_revision": "fa8239aadc095e9164941d05878b98afe9b953c3",
+      "batch_size": 12,
+      "max_length": 80,
+      "request_concurrency": 1,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 144.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 1564.456972,
+          "median_latency_p95_ms": 7.865933,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 99.916934,
+          "median_latency_p95_ms": 120.975507,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 121.574842,
+          "median_latency_p95_ms": 101.781049,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 144.570087,
+          "median_latency_p95_ms": 85.568287,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 126.279662,
+          "median_latency_p95_ms": 95.704351,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 54.240433,
+          "median_latency_p95_ms": 223.798433,
+          "trace_record_count": 0
+        }
+      ]
+    },
+    {
+      "profile_name": "electra-small-grid-056",
+      "model_id": "google/electra-small-discriminator",
+      "model_revision": "fa8239aadc095e9164941d05878b98afe9b953c3",
+      "batch_size": 8,
+      "max_length": 480,
+      "request_concurrency": 6,
+      "replica_count": 1,
+      "load_condition": "exhaustive_grid",
+      "target_throughput_rps": 576.0,
+      "dataset": "operations",
+      "independent_run_count_by_spec": {
+        "aws+us-west-2+g6.8xlarge": 3,
+        "aws+us-west-2+m6a.2xlarge": 2,
+        "aws+us-west-2+m6a.8xlarge": 1,
+        "aws+us-west-2+m6a.large": 2
+      },
+      "options": [
+        {
+          "spec_id": "aws+us-west-2+g6.8xlarge",
+          "device": "cuda",
+          "cpu_core_limit": 2,
+          "independent_run_count": 3,
+          "execution_count": 3,
+          "median_throughput_examples_per_second": 343.259015,
+          "median_latency_p95_ms": 129.640707,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 11.022391,
+          "median_latency_p95_ms": 3413.835271,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 4,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 15.501501,
+          "median_latency_p95_ms": 2379.240693,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.2xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 8,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 18.34763,
+          "median_latency_p95_ms": 2206.827737,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.8xlarge",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 1,
+          "execution_count": 1,
+          "median_throughput_examples_per_second": 11.073624,
+          "median_latency_p95_ms": 3434.561387,
+          "trace_record_count": 0
+        },
+        {
+          "spec_id": "aws+us-west-2+m6a.large",
+          "device": "cpu",
+          "cpu_core_limit": 2,
+          "independent_run_count": 2,
+          "execution_count": 2,
+          "median_throughput_examples_per_second": 6.381547,
+          "median_latency_p95_ms": 5745.733489,
+          "trace_record_count": 0
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "largest_two_run_raw_share": 0.896399,
+    "paired_workloads_with_two_runs_per_option": 0,
+    "paired_workloads_with_any_single_run_option": 66,
+    "tier_runs": {
+      "aws+us-west-2+g6.2xlarge": {
+        "run_count": 1,
+        "execution_count": 4,
+        "canonical_raw_bytes": 734020139
+      },
+      "aws+us-west-2+g6.8xlarge": {
+        "run_count": 3,
+        "execution_count": 1728,
+        "canonical_raw_bytes": 16392192
+      },
+      "aws+us-west-2+m6a.2xlarge": {
+        "run_count": 3,
+        "execution_count": 322,
+        "canonical_raw_bytes": 273296856
+      },
+      "aws+us-west-2+m6a.8xlarge": {
+        "run_count": 2,
+        "execution_count": 96,
+        "canonical_raw_bytes": 8404992
+      },
+      "aws+us-west-2+m6a.large": {
+        "run_count": 2,
+        "execution_count": 128,
+        "canonical_raw_bytes": 43311104
+      }
+    },
+    "comparison_aggregation": "median_of_per_run_medians"
+  },
+  "limitations": [
+    "Storage bytes and repeated batch records are not unique inputs.",
+    "Only exact model revisions and workload settings are paired; VM resources may differ.",
+    "Historical benchmark evidence does not prove current VM availability or live deployment SLO.",
+    "Automatic placement remains disabled; use current Resource Ops and deployment guards."
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "application_profile": {
+    "profile_id": "profile-chat-service-a2ae7c6982d1",
+    "app_id": "chat-service",
+    "app_version": "1.0.0",
+    "artifact": {
+      "type": "OCI_IMAGE",
+      "uri": "registry.example.org/chat-service:1.0.0"
+    },
+    "workload": {
+      "task_type": "LLM_INFERENCE",
+      "request_pattern": "ONLINE"
+    },
+    "requirements": {
+      "compute": {
+        "cpu_cores_min": 4,
+        "memory_mib_min": 8192,
+        "storage_gib_min": 20
+      },
+      "accelerator": {
+        "required": true,
+        "type": "GPU",
+        "count_min": 1,
+        "memory_mib_min_per_device": 16384
+      },
+      "deployment": {
+        "replicas_min": 1,
+        "replicas_max": 2,
+        "isolation": "ONE_MAJOR_APP_PER_VM"
+      },
+      "slo": {},
+      "cost": {}
+    },
+    "analysis": {
+      "confidence": 0.9,
+      "assumptions": [
+        "Storage and replica bounds were inferred for the online inference workload."
+      ]
+    }
+  },
+  "analysis": {
+    "mode": "llm",
+    "candidate_id": "qwen3.5-profile-generator",
+    "provider": "openai-compatible",
+    "actual_model": "qwen3.5:4b",
+    "latency_ms": 42,
+    "attempts": 1,
+    "selection_policy": "quality_first"
+  }
+}

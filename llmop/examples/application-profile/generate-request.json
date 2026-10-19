@@ -1,0 +1,13 @@
+{
+  "input_type": "natural_language",
+  "request": "GPU 1개, CPU 4코어, 메모리 8GiB가 필요한 온라인 LLM 추론 서비스",
+  "selection_policy": "quality_first",
+  "application": {
+    "app_id": "chat-service",
+    "app_version": "1.0.0",
+    "artifact": {
+      "type": "OCI_IMAGE",
+      "uri": "registry.example.org/chat-service:1.0.0"
+    }
+  }
+}

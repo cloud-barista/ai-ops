@@ -1,0 +1,439 @@
+package api
+
+import (
+	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
+
+	"github.com/labstack/echo/v4"
+	"github.com/rs/zerolog/log"
+	"kyunghee-aiops/service-control-api/internal/agentcontrol"
+	"kyunghee-aiops/service-control-api/internal/appdeploy"
+)
+
+type flowDeliveryStore struct{ mu sync.Mutex }
+
+// RestPostExternalFlow godoc
+// @Summary Receive analyzed external inputs atomically
+// @Tags AI Application Automation Agent
+// @Accept json
+// @Produce json
+// @Param request body ExternalFlowRequest true "Matching Common JSON input pair"
+// @Success 202 {object} agentcontrol.Flow
+// @Failure 400 {object} ErrorResponse
+// @Router /api/v1/agent-control/external-flows [post]
+func (h restHandler) RestPostExternalFlow(c echo.Context) error {
+	var request ExternalFlowRequest
+	if err := c.Bind(&request); err != nil {
+		return jsonError(c, 400, "Invalid external input pair", err)
+	}
+	flow, err := h.service.agentControl.ReceiveExternalInputsFrom(c.Request().Context(), request.ApplicationContext, request.ResourceRecommendation, request.DecisionAgent, request.InputOrigin)
+	if err != nil {
+		return jsonError(c, 400, "External input pair was rejected", err)
+	}
+	return c.JSON(http.StatusAccepted, flow)
+}
+
+// RestPostFlowDelivery godoc
+// @Summary Prepare or submit an approved initial Flow to AppDeployer
+// @Description Server configuration enables submission. Requests are constructed from stored approved Revision 1 and an authoritative App Registry match. Local KHU request IDs are not AppDeployer action acknowledgements. Attempts are persisted before POST; uncertain attempts are never automatically retried.
+// @Tags AI Application Automation Agent
+// @Accept json
+// @Produce json
+// @Param correlation_id path string true "Flow ID"
+// @Param action path string true "prepare or submit"
+// @Param request body FlowDeliveryRequest true "Registered app version"
+// @Success 200 {object} FlowDelivery
+// @Failure 409 {object} ErrorResponse
+// @Router /api/v1/agent-control/flows/{correlation_id}/appdeploy/{action} [post]
+func (h restHandler) RestPostFlowDelivery(c echo.Context) error {
+	var request FlowDeliveryRequest
+	if message, err := bindAndValidate(c, &request); err != nil {
+		return jsonError(c, 400, message, err)
+	}
+	action := c.Param("action")
+	if action != "prepare" && action != "submit" {
+		return jsonError(c, 400, "Use prepare or submit", nil)
+	}
+	result, err := h.service.deliverFlow(c.Request().Context(), c.Param("correlation_id"), request, action == "submit")
+	if err != nil {
+		return jsonError(c, 409, "AppDeployer request was not confirmed. Check approval, app binding and delivery receipt before retrying.", err)
+	}
+	return c.JSON(200, result)
+}
+
+func deliveryHash(value any) string {
+	data, _ := json.Marshal(value)
+	digest := sha256.Sum256(data)
+	return hex.EncodeToString(digest[:])
+}
+
+func (s Service) deliveryPath(id string) string {
+	dir := s.config.AppDeployDeliveryDir
+	if dir == "" {
+		dir = filepath.Join(s.config.RepoRoot, "runs", "appdeploy-deliveries")
+	}
+	if !filepath.IsAbs(dir) {
+		dir = filepath.Join(s.config.RepoRoot, dir)
+	}
+	return filepath.Join(dir, deliveryHash(id)+".json")
+}
+
+func (s Service) readDelivery(id string) (FlowDelivery, error) {
+	var record FlowDelivery
+	data, err := os.ReadFile(s.deliveryPath(id))
+	if err == nil {
+		err = json.Unmarshal(data, &record)
+	}
+	return record, err
+}
+
+func saveDelivery(path string, record FlowDelivery, exclusive bool) error {
+	data, err := json.MarshalIndent(record, "", "  ")
+	if err != nil {
+		return err
+	}
+	if err = os.MkdirAll(filepath.Dir(path), 0700); err != nil {
+		return err
+	}
+	if exclusive {
+		file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
+		if err != nil {
+			return err
+		}
+		_, writeErr := file.Write(data)
+		syncErr := file.Sync()
+		closeErr := file.Close()
+		if writeErr != nil {
+			return writeErr
+		}
+		if syncErr != nil {
+			return syncErr
+		}
+		return closeErr
+	}
+	file, err := os.CreateTemp(filepath.Dir(path), ".delivery-*")
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if removeErr := os.Remove(file.Name()); removeErr != nil && !errors.Is(removeErr, os.ErrNotExist) {
+			log.Warn().Err(removeErr).Msg("remove temporary Flow delivery file")
+		}
+	}()
+	_, err = file.Write(data)
+	if err == nil {
+		err = file.Sync()
+	}
+	closeErr := file.Close()
+	if err != nil {
+		return err
+	}
+	if closeErr != nil {
+		return closeErr
+	}
+	return os.Rename(file.Name(), path)
+}
+
+const (
+	deliveryTimeSource = "source_updated_at"
+	deliveryTimeLocal  = "local_fetched_at"
+)
+
+func deliveryStatusObservation(record FlowDelivery, deployment appdeploy.DeploymentResponse, fetchedAt time.Time, requestOccurredAt string) (FlowDeliveryStatusObservation, bool, error) {
+	var requestTime, reservedAt time.Time
+	if requestOccurredAt != "" {
+		var err error
+		requestTime, err = time.Parse(time.RFC3339, requestOccurredAt)
+		if err != nil {
+			return FlowDeliveryStatusObservation{}, false, fmt.Errorf("approved deployment request timestamp is invalid")
+		}
+	}
+	if record.ReservedAt != "" {
+		var err error
+		reservedAt, err = time.Parse(time.RFC3339, record.ReservedAt)
+		if err != nil {
+			return FlowDeliveryStatusObservation{}, false, fmt.Errorf("deployment submission reservation timestamp is invalid")
+		}
+	}
+	observation := FlowDeliveryStatusObservation{
+		DeploymentID:       deployment.DeploymentID,
+		Status:             deployment.Status,
+		SourceUpdatedAt:    deployment.UpdatedAt,
+		FetchedAt:          fetchedAt.Format(time.RFC3339Nano),
+		TimeBasis:          deliveryTimeLocal,
+		EffectiveUpdatedAt: fetchedAt.Format(time.RFC3339Nano),
+	}
+	sourceTime, sourceErr := time.Parse(time.RFC3339, deployment.UpdatedAt)
+	switch {
+	case strings.TrimSpace(deployment.UpdatedAt) == "":
+		observation.FallbackReason = "source_updated_at_missing"
+	case sourceErr != nil:
+		observation.FallbackReason = "source_updated_at_invalid"
+	case sourceTime.After(fetchedAt):
+		observation.FallbackReason = "source_updated_at_future"
+	default:
+		if requestOccurredAt != "" && sourceTime.Before(requestTime) {
+			return observation, false, fmt.Errorf("AppDeployer status timestamp predates the approved deployment request")
+		}
+		if record.ReservedAt != "" && sourceTime.Before(reservedAt) {
+			return observation, false, fmt.Errorf("AppDeployer source status predates local submission reservation; reconcile source clock or stale status")
+		}
+		observation.TimeBasis = deliveryTimeSource
+		observation.EffectiveUpdatedAt = deployment.UpdatedAt
+	}
+	observation.ObservationID = "appdeploy-status-" + deliveryHash(struct {
+		DeploymentID    string
+		Status          string
+		SourceUpdatedAt string
+		TargetProfileID string
+		RuntimeID       string
+		TimeBasis       string
+	}{deployment.DeploymentID, deployment.Status, deployment.UpdatedAt, deployment.TargetProfileID, deployment.RuntimeID, observation.TimeBasis})
+	for index := len(record.StatusObservations) - 1; index >= 0; index-- {
+		previous := record.StatusObservations[index]
+		if previous.ObservationID == observation.ObservationID {
+			if index == len(record.StatusObservations)-1 {
+				return previous, true, nil
+			}
+			return observation, false, fmt.Errorf("AppDeployer returned an older status observation")
+		}
+		if observation.TimeBasis == deliveryTimeSource && previous.TimeBasis == deliveryTimeSource {
+			previousTime, err := time.Parse(time.RFC3339, previous.SourceUpdatedAt)
+			if err != nil || !sourceTime.After(previousTime) {
+				return observation, false, fmt.Errorf("AppDeployer status updated_at must advance for a new source observation")
+			}
+			break
+		}
+	}
+	return observation, false, nil
+}
+
+func (s Service) deliverFlow(ctx context.Context, id string, request FlowDeliveryRequest, submit bool) (FlowDelivery, error) {
+	s.flowDelivery.mu.Lock()
+	defer s.flowDelivery.mu.Unlock()
+	var result FlowDelivery
+	if submit && !s.config.AppDeploySubmitEnabled {
+		return result, fmt.Errorf("appDeployer submission is disabled on this server")
+	}
+	if submit && !request.AcceptProjectionLimits {
+		return result, fmt.Errorf("review the prepared request limitations and explicitly accept the AppSpec execution settings and AppDeployer target selection")
+	}
+	client, err := appdeploy.NewClient(s.config.AppDeployBaseURL, nil)
+	if err != nil {
+		return result, fmt.Errorf("configure AIOPS_APPDEPLOY_BASE_URL first")
+	}
+	if existing, readErr := s.readDelivery(id); readErr == nil {
+		if existing.Request.Manifest.Spec.AppVersionID != request.AppVersionID || existing.DestinationSHA256 != deliveryHash(s.config.AppDeployBaseURL) {
+			return result, fmt.Errorf("flow already has a different delivery binding")
+		}
+		return existing, nil
+	} else if !os.IsNotExist(readErr) {
+		return result, fmt.Errorf("delivery journal is unreadable; submission blocked")
+	}
+	err = s.agentControl.WithApprovedInitialFlow(id, func(flow agentcontrol.Flow) error {
+		apps, err := client.ListApps(ctx)
+		if err != nil {
+			return fmt.Errorf("appDeployer App Registry is unavailable")
+		}
+		profile := flow.ApplicationContext.Data.ApplicationProfile
+		var registered *appdeploy.AppRegistrationResponse
+		for i := range apps {
+			app := &apps[i]
+			if app.AppVersionID == request.AppVersionID && (app.AppID == profile.AppID || app.Name == profile.AppID) && app.Version == profile.AppVersion {
+				registered = app
+				break
+			}
+		}
+		if registered == nil {
+			return fmt.Errorf("registered app name or app_id and version must match the Flow ApplicationProfile")
+		}
+		canonical := flow.ManifestRevisions[0].DeploymentRequest.Data.DeploymentRequest.DeploymentManifest
+		infra := canonical.DesiredInfrastructure
+		if infra.NodeCount != 1 || canonical.InferenceConfiguration.Replicas != 1 {
+			return fmt.Errorf("this integration supports one initial node and one replica; multi-node deployment requires an AppDeployer contract")
+		}
+		runtime, accelerator := "cpu", "none"
+		if infra.Accelerator.Count > 0 {
+			if infra.Accelerator.Type != "GPU" {
+				return fmt.Errorf("unsupported accelerator type")
+			}
+			runtime, accelerator = "gpu", "nvidia"
+		}
+		var appSpec struct {
+			Runtime struct {
+				Type string `json:"type"`
+			} `json:"runtime"`
+		}
+		if json.Unmarshal(registered.AppSpec, &appSpec) != nil || appSpec.Runtime.Type != runtime {
+			return fmt.Errorf("registered application runtime does not match approved resources")
+		}
+		resources := appdeploy.ResourceRequirements{CPU: strconv.Itoa(infra.CPUCoresPerNode), Memory: strconv.Itoa(infra.MemoryMiBPerNode) + "Mi", GPU: strconv.Itoa(infra.Accelerator.Count), Storage: strconv.Itoa(infra.StorageGiBPerNode) + "Gi"}
+		manifest := appdeploy.DeploymentManifest{SchemaVersion: appdeploy.ManifestSchemaVersion, Kind: appdeploy.ManifestKind, Metadata: appdeploy.DeploymentMetadata{Name: canonical.ManifestID}, Spec: appdeploy.DeploymentSpec{AppVersionID: registered.AppVersionID, Accelerator: accelerator, Resources: resources, RequestedBy: "ai-ops-geon-planner", Requirements: &appdeploy.DeploymentRequirements{Runtime: runtime, Resources: resources, Accelerator: accelerator, CostPolicy: "min_cost"}}}
+		manifest.Spec.Requirements.SLO = map[string]any{"latency_p95_ms_max": profile.Requirements.SLO.LatencyP95MSMax, "throughput_rps_min": profile.Requirements.SLO.ThroughputRPSMin}
+		if profile.Requirements.Cost.CostPerHourMax != 0 {
+			return fmt.Errorf("hourly cost limit cannot yet be enforced by the AppDeployer contract")
+		}
+		if err := appdeploy.ValidateManifest(manifest, appdeploy.ManifestConstraints{AppVersionID: registered.AppVersionID, RuntimeType: runtime, RequestedBy: "ai-ops-geon-planner", Requirements: manifest.Spec.Requirements}); err != nil {
+			return fmt.Errorf("manifest conversion failed validation")
+		}
+		approvedRequest := flow.ManifestRevisions[0].DeploymentRequest
+		result = FlowDelivery{CorrelationID: id, DecisionID: flow.Decision.DecisionID, Revision: 1, RequestID: approvedRequest.Data.DeploymentRequest.RequestID, RequestMessageID: approvedRequest.MessageID, RequestOccurredAt: approvedRequest.OccurredAt, Status: "PREPARED", ManifestSHA256: deliveryHash(canonical), DestinationSHA256: deliveryHash(s.config.AppDeployBaseURL), Request: appdeploy.DeploymentCreateRequest{Manifest: manifest}, UpdatedAt: time.Now().UTC().Format(time.RFC3339Nano)}
+		result.Limitations = []string{
+			"The registered AppSpec supplies executable, model and inference settings; this projection does not apply geon inference_configuration.",
+			"AppDeployer selects the target; geon resource_hints and GPU VRAM minimum are not enforced by this contract.",
+			"SLO values are forwarded as requirements, not evidence of measured compliance. Revision 2 is not automatically applied.",
+			"The approved request IDs are local KHU identifiers, not AppDeployer-echoed action IDs; RUNNING does not prove ready replicas or user SLO success.",
+		}
+		if !submit {
+			return nil
+		}
+		result.Status = "SUBMISSION_UNKNOWN"
+		result.ReservedAt = time.Now().UTC().Format(time.RFC3339Nano)
+		result.UpdatedAt = result.ReservedAt
+		if err := saveDelivery(s.deliveryPath(id), result, true); err != nil {
+			return fmt.Errorf("could not reserve delivery journal; no request sent")
+		}
+		response, err := client.CreateDeployment(ctx, manifest)
+		if err != nil {
+			return fmt.Errorf("appDeployer response was not confirmed; delivery remains SUBMISSION_UNKNOWN and must be reconciled before any retry")
+		}
+		if response.AppVersionID != registered.AppVersionID {
+			return fmt.Errorf("appDeployer returned a mismatched app version; reconcile delivery before retry")
+		}
+		result.Status = "SUBMITTED"
+		result.Deployment = &response
+		result.ReceiptReceivedAt = time.Now().UTC().Format(time.RFC3339Nano)
+		result.UpdatedAt = result.ReceiptReceivedAt
+		if err := saveDelivery(s.deliveryPath(id), result, false); err != nil {
+			return fmt.Errorf("request may have succeeded but its receipt was not persisted; reconcile before retry")
+		}
+		return nil
+	})
+	return result, err
+}
+
+// RestGetFlowDelivery godoc
+// @Summary Refresh the recorded AppDeployer deployment and attach its status to the same Flow
+// @Description Source-declared status and local fetch time are journaled before Flow attachment. RUNNING does not prove ready replicas or user SLO success.
+// @Tags AI Application Automation Agent
+// @Produce json
+// @Param correlation_id path string true "Flow ID"
+// @Success 200 {object} FlowDelivery
+// @Failure 409 {object} ErrorResponse
+// @Router /api/v1/agent-control/flows/{correlation_id}/appdeploy [get]
+func (h restHandler) RestGetFlowDelivery(c echo.Context) error {
+	result, err := h.service.refreshDelivery(c.Request().Context(), c.Param("correlation_id"))
+	if err != nil {
+		return jsonError(c, 409, "AppDeployer status could not be attached. Check the delivery receipt and server connection.", err)
+	}
+	return c.JSON(200, result)
+}
+
+func (s Service) refreshDelivery(ctx context.Context, id string) (FlowDelivery, error) {
+	s.flowDelivery.mu.Lock()
+	defer s.flowDelivery.mu.Unlock()
+	record, err := s.readDelivery(id)
+	if err != nil {
+		return record, fmt.Errorf("no readable delivery receipt exists for this Flow")
+	}
+	if record.DestinationSHA256 != deliveryHash(s.config.AppDeployBaseURL) {
+		return record, fmt.Errorf("configured AppDeployer differs from the original destination")
+	}
+	if record.Deployment == nil {
+		return record, nil
+	}
+	client, err := appdeploy.NewClient(s.config.AppDeployBaseURL, nil)
+	if err != nil {
+		return record, fmt.Errorf("appDeployer is not configured")
+	}
+	deployment, err := client.GetDeployment(ctx, record.Deployment.DeploymentID)
+	if err != nil {
+		return record, fmt.Errorf("appDeployer status query failed")
+	}
+	if deployment.DeploymentID != record.Deployment.DeploymentID || deployment.AppVersionID != record.Request.Manifest.Spec.AppVersionID {
+		return record, fmt.Errorf("appDeployer response identity mismatch")
+	}
+	record.Deployment = &deployment
+	fetchedAt := time.Now().UTC()
+	record.UpdatedAt = fetchedAt.Format(time.RFC3339Nano)
+	if metrics, err := client.ListDeploymentMetrics(ctx, deployment.DeploymentID); err == nil {
+		record.Metrics = &metrics
+	}
+	flow, ok := s.agentControl.GetFlow(id)
+	flowMatches := ok && flow.Decision != nil && flow.Decision.DecisionID == record.DecisionID && len(flow.ManifestRevisions) > 0 && deliveryHash(flow.ManifestRevisions[0].DeploymentRequest.Data.DeploymentRequest.DeploymentManifest) == record.ManifestSHA256
+	requestOccurredAt := record.RequestOccurredAt
+	if requestOccurredAt == "" && flowMatches {
+		// Older journals lack the immutable request timestamp.
+		requestOccurredAt = flow.ManifestRevisions[0].DeploymentRequest.OccurredAt
+	}
+	observation, duplicate, err := deliveryStatusObservation(record, deployment, fetchedAt, requestOccurredAt)
+	if err != nil {
+		return record, err
+	}
+	if !duplicate {
+		record.StatusObservations = append(record.StatusObservations, observation)
+	}
+	// Persist the source-declared observation before mutating the in-memory Flow.
+	// A failed Flow attachment remains an observation, never a readiness claim.
+	persisted := record
+	persisted.Flow = nil
+	persisted.Metrics = nil
+	if err := saveDelivery(s.deliveryPath(id), persisted, false); err != nil {
+		return record, fmt.Errorf("AppDeployer status observation could not be persisted")
+	}
+	if flowMatches {
+		status := deployment.Status
+		switch status {
+		case "REQUESTED", "VALIDATING", "VALIDATED":
+			status = agentcontrol.DeploymentStateQueued
+		case "RESOURCE_CHECKING", "RESOURCE_READY":
+			status = agentcontrol.DeploymentStateProvisioning
+		case "RUNTIME_FAILED", "VALIDATION_FAILED", "RESOURCE_FAILED":
+			status = agentcontrol.DeploymentStateFailed
+		}
+		switch status {
+		case "QUEUED", "PROVISIONING", "DEPLOYING", "RUNNING", "FAILED", "STOPPING", "STOPPED":
+			statusUpdatedAt := observation.EffectiveUpdatedAt
+			statusMessage := "AppDeployer status: " + deployment.Status
+			if observation.TimeBasis == deliveryTimeLocal {
+				statusMessage += "; " + observation.FallbackReason + "; using local observation time"
+			}
+			alreadyAttached := flow.DeploymentStatus != nil && flow.DeploymentStatus.MessageID == "msg-"+observation.ObservationID
+			if !alreadyAttached {
+				// A pre-journal Flow may already hold the same source state and time.
+				legacyMatch := flow.DeploymentStatus != nil && flow.DeploymentStatus.Data.DeploymentStatus.State == status && flow.DeploymentStatus.Data.DeploymentStatus.UpdatedAt == statusUpdatedAt
+				if !legacyMatch {
+					message := agentcontrol.DeploymentStatusEnvelope{Envelope: agentcontrol.Envelope{ContractVersion: "1.0", MessageID: "msg-" + observation.ObservationID, MessageType: agentcontrol.MessageDeploymentStatusChanged, OccurredAt: statusUpdatedAt, CorrelationID: id, TraceID: flow.TraceID, CausationID: flow.ManifestRevisions[0].DeploymentRequest.MessageID, Source: agentcontrol.Endpoint{System: "appdeployer", Component: "deployment-orchestrator"}, Target: agentcontrol.Endpoint{System: "khu-agent-control", Component: "automation-agent"}}, Data: agentcontrol.DeploymentStatusData{DeploymentStatus: agentcontrol.DeploymentStatus{DeploymentID: deployment.DeploymentID, DecisionID: record.DecisionID, State: status, Message: statusMessage, UpdatedAt: statusUpdatedAt, ActualInfrastructure: agentcontrol.ActualInfrastructure{ResourceIDs: []string{deployment.TargetProfileID}}}}}
+					updated, err := s.agentControl.ReceiveDeploymentStatus(ctx, message)
+					if err != nil {
+						return record, fmt.Errorf("appDeployer status could not be attached to Flow")
+					}
+					flow = updated
+				}
+			}
+			record.Flow = &flow
+		}
+	}
+	return record, nil
+}
+
+// RestGetFlowIntegration godoc
+// @Summary Get AppDeployer integration availability
+// @Tags AI Application Automation Agent
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/agent-control/integration [get]
+func (h restHandler) RestGetFlowIntegration(c echo.Context) error {
+	return c.JSON(200, map[string]any{"configured": strings.TrimSpace(h.config.AppDeployBaseURL) != "", "submit_enabled": h.config.AppDeploySubmitEnabled, "external_input_path": pathAgentControl + "/external-flows"})
+}

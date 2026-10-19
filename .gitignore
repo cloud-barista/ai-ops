@@ -1,0 +1,34 @@
+# Runtime state and generated artifacts
+output/
+outputs/
+external/
+build/
+dist/
+**/__pycache__/
+**/*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+node_modules/
+*.exe
+*.dll
+*.log
+*.pid
+*.tmp
+*.sqlite3
+*.joblib
+*.pkl
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+platform/config/cloud-connection.json
+platform/monitoring/replica-targets.json*
+.codex-tmp/
+.vscode/
+.superpowers/

@@ -1,0 +1,16 @@
+{
+  "input_type": "structured",
+  "app_spec": {
+    "app_id": "batch-embedder",
+    "app_version": "1.0.0",
+    "workload_type": "EMBEDDING",
+    "request_pattern": "BATCH",
+    "cpu_cores": 8,
+    "memory_mib": 32768,
+    "storage_gib": 50,
+    "replicas_min": 1,
+    "replicas_max": 2,
+    "cost_currency": "USD",
+    "cost_per_hour_max": 2
+  }
+}

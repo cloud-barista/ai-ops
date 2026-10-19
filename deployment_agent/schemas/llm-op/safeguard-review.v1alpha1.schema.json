@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cloud-barista.github.io/ai-ops/schemas/llm-op/safeguard-review.v1alpha1.schema.json",
+  "title": "LLM_Op Safeguard Review",
+  "description": "Untrusted first-stage LLM output. Deterministic guards remain authoritative.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "decision",
+    "reason_code",
+    "reason",
+    "confidence"
+  ],
+  "properties": {
+    "decision": {
+      "type": "string",
+      "enum": [
+        "allow_request",
+        "request_clarification",
+        "reject_request"
+      ]
+    },
+    "reason_code": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9_]{2,79}$"
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "decision": {
+            "const": "allow_request"
+          }
+        },
+        "required": [
+          "decision"
+        ]
+      },
+      "then": {
+        "properties": {
+          "confidence": {
+            "minimum": 0.5
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-mcmp.example/schemas/application_profile_recommendation_request.schema.json",
+  "title": "ApplicationProfileRecommendationRequest",
+  "type": "object",
+  "required": ["application_profile"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "request_id": {"type": "string", "minLength": 1},
+    "application_profile": {
+      "type": "object",
+      "required": ["profile_id", "app_id", "app_version", "workload", "requirements", "analysis"],
+      "properties": {
+        "profile_id": {"type": "string", "minLength": 1},
+        "app_id": {"type": "string", "minLength": 1},
+        "app_version": {"type": "string", "minLength": 1},
+        "artifact": {
+          "type": "object",
+          "required": ["type", "uri"],
+          "properties": {
+            "type": {"type": "string", "minLength": 1},
+            "uri": {"type": "string", "minLength": 1},
+            "entrypoint": {"type": "array", "items": {"type": "string"}}
+          },
+          "additionalProperties": false
+        },
+        "workload": {
+          "type": "object",
+          "required": ["task_type", "request_pattern"],
+          "properties": {
+            "task_type": {"type": "string", "minLength": 1},
+            "request_pattern": {"type": "string", "minLength": 1},
+            "expected_rps": {"type": "number", "minimum": 0}
+          },
+          "additionalProperties": false
+        },
+        "requirements": {
+          "type": "object",
+          "required": ["compute", "accelerator", "deployment", "slo", "cost"],
+          "properties": {
+            "compute": {
+              "type": "object",
+              "required": ["cpu_cores_min", "memory_mib_min", "storage_gib_min"],
+              "properties": {
+                "cpu_cores_min": {"type": "integer", "minimum": 1},
+                "memory_mib_min": {"type": "integer", "minimum": 1},
+                "storage_gib_min": {"type": "integer", "minimum": 0}
+              },
+              "additionalProperties": false
+            },
+            "accelerator": {
+              "type": "object",
+              "required": ["required", "count_min", "memory_mib_min_per_device"],
+              "properties": {
+                "required": {"type": "boolean"},
+                "type": {"type": "string"},
+                "count_min": {"type": "integer", "minimum": 0},
+                "memory_mib_min_per_device": {"type": "integer", "minimum": 0}
+              },
+              "additionalProperties": false
+            },
+            "deployment": {
+              "type": "object",
+              "required": ["replicas_min", "replicas_max", "isolation"],
+              "properties": {
+                "replicas_min": {"type": "integer", "minimum": 1, "maximum": 100},
+                "replicas_max": {"type": "integer", "minimum": 1},
+                "isolation": {"type": "string", "minLength": 1}
+              },
+              "additionalProperties": false
+            },
+            "slo": {
+              "type": "object",
+              "properties": {
+                "latency_p95_ms_max": {"type": "number", "minimum": 0},
+                "throughput_rps_min": {"type": "number", "minimum": 0}
+              },
+              "additionalProperties": false
+            },
+            "cost": {
+              "type": "object",
+              "properties": {
+                "currency": {"type": "string"},
+                "cost_per_hour_max": {"type": "number", "minimum": 0}
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "analysis": {
+          "type": "object",
+          "required": ["confidence"],
+          "properties": {
+            "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+            "assumptions": {"type": "array", "items": {"type": "string"}},
+            "missing_fields": {"type": "array", "items": {"type": "string"}},
+            "warnings": {"type": "array", "items": {"type": "string"}}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "selectors": {
+      "type": "object",
+      "properties": {
+        "providers": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "regions": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "architectures": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "resource_types": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "required_labels": {"type": "object", "additionalProperties": {"type": "string", "minLength": 1}}
+      },
+      "additionalProperties": false
+    },
+    "preferences": {
+      "type": "object",
+      "properties": {"max_results": {"type": "integer", "minimum": 1, "maximum": 100}},
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

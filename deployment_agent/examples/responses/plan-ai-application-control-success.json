@@ -1,0 +1,25 @@
+{
+  "valid": true,
+  "validation_mode": "actual_vm_compatibility",
+  "workload": "llm-chat-inference",
+  "target_vm_id": "aws-us-west-2-g6-xlarge-l4-20260707",
+  "compatibility_status": "provisionally_compatible",
+  "resource_checks_passed": true,
+  "performance_status": "not_measured",
+  "deployment_plan": {
+    "workload": "llm-chat-inference",
+    "service_name": "llm-chat-inference",
+    "target_vm_id": "aws-us-west-2-g6-xlarge-l4-20260707",
+    "target_accelerator": "gpu",
+    "executor_type": "registered_external_agent",
+    "required_capability": "ai_application_deployment_control",
+    "requested_action": "deploy_application",
+    "preconditions": [
+      "target_vm_evidence_collected",
+      "measure_latency_throughput_and_cost",
+      "register_executor_agent"
+    ],
+    "execution_status": "not_executed",
+    "feedback_required": true
+  }
+}

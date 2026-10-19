@@ -1,0 +1,20 @@
+{
+  "schema_version": "khu-vm-specs/v1",
+  "entries": [{
+    "spec_id": "aws+us-west-2+g5.xlarge",
+    "name": "g5.xlarge",
+    "display_name": "A10G GPU · 4 vCPU",
+    "cpu_cores": 4,
+    "memory_mib": 16384,
+    "gpu_count": 1,
+    "gpu_model": "NVIDIA A10G",
+    "gpu_memory_mib": 22888,
+    "storage_gib": null,
+    "validation_only": true,
+    "checked_at_utc": "2026-10-16T16:12:00Z",
+    "source": {
+      "url": "https://aws.amazon.com/ec2/instance-types/g5/",
+      "note": "Verified using AWS DescribeInstanceTypes on 2026-10-17 KST; optional cloud deployment validation candidate; no measured benchmark or performance ranking"
+    }
+  }]
+}

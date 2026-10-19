@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-mcmp.example/schemas/resource_query.schema.json",
+  "title": "ResourceQuery",
+  "type": "object",
+  "required": ["constraints"],
+  "anyOf": [
+    {"required": ["request_id"]},
+    {"required": ["profile_id"]}
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "request_id": {"type": "string", "minLength": 1},
+    "profile_id": {"type": "string", "minLength": 1},
+    "constraints": {
+      "type": "object",
+      "required": ["cpu_cores_min", "memory_mib_min"],
+      "properties": {
+        "cpu_cores_min": {"type": "integer", "minimum": 1},
+        "memory_mib_min": {"type": "integer", "minimum": 1},
+        "storage_gib_min": {"type": "number", "minimum": 0},
+        "accelerator": {
+          "type": "object",
+          "properties": {
+            "required": {"type": "boolean"},
+            "type": {"type": "string"},
+            "model": {"type": "string"},
+            "count_min": {"type": "integer", "minimum": 0},
+            "memory_mib_min_per_device": {"type": "number", "minimum": 0}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "selectors": {
+      "type": "object",
+      "properties": {
+        "providers": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "regions": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "architectures": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "resource_types": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "required_labels": {
+          "type": "object",
+          "additionalProperties": {"type": "string", "minLength": 1}
+        }
+      },
+      "additionalProperties": false
+    },
+    "preferences": {
+      "type": "object",
+      "properties": {
+        "max_results": {"type": "integer", "minimum": 1, "maximum": 100}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

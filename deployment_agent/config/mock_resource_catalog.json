@@ -1,0 +1,43 @@
+{
+  "version": "1.0",
+  "candidates": [
+    {
+      "candidate_id": "mock-cpu-balanced",
+      "cpu_cores": 4,
+      "memory_mib": 8192,
+      "storage_gib": 100,
+      "cost_per_hour": 0.12,
+      "availability_score": 0.99
+    },
+    {
+      "candidate_id": "mock-cpu-large",
+      "cpu_cores": 16,
+      "memory_mib": 65536,
+      "storage_gib": 500,
+      "cost_per_hour": 0.52,
+      "availability_score": 0.97
+    },
+    {
+      "candidate_id": "mock-gpu-l4",
+      "cpu_cores": 8,
+      "memory_mib": 32768,
+      "storage_gib": 200,
+      "accelerator_type": "GPU",
+      "accelerator_count": 1,
+      "accelerator_memory_mib": 24576,
+      "cost_per_hour": 0.8,
+      "availability_score": 0.96
+    },
+    {
+      "candidate_id": "mock-gpu-high-memory",
+      "cpu_cores": 16,
+      "memory_mib": 65536,
+      "storage_gib": 500,
+      "accelerator_type": "GPU",
+      "accelerator_count": 1,
+      "accelerator_memory_mib": 49152,
+      "cost_per_hour": 1.7,
+      "availability_score": 0.9
+    }
+  ]
+}
