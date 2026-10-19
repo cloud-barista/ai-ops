@@ -24,10 +24,13 @@ AI 응용의 실측 기록과 공개 워크로드를 이용해 실행 성능, �
 
 Python 3.10~3.12와 연구 당시의 고정 패키지 버전을 사용합니다.
 
+아래 재현 명령은 저장소 루트의 Linux 셸 기준입니다. `scripts` 간 모듈을 불러올 수 있도록 연구 디렉터리를 Python 경로에 추가합니다.
+
 ```bash
 python -m venv .venv
 python -m pip install -r poc/optimization_research/requirements.txt
 python -m pip install pytest
+export PYTHONPATH="$PWD/poc/optimization_research${PYTHONPATH:+:$PYTHONPATH}"
 python poc/optimization_research/scripts/train_performance.py --help
 ```
 
