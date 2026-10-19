@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "request_id": "flow-prometheus-demo",
+  "application_profile": {
+    "profile_id": "profile-prometheus-demo",
+    "app_id": "chat-service",
+    "app_version": "1.0.0",
+    "workload": {
+      "task_type": "LLM_INFERENCE",
+      "request_pattern": "ONLINE"
+    },
+    "requirements": {
+      "compute": {
+        "cpu_cores_min": 8,
+        "memory_mib_min": 32768,
+        "storage_gib_min": 20
+      },
+      "accelerator": {
+        "required": true,
+        "type": "GPU",
+        "count_min": 1,
+        "memory_mib_min_per_device": 12000
+      },
+      "deployment": {
+        "replicas_min": 1,
+        "replicas_max": 2,
+        "isolation": "ONE_MAJOR_APP_PER_VM"
+      },
+      "slo": {},
+      "cost": {}
+    },
+    "analysis": {
+      "confidence": 1,
+      "assumptions": []
+    }
+  },
+  "preferences": {
+    "max_results": 3
+  }
+}

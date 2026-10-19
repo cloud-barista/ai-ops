@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-mcmp.example/schemas/resource_recommendation.schema.json",
+  "title": "ResourceRecommendation",
+  "type": "object",
+  "required": [
+    "schema_version", "request_id", "source", "observed_at", "query",
+    "recommendations", "excluded_resources", "summary", "warnings"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "request_id": {"type": "string", "minLength": 1},
+    "profile_id": {"type": "string", "minLength": 1},
+    "source": {"type": "string", "minLength": 1},
+    "observed_at": {"type": "string", "format": "date-time"},
+    "query": {"$ref": "resource_query.schema.json"},
+    "recommendations": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/rankedResource"}
+    },
+    "excluded_resources": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/excludedResource"}
+    },
+    "summary": {
+      "type": "object",
+      "required": ["discovered", "feasible", "excluded", "returned"],
+      "properties": {
+        "discovered": {"type": "integer", "minimum": 0},
+        "feasible": {"type": "integer", "minimum": 0},
+        "excluded": {"type": "integer", "minimum": 0},
+        "returned": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "warnings": {"type": "array", "items": {"type": "string"}}
+  },
+  "$defs": {
+    "rankedResource": {
+      "type": "object",
+      "required": ["rank", "score", "resource", "score_breakdown", "reasons"],
+      "properties": {
+        "rank": {"type": "integer", "minimum": 1},
+        "score": {"type": "number", "minimum": 0, "maximum": 100},
+        "resource": {"$ref": "#/$defs/resourceProfile"},
+        "score_breakdown": {"$ref": "#/$defs/scoreBreakdown"},
+        "reasons": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/reason"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "resourceProfile": {
+      "type": "object",
+      "required": ["resource_id", "healthy", "observed_at", "cpu", "memory", "storage", "accelerators", "warnings"],
+      "properties": {
+        "resource_id": {"type": "string", "minLength": 1},
+        "hostname": {"type": "string"},
+        "address": {"type": "string"},
+        "provider": {"type": "string"},
+        "region": {"type": "string"},
+        "resource_type": {"type": "string"},
+        "architecture": {"type": "string"},
+        "operating_system": {"type": "string"},
+        "healthy": {"type": "boolean"},
+        "observed_at": {"type": "string", "format": "date-time"},
+        "cpu": {
+          "type": "object",
+          "required": ["logical_cores"],
+          "properties": {
+            "logical_cores": {"type": "integer", "minimum": 0},
+            "available_cores": {"type": "number", "minimum": 0},
+            "utilization_percent": {"type": "number", "minimum": 0, "maximum": 100}
+          },
+          "additionalProperties": false
+        },
+        "memory": {
+          "type": "object",
+          "required": ["total_mib"],
+          "properties": {
+            "total_mib": {"type": "number", "minimum": 0},
+            "available_mib": {"type": "number", "minimum": 0}
+          },
+          "additionalProperties": false
+        },
+        "storage": {
+          "type": "object",
+          "required": ["total_gib"],
+          "properties": {
+            "total_gib": {"type": "number", "minimum": 0},
+            "available_gib": {"type": "number", "minimum": 0}
+          },
+          "additionalProperties": false
+        },
+        "accelerators": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/accelerator"}
+        },
+        "labels": {"type": "object", "additionalProperties": {"type": "string"}},
+        "warnings": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "accelerator": {
+      "type": "object",
+      "required": ["device_id", "type", "memory_total_mib", "healthy"],
+      "properties": {
+        "device_id": {"type": "string", "minLength": 1},
+        "index": {"type": "string"},
+        "type": {"type": "string", "minLength": 1},
+        "model": {"type": "string"},
+        "memory_total_mib": {"type": "number", "minimum": 0},
+        "memory_available_mib": {"type": "number", "minimum": 0},
+        "utilization_percent": {"type": "number", "minimum": 0, "maximum": 100},
+        "healthy": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "scoreBreakdown": {
+      "type": "object",
+      "required": ["health", "total"],
+      "properties": {
+        "cpu": {"type": "number", "minimum": 0, "maximum": 100},
+        "memory": {"type": "number", "minimum": 0, "maximum": 100},
+        "storage": {"type": "number", "minimum": 0, "maximum": 100},
+        "accelerator": {"type": "number", "minimum": 0, "maximum": 100},
+        "health": {"type": "number", "minimum": 0, "maximum": 100},
+        "total": {"type": "number", "minimum": 0, "maximum": 100}
+      },
+      "additionalProperties": false
+    },
+    "reason": {
+      "type": "object",
+      "required": ["code", "message"],
+      "properties": {
+        "code": {"type": "string", "minLength": 1},
+        "message": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "excludedResource": {
+      "type": "object",
+      "required": ["resource_id", "failures"],
+      "properties": {
+        "resource_id": {"type": "string", "minLength": 1},
+        "failures": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["code", "field", "reason"],
+            "properties": {
+              "code": {"type": "string", "minLength": 1},
+              "field": {"type": "string", "minLength": 1},
+              "required": {},
+              "actual": {},
+              "reason": {"type": "string", "minLength": 1}
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
