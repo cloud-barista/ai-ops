@@ -1,0 +1,107 @@
+{
+  "schema_version": "ai-ops.llm-op-demo-catalog/v1",
+  "execution_policy": {
+    "mode": "offline_fixture_only",
+    "network_allowed": false,
+    "weights_loaded": false,
+    "model_selection_enabled": false,
+    "appdeploy_submit_enabled": false
+  },
+  "planner_model_bindings": [
+    {
+      "candidate_id": "qwen3.5-ops-planner",
+      "binding_mode": "caller_pinned",
+      "provider": "offline-fixture",
+      "actual_model": "fixture-qwen-contract-not-executed",
+      "intended_model": "qwen3.5:4b",
+      "initial_preference_weight": 1.0,
+      "weight_semantics": "metadata_only_no_selection",
+      "json_mode": true,
+      "network_allowed": false,
+      "weights_loaded": false,
+      "benchmark_status": "not_executed"
+    }
+  ],
+  "ai_services": [
+    {
+      "service_id": "svc-llm-inference-demo-v1",
+      "display_name": "한국어 질의응답 추론 데모",
+      "task": "chat_completion",
+      "description": "자연어 질의에 한국어 답변을 생성하는 등록 예정 서비스의 오프라인 계약 예시",
+      "app_version_id": "appver-llm-inference-v1",
+      "workload_model_ref": "qwen3.5:4b",
+      "lifecycle_status": "demo_catalog_only",
+      "input_media_type": "application/json; profile=chat-request",
+      "output_media_type": "application/json; profile=chat-response",
+      "network_endpoint_ready": false,
+      "weights_loaded": false,
+      "default_resources": {
+        "cpu": "4",
+        "memory": "16Gi",
+        "gpu": "1",
+        "storage": "20Gi",
+        "accelerator": "nvidia"
+      }
+    },
+    {
+      "service_id": "svc-ko-intent-demo-v1",
+      "display_name": "한국어 문의 의도 분류 데모",
+      "task": "text_classification",
+      "description": "고객 문의를 사전 정의된 업무 의도로 분류하는 등록 예정 서비스의 오프라인 계약 예시",
+      "app_version_id": "appver-ko-intent-v1",
+      "workload_model_ref": "registered/ko-intent-model-v1",
+      "lifecycle_status": "demo_catalog_only",
+      "input_media_type": "application/json; profile=classification-request",
+      "output_media_type": "application/json; profile=classification-response",
+      "network_endpoint_ready": false,
+      "weights_loaded": false,
+      "default_resources": {
+        "cpu": "4",
+        "memory": "8Gi",
+        "gpu": "0",
+        "storage": "100Gi",
+        "accelerator": "none"
+      }
+    },
+    {
+      "service_id": "svc-ko-embedding-demo-v1",
+      "display_name": "한국어 문서 임베딩 데모",
+      "task": "text_embedding",
+      "description": "문서와 질의를 벡터로 변환하는 등록 예정 서비스의 오프라인 계약 예시",
+      "app_version_id": "appver-ko-embedding-v1",
+      "workload_model_ref": "registered/ko-embedding-model-v1",
+      "lifecycle_status": "demo_catalog_only",
+      "input_media_type": "application/json; profile=embedding-request",
+      "output_media_type": "application/json; profile=embedding-response",
+      "network_endpoint_ready": false,
+      "weights_loaded": false,
+      "default_resources": {
+        "cpu": "8",
+        "memory": "16Gi",
+        "gpu": "0",
+        "storage": "100Gi",
+        "accelerator": "none"
+      }
+    },
+    {
+      "service_id": "svc-doc-vlm-demo-v1",
+      "display_name": "문서 이미지 이해 데모",
+      "task": "vision_language_inference",
+      "description": "문서 이미지를 입력받아 구조화된 설명을 생성하는 등록 예정 서비스의 오프라인 계약 예시",
+      "app_version_id": "appver-doc-vlm-v1",
+      "workload_model_ref": "registered/doc-vlm-model-v1",
+      "lifecycle_status": "demo_catalog_only",
+      "input_media_type": "application/json; profile=document-image-request",
+      "output_media_type": "application/json; profile=document-analysis-response",
+      "network_endpoint_ready": false,
+      "weights_loaded": false,
+      "default_resources": {
+        "cpu": "8",
+        "memory": "32Gi",
+        "gpu": "1",
+        "storage": "100Gi",
+        "accelerator": "nvidia"
+      }
+    }
+  ]
+}

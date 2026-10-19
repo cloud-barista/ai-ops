@@ -1,0 +1,8 @@
+{
+  "natural_language_request": "GPU 1개, CPU 4개, 메모리 16Gi, 디스크 20Gi가 필요한 추론 앱을 배포해 주세요.",
+  "app_version_id": "appver-llm-inference-v1",
+  "candidate_id": "qwen3.5-ops-planner",
+  "requested_by": "ai-ops-geon-planner",
+  "poll_interval_ms": 1000,
+  "max_poll_attempts": 60
+}

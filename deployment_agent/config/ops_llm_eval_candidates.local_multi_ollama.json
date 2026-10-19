@@ -1,0 +1,38 @@
+{
+  "version": "1",
+  "benchmark_mode": "local_multi_example_candidate_config",
+  "description": "Ollama models are only local example providers for multi-candidate executed benchmark. This config is not an executed result by itself.",
+  "candidates": [
+    {
+      "candidate_id": "local-ollama-qwen35-4b",
+      "role_label": "primary-ops-llm",
+      "provider": "local-openai-compatible",
+      "actual_model": "qwen3.5:4b",
+      "endpoint": "http://127.0.0.1:11434/v1/chat/completions",
+      "enabled": true,
+      "json_mode": true,
+      "reasoning_effort": "none",
+      "timeout_seconds": 120
+    },
+    {
+      "candidate_id": "local-ollama-llama32-3b",
+      "role_label": "balanced-ops-llm",
+      "provider": "local-openai-compatible",
+      "actual_model": "llama3.2:3b",
+      "endpoint": "http://127.0.0.1:11434/v1/chat/completions",
+      "enabled": true,
+      "json_mode": true,
+      "timeout_seconds": 60
+    },
+    {
+      "candidate_id": "local-ollama-gemma2-2b",
+      "role_label": "low-cost-ops-llm",
+      "provider": "local-openai-compatible",
+      "actual_model": "gemma2:2b",
+      "endpoint": "http://127.0.0.1:11434/v1/chat/completions",
+      "enabled": true,
+      "json_mode": true,
+      "timeout_seconds": 60
+    }
+  ]
+}
