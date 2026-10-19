@@ -1,0 +1,256 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>KHU · AI Application Research PoC</title><link rel="stylesheet" href="research-theme.css?v=20261019-loading"></head><body data-workspace-view="overview">
+<aside class="sidebar" id="sidebar" aria-label="PoC 메뉴">
+  <button id="menu-close" class="menu-close" type="button" aria-label="메뉴 닫기">×</button>
+  <a class="sidebar-brand" href="#overview"><span class="brand-mark">K</span><span><strong>KHU AI</strong><small>APPLICATION RESEARCH</small></span></a>
+  <p class="sidebar-caption">AI 응용 배포·운영 PoC</p>
+  <nav class="sidebar-nav" aria-label="주요 메뉴">
+    <a href="#overview" aria-current="location"><span>⌂</span>실험 개요</a>
+    <a href="#application"><span>01</span>요구사항</a>
+    <a href="#infrastructure"><span>02</span>자원 추천 · 선택</a>
+    <a href="#planning"><span>03</span>배포 계획</a>
+    <a href="#deployment"><span>04</span>배포 실행</a>
+    <a href="#operation"><span>05</span>모니터링 · 운영 판단</a>
+    <a href="#validation"><span>06</span>실험 결과</a>
+    <a href="#events"><span>◷</span>실행 기록</a>
+    <a href="#settings" class="sidebar-settings"><span>⚙</span>Agent 설정</a>
+  </nav>
+  <div class="sidebar-status"><span class="status-dot"></span>연구 PoC 플랫폼<small>로컬 실행 / AWS CPU·GPU 검증</small></div>
+</aside>
+<button id="menu-backdrop" class="menu-backdrop" type="button" aria-label="메뉴 닫기" hidden></button>
+<div class="workspace">
+<header class="top"><button id="menu-toggle" class="menu-toggle" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="메뉴 열기">☰</button><a class="brand" href="#overview"><span class="brand-mark">K</span><strong>KHU <span>AI RESEARCH</span></strong></a><span class="top-label">경희대 알고리즘 실험·검증 PoC</span><span class="mode">연구 PoC</span></header><main id="overview">
+<section class="hero overview-hero current-page" data-workspace-page="overview">
+  <div><p class="eyebrow">경희대학교 · AI 에이전트 구현과 동작 검증</p><h1>요구사항에서 실제 실행까지<br>연결하는 AI 에이전트 PoC</h1>
+    <p class="hero-copy">경희대의 요구사항 분석과 자원 추천, 배포·운영 판단을 실제 실행으로 검증합니다.</p>
+    <div class="hero-actions"><button class="primary" id="recording-start" type="button">처음부터 직접 시연 준비</button></div>
+    <p class="help">기존 VM을 종료·정리한 뒤, LLM 선택부터 새 시연을 시작합니다.</p>
+  </div>
+</section>
+
+<section id="experiment-flow" class="panel overview-flow current-page" data-workspace-page="overview">
+  <p class="eyebrow">실험 방법</p><h2>시연 순서</h2>
+  <ol class="overview-flow-list" aria-label="전체 실험 흐름">
+    <li><a href="#application"><span class="overview-step-number">01</span><strong>요구사항 분석</strong><p>모델·자원·성능 목표를 정리</p></a></li>
+    <li><a href="#infrastructure"><span class="overview-step-number">02</span><strong>인프라 추천</strong><p>조건에 맞는 CPU/GPU 후보 비교</p></a></li>
+    <li><a href="#planning"><span class="overview-step-number">03</span><strong>배포 판단과 검증</strong><p>조건을 검증하고 승인된 계획 기록</p></a></li>
+    <li><a href="#deployment"><span class="overview-step-number">04</span><strong>별도 실행 요청</strong><p>실행 모듈에서 배포하고 추론 측정</p></a></li>
+    <li><a href="#operation"><span class="overview-step-number">05</span><strong>운영 판단</strong><p>관측값으로 유지·확장·축소 결정</p></a></li>
+  </ol>
+  <details class="overview-methods"><summary>실험 경로·단계 설명</summary>
+    <div class="overview-method-grid">
+      <div><h3>실험 경로</h3><dl>
+        <dt>과거 AWS VM 비교</dt><dd>저장된 VM 실측으로 인프라를 비교하고, Mock 실행·예시 관측으로 판단 흐름을 확인합니다.</dd>
+        <dt>이 PC 실제 실행</dt><dd>어플리케이션을 실제 실행하고, 추론 성능과 자원 사용량을 측정해 운영 판단을 확인합니다.</dd>
+        <dt>AWS VM 실행</dt><dd>비용 승인과 별도 실행 요청을 거쳐 CPU 및 GPU VM의 배포와 추론을 검증했습니다. 기존 AWS 기록은 실험 결과의 참고 영역에서 조회합니다.</dd>
+      </dl></div>
+      <div><h3>구성 모듈</h3><dl>
+        <dt>요구사항 분석</dt><dd>자연어·구조화 입력의 자원 조건 정리</dd>
+        <dt>인프라 추천</dt><dd>조건에 맞는 인프라 후보 추천</dd>
+        <dt>배포·운영 판단</dt><dd>배포 계획·운영 판단과 조건 검증</dd>
+        <dt>실행·관측</dt><dd>실행·측정과 자원 지표 수집</dd>
+      </dl></div>
+    </div>
+  </details>
+</section>
+<section id="validation" class="panel validation-panel" data-workspace-page="validation" aria-labelledby="validation-title">
+  <div class="section-head"><div><p class="eyebrow">06 · 이번 실험의 결과</p><h2 id="validation-title">실험 결과</h2></div><button id="experiment-result-refresh" type="button" class="secondary" disabled>현재 실험 결과 새로고침</button></div>
+  <p class="description">앞의 다섯 단계에서 진행한 이번 실험의 결과입니다. 상세 내용은 각 단계에서 확인합니다.</p>
+  <div id="experiment-result" aria-live="polite"></div>
+  <details id="research-evaluation" class="summary-details research-evaluation"><summary>기존 실험 자료와 추가 비교</summary>
+    <p class="help">아래 AWS 시험과 로컬 성능 비교는 별도로 수행한 실험입니다. 이번 실행의 성공 여부와 구분해서 확인하세요. 추가 비교는 실제 앱 구성을 변경하지 않습니다.</p>
+    <button id="validation-reload" type="button" class="secondary">기존 실행 기록 다시 불러오기</button>
+  <p id="validation-status" class="description" role="status" aria-live="polite">저장된 AWS 검증 기록을 불러오는 중입니다.</p>
+  <p id="validation-runtime" class="validation-runtime">현재 플랫폼 설정 확인 중</p><p id="validation-loaded-at" class="help"></p>
+  <details class="validation-demo-guide"><summary>워크숍에서 보여줄 순서</summary>
+    <ol><li>요구사항 분석과 CPU/GPU 자원 추천을 설명합니다.</li><li>배포 계획에서 판단과 별도 검증, 승인된 계획을 확인합니다.</li><li>별도 실행 요청을 거친 실제 AWS 배포 결과와 CPU 또는 CUDA 추론 기록을 엽니다.</li><li>모니터링에서 실측값과 운영 판단을 확인합니다.</li><li>CPU VM 1 → 2 → 1 → 0 이력과 각 단계의 추론, 종료 및 정리 결과를 확인합니다.</li></ol>
+    <p class="help">이 화면은 과거 실제 실행의 저장 기록을 보여줍니다. 새 배포의 실시간 시연은 비용 검토와 실행 승인이 필요합니다.</p>
+  </details>
+  <div id="validation-cards" class="validation-results"><p class="empty">검증 기록을 준비하고 있습니다.</p></div>
+  <section id="policy-validation" class="policy-validation" aria-label="로컬 실행 안정성과 운영 정책 비교"><p class="help">로컬 비교 기록을 준비하고 있습니다.</p></section>
+  <div class="validation-comparisons" aria-labelledby="validation-comparison-title">
+    <h3 id="validation-comparison-title">요구사항 분석과 판단 방식 비교</h3>
+    <p id="validation-comparison-context" class="help" role="status"></p><a id="validation-current-operation" class="text-button" href="#operation" hidden>현재 실험의 모니터링·운영 판단 →</a>
+    <p class="help">LLM 비교는 고정된 요구사항 사례를 사용합니다. 배포·운영 정책 비교는 현재 실험에 기록되며 실행 구성을 변경하지 않습니다.</p>
+    <details id="llm-eval-panel" class="llm-eval-panel"><summary>LLM 비교·선정</summary><p class="help">Qwen과 Llama가 같은 요구사항을 분석합니다. 자원 조건 추출과 JSON·Profile 유효성을 비교하고, 실제 분석에 사용할 모델을 선택하세요.</p><div class="llm-eval-toolbar"><button id="llm-eval-run" type="button" class="secondary" disabled>두 모델 실제 비교</button><button id="llm-eval-reload" type="button" class="event-button">저장된 비교 불러오기</button><label>LLM 비교 기록<select id="llm-eval-record"><option>아직 비교 기록이 없습니다</option></select></label></div><p id="llm-eval-status" class="help" role="status" aria-live="polite">사용 가능한 로컬 모델을 확인합니다.</p><div class="llm-eval-table-wrap"><table class="validation-table llm-eval-table" aria-label="요구사항 분석 LLM 비교"><thead><tr><th scope="col">분석 모델</th><th scope="col">조건 추출 일치</th><th scope="col">JSON·Profile 통과</th><th scope="col">사례 전체 일치</th><th scope="col">평균 호출 시간</th><th scope="col">분석에 적용</th></tr></thead><tbody id="llm-eval-rows"></tbody></table></div><p id="llm-eval-protocol" class="help" hidden></p><details id="llm-eval-cases" hidden><summary>사례별 분석 결과·원본 보기</summary><div id="llm-eval-case-list"></div></details></details>
+    <details id="planning-comparisons" class="summary-details"><summary>배포 판단·Revision 비교</summary><div class="planning-tabs" role="tablist" aria-label="배포 연구 비교">
+<button type="button" role="tab" id="planning-reasoning-tab" data-planning-tab="reasoning" aria-controls="planning-reasoning-panel" aria-selected="true">규칙 · Qwen · 검증 비교</button>
+<button type="button" role="tab" id="planning-research-tab" data-planning-tab="research" aria-controls="planning-research-panel" aria-selected="false">기존 연구 정책 비교</button>
+<button type="button" role="tab" id="planning-revisions-tab" data-planning-tab="revisions" aria-controls="planning-revisions-panel" aria-selected="false">명세 변경 비교</button>
+</div>
+<div id="planning-revisions-panel" class="research-connection revision-panel" role="tabpanel" aria-labelledby="planning-revisions-tab" hidden>
+<div class="research-heading"><span class="eyebrow">배포 계획의 변화</span><h3>최초 계획에서 무엇이 바뀌었나요?</h3></div>
+<p class="help">같은 VM 선택에서 생성한 명세를 비교합니다. 최초 배포와 운영 판단의 자원·추론 설정 변화를 확인하세요.</p>
+<div class="revision-controls"><label>비교할 VM 선택 기록<select id="revision-selection"></select></label><label>변경 전 명세<select id="revision-from"></select></label><label>변경 후 명세<select id="revision-to"></select></label></div>
+<p id="revision-context" class="help" role="status">배포 계획을 만들면 명세가 표시됩니다.</p>
+<ol id="revision-timeline" class="revision-timeline" aria-label="명세 생성 이력"></ol>
+<div id="revision-comparison"></div>
+<p id="revision-origin" class="help" hidden>생성한 배포 계획을 비교합니다. 실행 상태는 어플리케이션 배포 단계에서 확인합니다.</p>
+<details id="revision-raw" hidden><summary>선택한 명세 원문 보기</summary><div class="revision-originals"><div><h4 id="revision-from-title">변경 전</h4><pre id="revision-from-json"></pre></div><div id="revision-to-original"><h4 id="revision-to-title">변경 후</h4><pre id="revision-to-json"></pre></div></div></details>
+</div>
+<div id="planning-reasoning-panel" class="research-connection" role="tabpanel" aria-labelledby="planning-reasoning-tab">
+<div class="research-heading"><span class="eyebrow">판단 방식 비교</span><h3>같은 입력에서 판단 방식을 비교합니다</h3></div>
+<p class="help">규칙에 따른 기준 판단, Qwen의 AI 제안, 조건 검증을 거친 제안을 같은 어플리케이션과 자원 조건으로 비교합니다.</p>
+<div id="reasoning-input" class="reasoning-input"></div>
+<div class="section-actions"><span id="reasoning-model" class="module">로컬 Qwen</span><div class="research-actions"><button id="reasoning-run" type="button" class="secondary" disabled>판단 방식 비교</button><button id="reasoning-refresh" type="button" class="secondary" hidden>기존 결과 조회</button></div></div>
+<p id="reasoning-context" class="help" role="status">배포 계획을 만든 뒤 비교할 수 있습니다.</p>
+<p id="reasoning-progress" class="reasoning-progress" hidden>로컬 Qwen 응답 대기 · <span id="reasoning-elapsed">0초</span></p>
+<div id="reasoning-results" class="reasoning-trials"></div><p id="reasoning-time" class="help"></p>
+<p id="reasoning-execution-note" class="help"></p><a id="reasoning-next" class="text-button" href="#deployment" hidden>다음 실행 단계로 이동 →</a>
+<details id="reasoning-detail" hidden><summary>판단 이유 원문 · 비교 상세</summary><div id="reasoning-originals"></div><details class="reasoning-raw"><summary>입력 연결 · 원본 비교 결과</summary><pre id="reasoning-json"></pre></details></details>
+</div>
+<div id="planning-research-panel" class="research-connection" role="tabpanel" aria-labelledby="planning-research-tab" hidden><div class="research-heading"><span class="eyebrow">기존 연구 정책</span><h3>기존 연구 실험 · 배포 후보 선택 검증</h3></div><p class="help">khu-policy-experiment의 실제 추론 기록을 활용합니다. 기존 연구 사례를 골라 학습 정책과 측정 결과를 비교합니다.</p><div class="monitor-toolbar"><label>기존 연구 사례<select id="research-planning-case"><option>연구 사례 연결 대기</option></select></label><div class="research-actions"><button id="research-planning-run" type="button" class="secondary" disabled>정책 선택 비교</button><button id="research-planning-all" type="button" class="secondary" disabled>이 단계 사례 모두 비교</button></div></div><div id="research-planning-output"></div></div></details>
+    <details id="operation-policy-comparison" class="summary-details"><summary>기존 연구 정책 비교 · 유지·확장·축소</summary><div class="research-connection"><div class="research-heading"><span class="eyebrow">기존 연구 정책</span><h3>기존 연구 실험 · 유지·확장·축소 선택 검증</h3></div><p class="help">khu-policy-experiment의 실제 추론 기록을 활용합니다. 기존 연구 사례를 골라 학습 정책과 측정 결과를 비교합니다.</p><div class="monitor-toolbar"><label>기존 연구 사례<select id="research-operation-case"><option>연구 사례 연결 대기</option></select></label><div class="research-actions"><button id="research-operation-run" type="button" class="secondary" disabled>정책 선택 비교</button><button id="research-operation-all" type="button" class="secondary" disabled>이 단계 사례 모두 비교</button></div></div><div id="research-operation-output"></div></div></details>
+  </div>
+
+</details>
+</section>
+<section id="settings" class="panel" data-workspace-page="settings" aria-labelledby="settings-title">
+  <div class="section-head"><div><p class="eyebrow">개발용 설정</p><h2 id="settings-title">Agent 설정</h2></div></div>
+  <p class="description">판단을 수행할 로컬 Agent의 등록과 연결을 관리합니다. 이번 실험의 결과와 구분합니다.</p>
+  <details id="agent-validation" open class="summary-details"><summary>Agent 등록·호출 검증</summary><p class="help">로컬 HTTP Agent를 등록하여 호출과 조건 검증을 확인합니다. 사용할 Agent는 배포 계획과 운영 판단 화면에서 각각 선택합니다.</p><p id="agents-status" class="help" role="status">Agent 목록 조회 중</p><button id="agents-refresh" class="secondary" type="button">Agent 목록 조회</button><form id="agent-register" class="form-grid"><label>Agent 이름<input id="agent-name" value="KhuReferenceAgent" required pattern="[A-Za-z][A-Za-z0-9_-]{2,63}"></label><label>버전<input id="agent-version" value="1" required></label><button id="agent-register-button" class="secondary" type="submit">Agent 등록</button></form></details>
+</section>
+
+<div class="flow-bar"><span id="flow-status" role="status" aria-live="polite">요구사항을 입력해 시작하세요</span><span id="flow-context">데모 관측 · Mock 실행</span><button id="new-flow" class="text-button">새 실험</button></div>
+<section id="active-cloud-notice" class="profile-summary" hidden aria-label="진행 중인 AWS 실험"><strong>진행 중인 AWS 실험</strong><p class="help">새 요구사항 분석과 자원 추천은 가능합니다. 추가 VM 실행은 기존 VM의 종료와 정리를 확인한 후 진행합니다.</p><div id="active-cloud-links" class="button-row"></div></section>
+<div class="workspace-context" aria-label="현재 실험 조건"><div><span>어플리케이션</span><strong id="workspace-app">새 실험</strong></div><div><span>실행 조건</span><strong id="workspace-model">조건 입력 전</strong></div><div><span>선택한 자원</span><strong id="workspace-resource">선택 전</strong></div></div>
+
+<section id="workspace-guide" class="workspace-guide" aria-labelledby="workspace-guide-title" hidden>
+  <div class="workspace-guide-heading"><h2 id="workspace-guide-title"></h2><span id="workspace-guide-route" class="module"></span></div>
+  <details class="workspace-guide-explanation"><summary>이 단계 설명</summary><dl class="workspace-guide-io"><div><dt>입력</dt><dd id="workspace-guide-input"></dd></div><div><dt>경희대 메커니즘</dt><dd id="workspace-guide-process"></dd></div><div><dt>확인할 결과</dt><dd id="workspace-guide-output"></dd></div></dl></details>
+  <div class="workspace-guide-action"><div><strong id="workspace-guide-status" role="status"></strong><p id="workspace-guide-detail"></p></div><a id="workspace-guide-next" class="secondary" hidden></a></div>
+</section>
+<section id="workflow-error" class="workflow-error" role="alert" hidden><strong id="workflow-error-title"></strong><p id="workflow-error-detail"></p><a id="workflow-error-next" class="text-button"></a></section>
+<section class="panel" id="application" data-workspace-page="application">
+  <div class="section-head"><div><p class="eyebrow">01 · 요구사항 분석</p><h2>실험 조건을 정하세요</h2></div></div>
+  <p class="description">실행할 모델과 성능 목표를 정하면, 필요한 자원을 분석하고 인프라를 추천합니다.</p>
+  <p id="analysis-lock-note" class="help" role="status" hidden></p>
+  <form id="app-form">
+    <label class="execution-route-choice">실험 방식<select id="execution-target" aria-describedby="requirement-route"><option value="cloud" selected>AWS VM 실행·별도 비용 승인</option><option value="local">보조 시험 · 이 PC에서 실행·측정</option><option value="historical">과거 VM 비교·모의 실행</option></select></label>
+    <p id="requirement-route" class="requirement-route">실험 방식 · 과거 VM 실측으로 비교</p>
+    <fieldset class="requirement-group"><legend>1. 실행 대상</legend>
+      <div class="form-grid requirement-pair">
+        <label hidden>실행할 AI 모델<select id="local-model" required></select></label>
+        <label>비교할 모델·실행 조건<select id="cohort" required></select></label>
+        <label id="scenario-field">자원 조건<select id="scenario"><option value="cpu">CPU 추론</option><option value="gpu">GPU 추론 · 1개</option><option value="excessive" hidden>대용량 조건 시험</option></select></label>
+      </div>
+      <label class="requirement-input-mode">요구사항 입력 방식<select id="analysis-mode"><option value="natural_language" selected>설명으로 입력 · 로컬 LLM 분석</option><option value="structured">직접 조건 지정</option></select></label>
+      <div id="natural-language-field" hidden class="natural-language-field">
+        <label>필요한 자원과 성능을 설명하세요<textarea id="natural-request" rows="4" maxlength="8000" aria-describedby="profile-llm-help">온라인 텍스트 분류 서비스입니다. CPU 2코어, 메모리 2GiB, 저장소 20GiB가 필요합니다. GPU는 필요 없습니다. 복제본은 최소 1개, 최대 1개입니다. 서비스 p95 지연 상한은 5000ms입니다. 비용 한도와 최소 처리량은 지정하지 않습니다.</textarea></label>
+        <p id="profile-llm-help" class="help">실행 목적, CPU·GPU 필요 여부, 원하는 응답시간과 처리량을 적으세요.</p>
+        <details><summary>분석에 사용할 LLM 선택</summary><label>요구사항 분석 모델<select id="profile-llm"></select></label></details>
+      </div>
+    </fieldset>
+    <fieldset id="performance-goals" class="requirement-group"><legend>2. 성능 목표</legend>
+      <div id="benchmark-conditions">
+        <div id="benchmark-fields" class="form-grid requirement-pair">
+          <label>최대 배치 지연 <small>p95 · ms</small><input id="latency" type="number" min="0.01" step="0.01" value="5" required></label>
+          <label>최소 처리량 <small>입력/초</small><input id="throughput" type="number" min="1" value="400" required></label>
+        </div>
+        <p class="help">과거 VM의 같은 모델·배치·입력 길이 측정값과 비교합니다.</p>
+      </div>
+      <details id="service-conditions"><summary>운영 판단에 사용할 서비스 성능</summary>
+        <div class="form-grid requirement-pair">
+          <label>최대 응답시간 <small>p95 · ms · 0: 미지정</small><input id="service-latency" type="number" min="0" value="50" required></label>
+          <label>최소 요청 처리량 <small>요청/초 · 0: 미지정</small><input id="service-throughput" type="number" min="0" value="0" required></label>
+        </div>
+        <p class="help">실행 후 측정 결과와 비교해 유지·확장·축소를 판단합니다.</p>
+      </details>
+      <p class="help">p95는 측정값의 95%가 이 시간 이하라는 뜻입니다.</p>
+    </fieldset>
+    <details id="requirements-advanced" class="advanced"><summary>추가 설정</summary>
+      <div class="form-grid requirement-pair">
+        <label>실험 이름<input id="app-id" value="bert-tiny-poc" required maxlength="80"></label>
+      </div>
+      <p id="local-app-info" class="help"></p>
+      <details id="structured-conditions"><summary>자원 세부 설정</summary>
+        <div class="form-grid"><label>최소 CPU <small>vCPU</small><input id="cpu" type="number" min="1" max="512" value="2" required></label><label>최소 메모리 <small>GiB</small><input id="memory" type="number" min="1" max="4096" value="1" required></label><label>저장소 <small>GiB</small><input id="storage" type="number" min="1" value="20" required></label><label>최대 복제본<input id="max-replicas" type="number" min="1" max="2" value="2" required></label></div>
+        <p id="replica-limit-help" class="help" hidden>AWS GPU 실행은 현재 복제본 1개를 지원합니다.</p>
+      </details>
+      <details id="cost-conditions"><summary>비용 비교 기준</summary><label>비용 비교 기준<select id="objective"><option value="hourly">계속 운영 · 시간당 비용</option><option value="work">정해진 작업 · 처리량당 비용</option></select></label></details>
+      <details id="resource-stress-settings"><summary>연구 시험 조건</summary><p class="help">큰 자원 요구사항으로 후보가 없는 경우를 확인합니다.</p><button id="resource-stress" type="button" class="secondary">대용량 조건 적용</button></details>
+      <p class="help"><a href="#llm-eval-panel">LLM 비교 결과 보기 →</a></p>
+    </details>
+    <div class="form-bottom"><span>분석 결과는 인프라 추천과 배포 계획에 이어집니다.</span><button class="primary" type="submit" id="analyze">요구사항 분석하고 인프라 추천받기 →</button></div>
+  </form>
+  <div id="profile-summary" hidden class="profile-summary"></div>
+</section>
+<section class="panel" id="infrastructure" data-workspace-page="infrastructure"><div class="section-head"><div><p class="eyebrow">02 · 인프라 추천</p><h2>실험한 VM 중에서 선택하세요</h2></div></div><p class="description">필요한 자원에 맞는 후보를 먼저 보여줍니다. 선택한 자원과 요구사항이 배포 판단의 입력으로 전달됩니다.</p><p id="candidate-overview" class="candidate-overview" hidden></p><div id="resource-issues" class="resource-issues" role="status" hidden></div><button id="resources-refresh" class="secondary" type="button" hidden>같은 요구사항으로 자원 다시 조회</button><div id="candidates" class="candidate-grid"><div class="empty">요구사항 분석 후 CPU·GPU 후보가 여기에 표시됩니다.</div></div><div id="selected-summary" class="selection-summary" hidden></div><details id="selected-resource-details" class="summary-details" hidden><summary>선택한 자원 상세 사양·실험 조건</summary><div id="selected-resource-detail" class="resource-detail" hidden></div></details><div class="section-actions"><span id="selection-note">다섯 VM 사양 · 동일 조건 측정값 비교</span><button class="primary" id="make-plan" disabled>이 인프라로 계획 만들기 →</button></div><details id="all-shapes"><summary>전체 실험 사양 보기</summary><div id="shape-list" class="shape-list"></div></details></section>
+<section class="panel" id="planning" data-workspace-page="planning">
+  <div class="section-head"><div><p class="eyebrow">03 · 배포 판단</p><h2>선택한 인프라의 배포 계획을 확인하세요</h2></div></div>
+  <p class="description">선택한 자원에 배포할 수 있는지 판단하고, 시작할 복제본 수와 실행 구성을 정합니다.</p>
+  <div id="plan-resource" class="planning-resource" hidden></div>
+  <div id="plan-output" class="empty">요구사항을 분석하고 배포할 인프라를 선택하세요.</div>
+  <div class="section-actions planning-actions"><span id="plan-action-note" class="help">계획을 만든 뒤 다음 단계에서 실제 실행을 시작합니다.</span><button id="planning-make" class="primary" type="button" hidden disabled>배포 계획 만들기 →</button><a id="plan-prerequisite" class="primary" href="#application">요구사항 분석으로 이동 →</a><a id="plan-next" class="primary" href="#deployment" hidden>배포 실행으로 이동 →</a></div>
+  <details id="planning-spec" class="summary-details"><summary>배포 구성·판단 근거</summary><div id="plan-configuration" class="output-grid"></div><div id="planning-resource-context" class="resource-context" hidden></div><details><summary>계획 명세 원문</summary><pre id="plan-detail">아직 생성된 계획이 없습니다.</pre></details></details>
+<details class="agent-panel"><summary>사용할 Agent · 배포 판단</summary><div class="form-grid"><label>배포 판단 Agent<select id="decision-agent"></select></label></div><p id="decision-agent-execution" class="help"></p><p id="decision-agent-status" class="help" role="status" aria-live="polite"></p><div class="button-row"><button id="agents-save" class="secondary" type="button">배포 판단 Agent 적용</button><a class="text-button" href="#agent-validation">Agent 등록·호출 검증 →</a></div></details></section>
+<section class="panel deployment-panel" id="deployment" data-workspace-page="deployment">
+
+  <div class="section-head"><div><p class="eyebrow">04 · 어플리케이션 배포</p><h2>선택한 자원에 어플리케이션을 배포합니다</h2></div></div>
+  <div class="deployment-state"><span id="deployment-badge" class="deployment-badge">WAITING</span><h3 id="deployment-title">배포할 어플리케이션을 준비하세요</h3><p id="deployment-description" class="description">어플리케이션 요구사항부터 입력하세요.</p><a id="deployment-next" class="text-button" href="#application">어플리케이션 요구사항 입력 →</a></div>
+  <div id="real-deployment">
+
+
+    <section id="cloud-panel" class="profile-summary" hidden>
+      <div class="section-head"><h3>클라우드 VM·어플리케이션 실행</h3><span id="cloud-connection" class="module">연결 확인</span></div>
+      <ol id="cloud-progress" class="cloud-progress" aria-label="클라우드 실행 진행 단계"></ol>
+      <p id="cloud-state" role="status"></p><p id="cloud-next" class="help"></p>
+      <a id="cloud-change-resource" class="text-button" href="#infrastructure" hidden>자원 추천에서 실행 대상 변경 →</a>
+      <details id="cloud-setup"><summary>연결 설정 확인</summary><ul id="cloud-setup-checks" class="cloud-setup-checks"></ul><p class="help">기존 SSH 키와 이미지 ID, AWS 조회 프로필을 연결 설정에 등록합니다. 비밀 값은 화면에 입력하지 않습니다.</p></details>
+      <div class="cloud-cost-summary"><p id="cloud-cost" class="help"></p><label>최대 실행 시간<select id="cloud-lifetime"><option value="2700">45분 · 설치·모델 준비 포함</option><option value="2400">40분 · 설치·모델 준비 포함</option><option value="1800">30분 · 설치·모델 준비 포함</option><option value="900">15분 · 설치·모델 준비 포함</option></select></label></div>
+      <div class="deployment-actions cloud-main-actions"><button id="cloud-review" class="secondary" type="button">01 현재 비용 검토</button><button id="cloud-approve" class="secondary" type="button" disabled>02 이번 실행 승인</button><button id="cloud-preflight" class="secondary" type="button" disabled>03 준비 검사</button><button id="cloud-create" class="primary" type="button" disabled>04 VM·어플리케이션 실행</button></div>
+      <label class="help cloud-consent"><input type="checkbox" id="cloud-cost-check">선택한 VM의 검토 비용과 최대 실행 시간을 확인했습니다.</label>
+      <p class="help">VM은 한 대씩 실행합니다. 모델 설치와 어플리케이션 배포가 이어지며, 종료 확인 후 다음 실험을 진행합니다. 비컴퓨트 여유는 계획값이며 실제 청구액의 확정 상한은 아닙니다.</p>
+      <p id="cloud-resource" class="help"></p><div class="deployment-actions"><button id="cloud-status" class="secondary" type="button" disabled>VM 상태 조회</button><button id="cloud-cleanup" class="secondary" type="button" disabled>촬영 완료 후 VM·응용 종료</button></div>
+      <p class="help">상태만 확인하려면 «VM 상태 조회»를 누르세요. «VM·응용 종료 요청»은 실행을 중단하므로 시연을 마친 뒤 사용하세요.</p><p id="cloud-error" role="status" class="help"></p><details><summary>연결·실행·정리 상세</summary><pre id="cloud-details"></pre></details>
+
+</section><div class="deployment-actions"><button id="app-submit" class="primary" disabled>이 PC에 어플리케이션 배포 →</button><button id="app-new" class="primary" hidden>새 어플리케이션 배포 시작 →</button><button id="app-refresh" class="secondary" disabled>상태·로그 조회</button><button id="app-stop" class="secondary" disabled>어플리케이션 중지</button></div>
+
+    <details><summary>어플리케이션 등록 명세 · 배포 로그</summary><button id="app-prepare" class="secondary" disabled>어플리케이션 등록 명세만 준비</button><div id="deployment-resource-context" class="resource-context" hidden></div><div id="deployment-summary" class="deployment-summary"></div><div id="app-status" class="profile-summary" role="status" aria-live="polite"></div><div class="deployment-route" aria-label="어플리케이션 배포 순서"><span>01 어플리케이션 등록</span><span>02 승인된 계획 전달</span><span>03 실제 프로세스 배포</span><span>04 상태·로그 확인</span></div><pre id="app-logs"></pre></details>
+  </div>
+  <div id="historical-deployment" hidden><div class="section-actions"><span id="mock-execution-info">과거 VM 비교에서는 승인된 계획의 Mock 실행 기록을 저장합니다.</span><button class="primary" id="execute" disabled>Mock 실행 기록 →</button></div><button id="start-local" class="secondary">이 PC에 실제 어플리케이션 배포 시작</button></div>
+<details id="cloud-campaign-panel" class="profile-summary"><summary>추가 실행 시험 · CPU VM 수 변경</summary><p class="help">명시적인 적용 요청으로 서로 다른 AWS VM을 생성하고 종료하는 실험입니다. 각 VM 안의 프로세스 복제본 수와 구분합니다.</p><label>저장된 증감 실험<select id="campaign-select"></select></label><p id="campaign-state" role="status"></p><p id="campaign-count"></p><p id="campaign-cost" class="help"></p><div id="campaign-children"></div><div class="deployment-actions"><button id="campaign-refresh" type="button">AWS 상태 조회</button><button id="campaign-start" type="button" disabled>첫 VM 실행</button><button id="campaign-expand" type="button" disabled>VM 1 → 2대 확장 요청</button><button id="campaign-shrink" type="button" disabled>VM 2 → 1대 축소 요청</button><button id="campaign-stop" type="button" disabled>전체 종료·정리</button></div><details><summary>새 증감 실험의 비용 검토</summary><label>첫 번째 CPU Flow ID<input id="campaign-flow-one" placeholder="flow-..."></label><label>두 번째 CPU Flow ID<input id="campaign-flow-two" placeholder="flow-..."></label><button id="campaign-review" type="button">두 실행의 비용 함께 검토</button><label class="help"><input type="checkbox" id="campaign-cost-check">두 VM의 검토 비용과 공통 종료 시한을 확인했습니다.</label><button id="campaign-approve" type="button" disabled>두 VM 실행 승인</button></details><p id="campaign-error" class="help" role="status"></p></details>
+</section>
+
+<section class="panel" id="operation" data-workspace-page="operation">
+  <div class="section-head"><div><p class="eyebrow">05 · 관측과 운영</p><h2>모니터링 · 운영 판단</h2></div></div>
+  <p class="description">실행한 어플리케이션의 CPU·메모리·응답 성능을 확인하고, 유지·확장·축소 판단을 함께 봅니다.</p>
+
+  <details class="agent-panel"><summary>사용할 Agent · 운영 판단</summary><label>운영 판단 Agent<select id="operation-agent"></select></label><p id="operation-agent-execution" class="help"></p><p class="help">다음 운영 판단에 사용할 Agent를 선택합니다.</p><button id="operation-agents-save" class="secondary" type="button">운영 판단 Agent 적용</button><p id="operation-agent-status" class="help" role="status" aria-live="polite"></p></details>
+
+  <div class="monitor-toolbar"><label>표시할 실행<select id="monitor-record"><option value="">현재 Flow · 어플리케이션 배포 전</option></select></label><button id="monitor-reload" type="button" class="secondary">저장된 실측 불러오기</button><button id="monitor-return-current" type="button" class="secondary" hidden>현재 실행으로 돌아가기</button></div>
+  <p id="monitor-context" class="help" role="status">저장된 실행 결과를 준비하고 있습니다.</p>
+  <div id="monitor-preparation" class="profile-summary" hidden role="status"><strong id="monitor-preparation-status"></strong><p id="monitor-preparation-detail" class="help"></p><a href="#deployment" class="text-button">배포 준비 상태 확인 →</a></div>
+  <div id="app-measurements" class="output-grid monitoring-metrics"></div>
+  <div id="feedback-output"></div><details id="prometheus-panel" class="prometheus-panel"><summary>자동 수집 · Prometheus</summary>
+    <div class="prometheus-toolbar"><strong id="prometheus-status" role="status">어플리케이션 배포 후 자동 수집</strong><span id="prometheus-server" class="module">Prometheus 준비 중</span></div>
+    <p id="prometheus-context" class="help">5초마다 자동 수집 · 최근 최대 60초</p>
+    <div id="prometheus-metrics" class="output-grid monitoring-metrics"></div>
+    <div class="prometheus-actions"><button id="prometheus-refresh" class="secondary" type="button">현재 수집 조회</button><button id="prometheus-feedback" class="primary" type="button" disabled>수집값으로 운영 판단</button></div>
+    <p class="help">CPU·메모리는 자동 수집합니다. 응답시간·처리량은 최근 60초에 추론 요청이 있어야 표시됩니다. 아래 실측 버튼으로 요청을 보낸 뒤 수집값을 조회하세요. 처리 p95는 서버 히스토그램의 추정값입니다.</p>
+    <details><summary>최근 CPU·메모리 변화</summary><div id="prometheus-charts" class="prometheus-charts"></div></details>
+  </details><details id="measurement-details" class="summary-details"><summary>실측 상세·선택 자원</summary><div id="app-measurement-extra" class="output-grid"></div><div id="operation-resource-context" class="resource-context" hidden></div></details>
+  <details id="load-test-panel" class="summary-details" hidden><summary>실제 부하로 확장·축소 시험</summary><p class="help">이 PC에서 실행 중인 앱에 제한된 부하를 보냅니다. 부하 실행 중 실측해 확장 판단을 확인하고, 승인된 변경을 별도로 적용하세요. 부하가 끝난 뒤 다시 측정하면 축소 가능성을 평가합니다. 복제본 2개를 실행할 자원 여유와 적절한 성능 기준이 필요합니다.</p><p id="load-test-status" class="help" role="status"></p><div class="button-row"><button id="load-test-start" class="secondary" type="button" disabled>20초 실제 부하 시작</button><button id="load-test-stop" class="secondary" type="button" disabled>부하 중지</button></div></details>
+  <details id="operation-history" hidden><summary id="operation-history-title">부하별 운영 판단 기록</summary><div id="operation-history-table" class="validation-table-wrap"></div></details>
+  <details id="inference-sample" hidden><summary>실제 추론 입력·결과 보기</summary><p class="help">기존 실험과 같은 사전학습 BERT Tiny에 고정 seed의 분류 헤드를 사용한 연산 검증입니다. 클래스 0·1은 정확도 검증용 정답이 아닙니다.</p><div id="inference-sample-output"></div></details>
+  <div id="real-observation" hidden><p class="help">현재 Flow의 BERT Tiny에 64회 추론 요청을 보내 성능을 측정하고 운영 판단에 사용합니다.</p><button id="app-measure" class="primary" disabled>현재 어플리케이션 실측하고 운영 판단 확인</button></div><section id="replica-details" class="replica-execution-section" aria-label="복제본 변경과 실제 적용 상태" hidden><div id="replica-panel" class="profile-summary" hidden><div class="section-head"><h3>어플리케이션 복제본 실행</h3><span id="replica-revision" class="help"></span></div><div class="summary-grid"><div>실제 실행 <strong id="replica-current"></strong></div><div><span id="replica-desired-label">승인된 목표</span> <strong id="replica-desired"></strong></div></div><p id="replica-help" class="help"></p><p id="replica-error" class="help" role="status"></p><button id="replica-apply" class="secondary" type="button" disabled>승인된 변경 적용</button><details><summary>복제본별 실행 상태</summary><div id="replica-children"></div></details></div></section><details id="demo-observation-details" class="monitor-controls"><summary>데모 관측·운영 판단 실행</summary>
+    <div id="execution-output" class="help">어플리케이션 배포 후 실측을 진행하세요.</div>
+
+    <form id="feedback-form"><div class="feedback-inputs"><label>관측 예시<select id="observation-preset"><option value="high">부하 증가</option><option value="normal">안정적인 운영</option><option value="low">낮은 사용량</option></select></label><label>CPU 평균 <small>%</small><input id="observed-cpu" type="number" min="0" max="100" value="85" required></label><label>서비스 p95 <small>ms</small><input id="observed-latency" type="number" min="0" value="80" required></label><label>처리량 <small>요청/초</small><input id="observed-throughput" type="number" min="0" value="100" required></label><button id="feedback-submit" class="secondary" disabled>운영 판단 확인</button></div><p class="help">예시 관측은 데모 입력입니다. 확장·유지·축소 판단을 기록하며 실제 VM 수를 변경하지 않습니다.</p></form>
+    <button id="feedback-reconcile" type="button" class="secondary" hidden>기존 피드백 결과 조회</button>
+  </details>
+
+</section>
+<section id="pipeline" class="panel pipeline-panel" data-workspace-page="events">
+  <div class="section-head"><div><p class="eyebrow">진행 상황</p><h2>연결된 실험 흐름</h2></div><span id="pipeline-count" class="module">응답 확인 0 / 5</span></div>
+  <div id="pipeline-stages" class="pipeline" aria-label="서비스 진행 단계"></div>
+  <div class="pipeline-meta"><div><span>FLOW ID</span><strong id="pipeline-flow-id">아직 생성되지 않음</strong></div><div><span>현재 단계</span><strong id="pipeline-current-stage">어플리케이션 요구사항 입력</strong></div><div><span>Flow 경과</span><strong id="pipeline-elapsed">—</strong></div></div>
+</section>
+<details id="events" data-workspace-page="events" class="panel event-panel"><summary><span class="event-heading">실행 기록 <span id="event-count" class="event-count">0건</span></span><span class="event-toggle"><span class="event-show">펼치기</span><span class="event-hide">접기</span></span></summary><div class="event-body"><div class="event-toolbar"><p class="description">현재 Flow · 항목을 눌러 상세 보기 (KST)</p><div><button id="event-delete-all" class="event-button" type="button" disabled>전체 삭제</button><button id="event-restore" class="event-button" type="button" hidden>삭제 기록 복원</button></div></div><p id="event-message" class="event-message" role="status" aria-live="polite" hidden></p><ol id="event-log" class="event-log" tabindex="0" aria-label="Flow 실행 기록"><li class="empty">아직 기록된 요청이 없습니다.</li></ol></div></details>
+<details id="result" data-workspace-page="events" class="result-panel overview-record" hidden><summary>실험 식별정보·원본 연결</summary><div class="overview-record-body"><h2>현재 실험의 연결 정보</h2><div id="result-summary"></div><details><summary>연결 기록 · 출처 자세히 보기</summary><pre id="receipt-detail"></pre></details></div></details>
+<footer><span>경희대 AI 자원 의사결정 연구 PoC · 알고리즘 실험·검증</span><span>요구사항 분석 → 인프라 추천 → 배포 계획 → 어플리케이션 배포 → 실측·운영 판단</span></footer></main></div>
+<aside id="action-feedback" class="action-feedback" role="status" aria-live="polite" aria-atomic="true" hidden>
+  <span class="action-feedback-icon" aria-hidden="true"></span>
+  <div class="action-feedback-copy"><strong id="action-feedback-title"></strong><p id="action-feedback-detail"></p></div>
+  <button id="action-feedback-close" type="button" aria-label="처리 안내 닫기">×</button>
+</aside>
+<script type="module" src="app.js?v=20261019-llm-new-flow"></script></body></html>

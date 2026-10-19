@@ -1,0 +1,10 @@
+{
+  "enabled": false,
+  "host": "192.0.2.216",
+  "port": 7877,
+  "user": "lab-user",
+  "ssh_key": "C:/path/to/existing/approved/private-key",
+  "image_ids": {"cpu": "existing-tumblebug-cpu-image-id", "gpu": "existing-tumblebug-cuda-image-id"},
+  "aws_cli": "C:/path/to/aws.exe",
+  "aws_profile": "existing-read-only-provider-audit-profile"
+}

@@ -1,0 +1,83 @@
+{
+  "schema_version": "khu-vm-specs/v1",
+  "checked_at_utc": "2026-09-30T16:13:45.996Z",
+  "entries": [
+    {
+      "spec_id": "aws+us-west-2+m6a.large",
+      "name": "m6a.large",
+      "display_name": "CPU 2 vCPU",
+      "cpu_cores": 2,
+      "memory_mib": 8192,
+      "gpu_count": 0,
+      "gpu_model": null,
+      "gpu_memory_mib": 0,
+      "storage_gib": null,
+      "source": {
+        "url": "https://aws.amazon.com/ec2/instance-types/m6a/",
+        "note": "EBS storage is separately configured"
+      }
+    },
+    {
+      "spec_id": "aws+us-west-2+m6a.2xlarge",
+      "name": "m6a.2xlarge",
+      "display_name": "CPU 8 vCPU",
+      "cpu_cores": 8,
+      "memory_mib": 32768,
+      "gpu_count": 0,
+      "gpu_model": null,
+      "gpu_memory_mib": 0,
+      "storage_gib": null,
+      "source": {
+        "url": "https://aws.amazon.com/ec2/instance-types/m6a/",
+        "note": "EBS storage is separately configured"
+      }
+    },
+    {
+      "spec_id": "aws+us-west-2+m6a.8xlarge",
+      "name": "m6a.8xlarge",
+      "display_name": "CPU 32 vCPU",
+      "cpu_cores": 32,
+      "memory_mib": 131072,
+      "gpu_count": 0,
+      "gpu_model": null,
+      "gpu_memory_mib": 0,
+      "storage_gib": null,
+      "source": {
+        "url": "https://aws.amazon.com/ec2/instance-types/m6a/",
+        "note": "EBS storage is separately configured"
+      }
+    },
+    {
+      "spec_id": "aws+us-west-2+g6.2xlarge",
+      "name": "g6.2xlarge",
+      "display_name": "L4 GPU · 8 vCPU",
+      "cpu_cores": 8,
+      "memory_mib": 32768,
+      "gpu_count": 1,
+      "gpu_model": "NVIDIA L4",
+      "gpu_memory_mib": 22888,
+      "gpu_memory_gb": 24,
+      "storage_gib": null,
+      "source": {
+        "url": "https://aws.amazon.com/ec2/instance-types/g6/",
+        "note": "Published 24 GB converted conservatively to MiB; root EBS is separately configured"
+      }
+    },
+    {
+      "spec_id": "aws+us-west-2+g6.8xlarge",
+      "name": "g6.8xlarge",
+      "display_name": "L4 GPU · 32 vCPU",
+      "cpu_cores": 32,
+      "memory_mib": 131072,
+      "gpu_count": 1,
+      "gpu_model": "NVIDIA L4",
+      "gpu_memory_mib": 22888,
+      "gpu_memory_gb": 24,
+      "storage_gib": null,
+      "source": {
+        "url": "https://aws.amazon.com/ec2/instance-types/g6/",
+        "note": "Published 24 GB converted conservatively to MiB; root EBS is separately configured"
+      }
+    }
+  ]
+}

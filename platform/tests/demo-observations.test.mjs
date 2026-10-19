@@ -1,0 +1,8 @@
+import assert from 'node:assert/strict';import test from 'node:test';import {catalog} from './fixtures.mjs';
+const demo=await import('../server/demo-observations.mjs').catch(e=>{if(e.code==='ERR_MODULE_NOT_FOUND')return{};throw e;});
+test('demo metrics preserve identity, hardware units and supplied timestamp',async t=>{assert.equal(typeof demo.createDemoObservationServer,'function');const s=demo.createDemoObservationServer({catalog});await new Promise(r=>s.listen(0,'127.0.0.1',r));t.after(()=>new Promise(r=>s.close(r)));const url=`http://127.0.0.1:${s.address().port}`;const query=async q=>(await fetch(url+'/api/v1/query?'+new URLSearchParams({query:q,time:'1234567890'}))).json();const nodes=await query('node_memory_MemTotal_bytes{job="node"}');assert.equal(nodes.data.result.length,5);assert.equal(nodes.data.result[0].value[0],1234567890);assert.equal(+nodes.data.result[0].value[1],8192*1048576);const gpu=await query('DCGM_FI_DEV_FB_FREE{job="dcgm"}');assert.equal(gpu.data.result.length,2);assert.ok(nodes.data.result.some(n=>n.metric.node_id===gpu.data.result[0].metric.node_id));assert.equal(+gpu.data.result[0].value[1],22888);const bad=await fetch(url+'/api/v1/query?query=secret');assert.equal(bad.status,400);});
+test('fractional query times cannot round demo samples into the future',async t=>{
+ const s=demo.createDemoObservationServer({catalog});await new Promise(r=>s.listen(0,'127.0.0.1',r));t.after(()=>new Promise(r=>s.close(r)));
+ const u=new URL(`http://127.0.0.1:${s.address().port}/api/v1/query`);u.searchParams.set('query','up{job="node"}');u.searchParams.set('time','1791360690.123456789');
+ const result=await (await fetch(u)).json();assert.ok(result.data.result.every(row=>row.value[0]<=1791360690));
+});
