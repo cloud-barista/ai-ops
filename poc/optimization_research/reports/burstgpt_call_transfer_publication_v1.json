@@ -1,0 +1,31 @@
+{
+  "files": {
+    "scripts/burstgpt_call_transfer.py": "84f2c420c81cd6ffef04bb25fd4e7cf413b26b6dd37829a827582502d5ec8c33",
+    "scripts/curate_burstgpt_call_transfer.py": "48a86ecd44d48b466a4d964c45643b7d7f0eda39bf1a9d52a2bbadc70df3f3c1",
+    "scripts/verify_burstgpt_call_transfer.py": "fc3fe53b7f26e701533419a2f4896abd6cfab855ddf03e9e5aa18bfbbd9adeec",
+    "tests/test_burstgpt_call_transfer.py": "5978f56460f9c38e8c675adf1acc6296ec0a8df75851b42039a92870435a0702",
+    "reports/burstgpt_call_transfer_evaluate_v1.log": "52024c427d21f1f6f5a44a4665ff8be394c5bd2c4ddc1284c3a4a1a00d3e8ae1",
+    "reports/burstgpt_call_transfer_findings_2026_10_06.txt": "a3df0f1eabc25daeec83332469a68b217adc1a5bac7c01247c8e334f108ebc5a",
+    "reports/burstgpt_call_transfer_protocol_v1.json": "67f14037052584c937308a8dec2296fa6dae2ae4ca88971f4f58b21182629169",
+    "reports/burstgpt_call_transfer_tests_v1.log": "c13cada3f39faa1a264405bf7fd40552510fbdfdcb16e8a4f48d6cbc79a2e471",
+    "reports/burstgpt_call_transfer_verify_v1.log": "eb63f1f90e8200091de63c605bc6cea1ced7f9a1a179a67867865cefde002888",
+    "artifacts/burstgpt_call_transfer_v1/FREEZE.json": "a01452fc608a001358fd1fd75e79e59510deef2da1a4287dda6312210a91d0cc",
+    "artifacts/burstgpt_call_transfer_v1/SELECTION.json": "f5b88115011420cfe652647004a805229b608e02e3b14e2a73a586af4c64b131",
+    "artifacts/burstgpt_call_transfer_v1/counts.parquet": "d362833831a9d776e786a10382616cacab2dfe81e6d1bc3808eb02e3b1402af8",
+    "artifacts/burstgpt_call_transfer_v1/replay.parquet": "37cc6dced3b80e92f5732eb052a7192b65645286fe02e7323aa9cd28591504c2",
+    "artifacts/burstgpt_call_transfer_v1/results.json": "48d9f908346aa5e07cd121afb79c5e0c22aad83cd65e01fcb1333fc6d79a327a",
+    "artifacts/burstgpt_call_transfer_v1/source_audit.json": "94a231f7973f9336ad496f32daf10142f466e1e1b14f6836a2da896ebf33b3ff",
+    "artifacts/burstgpt_call_transfer_v1/source_snapshot/reports/burstgpt_call_transfer_protocol_v1.json": "67f14037052584c937308a8dec2296fa6dae2ae4ca88971f4f58b21182629169",
+    "artifacts/burstgpt_call_transfer_v1/source_snapshot/scripts/burstgpt_call_transfer.py": "84f2c420c81cd6ffef04bb25fd4e7cf413b26b6dd37829a827582502d5ec8c33",
+    "artifacts/burstgpt_call_transfer_v1/source_snapshot/scripts/curate_burstgpt_call_transfer.py": "48a86ecd44d48b466a4d964c45643b7d7f0eda39bf1a9d52a2bbadc70df3f3c1",
+    "artifacts/burstgpt_call_transfer_v1/source_snapshot/scripts/verify_burstgpt_call_transfer.py": "fc3fe53b7f26e701533419a2f4896abd6cfab855ddf03e9e5aa18bfbbd9adeec",
+    "artifacts/burstgpt_call_transfer_v1/source_snapshot/tests/test_burstgpt_call_transfer.py": "5978f56460f9c38e8c675adf1acc6296ec0a8df75851b42039a92870435a0702",
+    "artifacts/burstgpt_call_transfer_v1/sparse_arrival_diagnosis.json": "f26410b63db2d24bf888b6d38bed6ac2c0268ed814418b88ff170b66848ede45",
+    "artifacts/burstgpt_call_transfer_v1/verification.json": "87c8082eda3e25c2f5db89ce697035969040454f0abb6ba97966dc086fb94ebd",
+    "artifacts/burstgpt_call_transfer_v1/verification_scope.json": "f832d8deac62552b3b794db0084b4aae7703d9fd419df4317780eab5075faac1"
+  },
+  "new_only": true,
+  "raw_data_preserved": true,
+  "operational_adoption": false,
+  "forecast_conditions_scored": 0
+}

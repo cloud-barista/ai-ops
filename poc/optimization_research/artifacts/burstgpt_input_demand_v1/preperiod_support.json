@@ -1,0 +1,66 @@
+{
+  "all_pass": true,
+  "cohorts": {
+    "ChatGPT": {
+      "train": {
+        "days_with_logged_requests": 40,
+        "hours": 960,
+        "hours_with_logged_requests": 836,
+        "hours_with_logged_requests_fraction": 0.8708333333333333,
+        "logged_requests": 35700,
+        "pass": true,
+        "relative_days": [
+          225,
+          264
+        ],
+        "zero_input_token_requests": 472
+      },
+      "validation": {
+        "days_with_logged_requests": 20,
+        "hours": 480,
+        "hours_with_logged_requests": 439,
+        "hours_with_logged_requests_fraction": 0.9145833333333333,
+        "logged_requests": 22508,
+        "pass": true,
+        "relative_days": [
+          265,
+          284
+        ],
+        "zero_input_token_requests": 85
+      }
+    },
+    "GPT-4": {
+      "train": {
+        "days_with_logged_requests": 40,
+        "hours": 960,
+        "hours_with_logged_requests": 848,
+        "hours_with_logged_requests_fraction": 0.8833333333333333,
+        "logged_requests": 17726,
+        "pass": true,
+        "relative_days": [
+          225,
+          264
+        ],
+        "zero_input_token_requests": 329
+      },
+      "validation": {
+        "days_with_logged_requests": 20,
+        "hours": 480,
+        "hours_with_logged_requests": 435,
+        "hours_with_logged_requests_fraction": 0.90625,
+        "logged_requests": 11725,
+        "pass": true,
+        "relative_days": [
+          265,
+          284
+        ],
+        "zero_input_token_requests": 140
+      }
+    }
+  },
+  "freeze_manifest_sha256": "0f4c6ba50ecf1de7b3117330bc6da57b90c8c203ec2f17021ad967a4c9e6ce38",
+  "kind": "burstgpt_input_demand_v1_preperiod_support",
+  "preperiod_source_rows": 3452522,
+  "source_sha256": "2299986a07388aa303ec2c41d1131e756db650a39ed6ef9dfe7cc3d7f9a43b8f",
+  "stopped_before_test_target": true
+}

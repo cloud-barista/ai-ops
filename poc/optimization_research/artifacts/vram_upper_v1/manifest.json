@@ -1,0 +1,38 @@
+{
+  "scope": "Exploratory observed PyTorch CUDA reserved peak on one local GPU; not minimum VRAM or OOM safety",
+  "nominal_quantile": 0.9,
+  "model_selection": "Exploratory comparison after inspecting pilot data; no confirmation claim",
+  "donor_data": "khu-hf-local-exhaustive",
+  "evaluation_data": [
+    "khu-hf-local-exhaustive",
+    "khu-hf-local-novel-matrix",
+    "khu-hf-local-space-filling"
+  ],
+  "selected_rows": {
+    "khu-hf-local-exhaustive": 575,
+    "khu-hf-local-novel-matrix": 18,
+    "khu-hf-local-space-filling": 44
+  },
+  "host": "icns",
+  "device_name": "NVIDIA RTX PRO 5000 Blackwell",
+  "gpu_indices_json": "[0]",
+  "calibration": "Leave-one-donor-model-out cross-fit, equal weight per donor model, empirical 0.9 quantile",
+  "support_gate": "at least two independent donor models with the same workload_task",
+  "folds": 11,
+  "source_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "script_sha256": "66a726a0b20374795bab71fcf0fe4b05bb09e11031b1588057c9f5412717751a",
+  "research_estimator_sha256": "8fb66e867b98d1e747956d33b23fbc823fcf65cb5f9238ccee2763fce32a328e",
+  "research_estimator_feature_names": [
+    "log_parameter_gib",
+    "log_batch_size",
+    "log_max_length",
+    "log1p_request_concurrency",
+    "is_causal_lm",
+    "log_batch_x_log_length",
+    "log_parameter_x_log_batch_x_log_length"
+  ],
+  "research_estimator_direct_ratio": 1.4687580237592661,
+  "numpy_version": "2.0.2",
+  "pandas_version": "2.3.0+4.g1dfc98e16a",
+  "sklearn_version": "1.6.1"
+}

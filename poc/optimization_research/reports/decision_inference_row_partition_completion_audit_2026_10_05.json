@@ -1,0 +1,34 @@
+{
+  "status": "VERIFIED_RESEARCH_RESULT",
+  "adopted_route": "v7",
+  "workers": 2,
+  "models_sources_frozen_code_unchanged": true,
+  "exploratory_and_confirmation_gates": "GO",
+  "executed_wrapper_snapshot_verified": true,
+  "v7_real_model_routes_equal_confirmed_JSON": {
+    "shared_slo": {
+      "outputs": 1125,
+      "exact_JSON_sha256": "87834d2c56f7b1924adecbaaf3bfa40e4a4821cf7e8f0f4a07943abb5fbcc924"
+    },
+    "copied_slo": {
+      "outputs": 1125,
+      "exact_JSON_sha256": "87834d2c56f7b1924adecbaaf3bfa40e4a4821cf7e8f0f4a07943abb5fbcc924"
+    },
+    "unique_grids": {
+      "outputs": 575,
+      "exact_JSON_sha256": "1054a72560b9c6ba06deece136633e92fb9eeecd3d10a0915edb8812bd141e99"
+    }
+  },
+  "tests": {
+    "ordered_forest_tests.log": 11,
+    "row_partition_tests.log": 11,
+    "shape_microbatch_regression_v7.log": 24,
+    "row_partition_output_tests.log": 2
+  },
+  "total_tests": 48,
+  "model_sha256": "7a934da440ea0c7473e4e59eb5fa0c8c57f347389272bd303cb0051ef918b161",
+  "source_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "report_sha256": "00a31deba102ec300e7cfb15816fbce23971812542a830800ff46dd604d51789",
+  "verifier_sha256": "55aa71905816d2c952ddb11057bfac0a7fcfb7640829ebbf524a8afe0b457b60",
+  "limitation": "same-host warm offline function; extra CPU time measured; no VM/SLO effect claim"
+}

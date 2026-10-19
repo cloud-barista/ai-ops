@@ -1,0 +1,69 @@
+{
+  "audit": {
+    "excluded_incomplete_5s_ids": 1,
+    "excluded_invalid_or_sentinel_time_rows": 25736,
+    "excluded_missing_type_job_rows": 2,
+    "label_0_jobs": 672683,
+    "label_1_competing_terminal_within_5s": 1,
+    "label_1_jobs": 105026,
+    "label_1_later_schedule_observed": 104947,
+    "label_1_no_schedule_observed_by_trace_end": 78,
+    "labeled_jobs": 777709,
+    "non_job_rows": 264167,
+    "orphan_schedule_ids": 173218,
+    "pretrace_time_rows": 25736,
+    "source_rows": 4096710,
+    "unique_valid_submit_ids": 777710,
+    "valid_job_enable_rows": 952939,
+    "valid_job_queue_rows": 176415,
+    "valid_job_schedule_rows": 952939,
+    "valid_job_submit_rows": 777710,
+    "valid_job_terminal_rows": 951624,
+    "would_lack_complete_5m_observation_ids": 39
+  },
+  "builder_sha256": "767543b4b4fd5d92e5b93e9db6d5439831593c15f2914b1b2bc7e4eb0b923f05",
+  "cell": "g",
+  "csv_sha256": "afdd4cedf18fc08b75002ad4c46edd1b338e3f8e0fbe9a7521741f52d90d65b5",
+  "label_definition": {
+    "0": "first valid SCHEDULE occurs from SUBMIT through 5 seconds inclusive",
+    "1": "no first SCHEDULE by 5 seconds, including a competing earlier terminal event",
+    "censoring": "all SUBMITs require 5 seconds of subsequent trace coverage; 5-minute coverage is audited separately",
+    "post_window": "missing, duplicate, and colliding events later than 5 seconds are counted but cannot remove or relabel an already observed request",
+    "queue_enable": "QUEUE and ENABLE are audited events, not SCHEDULE or model inputs",
+    "terminal": "FAIL, FINISH, KILL, or LOST before first SCHEDULE within 5 seconds is competing non-start; pre-SUBMIT terminals and same-time collisions within 5 seconds are excluded"
+  },
+  "missing_category_encoding": {
+    "priority": -1,
+    "scheduler": -1,
+    "scheduling_class": -1
+  },
+  "source": {
+    "bucket": "clusterdata_2019_g",
+    "bytes": 203257147,
+    "generation": "1596913609702066",
+    "input_path": "/home/researcher/ai-mcmp/research/data/external/google_cluster_2019_g/collection_events-000000000000.json.gz",
+    "object_name": "collection_events-000000000000.json.gz",
+    "schema_sha256": "63e6cea700e31608b982206c375bc091fbb7ae1d6e8ab92ed499050af4c77dc3",
+    "sha256": "ed7c850444c09d51112f7b15d67324700e01e9768b403e6a294941a241062c13",
+    "source_bytes": 203257147,
+    "source_sha256": "ed7c850444c09d51112f7b15d67324700e01e9768b403e6a294941a241062c13",
+    "verified_manifest_sha256": "cb878f8581e20de71d2d751fc1d4ce7cee75149d40be5ec3e7b418cf998faceb"
+  },
+  "split_only_columns": [
+    "cell",
+    "job_key",
+    "submit_time_us"
+  ],
+  "submit_only_model_features": [
+    "scheduling_class",
+    "priority",
+    "scheduler",
+    "has_alloc_collection",
+    "has_parent_collection",
+    "start_after_count"
+  ],
+  "target": "first_JOB_SCHEDULE_later_than_5s_after_SUBMIT",
+  "time_max_us": 2678996139033,
+  "time_min_us": 600626511,
+  "version": 1
+}

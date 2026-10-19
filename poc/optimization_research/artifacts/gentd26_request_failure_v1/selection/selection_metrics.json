@@ -1,0 +1,384 @@
+{
+  "adoption_gate": {
+    "checks": {
+      "average_precision_not_lower": true,
+      "day_equal_brier_gain_at_least_5pct": true,
+      "known_model_brier_not_higher": true,
+      "wins_at_least_3_of_5_days": true
+    },
+    "day_wins": 3,
+    "exploratory_validation_go": true,
+    "known_model_baseline_brier": 0.00767175522970679,
+    "known_model_candidate_brier": 0.006003845511109713,
+    "known_model_requests": 7232,
+    "relative_day_equal_brier_gain": 0.15747619178957908
+  },
+  "baseline_scores": {
+    "global": {
+      "average_precision": 0.012666942034971774,
+      "brier": 0.012530456639002065,
+      "day_equal_brier": 0.00914747067487868,
+      "days": {
+        "2024-11-29": {
+          "average_precision": 0.0025284450063211127,
+          "brier": 0.0027480733591246,
+          "failed": 2,
+          "n": 791
+        },
+        "2024-11-30": {
+          "average_precision": null,
+          "brier": 0.00030843974439569047,
+          "failed": 0,
+          "n": 267
+        },
+        "2024-12-01": {
+          "average_precision": 0.014825796886582653,
+          "brier": 0.014613481918232368,
+          "failed": 20,
+          "n": 1349
+        },
+        "2024-12-02": {
+          "average_precision": 0.012664165103189493,
+          "brier": 0.01252777724668587,
+          "failed": 27,
+          "n": 2132
+        },
+        "2024-12-03": {
+          "average_precision": 0.0157856093979442,
+          "brier": 0.01553958110595487,
+          "failed": 43,
+          "n": 2724
+        }
+      },
+      "failed": 92,
+      "group_equal_brier": 0.006457459809708051,
+      "log_loss": 0.06869374179049083,
+      "mean_predicted_rate": 0.017562452687358062,
+      "n": 7263,
+      "observed_failed_rate": 0.012666942034971774
+    },
+    "model": {
+      "average_precision": 0.6089689118385082,
+      "brier": 0.009042289356963383,
+      "day_equal_brier": 0.006690764501682297,
+      "days": {
+        "2024-11-29": {
+          "average_precision": 1.0,
+          "brier": 0.0011688486587836963,
+          "failed": 2,
+          "n": 791
+        },
+        "2024-11-30": {
+          "average_precision": null,
+          "brier": 0.00019588053521630804,
+          "failed": 0,
+          "n": 267
+        },
+        "2024-12-01": {
+          "average_precision": 0.24548154281189877,
+          "brier": 0.012733021610741848,
+          "failed": 20,
+          "n": 1349
+        },
+        "2024-12-02": {
+          "average_precision": 0.8184001822911093,
+          "brier": 0.008793069706186613,
+          "failed": 27,
+          "n": 2132
+        },
+        "2024-12-03": {
+          "average_precision": 0.6350400572617183,
+          "brier": 0.010563001997483026,
+          "failed": 43,
+          "n": 2724
+        }
+      },
+      "failed": 92,
+      "group_equal_brier": 0.004471867073101486,
+      "log_loss": 0.04295352742877616,
+      "mean_predicted_rate": 0.013306128195833813,
+      "n": 7263,
+      "observed_failed_rate": 0.012666942034971774
+    },
+    "model_type": {
+      "average_precision": 0.6084359364601426,
+      "brier": 0.00803873886522798,
+      "day_equal_brier": 0.00605339023261586,
+      "days": {
+        "2024-11-29": {
+          "average_precision": 1.0,
+          "brier": 0.0007273994326095686,
+          "failed": 2,
+          "n": 791
+        },
+        "2024-11-30": {
+          "average_precision": null,
+          "brier": 0.00023973149055260987,
+          "failed": 0,
+          "n": 267
+        },
+        "2024-12-01": {
+          "average_precision": 0.24100311493948118,
+          "brier": 0.012627063089990922,
+          "failed": 20,
+          "n": 1349
+        },
+        "2024-12-02": {
+          "average_precision": 0.818159705477559,
+          "brier": 0.007946823421989227,
+          "failed": 27,
+          "n": 2132
+        },
+        "2024-12-03": {
+          "average_precision": 0.635280734504604,
+          "brier": 0.008725933727936973,
+          "failed": 43,
+          "n": 2724
+        }
+      },
+      "failed": 92,
+      "group_equal_brier": 0.003802140958977443,
+      "log_loss": 0.041499238750751725,
+      "mean_predicted_rate": 0.014534279724073496,
+      "n": 7263,
+      "observed_failed_rate": 0.012666942034971774
+    },
+    "type": {
+      "average_precision": 0.011093795433770206,
+      "brier": 0.01254626983677468,
+      "day_equal_brier": 0.009161719671668142,
+      "days": {
+        "2024-11-29": {
+          "average_precision": 0.0026041666666666665,
+          "brier": 0.002754620637323716,
+          "failed": 2,
+          "n": 791
+        },
+        "2024-11-30": {
+          "average_precision": null,
+          "brier": 0.00030992121709441043,
+          "failed": 0,
+          "n": 267
+        },
+        "2024-12-01": {
+          "average_precision": 0.012060407668560147,
+          "brier": 0.014647329803907802,
+          "failed": 20,
+          "n": 1349
+        },
+        "2024-12-02": {
+          "average_precision": 0.010144756186123953,
+          "brier": 0.012555451859636257,
+          "failed": 27,
+          "n": 2132
+        },
+        "2024-12-03": {
+          "average_precision": 0.015563826911291951,
+          "brier": 0.015541274840378524,
+          "failed": 43,
+          "n": 2724
+        }
+      },
+      "failed": 92,
+      "group_equal_brier": 0.006469739964408315,
+      "log_loss": 0.06919349342335235,
+      "mean_predicted_rate": 0.017644377989326623,
+      "n": 7263,
+      "observed_failed_rate": 0.012666942034971774
+    }
+  },
+  "candidate_score": {
+    "average_precision": 0.6201911769638643,
+    "brier": 0.006355364890731914,
+    "day_equal_brier": 0.00510012539136728,
+    "days": {
+      "2024-11-29": {
+        "average_precision": 1.0,
+        "brier": 0.0012626168387916664,
+        "failed": 2,
+        "n": 791
+      },
+      "2024-11-30": {
+        "average_precision": null,
+        "brier": 0.0005516116458814745,
+        "failed": 0,
+        "n": 267
+      },
+      "2024-12-01": {
+        "average_precision": 0.2593143759239179,
+        "brier": 0.012294819586144706,
+        "failed": 20,
+        "n": 1349
+      },
+      "2024-12-02": {
+        "average_precision": 0.8212096405713412,
+        "brier": 0.00439758029522368,
+        "failed": 27,
+        "n": 2132
+      },
+      "2024-12-03": {
+        "average_precision": 0.6417782951446084,
+        "brier": 0.0069939985907948735,
+        "failed": 43,
+        "n": 2724
+      }
+    },
+    "failed": 92,
+    "group_equal_brier": 0.0032013125473022166,
+    "log_loss": 0.036368712169660096,
+    "mean_predicted_rate": 0.017633767708797408,
+    "n": 7263,
+    "observed_failed_rate": 0.012666942034971774
+  },
+  "excluded_unfinalized_status": {
+    "PENDING": 21,
+    "PROCESSING": 0
+  },
+  "freeze_manifest_sha256": "0ed06c00ed938acaa126076b555960d31a2abee3011042bfc43cc35665d0acd7",
+  "group_familiarity_sensitivity": {
+    "new_group": {
+      "baseline_average_precision": 0.7877654999478081,
+      "baseline_brier": 0.006316494123145658,
+      "candidate_average_precision": 0.7923776924101136,
+      "candidate_brier": 0.0039635950165360315,
+      "failed": 70,
+      "groups": 1173,
+      "requests": 5465
+    },
+    "seen_group": {
+      "baseline_average_precision": 0.06004317410381302,
+      "baseline_brier": 0.013273481643581646,
+      "candidate_average_precision": 0.06366255734814354,
+      "candidate_brier": 0.013625121488329523,
+      "failed": 22,
+      "groups": 146,
+      "requests": 1798
+    }
+  },
+  "model_familiarity": {
+    "known_model": {
+      "failed": 89,
+      "requests": 7232
+    },
+    "new_model": {
+      "failed": 3,
+      "requests": 31
+    }
+  },
+  "selected_baseline": "model_type",
+  "source_sha256": "263fb88f1095f62d360cf89ded8cfc24fa2c5d111c1b16e7aaa9ccbfc4b37d78",
+  "study": "GenTD26 retrospective FAILED status, validation only",
+  "support": {
+    "train": {
+      "day_counts": {
+        "2024-11-15": {
+          "failed": 0,
+          "requests": 89
+        },
+        "2024-11-16": {
+          "failed": 0,
+          "requests": 93
+        },
+        "2024-11-17": {
+          "failed": 2,
+          "requests": 86
+        },
+        "2024-11-18": {
+          "failed": 5,
+          "requests": 63
+        },
+        "2024-11-19": {
+          "failed": 2,
+          "requests": 563
+        },
+        "2024-11-20": {
+          "failed": 19,
+          "requests": 1114
+        },
+        "2024-11-21": {
+          "failed": 44,
+          "requests": 1599
+        },
+        "2024-11-22": {
+          "failed": 22,
+          "requests": 1472
+        },
+        "2024-11-23": {
+          "failed": 12,
+          "requests": 431
+        },
+        "2024-11-24": {
+          "failed": 10,
+          "requests": 1160
+        },
+        "2024-11-25": {
+          "failed": 16,
+          "requests": 1485
+        },
+        "2024-11-26": {
+          "failed": 41,
+          "requests": 1772
+        },
+        "2024-11-27": {
+          "failed": 19,
+          "requests": 1351
+        },
+        "2024-11-28": {
+          "failed": 39,
+          "requests": 1930
+        }
+      },
+      "failed": 231,
+      "failed_days": 12,
+      "failed_groups": 66,
+      "largest_group_failed": 17,
+      "largest_group_failed_share": 0.0735930735930736,
+      "requests": 13208,
+      "top_five_group_failed_counts": [
+        17,
+        15,
+        10,
+        10,
+        8
+      ]
+    },
+    "validation": {
+      "day_counts": {
+        "2024-11-29": {
+          "failed": 2,
+          "requests": 791
+        },
+        "2024-11-30": {
+          "failed": 0,
+          "requests": 267
+        },
+        "2024-12-01": {
+          "failed": 20,
+          "requests": 1349
+        },
+        "2024-12-02": {
+          "failed": 27,
+          "requests": 2132
+        },
+        "2024-12-03": {
+          "failed": 43,
+          "requests": 2724
+        }
+      },
+      "failed": 92,
+      "failed_days": 4,
+      "failed_groups": 37,
+      "largest_group_failed": 10,
+      "largest_group_failed_share": 0.10869565217391304,
+      "requests": 7263,
+      "top_five_group_failed_counts": [
+        10,
+        6,
+        5,
+        4,
+        4
+      ]
+    }
+  },
+  "test_score_opened": false
+}

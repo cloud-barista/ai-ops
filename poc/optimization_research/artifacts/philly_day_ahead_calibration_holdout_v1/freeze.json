@@ -1,0 +1,31 @@
+{
+  "status": "FROZEN_BEFORE_BUCKET_25_35_COLLECTION",
+  "source_commit": "29a1b87fa2d9ed80b83c9e3a37f3a88d382b031d",
+  "source_archive_sha256": "2037ccf63a725a02be718b0e1aeee6142c90b7f62d0d849295120e9f6ba13d2c",
+  "source_archive_bytes": 1055988361,
+  "sample_lower_inclusive": 25,
+  "sample_upper_exclusive": 35,
+  "source_gpu_csv_rows": 44750640,
+  "test_first_utc_day": 17501,
+  "test_last_utc_day_exclusive": 17516,
+  "minimum_free_bytes": 3000000000,
+  "maximum_sample_bytes": 300000000,
+  "development_summary_sha256": "c87a00598405963db9eb73f73afaea990b532b3bee357812f8e2b6a16eb09b1a",
+  "old_source_audit_sha256": {
+    "msr_philly_2017": "438b6e7359daa2a219564ced5f0f31435f949b651dd080fe647a4fe6cd311c9d",
+    "msr_philly_2017_holdout": "5563e385f477ca091831dd48413ec24a39b2fa1cb955209c6992664e19bcd55f",
+    "msr_philly_2017_calibration_holdout": "d0651f320c7c2ea0cd13ab04abe09b60dc165153ce7cc576035a57586413fdde"
+  },
+  "collector_sha256": "cfe7df3c1dd0f2b4580da8ab61c244b759107e4984b356656e50e67d2f6fba41",
+  "inner_collector_sha256": "4049fcc1fa0ec2a023b35281ed7d7515e4e74a4dabbc8fbfe046a630fb036fa2",
+  "source_parser_sha256": "f58d42c68f2db651e8cc157938a3f029d54758afbc6551373f89eac7af0ce0ea",
+  "normalizer_wrapper_sha256": "9480127ed6c03a9b61dc8ca2733f649032fd92279fd33fd14075c35de56e7d1e",
+  "normalizer_sha256": "547d1fd9f48c71ef62e75ddbfae2b7f45811b80d95b681910a0f4d4f720c0a01",
+  "candidate_builder_sha256": "e89fd8a48c8491d02194540fc362a1d50f264f589a60e52e6c3dfd3fdc25d795",
+  "replay_sha256": "d415b895f11cfef7c43f1210ef58c76069c004601aa3a5515677f713d2d5fb55",
+  "development_method_sha256": "072bccf0dd8329e64ad99307617f3f87392f3082136eaf0f3ccc2913300fc5ac",
+  "evaluator_sha256": "a37b1db10a7739fc33444dea207982346435c28cf0b753d6ece4ab66dd81a461",
+  "test_sha256": "d1e151ade951ba608fe6713e33c12256ff7f42e199e90c5eea075141f3e0368d",
+  "protocol_sha256": "e7362e504461df580d8fb1515cca56c496d2ac225cd15f824f37e0a994116a87",
+  "model_spec_sha256": "861005a57cbf9f370a8f36682ca9004a3301af01f45e9c797949bf6319ad76a3"
+}

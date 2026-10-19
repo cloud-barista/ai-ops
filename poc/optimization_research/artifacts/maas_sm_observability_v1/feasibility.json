@@ -1,0 +1,191 @@
+{
+  "status": "FEASIBILITY_ONLY_NO_MODEL_SCORES_NO_BUCKET1_FETCH",
+  "source_compact_sha256": "6f52288916f7a8be8bacb2d911bc20294ab7f6685eda2b1f0f63cfc77af77e82",
+  "source_audit_sha256": "3a24d64122dcf8e1fd9f68627acbd70dd878924483b29c334ae74a612e75cb88",
+  "raw_development_rows": 1043132,
+  "source_memory_percent_over_100_excluded_from_target": true,
+  "target": "SM-only observed >=80%; 0..100 valid; six future 5-minute windows",
+  "splits": {
+    "fit": {
+      "candidate_decisions": 365239,
+      "distinct_instances": 18109,
+      "past_valid_count": {
+        "1": 17443,
+        "2": 23795,
+        "3": 324001
+      },
+      "future_full_observation": 271474,
+      "future_incomplete": 93765,
+      "class_counts": {
+        "observed_high": {
+          "rows": 7199,
+          "instances": 2595,
+          "largest_instance_fraction": 0.03736630087512154
+        },
+        "fully_observed_normal": {
+          "rows": 266203,
+          "instances": 4782,
+          "largest_instance_fraction": 0.003031521057238273
+        },
+        "unresolved": {
+          "rows": 91837,
+          "instances": 17465,
+          "largest_instance_fraction": 0.005019763276239425
+        }
+      },
+      "by_day": {
+        "140": {
+          "observed_high": 2264,
+          "fully_observed_normal": 91142,
+          "unresolved": 32803
+        },
+        "141": {
+          "observed_high": 2267,
+          "fully_observed_normal": 89592,
+          "unresolved": 31508
+        },
+        "142": {
+          "observed_high": 2668,
+          "fully_observed_normal": 85469,
+          "unresolved": 27526
+        }
+      },
+      "by_six_hour_block": {
+        "0": {
+          "observed_high": 1431,
+          "fully_observed_normal": 70657,
+          "unresolved": 21415
+        },
+        "1": {
+          "observed_high": 2097,
+          "fully_observed_normal": 65685,
+          "unresolved": 25255
+        },
+        "2": {
+          "observed_high": 2164,
+          "fully_observed_normal": 65512,
+          "unresolved": 23961
+        },
+        "3": {
+          "observed_high": 1507,
+          "fully_observed_normal": 64349,
+          "unresolved": 21206
+        }
+      }
+    },
+    "calibration": {
+      "candidate_decisions": 113632,
+      "distinct_instances": 5601,
+      "past_valid_count": {
+        "1": 4989,
+        "2": 7518,
+        "3": 101125
+      },
+      "future_full_observation": 83904,
+      "future_incomplete": 29728,
+      "class_counts": {
+        "observed_high": {
+          "rows": 2848,
+          "instances": 895,
+          "largest_instance_fraction": 0.032303370786516857
+        },
+        "fully_observed_normal": {
+          "rows": 81818,
+          "instances": 1705,
+          "largest_instance_fraction": 0.003275562834584077
+        },
+        "unresolved": {
+          "rows": 28966,
+          "instances": 5235,
+          "largest_instance_fraction": 0.005143961886349514
+        }
+      },
+      "by_day": {
+        "143": {
+          "observed_high": 2848,
+          "fully_observed_normal": 81818,
+          "unresolved": 28966
+        }
+      },
+      "by_six_hour_block": {
+        "0": {
+          "observed_high": 371,
+          "fully_observed_normal": 21403,
+          "unresolved": 7571
+        },
+        "1": {
+          "observed_high": 653,
+          "fully_observed_normal": 21418,
+          "unresolved": 7140
+        },
+        "2": {
+          "observed_high": 1040,
+          "fully_observed_normal": 19382,
+          "unresolved": 8172
+        },
+        "3": {
+          "observed_high": 784,
+          "fully_observed_normal": 19615,
+          "unresolved": 6083
+        }
+      }
+    },
+    "validation": {
+      "candidate_decisions": 119703,
+      "distinct_instances": 5334,
+      "past_valid_count": {
+        "1": 4682,
+        "2": 7281,
+        "3": 107740
+      },
+      "future_full_observation": 90684,
+      "future_incomplete": 29019,
+      "class_counts": {
+        "observed_high": {
+          "rows": 4186,
+          "instances": 972,
+          "largest_instance_fraction": 0.0327281414237936
+        },
+        "fully_observed_normal": {
+          "rows": 87379,
+          "instances": 1690,
+          "largest_instance_fraction": 0.003067098501928381
+        },
+        "unresolved": {
+          "rows": 28138,
+          "instances": 4976,
+          "largest_instance_fraction": 0.004904399744118274
+        }
+      },
+      "by_day": {
+        "144": {
+          "observed_high": 4186,
+          "fully_observed_normal": 87379,
+          "unresolved": 28138
+        }
+      },
+      "by_six_hour_block": {
+        "0": {
+          "observed_high": 779,
+          "fully_observed_normal": 25187,
+          "unresolved": 7384
+        },
+        "1": {
+          "observed_high": 1194,
+          "fully_observed_normal": 22936,
+          "unresolved": 8098
+        },
+        "2": {
+          "observed_high": 1168,
+          "fully_observed_normal": 19946,
+          "unresolved": 7033
+        },
+        "3": {
+          "observed_high": 1045,
+          "fully_observed_normal": 19310,
+          "unresolved": 5623
+        }
+      }
+    }
+  }
+}

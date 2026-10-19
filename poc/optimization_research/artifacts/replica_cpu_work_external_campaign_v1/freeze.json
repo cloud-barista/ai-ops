@@ -1,0 +1,26 @@
+{
+  "audits": {
+    "khu-hf-diverse-cpu-matrix": {
+      "complete": 48,
+      "encoder": 40,
+      "gpu1_only": 32,
+      "input_encoding_mismatch_qwen": 0,
+      "qwen": 8,
+      "valid": 48
+    },
+    "khu-hf-live": {
+      "complete": 660,
+      "encoder": 550,
+      "gpu1_only": 440,
+      "input_encoding_mismatch_qwen": 1,
+      "qwen": 109,
+      "valid": 659
+    }
+  },
+  "original_freeze_sha256": "a799729049649d6aaf7160b30426e2615bcee02a6242cecb1c30173b2c123f9e",
+  "original_script_sha256": "4f22c0095f5d6997c7161456f30131a6ad00580072cd2c716ec0fb4de964c0fa",
+  "protocol_sha256": "14467399edd5bd6873ef351f62fcfcd31cac0840701958af3661937787ad9dae",
+  "script_sha256": "d8dceb8063e266b6a0a899dfc555525f4cdda7069fd83e5a057bd4d3c9974870",
+  "source_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "target": "same_host_other_campaign_gpu2_total_child_cpu_seconds"
+}

@@ -1,0 +1,36 @@
+{
+  "source_domain": "msr_philly_2017_gpu_trace",
+  "machine_hash": "fb02b5cebeb1cb83018f93ee31f226a07883df7c9100ceeed0d481eee350f637",
+  "gpu_index": 0,
+  "expected_gpu_slots": 8,
+  "decision_utc_s": 1512086400,
+  "windows": [
+    {
+      "role": "older",
+      "machine_hash": "fb02b5cebeb1cb83018f93ee31f226a07883df7c9100ceeed0d481eee350f637",
+      "gpu_index": 0,
+      "window_start_utc_s": 1512085200,
+      "available_at_utc_s": 1512085800,
+      "valid_minutes": 5,
+      "mean_util_percent": 85.77999999980001
+    },
+    {
+      "role": "middle",
+      "machine_hash": "fb02b5cebeb1cb83018f93ee31f226a07883df7c9100ceeed0d481eee350f637",
+      "gpu_index": 0,
+      "window_start_utc_s": 1512085500,
+      "available_at_utc_s": 1512086100,
+      "valid_minutes": 5,
+      "mean_util_percent": 58.673333333200006
+    },
+    {
+      "role": "current",
+      "machine_hash": "fb02b5cebeb1cb83018f93ee31f226a07883df7c9100ceeed0d481eee350f637",
+      "gpu_index": 0,
+      "window_start_utc_s": 1512085800,
+      "available_at_utc_s": 1512086400,
+      "valid_minutes": 5,
+      "mean_util_percent": 67.01333333340001
+    }
+  ]
+}

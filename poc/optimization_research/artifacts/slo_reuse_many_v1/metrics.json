@@ -1,0 +1,43 @@
+{
+  "cache": {
+    "max_grids": 64,
+    "scope": "one assess_gpu_shape_many invocation"
+  },
+  "gates": {
+    "block_speedup_min": 3.0,
+    "full_output_exact": true,
+    "one_request_p95_ratio_max": 1.2
+  },
+  "parity": {
+    "full_output_mismatches": 0,
+    "query_pairs_including_repeats": 5625,
+    "scalar_output_sha256_unique_queries": "8e72e188eda94da9ff93868a3469d996cd233eb8654031ad3b107dcd5ab80590",
+    "status_counts_unique_queries": {
+      "ABSTAIN": 405,
+      "RESEARCH_ESTIMATE": 720
+    },
+    "unique_queries": 1125
+  },
+  "provenance": {
+    "assessor_sha256": "ece3f8ac5c5c410bae9afa5df3434c28efdcdfe3b9a47137e70749a918162959",
+    "benchmark_script_sha256": "33ef546f447fb618dd7cada6993cf917aef43a0c81bfdabe3effc5d1af3859a6",
+    "manifest_sha256": "dcea7d8dc21ab6928da990d0fd3a4cfb6883fe1d01a831462c214d059d8ba679",
+    "model_sha256": "7a934da440ea0c7473e4e59eb5fa0c8c57f347389272bd303cb0051ef918b161",
+    "protocol_sha256": "b81fc60da43e5df7ecb11b3d560b24fd5f89b158c2bad360a1aae448385a817a",
+    "python": "3.9.25",
+    "seed": 42,
+    "sklearn": "1.6.1",
+    "source_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+    "timing_repetitions": 5
+  },
+  "scope": "warm offline Python function time; no model load, JSON/API or deployment",
+  "status": "PASS_RESEARCH_ONLY",
+  "timing_ms": {
+    "block_median_many": 24.190927,
+    "block_median_scalar": 487.014566,
+    "block_median_speedup": 20.13211672293501,
+    "one_request_p95_many": 22.7183856,
+    "one_request_p95_ratio": 1.0062345710623453,
+    "one_request_p95_scalar": 22.5776238
+  }
+}

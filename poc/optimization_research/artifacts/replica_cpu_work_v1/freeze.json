@@ -1,0 +1,15 @@
+{
+  "campaign_pair_counts": {
+    "khu-hf-local-exhaustive": 2300,
+    "khu-hf-local-novel-matrix": 72,
+    "khu-hf-local-space-filling": 176
+  },
+  "encoder_model_count": 8,
+  "pandas_version": "2.2.3",
+  "protocol_sha256": "999519c92a9e55b94c11e47ccc7379979a2f0920d392e92f0a323f51aed95c6a",
+  "python_version": "3.10.12",
+  "script_sha256": "4f22c0095f5d6997c7161456f30131a6ad00580072cd2c716ec0fb4de964c0fa",
+  "sklearn_version": "1.5.2",
+  "snapshot_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "target": "sum_gpu2_child_process_cpu_seconds"
+}

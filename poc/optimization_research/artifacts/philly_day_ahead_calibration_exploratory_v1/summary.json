@@ -1,0 +1,259 @@
+{
+  "status": "POST_HOC_EXPLORATORY_ONLY",
+  "script_sha256": "072bccf0dd8329e64ad99307617f3f87392f3082136eaf0f3ccc2913300fc5ac",
+  "method": {
+    "sample": "first eligible decision per machine/GPU/UTC hour",
+    "calibration": "previous UTC day labels with full 30min outcome before current day",
+    "formula": "clip(sum(y-p0)/(sum(p0*(1-p0))+20),-.5,.5) added to p0 logit",
+    "fallback": "p0 if no prior-day labels"
+  },
+  "cohorts": {
+    "first_new_machine_holdout": {
+      "decision_rows": 741597,
+      "machine_count": 37,
+      "days": 15,
+      "source_sha256": "3907dcfde07f7127157ac5c4a5705df7d1790e11a197b726aa66aed06f3aed6c",
+      "scores": {
+        "frozen_pooled": {
+          "row_brier": 0.0777833143965972,
+          "machine_equal_brier": 0.06949132839310332,
+          "average_precision": 0.7073396882186699,
+          "first_seven_days_row_brier": 0.0709433900653773,
+          "last_eight_days_row_brier": 0.08358099034904853
+        },
+        "previous_day_global": {
+          "row_brier": 0.0782290184779775,
+          "machine_equal_brier": 0.0701127285184846,
+          "average_precision": 0.7024056609587082,
+          "first_seven_days_row_brier": 0.07122504756929615,
+          "last_eight_days_row_brier": 0.0841657440530817
+        },
+        "previous_day_machine": {
+          "row_brier": 0.07433557575619808,
+          "machine_equal_brier": 0.06584678410471008,
+          "average_precision": 0.7264650770662604,
+          "first_seven_days_row_brier": 0.06725231969278898,
+          "last_eight_days_row_brier": 0.08033950523776276
+        },
+        "machine_win_count": 32,
+        "machine_count": 37
+      },
+      "calibration_support_by_day": {
+        "17501": {
+          "calibration_rows": 0,
+          "corrected_test_rows": 0,
+          "machine_count_with_history": 0,
+          "global_logit_shift": 0.0
+        },
+        "17502": {
+          "calibration_rows": 4886,
+          "corrected_test_rows": 45354,
+          "machine_count_with_history": 37,
+          "global_logit_shift": 0.022072893162737868
+        },
+        "17503": {
+          "calibration_rows": 4869,
+          "corrected_test_rows": 46574,
+          "machine_count_with_history": 37,
+          "global_logit_shift": 0.09533667369346907
+        },
+        "17504": {
+          "calibration_rows": 4865,
+          "corrected_test_rows": 49476,
+          "machine_count_with_history": 37,
+          "global_logit_shift": 0.171215674030066
+        },
+        "17505": {
+          "calibration_rows": 4883,
+          "corrected_test_rows": 51254,
+          "machine_count_with_history": 37,
+          "global_logit_shift": -0.16412826431873606
+        },
+        "17506": {
+          "calibration_rows": 4993,
+          "corrected_test_rows": 49693,
+          "machine_count_with_history": 37,
+          "global_logit_shift": 0.24446930281645854
+        },
+        "17507": {
+          "calibration_rows": 4950,
+          "corrected_test_rows": 50739,
+          "machine_count_with_history": 37,
+          "global_logit_shift": 0.03424925197484131
+        },
+        "17508": {
+          "calibration_rows": 4952,
+          "corrected_test_rows": 50818,
+          "machine_count_with_history": 37,
+          "global_logit_shift": 0.010047437283164432
+        },
+        "17509": {
+          "calibration_rows": 4897,
+          "corrected_test_rows": 47272,
+          "machine_count_with_history": 37,
+          "global_logit_shift": -0.07935979877718968
+        },
+        "17510": {
+          "calibration_rows": 4837,
+          "corrected_test_rows": 49694,
+          "machine_count_with_history": 37,
+          "global_logit_shift": 0.06796111723613324
+        },
+        "17511": {
+          "calibration_rows": 4836,
+          "corrected_test_rows": 52297,
+          "machine_count_with_history": 37,
+          "global_logit_shift": 0.16249960149077872
+        },
+        "17512": {
+          "calibration_rows": 4982,
+          "corrected_test_rows": 50163,
+          "machine_count_with_history": 37,
+          "global_logit_shift": 0.21245518481772502
+        },
+        "17513": {
+          "calibration_rows": 4966,
+          "corrected_test_rows": 51684,
+          "machine_count_with_history": 37,
+          "global_logit_shift": 0.18858778099552112
+        },
+        "17514": {
+          "calibration_rows": 4944,
+          "corrected_test_rows": 50309,
+          "machine_count_with_history": 37,
+          "global_logit_shift": -0.168743117173826
+        },
+        "17515": {
+          "calibration_rows": 4929,
+          "corrected_test_rows": 49142,
+          "machine_count_with_history": 37,
+          "global_logit_shift": -0.3147938640123709
+        }
+      }
+    },
+    "second_new_machine_holdout": {
+      "decision_rows": 599752,
+      "machine_count": 33,
+      "days": 15,
+      "source_sha256": "5e570375ed7bd8639f38ba75301c34880e9772fb62b9cc7b580d8e6e42fe375b",
+      "scores": {
+        "frozen_pooled": {
+          "row_brier": 0.10941584675910247,
+          "machine_equal_brier": 0.09068569294742959,
+          "average_precision": 0.7486543324328452,
+          "first_seven_days_row_brier": 0.10576307027768987,
+          "last_eight_days_row_brier": 0.1119383652649776
+        },
+        "previous_day_global": {
+          "row_brier": 0.1082182342655162,
+          "machine_equal_brier": 0.09090296355390853,
+          "average_precision": 0.7536296902543901,
+          "first_seven_days_row_brier": 0.10158241945549946,
+          "last_eight_days_row_brier": 0.11280076641469232
+        },
+        "previous_day_machine": {
+          "row_brier": 0.10521601136264977,
+          "machine_equal_brier": 0.08619817456905768,
+          "average_precision": 0.7640614470258219,
+          "first_seven_days_row_brier": 0.09921482752454754,
+          "last_eight_days_row_brier": 0.10936028281364138
+        },
+        "machine_win_count": 29,
+        "machine_count": 33
+      },
+      "calibration_support_by_day": {
+        "17501": {
+          "calibration_rows": 0,
+          "corrected_test_rows": 0,
+          "machine_count_with_history": 0,
+          "global_logit_shift": 0.0
+        },
+        "17502": {
+          "calibration_rows": 4156,
+          "corrected_test_rows": 32996,
+          "machine_count_with_history": 33,
+          "global_logit_shift": 0.41076201010667407
+        },
+        "17503": {
+          "calibration_rows": 4178,
+          "corrected_test_rows": 32854,
+          "machine_count_with_history": 33,
+          "global_logit_shift": 0.5
+        },
+        "17504": {
+          "calibration_rows": 4108,
+          "corrected_test_rows": 34321,
+          "machine_count_with_history": 33,
+          "global_logit_shift": 0.5
+        },
+        "17505": {
+          "calibration_rows": 4093,
+          "corrected_test_rows": 33577,
+          "machine_count_with_history": 33,
+          "global_logit_shift": 0.5
+        },
+        "17506": {
+          "calibration_rows": 4024,
+          "corrected_test_rows": 37619,
+          "machine_count_with_history": 33,
+          "global_logit_shift": 0.5
+        },
+        "17507": {
+          "calibration_rows": 4136,
+          "corrected_test_rows": 38331,
+          "machine_count_with_history": 33,
+          "global_logit_shift": 0.34743335046228957
+        },
+        "17508": {
+          "calibration_rows": 4183,
+          "corrected_test_rows": 40325,
+          "machine_count_with_history": 33,
+          "global_logit_shift": 0.5
+        },
+        "17509": {
+          "calibration_rows": 4074,
+          "corrected_test_rows": 41119,
+          "machine_count_with_history": 33,
+          "global_logit_shift": 0.22777394124148623
+        },
+        "17510": {
+          "calibration_rows": 4037,
+          "corrected_test_rows": 45189,
+          "machine_count_with_history": 33,
+          "global_logit_shift": 0.2290560143185645
+        },
+        "17511": {
+          "calibration_rows": 4133,
+          "corrected_test_rows": 46202,
+          "machine_count_with_history": 33,
+          "global_logit_shift": -0.033439125241514066
+        },
+        "17512": {
+          "calibration_rows": 4158,
+          "corrected_test_rows": 46052,
+          "machine_count_with_history": 33,
+          "global_logit_shift": -0.19757617625455673
+        },
+        "17513": {
+          "calibration_rows": 4171,
+          "corrected_test_rows": 46926,
+          "machine_count_with_history": 33,
+          "global_logit_shift": 0.03265470273004649
+        },
+        "17514": {
+          "calibration_rows": 4226,
+          "corrected_test_rows": 45655,
+          "machine_count_with_history": 33,
+          "global_logit_shift": -0.43018308512302356
+        },
+        "17515": {
+          "calibration_rows": 4257,
+          "corrected_test_rows": 43294,
+          "machine_count_with_history": 33,
+          "global_logit_shift": 0.046823550085649764
+        }
+      }
+    }
+  },
+  "interpretation_limit": "Both machine cohorts had exposed labels before this method was chosen. Use a disjoint machine cohort for an independent check."
+}

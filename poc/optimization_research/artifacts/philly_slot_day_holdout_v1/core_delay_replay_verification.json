@@ -1,0 +1,52 @@
+{
+  "core_code_sha256": "81c201f2ab04bc0dbafd9f8d3828c3908cac8f0a715be622ae2dfcd8f928d0ad",
+  "delays": {
+    "0": {
+      "probability_hashes_match": true,
+      "row_brier": {
+        "machine": 0.08578645562525393,
+        "machine_slot": 0.08353208427019232
+      }
+    },
+    "21600": {
+      "probability_hashes_match": true,
+      "row_brier": {
+        "machine": 0.0861337920014534,
+        "machine_slot": 0.08431822876531567
+      }
+    },
+    "300": {
+      "probability_hashes_match": true,
+      "row_brier": {
+        "machine": 0.08578696472931172,
+        "machine_slot": 0.08353249144753137
+      }
+    },
+    "3600": {
+      "probability_hashes_match": true,
+      "row_brier": {
+        "machine": 0.08581991080240754,
+        "machine_slot": 0.08362816066080259
+      }
+    },
+    "43200": {
+      "probability_hashes_match": true,
+      "row_brier": {
+        "machine": 0.08693000299377257,
+        "machine_slot": 0.0856395415809451
+      }
+    },
+    "86400": {
+      "probability_hashes_match": true,
+      "row_brier": {
+        "machine": 0.09243057497814043,
+        "machine_slot": 0.09243057497814043
+      }
+    }
+  },
+  "machines": 51,
+  "published_delay_result_sha256": "f7339500857621968c0b930ce2391e2e6e05691d2c5fcb2370832bcd38c830ba",
+  "rows": 812729,
+  "source_predictions_sha256": "a823adb09685f76a118b74a4a89eb2c1bd104334114607d3bf1971f8c1217762",
+  "status": "CORE_DELAY_REPLAY_VERIFIED"
+}

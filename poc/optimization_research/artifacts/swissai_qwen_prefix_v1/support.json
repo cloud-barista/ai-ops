@@ -1,0 +1,268 @@
+{
+  "gate": {
+    "minimum_daily_each": 100,
+    "minimum_days": 3,
+    "minimum_each": 10000,
+    "passed": false,
+    "reasons": [
+      "validation_class_support_below_10000"
+    ],
+    "validation_supported_days": 3
+  },
+  "kind": "swissai_qwen_prefix_support_v1",
+  "sample_index_sha256": "5a31ee741102a3d6b8065c6adf96a4eead4b087bc2453ae115e4f93ded26f00f",
+  "sample_rows": 66487,
+  "source": {
+    "compact_rows": 3127766,
+    "compact_sha256": "b50c10e3034c288332762d67c8fde09989d31ba10678dd2be97fd6deb20f0d7b",
+    "quality_sha256": "e530b1b74cfb4076e34962dbfd81414fb8d0a76de0a73f1c39a8b341c7d727dc",
+    "source_sha256": "58b2265b98a10ec3bb2a0b455c520731c1296967906c7adc7b6d3710a013e402"
+  },
+  "test_labels_or_cache_scores_opened": false,
+  "train": {
+    "counts": {
+      "censored_or_warmup": 0,
+      "negative": 589824,
+      "positive": 140868,
+      "rows": 730692,
+      "scorable": 730692
+    },
+    "days": {
+      "2025-05-23": {
+        "negative": 4,
+        "positive": 0
+      },
+      "2025-05-24": {
+        "negative": 25,
+        "positive": 3
+      },
+      "2025-05-25": {
+        "negative": 51,
+        "positive": 4
+      },
+      "2025-05-26": {
+        "negative": 31,
+        "positive": 10
+      },
+      "2025-05-27": {
+        "negative": 70,
+        "positive": 50
+      },
+      "2025-06-03": {
+        "negative": 49,
+        "positive": 34
+      },
+      "2025-06-04": {
+        "negative": 120,
+        "positive": 91
+      },
+      "2025-06-05": {
+        "negative": 56,
+        "positive": 19
+      },
+      "2025-06-06": {
+        "negative": 3,
+        "positive": 0
+      },
+      "2025-06-07": {
+        "negative": 6,
+        "positive": 2
+      },
+      "2025-06-08": {
+        "negative": 24,
+        "positive": 2
+      },
+      "2025-06-09": {
+        "negative": 238,
+        "positive": 23
+      },
+      "2025-06-10": {
+        "negative": 630,
+        "positive": 111
+      },
+      "2025-06-12": {
+        "negative": 50,
+        "positive": 45
+      },
+      "2025-06-13": {
+        "negative": 30,
+        "positive": 10
+      },
+      "2025-06-16": {
+        "negative": 2,
+        "positive": 1
+      },
+      "2025-06-17": {
+        "negative": 2,
+        "positive": 3
+      },
+      "2025-06-18": {
+        "negative": 13,
+        "positive": 0
+      },
+      "2025-06-23": {
+        "negative": 5,
+        "positive": 0
+      },
+      "2025-06-25": {
+        "negative": 2383,
+        "positive": 2249
+      },
+      "2025-06-26": {
+        "negative": 949,
+        "positive": 935
+      },
+      "2025-06-27": {
+        "negative": 9,
+        "positive": 3
+      },
+      "2025-06-29": {
+        "negative": 62035,
+        "positive": 5940
+      },
+      "2025-06-30": {
+        "negative": 38843,
+        "positive": 661
+      },
+      "2025-07-01": {
+        "negative": 19277,
+        "positive": 21352
+      },
+      "2025-07-02": {
+        "negative": 121364,
+        "positive": 9268
+      },
+      "2025-07-03": {
+        "negative": 227751,
+        "positive": 5080
+      },
+      "2025-07-04": {
+        "negative": 35400,
+        "positive": 508
+      },
+      "2025-07-05": {
+        "negative": 106,
+        "positive": 19
+      },
+      "2025-07-07": {
+        "negative": 268,
+        "positive": 75
+      },
+      "2025-07-08": {
+        "negative": 1327,
+        "positive": 279
+      },
+      "2025-07-10": {
+        "negative": 1147,
+        "positive": 2810
+      },
+      "2025-07-11": {
+        "negative": 1594,
+        "positive": 125
+      },
+      "2025-07-12": {
+        "negative": 11300,
+        "positive": 20947
+      },
+      "2025-07-13": {
+        "negative": 35584,
+        "positive": 67726
+      },
+      "2025-07-15": {
+        "negative": 203,
+        "positive": 4
+      },
+      "2025-07-16": {
+        "negative": 657,
+        "positive": 27
+      },
+      "2025-07-17": {
+        "negative": 1082,
+        "positive": 173
+      },
+      "2025-07-18": {
+        "negative": 322,
+        "positive": 7
+      },
+      "2025-07-19": {
+        "negative": 40,
+        "positive": 15
+      },
+      "2025-07-20": {
+        "negative": 3,
+        "positive": 0
+      },
+      "2025-07-22": {
+        "negative": 201,
+        "positive": 3
+      },
+      "2025-07-23": {
+        "negative": 443,
+        "positive": 99
+      },
+      "2025-07-24": {
+        "negative": 24102,
+        "positive": 2067
+      },
+      "2025-07-25": {
+        "negative": 8,
+        "positive": 3
+      },
+      "2025-07-26": {
+        "negative": 449,
+        "positive": 12
+      },
+      "2025-07-27": {
+        "negative": 717,
+        "positive": 61
+      },
+      "2025-07-28": {
+        "negative": 2,
+        "positive": 0
+      },
+      "2025-07-29": {
+        "negative": 404,
+        "positive": 0
+      },
+      "2025-07-30": {
+        "negative": 32,
+        "positive": 7
+      },
+      "2025-07-31": {
+        "negative": 413,
+        "positive": 5
+      }
+    }
+  },
+  "validation": {
+    "counts": {
+      "censored_or_warmup": 0,
+      "negative": 28596,
+      "positive": 2204,
+      "rows": 30800,
+      "scorable": 30800
+    },
+    "days": {
+      "2025-08-01": {
+        "negative": 24924,
+        "positive": 489
+      },
+      "2025-08-03": {
+        "negative": 250,
+        "positive": 147
+      },
+      "2025-08-04": {
+        "negative": 3,
+        "positive": 0
+      },
+      "2025-08-06": {
+        "negative": 192,
+        "positive": 40
+      },
+      "2025-08-07": {
+        "negative": 3227,
+        "positive": 1528
+      }
+    }
+  }
+}

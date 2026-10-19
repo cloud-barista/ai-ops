@@ -1,0 +1,448 @@
+{
+  "count_gate_sha256": "c1d47e26aa23717ff5c0cf75e5450ed20c5e94d58c1dc6a8be431c811c9cbb6b",
+  "equal_family_macro": {
+    "persistence": {
+      "male": 0.3947420041743942,
+      "severe_underprediction_rate": 0.08875248015873016
+    },
+    "ridge_alpha_10": {
+      "male": 0.7384346155753126,
+      "severe_underprediction_rate": 0.2459697420634921
+    },
+    "training_mean_log_ratio": {
+      "male": 0.40006162550133473,
+      "severe_underprediction_rate": 0.08875248015873016
+    }
+  },
+  "fold_training_windows": {
+    "bert": 60,
+    "convnext": 103,
+    "mobilenet": 103,
+    "resnet": 97
+  },
+  "manifest_sha256": "1ea747f3359af1738449f9e3fbd62a90a6e64ca75aad5e84b4056ce1ec1cda9b",
+  "metric_definition": "MALE=mean absolute log predicted/observed p95; severe=predicted<0.8 observed",
+  "per_family_equal_run": [
+    {
+      "family": "bert",
+      "methods": {
+        "persistence": {
+          "male": 0.7069003232396373,
+          "severe_underprediction_rate": 0.11889880952380952
+        },
+        "ridge_alpha_10": {
+          "male": 1.52316523623952,
+          "severe_underprediction_rate": 0.7477678571428572
+        },
+        "training_mean_log_ratio": {
+          "male": 0.7183986585892921,
+          "severe_underprediction_rate": 0.11889880952380952
+        }
+      },
+      "runs": 8,
+      "windows": 61
+    },
+    {
+      "family": "resnet",
+      "methods": {
+        "persistence": {
+          "male": 0.4501793630627119,
+          "severe_underprediction_rate": 0.125
+        },
+        "ridge_alpha_10": {
+          "male": 0.6088509980556416,
+          "severe_underprediction_rate": 0.125
+        },
+        "training_mean_log_ratio": {
+          "male": 0.45995951302081917,
+          "severe_underprediction_rate": 0.125
+        }
+      },
+      "runs": 4,
+      "windows": 24
+    },
+    {
+      "family": "convnext",
+      "methods": {
+        "persistence": {
+          "male": 0.3627901613241818,
+          "severe_underprediction_rate": 0.1111111111111111
+        },
+        "ridge_alpha_10": {
+          "male": 0.48268381565925894,
+          "severe_underprediction_rate": 0.1111111111111111
+        },
+        "training_mean_log_ratio": {
+          "male": 0.36279016132418174,
+          "severe_underprediction_rate": 0.1111111111111111
+        }
+      },
+      "runs": 3,
+      "windows": 18
+    },
+    {
+      "family": "mobilenet",
+      "methods": {
+        "persistence": {
+          "male": 0.05909816907104598,
+          "severe_underprediction_rate": 0.0
+        },
+        "ridge_alpha_10": {
+          "male": 0.33903841234682996,
+          "severe_underprediction_rate": 0.0
+        },
+        "training_mean_log_ratio": {
+          "male": 0.05909816907104598,
+          "severe_underprediction_rate": 0.0
+        }
+      },
+      "runs": 3,
+      "windows": 18
+    }
+  ],
+  "per_run": [
+    {
+      "family": "bert",
+      "methods": {
+        "persistence": {
+          "male": 0.39344598598885805,
+          "severe_underprediction_rate": 0.1
+        },
+        "ridge_alpha_10": {
+          "male": 1.9493125490121863,
+          "severe_underprediction_rate": 1.0
+        },
+        "training_mean_log_ratio": {
+          "male": 0.4103908436805598,
+          "severe_underprediction_rate": 0.1
+        }
+      },
+      "run": "1-bert",
+      "windows": 10
+    },
+    {
+      "family": "bert",
+      "methods": {
+        "persistence": {
+          "male": 0.19741007625237145,
+          "severe_underprediction_rate": 0.0
+        },
+        "ridge_alpha_10": {
+          "male": 1.6766735304363585,
+          "severe_underprediction_rate": 1.0
+        },
+        "training_mean_log_ratio": {
+          "male": 0.19437792557146646,
+          "severe_underprediction_rate": 0.0
+        }
+      },
+      "run": "1-bert-stress",
+      "windows": 8
+    },
+    {
+      "family": "bert",
+      "methods": {
+        "persistence": {
+          "male": 0.9647529348525623,
+          "severe_underprediction_rate": 0.14285714285714285
+        },
+        "ridge_alpha_10": {
+          "male": 1.1522294386194072,
+          "severe_underprediction_rate": 0.8571428571428571
+        },
+        "training_mean_log_ratio": {
+          "male": 0.9685178415312244,
+          "severe_underprediction_rate": 0.14285714285714285
+        }
+      },
+      "run": "2-bert",
+      "windows": 7
+    },
+    {
+      "family": "bert",
+      "methods": {
+        "persistence": {
+          "male": 0.05026815794767276,
+          "severe_underprediction_rate": 0.0
+        },
+        "ridge_alpha_10": {
+          "male": 1.751879948635013,
+          "severe_underprediction_rate": 1.0
+        },
+        "training_mean_log_ratio": {
+          "male": 0.06456187068379456,
+          "severe_underprediction_rate": 0.0
+        }
+      },
+      "run": "2-bert-stress",
+      "windows": 8
+    },
+    {
+      "family": "bert",
+      "methods": {
+        "persistence": {
+          "male": 1.3777296206922631,
+          "severe_underprediction_rate": 0.16666666666666666
+        },
+        "ridge_alpha_10": {
+          "male": 1.163808326393744,
+          "severe_underprediction_rate": 0.3333333333333333
+        },
+        "training_mean_log_ratio": {
+          "male": 1.3750718988810802,
+          "severe_underprediction_rate": 0.16666666666666666
+        }
+      },
+      "run": "3-bert",
+      "windows": 6
+    },
+    {
+      "family": "bert",
+      "methods": {
+        "persistence": {
+          "male": 1.2302281251449434,
+          "severe_underprediction_rate": 0.25
+        },
+        "ridge_alpha_10": {
+          "male": 1.9427946375749867,
+          "severe_underprediction_rate": 0.875
+        },
+        "training_mean_log_ratio": {
+          "male": 1.2552524017190643,
+          "severe_underprediction_rate": 0.25
+        }
+      },
+      "run": "3-bert-stress",
+      "windows": 8
+    },
+    {
+      "family": "bert",
+      "methods": {
+        "persistence": {
+          "male": 1.0145061945930531,
+          "severe_underprediction_rate": 0.16666666666666666
+        },
+        "ridge_alpha_10": {
+          "male": 0.941005634967198,
+          "severe_underprediction_rate": 0.16666666666666666
+        },
+        "training_mean_log_ratio": {
+          "male": 1.0161913271353742,
+          "severe_underprediction_rate": 0.16666666666666666
+        }
+      },
+      "run": "4-bert",
+      "windows": 6
+    },
+    {
+      "family": "bert",
+      "methods": {
+        "persistence": {
+          "male": 0.4268614904453738,
+          "severe_underprediction_rate": 0.125
+        },
+        "ridge_alpha_10": {
+          "male": 1.6076178242772667,
+          "severe_underprediction_rate": 0.75
+        },
+        "training_mean_log_ratio": {
+          "male": 0.46282515951177317,
+          "severe_underprediction_rate": 0.125
+        }
+      },
+      "run": "4-bert-stress",
+      "windows": 8
+    },
+    {
+      "family": "resnet",
+      "methods": {
+        "persistence": {
+          "male": 0.5252163790636742,
+          "severe_underprediction_rate": 0.16666666666666666
+        },
+        "ridge_alpha_10": {
+          "male": 0.7062589956437306,
+          "severe_underprediction_rate": 0.16666666666666666
+        },
+        "training_mean_log_ratio": {
+          "male": 0.5424034721255623,
+          "severe_underprediction_rate": 0.16666666666666666
+        }
+      },
+      "run": "2-resnet",
+      "windows": 6
+    },
+    {
+      "family": "resnet",
+      "methods": {
+        "persistence": {
+          "male": 0.5923285137257482,
+          "severe_underprediction_rate": 0.16666666666666666
+        },
+        "ridge_alpha_10": {
+          "male": 0.7292864246424219,
+          "severe_underprediction_rate": 0.16666666666666666
+        },
+        "training_mean_log_ratio": {
+          "male": 0.602699349058488,
+          "severe_underprediction_rate": 0.16666666666666666
+        }
+      },
+      "run": "3-resnet",
+      "windows": 6
+    },
+    {
+      "family": "resnet",
+      "methods": {
+        "persistence": {
+          "male": 0.3238924991022047,
+          "severe_underprediction_rate": 0.0
+        },
+        "ridge_alpha_10": {
+          "male": 0.5694224666583642,
+          "severe_underprediction_rate": 0.0
+        },
+        "training_mean_log_ratio": {
+          "male": 0.3354551705400062,
+          "severe_underprediction_rate": 0.0
+        }
+      },
+      "run": "4-resnet",
+      "windows": 6
+    },
+    {
+      "family": "resnet",
+      "methods": {
+        "persistence": {
+          "male": 0.3592800603592204,
+          "severe_underprediction_rate": 0.16666666666666666
+        },
+        "ridge_alpha_10": {
+          "male": 0.4304361052780497,
+          "severe_underprediction_rate": 0.16666666666666666
+        },
+        "training_mean_log_ratio": {
+          "male": 0.3592800603592204,
+          "severe_underprediction_rate": 0.16666666666666666
+        }
+      },
+      "run": "5-resnet",
+      "windows": 6
+    },
+    {
+      "family": "convnext",
+      "methods": {
+        "persistence": {
+          "male": 0.5422298425137183,
+          "severe_underprediction_rate": 0.16666666666666666
+        },
+        "ridge_alpha_10": {
+          "male": 0.6708540740371061,
+          "severe_underprediction_rate": 0.16666666666666666
+        },
+        "training_mean_log_ratio": {
+          "male": 0.5393661823179409,
+          "severe_underprediction_rate": 0.16666666666666666
+        }
+      },
+      "run": "1-convnext",
+      "windows": 6
+    },
+    {
+      "family": "convnext",
+      "methods": {
+        "persistence": {
+          "male": 0.48876168741478243,
+          "severe_underprediction_rate": 0.16666666666666666
+        },
+        "ridge_alpha_10": {
+          "male": 0.6305586459649819,
+          "severe_underprediction_rate": 0.16666666666666666
+        },
+        "training_mean_log_ratio": {
+          "male": 0.4887616874147825,
+          "severe_underprediction_rate": 0.16666666666666666
+        }
+      },
+      "run": "2-convnext",
+      "windows": 6
+    },
+    {
+      "family": "convnext",
+      "methods": {
+        "persistence": {
+          "male": 0.05737895404404451,
+          "severe_underprediction_rate": 0.0
+        },
+        "ridge_alpha_10": {
+          "male": 0.1466387269756889,
+          "severe_underprediction_rate": 0.0
+        },
+        "training_mean_log_ratio": {
+          "male": 0.06024261423982183,
+          "severe_underprediction_rate": 0.0
+        }
+      },
+      "run": "2-convnext-stress",
+      "windows": 6
+    },
+    {
+      "family": "mobilenet",
+      "methods": {
+        "persistence": {
+          "male": 0.054168671007748324,
+          "severe_underprediction_rate": 0.0
+        },
+        "ridge_alpha_10": {
+          "male": 0.43009599513898067,
+          "severe_underprediction_rate": 0.0
+        },
+        "training_mean_log_ratio": {
+          "male": 0.054168671007748324,
+          "severe_underprediction_rate": 0.0
+        }
+      },
+      "run": "1-mobilenet",
+      "windows": 6
+    },
+    {
+      "family": "mobilenet",
+      "methods": {
+        "persistence": {
+          "male": 0.05956751946504909,
+          "severe_underprediction_rate": 0.0
+        },
+        "ridge_alpha_10": {
+          "male": 0.12978485616947652,
+          "severe_underprediction_rate": 0.0
+        },
+        "training_mean_log_ratio": {
+          "male": 0.059864248957115625,
+          "severe_underprediction_rate": 0.0
+        }
+      },
+      "run": "1-mobilenet-stress",
+      "windows": 6
+    },
+    {
+      "family": "mobilenet",
+      "methods": {
+        "persistence": {
+          "male": 0.06355831674034053,
+          "severe_underprediction_rate": 0.0
+        },
+        "ridge_alpha_10": {
+          "male": 0.4572343857320327,
+          "severe_underprediction_rate": 0.0
+        },
+        "training_mean_log_ratio": {
+          "male": 0.063261587248274,
+          "severe_underprediction_rate": 0.0
+        }
+      },
+      "run": "2-mobilenet",
+      "windows": 6
+    }
+  ],
+  "task": "30-second future-start HTTP duration p95 on active-load windows"
+}

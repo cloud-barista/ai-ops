@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="820" viewBox="0 0 1600 820">
+<defs>
+<filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+<feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#111827" flood-opacity="0.08"/>
+</filter>
+</defs>
+<rect width="1600" height="820" fill="#ffffff"/>
+<text x="58" y="74" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="38" font-weight="700" text-anchor="start">LLM 기반 에이전트 등록·Action 검증</text>
+<text x="61" y="118" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start">보조 bounded Action API에서 LLM 제안을 Registry와 Go Guard로 검증하는 구조</text>
+<rect x="1235" y="48" width="307" height="44" rx="22" fill="#ffffff" stroke="#d6dce4" stroke-width="1"/>
+<text x="1260" y="76" fill="#27496d" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="17" font-weight="700" text-anchor="start">Kyung Hee OPS · Go Prototype</text>
+<rect x="76" y="178" width="405" height="500" rx="26" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="70" y="170" width="405" height="500" rx="26" fill="#ffffff" stroke="#d6dce4" stroke-width="2"/>
+<text x="98" y="225" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">AI 응용 자동화 에이전트</text>
+<rect x="110" y="257" width="335" height="130" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="105" y="250" width="335" height="130" rx="20" fill="#ffffff" stroke="#31445a" stroke-width="2"/>
+<circle cx="141" cy="288" r="18" fill="#31445a"/>
+<text x="141" y="295" fill="#ffffff" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="700" text-anchor="middle">1</text>
+<text x="173" y="305" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">실제 LLM Endpoint</text>
+<text x="131" y="338" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">workload · VM · 관측값</text>
+<text x="131" y="363" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">bounded Action JSON 제안</text>
+<rect x="110" y="452" width="335" height="130" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="105" y="445" width="335" height="130" rx="20" fill="#ffffff" stroke="#31445a" stroke-width="2"/>
+<circle cx="141" cy="483" r="18" fill="#31445a"/>
+<text x="141" y="490" fill="#ffffff" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="700" text-anchor="middle">2</text>
+<text x="173" y="500" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Action Proposal</text>
+<text x="131" y="533" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">Action · reason · confidence</text>
+<text x="131" y="558" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">target VM · capability</text>
+<line x1="272" y1="380" x2="272" y2="445" stroke="#27496d" stroke-width="4" stroke-linecap="round"/>
+<polygon points="272,445 265,432 279,432" fill="#27496d"/>
+<rect x="546" y="178" width="520" height="500" rx="26" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="540" y="170" width="520" height="500" rx="26" fill="#ffffff" stroke="#d6dce4" stroke-width="2"/>
+<text x="568" y="225" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Agent Registry · Go Guard</text>
+<rect x="585" y="247" width="205" height="135" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="580" y="240" width="205" height="135" rx="20" fill="#ffffff" stroke="#31445a" stroke-width="2"/>
+<text x="606" y="295" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start">Registry</text>
+<text x="606" y="328" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">enabled 상태</text>
+<text x="606" y="352" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">capability · Action</text>
+<rect x="820" y="247" width="205" height="135" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="815" y="240" width="205" height="135" rx="20" fill="#ffffff" stroke="#31445a" stroke-width="2"/>
+<text x="841" y="295" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start">VM / Workload</text>
+<text x="841" y="328" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">실제 VM ID</text>
+<text x="841" y="352" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">allowed Action</text>
+<rect x="585" y="462" width="440" height="125" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="580" y="455" width="440" height="125" rx="20" fill="#ffffff" stroke="#65758b" stroke-width="2"/>
+<text x="606" y="510" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Go Guard</text>
+<text x="606" y="543" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">VM · capability · Action 일치 검증</text>
+<text x="606" y="567" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">approved / rejected</text>
+<line x1="682" y1="375" x2="682" y2="415" stroke="#27496d" stroke-width="4" stroke-linecap="round"/>
+<line x1="682" y1="415" x2="800" y2="415" stroke="#27496d" stroke-width="4" stroke-linecap="round"/>
+<line x1="800" y1="415" x2="800" y2="455" stroke="#27496d" stroke-width="4" stroke-linecap="round"/>
+<polygon points="800,455 793,442 807,442" fill="#27496d"/>
+<line x1="917" y1="375" x2="917" y2="415" stroke="#31445a" stroke-width="4" stroke-linecap="round"/>
+<line x1="917" y1="415" x2="800" y2="415" stroke="#31445a" stroke-width="4" stroke-linecap="round"/>
+<polygon points="800,415 812,408 812,422" fill="#31445a"/>
+<rect x="1131" y="178" width="405" height="500" rx="26" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="1125" y="170" width="405" height="500" rx="26" fill="#ffffff" stroke="#d6dce4" stroke-width="2"/>
+<text x="1153" y="225" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">검증 결과</text>
+<rect x="1165" y="252" width="335" height="125" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="1160" y="245" width="335" height="125" rx="20" fill="#ffffff" stroke="#65758b" stroke-width="2"/>
+<text x="1186" y="300" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">승인 결과</text>
+<text x="1186" y="333" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">approved Action</text>
+<text x="1186" y="357" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">correlation ID</text>
+<rect x="1165" y="452" width="335" height="125" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="1160" y="445" width="335" height="125" rx="20" fill="#ffffff" stroke="#65758b" stroke-width="2"/>
+<text x="1186" y="500" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">거부 결과</text>
+<text x="1186" y="533" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">미등록 · 권한 초과</text>
+<text x="1186" y="557" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">rejected / llm_failed</text>
+<line x1="475" y1="510" x2="580" y2="510" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<polygon points="580,510 567,517 567,503" fill="#65758b"/>
+<line x1="1020" y1="515" x2="1090" y2="515" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<line x1="1090" y1="515" x2="1090" y2="307" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<line x1="1090" y1="307" x2="1160" y2="307" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<polygon points="1160,307 1147,314 1147,300" fill="#65758b"/>
+<line x1="1020" y1="515" x2="1090" y2="515" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<line x1="1090" y1="515" x2="1090" y2="507" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<line x1="1090" y1="507" x2="1160" y2="507" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<polygon points="1160,507 1147,514 1147,500" fill="#65758b"/>
+<text x="95" y="759" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start">핵심: LLM은 Action을 제안하고, Go가 등록 상태와 허용 범위를 결정적으로 검증한다. 주 배포 경로는 별도의 Manifest Guard를 사용한다.</text>
+</svg>

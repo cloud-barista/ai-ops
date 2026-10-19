@@ -1,0 +1,439 @@
+{
+  "snapshot_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "script_sha256": "9b7d4da79e593744922e42e234477c050cb3659376d0f525cf5ccbe28def76fe",
+  "dependency_sha256": {
+    "conditional_response.py": "165871a1f70ea1efcd73e64719667f47fd9b94fdfecc461d12582ab584ea6993",
+    "cross_model_covariance.py": "e7ff1f5322f71a630eeddeab6ddd443ec546a5e9f9f1ad845b917cb6fb333850",
+    "sparse_anchor_transfer.py": "8e416feb6e29edb42f9b1ff09fb6c1a0273550160edce35ad8a16b492b1a1869",
+    "probe_design.py": "7beb6b57fbb91839ba3cca8bbe1fbe2024fb64de25d5dccd52f5e951ed935f73"
+  },
+  "sklearn_version": "1.6.1",
+  "split": "outer leave-one-model-out; inner leave-one-donor-out covariance",
+  "dual_measurements": "six GPU1/core2 anchors and one GPU2/core2 response at a selected anchored workload",
+  "cost_unit": "sum of observed wall_seconds \u00d7 GPU count for probes only",
+  "selection": "six/eight/sixteen/thirty-two space-filling medoids; one cross-probe chosen by whole-grid feature centroid or other-model predicted cost",
+  "adaptation": "global additive log latency/RPS correction applied to GPU2 candidates",
+  "fixed_scored_population": "all seven nonanchor configs for error, all eight for SLO choice, every heldout workload",
+  "macro": [
+    {
+      "method": "anchor16",
+      "models": 9,
+      "latency_male": 0.23149526252800376,
+      "rps_male": 0.10646459099825063,
+      "feasible_groups": 357,
+      "successful_choices": 341,
+      "slo_violations": 17,
+      "missed_feasible_groups": 16,
+      "gpu_wall_probe_seconds": 14.859134888888889
+    },
+    {
+      "method": "anchor32",
+      "models": 9,
+      "latency_male": 0.21985191923436753,
+      "rps_male": 0.10058151228643672,
+      "feasible_groups": 357,
+      "successful_choices": 342,
+      "slo_violations": 11,
+      "missed_feasible_groups": 15,
+      "gpu_wall_probe_seconds": 27.863838111111114
+    },
+    {
+      "method": "anchor6",
+      "models": 9,
+      "latency_male": 0.2476157812206294,
+      "rps_male": 0.13629140852621366,
+      "feasible_groups": 357,
+      "successful_choices": 333,
+      "slo_violations": 14,
+      "missed_feasible_groups": 24,
+      "gpu_wall_probe_seconds": 4.749783
+    },
+    {
+      "method": "anchor8",
+      "models": 9,
+      "latency_male": 0.23813818951312596,
+      "rps_male": 0.12678047265350023,
+      "feasible_groups": 357,
+      "successful_choices": 338,
+      "slo_violations": 18,
+      "missed_feasible_groups": 19,
+      "gpu_wall_probe_seconds": 6.955328
+    },
+    {
+      "method": "dual_center",
+      "models": 9,
+      "latency_male": 0.2533696344058964,
+      "rps_male": 0.15288291387473013,
+      "feasible_groups": 357,
+      "successful_choices": 331,
+      "slo_violations": 14,
+      "missed_feasible_groups": 26,
+      "gpu_wall_probe_seconds": 9.328991888888888
+    },
+    {
+      "method": "dual_cheapest",
+      "models": 9,
+      "latency_male": 0.306734579019406,
+      "rps_male": 0.14919467775947542,
+      "feasible_groups": 357,
+      "successful_choices": 336,
+      "slo_violations": 19,
+      "missed_feasible_groups": 21,
+      "gpu_wall_probe_seconds": 9.103159
+    },
+    {
+      "method": "zero_shot",
+      "models": 9,
+      "latency_male": 0.6362190676723826,
+      "rps_male": 0.6247035651602976,
+      "feasible_groups": 357,
+      "successful_choices": 289,
+      "slo_violations": 44,
+      "missed_feasible_groups": 68,
+      "gpu_wall_probe_seconds": 0.0
+    }
+  ],
+  "comparisons": {
+    "dual_center_vs_anchor6": {
+      "latency_male": {
+        "method_minus_baseline": 0.005753853185267003,
+        "bootstrap_95pct_ci": [
+          -0.008209304165434991,
+          0.021149724786252294
+        ],
+        "models": 9
+      },
+      "rps_male": {
+        "method_minus_baseline": 0.01659150534851646,
+        "bootstrap_95pct_ci": [
+          0.0027224880281749484,
+          0.036121334037428635
+        ],
+        "models": 9
+      },
+      "successful_choices": {
+        "method_minus_baseline": -0.2222222222222222,
+        "bootstrap_95pct_ci": [
+          -1.2222222222222223,
+          0.4444444444444444
+        ],
+        "models": 9
+      },
+      "slo_violations": {
+        "method_minus_baseline": 0.0,
+        "bootstrap_95pct_ci": [
+          -0.6666666666666666,
+          0.6666666666666666
+        ],
+        "models": 9
+      },
+      "gpu_wall_probe_seconds": {
+        "method_minus_baseline": 4.579208888888889,
+        "bootstrap_95pct_ci": [
+          3.540034,
+          6.139181333333333
+        ],
+        "models": 9
+      }
+    },
+    "dual_center_vs_anchor8": {
+      "latency_male": {
+        "method_minus_baseline": 0.015231444892770448,
+        "bootstrap_95pct_ci": [
+          -0.00666578959985443,
+          0.03541013624341197
+        ],
+        "models": 9
+      },
+      "rps_male": {
+        "method_minus_baseline": 0.026102441221229886,
+        "bootstrap_95pct_ci": [
+          0.002597766397079685,
+          0.05673870344522988
+        ],
+        "models": 9
+      },
+      "successful_choices": {
+        "method_minus_baseline": -0.7777777777777778,
+        "bootstrap_95pct_ci": [
+          -2.0,
+          0.1111111111111111
+        ],
+        "models": 9
+      },
+      "slo_violations": {
+        "method_minus_baseline": -0.4444444444444444,
+        "bootstrap_95pct_ci": [
+          -1.4444444444444444,
+          0.3333333333333333
+        ],
+        "models": 9
+      },
+      "gpu_wall_probe_seconds": {
+        "method_minus_baseline": 2.3736638888888892,
+        "bootstrap_95pct_ci": [
+          1.4701498916666669,
+          3.5028796583333337
+        ],
+        "models": 9
+      }
+    },
+    "dual_center_vs_anchor16": {
+      "latency_male": {
+        "method_minus_baseline": 0.02187437187789266,
+        "bootstrap_95pct_ci": [
+          0.0015244296778866295,
+          0.043377587905652486
+        ],
+        "models": 9
+      },
+      "rps_male": {
+        "method_minus_baseline": 0.046418322876479484,
+        "bootstrap_95pct_ci": [
+          0.020083648587227353,
+          0.07627736635843362
+        ],
+        "models": 9
+      },
+      "successful_choices": {
+        "method_minus_baseline": -1.1111111111111112,
+        "bootstrap_95pct_ci": [
+          -2.5555555555555554,
+          -0.1111111111111111
+        ],
+        "models": 9
+      },
+      "slo_violations": {
+        "method_minus_baseline": -0.3333333333333333,
+        "bootstrap_95pct_ci": [
+          -1.2222222222222223,
+          0.4444444444444444
+        ],
+        "models": 9
+      },
+      "gpu_wall_probe_seconds": {
+        "method_minus_baseline": -5.530143,
+        "bootstrap_95pct_ci": [
+          -8.57494188888889,
+          -2.5911605722222224
+        ],
+        "models": 9
+      }
+    },
+    "dual_center_vs_anchor32": {
+      "latency_male": {
+        "method_minus_baseline": 0.03351771517152888,
+        "bootstrap_95pct_ci": [
+          0.012661378926747083,
+          0.05587079079489782
+        ],
+        "models": 9
+      },
+      "rps_male": {
+        "method_minus_baseline": 0.05230140158829339,
+        "bootstrap_95pct_ci": [
+          0.014557996187631131,
+          0.09287324453797582
+        ],
+        "models": 9
+      },
+      "successful_choices": {
+        "method_minus_baseline": -1.2222222222222223,
+        "bootstrap_95pct_ci": [
+          -3.3333333333333335,
+          0.8888888888888888
+        ],
+        "models": 9
+      },
+      "slo_violations": {
+        "method_minus_baseline": 0.3333333333333333,
+        "bootstrap_95pct_ci": [
+          -1.0,
+          1.5555555555555556
+        ],
+        "models": 9
+      },
+      "gpu_wall_probe_seconds": {
+        "method_minus_baseline": -18.53484622222222,
+        "bootstrap_95pct_ci": [
+          -26.82849055277778,
+          -10.865975138888892
+        ],
+        "models": 9
+      }
+    },
+    "dual_cheapest_vs_anchor6": {
+      "latency_male": {
+        "method_minus_baseline": 0.05911879779877654,
+        "bootstrap_95pct_ci": [
+          0.012750532837494163,
+          0.11663616973203443
+        ],
+        "models": 9
+      },
+      "rps_male": {
+        "method_minus_baseline": 0.012903269233261775,
+        "bootstrap_95pct_ci": [
+          -0.0010194077101115383,
+          0.03247936855453157
+        ],
+        "models": 9
+      },
+      "successful_choices": {
+        "method_minus_baseline": 0.3333333333333333,
+        "bootstrap_95pct_ci": [
+          -0.6666666666666666,
+          1.2222222222222223
+        ],
+        "models": 9
+      },
+      "slo_violations": {
+        "method_minus_baseline": 0.5555555555555556,
+        "bootstrap_95pct_ci": [
+          0.0,
+          1.2222222222222223
+        ],
+        "models": 9
+      },
+      "gpu_wall_probe_seconds": {
+        "method_minus_baseline": 4.353376,
+        "bootstrap_95pct_ci": [
+          3.2950683055555556,
+          6.171334822222222
+        ],
+        "models": 9
+      }
+    },
+    "dual_cheapest_vs_anchor8": {
+      "latency_male": {
+        "method_minus_baseline": 0.06859638950627998,
+        "bootstrap_95pct_ci": [
+          0.015024074025334549,
+          0.1270229142023759
+        ],
+        "models": 9
+      },
+      "rps_male": {
+        "method_minus_baseline": 0.0224142051059752,
+        "bootstrap_95pct_ci": [
+          0.0035461924487382775,
+          0.04282188095234731
+        ],
+        "models": 9
+      },
+      "successful_choices": {
+        "method_minus_baseline": -0.2222222222222222,
+        "bootstrap_95pct_ci": [
+          -1.4444444444444444,
+          0.7777777777777778
+        ],
+        "models": 9
+      },
+      "slo_violations": {
+        "method_minus_baseline": 0.1111111111111111,
+        "bootstrap_95pct_ci": [
+          -0.5555555555555556,
+          0.7777777777777778
+        ],
+        "models": 9
+      },
+      "gpu_wall_probe_seconds": {
+        "method_minus_baseline": 2.1478310000000005,
+        "bootstrap_95pct_ci": [
+          0.8992353333333329,
+          3.6776401277777766
+        ],
+        "models": 9
+      }
+    },
+    "dual_cheapest_vs_anchor16": {
+      "latency_male": {
+        "method_minus_baseline": 0.0752393164914022,
+        "bootstrap_95pct_ci": [
+          0.02962031521323648,
+          0.12874195178306613
+        ],
+        "models": 9
+      },
+      "rps_male": {
+        "method_minus_baseline": 0.04273008676122479,
+        "bootstrap_95pct_ci": [
+          0.019454169234523446,
+          0.06716402924597381
+        ],
+        "models": 9
+      },
+      "successful_choices": {
+        "method_minus_baseline": -0.5555555555555556,
+        "bootstrap_95pct_ci": [
+          -1.8888888888888888,
+          0.6666666666666666
+        ],
+        "models": 9
+      },
+      "slo_violations": {
+        "method_minus_baseline": 0.2222222222222222,
+        "bootstrap_95pct_ci": [
+          -0.8888888888888888,
+          1.2222222222222223
+        ],
+        "models": 9
+      },
+      "gpu_wall_probe_seconds": {
+        "method_minus_baseline": -5.75597588888889,
+        "bootstrap_95pct_ci": [
+          -8.986125113888889,
+          -2.731251555555556
+        ],
+        "models": 9
+      }
+    },
+    "dual_cheapest_vs_anchor32": {
+      "latency_male": {
+        "method_minus_baseline": 0.08688265978503841,
+        "bootstrap_95pct_ci": [
+          0.0367329485320613,
+          0.14553993946632635
+        ],
+        "models": 9
+      },
+      "rps_male": {
+        "method_minus_baseline": 0.048613165473038705,
+        "bootstrap_95pct_ci": [
+          0.015274819438523695,
+          0.08033858052788381
+        ],
+        "models": 9
+      },
+      "successful_choices": {
+        "method_minus_baseline": -0.6666666666666666,
+        "bootstrap_95pct_ci": [
+          -2.7777777777777777,
+          1.5555555555555556
+        ],
+        "models": 9
+      },
+      "slo_violations": {
+        "method_minus_baseline": 0.8888888888888888,
+        "bootstrap_95pct_ci": [
+          0.0,
+          1.8888888888888888
+        ],
+        "models": 9
+      },
+      "gpu_wall_probe_seconds": {
+        "method_minus_baseline": -18.760679111111116,
+        "bootstrap_95pct_ci": [
+          -26.866256952777782,
+          -11.048711513888891
+        ],
+        "models": 9
+      }
+    }
+  },
+  "caveats": [
+    "Generated SLOs are throughput-dominated.",
+    "Nine models on one host; Qwen has no aligned same-task covariance donors.",
+    "Model parameter bytes assumed available at registration."
+  ]
+}

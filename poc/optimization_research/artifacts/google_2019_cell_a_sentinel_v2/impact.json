@@ -1,0 +1,36 @@
+{
+  "added_corrected_bins": [],
+  "changed_shared_bin_count": 2,
+  "changed_shared_bins": [
+    {
+      "bin": 1227,
+      "corrected_count": 506,
+      "v1_count": 505
+    },
+    {
+      "bin": 1528,
+      "corrected_count": 488,
+      "v1_count": 487
+    }
+  ],
+  "corrected_first_full_bin": 3,
+  "corrected_last_full_bin": 8928,
+  "corrected_series_sha256": "7678e205e07891ab7698ff7315c29eda7d9eb2c99fc52e84af54d87acccb9f12",
+  "corrected_total_in_complete_bins": 4711460,
+  "old_first_full_bin": 1,
+  "old_last_full_bin": 8928,
+  "old_total_in_complete_bins": 4712406,
+  "old_v1_series_sha256": "bff66403914c23e7086055ee415fd638bd9fca4025eb977c210b6506dc5b993a",
+  "removed_v1_bins": [
+    {
+      "bin": 1,
+      "v1_count": 0
+    },
+    {
+      "bin": 2,
+      "v1_count": 948
+    }
+  ],
+  "shared_complete_bins": 8926,
+  "version": 2
+}

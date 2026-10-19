@@ -1,0 +1,62 @@
+{
+  "status": "FROZEN_AFTER_PARSER_FAILURE_BEFORE_ANY_SCORE",
+  "reason": "valid whole-second UTC timestamp rejected before any v1 aggregate, support check, model load or score",
+  "parser_change": "pd.to_datetime(..., format='ISO8601', utc=True, errors='raise')",
+  "official_source_bytes": 1135195393,
+  "official_source_sha256": "a0cc9b969a9bbf0fd811802cbf4323edd3a209ace791e3799ad4f9207f213941",
+  "test_days": [
+    "2024-05-14",
+    "2024-05-15",
+    "2024-05-16",
+    "2024-05-17",
+    "2024-05-18"
+  ],
+  "methods": [
+    "relative_q90_hgb",
+    "train_weighted_ratio_q90",
+    "past_hour_empirical_q90",
+    "previous_day_ratio",
+    "previous_day_ratio_plus_train_residual_q90"
+  ],
+  "coding_model_sha256": "72c3c812192abcd02cc4095d87f77b75da83935900d5f6a4e51afc37f77582b4",
+  "coding_result_sha256": "a6d962475e83b357958e612dd3a557c30cf4e66de5beb67e680a8256b27eeedf",
+  "artifacts": {
+    "conversation_source": {
+      "path": "data/external/azure_llm_2024/AzureLLMInferenceTrace_conv_1week.csv",
+      "sha256": "a0cc9b969a9bbf0fd811802cbf4323edd3a209ace791e3799ad4f9207f213941"
+    },
+    "v1_release": {
+      "path": "artifacts/azure_input_demand_cross_service_v1/release_manifest.json",
+      "sha256": "7b081a0bb601487a3a0e6400a07cc2b92c316e91a68a65d56e055e2f358fc09d"
+    },
+    "v1_protocol": {
+      "path": "reports/azure_input_demand_cross_service_protocol.md",
+      "sha256": "3f27a9b13a13d0b43f6eb18404af9e6f8fcb9021d1a0451788e35a615871758d"
+    },
+    "v1_code": {
+      "path": "scripts/evaluate_azure_input_demand_cross_service.py",
+      "sha256": "40fe94fae0c0e0b58c87e7216ff71ad781c18154368b2ad1dd190df344a2d10f"
+    },
+    "v1_tests": {
+      "path": "tests/test_azure_input_demand_cross_service.py",
+      "sha256": "b87f64f3bd37dfdd0ed64e9058862022daaf1d3ad973a9460b81f18654077edb"
+    },
+    "parser_failure": {
+      "path": "artifacts/azure_input_demand_cross_service_v1/parser_failure.json",
+      "sha256": "83db06706496afdef4053b25a2f134a8a68422672b42dc437607125ad22acbbc"
+    },
+    "parser_addendum": {
+      "path": "reports/azure_input_demand_cross_service_parser_addendum_v1_1.md",
+      "sha256": "edcfc846da357f3ec4c99df41918a2df2e5bc4c611cdf6f701d39926e3ff5725"
+    },
+    "v1_1_code": {
+      "path": "scripts/evaluate_azure_input_demand_cross_service_v1_1.py",
+      "sha256": "f3c3a02c0d1eec77d66a5d8ec8f59f954368c596e4f7729a01394b2dd0d557c6"
+    },
+    "v1_1_tests": {
+      "path": "tests/test_azure_input_demand_cross_service_v1_1.py",
+      "sha256": "727dec60eb79c3aa5d556de164440eae69aefe46ecf37db67b20f85559c4d87d"
+    }
+  },
+  "source_integrity_pass": true
+}

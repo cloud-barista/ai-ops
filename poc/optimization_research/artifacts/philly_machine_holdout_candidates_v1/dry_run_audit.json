@@ -1,0 +1,711 @@
+{
+  "kind": "holdout_audit_only_no_model_fit_no_row_level_outcome",
+  "source_archive_sha256": "2037ccf63a725a02be718b0e1aeee6142c90b7f62d0d849295120e9f6ba13d2c",
+  "frozen_protocol_sha256": "a4d5925a85a6a25d6dc4f6d34f60508af8e974cf2ca586db6f49979ea801666d",
+  "original_model_spec_sha256": "861005a57cbf9f370a8f36682ca9004a3301af01f45e9c797949bf6319ad76a3",
+  "source_audit_path": "/home/researcher/ai-mcmp/research/data/external/msr_philly_2017_holdout/gpu_util_holdout_audit.json",
+  "source_audit_sha256": "5563e385f477ca091831dd48413ec24a39b2fa1cb955209c6992664e19bcd55f",
+  "source_sample_sha256": "d52b498fc24705e11d94075f605d32897dfc0b658167ee1da78c24d15aa73822",
+  "normalization_audit_path": "/home/researcher/ai-mcmp/research/data/external/msr_philly_2017_holdout/gpu_util_normalized_first_width_audit.json",
+  "normalization_audit_sha256": "ee870efa49dd556b688cde7ab495edaf01eaaa26a15d9e7196d94d9beb8a00bc",
+  "normalized_sample_path": "/home/researcher/ai-mcmp/research/data/external/msr_philly_2017_holdout/gpu_util_normalized_first_width.parquet",
+  "normalized_sample_sha256": "146fe4318d6634120bdc10b2af9522be6c0a113c3213fb386a007b4d21edbdf8",
+  "original_source_audit_sha256": "438b6e7359daa2a219564ced5f0f31435f949b651dd080fe647a4fe6cd311c9d",
+  "original_dry_run_sha256": "bccc573ea0f4f8fca9357d72bdc56f60788c85c31c2065d75f639322412bbf0f",
+  "preparation_script_sha256": "be18b93c61c69ea4f526b0f52602b8ca648ad7745dd9739c5c6a230ec3a1666f",
+  "candidate_builder_sha256": "e89fd8a48c8491d02194540fc362a1d50f264f589a60e52e6c3dfd3fdc25d795",
+  "machine_selection": {
+    "rule": "5 <= int.from_bytes(SHA256(machineId UTF-8), 'big') % 100 < 15",
+    "low_inclusive": 5,
+    "high_exclusive": 15,
+    "selected_machines": 47,
+    "overlap_with_original": 0
+  },
+  "test_span": {
+    "start_utc_s": 1512086400,
+    "end_utc_s": 1513382400,
+    "start_utc_day": 17501,
+    "end_utc_day_exclusive": 17516,
+    "days": 15
+  },
+  "test_only_bounds": {
+    "raw_min_utc_s": 1507014000,
+    "raw_max_utc_s": 1513392120,
+    "first_full_utc_day": 17443,
+    "last_full_utc_day_exclusive": 17516,
+    "full_utc_days": 73,
+    "spans": {
+      "train": {
+        "start_utc_s": 1512086400,
+        "end_utc_s": 1512086400,
+        "start_utc_day": 17501,
+        "end_utc_day_exclusive": 17501,
+        "days": 0
+      },
+      "validation": {
+        "start_utc_s": 1512086400,
+        "end_utc_s": 1512086400,
+        "start_utc_day": 17501,
+        "end_utc_day_exclusive": 17501,
+        "days": 0
+      },
+      "test": {
+        "start_utc_s": 1512086400,
+        "end_utc_s": 1513382400,
+        "start_utc_day": 17501,
+        "end_utc_day_exclusive": 17516,
+        "days": 15
+      }
+    },
+    "duration_gate_pass": false,
+    "test_duration_gate_pass": true
+  },
+  "source_raw_utc_extrema_only_split": {
+    "raw_min_utc_s": 1507014000,
+    "raw_max_utc_s": 1513392120,
+    "first_full_utc_day": 17443,
+    "last_full_utc_day_exclusive": 17516,
+    "full_utc_days": 73,
+    "spans": {
+      "train": {
+        "start_utc_s": 1507075200,
+        "end_utc_s": 1510790400,
+        "start_utc_day": 17443,
+        "end_utc_day_exclusive": 17486,
+        "days": 43
+      },
+      "validation": {
+        "start_utc_s": 1510790400,
+        "end_utc_s": 1512086400,
+        "start_utc_day": 17486,
+        "end_utc_day_exclusive": 17501,
+        "days": 15
+      },
+      "test": {
+        "start_utc_s": 1512086400,
+        "end_utc_s": 1513382400,
+        "start_utc_day": 17501,
+        "end_utc_day_exclusive": 17516,
+        "days": 15
+      }
+    },
+    "duration_gate_pass": true
+  },
+  "partitioning": {
+    "machine_hash_buckets": 128,
+    "max_partition_rows": 500000,
+    "bucket_count_used": 38,
+    "max_bucket_rows_observed": 316932
+  },
+  "totals": {
+    "absent_slot_cells_excluded": 7921336,
+    "candidate_rows": 957708,
+    "current_valid_before_split": 4697536,
+    "duplicate_minute_keys": 0,
+    "duplicate_minute_rows": 0,
+    "excluded_by_split_boundary": 3739828,
+    "future_complete_rows": 957708,
+    "observed_window_keys": 808124,
+    "observed_window_slots": 4880636,
+    "off_minute_rows": 0,
+    "raw_rows": 4040392,
+    "row_unusable_rows": 2280,
+    "valid_window_slots": 4697536,
+    "width_mismatch_rows": 2280
+  },
+  "source_quality": {
+    "per_machine": [
+      {
+        "machine_hash": "3c1503413146bb4fb44b51b6a15b2beab33afb70ad922ce122038f90d4ea2d53",
+        "expected_gpu_slots": 2,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "64def8fa3fca0a108a8a840d5825c07ce28a439e31796cdffb115606452470ad",
+        "expected_gpu_slots": 2,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "fb02b5cebeb1cb83018f93ee31f226a07883df7c9100ceeed0d481eee350f637",
+        "expected_gpu_slots": 8,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "f75cfedff539df2e3c46f4b50ddbcf40bfb45c970e9a962c10cfaa748f2c825f",
+        "expected_gpu_slots": 8,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "46ed3fd080ad3849123b171805c100a9f1b223461571bf8e95bdd3366356be2a",
+        "expected_gpu_slots": 8,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "58e43cae59a36c8c1e718249a98a487f890e11380d55674369a68f9279fbe92d",
+        "expected_gpu_slots": 4,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "9cff5611a66a66fe5b6046dd93b8c116b59e50037760bcc847d674c8b3ca3868",
+        "expected_gpu_slots": 8,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "83fab1cbb96add0b2435537ce930824642c1a2749af685ae6a8fb5b22de5fe9b",
+        "expected_gpu_slots": 2,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "afade3f33fd982ff1233419de33fd88d4cd2d0821c5f1e0edf8629cc3d0e6f46",
+        "expected_gpu_slots": 8,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "b18731b75bde961184f67706e03d21f4a4ca13bdba92cd2b9c4d7d0cc6329377",
+        "expected_gpu_slots": 8,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "9dce45eecc58c7b63e1b38075993c229d10a9ed59e7c315d3e9c68522fc03fd1",
+        "expected_gpu_slots": 2,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "fbf7e740df792ff57a6cf798f420a883f92459bb5a0897aa74d152a4d4c60302",
+        "expected_gpu_slots": 8,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "62c94c4f97283c6630728fe2c196fe375ea4619258ff8e8b10ed1f98dee163c3",
+        "expected_gpu_slots": 2,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "ded9dbf2c7379bd51131b246e070b8e109f0c760b72808bbfb45b4fae5af3fb9",
+        "expected_gpu_slots": 8,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "edfb45a90d509e970a52489cabc60902f0666b25909ebaa9c1c1d4ffba83e2a1",
+        "expected_gpu_slots": 2,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "5ccf57ffc09e22ee45f620e9846474bbbea92f97d1e0fea7d0753788faa4cdde",
+        "expected_gpu_slots": 8,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "d61dcfd13ab93735d8f29c6365a1f8d5750962f4db92ad21156890587a5e24ca",
+        "expected_gpu_slots": 8,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "16ffcd6a8341a947bf327646baef0e606f11811824a6dc2f098551cbbba9976e",
+        "expected_gpu_slots": 8,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "1d7bc7323eb73c5893b153326544d4e0b1540fcbc5c8a529f6eff8806b3f731d",
+        "expected_gpu_slots": 4,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "7e613a13012c8c266d93ddbe7b0e894d30d235fdc3f6143ed033139e8483d55c",
+        "expected_gpu_slots": 2,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "52a05e05cb41ab8e24076c0cb7500c7629bd93238d2d07480b5ac6ffc59fd191",
+        "expected_gpu_slots": 8,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "b84bfc79698d90a3ba58d9e54d497fe0e418ede07bc15f3696044bc4bd4c4526",
+        "expected_gpu_slots": 8,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "41e2c8098aab273600f099ea14f771bc9669db124f4daa89d9d90ec956e84ab9",
+        "expected_gpu_slots": 2,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "2379a0950df15247c2c4d170c31939fbb54a8b38747b00c6f2cff466a6983335",
+        "expected_gpu_slots": 8,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "a0b2242aa1046656380fa4af203083bcd5612660472496ad2cb295c64bfc9572",
+        "expected_gpu_slots": 2,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "62389865232303f5e8d22a713f4bd61f9c395ee69cb18c8a72aaee2ba4b4519d",
+        "expected_gpu_slots": 8,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "8a1db550b67be9367b1f632836099c9fd511d5595150db34577ba0e2f183d49a",
+        "expected_gpu_slots": 8,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "4e62c4a37e3d466ef09d6b741a9b19c4ea1f0f7b32a2292aefceefd63732678e",
+        "expected_gpu_slots": 2,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "11462fa2d7bf349c6addf1286b3d906475c96f71a9913d0f9f4e0863de74f67f",
+        "expected_gpu_slots": 8,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "46a63449e706a9ce6ea3d8e39bf633fe5339e50c73c1ebb4ffba67c69f09148e",
+        "expected_gpu_slots": 8,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "d676d2b326840a147fb78fd7225c89d156c3035df2edb4603d053f1a5cbea122",
+        "expected_gpu_slots": 8,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "c85ea0a54ff5a5dd85fb7207dff7fd3cfad59e7c1f609a79316c2e4afab1af3e",
+        "expected_gpu_slots": 8,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "f61268ee13065a01e1d9b7e214013cb1534aa22c5a2ef49d20b5680a4cad2fbe",
+        "expected_gpu_slots": 8,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "7f28cba3e256ad23721487c565c490eff9438677ed7f21f655b7b1b7a1cfc579",
+        "expected_gpu_slots": 8,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "d40b1351b4a25cbb9c4d2cc9f62b9964295f28a43d1e6f20b5b3504d621f91d1",
+        "expected_gpu_slots": 4,
+        "rows": 2880,
+        "width_mismatch_rows": 0,
+        "width_mismatch_fraction": 0.0,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "11505e95e092153b4f2ab3423900426422663eed2520648a63f624aa8c7d4045",
+        "expected_gpu_slots": 4,
+        "rows": 2880,
+        "width_mismatch_rows": 0,
+        "width_mismatch_fraction": 0.0,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "089ccfeeec1444acb1277af0b66ba48165bad4c708e6d77f6e84411abfa3f5c2",
+        "expected_gpu_slots": 4,
+        "rows": 2880,
+        "width_mismatch_rows": 0,
+        "width_mismatch_fraction": 0.0,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "83b7c0c13d3532bedb9295635fe58e890a11ef5c2d209e9004a8819286ad4364",
+        "expected_gpu_slots": 4,
+        "rows": 2880,
+        "width_mismatch_rows": 0,
+        "width_mismatch_fraction": 0.0,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "c1e3735b676f5f92f02e0a22520cf3607f993ef981436825073698c2acf55308",
+        "expected_gpu_slots": 4,
+        "rows": 2880,
+        "width_mismatch_rows": 0,
+        "width_mismatch_fraction": 0.0,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "d4f500b1497d480c11959aa74396833de7795701d83749faa5df50d41512bc3a",
+        "expected_gpu_slots": 8,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "dd064432901e067198efd2568a61f0fad6eed27ed9198cd9d1962709dd464d13",
+        "expected_gpu_slots": 4,
+        "rows": 2880,
+        "width_mismatch_rows": 0,
+        "width_mismatch_fraction": 0.0,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "5cf56e2baa29f7a92d2b9a96100f78ab4bce7b1ad6515a57879d10103c024ab9",
+        "expected_gpu_slots": 4,
+        "rows": 2880,
+        "width_mismatch_rows": 0,
+        "width_mismatch_fraction": 0.0,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "c341c057ed1bb93928361272127fd684442a456efeb9079a4460a15c3e1cb002",
+        "expected_gpu_slots": 8,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "5edd0109c09d5ff13066c70d8e6b96d1fd9097939f0a9bb1684ff1b3fd6deced",
+        "expected_gpu_slots": 4,
+        "rows": 2880,
+        "width_mismatch_rows": 0,
+        "width_mismatch_fraction": 0.0,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "a2a0c27d1cbf0937d0775f78933c9ecc540e86b071d2bf0136ea263d06e62b17",
+        "expected_gpu_slots": 4,
+        "rows": 2880,
+        "width_mismatch_rows": 0,
+        "width_mismatch_fraction": 0.0,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "76b282dcea926d4df47c5ab8eab43134549aea42261fd8bc570159b1c864f9b5",
+        "expected_gpu_slots": 2,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      },
+      {
+        "machine_hash": "4a62acd8b5b1d8e54d2cb93c51d45d3ba2203e1fa44c9a1702de6bc953f58fab",
+        "expected_gpu_slots": 8,
+        "rows": 105644,
+        "width_mismatch_rows": 60,
+        "width_mismatch_fraction": 0.0005679451743591685,
+        "retained": true,
+        "exclusion_reason": null
+      }
+    ],
+    "excluded_machines": 0,
+    "excluded_rows": 0,
+    "retained_machines": 47,
+    "retained_rows": 4040392,
+    "all_test_active_machines": 38,
+    "retained_test_active_machines": 38,
+    "excluded_test_active_machines": 0,
+    "input_quality_by_original_split": {
+      "train": {
+        "observed_window_slots": 2838926,
+        "valid_window_slots": 2727064,
+        "valid_fraction": 0.9605970708641226,
+        "fixed_calendar_grid_window_slots": 3294144,
+        "raw_row_absent_grid_window_slots": 455218
+      },
+      "validation": {
+        "observed_window_slots": 993600,
+        "valid_window_slots": 959040,
+        "valid_fraction": 0.9652173913043478,
+        "fixed_calendar_grid_window_slots": 1149120,
+        "raw_row_absent_grid_window_slots": 155520
+      },
+      "test": {
+        "observed_window_slots": 993600,
+        "valid_window_slots": 959040,
+        "valid_fraction": 0.9652173913043478,
+        "fixed_calendar_grid_window_slots": 1149120,
+        "raw_row_absent_grid_window_slots": 155520
+      }
+    },
+    "test_input_passes": true,
+    "passes": true
+  },
+  "gate_counts_by_split_cohort_state": [
+    {
+      "split": "test",
+      "cohort": "complete",
+      "current_state": "below_80",
+      "candidates": 741597,
+      "future_complete": 741597,
+      "future_observation_fraction": 1.0,
+      "positive_gate_count": 114906,
+      "negative_gate_count": 626691,
+      "eligible_machine_count": 37,
+      "positive_machine_count": 35,
+      "negative_machine_count": 37,
+      "positive_utc_day_count": 15,
+      "gate_checks": {
+        "future_observation_at_least_half": true,
+        "eligible_at_least_2000": true,
+        "positive_at_least_100": true,
+        "negative_at_least_100": true,
+        "eligible_machines_at_least_10": true,
+        "positive_machines_at_least_5": true,
+        "negative_machines_at_least_5": true,
+        "test_positives_on_five_days": true
+      },
+      "gate_pass": true
+    },
+    {
+      "split": "test",
+      "cohort": "complete",
+      "current_state": "at_least_80",
+      "candidates": 216111,
+      "future_complete": 216111,
+      "future_observation_fraction": 1.0,
+      "positive_gate_count": 206995,
+      "negative_gate_count": 9116,
+      "eligible_machine_count": 35,
+      "positive_machine_count": 35,
+      "negative_machine_count": 35,
+      "positive_utc_day_count": 15,
+      "gate_checks": {
+        "future_observation_at_least_half": true,
+        "eligible_at_least_2000": true,
+        "positive_at_least_100": true,
+        "negative_at_least_100": true,
+        "eligible_machines_at_least_10": true,
+        "positive_machines_at_least_5": true,
+        "negative_machines_at_least_5": true,
+        "test_positives_on_five_days": true
+      },
+      "gate_pass": true
+    },
+    {
+      "split": "test",
+      "cohort": "partial_past",
+      "current_state": "below_80",
+      "candidates": 0,
+      "future_complete": 0,
+      "future_observation_fraction": null,
+      "positive_gate_count": 0,
+      "negative_gate_count": 0,
+      "eligible_machine_count": 0,
+      "positive_machine_count": 0,
+      "negative_machine_count": 0,
+      "positive_utc_day_count": 0,
+      "gate_checks": {
+        "future_observation_at_least_half": false,
+        "eligible_at_least_2000": false,
+        "positive_at_least_100": false,
+        "negative_at_least_100": false,
+        "eligible_machines_at_least_10": false,
+        "positive_machines_at_least_5": false,
+        "negative_machines_at_least_5": false,
+        "test_positives_on_five_days": false
+      },
+      "gate_pass": false
+    },
+    {
+      "split": "test",
+      "cohort": "partial_past",
+      "current_state": "at_least_80",
+      "candidates": 0,
+      "future_complete": 0,
+      "future_observation_fraction": null,
+      "positive_gate_count": 0,
+      "negative_gate_count": 0,
+      "eligible_machine_count": 0,
+      "positive_machine_count": 0,
+      "negative_machine_count": 0,
+      "positive_utc_day_count": 0,
+      "gate_checks": {
+        "future_observation_at_least_half": false,
+        "eligible_at_least_2000": false,
+        "positive_at_least_100": false,
+        "negative_at_least_100": false,
+        "eligible_machines_at_least_10": false,
+        "positive_machines_at_least_5": false,
+        "negative_machines_at_least_5": false,
+        "test_positives_on_five_days": false
+      },
+      "gate_pass": false
+    }
+  ],
+  "primary_half_gate_counts": [
+    {
+      "half": 1,
+      "start_utc_day": 17501,
+      "end_utc_day_exclusive": 17508,
+      "positives": 52463,
+      "negatives": 287755,
+      "eligible": 340218,
+      "passes_both_classes": true
+    },
+    {
+      "half": 2,
+      "start_utc_day": 17508,
+      "end_utc_day_exclusive": 17516,
+      "positives": 62443,
+      "negatives": 338936,
+      "eligible": 401379,
+      "passes_both_classes": true
+    }
+  ],
+  "outputs": {
+    "candidates.parquet": {
+      "rows": 957708,
+      "sha256": "e0ad2cad4cfaa3f3debdd5bb2089aefcb58d811d4266aef002573903c016306d"
+    },
+    "future_observability.parquet": {
+      "rows": 957708,
+      "sha256": "0d8c474ea14e1dcfd45c68a3bb7d04f91658208bbe6e601a4abd3918c7a0057f"
+    },
+    "future_observability_summary.parquet": {
+      "rows": 5639,
+      "sha256": "6612cdc4f04916e523c72fae8472cc1068e6735aaffdf2f8138e31c116a4f52a"
+    }
+  }
+}

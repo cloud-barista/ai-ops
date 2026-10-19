@@ -1,0 +1,58 @@
+{
+  "model_sha256": "7a934da440ea0c7473e4e59eb5fa0c8c57f347389272bd303cb0051ef918b161",
+  "source_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "predictor_sha256": "46c85961fb4d9388c99bc073522f8cf9c839065a1f4fe67a1b92aa33f3123075",
+  "assessor_sha256": "e904a76d9e7940630e8a53f3f0e5d952bb98760fa74697bd7c42bfadb6a1e30e",
+  "evaluation_script_sha256": "0bc2725dea987c05a4b0762169f4d174854afe568142a3992b519487302c1dff",
+  "support_rule": "train-split model/revision/device-specific numeric ranges and observed repeats",
+  "joint_training_grid": {
+    "groups": 17,
+    "cartesian_combinations_of_observed_levels": 3806,
+    "observed_joint_tuples": 441,
+    "unmeasured_joint_tuples": 3365,
+    "unmeasured_fraction": 0.8841303205465055
+  },
+  "campaigns": {
+    "khu-hf-local-exhaustive": {
+      "eligible_rows": 4856,
+      "previous_supported_rows": 4856,
+      "model_condition_supported_rows": 4828,
+      "retained_workload_groups": 575,
+      "prediction_exact_parity": true
+    },
+    "khu-hf-local-novel-matrix": {
+      "eligible_rows": 176,
+      "previous_supported_rows": 108,
+      "model_condition_supported_rows": 56,
+      "retained_workload_groups": 5,
+      "prediction_exact_parity": true,
+      "retained_model_group_male": {
+        "latency_p95_ms": 0.43597377042535035,
+        "examples_per_second": 0.2860200117278077,
+        "mean_two_targets": 0.36099689107657906
+      },
+      "retained_baseline_group_male": {
+        "latency_p95_ms": 2.606320811814663,
+        "examples_per_second": 0.5391654519562132,
+        "mean_two_targets": 1.5727431318854381
+      }
+    },
+    "khu-hf-local-space-filling": {
+      "eligible_rows": 384,
+      "previous_supported_rows": 296,
+      "model_condition_supported_rows": 100,
+      "retained_workload_groups": 9,
+      "prediction_exact_parity": true,
+      "retained_model_group_male": {
+        "latency_p95_ms": 0.5349707255402556,
+        "examples_per_second": 0.16144536873889226,
+        "mean_two_targets": 0.34820804713957393
+      },
+      "retained_baseline_group_male": {
+        "latency_p95_ms": 0.6910413248631639,
+        "examples_per_second": 0.6463532369668942,
+        "mean_two_targets": 0.6686972809150291
+      }
+    }
+  }
+}

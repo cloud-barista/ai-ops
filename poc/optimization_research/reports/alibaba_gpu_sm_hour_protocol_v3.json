@@ -1,0 +1,108 @@
+{
+  "version": "alibaba_gpu_sm_hour_v3",
+  "frozen_at_utc": "2026-10-02T10:24:01.777303+00:00",
+  "new_raw_days": [
+    123,
+    129
+  ],
+  "train_days": [
+    109,
+    124
+  ],
+  "validation_days": [
+    125,
+    125
+  ],
+  "test_days": [
+    126,
+    129
+  ],
+  "hash_buckets": {
+    "train": [
+      0,
+      69
+    ],
+    "validation": [
+      70,
+      84
+    ],
+    "test": [
+      85,
+      99
+    ]
+  },
+  "base_script_sha256": "3f3d1e9f15296bdfb11e4f73c8bcad34edd93d5a4e659eff256eef489a81dabd",
+  "old_models": {
+    "1": {
+      "one_gpu_pod": {
+        "path": "/home/researcher/ai-mcmp/research/artifacts/alibaba_gpu_sm_hour_v1/one_gpu_pod/model_bundle.joblib",
+        "sha256": "2245eee0c2db77488344ff269aad0fcafca55b041112cc1c89a3a0c738f19e41"
+      },
+      "one_gpu_pod_and_server": {
+        "path": "/home/researcher/ai-mcmp/research/artifacts/alibaba_gpu_sm_hour_v1/one_gpu_pod_and_server/model_bundle.joblib",
+        "sha256": "15472dcd11a5578a61bd3ea9fbdf1dfa91d4ce50272d043a7cda9cf179d70389"
+      }
+    },
+    "2": {
+      "one_gpu_pod": {
+        "path": "/home/researcher/ai-mcmp/research/artifacts/alibaba_gpu_sm_hour_v2/one_gpu_pod/model_bundle.joblib",
+        "sha256": "4324a13f318c3b677dc1319905f555b18021c15513dc4d2c77dde5e7132fb9ce"
+      },
+      "one_gpu_pod_and_server": {
+        "path": "/home/researcher/ai-mcmp/research/artifacts/alibaba_gpu_sm_hour_v2/one_gpu_pod_and_server/model_bundle.joblib",
+        "sha256": "e589d0631cd076396ae5f4145aa2400e7796e3ce1735dc9ca7fd442b7ca31daf"
+      }
+    }
+  },
+  "primary_cohort": "one_gpu_pod_and_server",
+  "auxiliary_cohort": "one_gpu_pod",
+  "seed": 42,
+  "models": [
+    "direct_hgb",
+    "residual_hgb"
+  ],
+  "alphas": [
+    0,
+    0.25,
+    0.5,
+    1
+  ],
+  "hgb": {
+    "loss": "absolute_error",
+    "max_iter": 150,
+    "learning_rate": 0.05,
+    "max_leaf_nodes": 15,
+    "min_samples_leaf": 50,
+    "l2_regularization": 1,
+    "early_stopping": false
+  },
+  "selection": "validation only: (row MAE + workload macro MAE)/2; ties persistence",
+  "quality": "Build train, validation, test separately; future test ID/measurement checks cannot remove or alter training rows. Missing next-hour target excluded, never zero. Exclude test pods shared with train/validation.",
+  "sequence": "Save both validation-selected model bundles and their hashes before reading test measurement data; no test-driven refit.",
+  "support": {
+    "rows": 1000,
+    "workloads": 20,
+    "change_events": 30,
+    "change_workloads": 5,
+    "days": 4
+  },
+  "improvement_checks": [
+    "row MAE lower",
+    "workload macro MAE lower",
+    "change>10 MAE not worse",
+    "p95 absolute error not worse",
+    "at least3 of4 days row MAE lower",
+    "workload cluster interval lower bound positive"
+  ],
+  "comparators": [
+    "validation-selected simple baseline",
+    "frozen v1 selected route",
+    "frozen v2 selected route"
+  ],
+  "bootstrap": {
+    "seed": 42,
+    "repetitions": 2000
+  },
+  "scope": "Same-cluster future-period source SM measurement conditional on observable same-server pod; no actual scale-action or user SLO labels",
+  "raw_retention": true
+}

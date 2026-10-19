@@ -1,0 +1,22 @@
+{
+  "status": "EXPLORATORY_SIMULATION",
+  "objective": "Connect frozen demand models to bounded scale recommendations and compare fluid capacity proxies, separately per Azure service",
+  "historical_period_already_exposed": true,
+  "no_new_training_or_hyperparameter_selection": true,
+  "capacity_factors": [0.5, 1.0, 2.0],
+  "startup_bins": [1, 2, 6],
+  "capacity_formula": "median(train five-minute input tokens) / 2 * factor",
+  "warmup_bins": [864, 1152],
+  "assessment_bins": [1152, 2016],
+  "slot_bounds": [1, 8],
+  "cooldown_bins": 2,
+  "scale_in_confirmations": 3,
+  "scale_in_headroom": 0.8,
+  "feedback": "positive 0.9 quantile of normalized forecast residuals from previous 288 completed bins, minimum 96; same rule for ML and validation-selected simple q90 baseline",
+  "primary_scenario": {"capacity_factor": 1.0, "startup_bins": 1},
+  "primary_comparison": "model_feedback vs feedback-corrected simple baseline selected by validation pinball",
+  "proxy_gate": "strictly lower billed slot-minutes; no worse instant shortfall, backlog area, final backlog or direction reversals",
+  "assumptions": ["arrival load independent of action", "constant homogeneous token processing capacity", "free unbounded fluid backlog", "ready at fixed bin delay", "immediate scale-in", "startup slots billed", "feedback available at bin close"],
+  "excluded_claims": ["actual GPU or VM sizing", "actual cost", "user latency or SLO", "scale action causal effect", "independent blind holdout", "coverage guarantee"],
+  "operational_adoption": false
+}

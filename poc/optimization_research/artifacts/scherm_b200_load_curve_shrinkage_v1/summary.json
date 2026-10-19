@@ -1,0 +1,2830 @@
+{
+  "status": "EXPLORATORY_NO_GO",
+  "models": [
+    "Qwen/Qwen2.5-14B-Instruct-AWQ",
+    "Qwen/Qwen2.5-32B-Instruct-AWQ",
+    "Qwen/Qwen2.5-72B-Instruct-AWQ",
+    "Qwen/Qwen2.5-7B-Instruct-AWQ",
+    "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ",
+    "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ",
+    "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ"
+  ],
+  "target_cells": 42,
+  "weights_by_outer_model": {
+    "Qwen/Qwen2.5-14B-Instruct-AWQ": 1.0,
+    "Qwen/Qwen2.5-32B-Instruct-AWQ": 0.25,
+    "Qwen/Qwen2.5-72B-Instruct-AWQ": 0.5,
+    "Qwen/Qwen2.5-7B-Instruct-AWQ": 0.5,
+    "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": 0.0,
+    "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": 0.0,
+    "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": 0.0
+  },
+  "inner_candidate_scores": {
+    "Qwen/Qwen2.5-14B-Instruct-AWQ": [
+      {
+        "weight": 0.0,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.2864135508151258,
+            "donor": 0.2864135508151258
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.3829697971442019,
+            "donor": 0.3829697971442018
+          }
+        },
+        "both_metric_model_wins": 0,
+        "worst_model_metric_loss_ratio": 1.0000000000000009,
+        "per_model_male": {
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.17358355004134007,
+              "donor": 0.17358355004134
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.26570405781126055,
+              "donor": 0.2657040578112605
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.42146455278484085,
+              "donor": 0.4214645527848409
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.35007270464432655,
+              "donor": 0.3500727046443264
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.39332867771526336,
+              "donor": 0.3933286777152632
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.47030454305558606,
+              "donor": 0.4703045430555859
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.17577970752652128,
+              "donor": 0.17577970752652136
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3507671510614738,
+              "donor": 0.35076715106147355
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.19625150126660892,
+              "donor": 0.19625150126660892
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3370761939635684,
+              "donor": 0.3370761939635684
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.35807331555618055,
+              "donor": 0.3580733155561808
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.5238941323289961,
+              "donor": 0.523894132328996
+            }
+          }
+        }
+      },
+      {
+        "weight": 0.25,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.23571489287728342,
+            "donor": 0.2864135508151258
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.3479640565383964,
+            "donor": 0.3829697971442018
+          }
+        },
+        "both_metric_model_wins": 5,
+        "worst_model_metric_loss_ratio": 1.0146663048395355,
+        "per_model_male": {
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.13006749166667256,
+              "donor": 0.17358355004134
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.23811635354000016,
+              "donor": 0.2657040578112605
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.33548368378148524,
+              "donor": 0.4214645527848409
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.31904868094176203,
+              "donor": 0.3500727046443264
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.34974184461760377,
+              "donor": 0.3933286777152632
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3630801926483315,
+              "donor": 0.4703045430555859
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.13905146629629042,
+              "donor": 0.17577970752652136
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3559116090266365,
+              "donor": 0.35076715106147355
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.15150832307382348,
+              "donor": 0.19625150126660892
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3264278147838577,
+              "donor": 0.3370761939635684
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.3084365478278251,
+              "donor": 0.3580733155561808
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.48519968828979027,
+              "donor": 0.523894132328996
+            }
+          }
+        }
+      },
+      {
+        "weight": 0.5,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.1880724700497698,
+            "donor": 0.2864135508151258
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.31533520134095305,
+            "donor": 0.3829697971442018
+          }
+        },
+        "both_metric_model_wins": 5,
+        "worst_model_metric_loss_ratio": 1.036461302237665,
+        "per_model_male": {
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.08655143329200506,
+              "donor": 0.17358355004134
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.21446133531460698,
+              "donor": 0.2657040578112605
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.2554168690543051,
+              "donor": 0.4214645527848409
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.291957343285064,
+              "donor": 0.3500727046443264
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.3061550115199446,
+              "donor": 0.3933286777152632
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.25585584224107655,
+              "donor": 0.4703045430555859
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.10741748364767957,
+              "donor": 0.17577970752652136
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3635565781713706,
+              "donor": 0.35076715106147355
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.1074670884922961,
+              "donor": 0.19625150126660892
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.31577943560414723,
+              "donor": 0.3370761939635684
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.26542693429238823,
+              "donor": 0.3580733155561808
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.450400673429453,
+              "donor": 0.523894132328996
+            }
+          }
+        }
+      },
+      {
+        "weight": 0.75,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.1447880264653796,
+            "donor": 0.2864135508151258
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.28999085247233863,
+            "donor": 0.3829697971442018
+          }
+        },
+        "both_metric_model_wins": 5,
+        "worst_model_metric_loss_ratio": 1.0582562996357947,
+        "per_model_male": {
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.05742584692457475,
+              "donor": 0.17358355004134
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.20589108952964807,
+              "donor": 0.2657040578112605
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.18378828912607523,
+              "donor": 0.4214645527848409
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.2648660056283667,
+              "donor": 0.3500727046443264
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.26256817842228464,
+              "donor": 0.3933286777152632
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.1689434834271432,
+              "donor": 0.4703045430555859
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.07808031409510102,
+              "donor": 0.17577970752652136
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.37120154731610483,
+              "donor": 0.35076715106147355
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.06444820946729131,
+              "donor": 0.19625150126660892
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.30513105642443716,
+              "donor": 0.3370761939635684
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.22241732075695067,
+              "donor": 0.3580733155561808
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.423911932508332,
+              "donor": 0.523894132328996
+            }
+          }
+        }
+      },
+      {
+        "weight": 1.0,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.12700175644846926,
+            "donor": 0.2864135508151258
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.277788797252334,
+            "donor": 0.3829697971442018
+          }
+        },
+        "both_metric_model_wins": 5,
+        "worst_model_metric_loss_ratio": 1.1173349349862185,
+        "per_model_male": {
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.06640926095391692,
+              "donor": 0.17358355004134
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.22841925812024058,
+              "donor": 0.2657040578112605
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.13944385988739935,
+              "donor": 0.4214645527848409
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.23777466797166955,
+              "donor": 0.3500727046443264
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.23096393895784548,
+              "donor": 0.3933286777152632
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.11670859666358363,
+              "donor": 0.4703045430555859
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.07565131291203056,
+              "donor": 0.17577970752652136
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.39192439192657264,
+              "donor": 0.35076715106147355
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.05849407660572067,
+              "donor": 0.19625150126660892
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.2944826772447267,
+              "donor": 0.3370761939635684
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.19104808937390264,
+              "donor": 0.3580733155561808
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.397423191587211,
+              "donor": 0.523894132328996
+            }
+          }
+        }
+      }
+    ],
+    "Qwen/Qwen2.5-32B-Instruct-AWQ": [
+      {
+        "weight": 0.0,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.24140957583883463,
+            "donor": 0.24140957583883468
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.3593965755205893,
+            "donor": 0.35939657552058923
+          }
+        },
+        "both_metric_model_wins": 2,
+        "worst_model_metric_loss_ratio": 1.0000000000000004,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.10876586149214273,
+              "donor": 0.10876586149214278
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.2331289109022788,
+              "donor": 0.23312891090227883
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.5266460490566643,
+              "donor": 0.5266460490566643
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3529610286162081,
+              "donor": 0.352961028616208
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.2222922569647332,
+              "donor": 0.22229225696473318
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.45861040689387494,
+              "donor": 0.4586104068938748
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.10518149627182345,
+              "donor": 0.10518149627182342
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.30962442312242716,
+              "donor": 0.30962442312242716
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.3010820257328034,
+              "donor": 0.3010820257328036
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3124822691810482,
+              "donor": 0.31248226918104827
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.18448976551484078,
+              "donor": 0.18448976551484073
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.48957241440769833,
+              "donor": 0.4895724144076983
+            }
+          }
+        }
+      },
+      {
+        "weight": 0.25,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.2108462544231038,
+            "donor": 0.24140957583883468
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.3336020785855263,
+            "donor": 0.35939657552058923
+          }
+        },
+        "both_metric_model_wins": 4,
+        "worst_model_metric_loss_ratio": 1.1024873221712255,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.11991298338011891,
+              "donor": 0.10876586149214278
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.21906947640069882,
+              "donor": 0.23312891090227883
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.448668796896539,
+              "donor": 0.5266460490566643
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.33069689924385465,
+              "donor": 0.352961028616208
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.20133557202898933,
+              "donor": 0.22229225696473318
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.36824729436095965,
+              "donor": 0.4586104068938748
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.10269124990293627,
+              "donor": 0.10518149627182342
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.30711537804819256,
+              "donor": 0.30962442312242716
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.21793542548755096,
+              "donor": 0.3010820257328036
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.31641962984557037,
+              "donor": 0.31248226918104827
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.17453349884248856,
+              "donor": 0.18448976551484073
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.4600637936138821,
+              "donor": 0.4895724144076983
+            }
+          }
+        }
+      },
+      {
+        "weight": 0.5,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.18594256993907265,
+            "donor": 0.24140957583883468
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.3093904232246211,
+            "donor": 0.35939657552058923
+          }
+        },
+        "both_metric_model_wins": 3,
+        "worst_model_metric_loss_ratio": 1.3106488717359592,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.14255385364806655,
+              "donor": 0.10876586149214278
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.20501004189911906,
+              "donor": 0.23312891090227883
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.3706915447364136,
+              "donor": 0.5266460490566643
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.30843276987150103,
+              "donor": 0.352961028616208
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.19252543475144865,
+              "donor": 0.22229225696473318
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.2778841818280443,
+              "donor": 0.4586104068938748
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.10459331850441123,
+              "donor": 0.10518149627182342
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.31410338241890373,
+              "donor": 0.30962442312242716
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.1347888252422983,
+              "donor": 0.3010820257328036
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.32035699051009214,
+              "donor": 0.31248226918104827
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.1705024427517976,
+              "donor": 0.18448976551484073
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.43055517282006645,
+              "donor": 0.4895724144076983
+            }
+          }
+        }
+      },
+      {
+        "weight": 0.75,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.1648682723171643,
+            "donor": 0.24140957583883468
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.29147254322966504,
+            "donor": 0.35939657552058923
+          }
+        },
+        "both_metric_model_wins": 3,
+        "worst_model_metric_loss_ratio": 1.5188104213006919,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.16519472391601406,
+              "donor": 0.10876586149214278
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.19095060739753952,
+              "donor": 0.23312891090227883
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.30090062739193785,
+              "donor": 0.5266460490566643
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.28616864049914764,
+              "donor": 0.352961028616208
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.18548545893676585,
+              "donor": 0.22229225696473318
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.21515324391778848,
+              "donor": 0.4586104068938748
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.10649538710588662,
+              "donor": 0.10518149627182342
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3210913867896154,
+              "donor": 0.30962442312242716
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.05817600117399474,
+              "donor": 0.3010820257328036
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.32429435117461386,
+              "donor": 0.31248226918104827
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.17295743537838693,
+              "donor": 0.18448976551484073
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.4111770295992854,
+              "donor": 0.4895724144076983
+            }
+          }
+        }
+      },
+      {
+        "weight": 1.0,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.15930458120641575,
+            "donor": 0.24140957583883468
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.2857607783708525,
+            "donor": 0.35939657552058923
+          }
+        },
+        "both_metric_model_wins": 3,
+        "worst_model_metric_loss_ratio": 1.7269719708654203,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.18783559418396115,
+              "donor": 0.10876586149214278
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.2220260711553456,
+              "donor": 0.23312891090227883
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.23471309978517488,
+              "donor": 0.5266460490566643
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.27209756284838843,
+              "donor": 0.352961028616208
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.17844548312208366,
+              "donor": 0.22229225696473318
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.16900959487645975,
+              "donor": 0.4586104068938748
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.10839745570736174,
+              "donor": 0.10518149627182342
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3280793911603271,
+              "donor": 0.30962442312242716
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.07079822359516176,
+              "donor": 0.3010820257328036
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.32823171183913585,
+              "donor": 0.31248226918104827
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.17563763084475129,
+              "donor": 0.18448976551484073
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3951203383454582,
+              "donor": 0.4895724144076983
+            }
+          }
+        }
+      }
+    ],
+    "Qwen/Qwen2.5-72B-Instruct-AWQ": [
+      {
+        "weight": 0.0,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.20009607538158455,
+            "donor": 0.20009607538158455
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.3448968951640235,
+            "donor": 0.34489689516402344
+          }
+        },
+        "both_metric_model_wins": 2,
+        "worst_model_metric_loss_ratio": 1.0000000000000007,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.10876586149214273,
+              "donor": 0.10876586149214278
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.23509525392521227,
+              "donor": 0.23509525392521233
+            }
+          },
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.2787650463131636,
+              "donor": 0.27876504631316346
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.27055872480607573,
+              "donor": 0.27055872480607573
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.2222922569647332,
+              "donor": 0.22229225696473318
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.45511213776118736,
+              "donor": 0.45511213776118725
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.10518149627182345,
+              "donor": 0.10518149627182342
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3080924970126733,
+              "donor": 0.3080924970126731
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.3010820257328034,
+              "donor": 0.3010820257328036
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.31444861220398174,
+              "donor": 0.3144486122039818
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.18448976551484078,
+              "donor": 0.18448976551484073
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.4860741452750108,
+              "donor": 0.48607414527501075
+            }
+          }
+        }
+      },
+      {
+        "weight": 0.25,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.17647915793298471,
+            "donor": 0.20009607538158455
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.31718695195040214,
+            "donor": 0.34489689516402344
+          }
+        },
+        "both_metric_model_wins": 4,
+        "worst_model_metric_loss_ratio": 1.0208939034013678,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.11103840489552615,
+              "donor": 0.10876586149214278
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.22387879212935288,
+              "donor": 0.23509525392521233
+            }
+          },
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.24152653427207169,
+              "donor": 0.27876504631316346
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.24922545898925308,
+              "donor": 0.27055872480607573
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.20234180495063744,
+              "donor": 0.22229225696473318
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3599272858718399,
+              "donor": 0.45511213776118725
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.09359866454899991,
+              "donor": 0.10518149627182342
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.31412675380700195,
+              "donor": 0.3080924970126731
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.23282776067803024,
+              "donor": 0.3010820257328036
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3027725000098144,
+              "donor": 0.3144486122039818
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.1775417782526428,
+              "donor": 0.18448976551484073
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.4531909208951503,
+              "donor": 0.48607414527501075
+            }
+          }
+        }
+      },
+      {
+        "weight": 0.5,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.15677638708986322,
+            "donor": 0.20009607538158455
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.2906448540761641,
+            "donor": 0.34489689516402344
+          }
+        },
+        "both_metric_model_wins": 4,
+        "worst_model_metric_loss_ratio": 1.1474620341962352,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.12480469667888011,
+              "donor": 0.10876586149214278
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.21266233033349394,
+              "donor": 0.23509525392521233
+            }
+          },
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.20428802223097994,
+              "donor": 0.27876504631316346
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.22789219317243004,
+              "donor": 0.27055872480607573
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.1840649586374181,
+              "donor": 0.22229225696473318
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.26474243398249275,
+              "donor": 0.45511213776118725
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.0864081477965386,
+              "donor": 0.10518149627182342
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.32266152178090246,
+              "donor": 0.3080924970126731
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.16457349562325715,
+              "donor": 0.3010820257328036
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.29109638781564706,
+              "donor": 0.3144486122039818
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.17651900157210534,
+              "donor": 0.18448976551484073
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.42481425737201817,
+              "donor": 0.48607414527501075
+            }
+          }
+        }
+      },
+      {
+        "weight": 0.75,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.13892109427405305,
+            "donor": 0.20009607538158455
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.2710042944588604,
+            "donor": 0.34489689516402344
+          }
+        },
+        "both_metric_model_wins": 4,
+        "worst_model_metric_loss_ratio": 1.274030164991106,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.13857098846223445,
+              "donor": 0.10876586149214278
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.20144586853763516,
+              "donor": 0.23509525392521233
+            }
+          },
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.16704951018988834,
+              "donor": 0.27876504631316346
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.23464199501862196,
+              "donor": 0.27055872480607573
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.17279474476572046,
+              "donor": 0.22229225696473318
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.17002436887663552,
+              "donor": 0.45511213776118725
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.08065784507636387,
+              "donor": 0.10518149627182342
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3311962897548029,
+              "donor": 0.3080924970126731
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.09631923056848406,
+              "donor": 0.3010820257328036
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.2794202756214794,
+              "donor": 0.3144486122039818
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.17813424658162713,
+              "donor": 0.18448976551484073
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.40929696894398737,
+              "donor": 0.48607414527501075
+            }
+          }
+        }
+      },
+      {
+        "weight": 1.0,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.12865815242655615,
+            "donor": 0.20009607538158455
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.2673580477457946,
+            "donor": 0.34489689516402344
+          }
+        },
+        "both_metric_model_wins": 4,
+        "worst_model_metric_loss_ratio": 1.4005982957859764,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.15233728024558874,
+              "donor": 0.10876586149214278
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.21302871369920437,
+              "donor": 0.23509525392521233
+            }
+          },
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.12981099814879635,
+              "donor": 0.27876504631316346
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.2638246810919788,
+              "donor": 0.27055872480607573
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.16152453089402305,
+              "donor": 0.22229225696473318
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.12603999001161212,
+              "donor": 0.45511213776118725
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.08022762207881416,
+              "donor": 0.10518149627182342
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.339731057728703,
+              "donor": 0.3080924970126731
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.06550843740970984,
+              "donor": 0.3010820257328036
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.26774416342731205,
+              "donor": 0.3144486122039818
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.18254004578240482,
+              "donor": 0.18448976551484073
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.39377968051595696,
+              "donor": 0.48607414527501075
+            }
+          }
+        }
+      }
+    ],
+    "Qwen/Qwen2.5-7B-Instruct-AWQ": [
+      {
+        "weight": 0.0,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.2687811039903339,
+            "donor": 0.268781103990334
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.30338397815229484,
+            "donor": 0.3033839781522949
+          }
+        },
+        "both_metric_model_wins": 2,
+        "worst_model_metric_loss_ratio": 1.0000000000000004,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.28199843972785404,
+              "donor": 0.2819984397278541
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.18413111668409407,
+              "donor": 0.1841311166840941
+            }
+          },
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.17577970752652136,
+              "donor": 0.17577970752652128
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.20501212743136463,
+              "donor": 0.20501212743136468
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.4236607102700221,
+              "donor": 0.4236607102700222
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.28391616210880943,
+              "donor": 0.2839161621088095
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.17542873572089265,
+              "donor": 0.17542873572089265
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3511768547140735,
+              "donor": 0.3511768547140736
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.19809668694616153,
+              "donor": 0.19809668694616148
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.2649427619760824,
+              "donor": 0.26494276197608235
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.35772234375055184,
+              "donor": 0.3577223437505521
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.5311248459993448,
+              "donor": 0.5311248459993448
+            }
+          }
+        }
+      },
+      {
+        "weight": 0.25,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.2177866922308891,
+            "donor": 0.268781103990334
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.28778999182540066,
+            "donor": 0.3033839781522949
+          }
+        },
+        "both_metric_model_wins": 5,
+        "worst_model_metric_loss_ratio": 1.0919529548898195,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.25863466219751124,
+              "donor": 0.2819984397278541
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.1437399026378227,
+              "donor": 0.1841311166840941
+            }
+          },
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.13919536244307604,
+              "donor": 0.17577970752652128
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.17590392315006542,
+              "donor": 0.20501212743136468
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.34398038970695627,
+              "donor": 0.4236607102700222
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.2683749152638122,
+              "donor": 0.2839161621088095
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.12859707935315542,
+              "donor": 0.17542873572089265
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.34406893851280534,
+              "donor": 0.3511768547140736
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.1367239698703434,
+              "donor": 0.19809668694616148
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.28930503181645323,
+              "donor": 0.26494276197608235
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.29958868981429226,
+              "donor": 0.3577223437505521
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.5053472395714451,
+              "donor": 0.5311248459993448
+            }
+          }
+        }
+      },
+      {
+        "weight": 0.5,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.17042749279344324,
+            "donor": 0.268781103990334
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.2816272942132981,
+            "donor": 0.3033839781522949
+          }
+        },
+        "both_metric_model_wins": 5,
+        "worst_model_metric_loss_ratio": 1.183905909779639,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.2467646330471388,
+              "donor": 0.2819984397278541
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.1434428331699793,
+              "donor": 0.1841311166840941
+            }
+          },
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.10261101735963087,
+              "donor": 0.17577970752652128
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.1537922571341415,
+              "donor": 0.20501212743136468
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.2643000691438907,
+              "donor": 0.4236607102700222
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.2528336684188146,
+              "donor": 0.2839161621088095
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.08615773795578086,
+              "donor": 0.17542873572089265
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.34645807175648313,
+              "donor": 0.3511768547140736
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.07535125279452547,
+              "donor": 0.19809668694616148
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3136673016568241,
+              "donor": 0.26494276197608235
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.24738024645969273,
+              "donor": 0.3577223437505521
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.47956963314354595,
+              "donor": 0.5311248459993448
+            }
+          }
+        }
+      },
+      {
+        "weight": 0.75,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.13367129244788364,
+            "donor": 0.268781103990334
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.2848441425354559,
+            "donor": 0.3033839781522949
+          }
+        },
+        "both_metric_model_wins": 5,
+        "worst_model_metric_loss_ratio": 1.275858864669457,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.23489460389676683,
+              "donor": 0.2819984397278541
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.1511908274191858,
+              "donor": 0.1841311166840941
+            }
+          },
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.070536138605716,
+              "donor": 0.17577970752652128
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.17991280300672963,
+              "donor": 0.20501212743136468
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.18969013855010028,
+              "donor": 0.4236607102700222
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.23729242157381714,
+              "donor": 0.2839161621088095
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.06445322836995639,
+              "donor": 0.17542873572089265
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3488472050001612,
+              "donor": 0.3511768547140736
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.04537069235603402,
+              "donor": 0.19809668694616148
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.33802957149719465,
+              "donor": 0.26494276197608235
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.19708295290872843,
+              "donor": 0.3577223437505521
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.45379202671564717,
+              "donor": 0.5311248459993448
+            }
+          }
+        }
+      },
+      {
+        "weight": 1.0,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.13221298697008704,
+            "donor": 0.268781103990334
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.29782568150217753,
+            "donor": 0.3033839781522949
+          }
+        },
+        "both_metric_model_wins": 2,
+        "worst_model_metric_loss_ratio": 1.3678118195592768,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.22302457474639545,
+              "donor": 0.2819984397278541
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.2039795041137762,
+              "donor": 0.1841311166840941
+            }
+          },
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.07053845866895651,
+              "donor": 0.17577970752652128
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.21958081030131663,
+              "donor": 0.20501212743136468
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.12250656414010459,
+              "donor": 0.4236607102700222
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.22175117472881997,
+              "donor": 0.2839161621088095
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.12343843931387084,
+              "donor": 0.17542873572089265
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3512363382438391,
+              "donor": 0.3511768547140736
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.0746933367678217,
+              "donor": 0.19809668694616148
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3623918413375656,
+              "donor": 0.26494276197608235
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.1790765481833733,
+              "donor": 0.3577223437505521
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.42801442028774755,
+              "donor": 0.5311248459993448
+            }
+          }
+        }
+      }
+    ],
+    "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": [
+      {
+        "weight": 0.0,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.3556678375429405,
+            "donor": 0.35566783754294046
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.2506244264872963,
+            "donor": 0.25062442648729627
+          }
+        },
+        "both_metric_model_wins": 1,
+        "worst_model_metric_loss_ratio": 1.000000000000003,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.2823494115334827,
+              "donor": 0.2823494115334828
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.07874844143417938,
+              "donor": 0.07874844143417951
+            }
+          },
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.2765688888279823,
+              "donor": 0.2765688888279822
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.07018086040411495,
+              "donor": 0.07018086040411473
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.5244498915714831,
+              "donor": 0.5244498915714829
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.1510512381044933,
+              "donor": 0.15105123810449309
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.39332867771526336,
+              "donor": 0.3933286777152632
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.36533157145827144,
+              "donor": 0.36533157145827144
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.29923684005325074,
+              "donor": 0.2992368400532511
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.28953668675860256,
+              "donor": 0.2895366867586025
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.35807331555618055,
+              "donor": 0.3580733155561808
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.5488977607641162,
+              "donor": 0.5488977607641162
+            }
+          }
+        }
+      },
+      {
+        "weight": 0.25,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.2899461295012185,
+            "donor": 0.35566783754294046
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.25262944108041546,
+            "donor": 0.25062442648729627
+          }
+        },
+        "both_metric_model_wins": 2,
+        "worst_model_metric_loss_ratio": 1.1365783163452288,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.2472136321711975,
+              "donor": 0.2823494115334828
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.08920233403267096,
+              "donor": 0.07874844143417951
+            }
+          },
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.21023195917535134,
+              "donor": 0.2765688888279822
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.07957362102834374,
+              "donor": 0.07018086040411473
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.41948011360858556,
+              "donor": 0.5244498915714829
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.16575419341777006,
+              "donor": 0.15105123810449309
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.34073201266117326,
+              "donor": 0.3933286777152632
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3196066839894575,
+              "donor": 0.36533157145827144
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.22956887879658547,
+              "donor": 0.2992368400532511
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3290811199562683,
+              "donor": 0.2895366867586025
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.2924501805944179,
+              "donor": 0.3580733155561808
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.5325586940579823,
+              "donor": 0.5488977607641162
+            }
+          }
+        }
+      },
+      {
+        "weight": 0.5,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.22830187962061355,
+            "donor": 0.35566783754294046
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.2675347760918587,
+            "donor": 0.25062442648729627
+          }
+        },
+        "both_metric_model_wins": 2,
+        "worst_model_metric_loss_ratio": 1.7746430108892701,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.22427354480014036,
+              "donor": 0.2823494115334828
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.1397503712095897,
+              "donor": 0.07874844143417951
+            }
+          },
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.1438950295227202,
+              "donor": 0.2765688888279822
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.11662609082444715,
+              "donor": 0.07018086040411473
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.3194502948169875,
+              "donor": 0.5244498915714829
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.1843898347769135,
+              "donor": 0.15105123810449309
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.2881353476070827,
+              "donor": 0.3933286777152632
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.27388179652064354,
+              "donor": 0.36533157145827144
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.16060286115117697,
+              "donor": 0.2992368400532511
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3686255531539346,
+              "donor": 0.2895366867586025
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.2334541998255734,
+              "donor": 0.3580733155561808
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.5219350100656237,
+              "donor": 0.5488977607641162
+            }
+          }
+        }
+      },
+      {
+        "weight": 0.75,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.17027296796726432,
+            "donor": 0.35566783754294046
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.2876342072282168,
+            "donor": 0.25062442648729627
+          }
+        },
+        "both_metric_model_wins": 2,
+        "worst_model_metric_loss_ratio": 2.551448224661758,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.20133345742908296,
+              "donor": 0.2823494115334828
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.20092257109211772,
+              "donor": 0.07874844143417951
+            }
+          },
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.07755809987008867,
+              "donor": 0.2765688888279822
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.16681867749266735,
+              "donor": 0.07018086040411473
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.2283457583767774,
+              "donor": 0.5244498915714829
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.2030254761360574,
+              "donor": 0.15105123810449309
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.23553868255299146,
+              "donor": 0.3933286777152632
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.22815690905182964,
+              "donor": 0.36533157145827144
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.09163684350576905,
+              "donor": 0.2992368400532511
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.4081699863516007,
+              "donor": 0.2895366867586025
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.18722496606887637,
+              "donor": 0.3580733155561808
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.5187116232450283,
+              "donor": 0.5488977607641162
+            }
+          }
+        }
+      },
+      {
+        "weight": 1.0,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.13746801555704552,
+            "donor": 0.35566783754294046
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.31185228846040886,
+            "donor": 0.25062442648729627
+          }
+        },
+        "both_metric_model_wins": 2,
+        "worst_model_metric_loss_ratio": 3.4223899706941854,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.17839337005802572,
+              "donor": 0.2823494115334828
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.2695078761721344,
+              "donor": 0.07874844143417951
+            }
+          },
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.06229245178074259,
+              "donor": 0.2765688888279822
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.21701126416088748,
+              "donor": 0.07018086040411473
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.15171638475666946,
+              "donor": 0.5244498915714829
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.2348222658049306,
+              "donor": 0.15105123810449309
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.2033853672381226,
+              "donor": 0.3933286777152632
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.18656966865080168,
+              "donor": 0.36533157145827144
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.059292569576851,
+              "donor": 0.2992368400532511
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.44771441954926644,
+              "donor": 0.2895366867586025
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.16972794993186172,
+              "donor": 0.3580733155561808
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.5154882364244326,
+              "donor": 0.5488977607641162
+            }
+          }
+        }
+      }
+    ],
+    "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": [
+      {
+        "weight": 0.0,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.237865565171709,
+            "donor": 0.237865565171709
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.28382231424939325,
+            "donor": 0.2838223142493932
+          }
+        },
+        "both_metric_model_wins": 1,
+        "worst_model_metric_loss_ratio": 1.0000000000000024,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.10911683329777137,
+              "donor": 0.1091168332977715
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.12774623565236412,
+              "donor": 0.12774623565236426
+            }
+          },
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.2787650463131636,
+              "donor": 0.27876504631316346
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.13572745777882608,
+              "donor": 0.13572745777882575
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.5266460490566643,
+              "donor": 0.5266460490566643
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.22009610461189189,
+              "donor": 0.22009610461189158
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.2222922569647332,
+              "donor": 0.22229225696473318
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.34178623003636993,
+              "donor": 0.3417862300363701
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.10553246807745209,
+              "donor": 0.10553246807745209
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3522254380746926,
+              "donor": 0.3522254380746925
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.18484073732046946,
+              "donor": 0.18484073732046946
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.525352419342215,
+              "donor": 0.5253524193422149
+            }
+          }
+        }
+      },
+      {
+        "weight": 0.25,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.20854439541080738,
+            "donor": 0.237865565171709
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.2749219922924607,
+            "donor": 0.2838223142493932
+          }
+        },
+        "both_metric_model_wins": 4,
+        "worst_model_metric_loss_ratio": 1.1017864389124288,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.12022344718455279,
+              "donor": 0.1091168332977715
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.13120794908340686,
+              "donor": 0.12774623565236426
+            }
+          },
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.21401668829637668,
+              "donor": 0.27876504631316346
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.13420423346339438,
+              "donor": 0.13572745777882575
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.42476250374592767,
+              "donor": 0.5266460490566643
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.2144510410461468,
+              "donor": 0.22009610461189158
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.19930996975551982,
+              "donor": 0.22229225696473318
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3081145355675465,
+              "donor": 0.3417862300363701
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.10812454803187561,
+              "donor": 0.10553246807745209
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3631482855355768,
+              "donor": 0.3522254380746925
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.1848292154505917,
+              "donor": 0.18484073732046946
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.49840590905869314,
+              "donor": 0.5253524193422149
+            }
+          }
+        }
+      },
+      {
+        "weight": 0.5,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.18582851048186125,
+            "donor": 0.237865565171709
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.2715062351853284,
+            "donor": 0.2838223142493932
+          }
+        },
+        "both_metric_model_wins": 2,
+        "worst_model_metric_loss_ratio": 1.3153401608612667,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.1435257530625628,
+              "donor": 0.1091168332977715
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.13788972170939892,
+              "donor": 0.12774623565236426
+            }
+          },
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.14926833027958944,
+              "donor": 0.27876504631316346
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.15583913036870212,
+              "donor": 0.13572745777882575
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.3251940841958689,
+              "donor": 0.5266460490566643
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.2127386635262691,
+              "donor": 0.22009610461189158
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.18972716101159445,
+              "donor": 0.22229225696473318
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.2744428410987229,
+              "donor": 0.3417862300363701
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.1158108865679196,
+              "donor": 0.10553246807745209
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.37657164417603245,
+              "donor": 0.3522254380746925
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.19144484777363213,
+              "donor": 0.18484073732046946
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.4715554102328449,
+              "donor": 0.5253524193422149
+            }
+          }
+        }
+      },
+      {
+        "weight": 0.75,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.16537555098644763,
+            "donor": 0.237865565171709
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.27665415829165624,
+            "donor": 0.2838223142493932
+          }
+        },
+        "both_metric_model_wins": 2,
+        "worst_model_metric_loss_ratio": 1.5288938828101055,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.16682805894057287,
+              "donor": 0.1091168332977715
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.1738509511013412,
+              "donor": 0.12774623565236426
+            }
+          },
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.08451997226280199,
+              "donor": 0.27876504631316346
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.18936666898900634,
+              "donor": 0.13572745777882575
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.23805952118769044,
+              "donor": 0.5266460490566643
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.21102628600639162,
+              "donor": 0.22009610461189158
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.1812880483269849,
+              "donor": 0.22229225696473318
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.24077114662989949,
+              "donor": 0.3417862300363701
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.12349722510396338,
+              "donor": 0.10553246807745209
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3899950028164881,
+              "donor": 0.3522254380746925
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.19806048009667235,
+              "donor": 0.18484073732046946
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.4549148942068106,
+              "donor": 0.5253524193422149
+            }
+          }
+        }
+      },
+      {
+        "weight": 1.0,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.1536916589229612,
+            "donor": 0.237865565171709
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.2830348174560244,
+            "donor": 0.2838223142493932
+          }
+        },
+        "both_metric_model_wins": 2,
+        "worst_model_metric_loss_ratio": 1.7424476047589401,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.1901303648185825,
+              "donor": 0.1091168332977715
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.21186944777781266,
+              "donor": 0.12774623565236426
+            }
+          },
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.06377866146812604,
+              "donor": 0.27876504631316346
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.22289420760931078,
+              "donor": 0.13572745777882575
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.1595323155489636,
+              "donor": 0.5266460490566643
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.21465305755022665,
+              "donor": 0.22009610461189158
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.17284893564237527,
+              "donor": 0.22229225696473318
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.20709945216107586,
+              "donor": 0.3417862300363701
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.1311835636400069,
+              "donor": 0.10553246807745209
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.40341836145694393,
+              "donor": 0.3522254380746925
+            }
+          },
+          "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.20467611241971287,
+              "donor": 0.18484073732046946
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.43827437818077625,
+              "donor": 0.5253524193422149
+            }
+          }
+        }
+      }
+    ],
+    "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": [
+      {
+        "weight": 0.0,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.27379290014467617,
+            "donor": 0.27379290014467617
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.2228863677581611,
+            "donor": 0.22288636775816106
+          }
+        },
+        "both_metric_model_wins": 1,
+        "worst_model_metric_loss_ratio": 1.0000000000000024,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.2823494115334827,
+              "donor": 0.2823494115334828
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.07678209841124588,
+              "donor": 0.07678209841124602
+            }
+          },
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.17358355004134007,
+              "donor": 0.17358355004134
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.07503552739893013,
+              "donor": 0.07503552739892995
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.42146455278484085,
+              "donor": 0.4214645527848409
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.1539395620763748,
+              "donor": 0.15393956207637474
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.39332867771526336,
+              "donor": 0.3933286777152632
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.37018623845308674,
+              "donor": 0.3701862384530867
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.17577970752652128,
+              "donor": 0.17577970752652136
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3738044364736602,
+              "donor": 0.3738044364736602
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.19625150126660892,
+              "donor": 0.19625150126660892
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.28757034373566903,
+              "donor": 0.287570343735669
+            }
+          }
+        }
+      },
+      {
+        "weight": 0.25,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.21904430392354524,
+            "donor": 0.27379290014467617
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.22146163549678308,
+            "donor": 0.22288636775816106
+          }
+        },
+        "both_metric_model_wins": 3,
+        "worst_model_metric_loss_ratio": 1.0916184805559679,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.2517239267501707,
+              "donor": 0.2823494115334828
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.06319578173408184,
+              "donor": 0.07678209841124602
+            }
+          },
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.13496355724096012,
+              "donor": 0.17358355004134
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.07523400842588246,
+              "donor": 0.07503552739892995
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.3462998671521189,
+              "donor": 0.4214645527848409
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.16804327085126328,
+              "donor": 0.15393956207637474
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.3270079980936778,
+              "donor": 0.3933286777152632
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.35720570802579094,
+              "donor": 0.3701862384530867
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.1281210248909501,
+              "donor": 0.17577970752652136
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3736104901518158,
+              "donor": 0.3738044364736602
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.1261494494133938,
+              "donor": 0.19625150126660892
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.2914805537918641,
+              "donor": 0.287570343735669
+            }
+          }
+        }
+      },
+      {
+        "weight": 0.5,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.16751215547560827,
+            "donor": 0.27379290014467617
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.2355815318689578,
+            "donor": 0.22288636775816106
+          }
+        },
+        "both_metric_model_wins": 1,
+        "worst_model_metric_loss_ratio": 1.4860468237893505,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.2332941339580862,
+              "donor": 0.2823494115334828
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.09730636970358487,
+              "donor": 0.07678209841124602
+            }
+          },
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.09634356444058033,
+              "donor": 0.17358355004134
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.11150630716253863,
+              "donor": 0.07503552739892995
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.273143917585714,
+              "donor": 0.4214645527848409
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.18214697962615123,
+              "donor": 0.15393956207637474
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.2606873184720919,
+              "donor": 0.3933286777152632
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.344225177598495,
+              "donor": 0.3701862384530867
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.08555660083699895,
+              "donor": 0.17577970752652136
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.382913593274918,
+              "donor": 0.3738044364736602
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.05604739756017829,
+              "donor": 0.19625150126660892
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.29539076384805907,
+              "donor": 0.287570343735669
+            }
+          }
+        }
+      },
+      {
+        "weight": 0.75,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.13512915646864945,
+            "donor": 0.27379290014467617
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.2549897899187557,
+            "donor": 0.22288636775816106
+          }
+        },
+        "both_metric_model_wins": 1,
+        "worst_model_metric_loss_ratio": 2.1531978397144753,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.21486434116600214,
+              "donor": 0.2823494115334828
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.14935939814081042,
+              "donor": 0.07678209841124602
+            }
+          },
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.06230579520230195,
+              "donor": 0.17358355004134
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.1615663354972123,
+              "donor": 0.07503552739892995
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.21037886192318886,
+              "donor": 0.4214645527848409
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.1962506884010389,
+              "donor": 0.15393956207637474
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.2091883790531053,
+              "donor": 0.3933286777152632
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3312446471711989,
+              "donor": 0.3701862384530867
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.06843140885941602,
+              "donor": 0.17577970752652136
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.39221669639801976,
+              "donor": 0.3738044364736602
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.0456061526078825,
+              "donor": 0.19625150126660892
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.299300973904254,
+              "donor": 0.287570343735669
+            }
+          }
+        }
+      },
+      {
+        "weight": 1.0,
+        "macro_male": {
+          "output_tok_s_median": {
+            "candidate": 0.13833348234305123,
+            "donor": 0.27379290014467617
+          },
+          "ttft_ms_p95": {
+            "candidate": 0.27471083587239337,
+            "donor": 0.22288636775816106
+          }
+        },
+        "both_metric_model_wins": 1,
+        "worst_model_metric_loss_ratio": 2.8203488556395935,
+        "per_model_male": {
+          "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.19643454837391774,
+              "donor": 0.2823494115334828
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.20328915400107359,
+              "donor": 0.07678209841124602
+            }
+          },
+          "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.06096366846819764,
+              "donor": 0.17358355004134
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.21162636383188546,
+              "donor": 0.07503552739892995
+            }
+          },
+          "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.15280695171821027,
+              "donor": 0.4214645527848409
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.2103543971759274,
+              "donor": 0.15393956207637474
+            }
+          },
+          "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.1820529897370952,
+              "donor": 0.3933286777152632
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.3182641167439029,
+              "donor": 0.3701862384530867
+            }
+          },
+          "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.14532336823661035,
+              "donor": 0.17577970752652136
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.4015197995211217,
+              "donor": 0.3738044364736602
+            }
+          },
+          "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+            "output_tok_s_median": {
+              "candidate": 0.09241936752427628,
+              "donor": 0.19625150126660892
+            },
+            "ttft_ms_p95": {
+              "candidate": 0.30321118396044916,
+              "donor": 0.287570343735669
+            }
+          }
+        }
+      }
+    ]
+  },
+  "outer_macro_male": {
+    "output_tok_s_median": {
+      "candidate": 0.20630669207724056,
+      "donor": 0.2518773497866459
+    },
+    "ttft_ms_p95": {
+      "candidate": 0.2894044026300454,
+      "donor": 0.2972262489302868
+    }
+  },
+  "outer_per_model_male": {
+    "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+      "output_tok_s_median": {
+        "candidate": 0.1872358227643469,
+        "donor": 0.19555763651281277
+      },
+      "ttft_ms_p95": {
+        "candidate": 0.21456569780482493,
+        "donor": 0.11326402211942871
+      }
+    },
+    "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+      "output_tok_s_median": {
+        "candidate": 0.1746252176605746,
+        "donor": 0.22617429817725174
+      },
+      "ttft_ms_p95": {
+        "candidate": 0.15550253103612993,
+        "donor": 0.1691195370153096
+      }
+    },
+    "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+      "output_tok_s_median": {
+        "candidate": 0.29557370885164413,
+        "donor": 0.4740553009207526
+      },
+      "ttft_ms_p95": {
+        "candidate": 0.23580962395938773,
+        "donor": 0.250039790337417
+      }
+    },
+    "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+      "output_tok_s_median": {
+        "candidate": 0.2271683497084124,
+        "donor": 0.3078104673399982
+      },
+      "ttft_ms_p95": {
+        "candidate": 0.26050906787742,
+        "donor": 0.38871649530729674
+      }
+    },
+    "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+      "output_tok_s_median": {
+        "candidate": 0.03994641332611747,
+        "donor": 0.03994641332611785
+      },
+      "ttft_ms_p95": {
+        "candidate": 0.34094846674316637,
+        "donor": 0.34094846674316664
+      }
+    },
+    "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+      "output_tok_s_median": {
+        "candidate": 0.24831579169407772,
+        "donor": 0.24831579169407758
+      },
+      "ttft_ms_p95": {
+        "candidate": 0.30100947796982525,
+        "donor": 0.3010094779698253
+      }
+    },
+    "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+      "output_tok_s_median": {
+        "candidate": 0.2712815405355107,
+        "donor": 0.2712815405355107
+      },
+      "ttft_ms_p95": {
+        "candidate": 0.5174859530195633,
+        "donor": 0.5174859530195636
+      }
+    }
+  },
+  "outer_improvement_fraction": {
+    "output_tok_s_median": 0.1809240003041409,
+    "ttft_ms_p95": 0.026316135699293475
+  },
+  "outer_both_metric_model_wins": 4,
+  "outer_worst_model_metric_loss_ratio": 1.8943852936688135,
+  "gates": {
+    "both_metric_macro_improvement_at_least_5pct": false,
+    "both_metric_model_wins_at_least_5_of_7": false,
+    "worst_model_metric_loss_ratio_at_most_1_2": false
+  },
+  "source_sha256": "d7f677cf0c4ccfd8c702c8458c4e6c3d324e90292bf13e5f09e065431e8d5f9e",
+  "base_script_sha256": "3500a23e32bb9e116ef22f845ced28a4bd5c4827ec2f7ae4e4a3a8c6a539b9ca",
+  "script_sha256": "3da27230a92713d871760ecee8127129bc20f94fc8f155ec603380b31547ed9e",
+  "protocol_sha256": "aed12041b3457ad0459c6784e078cd538f499d25642a420c531f29f52eaef000"
+}

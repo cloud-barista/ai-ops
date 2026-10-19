@@ -1,0 +1,958 @@
+{
+  "cohorts": {
+    "excluding_train_all_failed_models": {
+      "failed": 56,
+      "groups": 1006,
+      "requests": 6300,
+      "scores": {
+        "beta1_model": {
+          "average_precision": 0.14123622227636812,
+          "brier": 0.007936403963671028,
+          "day_equal_brier": 0.006269984610921342,
+          "days": {
+            "2024-12-04": {
+              "average_precision": 0.019227763466694574,
+              "brier": 0.0061420038499324005,
+              "failed": 13,
+              "n": 2238
+            },
+            "2024-12-05": {
+              "average_precision": 0.05538723120605265,
+              "brier": 0.011154521154613429,
+              "failed": 29,
+              "n": 2503
+            },
+            "2024-12-06": {
+              "average_precision": 0.5755923723213443,
+              "brier": 0.005563144183437042,
+              "failed": 11,
+              "n": 903
+            },
+            "2024-12-07": {
+              "average_precision": 0.01694915254237288,
+              "brier": 0.007894095260291669,
+              "failed": 3,
+              "n": 400
+            },
+            "2024-12-08": {
+              "average_precision": null,
+              "brier": 0.0005961586063321711,
+              "failed": 0,
+              "n": 256
+            }
+          },
+          "failed": 56,
+          "group_equal_brier": 0.0019024076244444595,
+          "log_loss": 0.040439534788984446,
+          "mean_predicted_rate": 0.013176052420211415,
+          "n": 6300,
+          "observed_failed_rate": 0.008888888888888889
+        },
+        "logistic": {
+          "average_precision": 0.1398013459499281,
+          "brier": 0.008458157434101055,
+          "day_equal_brier": 0.006983463881690412,
+          "days": {
+            "2024-12-04": {
+              "average_precision": 0.023915722921208925,
+              "brier": 0.00668321508745653,
+              "failed": 13,
+              "n": 2238
+            },
+            "2024-12-05": {
+              "average_precision": 0.0832988818052594,
+              "brier": 0.011124680980040123,
+              "failed": 29,
+              "n": 2503
+            },
+            "2024-12-06": {
+              "average_precision": 0.6619602965330044,
+              "brier": 0.007711853494766474,
+              "failed": 11,
+              "n": 903
+            },
+            "2024-12-07": {
+              "average_precision": 0.04164051056706424,
+              "brier": 0.007740961039375018,
+              "failed": 3,
+              "n": 400
+            },
+            "2024-12-08": {
+              "average_precision": null,
+              "brier": 0.0016566088068139162,
+              "failed": 0,
+              "n": 256
+            }
+          },
+          "failed": 56,
+          "group_equal_brier": 0.0019292479185000703,
+          "log_loss": 0.04065131174561097,
+          "mean_predicted_rate": 0.014170632421350584,
+          "n": 6300,
+          "observed_failed_rate": 0.008888888888888889
+        },
+        "model_type": {
+          "average_precision": 0.07355006378047715,
+          "brier": 0.008653062734490055,
+          "day_equal_brier": 0.007276395248198846,
+          "days": {
+            "2024-12-04": {
+              "average_precision": 0.02180535235925404,
+              "brier": 0.0061046599195087245,
+              "failed": 13,
+              "n": 2238
+            },
+            "2024-12-05": {
+              "average_precision": 0.05927336775522456,
+              "brier": 0.011133140987129017,
+              "failed": 29,
+              "n": 2503
+            },
+            "2024-12-06": {
+              "average_precision": 0.5252641073019579,
+              "brier": 0.01074830964098217,
+              "failed": 11,
+              "n": 903
+            },
+            "2024-12-07": {
+              "average_precision": 0.01694915254237288,
+              "brier": 0.007852425092584466,
+              "failed": 3,
+              "n": 400
+            },
+            "2024-12-08": {
+              "average_precision": null,
+              "brier": 0.0005434406007898548,
+              "failed": 0,
+              "n": 256
+            }
+          },
+          "failed": 56,
+          "group_equal_brier": 0.0019165089135903103,
+          "log_loss": 0.04228655352745409,
+          "mean_predicted_rate": 0.012928426337803046,
+          "n": 6300,
+          "observed_failed_rate": 0.008888888888888889
+        }
+      }
+    },
+    "new_group": {
+      "failed": 67,
+      "groups": 918,
+      "requests": 5118,
+      "scores": {
+        "beta1_model": {
+          "average_precision": 0.42280226171277924,
+          "brier": 0.008060357555562843,
+          "day_equal_brier": 0.006396970586895349,
+          "days": {
+            "2024-12-04": {
+              "average_precision": 0.4409438224677166,
+              "brier": 0.006857187659662886,
+              "failed": 20,
+              "n": 1727
+            },
+            "2024-12-05": {
+              "average_precision": 0.25210111925961876,
+              "brier": 0.011011962612843344,
+              "failed": 27,
+              "n": 1941
+            },
+            "2024-12-06": {
+              "average_precision": 0.7407604083978868,
+              "brier": 0.00568235783232445,
+              "failed": 17,
+              "n": 879
+            },
+            "2024-12-07": {
+              "average_precision": 0.02,
+              "brier": 0.008253710415630435,
+              "failed": 3,
+              "n": 364
+            },
+            "2024-12-08": {
+              "average_precision": null,
+              "brier": 0.00017963441401562955,
+              "failed": 0,
+              "n": 207
+            }
+          },
+          "failed": 67,
+          "group_equal_brier": 0.0016371933103784128,
+          "log_loss": 0.03804133656015104,
+          "mean_predicted_rate": 0.012681322322409972,
+          "n": 5118,
+          "observed_failed_rate": 0.013091051191871825
+        },
+        "logistic": {
+          "average_precision": 0.4372057215213349,
+          "brier": 0.009059455369235251,
+          "day_equal_brier": 0.0072012171374487375,
+          "days": {
+            "2024-12-04": {
+              "average_precision": 0.44662993389440164,
+              "brier": 0.008439344224279792,
+              "failed": 20,
+              "n": 1727
+            },
+            "2024-12-05": {
+              "average_precision": 0.26708296111239366,
+              "brier": 0.011180705016262484,
+              "failed": 27,
+              "n": 1941
+            },
+            "2024-12-06": {
+              "average_precision": 0.8200429692192904,
+              "brier": 0.00805289414500758,
+              "failed": 17,
+              "n": 879
+            },
+            "2024-12-07": {
+              "average_precision": 0.08063271604938271,
+              "brier": 0.008193262789407954,
+              "failed": 3,
+              "n": 364
+            },
+            "2024-12-08": {
+              "average_precision": null,
+              "brier": 0.0001398795122858762,
+              "failed": 0,
+              "n": 207
+            }
+          },
+          "failed": 67,
+          "group_equal_brier": 0.0017213468663925876,
+          "log_loss": 0.0401523198946037,
+          "mean_predicted_rate": 0.013621703221584232,
+          "n": 5118,
+          "observed_failed_rate": 0.013091051191871825
+        },
+        "model_type": {
+          "average_precision": 0.3748167793151851,
+          "brier": 0.010067720133401802,
+          "day_equal_brier": 0.00818248948937217,
+          "days": {
+            "2024-12-04": {
+              "average_precision": 0.4431013957510621,
+              "brier": 0.008422367822585443,
+              "failed": 20,
+              "n": 1727
+            },
+            "2024-12-05": {
+              "average_precision": 0.25821865498336083,
+              "brier": 0.011968790953820235,
+              "failed": 27,
+              "n": 1941
+            },
+            "2024-12-06": {
+              "average_precision": 0.7430418321174623,
+              "brier": 0.01222408783837627,
+              "failed": 17,
+              "n": 879
+            },
+            "2024-12-07": {
+              "average_precision": 0.02,
+              "brier": 0.00819901522042817,
+              "failed": 3,
+              "n": 364
+            },
+            "2024-12-08": {
+              "average_precision": null,
+              "brier": 9.818561165073968e-05,
+              "failed": 0,
+              "n": 207
+            }
+          },
+          "failed": 67,
+          "group_equal_brier": 0.0020744900368815057,
+          "log_loss": 0.04369535801608948,
+          "mean_predicted_rate": 0.010788674512168368,
+          "n": 5118,
+          "observed_failed_rate": 0.013091051191871825
+        }
+      }
+    },
+    "new_model": {
+      "failed": 1,
+      "groups": 4,
+      "requests": 9,
+      "scores": {
+        "beta1_model": {
+          "average_precision": 0.1111111111111111,
+          "brier": 0.10751678359164946,
+          "day_equal_brier": 0.16112095551527636,
+          "days": {
+            "2024-12-04": {
+              "average_precision": null,
+              "brier": 0.0003084397443956904,
+              "failed": 0,
+              "n": 1
+            },
+            "2024-12-05": {
+              "average_precision": 0.5,
+              "brier": 0.48274598705703764,
+              "failed": 1,
+              "n": 2
+            },
+            "2024-12-07": {
+              "average_precision": null,
+              "brier": 0.0003084397443956904,
+              "failed": 0,
+              "n": 6
+            }
+          },
+          "failed": 1,
+          "group_equal_brier": 0.24152721340071667,
+          "log_loss": 0.4648600049480133,
+          "mean_predicted_rate": 0.017562452687358062,
+          "n": 9,
+          "observed_failed_rate": 0.1111111111111111
+        },
+        "logistic": {
+          "average_precision": 0.5,
+          "brier": 0.10834773440408596,
+          "day_equal_brier": 0.16251835684008595,
+          "days": {
+            "2024-12-04": {
+              "average_precision": null,
+              "brier": 4.0496516167276686e-05,
+              "failed": 0,
+              "n": 1
+            },
+            "2024-12-05": {
+              "average_precision": 0.5,
+              "brier": 0.4874995827259842,
+              "failed": 1,
+              "n": 2
+            },
+            "2024-12-07": {
+              "average_precision": null,
+              "brier": 1.4991278106334403e-05,
+              "failed": 0,
+              "n": 6
+            }
+          },
+          "failed": 1,
+          "group_equal_brier": 0.2437636633115605,
+          "log_loss": 0.4754702635189707,
+          "mean_predicted_rate": 0.013210142784742382,
+          "n": 9,
+          "observed_failed_rate": 0.1111111111111111
+        },
+        "model_type": {
+          "average_precision": 0.16666666666666666,
+          "brier": 0.10746259578462189,
+          "day_equal_brier": 0.1610331210802723,
+          "days": {
+            "2024-12-04": {
+              "average_precision": null,
+              "brier": 0.0002553260825492574,
+              "failed": 0,
+              "n": 1
+            },
+            "2024-12-05": {
+              "average_precision": 1.0,
+              "brier": 0.4825390467426395,
+              "failed": 1,
+              "n": 2
+            },
+            "2024-12-07": {
+              "average_precision": null,
+              "brier": 0.0003049904156281537,
+              "failed": 0,
+              "n": 6
+            }
+          },
+          "failed": 1,
+          "group_equal_brier": 0.24140960249586407,
+          "log_loss": 0.46327130931019966,
+          "mean_predicted_rate": 0.017157027360299188,
+          "n": 9,
+          "observed_failed_rate": 0.1111111111111111
+        }
+      }
+    },
+    "overall": {
+      "failed": 75,
+      "groups": 1006,
+      "requests": 6319,
+      "scores": {
+        "beta1_model": {
+          "average_precision": 0.37063172270150624,
+          "brier": 0.007914972037226369,
+          "day_equal_brier": 0.0062549987157921195,
+          "days": {
+            "2024-12-04": {
+              "average_precision": 0.4038590450355257,
+              "brier": 0.006124401959242587,
+              "failed": 21,
+              "n": 2246
+            },
+            "2024-12-05": {
+              "average_precision": 0.17814994776555915,
+              "brier": 0.011138471784671995,
+              "failed": 33,
+              "n": 2507
+            },
+            "2024-12-06": {
+              "average_precision": 0.7525051994705994,
+              "brier": 0.005521865968422172,
+              "failed": 18,
+              "n": 910
+            },
+            "2024-12-07": {
+              "average_precision": 0.01694915254237288,
+              "brier": 0.007894095260291669,
+              "failed": 3,
+              "n": 400
+            },
+            "2024-12-08": {
+              "average_precision": null,
+              "brier": 0.0005961586063321711,
+              "failed": 0,
+              "n": 256
+            }
+          },
+          "failed": 75,
+          "group_equal_brier": 0.0019012068047771875,
+          "log_loss": 0.04039187993440885,
+          "mean_predicted_rate": 0.01607055052961549,
+          "n": 6319,
+          "observed_failed_rate": 0.011868966608640608
+        },
+        "logistic": {
+          "average_precision": 0.3946976378704167,
+          "brier": 0.008676336605240125,
+          "day_equal_brier": 0.007121636771740149,
+          "days": {
+            "2024-12-04": {
+              "average_precision": 0.4115309859381195,
+              "brier": 0.0072295621470772325,
+              "failed": 21,
+              "n": 2246
+            },
+            "2024-12-05": {
+              "average_precision": 0.22168348588807218,
+              "brier": 0.011142730719058887,
+              "failed": 33,
+              "n": 2507
+            },
+            "2024-12-06": {
+              "average_precision": 0.8176035922745414,
+              "brier": 0.007838321146375688,
+              "failed": 18,
+              "n": 910
+            },
+            "2024-12-07": {
+              "average_precision": 0.04164051056706424,
+              "brier": 0.007740961039375018,
+              "failed": 3,
+              "n": 400
+            },
+            "2024-12-08": {
+              "average_precision": null,
+              "brier": 0.0016566088068139162,
+              "failed": 0,
+              "n": 256
+            }
+          },
+          "failed": 75,
+          "group_equal_brier": 0.001987976186132378,
+          "log_loss": 0.041369199137561485,
+          "mean_predicted_rate": 0.01648479883358222,
+          "n": 6319,
+          "observed_failed_rate": 0.011868966608640608
+        },
+        "model_type": {
+          "average_precision": 0.32286500817736896,
+          "brier": 0.009545456033084524,
+          "day_equal_brier": 0.007908137377525673,
+          "days": {
+            "2024-12-04": {
+              "average_precision": 0.40645433332102443,
+              "brier": 0.007294509048013647,
+              "failed": 21,
+              "n": 2246
+            },
+            "2024-12-05": {
+              "average_precision": 0.18209161972781507,
+              "brier": 0.011866245752853916,
+              "failed": 33,
+              "n": 2507
+            },
+            "2024-12-06": {
+              "average_precision": 0.737884892319143,
+              "brier": 0.011984066393386481,
+              "failed": 18,
+              "n": 910
+            },
+            "2024-12-07": {
+              "average_precision": 0.01694915254237288,
+              "brier": 0.007852425092584466,
+              "failed": 3,
+              "n": 400
+            },
+            "2024-12-08": {
+              "average_precision": null,
+              "brier": 0.0005434406007898548,
+              "failed": 0,
+              "n": 256
+            }
+          },
+          "failed": 75,
+          "group_equal_brier": 0.0023023340154568733,
+          "log_loss": 0.04473097609417169,
+          "mean_predicted_rate": 0.014326635422669582,
+          "n": 6319,
+          "observed_failed_rate": 0.011868966608640608
+        }
+      }
+    },
+    "seen_group": {
+      "failed": 8,
+      "groups": 88,
+      "requests": 1201,
+      "scores": {
+        "beta1_model": {
+          "average_precision": 0.134572582565619,
+          "brier": 0.007295419095639286,
+          "day_equal_brier": 0.004568644869819861,
+          "days": {
+            "2024-12-04": {
+              "average_precision": 0.005434782608695652,
+              "brier": 0.0036860187133353475,
+              "failed": 1,
+              "n": 519
+            },
+            "2024-12-05": {
+              "average_precision": 0.015838067406054736,
+              "brier": 0.011572313308557881,
+              "failed": 6,
+              "n": 566
+            },
+            "2024-12-06": {
+              "average_precision": 1.0,
+              "brier": 0.0009711450532576007,
+              "failed": 1,
+              "n": 31
+            },
+            "2024-12-07": {
+              "average_precision": null,
+              "brier": 0.00425798646742194,
+              "failed": 0,
+              "n": 36
+            },
+            "2024-12-08": {
+              "average_precision": null,
+              "brier": 0.00235576080652654,
+              "failed": 0,
+              "n": 49
+            }
+          },
+          "failed": 8,
+          "group_equal_brier": 0.004655347575891678,
+          "log_loss": 0.05040860015876479,
+          "mean_predicted_rate": 0.030513572981303947,
+          "n": 1201,
+          "observed_failed_rate": 0.006661115736885929
+        },
+        "logistic": {
+          "average_precision": 0.15295360810438713,
+          "brier": 0.007043695610962803,
+          "day_equal_brier": 0.0054404589920581834,
+          "days": {
+            "2024-12-04": {
+              "average_precision": 0.01694915254237288,
+              "brier": 0.003203948183052528,
+              "failed": 1,
+              "n": 519
+            },
+            "2024-12-05": {
+              "average_precision": 0.05485411206603793,
+              "brier": 0.011012504374761756,
+              "failed": 6,
+              "n": 566
+            },
+            "2024-12-06": {
+              "average_precision": 1.0,
+              "brier": 0.0017541383787165405,
+              "failed": 1,
+              "n": 31
+            },
+            "2024-12-07": {
+              "average_precision": null,
+              "brier": 0.003167687789042006,
+              "failed": 0,
+              "n": 36
+            },
+            "2024-12-08": {
+              "average_precision": null,
+              "brier": 0.008064016234718085,
+              "failed": 0,
+              "n": 49
+            }
+          },
+          "failed": 8,
+          "group_equal_brier": 0.004769404771599737,
+          "log_loss": 0.046554867718292474,
+          "mean_predicted_rate": 0.028685734172637752,
+          "n": 1201,
+          "observed_failed_rate": 0.006661115736885929
+        },
+        "model_type": {
+          "average_precision": 0.13530948980824054,
+          "brier": 0.007319854313331119,
+          "day_equal_brier": 0.005401362073446688,
+          "days": {
+            "2024-12-04": {
+              "average_precision": 0.0053475935828877,
+              "brier": 0.003541499214322909,
+              "failed": 1,
+              "n": 519
+            },
+            "2024-12-05": {
+              "average_precision": 0.017777669613951698,
+              "brier": 0.011514584560140803,
+              "failed": 6,
+              "n": 566
+            },
+            "2024-12-06": {
+              "average_precision": 1.0,
+              "brier": 0.005178297033837354,
+              "failed": 1,
+              "n": 31
+            },
+            "2024-12-07": {
+              "average_precision": null,
+              "brier": 0.004348013799942584,
+              "failed": 0,
+              "n": 36
+            },
+            "2024-12-08": {
+              "average_precision": null,
+              "brier": 0.0024244157589897895,
+              "failed": 0,
+              "n": 49
+            }
+          },
+          "failed": 8,
+          "group_equal_brier": 0.0046791609737771795,
+          "log_loss": 0.04914420950268518,
+          "mean_predicted_rate": 0.02940347467324843,
+          "n": 1201,
+          "observed_failed_rate": 0.006661115736885929
+        }
+      }
+    },
+    "seen_model": {
+      "failed": 74,
+      "groups": 1006,
+      "requests": 6310,
+      "scores": {
+        "beta1_model": {
+          "average_precision": 0.3746563787417702,
+          "brier": 0.007772909231522752,
+          "day_equal_brier": 0.006203313771674611,
+          "days": {
+            "2024-12-04": {
+              "average_precision": 0.4038634162340228,
+              "brier": 0.006126992588291516,
+              "failed": 21,
+              "n": 2245
+            },
+            "2024-12-05": {
+              "average_precision": 0.18127856771383954,
+              "brier": 0.010761938838346754,
+              "failed": 32,
+              "n": 2505
+            },
+            "2024-12-06": {
+              "average_precision": 0.7525051994705994,
+              "brier": 0.005521865968422172,
+              "failed": 18,
+              "n": 910
+            },
+            "2024-12-07": {
+              "average_precision": 0.017543859649122806,
+              "brier": 0.00800961285698044,
+              "failed": 3,
+              "n": 394
+            },
+            "2024-12-08": {
+              "average_precision": null,
+              "brier": 0.0005961586063321711,
+              "failed": 0,
+              "n": 256
+            }
+          },
+          "failed": 74,
+          "group_equal_brier": 0.0018217788938035397,
+          "log_loss": 0.03978645788605347,
+          "mean_predicted_rate": 0.016068422618455477,
+          "n": 6310,
+          "observed_failed_rate": 0.011727416798732172
+        },
+        "logistic": {
+          "average_precision": 0.3993136170194825,
+          "brier": 0.008534174548157776,
+          "day_equal_brier": 0.007069743129002314,
+          "days": {
+            "2024-12-04": {
+              "average_precision": 0.4115328047085579,
+              "brier": 0.0072327644034829814,
+              "failed": 21,
+              "n": 2245
+            },
+            "2024-12-05": {
+              "average_precision": 0.22724994340113625,
+              "brier": 0.01076240588711723,
+              "failed": 32,
+              "n": 2505
+            },
+            "2024-12-06": {
+              "average_precision": 0.8176035922745414,
+              "brier": 0.007838321146375688,
+              "failed": 18,
+              "n": 910
+            },
+            "2024-12-07": {
+              "average_precision": 0.04164051056706424,
+              "brier": 0.00785861540122175,
+              "failed": 3,
+              "n": 394
+            },
+            "2024-12-08": {
+              "average_precision": null,
+              "brier": 0.0016566088068139162,
+              "failed": 0,
+              "n": 256
+            }
+          },
+          "failed": 74,
+          "group_equal_brier": 0.0019083840005906282,
+          "log_loss": 0.04075003755603491,
+          "mean_predicted_rate": 0.016489469499895937,
+          "n": 6310,
+          "observed_failed_rate": 0.011727416798732172
+        },
+        "model_type": {
+          "average_precision": 0.32623851807904014,
+          "brier": 0.009405796087321635,
+          "day_equal_brier": 0.007856594253430691,
+          "days": {
+            "2024-12-04": {
+              "average_precision": 0.40646063330473714,
+              "brier": 0.007297644541539465,
+              "failed": 21,
+              "n": 2245
+            },
+            "2024-12-05": {
+              "average_precision": 0.18529700384955813,
+              "brier": 0.011490459085397002,
+              "failed": 32,
+              "n": 2505
+            },
+            "2024-12-06": {
+              "average_precision": 0.737884892319143,
+              "brier": 0.011984066393386481,
+              "failed": 18,
+              "n": 910
+            },
+            "2024-12-07": {
+              "average_precision": 0.017543859649122806,
+              "brier": 0.007967360646040653,
+              "failed": 3,
+              "n": 394
+            },
+            "2024-12-08": {
+              "average_precision": null,
+              "brier": 0.0005434406007898548,
+              "failed": 0,
+              "n": 256
+            }
+          },
+          "failed": 74,
+          "group_equal_brier": 0.002223403190483118,
+          "log_loss": 0.044134008899410306,
+          "mean_predicted_rate": 0.014322598413566782,
+          "n": 6310,
+          "observed_failed_rate": 0.011727416798732172
+        }
+      }
+    },
+    "train_all_failed_models": {
+      "failed": 19,
+      "groups": 10,
+      "requests": 19,
+      "scores": {
+        "beta1_model": {
+          "average_precision": 1.0,
+          "brier": 0.0008085964266286009,
+          "day_equal_brier": 0.000830942604696953,
+          "days": {
+            "2024-12-04": {
+              "average_precision": 1.0,
+              "brier": 0.0012002730387669837,
+              "failed": 8,
+              "n": 8
+            },
+            "2024-12-05": {
+              "average_precision": 1.0,
+              "brier": 0.00109557854381986,
+              "failed": 4,
+              "n": 4
+            },
+            "2024-12-06": {
+              "average_precision": 1.0,
+              "brier": 0.0001969762315040151,
+              "failed": 7,
+              "n": 7
+            }
+          },
+          "failed": 19,
+          "group_equal_brier": 0.0005372241831292591,
+          "log_loss": 0.024590533417236424,
+          "mean_predicted_rate": 0.975825186805704,
+          "n": 19,
+          "observed_failed_rate": 1.0
+        },
+        "logistic": {
+          "average_precision": 0.9999999999999999,
+          "brier": 0.08101995650924748,
+          "day_equal_brier": 0.0688867183966612,
+          "days": {
+            "2024-12-04": {
+              "average_precision": 1.0,
+              "brier": 0.16007015207596867,
+              "failed": 8,
+              "n": 8
+            },
+            "2024-12-05": {
+              "average_precision": 1.0,
+              "brier": 0.022437354910050538,
+              "failed": 4,
+              "n": 4
+            },
+            "2024-12-06": {
+              "average_precision": 0.9999999999999999,
+              "brier": 0.024152648203964393,
+              "failed": 7,
+              "n": 7
+            }
+          },
+          "failed": 19,
+          "group_equal_brier": 0.055199083296758,
+          "log_loss": 0.2794055448895712,
+          "mean_predicted_rate": 0.7838136618367032,
+          "n": 19,
+          "observed_failed_rate": 1.0
+        },
+        "model_type": {
+          "average_precision": 1.0,
+          "brier": 0.30544428661967166,
+          "day_equal_brier": 0.3273860143686725,
+          "days": {
+            "2024-12-04": {
+              "average_precision": 1.0,
+              "brier": 0.3401548027472653,
+              "failed": 8,
+              "n": 8
+            },
+            "2024-12-05": {
+              "average_precision": 1.0,
+              "brier": 0.4706065529052088,
+              "failed": 4,
+              "n": 4
+            },
+            "2024-12-06": {
+              "average_precision": 1.0,
+              "brier": 0.1713966874535434,
+              "failed": 7,
+              "n": 7
+            }
+          },
+          "failed": 19,
+          "group_equal_brier": 0.2764645561338052,
+          "log_loss": 0.8552500376900034,
+          "mean_predicted_rate": 0.4779433319836782,
+          "n": 19,
+          "observed_failed_rate": 1.0
+        }
+      }
+    }
+  },
+  "comparisons": {
+    "beta1_model_vs_logistic": {
+      "beta1_minus_reference_day_equal_brier": -0.0008666380559480295,
+      "days_with_strictly_lower_beta1_brier": 4,
+      "relative_day_equal_brier_reduction": 0.12169085334245
+    },
+    "beta1_model_vs_model_type": {
+      "beta1_minus_reference_day_equal_brier": -0.0016531386617335535,
+      "days_with_strictly_lower_beta1_brier": 3,
+      "relative_day_equal_brier_reduction": 0.20904273444106425
+    }
+  },
+  "excluded_unfinalized_test_status": {
+    "PENDING": 9,
+    "PROCESSING": 3
+  },
+  "freeze_manifest_sha256": "b43487bfe22af886e5f0059ab5d48442d7dcf68dd16cc7e40572a6fb0cc12893",
+  "methods": [
+    "logistic",
+    "model_type",
+    "beta1_model"
+  ],
+  "no_refit": true,
+  "primary_metric": "equal mean of five daily Brier scores",
+  "source_sha256": "263fb88f1095f62d360cf89ded8cfc24fa2c5d111c1b16e7aaa9ccbfc4b37d78",
+  "study": "retrospective_same_service_temporal_sensitivity_not_blind",
+  "support": {
+    "checks": {
+      "failed_at_least_50": true,
+      "failed_days_at_least_3": true,
+      "failed_groups_at_least_15": true,
+      "largest_group_share_at_most_one_third": true,
+      "remainder_failed_at_least_25": true,
+      "requests_at_least_5000": true
+    },
+    "day_counts": {
+      "2024-12-04": {
+        "failed": 21,
+        "requests": 2246
+      },
+      "2024-12-05": {
+        "failed": 33,
+        "requests": 2507
+      },
+      "2024-12-06": {
+        "failed": 18,
+        "requests": 910
+      },
+      "2024-12-07": {
+        "failed": 3,
+        "requests": 400
+      },
+      "2024-12-08": {
+        "failed": 0,
+        "requests": 256
+      }
+    },
+    "excluded_train_all_failed_models": [
+      "M0013",
+      "M0055",
+      "M0061"
+    ],
+    "failed": 75,
+    "failed_after_all_failed_model_exclusion": 56,
+    "failed_days": 4,
+    "failed_groups": 24,
+    "largest_group_failed": 21,
+    "largest_group_failed_share": 0.28,
+    "requests": 6319,
+    "supported": true
+  },
+  "test_score_opened": true,
+  "train_failed": 231,
+  "train_requests": 13208
+}

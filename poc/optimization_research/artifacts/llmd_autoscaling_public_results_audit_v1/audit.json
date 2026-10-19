@@ -1,0 +1,179 @@
+{
+  "commit": "3c06c8814bcde4f7da0c7b4fadeed015e135a9de",
+  "committed_result_blob_count": 48,
+  "reason": "Committed archives contain request outcomes but no scale command, replica Ready event, or replica time series joined to these requests.",
+  "repository": "llm-d/llm-d-autoscaling",
+  "scope": "Three committed September 2026 llm-d benchmark sessions at the pinned commit; no claim about uncommitted cluster telemetry.",
+  "sessions": {
+    "villardl-20260903-134826-766": {
+      "archive_bytes": 1764384,
+      "archive_member_names": [
+        "./",
+        "./stdout.log",
+        "./config.yaml",
+        "./stderr.log",
+        "./analysis/",
+        "./analysis/distributions/",
+        "./traffic_complete.yaml",
+        "./stage_0_lifecycle_metrics.json",
+        "./summary_lifecycle_metrics.json",
+        "./guide_pd-disaggregation_2.yaml",
+        "./.traffic_complete.lock/",
+        "./per_request_lifecycle_metrics.json"
+      ],
+      "archive_path": "benchmark/results/villardl-20260903-134826-766/results/inference-perf-1788457751-murkd5_1/workspace.tar.zst",
+      "archive_sha256": "613fb66322086329d27d520e0c6647776d5da6f495ebf924721eab8b81bbbec5",
+      "configured_request_rate": 1.0,
+      "data_type": "random",
+      "error_types": {
+        "TimeoutError": 61,
+        "success": 59
+      },
+      "failures": 61,
+      "harness_start": "2026-09-03T17:49:13+00:00",
+      "harness_stop": "2026-09-03T17:56:39+00:00",
+      "load_type": "constant",
+      "model": "Qwen/Qwen3-32B",
+      "namespace": "lionel-bench-model-sim-32b-pd",
+      "per_request_fields": [
+        "end_time",
+        "error",
+        "info",
+        "request",
+        "response",
+        "start_time"
+      ],
+      "per_request_info_fields": [
+        "extra_info",
+        "input_tokens",
+        "labels",
+        "lora_adapter",
+        "request_metrics",
+        "response_metrics"
+      ],
+      "requests": 120,
+      "run_metadata_sha256": "28c69e1e6f4e5ffd14882142189640dc7215fb7a5f2037a39be2c5d736f854cf",
+      "successes": 59,
+      "summary_fields": [
+        "benchmark_time_seconds",
+        "failures",
+        "load_summary",
+        "successes"
+      ]
+    },
+    "villardl-20260903-142058-979": {
+      "archive_bytes": 1763053,
+      "archive_member_names": [
+        "./",
+        "./stdout.log",
+        "./config.yaml",
+        "./stderr.log",
+        "./analysis/",
+        "./analysis/distributions/",
+        "./traffic_complete.yaml",
+        "./stage_0_lifecycle_metrics.json",
+        "./summary_lifecycle_metrics.json",
+        "./guide_pd-disaggregation_2.yaml",
+        "./.traffic_complete.lock/",
+        "./per_request_lifecycle_metrics.json"
+      ],
+      "archive_path": "benchmark/results/villardl-20260903-142058-979/results/inference-perf-1788459699-gov1fk_1/workspace.tar.zst",
+      "archive_sha256": "60128dd8b58822ef023bf28b2229e00fcaf8183d6a08fbf29cd013668574f684",
+      "configured_request_rate": 1.0,
+      "data_type": "random",
+      "error_types": {
+        "TimeoutError": 61,
+        "success": 59
+      },
+      "failures": 61,
+      "harness_start": "2026-09-03T18:21:43+00:00",
+      "harness_stop": "2026-09-03T18:29:11+00:00",
+      "load_type": "constant",
+      "model": "Qwen/Qwen3-32B",
+      "namespace": "lionel-bench-model-sim-32b-pd",
+      "per_request_fields": [
+        "end_time",
+        "error",
+        "info",
+        "request",
+        "response",
+        "start_time"
+      ],
+      "per_request_info_fields": [
+        "extra_info",
+        "input_tokens",
+        "labels",
+        "lora_adapter",
+        "request_metrics",
+        "response_metrics"
+      ],
+      "requests": 120,
+      "run_metadata_sha256": "e14af2e02282ebf148f0f7126e814ed49d964e8234fd78ae8a72922313cd1c69",
+      "successes": 59,
+      "summary_fields": [
+        "benchmark_time_seconds",
+        "failures",
+        "load_summary",
+        "successes"
+      ]
+    },
+    "villardl-20260908-122801-752": {
+      "archive_bytes": 1766839,
+      "archive_member_names": [
+        "./",
+        "./stdout.log",
+        "./config.yaml",
+        "./stderr.log",
+        "./analysis/",
+        "./analysis/distributions/",
+        "./traffic_complete.yaml",
+        "./stage_0_lifecycle_metrics.json",
+        "./summary_lifecycle_metrics.json",
+        "./guide_pd-disaggregation_2.yaml",
+        "./.traffic_complete.lock/",
+        "./per_request_lifecycle_metrics.json"
+      ],
+      "archive_path": "benchmark/results/villardl-20260908-122801-752/results/inference-perf-1788884911-lx1rwl_1/workspace.tar.zst",
+      "archive_sha256": "a85626863b53c51a94804ba46185ae1c0f1e844c93182a425211fd9f323b9062",
+      "configured_request_rate": 1.0,
+      "data_type": "random",
+      "error_types": {
+        "TimeoutError": 61,
+        "success": 59
+      },
+      "failures": 61,
+      "harness_start": "2026-09-08T16:28:37+00:00",
+      "harness_stop": "2026-09-08T16:36:03+00:00",
+      "load_type": "constant",
+      "model": "Qwen/Qwen3-32B",
+      "namespace": "lionel-bench-model-sim-32b-pd",
+      "per_request_fields": [
+        "end_time",
+        "error",
+        "info",
+        "request",
+        "response",
+        "start_time"
+      ],
+      "per_request_info_fields": [
+        "extra_info",
+        "input_tokens",
+        "labels",
+        "lora_adapter",
+        "request_metrics",
+        "response_metrics"
+      ],
+      "requests": 120,
+      "run_metadata_sha256": "3add684c90fe2a6b890816bd208b7a77a10f4d5c26c861aae9f9800c248528bd",
+      "successes": 59,
+      "summary_fields": [
+        "benchmark_time_seconds",
+        "failures",
+        "load_summary",
+        "successes"
+      ]
+    }
+  },
+  "status": "PUBLIC_ACTION_READY_JOIN_NO_GO",
+  "workspace_count": 3
+}

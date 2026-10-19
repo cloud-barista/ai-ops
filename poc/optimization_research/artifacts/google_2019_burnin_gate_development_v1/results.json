@@ -1,0 +1,957 @@
+{
+  "causal_rule": "Each target t uses only y[:t]; first selector uses forecast errors 300..863; rolling selectors use at most prior 576 eligible forecast errors, initially 564",
+  "cells": {
+    "a": {
+      "first_full_bin": 3,
+      "first_three_day_fixed_selection": {
+        "chosen": "mean12",
+        "plain_min_mae_chosen": "mean12",
+        "selection_bins": 564,
+        "selection_cutoff_offset": 864,
+        "selection_mae": {
+          "mean12": 58.0698877068558,
+          "seasonal": 74.36001773049647
+        },
+        "selection_offsets": [
+          300,
+          863
+        ]
+      },
+      "fixed_window_stability": [
+        {
+          "chosen": "mean12",
+          "common_post_day7_metrics": {
+            "bins": 6910,
+            "high_load_alert_bins": 1590,
+            "high_load_alert_rate": 0.2301013024602026,
+            "high_load_recall": 0.8421052631578947,
+            "high_load_true_bins": 1615,
+            "high_load_true_positive_bins": 1360,
+            "mae": 70.12073082489147,
+            "p90_absolute_error": 155.41666666666674
+          },
+          "plain_min_mae_chosen": "mean12",
+          "post_selection_metrics": {
+            "bins": 8062,
+            "high_load_alert_bins": 1590,
+            "high_load_alert_rate": 0.19722153311833293,
+            "high_load_recall": 0.8421052631578947,
+            "high_load_true_bins": 1615,
+            "high_load_true_positive_bins": 1360,
+            "mae": 69.59125113702142,
+            "p90_absolute_error": 150.91666666666669
+          },
+          "selection_bins": 564,
+          "selection_cutoff_offset": 864,
+          "selection_days": 3,
+          "selection_mae": {
+            "mean12": 58.0698877068558,
+            "seasonal": 74.36001773049647
+          },
+          "selection_offsets": [
+            300,
+            863
+          ]
+        },
+        {
+          "chosen": "mean12",
+          "common_post_day7_metrics": {
+            "bins": 6910,
+            "high_load_alert_bins": 1590,
+            "high_load_alert_rate": 0.2301013024602026,
+            "high_load_recall": 0.8421052631578947,
+            "high_load_true_bins": 1615,
+            "high_load_true_positive_bins": 1360,
+            "mae": 70.12073082489147,
+            "p90_absolute_error": 155.41666666666674
+          },
+          "plain_min_mae_chosen": "mean12",
+          "post_selection_metrics": {
+            "bins": 7774,
+            "high_load_alert_bins": 1590,
+            "high_load_alert_rate": 0.2045279135580139,
+            "high_load_recall": 0.8421052631578947,
+            "high_load_true_bins": 1615,
+            "high_load_true_positive_bins": 1360,
+            "mae": 69.8802632707315,
+            "p90_absolute_error": 152.58333333333337
+          },
+          "selection_bins": 852,
+          "selection_cutoff_offset": 1152,
+          "selection_days": 4,
+          "selection_mae": {
+            "mean12": 59.32736697965571,
+            "seasonal": 71.07497065727699
+          },
+          "selection_offsets": [
+            300,
+            1151
+          ]
+        },
+        {
+          "chosen": "mean12",
+          "common_post_day7_metrics": {
+            "bins": 6910,
+            "high_load_alert_bins": 1590,
+            "high_load_alert_rate": 0.2301013024602026,
+            "high_load_recall": 0.8421052631578947,
+            "high_load_true_bins": 1615,
+            "high_load_true_positive_bins": 1360,
+            "mae": 70.12073082489147,
+            "p90_absolute_error": 155.41666666666674
+          },
+          "plain_min_mae_chosen": "mean12",
+          "post_selection_metrics": {
+            "bins": 7486,
+            "high_load_alert_bins": 1590,
+            "high_load_alert_rate": 0.21239647341704515,
+            "high_load_recall": 0.8421052631578947,
+            "high_load_true_bins": 1615,
+            "high_load_true_positive_bins": 1360,
+            "mae": 69.96950975153621,
+            "p90_absolute_error": 153.16666666666669
+          },
+          "selection_bins": 1140,
+          "selection_cutoff_offset": 1440,
+          "selection_days": 5,
+          "selection_mae": {
+            "mean12": 61.40730994152047,
+            "seasonal": 69.45546052631579
+          },
+          "selection_offsets": [
+            300,
+            1439
+          ]
+        },
+        {
+          "chosen": "mean12",
+          "common_post_day7_metrics": {
+            "bins": 6910,
+            "high_load_alert_bins": 1590,
+            "high_load_alert_rate": 0.2301013024602026,
+            "high_load_recall": 0.8421052631578947,
+            "high_load_true_bins": 1615,
+            "high_load_true_positive_bins": 1360,
+            "mae": 70.12073082489147,
+            "p90_absolute_error": 155.41666666666674
+          },
+          "plain_min_mae_chosen": "mean12",
+          "post_selection_metrics": {
+            "bins": 7198,
+            "high_load_alert_bins": 1590,
+            "high_load_alert_rate": 0.2208946929702695,
+            "high_load_recall": 0.8421052631578947,
+            "high_load_true_bins": 1615,
+            "high_load_true_positive_bins": 1360,
+            "mae": 70.0357622487728,
+            "p90_absolute_error": 154.33333333333331
+          },
+          "selection_bins": 1428,
+          "selection_cutoff_offset": 1728,
+          "selection_days": 6,
+          "selection_mae": {
+            "mean12": 62.800186741363206,
+            "seasonal": 69.70537464985993
+          },
+          "selection_offsets": [
+            300,
+            1727
+          ]
+        },
+        {
+          "chosen": "mean12",
+          "common_post_day7_metrics": {
+            "bins": 6910,
+            "high_load_alert_bins": 1590,
+            "high_load_alert_rate": 0.2301013024602026,
+            "high_load_recall": 0.8421052631578947,
+            "high_load_true_bins": 1615,
+            "high_load_true_positive_bins": 1360,
+            "mae": 70.12073082489147,
+            "p90_absolute_error": 155.41666666666674
+          },
+          "plain_min_mae_chosen": "mean12",
+          "post_selection_metrics": {
+            "bins": 6910,
+            "high_load_alert_bins": 1590,
+            "high_load_alert_rate": 0.2301013024602026,
+            "high_load_recall": 0.8421052631578947,
+            "high_load_true_bins": 1615,
+            "high_load_true_positive_bins": 1360,
+            "mae": 70.12073082489147,
+            "p90_absolute_error": 155.41666666666674
+          },
+          "selection_bins": 1716,
+          "selection_cutoff_offset": 2016,
+          "selection_days": 7,
+          "selection_mae": {
+            "mean12": 63.67239704739704,
+            "seasonal": 70.4449592074592
+          },
+          "selection_offsets": [
+            300,
+            2015
+          ]
+        }
+      ],
+      "full_bins": 8926,
+      "high_load_threshold_from_first_300_bins": 762.0,
+      "post_day3": {
+        "evaluation_offsets": [
+          864,
+          8925
+        ],
+        "expert_metrics": {
+          "daily": {
+            "bins": 8062,
+            "high_load_alert_bins": 1341,
+            "high_load_alert_rate": 0.16633589679980154,
+            "high_load_recall": 0.5003095975232198,
+            "high_load_true_bins": 1615,
+            "high_load_true_positive_bins": 808,
+            "mae": 142.66335896799802,
+            "p90_absolute_error": 375.0
+          },
+          "mean12": {
+            "bins": 8062,
+            "high_load_alert_bins": 1590,
+            "high_load_alert_rate": 0.19722153311833293,
+            "high_load_recall": 0.8421052631578947,
+            "high_load_true_bins": 1615,
+            "high_load_true_positive_bins": 1360,
+            "mae": 69.59125113702142,
+            "p90_absolute_error": 150.91666666666669
+          },
+          "seasonal": {
+            "bins": 8062,
+            "high_load_alert_bins": 1558,
+            "high_load_alert_rate": 0.19325229471595137,
+            "high_load_recall": 0.7690402476780186,
+            "high_load_true_bins": 1615,
+            "high_load_true_positive_bins": 1242,
+            "mae": 87.00906412800795,
+            "p90_absolute_error": 189.55
+          }
+        },
+        "fixed_selector_metrics": {
+          "bins": 8062,
+          "high_load_alert_bins": 1590,
+          "high_load_alert_rate": 0.19722153311833293,
+          "high_load_recall": 0.8421052631578947,
+          "high_load_true_bins": 1615,
+          "high_load_true_positive_bins": 1360,
+          "mae": 69.59125113702142,
+          "p90_absolute_error": 150.91666666666669
+        },
+        "rolling": {
+          "three_way_min_mae": {
+            "initial_choice": "mean12",
+            "metrics": {
+              "bins": 8062,
+              "high_load_alert_bins": 1590,
+              "high_load_alert_rate": 0.19722153311833293,
+              "high_load_recall": 0.8421052631578947,
+              "high_load_true_bins": 1615,
+              "high_load_true_positive_bins": 1360,
+              "mae": 69.92541449598941,
+              "p90_absolute_error": 151.25
+            },
+            "selection_counts": {
+              "daily": 838,
+              "mean12": 6923,
+              "seasonal": 301
+            },
+            "switch_count": 55,
+            "switch_offsets": [
+              1160,
+              1163,
+              1316,
+              1322,
+              1330,
+              1331,
+              1339,
+              1340,
+              1343,
+              1363,
+              1364,
+              1376,
+              1377,
+              1379,
+              1412,
+              1418,
+              1470,
+              1472,
+              1477,
+              1478,
+              1479,
+              1482,
+              1483,
+              1640,
+              1641,
+              1653,
+              1654,
+              1655,
+              1660,
+              1703,
+              1706,
+              1707,
+              1729,
+              1730,
+              1771,
+              1798,
+              1799,
+              1803,
+              1804,
+              1809,
+              1814,
+              1815,
+              1824,
+              1832,
+              1842,
+              3792,
+              3798,
+              3807,
+              3808,
+              3810,
+              3816,
+              3824,
+              3865,
+              5035,
+              5668
+            ]
+          },
+          "two_way_5pct": {
+            "initial_choice": "mean12",
+            "metrics": {
+              "bins": 8062,
+              "high_load_alert_bins": 1590,
+              "high_load_alert_rate": 0.19722153311833293,
+              "high_load_recall": 0.8421052631578947,
+              "high_load_true_bins": 1615,
+              "high_load_true_positive_bins": 1360,
+              "mae": 69.58550194327296,
+              "p90_absolute_error": 150.91666666666669
+            },
+            "selection_counts": {
+              "mean12": 8058,
+              "seasonal": 4
+            },
+            "switch_count": 2,
+            "switch_offsets": [
+              1613,
+              1617
+            ]
+          }
+        }
+      },
+      "series_sha256": "7678e205e07891ab7698ff7315c29eda7d9eb2c99fc52e84af54d87acccb9f12"
+    },
+    "b": {
+      "first_full_bin": 3,
+      "first_three_day_fixed_selection": {
+        "chosen": "seasonal",
+        "plain_min_mae_chosen": "seasonal",
+        "selection_bins": 564,
+        "selection_cutoff_offset": 864,
+        "selection_mae": {
+          "mean12": 57.30954491725769,
+          "seasonal": 36.843306737588655
+        },
+        "selection_offsets": [
+          300,
+          863
+        ]
+      },
+      "fixed_window_stability": [
+        {
+          "chosen": "seasonal",
+          "common_post_day7_metrics": {
+            "bins": 6910,
+            "high_load_alert_bins": 260,
+            "high_load_alert_rate": 0.03762662807525326,
+            "high_load_recall": 0.47345132743362833,
+            "high_load_true_bins": 226,
+            "high_load_true_positive_bins": 107,
+            "mae": 31.633936324167873,
+            "p90_absolute_error": 64.7
+          },
+          "plain_min_mae_chosen": "seasonal",
+          "post_selection_metrics": {
+            "bins": 8062,
+            "high_load_alert_bins": 319,
+            "high_load_alert_rate": 0.039568345323741004,
+            "high_load_recall": 0.49469964664310956,
+            "high_load_true_bins": 283,
+            "high_load_true_positive_bins": 140,
+            "mae": 32.25523753411064,
+            "p90_absolute_error": 66.775
+          },
+          "selection_bins": 564,
+          "selection_cutoff_offset": 864,
+          "selection_days": 3,
+          "selection_mae": {
+            "mean12": 57.30954491725769,
+            "seasonal": 36.843306737588655
+          },
+          "selection_offsets": [
+            300,
+            863
+          ]
+        },
+        {
+          "chosen": "seasonal",
+          "common_post_day7_metrics": {
+            "bins": 6910,
+            "high_load_alert_bins": 260,
+            "high_load_alert_rate": 0.03762662807525326,
+            "high_load_recall": 0.47345132743362833,
+            "high_load_true_bins": 226,
+            "high_load_true_positive_bins": 107,
+            "mae": 31.633936324167873,
+            "p90_absolute_error": 64.7
+          },
+          "plain_min_mae_chosen": "seasonal",
+          "post_selection_metrics": {
+            "bins": 7774,
+            "high_load_alert_bins": 311,
+            "high_load_alert_rate": 0.04000514535631593,
+            "high_load_recall": 0.5111111111111111,
+            "high_load_true_bins": 270,
+            "high_load_true_positive_bins": 138,
+            "mae": 32.03871559042964,
+            "p90_absolute_error": 65.94999999999999
+          },
+          "selection_bins": 852,
+          "selection_cutoff_offset": 1152,
+          "selection_days": 4,
+          "selection_mae": {
+            "mean12": 57.71449530516432,
+            "seasonal": 37.26804577464789
+          },
+          "selection_offsets": [
+            300,
+            1151
+          ]
+        },
+        {
+          "chosen": "seasonal",
+          "common_post_day7_metrics": {
+            "bins": 6910,
+            "high_load_alert_bins": 260,
+            "high_load_alert_rate": 0.03762662807525326,
+            "high_load_recall": 0.47345132743362833,
+            "high_load_true_bins": 226,
+            "high_load_true_positive_bins": 107,
+            "mae": 31.633936324167873,
+            "p90_absolute_error": 64.7
+          },
+          "plain_min_mae_chosen": "seasonal",
+          "post_selection_metrics": {
+            "bins": 7486,
+            "high_load_alert_bins": 299,
+            "high_load_alert_rate": 0.03994122361741918,
+            "high_load_recall": 0.5038759689922481,
+            "high_load_true_bins": 258,
+            "high_load_true_positive_bins": 130,
+            "mae": 31.994883783061713,
+            "p90_absolute_error": 65.8
+          },
+          "selection_bins": 1140,
+          "selection_cutoff_offset": 1440,
+          "selection_days": 5,
+          "selection_mae": {
+            "mean12": 55.60475146198831,
+            "seasonal": 36.23478070175438
+          },
+          "selection_offsets": [
+            300,
+            1439
+          ]
+        },
+        {
+          "chosen": "seasonal",
+          "common_post_day7_metrics": {
+            "bins": 6910,
+            "high_load_alert_bins": 260,
+            "high_load_alert_rate": 0.03762662807525326,
+            "high_load_recall": 0.47345132743362833,
+            "high_load_true_bins": 226,
+            "high_load_true_positive_bins": 107,
+            "mae": 31.633936324167873,
+            "p90_absolute_error": 64.7
+          },
+          "plain_min_mae_chosen": "seasonal",
+          "post_selection_metrics": {
+            "bins": 7198,
+            "high_load_alert_bins": 281,
+            "high_load_alert_rate": 0.03903862183939983,
+            "high_load_recall": 0.48333333333333334,
+            "high_load_true_bins": 240,
+            "high_load_true_positive_bins": 116,
+            "mae": 31.811815782161712,
+            "p90_absolute_error": 65.05
+          },
+          "selection_bins": 1428,
+          "selection_cutoff_offset": 1728,
+          "selection_days": 6,
+          "selection_mae": {
+            "mean12": 54.53448879551821,
+            "seasonal": 36.30245098039216
+          },
+          "selection_offsets": [
+            300,
+            1727
+          ]
+        },
+        {
+          "chosen": "seasonal",
+          "common_post_day7_metrics": {
+            "bins": 6910,
+            "high_load_alert_bins": 260,
+            "high_load_alert_rate": 0.03762662807525326,
+            "high_load_recall": 0.47345132743362833,
+            "high_load_true_bins": 226,
+            "high_load_true_positive_bins": 107,
+            "mae": 31.633936324167873,
+            "p90_absolute_error": 64.7
+          },
+          "plain_min_mae_chosen": "seasonal",
+          "post_selection_metrics": {
+            "bins": 6910,
+            "high_load_alert_bins": 260,
+            "high_load_alert_rate": 0.03762662807525326,
+            "high_load_recall": 0.47345132743362833,
+            "high_load_true_bins": 226,
+            "high_load_true_positive_bins": 107,
+            "mae": 31.633936324167873,
+            "p90_absolute_error": 64.7
+          },
+          "selection_bins": 1716,
+          "selection_cutoff_offset": 2016,
+          "selection_days": 7,
+          "selection_mae": {
+            "mean12": 53.31653069153069,
+            "seasonal": 36.265064102564104
+          },
+          "selection_offsets": [
+            300,
+            2015
+          ]
+        }
+      ],
+      "full_bins": 8926,
+      "high_load_threshold_from_first_300_bins": 289.0,
+      "post_day3": {
+        "evaluation_offsets": [
+          864,
+          8925
+        ],
+        "expert_metrics": {
+          "daily": {
+            "bins": 8062,
+            "high_load_alert_bins": 298,
+            "high_load_alert_rate": 0.03696353262217812,
+            "high_load_recall": 0.33568904593639576,
+            "high_load_true_bins": 283,
+            "high_load_true_positive_bins": 95,
+            "mae": 38.72326966013396,
+            "p90_absolute_error": 87.0
+          },
+          "mean12": {
+            "bins": 8062,
+            "high_load_alert_bins": 7,
+            "high_load_alert_rate": 0.0008682709005209626,
+            "high_load_recall": 0.0035335689045936395,
+            "high_load_true_bins": 283,
+            "high_load_true_positive_bins": 1,
+            "mae": 48.02230629289672,
+            "p90_absolute_error": 126.41666666666666
+          },
+          "seasonal": {
+            "bins": 8062,
+            "high_load_alert_bins": 319,
+            "high_load_alert_rate": 0.039568345323741004,
+            "high_load_recall": 0.49469964664310956,
+            "high_load_true_bins": 283,
+            "high_load_true_positive_bins": 140,
+            "mae": 32.25523753411064,
+            "p90_absolute_error": 66.775
+          }
+        },
+        "fixed_selector_metrics": {
+          "bins": 8062,
+          "high_load_alert_bins": 319,
+          "high_load_alert_rate": 0.039568345323741004,
+          "high_load_recall": 0.49469964664310956,
+          "high_load_true_bins": 283,
+          "high_load_true_positive_bins": 140,
+          "mae": 32.25523753411064,
+          "p90_absolute_error": 66.775
+        },
+        "rolling": {
+          "three_way_min_mae": {
+            "initial_choice": "seasonal",
+            "metrics": {
+              "bins": 8062,
+              "high_load_alert_bins": 314,
+              "high_load_alert_rate": 0.038948151823368894,
+              "high_load_recall": 0.4840989399293286,
+              "high_load_true_bins": 283,
+              "high_load_true_positive_bins": 137,
+              "mae": 32.3409978913421,
+              "p90_absolute_error": 67.0
+            },
+            "selection_counts": {
+              "daily": 360,
+              "seasonal": 7702
+            },
+            "switch_count": 12,
+            "switch_offsets": [
+              3563,
+              3564,
+              3592,
+              3593,
+              8351,
+              8526,
+              8531,
+              8675,
+              8685,
+              8686,
+              8688,
+              8726
+            ]
+          },
+          "two_way_5pct": {
+            "initial_choice": "seasonal",
+            "metrics": {
+              "bins": 8062,
+              "high_load_alert_bins": 317,
+              "high_load_alert_rate": 0.03932026792359216,
+              "high_load_recall": 0.49469964664310956,
+              "high_load_true_bins": 283,
+              "high_load_true_positive_bins": 140,
+              "mae": 32.20412635408914,
+              "p90_absolute_error": 66.775
+            },
+            "selection_counts": {
+              "mean12": 61,
+              "seasonal": 8001
+            },
+            "switch_count": 4,
+            "switch_offsets": [
+              6280,
+              6286,
+              6288,
+              6343
+            ]
+          }
+        }
+      },
+      "series_sha256": "8dcdf90d5487e1eafd1ea4f5f0b6d1ca2002d83da069ce6553e98dbd07a9c439"
+    },
+    "g": {
+      "first_full_bin": 3,
+      "first_three_day_fixed_selection": {
+        "chosen": "mean12",
+        "plain_min_mae_chosen": "mean12",
+        "selection_bins": 564,
+        "selection_cutoff_offset": 864,
+        "selection_mae": {
+          "mean12": 62.22754137115838,
+          "seasonal": 105.89073581560284
+        },
+        "selection_offsets": [
+          300,
+          863
+        ]
+      },
+      "fixed_window_stability": [
+        {
+          "chosen": "mean12",
+          "common_post_day7_metrics": {
+            "bins": 6910,
+            "high_load_alert_bins": 0,
+            "high_load_alert_rate": 0.0,
+            "high_load_recall": 0.0,
+            "high_load_true_bins": 524,
+            "high_load_true_positive_bins": 0,
+            "mae": 64.02519295706705,
+            "p90_absolute_error": 189.5
+          },
+          "plain_min_mae_chosen": "mean12",
+          "post_selection_metrics": {
+            "bins": 8062,
+            "high_load_alert_bins": 0,
+            "high_load_alert_rate": 0.0,
+            "high_load_recall": 0.0,
+            "high_load_true_bins": 603,
+            "high_load_true_positive_bins": 0,
+            "mae": 63.50426899859422,
+            "p90_absolute_error": 188.5
+          },
+          "selection_bins": 564,
+          "selection_cutoff_offset": 864,
+          "selection_days": 3,
+          "selection_mae": {
+            "mean12": 62.22754137115838,
+            "seasonal": 105.89073581560284
+          },
+          "selection_offsets": [
+            300,
+            863
+          ]
+        },
+        {
+          "chosen": "mean12",
+          "common_post_day7_metrics": {
+            "bins": 6910,
+            "high_load_alert_bins": 0,
+            "high_load_alert_rate": 0.0,
+            "high_load_recall": 0.0,
+            "high_load_true_bins": 524,
+            "high_load_true_positive_bins": 0,
+            "mae": 64.02519295706705,
+            "p90_absolute_error": 189.5
+          },
+          "plain_min_mae_chosen": "mean12",
+          "post_selection_metrics": {
+            "bins": 7774,
+            "high_load_alert_bins": 0,
+            "high_load_alert_rate": 0.0,
+            "high_load_recall": 0.0,
+            "high_load_true_bins": 594,
+            "high_load_true_positive_bins": 0,
+            "mae": 64.65501457850957,
+            "p90_absolute_error": 190.58333333333331
+          },
+          "selection_bins": 852,
+          "selection_cutoff_offset": 1152,
+          "selection_days": 4,
+          "selection_mae": {
+            "mean12": 52.15923317683882,
+            "seasonal": 97.60657276995306
+          },
+          "selection_offsets": [
+            300,
+            1151
+          ]
+        },
+        {
+          "chosen": "mean12",
+          "common_post_day7_metrics": {
+            "bins": 6910,
+            "high_load_alert_bins": 0,
+            "high_load_alert_rate": 0.0,
+            "high_load_recall": 0.0,
+            "high_load_true_bins": 524,
+            "high_load_true_positive_bins": 0,
+            "mae": 64.02519295706705,
+            "p90_absolute_error": 189.5
+          },
+          "plain_min_mae_chosen": "mean12",
+          "post_selection_metrics": {
+            "bins": 7486,
+            "high_load_alert_bins": 0,
+            "high_load_alert_rate": 0.0,
+            "high_load_recall": 0.0,
+            "high_load_true_bins": 583,
+            "high_load_true_positive_bins": 0,
+            "mae": 65.45206607890285,
+            "p90_absolute_error": 191.5
+          },
+          "selection_bins": 1140,
+          "selection_cutoff_offset": 1440,
+          "selection_days": 5,
+          "selection_mae": {
+            "mean12": 50.08209064327485,
+            "seasonal": 87.60572368421052
+          },
+          "selection_offsets": [
+            300,
+            1439
+          ]
+        },
+        {
+          "chosen": "mean12",
+          "common_post_day7_metrics": {
+            "bins": 6910,
+            "high_load_alert_bins": 0,
+            "high_load_alert_rate": 0.0,
+            "high_load_recall": 0.0,
+            "high_load_true_bins": 524,
+            "high_load_true_positive_bins": 0,
+            "mae": 64.02519295706705,
+            "p90_absolute_error": 189.5
+          },
+          "plain_min_mae_chosen": "mean12",
+          "post_selection_metrics": {
+            "bins": 7198,
+            "high_load_alert_bins": 0,
+            "high_load_alert_rate": 0.0,
+            "high_load_recall": 0.0,
+            "high_load_true_bins": 556,
+            "high_load_true_positive_bins": 0,
+            "mae": 64.92954061313328,
+            "p90_absolute_error": 190.66666666666669
+          },
+          "selection_bins": 1428,
+          "selection_cutoff_offset": 1728,
+          "selection_days": 6,
+          "selection_mae": {
+            "mean12": 55.815767973856204,
+            "seasonal": 92.83944327731093
+          },
+          "selection_offsets": [
+            300,
+            1727
+          ]
+        },
+        {
+          "chosen": "mean12",
+          "common_post_day7_metrics": {
+            "bins": 6910,
+            "high_load_alert_bins": 0,
+            "high_load_alert_rate": 0.0,
+            "high_load_recall": 0.0,
+            "high_load_true_bins": 524,
+            "high_load_true_positive_bins": 0,
+            "mae": 64.02519295706705,
+            "p90_absolute_error": 189.5
+          },
+          "plain_min_mae_chosen": "mean12",
+          "post_selection_metrics": {
+            "bins": 6910,
+            "high_load_alert_bins": 0,
+            "high_load_alert_rate": 0.0,
+            "high_load_recall": 0.0,
+            "high_load_true_bins": 524,
+            "high_load_true_positive_bins": 0,
+            "mae": 64.02519295706705,
+            "p90_absolute_error": 189.5
+          },
+          "selection_bins": 1716,
+          "selection_cutoff_offset": 2016,
+          "selection_days": 7,
+          "selection_mae": {
+            "mean12": 60.986985236985234,
+            "seasonal": 99.18097319347319
+          },
+          "selection_offsets": [
+            300,
+            2015
+          ]
+        }
+      ],
+      "full_bins": 8926,
+      "high_load_threshold_from_first_300_bins": 304.0,
+      "post_day3": {
+        "evaluation_offsets": [
+          864,
+          8925
+        ],
+        "expert_metrics": {
+          "daily": {
+            "bins": 8062,
+            "high_load_alert_bins": 602,
+            "high_load_alert_rate": 0.07467129744480278,
+            "high_load_recall": 0.1044776119402985,
+            "high_load_true_bins": 603,
+            "high_load_true_positive_bins": 63,
+            "mae": 76.30451500868271,
+            "p90_absolute_error": 266.0
+          },
+          "mean12": {
+            "bins": 8062,
+            "high_load_alert_bins": 0,
+            "high_load_alert_rate": 0.0,
+            "high_load_recall": 0.0,
+            "high_load_true_bins": 603,
+            "high_load_true_positive_bins": 0,
+            "mae": 63.50426899859422,
+            "p90_absolute_error": 188.5
+          },
+          "seasonal": {
+            "bins": 8062,
+            "high_load_alert_bins": 656,
+            "high_load_alert_rate": 0.08136938724882163,
+            "high_load_recall": 0.0912106135986733,
+            "high_load_true_bins": 603,
+            "high_load_true_positive_bins": 55,
+            "mae": 102.86456524435624,
+            "p90_absolute_error": 271.925
+          }
+        },
+        "fixed_selector_metrics": {
+          "bins": 8062,
+          "high_load_alert_bins": 0,
+          "high_load_alert_rate": 0.0,
+          "high_load_recall": 0.0,
+          "high_load_true_bins": 603,
+          "high_load_true_positive_bins": 0,
+          "mae": 63.50426899859422,
+          "p90_absolute_error": 188.5
+        },
+        "rolling": {
+          "three_way_min_mae": {
+            "initial_choice": "mean12",
+            "metrics": {
+              "bins": 8062,
+              "high_load_alert_bins": 21,
+              "high_load_alert_rate": 0.002604812701562888,
+              "high_load_recall": 0.003316749585406302,
+              "high_load_true_bins": 603,
+              "high_load_true_positive_bins": 2,
+              "mae": 63.865025221202345,
+              "p90_absolute_error": 193.08333333333331
+            },
+            "selection_counts": {
+              "daily": 448,
+              "mean12": 7614
+            },
+            "switch_count": 12,
+            "switch_offsets": [
+              1659,
+              1751,
+              1752,
+              1757,
+              3929,
+              3930,
+              7692,
+              7695,
+              7696,
+              7697,
+              7698,
+              8044
+            ]
+          },
+          "two_way_5pct": {
+            "initial_choice": "mean12",
+            "metrics": {
+              "bins": 8062,
+              "high_load_alert_bins": 0,
+              "high_load_alert_rate": 0.0,
+              "high_load_recall": 0.0,
+              "high_load_true_bins": 603,
+              "high_load_true_positive_bins": 0,
+              "mae": 63.50426899859422,
+              "p90_absolute_error": 188.5
+            },
+            "selection_counts": {
+              "mean12": 8062
+            },
+            "switch_count": 0,
+            "switch_offsets": []
+          }
+        }
+      },
+      "series_sha256": "b3b10498a1a0d96b7012ce2e7414a048943d55f78706b312aecf543e140e7d18"
+    }
+  },
+  "five_minute_bins_per_day": 288,
+  "fixed_seasonal_margin_fraction": 0.05,
+  "forecast_error_start_offset": 300,
+  "post_three_day_evaluation_start_offset": 864,
+  "rolling_error_window_bins": 576,
+  "scope": "Exploratory post-hoc analysis of already exposed generic Borg JOB series; not independent validation or AI-App scaling outcome",
+  "seasonal_residual_alpha": 0.85
+}

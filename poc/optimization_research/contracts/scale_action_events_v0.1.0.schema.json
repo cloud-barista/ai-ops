@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "KHU research action-event stream, draft 0.1.0",
+  "description": "One JSON object per JSONL line. This is a research intake contract, not a deployment command or proof of causal effect.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "event_id", "event_type", "app_id", "app_version", "observed_at", "available_at", "time_provenance", "source_system", "data"],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "event_id": {"$ref": "#/definitions/id"},
+    "event_type": {"enum": ["DECISION", "ACTION_ISSUED", "ACTION_RESULT", "REQUEST_RESULT"]},
+    "correlation_id": {"$ref": "#/definitions/id"},
+    "app_id": {"$ref": "#/definitions/id"},
+    "app_version": {"$ref": "#/definitions/id"},
+    "observed_at": {"$ref": "#/definitions/timestamp"},
+    "available_at": {"$ref": "#/definitions/timestamp"},
+    "time_provenance": {"enum": ["SOURCE_EVENT", "LOCAL_OBSERVATION", "SYNTHETIC"]},
+    "source_system": {"$ref": "#/definitions/id"},
+    "correction_of": {"$ref": "#/definitions/id"},
+    "correction_version": {"type": "integer", "minimum": 1},
+    "data": {"type": "object"}
+  },
+  "oneOf": [
+    {"required": ["correlation_id"], "properties": {"event_type": {"const": "DECISION"}, "data": {"$ref": "#/definitions/decision"}}},
+    {"required": ["correlation_id"], "properties": {"event_type": {"const": "ACTION_ISSUED"}, "data": {"$ref": "#/definitions/action_issued"}}},
+    {"required": ["correlation_id"], "properties": {"event_type": {"const": "ACTION_RESULT"}, "data": {"$ref": "#/definitions/action_result"}}},
+    {"properties": {"event_type": {"const": "REQUEST_RESULT"}, "data": {"$ref": "#/definitions/request_result"}}}
+  ],
+  "dependencies": {"correction_of": ["correction_version"], "correction_version": ["correction_of"]},
+  "definitions": {
+    "id": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "timestamp": {"type": "string", "format": "date-time"},
+    "decision": {
+      "type": "object", "additionalProperties": false,
+      "required": ["decision_id", "profile_id", "policy_version", "action", "inputs_max_available_at", "pre_window_seconds", "post_window_seconds"],
+      "properties": {
+        "decision_id": {"$ref": "#/definitions/id"},
+        "profile_id": {"$ref": "#/definitions/id"},
+        "policy_version": {"$ref": "#/definitions/id"},
+        "action": {"enum": ["DEPLOY", "UPDATE", "SCALE_OUT", "SCALE_IN", "KEEP", "ABSTAIN"]},
+        "deployment_id": {"$ref": "#/definitions/id"},
+        "current_replicas": {"type": "integer", "minimum": 0},
+        "desired_replicas": {"type": "integer", "minimum": 0},
+        "inputs_max_available_at": {"$ref": "#/definitions/timestamp"},
+        "pre_window_seconds": {"type": "integer", "minimum": 1, "maximum": 2592000},
+        "post_window_seconds": {"type": "integer", "minimum": 1, "maximum": 2592000}
+      }
+    },
+    "action_issued": {
+      "type": "object", "additionalProperties": false,
+      "required": ["action_id", "decision_id", "revision", "revision_request_id", "attempt_no", "action", "desired_replicas", "dispatch_state"],
+      "properties": {
+        "action_id": {"$ref": "#/definitions/id"},
+        "decision_id": {"$ref": "#/definitions/id"},
+        "revision": {"type": "integer", "minimum": 1},
+        "revision_request_id": {"$ref": "#/definitions/id"},
+        "attempt_no": {"type": "integer", "minimum": 1},
+        "retry_of_action_id": {"$ref": "#/definitions/id"},
+        "deployment_id": {"$ref": "#/definitions/id"},
+        "action": {"enum": ["DEPLOY", "UPDATE", "SCALE_OUT", "SCALE_IN"]},
+        "desired_replicas": {"type": "integer", "minimum": 0},
+        "dispatch_state": {"enum": ["ACCEPTED", "REJECTED", "UNKNOWN"]}
+      }
+    },
+    "action_result": {
+      "type": "object", "additionalProperties": false,
+      "required": ["action_id", "deployment_id", "state"],
+      "properties": {
+        "action_id": {"$ref": "#/definitions/id"},
+        "deployment_id": {"$ref": "#/definitions/id"},
+        "state": {"enum": ["READY", "FAILED"]},
+        "ready_replicas": {"type": "integer", "minimum": 0},
+        "readiness_signal": {"enum": ["SERVICE_HEALTH_AND_REPLICA_COUNT", "STATUS_ONLY"]},
+        "reason": {"$ref": "#/definitions/id"}
+      },
+      "oneOf": [
+        {"properties": {"state": {"const": "READY"}}, "required": ["ready_replicas", "readiness_signal"], "not": {"required": ["reason"]}},
+        {"properties": {"state": {"const": "FAILED"}}, "required": ["reason"], "not": {"anyOf": [{"required": ["ready_replicas"]}, {"required": ["readiness_signal"]}]}}
+      ]
+    },
+    "request_result": {
+      "type": "object", "additionalProperties": false,
+      "required": ["request_id", "deployment_id", "created_at", "completed_at", "success", "latency_ms", "workload_class"],
+      "properties": {
+        "request_id": {"$ref": "#/definitions/id"},
+        "deployment_id": {"$ref": "#/definitions/id"},
+        "created_at": {"$ref": "#/definitions/timestamp"},
+        "completed_at": {"$ref": "#/definitions/timestamp"},
+        "success": {"type": "boolean"},
+        "latency_ms": {"type": "number", "minimum": 0},
+        "workload_class": {"$ref": "#/definitions/id"}
+      }
+    }
+  }
+}

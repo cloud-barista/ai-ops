@@ -1,0 +1,330 @@
+{
+  "publication_at_utc": "2026-10-06T02:12:03.987481+00:00",
+  "source_quality_gate": "NO_GO_NO_TOKEN_FORECAST_SCORE",
+  "new_call_count_models_trained": 3,
+  "all_source_and_model_audits_verified": true,
+  "raw_total_bytes": 811885715,
+  "files": {
+    "scripts/copilot_demand_transfer.py": {
+      "stage_path": "scripts/copilot_demand_transfer.py",
+      "sha256": "5075820871f8a395ccba2f6b709559a03012a16c9270ca2ee6a20f1cbcf36a58"
+    },
+    "scripts/verify_copilot_demand_transfer.py": {
+      "stage_path": "scripts/verify_copilot_demand_transfer.py",
+      "sha256": "d76d41c4d0237c51eb1ce2099890518c0fc31686bd30e4e79e008e929ba7ec72"
+    },
+    "scripts/verify_copilot_source_audit.py": {
+      "stage_path": "scripts/verify_copilot_source_audit.py",
+      "sha256": "140cf2d59a35673c692f866ce354494dd095c6eef14f9cb9d78e1c6122f6b1a6"
+    },
+    "scripts/train_copilot_call_demand.py": {
+      "stage_path": "scripts/train_copilot_call_demand.py",
+      "sha256": "8e139afcc31e7ca45224b9757080112c1b2bcef6b9674f581f22501c86037072"
+    },
+    "scripts/verify_copilot_call_demand.py": {
+      "stage_path": "scripts/verify_copilot_call_demand.py",
+      "sha256": "0550d4eaf1859f20559704e2b11ca0bae5ce4c52dd4df9cde100104a6abd0bb7"
+    },
+    "scripts/summarize_copilot_research.py": {
+      "stage_path": "scripts/summarize_copilot_research.py",
+      "sha256": "06d74dee8b523a0ffbd24d37bb6f2cc8bd06be086ccfda26358e1f2ac1976f0f"
+    },
+    "tests/test_copilot_demand_transfer.py": {
+      "stage_path": "tests/test_copilot_demand_transfer.py",
+      "sha256": "b7e13092bb04ea12e4cc7d371a3fbb971a9f25e9b09a77ae6480f98aedb69740"
+    },
+    "tests/test_copilot_source_audit.py": {
+      "stage_path": "tests/test_copilot_source_audit.py",
+      "sha256": "77193a0956c29c40e5d871076279bbfd7adb9fb205744747bfd0c594c3a9071e"
+    },
+    "tests/test_copilot_call_demand.py": {
+      "stage_path": "tests/test_copilot_call_demand.py",
+      "sha256": "d33a253ae0ee4a2a16e29bc63e3e24dbd111984288b70b3ca7703e265f01ac5f"
+    },
+    "reports/copilot_transfer_protocol_v1.json": {
+      "stage_path": "reports/copilot_transfer_protocol_v1.json",
+      "sha256": "b4384f46c33ae952b395c89cd2dd199edf800e50379ffc778283b5632d5c06be"
+    },
+    "reports/copilot_call_demand_protocol_v1.json": {
+      "stage_path": "reports/copilot_call_demand_protocol_v1.json",
+      "sha256": "176373388839d4fa897cf75fd8ca4b768593a5047c9cc6288b08b613b8888147"
+    },
+    "reports/copilot_research_findings_2026_10_06.txt": {
+      "stage_path": "reports/copilot_research_findings_2026_10_06.txt",
+      "sha256": "41f0ab358182306ad8ac783423dd9e609ec22d581dbb5739a793392130d5582b"
+    },
+    "reports/copilot_research_reproduction_v1.txt": {
+      "stage_path": "reports/copilot_research_reproduction_v1.txt",
+      "sha256": "a753b6119ae750995212eeeacaad5762ca4a8d11b84bbb42faeec0b6f9d03bea"
+    },
+    "reports/copilot_transfer_and_calls_tests.log": {
+      "stage_path": "reports/copilot_transfer_and_calls_tests.log",
+      "sha256": "f2cd537124bb6f63b05d5fb3ec6a8b9400fd84f849f4dc33507cf35230b44d9a"
+    },
+    "reports/copilot_transfer_score.log": {
+      "stage_path": "reports/copilot_transfer_score.log",
+      "sha256": "c1e7f9a8864eeaa23c7ac7e518c367c3e66f31cc008b071e481d97987c92a3cb"
+    },
+    "reports/copilot_independent_source_audit.log": {
+      "stage_path": "reports/copilot_independent_source_audit.log",
+      "sha256": "e4b4f662e75285d33f3734409173bb4eba648ebc0c672f6b5efa4b78f812684b"
+    },
+    "reports/copilot_call_train.log": {
+      "stage_path": "reports/copilot_call_train.log",
+      "sha256": "53465ee6799d3788b6097d94db7e0e7d43c2405a5843812718e61d546a12e56e"
+    },
+    "reports/copilot_call_verify.log": {
+      "stage_path": "reports/copilot_call_verify.log",
+      "sha256": "8bf7243701ad03af906742fe32e45031165a21729175e1e6f932df48018f6824"
+    },
+    "artifacts/copilot_transfer_v1_1/AUDIT_VERIFIER_FREEZE.json": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/AUDIT_VERIFIER_FREEZE.json",
+      "sha256": "e3cbad324c484a5d0313891375a96766157a7749f12b38007a31af7750493e83"
+    },
+    "artifacts/copilot_transfer_v1_1/PRE_SCORE_FREEZE.json": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/PRE_SCORE_FREEZE.json",
+      "sha256": "00e5afdc9b5be5c7b95bbbe7dc49a6ddf759edc9778e30cad6ad952e349756b6"
+    },
+    "artifacts/copilot_transfer_v1_1/complete_call_counts_and_known_tokens.parquet": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/complete_call_counts_and_known_tokens.parquet",
+      "sha256": "7b859b50ea1a11a73ddeff3c055f9376cd58daf6f723a81f239bd2ebb7d7c958"
+    },
+    "artifacts/copilot_transfer_v1_1/data_audit.json": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/data_audit.json",
+      "sha256": "ada03b89c5c84c4d91176ab241d1a6ac8c39a89ecd5ed8104a34cd78fed5089b"
+    },
+    "artifacts/copilot_transfer_v1_1/five_minute_counts.parquet": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/five_minute_counts.parquet",
+      "sha256": "55d8acabb6152cbbeddf662a6b9dd6baf13341eeac7b685ad89349c613d39391"
+    },
+    "artifacts/copilot_transfer_v1_1/independent_source_audit.json": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/independent_source_audit.json",
+      "sha256": "b7136eb89904286642d5c306825f7132ef105684a7c587d24a13ef2f60e0366a"
+    },
+    "artifacts/copilot_transfer_v1_1/initial_schema_failure/PRE_DOWNLOAD_FREEZE.json": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/initial_schema_failure/PRE_DOWNLOAD_FREEZE.json",
+      "sha256": "6112c1b5b975cacd500033c1eb605a83864783071dfdb9f9b1dff5516af1cbc3"
+    },
+    "artifacts/copilot_transfer_v1_1/initial_schema_failure/data_audit.json": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/initial_schema_failure/data_audit.json",
+      "sha256": "6729e2ac2ca13dc08b1fb11c5a3146109ffd01d122ae86240e8837a526a11cb0"
+    },
+    "artifacts/copilot_transfer_v1_1/initial_schema_failure/five_minute_counts.parquet": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/initial_schema_failure/five_minute_counts.parquet",
+      "sha256": "46d4487a7d404f999d7d6b6df3a352b1162fa7e0f5a74be50fd26b26a1be1760"
+    },
+    "artifacts/copilot_transfer_v1_1/initial_schema_failure/source_snapshot/scripts/copilot_demand_transfer.py": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/initial_schema_failure/source_snapshot/scripts/copilot_demand_transfer.py",
+      "sha256": "dfa78efa0d76f6a3603bb8fa36f7dd539d5762e88054eb2c61ca664f763063fc"
+    },
+    "artifacts/copilot_transfer_v1_1/initial_schema_failure/source_snapshot/scripts/summarize_copilot_demand_transfer.py": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/initial_schema_failure/source_snapshot/scripts/summarize_copilot_demand_transfer.py",
+      "sha256": "c78135e2d94747ba4af81aba2dd4cbad7e4472427279b96cdd6505e6e328099a"
+    },
+    "artifacts/copilot_transfer_v1_1/initial_schema_failure/source_snapshot/scripts/verify_copilot_demand_transfer.py": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/initial_schema_failure/source_snapshot/scripts/verify_copilot_demand_transfer.py",
+      "sha256": "cae54aa9fdcfa23681d12e015fd1fdb74d7a68517ffc2a8c1788e813685bae77"
+    },
+    "artifacts/copilot_transfer_v1_1/initial_schema_failure/source_snapshot/tests/test_copilot_demand_transfer.py": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/initial_schema_failure/source_snapshot/tests/test_copilot_demand_transfer.py",
+      "sha256": "74d6c728794e4157eb9d9a6862d44b57922095947b7e574dc36f79c64f7a5340"
+    },
+    "artifacts/copilot_transfer_v1_1/initial_schema_failure/support_no_go.json": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/initial_schema_failure/support_no_go.json",
+      "sha256": "d3e068cebb86c90d34f3b29b3033fad03a8afc7b5c1d19c61ace9ae94eb708aa"
+    },
+    "artifacts/copilot_transfer_v1_1/release_manifest.json": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/release_manifest.json",
+      "sha256": "4d9d464b3eab4d5101e7f47a8309bcfcea1c43990626c86e688f3d73845828ef"
+    },
+    "artifacts/copilot_transfer_v1_1/source_snapshot/helpers/delay_capacity_policy.py": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/source_snapshot/helpers/delay_capacity_policy.py",
+      "sha256": "ec7cf2b0942f626b0a136370575b5daa01b63b1ced3aec87b41efdc6cadebc77"
+    },
+    "artifacts/copilot_transfer_v1_1/source_snapshot/helpers/demand_capacity_policy.py": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/source_snapshot/helpers/demand_capacity_policy.py",
+      "sha256": "93a89ea49cf3eb48409aa09eb2f2d04386cf2e3cf4c893092d2490d571c69d4a"
+    },
+    "artifacts/copilot_transfer_v1_1/source_snapshot/helpers/train_evaluate_delay_capacity.py": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/source_snapshot/helpers/train_evaluate_delay_capacity.py",
+      "sha256": "de2e185d4cd5776852f1249b2376bb605fe696cd460ac4a5136651e5e5ad9ce6"
+    },
+    "artifacts/copilot_transfer_v1_1/source_snapshot/reports/copilot_call_demand_protocol_v1.json": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/source_snapshot/reports/copilot_call_demand_protocol_v1.json",
+      "sha256": "176373388839d4fa897cf75fd8ca4b768593a5047c9cc6288b08b613b8888147"
+    },
+    "artifacts/copilot_transfer_v1_1/source_snapshot/reports/copilot_transfer_protocol_v1.json": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/source_snapshot/reports/copilot_transfer_protocol_v1.json",
+      "sha256": "b4384f46c33ae952b395c89cd2dd199edf800e50379ffc778283b5632d5c06be"
+    },
+    "artifacts/copilot_transfer_v1_1/source_snapshot/scripts/copilot_demand_transfer.py": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/source_snapshot/scripts/copilot_demand_transfer.py",
+      "sha256": "5075820871f8a395ccba2f6b709559a03012a16c9270ca2ee6a20f1cbcf36a58"
+    },
+    "artifacts/copilot_transfer_v1_1/source_snapshot/scripts/summarize_copilot_research.py": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/source_snapshot/scripts/summarize_copilot_research.py",
+      "sha256": "06d74dee8b523a0ffbd24d37bb6f2cc8bd06be086ccfda26358e1f2ac1976f0f"
+    },
+    "artifacts/copilot_transfer_v1_1/source_snapshot/scripts/train_copilot_call_demand.py": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/source_snapshot/scripts/train_copilot_call_demand.py",
+      "sha256": "8e139afcc31e7ca45224b9757080112c1b2bcef6b9674f581f22501c86037072"
+    },
+    "artifacts/copilot_transfer_v1_1/source_snapshot/scripts/verify_copilot_call_demand.py": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/source_snapshot/scripts/verify_copilot_call_demand.py",
+      "sha256": "0550d4eaf1859f20559704e2b11ca0bae5ce4c52dd4df9cde100104a6abd0bb7"
+    },
+    "artifacts/copilot_transfer_v1_1/source_snapshot/scripts/verify_copilot_demand_transfer.py": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/source_snapshot/scripts/verify_copilot_demand_transfer.py",
+      "sha256": "d76d41c4d0237c51eb1ce2099890518c0fc31686bd30e4e79e008e929ba7ec72"
+    },
+    "artifacts/copilot_transfer_v1_1/source_snapshot/scripts/verify_copilot_source_audit.py": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/source_snapshot/scripts/verify_copilot_source_audit.py",
+      "sha256": "140cf2d59a35673c692f866ce354494dd095c6eef14f9cb9d78e1c6122f6b1a6"
+    },
+    "artifacts/copilot_transfer_v1_1/source_snapshot/tests/test_copilot_call_demand.py": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/source_snapshot/tests/test_copilot_call_demand.py",
+      "sha256": "d33a253ae0ee4a2a16e29bc63e3e24dbd111984288b70b3ca7703e265f01ac5f"
+    },
+    "artifacts/copilot_transfer_v1_1/source_snapshot/tests/test_copilot_demand_transfer.py": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/source_snapshot/tests/test_copilot_demand_transfer.py",
+      "sha256": "b7e13092bb04ea12e4cc7d371a3fbb971a9f25e9b09a77ae6480f98aedb69740"
+    },
+    "artifacts/copilot_transfer_v1_1/source_snapshot/tests/test_copilot_source_audit.py": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/source_snapshot/tests/test_copilot_source_audit.py",
+      "sha256": "77193a0956c29c40e5d871076279bbfd7adb9fb205744747bfd0c594c3a9071e"
+    },
+    "artifacts/copilot_transfer_v1_1/support_no_go.json": {
+      "stage_path": "artifacts/copilot_transfer_v1_1/support_no_go.json",
+      "sha256": "d3e068cebb86c90d34f3b29b3033fad03a8afc7b5c1d19c61ace9ae94eb708aa"
+    },
+    "artifacts/copilot_call_demand_v1/CODE_FREEZE.json": {
+      "stage_path": "artifacts/copilot_call_demand_v1/CODE_FREEZE.json",
+      "sha256": "bf6317ffe165c99d2d997dab6dea06d8eaeb10ab61d651e777cb95488844bd3b"
+    },
+    "artifacts/copilot_call_demand_v1/INPUT_FREEZE.json": {
+      "stage_path": "artifacts/copilot_call_demand_v1/INPUT_FREEZE.json",
+      "sha256": "35566cc78ae023e02798ad1e1d889c3675d5c3562312076e3c98b0235f7d575c"
+    },
+    "artifacts/copilot_call_demand_v1/SELECTION_FREEZE.json": {
+      "stage_path": "artifacts/copilot_call_demand_v1/SELECTION_FREEZE.json",
+      "sha256": "9532cf5d4b04fd66bfceb1f650e80eb79e127fd713cd7ce216ff6dc468047790"
+    },
+    "artifacts/copilot_call_demand_v1/call_demand_results.pdf": {
+      "stage_path": "artifacts/copilot_call_demand_v1/call_demand_results.pdf",
+      "sha256": "e82e1b3f6fbee8c4418f0d59560858058300e3469f6b971cbf267f2c553884ac"
+    },
+    "artifacts/copilot_call_demand_v1/call_demand_results.png": {
+      "stage_path": "artifacts/copilot_call_demand_v1/call_demand_results.png",
+      "sha256": "6a0104f04278ae899b29ac71ea07bda3d540af1a385d92a4fe941a5cdbc7783f"
+    },
+    "artifacts/copilot_call_demand_v1/copilot_delay1_call_peak_q90.joblib": {
+      "stage_path": "artifacts/copilot_call_demand_v1/copilot_delay1_call_peak_q90.joblib",
+      "sha256": "bb99e6c1c201d9fb43391fedb15fd66e262a88bb42fb1897845595cf7abd1f74"
+    },
+    "artifacts/copilot_call_demand_v1/copilot_delay2_call_peak_q90.joblib": {
+      "stage_path": "artifacts/copilot_call_demand_v1/copilot_delay2_call_peak_q90.joblib",
+      "sha256": "47dee2eabae02a4813bf4fd9bb7656c13dec12cc17c9e8ad1fbb934e95fe6a45"
+    },
+    "artifacts/copilot_call_demand_v1/copilot_delay6_call_peak_q90.joblib": {
+      "stage_path": "artifacts/copilot_call_demand_v1/copilot_delay6_call_peak_q90.joblib",
+      "sha256": "c805af17fa4cb7b37534466041fd513f227b39a2e6cdc5aa8ae7d4c7047ab6f4"
+    },
+    "artifacts/copilot_call_demand_v1/forecasts.parquet": {
+      "stage_path": "artifacts/copilot_call_demand_v1/forecasts.parquet",
+      "sha256": "95d3f9e78bfaea8a8da410bfb301a4cdeaf9eeb26e818466ffd65e0673760da7"
+    },
+    "artifacts/copilot_call_demand_v1/independent_model_audit.json": {
+      "stage_path": "artifacts/copilot_call_demand_v1/independent_model_audit.json",
+      "sha256": "f1052e8bf8edc09c3e8733ae1c23697e7011fc645209177e8cb65f831d63bf1f"
+    },
+    "artifacts/copilot_call_demand_v1/release_manifest.json": {
+      "stage_path": "artifacts/copilot_call_demand_v1/release_manifest.json",
+      "sha256": "46070e10336434973c2e5d8273f1a7192c895a2e18d2a59898692f0da3ececc9"
+    },
+    "artifacts/copilot_call_demand_v1/results.json": {
+      "stage_path": "artifacts/copilot_call_demand_v1/results.json",
+      "sha256": "5524bb9956bea77be4f108e6cefcae2565d31dc65366d1bdf3d38a66d8548737"
+    },
+    "artifacts/copilot_call_demand_v1/source_snapshot/helpers/delay_capacity_policy.py": {
+      "stage_path": "artifacts/copilot_call_demand_v1/source_snapshot/helpers/delay_capacity_policy.py",
+      "sha256": "ec7cf2b0942f626b0a136370575b5daa01b63b1ced3aec87b41efdc6cadebc77"
+    },
+    "artifacts/copilot_call_demand_v1/source_snapshot/helpers/demand_capacity_policy.py": {
+      "stage_path": "artifacts/copilot_call_demand_v1/source_snapshot/helpers/demand_capacity_policy.py",
+      "sha256": "93a89ea49cf3eb48409aa09eb2f2d04386cf2e3cf4c893092d2490d571c69d4a"
+    },
+    "artifacts/copilot_call_demand_v1/source_snapshot/helpers/train_evaluate_delay_capacity.py": {
+      "stage_path": "artifacts/copilot_call_demand_v1/source_snapshot/helpers/train_evaluate_delay_capacity.py",
+      "sha256": "de2e185d4cd5776852f1249b2376bb605fe696cd460ac4a5136651e5e5ad9ce6"
+    },
+    "artifacts/copilot_call_demand_v1/source_snapshot/reports/copilot_call_demand_protocol_v1.json": {
+      "stage_path": "artifacts/copilot_call_demand_v1/source_snapshot/reports/copilot_call_demand_protocol_v1.json",
+      "sha256": "176373388839d4fa897cf75fd8ca4b768593a5047c9cc6288b08b613b8888147"
+    },
+    "artifacts/copilot_call_demand_v1/source_snapshot/reports/copilot_transfer_protocol_v1.json": {
+      "stage_path": "artifacts/copilot_call_demand_v1/source_snapshot/reports/copilot_transfer_protocol_v1.json",
+      "sha256": "b4384f46c33ae952b395c89cd2dd199edf800e50379ffc778283b5632d5c06be"
+    },
+    "artifacts/copilot_call_demand_v1/source_snapshot/scripts/copilot_demand_transfer.py": {
+      "stage_path": "artifacts/copilot_call_demand_v1/source_snapshot/scripts/copilot_demand_transfer.py",
+      "sha256": "5075820871f8a395ccba2f6b709559a03012a16c9270ca2ee6a20f1cbcf36a58"
+    },
+    "artifacts/copilot_call_demand_v1/source_snapshot/scripts/summarize_copilot_research.py": {
+      "stage_path": "artifacts/copilot_call_demand_v1/source_snapshot/scripts/summarize_copilot_research.py",
+      "sha256": "06d74dee8b523a0ffbd24d37bb6f2cc8bd06be086ccfda26358e1f2ac1976f0f"
+    },
+    "artifacts/copilot_call_demand_v1/source_snapshot/scripts/train_copilot_call_demand.py": {
+      "stage_path": "artifacts/copilot_call_demand_v1/source_snapshot/scripts/train_copilot_call_demand.py",
+      "sha256": "8e139afcc31e7ca45224b9757080112c1b2bcef6b9674f581f22501c86037072"
+    },
+    "artifacts/copilot_call_demand_v1/source_snapshot/scripts/verify_copilot_call_demand.py": {
+      "stage_path": "artifacts/copilot_call_demand_v1/source_snapshot/scripts/verify_copilot_call_demand.py",
+      "sha256": "0550d4eaf1859f20559704e2b11ca0bae5ce4c52dd4df9cde100104a6abd0bb7"
+    },
+    "artifacts/copilot_call_demand_v1/source_snapshot/scripts/verify_copilot_demand_transfer.py": {
+      "stage_path": "artifacts/copilot_call_demand_v1/source_snapshot/scripts/verify_copilot_demand_transfer.py",
+      "sha256": "d76d41c4d0237c51eb1ce2099890518c0fc31686bd30e4e79e008e929ba7ec72"
+    },
+    "artifacts/copilot_call_demand_v1/source_snapshot/scripts/verify_copilot_source_audit.py": {
+      "stage_path": "artifacts/copilot_call_demand_v1/source_snapshot/scripts/verify_copilot_source_audit.py",
+      "sha256": "140cf2d59a35673c692f866ce354494dd095c6eef14f9cb9d78e1c6122f6b1a6"
+    },
+    "artifacts/copilot_call_demand_v1/source_snapshot/tests/test_copilot_call_demand.py": {
+      "stage_path": "artifacts/copilot_call_demand_v1/source_snapshot/tests/test_copilot_call_demand.py",
+      "sha256": "d33a253ae0ee4a2a16e29bc63e3e24dbd111984288b70b3ca7703e265f01ac5f"
+    },
+    "artifacts/copilot_call_demand_v1/source_snapshot/tests/test_copilot_demand_transfer.py": {
+      "stage_path": "artifacts/copilot_call_demand_v1/source_snapshot/tests/test_copilot_demand_transfer.py",
+      "sha256": "b7e13092bb04ea12e4cc7d371a3fbb971a9f25e9b09a77ae6480f98aedb69740"
+    },
+    "artifacts/copilot_call_demand_v1/source_snapshot/tests/test_copilot_source_audit.py": {
+      "stage_path": "artifacts/copilot_call_demand_v1/source_snapshot/tests/test_copilot_source_audit.py",
+      "sha256": "77193a0956c29c40e5d871076279bbfd7adb9fb205744747bfd0c594c3a9071e"
+    },
+    "data/external/ghcp_coding_agent_2026_days05_07/date.2026-06-05.tar.gz": {
+      "stage_path": "data/date.2026-06-05.tar.gz",
+      "sha256": "ababba256966dc8bb005c98fbb4b72faea5301e17dcd949fd5b69e71b8239c50",
+      "raw_archive": true
+    },
+    "data/external/ghcp_coding_agent_2026_days05_07/date.2026-06-06.tar.gz": {
+      "stage_path": "data/date.2026-06-06.tar.gz",
+      "sha256": "9546e3fd156d379e2420b8a0ada496ff507cf74aab32b9fc97bd1b6b353fa182",
+      "raw_archive": true
+    },
+    "data/external/ghcp_coding_agent_2026_days05_07/date.2026-06-07.tar.gz": {
+      "stage_path": "data/date.2026-06-07.tar.gz",
+      "sha256": "8b6da125b486aea3eb37c752adf6be14d61dd1e6a584f5967bca7077fafe8c3c",
+      "raw_archive": true
+    },
+    "data/external/ghcp_coding_agent_2026_days05_07/SOURCE.txt": {
+      "stage_path": "data/SOURCE.txt",
+      "sha256": "c4ec9a5544632efb2c51c953b1b284ce7af40c8509e9916ee34ebd0fa54db92d"
+    },
+    "data/external/ghcp_coding_agent_2026_days05_07/release_metadata.json": {
+      "stage_path": "data/release_metadata.json",
+      "sha256": "28645cc5189529d05fe28f89191d553bc72c3ff76762a065dbbb6778600c09ab"
+    }
+  },
+  "operational_adoption": false,
+  "original_model_or_user_file_overwrite": false
+}

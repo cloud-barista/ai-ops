@@ -1,0 +1,1275 @@
+{
+  "scope": "exploratory after original independent-validation quality-gate failure",
+  "primary_validation_valid": false,
+  "method": "direct_recent_2000_completed_durations_empirical_p90",
+  "day0_utc": "2025-01-16T00:00:00Z",
+  "feedback_delay_hours": 1,
+  "training_fallback_p90_seconds": 5.519,
+  "initialization": {
+    "eligible_training_labels": 564944,
+    "day30_to_day40_positive_warmup_labels": 1182403,
+    "compact_rows_scanned": 2416021
+  },
+  "test_rows": 13852431,
+  "fallback_uses": 0,
+  "test_support_min": 2000,
+  "test_support_max": 2000,
+  "scores_all": {
+    "direct_recent_duration": {
+      "n": 13852431,
+      "coverage": 0.8173567513167905,
+      "pinball_seconds": 4.151552399147846,
+      "mean_prediction_seconds": 21.184956161398684
+    },
+    "base": {
+      "n": 13852431,
+      "coverage": 0.4630592276546983,
+      "pinball_seconds": 6.913340625059807,
+      "mean_prediction_seconds": 8.005174095910554
+    },
+    "global_residual": {
+      "n": 13852431,
+      "coverage": 0.7694211940128054,
+      "pinball_seconds": 4.490271986034251,
+      "mean_prediction_seconds": 21.400441809372502
+    },
+    "model_residual": {
+      "n": 13852431,
+      "coverage": 0.7757603701473048,
+      "pinball_seconds": 4.743388266059405,
+      "mean_prediction_seconds": 24.388457640284308
+    },
+    "guard92": {
+      "n": 13852431,
+      "coverage": 0.9368213420445841,
+      "pinball_seconds": 5.179652345181933,
+      "mean_prediction_seconds": 39.85571390737558
+    },
+    "direct_recent_duration_on_guard_valid": {
+      "n": 13852431,
+      "coverage": 0.8173567513167905,
+      "pinball_seconds": 4.151552399147846,
+      "mean_prediction_seconds": 21.184956161398684
+    },
+    "global_residual_on_guard_valid": {
+      "n": 13852431,
+      "coverage": 0.7694211940128054,
+      "pinball_seconds": 4.490271986034251,
+      "mean_prediction_seconds": 21.400441809372502
+    },
+    "model_residual_on_guard_valid": {
+      "n": 13852431,
+      "coverage": 0.7757603701473048,
+      "pinball_seconds": 4.743388266059405,
+      "mean_prediction_seconds": 24.388457640284308
+    }
+  },
+  "scores_by_10day_block": {
+    "40": {
+      "direct_recent_duration": {
+        "n": 65162,
+        "coverage": 0.9555262269420828,
+        "pinball_seconds": 1.330715542187164,
+        "mean_prediction_seconds": 5.712744722384221
+      },
+      "base": {
+        "n": 65162,
+        "coverage": 0.909655934440318,
+        "pinball_seconds": 1.8529493743353673,
+        "mean_prediction_seconds": 8.827074236725243
+      },
+      "global_residual": {
+        "n": 65162,
+        "coverage": 0.8251895276388079,
+        "pinball_seconds": 1.5849931783747189,
+        "mean_prediction_seconds": 7.99423462145118
+      },
+      "model_residual": {
+        "n": 65162,
+        "coverage": 0.7971363678217366,
+        "pinball_seconds": 1.446261624260139,
+        "mean_prediction_seconds": 6.295567287659554
+      },
+      "guard92": {
+        "n": 65162,
+        "coverage": 0.9841165096221725,
+        "pinball_seconds": 2.2778241486453306,
+        "mean_prediction_seconds": 23.017616212229154
+      },
+      "direct_recent_duration_on_guard_valid": {
+        "n": 65162,
+        "coverage": 0.9555262269420828,
+        "pinball_seconds": 1.330715542187164,
+        "mean_prediction_seconds": 5.712744722384221
+      },
+      "global_residual_on_guard_valid": {
+        "n": 65162,
+        "coverage": 0.8251895276388079,
+        "pinball_seconds": 1.5849931783747189,
+        "mean_prediction_seconds": 7.99423462145118
+      },
+      "model_residual_on_guard_valid": {
+        "n": 65162,
+        "coverage": 0.7971363678217366,
+        "pinball_seconds": 1.446261624260139,
+        "mean_prediction_seconds": 6.295567287659554
+      }
+    },
+    "50": {
+      "direct_recent_duration": {
+        "n": 8244,
+        "coverage": 0.8287239204269772,
+        "pinball_seconds": 1.8785506938379426,
+        "mean_prediction_seconds": 9.19574262493935
+      },
+      "base": {
+        "n": 8244,
+        "coverage": 0.9730713245997089,
+        "pinball_seconds": 2.2613279097726546,
+        "mean_prediction_seconds": 17.034092996533406
+      },
+      "global_residual": {
+        "n": 8244,
+        "coverage": 0.8198689956331878,
+        "pinball_seconds": 2.44228303839885,
+        "mean_prediction_seconds": 13.16413345156227
+      },
+      "model_residual": {
+        "n": 8244,
+        "coverage": 0.7931829209121786,
+        "pinball_seconds": 2.4904375673295394,
+        "mean_prediction_seconds": 12.544003035904032
+      },
+      "guard92": {
+        "n": 8244,
+        "coverage": 0.8346676370693837,
+        "pinball_seconds": 2.4298972263995564,
+        "mean_prediction_seconds": 13.258360178761176
+      },
+      "direct_recent_duration_on_guard_valid": {
+        "n": 8244,
+        "coverage": 0.8287239204269772,
+        "pinball_seconds": 1.8785506938379426,
+        "mean_prediction_seconds": 9.19574262493935
+      },
+      "global_residual_on_guard_valid": {
+        "n": 8244,
+        "coverage": 0.8198689956331878,
+        "pinball_seconds": 2.44228303839885,
+        "mean_prediction_seconds": 13.16413345156227
+      },
+      "model_residual_on_guard_valid": {
+        "n": 8244,
+        "coverage": 0.7931829209121786,
+        "pinball_seconds": 2.4904375673295394,
+        "mean_prediction_seconds": 12.544003035904032
+      }
+    },
+    "60": {
+      "direct_recent_duration": {
+        "n": 761224,
+        "coverage": 0.7709977614999002,
+        "pinball_seconds": 0.20002628243460527,
+        "mean_prediction_seconds": 1.667243347818776
+      },
+      "base": {
+        "n": 761224,
+        "coverage": 0.6442978676447406,
+        "pinball_seconds": 0.6957446655686731,
+        "mean_prediction_seconds": 3.81355298647211
+      },
+      "global_residual": {
+        "n": 761224,
+        "coverage": 0.72727081647452,
+        "pinball_seconds": 0.3090509805335008,
+        "mean_prediction_seconds": 1.698557217674928
+      },
+      "model_residual": {
+        "n": 761224,
+        "coverage": 0.7239603585803915,
+        "pinball_seconds": 0.3070801159149441,
+        "mean_prediction_seconds": 1.6869083034141419
+      },
+      "guard92": {
+        "n": 761224,
+        "coverage": 0.9973884165501876,
+        "pinball_seconds": 0.49601301923098334,
+        "mean_prediction_seconds": 5.117681279377557
+      },
+      "direct_recent_duration_on_guard_valid": {
+        "n": 761224,
+        "coverage": 0.7709977614999002,
+        "pinball_seconds": 0.20002628243460527,
+        "mean_prediction_seconds": 1.667243347818776
+      },
+      "global_residual_on_guard_valid": {
+        "n": 761224,
+        "coverage": 0.72727081647452,
+        "pinball_seconds": 0.3090509805335008,
+        "mean_prediction_seconds": 1.698557217674928
+      },
+      "model_residual_on_guard_valid": {
+        "n": 761224,
+        "coverage": 0.7239603585803915,
+        "pinball_seconds": 0.3070801159149441,
+        "mean_prediction_seconds": 1.6869083034141419
+      }
+    },
+    "70": {
+      "direct_recent_duration": {
+        "n": 1279826,
+        "coverage": 0.8658958327147597,
+        "pinball_seconds": 1.9920458350510146,
+        "mean_prediction_seconds": 9.566295485401925
+      },
+      "base": {
+        "n": 1279826,
+        "coverage": 0.3479011990692485,
+        "pinball_seconds": 3.990101304027593,
+        "mean_prediction_seconds": 1.9334400297553944
+      },
+      "global_residual": {
+        "n": 1279826,
+        "coverage": 0.8215147996680798,
+        "pinball_seconds": 2.0956860181014654,
+        "mean_prediction_seconds": 9.709147092681773
+      },
+      "model_residual": {
+        "n": 1279826,
+        "coverage": 0.8194692090956114,
+        "pinball_seconds": 2.1141844190959453,
+        "mean_prediction_seconds": 9.77827329070036
+      },
+      "guard92": {
+        "n": 1279826,
+        "coverage": 0.8841209664438759,
+        "pinball_seconds": 2.0783281769798805,
+        "mean_prediction_seconds": 10.879273290700361
+      },
+      "direct_recent_duration_on_guard_valid": {
+        "n": 1279826,
+        "coverage": 0.8658958327147597,
+        "pinball_seconds": 1.9920458350510146,
+        "mean_prediction_seconds": 9.566295485401925
+      },
+      "global_residual_on_guard_valid": {
+        "n": 1279826,
+        "coverage": 0.8215147996680798,
+        "pinball_seconds": 2.0956860181014654,
+        "mean_prediction_seconds": 9.709147092681773
+      },
+      "model_residual_on_guard_valid": {
+        "n": 1279826,
+        "coverage": 0.8194692090956114,
+        "pinball_seconds": 2.1141844190959453,
+        "mean_prediction_seconds": 9.77827329070036
+      }
+    },
+    "80": {
+      "direct_recent_duration": {
+        "n": 869548,
+        "coverage": 0.8551373817201581,
+        "pinball_seconds": 1.9974183063844664,
+        "mean_prediction_seconds": 11.766902184583259
+      },
+      "base": {
+        "n": 869548,
+        "coverage": 0.06589630474683399,
+        "pinball_seconds": 5.162210753719638,
+        "mean_prediction_seconds": 1.237472704355511
+      },
+      "global_residual": {
+        "n": 869548,
+        "coverage": 0.8298230804969938,
+        "pinball_seconds": 2.1819821124673364,
+        "mean_prediction_seconds": 11.777376270373066
+      },
+      "model_residual": {
+        "n": 869548,
+        "coverage": 0.8192037702346506,
+        "pinball_seconds": 2.208029428291998,
+        "mean_prediction_seconds": 11.565536759610465
+      },
+      "guard92": {
+        "n": 869548,
+        "coverage": 0.8850517740251257,
+        "pinball_seconds": 2.1188919072588637,
+        "mean_prediction_seconds": 13.702536759610464
+      },
+      "direct_recent_duration_on_guard_valid": {
+        "n": 869548,
+        "coverage": 0.8551373817201581,
+        "pinball_seconds": 1.9974183063844664,
+        "mean_prediction_seconds": 11.766902184583259
+      },
+      "global_residual_on_guard_valid": {
+        "n": 869548,
+        "coverage": 0.8298230804969938,
+        "pinball_seconds": 2.1819821124673364,
+        "mean_prediction_seconds": 11.777376270373066
+      },
+      "model_residual_on_guard_valid": {
+        "n": 869548,
+        "coverage": 0.8192037702346506,
+        "pinball_seconds": 2.208029428291998,
+        "mean_prediction_seconds": 11.565536759610465
+      }
+    },
+    "90": {
+      "direct_recent_duration": {
+        "n": 174925,
+        "coverage": 0.8936801486351293,
+        "pinball_seconds": 1.5438772574531943,
+        "mean_prediction_seconds": 8.417116013148496
+      },
+      "base": {
+        "n": 174925,
+        "coverage": 0.6304816349864227,
+        "pinball_seconds": 3.2272852296873826,
+        "mean_prediction_seconds": 7.647795314627097
+      },
+      "global_residual": {
+        "n": 174925,
+        "coverage": 0.8270515935400886,
+        "pinball_seconds": 1.7668842007749308,
+        "mean_prediction_seconds": 8.853462592762465
+      },
+      "model_residual": {
+        "n": 174925,
+        "coverage": 0.8129769901386309,
+        "pinball_seconds": 1.7950111592247393,
+        "mean_prediction_seconds": 8.489480935616442
+      },
+      "guard92": {
+        "n": 174925,
+        "coverage": 0.9729426897241675,
+        "pinball_seconds": 1.8674483567088298,
+        "mean_prediction_seconds": 13.288552364187838
+      },
+      "direct_recent_duration_on_guard_valid": {
+        "n": 174925,
+        "coverage": 0.8936801486351293,
+        "pinball_seconds": 1.5438772574531943,
+        "mean_prediction_seconds": 8.417116013148496
+      },
+      "global_residual_on_guard_valid": {
+        "n": 174925,
+        "coverage": 0.8270515935400886,
+        "pinball_seconds": 1.7668842007749308,
+        "mean_prediction_seconds": 8.853462592762465
+      },
+      "model_residual_on_guard_valid": {
+        "n": 174925,
+        "coverage": 0.8129769901386309,
+        "pinball_seconds": 1.7950111592247393,
+        "mean_prediction_seconds": 8.489480935616442
+      }
+    },
+    "100": {
+      "direct_recent_duration": {
+        "n": 39847,
+        "coverage": 0.8769041584059025,
+        "pinball_seconds": 5.786246691846313,
+        "mean_prediction_seconds": 8.406721216151782
+      },
+      "base": {
+        "n": 39847,
+        "coverage": 0.8903556102090496,
+        "pinball_seconds": 6.208224140334122,
+        "mean_prediction_seconds": 12.189721902921669
+      },
+      "global_residual": {
+        "n": 39847,
+        "coverage": 0.8244786307626673,
+        "pinball_seconds": 6.033084954690034,
+        "mean_prediction_seconds": 10.215118433909582
+      },
+      "model_residual": {
+        "n": 39847,
+        "coverage": 0.7749893342033277,
+        "pinball_seconds": 6.21068109873718,
+        "mean_prediction_seconds": 9.866504630010457
+      },
+      "guard92": {
+        "n": 39847,
+        "coverage": 0.9083243406028058,
+        "pinball_seconds": 6.0632737883934995,
+        "mean_prediction_seconds": 12.358088736650911
+      },
+      "direct_recent_duration_on_guard_valid": {
+        "n": 39847,
+        "coverage": 0.8769041584059025,
+        "pinball_seconds": 5.786246691846313,
+        "mean_prediction_seconds": 8.406721216151782
+      },
+      "global_residual_on_guard_valid": {
+        "n": 39847,
+        "coverage": 0.8244786307626673,
+        "pinball_seconds": 6.033084954690034,
+        "mean_prediction_seconds": 10.215118433909582
+      },
+      "model_residual_on_guard_valid": {
+        "n": 39847,
+        "coverage": 0.7749893342033277,
+        "pinball_seconds": 6.21068109873718,
+        "mean_prediction_seconds": 9.866504630010457
+      }
+    },
+    "110": {
+      "direct_recent_duration": {
+        "n": 1690691,
+        "coverage": 0.860191483837082,
+        "pinball_seconds": 1.4774341087046656,
+        "mean_prediction_seconds": 2.421679227487461
+      },
+      "base": {
+        "n": 1690691,
+        "coverage": 0.7233793756517306,
+        "pinball_seconds": 1.7594367686552117,
+        "mean_prediction_seconds": 3.613317247739865
+      },
+      "global_residual": {
+        "n": 1690691,
+        "coverage": 0.8118899313949148,
+        "pinball_seconds": 1.5215850984544292,
+        "mean_prediction_seconds": 2.5836197332882676
+      },
+      "model_residual": {
+        "n": 1690691,
+        "coverage": 0.8073237510579994,
+        "pinball_seconds": 1.5224180982672206,
+        "mean_prediction_seconds": 2.7640144182147366
+      },
+      "guard92": {
+        "n": 1690691,
+        "coverage": 0.9842242018204391,
+        "pinball_seconds": 1.6690742188729994,
+        "mean_prediction_seconds": 5.7183341736661975
+      },
+      "direct_recent_duration_on_guard_valid": {
+        "n": 1690691,
+        "coverage": 0.860191483837082,
+        "pinball_seconds": 1.4774341087046656,
+        "mean_prediction_seconds": 2.421679227487461
+      },
+      "global_residual_on_guard_valid": {
+        "n": 1690691,
+        "coverage": 0.8118899313949148,
+        "pinball_seconds": 1.5215850984544292,
+        "mean_prediction_seconds": 2.5836197332882676
+      },
+      "model_residual_on_guard_valid": {
+        "n": 1690691,
+        "coverage": 0.8073237510579994,
+        "pinball_seconds": 1.5224180982672206,
+        "mean_prediction_seconds": 2.7640144182147366
+      }
+    },
+    "120": {
+      "direct_recent_duration": {
+        "n": 99479,
+        "coverage": 0.908774716271776,
+        "pinball_seconds": 4.6829673006363155,
+        "mean_prediction_seconds": 11.07122319283467
+      },
+      "base": {
+        "n": 99479,
+        "coverage": 0.7367585118467214,
+        "pinball_seconds": 5.591380621496087,
+        "mean_prediction_seconds": 16.18641970974635
+      },
+      "global_residual": {
+        "n": 99479,
+        "coverage": 0.8206958252495502,
+        "pinball_seconds": 5.315739901183884,
+        "mean_prediction_seconds": 18.97389206329378
+      },
+      "model_residual": {
+        "n": 99479,
+        "coverage": 0.7865680193809749,
+        "pinball_seconds": 5.872605842836093,
+        "mean_prediction_seconds": 23.953994664772036
+      },
+      "guard92": {
+        "n": 99479,
+        "coverage": 0.8066828174790659,
+        "pinball_seconds": 5.819837777948964,
+        "mean_prediction_seconds": 24.4788924632491
+      },
+      "direct_recent_duration_on_guard_valid": {
+        "n": 99479,
+        "coverage": 0.908774716271776,
+        "pinball_seconds": 4.6829673006363155,
+        "mean_prediction_seconds": 11.07122319283467
+      },
+      "global_residual_on_guard_valid": {
+        "n": 99479,
+        "coverage": 0.8206958252495502,
+        "pinball_seconds": 5.315739901183884,
+        "mean_prediction_seconds": 18.97389206329378
+      },
+      "model_residual_on_guard_valid": {
+        "n": 99479,
+        "coverage": 0.7865680193809749,
+        "pinball_seconds": 5.872605842836093,
+        "mean_prediction_seconds": 23.953994664772036
+      }
+    },
+    "130": {
+      "direct_recent_duration": {
+        "n": 419883,
+        "coverage": 0.8744459766172957,
+        "pinball_seconds": 5.651636389970538,
+        "mean_prediction_seconds": 7.21369820950123
+      },
+      "base": {
+        "n": 419883,
+        "coverage": 0.9410550081808504,
+        "pinball_seconds": 5.948113651444435,
+        "mean_prediction_seconds": 7.645835771376877
+      },
+      "global_residual": {
+        "n": 419883,
+        "coverage": 0.8470693026390685,
+        "pinball_seconds": 5.848007350214343,
+        "mean_prediction_seconds": 9.599749591230392
+      },
+      "model_residual": {
+        "n": 419883,
+        "coverage": 0.7536385135859275,
+        "pinball_seconds": 5.526679649713173,
+        "mean_prediction_seconds": 8.66794543641178
+      },
+      "guard92": {
+        "n": 419883,
+        "coverage": 0.9818806667571681,
+        "pinball_seconds": 6.224701027925957,
+        "mean_prediction_seconds": 17.649106466722714
+      },
+      "direct_recent_duration_on_guard_valid": {
+        "n": 419883,
+        "coverage": 0.8744459766172957,
+        "pinball_seconds": 5.651636389970538,
+        "mean_prediction_seconds": 7.21369820950123
+      },
+      "global_residual_on_guard_valid": {
+        "n": 419883,
+        "coverage": 0.8470693026390685,
+        "pinball_seconds": 5.848007350214343,
+        "mean_prediction_seconds": 9.599749591230392
+      },
+      "model_residual_on_guard_valid": {
+        "n": 419883,
+        "coverage": 0.7536385135859275,
+        "pinball_seconds": 5.526679649713173,
+        "mean_prediction_seconds": 8.66794543641178
+      }
+    },
+    "140": {
+      "direct_recent_duration": {
+        "n": 13075,
+        "coverage": 0.9087571701720841,
+        "pinball_seconds": 3.6007317239005734,
+        "mean_prediction_seconds": 13.297638845124286
+      },
+      "base": {
+        "n": 13075,
+        "coverage": 0.9102103250478012,
+        "pinball_seconds": 3.5572590570439093,
+        "mean_prediction_seconds": 13.365058483109003
+      },
+      "global_residual": {
+        "n": 13075,
+        "coverage": 0.9077629063097514,
+        "pinball_seconds": 3.7649574441488616,
+        "mean_prediction_seconds": 13.77975447068024
+      },
+      "model_residual": {
+        "n": 13075,
+        "coverage": 0.8689101338432123,
+        "pinball_seconds": 3.5603006181964116,
+        "mean_prediction_seconds": 14.131393584431537
+      },
+      "guard92": {
+        "n": 13075,
+        "coverage": 0.9363671128107075,
+        "pinball_seconds": 3.6613229602910673,
+        "mean_prediction_seconds": 16.583117942337147
+      },
+      "direct_recent_duration_on_guard_valid": {
+        "n": 13075,
+        "coverage": 0.9087571701720841,
+        "pinball_seconds": 3.6007317239005734,
+        "mean_prediction_seconds": 13.297638845124286
+      },
+      "global_residual_on_guard_valid": {
+        "n": 13075,
+        "coverage": 0.9077629063097514,
+        "pinball_seconds": 3.7649574441488616,
+        "mean_prediction_seconds": 13.77975447068024
+      },
+      "model_residual_on_guard_valid": {
+        "n": 13075,
+        "coverage": 0.8689101338432123,
+        "pinball_seconds": 3.5603006181964116,
+        "mean_prediction_seconds": 14.131393584431537
+      }
+    },
+    "150": {
+      "direct_recent_duration": {
+        "n": 54521,
+        "coverage": 0.8460042919242127,
+        "pinball_seconds": 2.436232859998899,
+        "mean_prediction_seconds": 5.151870446250069
+      },
+      "base": {
+        "n": 54521,
+        "coverage": 0.9737165495863979,
+        "pinball_seconds": 2.730583419172155,
+        "mean_prediction_seconds": 12.239076552906674
+      },
+      "global_residual": {
+        "n": 54521,
+        "coverage": 0.8094312283340365,
+        "pinball_seconds": 2.427007863720691,
+        "mean_prediction_seconds": 6.5368921841033085
+      },
+      "model_residual": {
+        "n": 54521,
+        "coverage": 0.7810201573705544,
+        "pinball_seconds": 2.459635308034727,
+        "mean_prediction_seconds": 5.976990249432711
+      },
+      "guard92": {
+        "n": 54521,
+        "coverage": 0.9135379028264339,
+        "pinball_seconds": 2.9241381111178675,
+        "mean_prediction_seconds": 12.336489650537896
+      },
+      "direct_recent_duration_on_guard_valid": {
+        "n": 54521,
+        "coverage": 0.8460042919242127,
+        "pinball_seconds": 2.436232859998899,
+        "mean_prediction_seconds": 5.151870446250069
+      },
+      "global_residual_on_guard_valid": {
+        "n": 54521,
+        "coverage": 0.8094312283340365,
+        "pinball_seconds": 2.427007863720691,
+        "mean_prediction_seconds": 6.5368921841033085
+      },
+      "model_residual_on_guard_valid": {
+        "n": 54521,
+        "coverage": 0.7810201573705544,
+        "pinball_seconds": 2.459635308034727,
+        "mean_prediction_seconds": 5.976990249432711
+      }
+    },
+    "160": {
+      "direct_recent_duration": {
+        "n": 761007,
+        "coverage": 0.8032317705356192,
+        "pinball_seconds": 3.9582688911797117,
+        "mean_prediction_seconds": 32.11995455061518
+      },
+      "base": {
+        "n": 761007,
+        "coverage": 0.46955021438698985,
+        "pinball_seconds": 6.262476384850739,
+        "mean_prediction_seconds": 11.015548534001065
+      },
+      "global_residual": {
+        "n": 761007,
+        "coverage": 0.7513373727179907,
+        "pinball_seconds": 4.482824710313222,
+        "mean_prediction_seconds": 32.58662040937303
+      },
+      "model_residual": {
+        "n": 761007,
+        "coverage": 0.7386949134502048,
+        "pinball_seconds": 4.134787509214721,
+        "mean_prediction_seconds": 28.648692826014507
+      },
+      "guard92": {
+        "n": 761007,
+        "coverage": 0.8214260841227479,
+        "pinball_seconds": 3.8653673361436867,
+        "mean_prediction_seconds": 31.035366707345105
+      },
+      "direct_recent_duration_on_guard_valid": {
+        "n": 761007,
+        "coverage": 0.8032317705356192,
+        "pinball_seconds": 3.9582688911797117,
+        "mean_prediction_seconds": 32.11995455061518
+      },
+      "global_residual_on_guard_valid": {
+        "n": 761007,
+        "coverage": 0.7513373727179907,
+        "pinball_seconds": 4.482824710313222,
+        "mean_prediction_seconds": 32.58662040937303
+      },
+      "model_residual_on_guard_valid": {
+        "n": 761007,
+        "coverage": 0.7386949134502048,
+        "pinball_seconds": 4.134787509214721,
+        "mean_prediction_seconds": 28.648692826014507
+      }
+    },
+    "170": {
+      "direct_recent_duration": {
+        "n": 705403,
+        "coverage": 0.8877974717998081,
+        "pinball_seconds": 8.382787824109053,
+        "mean_prediction_seconds": 46.941152105817544
+      },
+      "base": {
+        "n": 705403,
+        "coverage": 0.7081980087978078,
+        "pinball_seconds": 10.974823307635953,
+        "mean_prediction_seconds": 18.474534800737835
+      },
+      "global_residual": {
+        "n": 705403,
+        "coverage": 0.8794887461493642,
+        "pinball_seconds": 8.445938682179348,
+        "mean_prediction_seconds": 48.09176368299551
+      },
+      "model_residual": {
+        "n": 705403,
+        "coverage": 0.8774246778082884,
+        "pinball_seconds": 8.44304942217306,
+        "mean_prediction_seconds": 48.69648564017324
+      },
+      "guard92": {
+        "n": 705403,
+        "coverage": 0.9146076781641133,
+        "pinball_seconds": 8.472007995233495,
+        "mean_prediction_seconds": 57.35949883816415
+      },
+      "direct_recent_duration_on_guard_valid": {
+        "n": 705403,
+        "coverage": 0.8877974717998081,
+        "pinball_seconds": 8.382787824109053,
+        "mean_prediction_seconds": 46.941152105817544
+      },
+      "global_residual_on_guard_valid": {
+        "n": 705403,
+        "coverage": 0.8794887461493642,
+        "pinball_seconds": 8.445938682179348,
+        "mean_prediction_seconds": 48.09176368299551
+      },
+      "model_residual_on_guard_valid": {
+        "n": 705403,
+        "coverage": 0.8774246778082884,
+        "pinball_seconds": 8.44304942217306,
+        "mean_prediction_seconds": 48.69648564017324
+      }
+    },
+    "180": {
+      "direct_recent_duration": {
+        "n": 174291,
+        "coverage": 0.799473294662375,
+        "pinball_seconds": 6.20788571624467,
+        "mean_prediction_seconds": 25.493163730198354
+      },
+      "base": {
+        "n": 174291,
+        "coverage": 0.8062550561991153,
+        "pinball_seconds": 6.711349344176984,
+        "mean_prediction_seconds": 18.790413701446326
+      },
+      "global_residual": {
+        "n": 174291,
+        "coverage": 0.8394466725189482,
+        "pinball_seconds": 7.021261247109242,
+        "mean_prediction_seconds": 36.333652805316575
+      },
+      "model_residual": {
+        "n": 174291,
+        "coverage": 0.8391770085661336,
+        "pinball_seconds": 6.053265190817885,
+        "mean_prediction_seconds": 27.23318606532249
+      },
+      "guard92": {
+        "n": 174291,
+        "coverage": 0.936261769110281,
+        "pinball_seconds": 6.26447200478762,
+        "mean_prediction_seconds": 41.12291405139662
+      },
+      "direct_recent_duration_on_guard_valid": {
+        "n": 174291,
+        "coverage": 0.799473294662375,
+        "pinball_seconds": 6.20788571624467,
+        "mean_prediction_seconds": 25.493163730198354
+      },
+      "global_residual_on_guard_valid": {
+        "n": 174291,
+        "coverage": 0.8394466725189482,
+        "pinball_seconds": 7.021261247109242,
+        "mean_prediction_seconds": 36.333652805316575
+      },
+      "model_residual_on_guard_valid": {
+        "n": 174291,
+        "coverage": 0.8391770085661336,
+        "pinball_seconds": 6.053265190817885,
+        "mean_prediction_seconds": 27.23318606532249
+      }
+    },
+    "190": {
+      "direct_recent_duration": {
+        "n": 2735149,
+        "coverage": 0.7356824070644781,
+        "pinball_seconds": 2.540301347922909,
+        "mean_prediction_seconds": 19.110351458256936
+      },
+      "base": {
+        "n": 2735149,
+        "coverage": 0.13317775375308621,
+        "pinball_seconds": 8.908337549735174,
+        "mean_prediction_seconds": 2.202661795277122
+      },
+      "global_residual": {
+        "n": 2735149,
+        "coverage": 0.6896329962279935,
+        "pinball_seconds": 2.6520742794261607,
+        "mean_prediction_seconds": 17.73550824674277
+      },
+      "model_residual": {
+        "n": 2735149,
+        "coverage": 0.7430063225074758,
+        "pinball_seconds": 3.4614500823243954,
+        "mean_prediction_seconds": 20.9877658941931
+      },
+      "guard92": {
+        "n": 2735149,
+        "coverage": 0.9867243064271819,
+        "pinball_seconds": 3.439330512808471,
+        "mean_prediction_seconds": 43.23768068976729
+      },
+      "direct_recent_duration_on_guard_valid": {
+        "n": 2735149,
+        "coverage": 0.7356824070644781,
+        "pinball_seconds": 2.540301347922909,
+        "mean_prediction_seconds": 19.110351458256936
+      },
+      "global_residual_on_guard_valid": {
+        "n": 2735149,
+        "coverage": 0.6896329962279935,
+        "pinball_seconds": 2.6520742794261607,
+        "mean_prediction_seconds": 17.73550824674277
+      },
+      "model_residual_on_guard_valid": {
+        "n": 2735149,
+        "coverage": 0.7430063225074758,
+        "pinball_seconds": 3.4614500823243954,
+        "mean_prediction_seconds": 20.9877658941931
+      }
+    },
+    "200": {
+      "direct_recent_duration": {
+        "n": 2677000,
+        "coverage": 0.7914927157265595,
+        "pinball_seconds": 4.303201883634666,
+        "mean_prediction_seconds": 24.208391017893174
+      },
+      "base": {
+        "n": 2677000,
+        "coverage": 0.49523533806499814,
+        "pinball_seconds": 6.773150643961323,
+        "mean_prediction_seconds": 15.995979665704661
+      },
+      "global_residual": {
+        "n": 2677000,
+        "coverage": 0.7444781471796788,
+        "pinball_seconds": 5.300374039194931,
+        "mean_prediction_seconds": 24.74372840036165
+      },
+      "model_residual": {
+        "n": 2677000,
+        "coverage": 0.7515128875607022,
+        "pinball_seconds": 5.7259392921289844,
+        "mean_prediction_seconds": 30.50917126934306
+      },
+      "guard92": {
+        "n": 2677000,
+        "coverage": 0.8995438924168846,
+        "pinball_seconds": 5.0569970114037055,
+        "mean_prediction_seconds": 41.505939839740094
+      },
+      "direct_recent_duration_on_guard_valid": {
+        "n": 2677000,
+        "coverage": 0.7914927157265595,
+        "pinball_seconds": 4.303201883634666,
+        "mean_prediction_seconds": 24.208391017893174
+      },
+      "global_residual_on_guard_valid": {
+        "n": 2677000,
+        "coverage": 0.7444781471796788,
+        "pinball_seconds": 5.300374039194931,
+        "mean_prediction_seconds": 24.74372840036165
+      },
+      "model_residual_on_guard_valid": {
+        "n": 2677000,
+        "coverage": 0.7515128875607022,
+        "pinball_seconds": 5.7259392921289844,
+        "mean_prediction_seconds": 30.50917126934306
+      }
+    },
+    "210": {
+      "direct_recent_duration": {
+        "n": 478549,
+        "coverage": 0.8813475736027032,
+        "pinball_seconds": 8.180403511113804,
+        "mean_prediction_seconds": 42.18127292377584
+      },
+      "base": {
+        "n": 478549,
+        "coverage": 0.5983420715538011,
+        "pinball_seconds": 9.75621527314715,
+        "mean_prediction_seconds": 13.703124509531637
+      },
+      "global_residual": {
+        "n": 478549,
+        "coverage": 0.6368480552670678,
+        "pinball_seconds": 8.994686471386741,
+        "mean_prediction_seconds": 40.49735148721208
+      },
+      "model_residual": {
+        "n": 478549,
+        "coverage": 0.6461449088808042,
+        "pinball_seconds": 9.094005785048763,
+        "mean_prediction_seconds": 50.946110932380876
+      },
+      "guard92": {
+        "n": 478549,
+        "coverage": 0.9450693659374484,
+        "pinball_seconds": 8.555193855291316,
+        "mean_prediction_seconds": 64.61525351572014
+      },
+      "direct_recent_duration_on_guard_valid": {
+        "n": 478549,
+        "coverage": 0.8813475736027032,
+        "pinball_seconds": 8.180403511113804,
+        "mean_prediction_seconds": 42.18127292377584
+      },
+      "global_residual_on_guard_valid": {
+        "n": 478549,
+        "coverage": 0.6368480552670678,
+        "pinball_seconds": 8.994686471386741,
+        "mean_prediction_seconds": 40.49735148721208
+      },
+      "model_residual_on_guard_valid": {
+        "n": 478549,
+        "coverage": 0.6461449088808042,
+        "pinball_seconds": 9.094005785048763,
+        "mean_prediction_seconds": 50.946110932380876
+      }
+    },
+    "220": {
+      "direct_recent_duration": {
+        "n": 141202,
+        "coverage": 0.8741519241937084,
+        "pinball_seconds": 42.90597530608631,
+        "mean_prediction_seconds": 187.4532011069249
+      },
+      "base": {
+        "n": 141202,
+        "coverage": 0.8903414965793686,
+        "pinball_seconds": 43.85307282048805,
+        "mean_prediction_seconds": 11.924445164849024
+      },
+      "global_residual": {
+        "n": 141202,
+        "coverage": 0.8575515927536437,
+        "pinball_seconds": 43.051991640393425,
+        "mean_prediction_seconds": 191.01867117083498
+      },
+      "model_residual": {
+        "n": 141202,
+        "coverage": 0.83457741391765,
+        "pinball_seconds": 52.57221627614929,
+        "mean_prediction_seconds": 338.06744225003695
+      },
+      "guard92": {
+        "n": 141202,
+        "coverage": 0.9639311057917027,
+        "pinball_seconds": 53.024566124210914,
+        "mean_prediction_seconds": 347.651628681703
+      },
+      "direct_recent_duration_on_guard_valid": {
+        "n": 141202,
+        "coverage": 0.8741519241937084,
+        "pinball_seconds": 42.90597530608631,
+        "mean_prediction_seconds": 187.4532011069249
+      },
+      "global_residual_on_guard_valid": {
+        "n": 141202,
+        "coverage": 0.8575515927536437,
+        "pinball_seconds": 43.051991640393425,
+        "mean_prediction_seconds": 191.01867117083498
+      },
+      "model_residual_on_guard_valid": {
+        "n": 141202,
+        "coverage": 0.83457741391765,
+        "pinball_seconds": 52.57221627614929,
+        "mean_prediction_seconds": 338.06744225003695
+      }
+    },
+    "230": {
+      "direct_recent_duration": {
+        "n": 5956,
+        "coverage": 0.8472128945601075,
+        "pinball_seconds": 4.315629103425116,
+        "mean_prediction_seconds": 22.95213723975824
+      },
+      "base": {
+        "n": 5956,
+        "coverage": 0.6007387508394896,
+        "pinball_seconds": 5.361213996246004,
+        "mean_prediction_seconds": 14.348626573594627
+      },
+      "global_residual": {
+        "n": 5956,
+        "coverage": 0.8431833445265279,
+        "pinball_seconds": 4.5383230685551625,
+        "mean_prediction_seconds": 25.337556748781466
+      },
+      "model_residual": {
+        "n": 5956,
+        "coverage": 0.8582941571524513,
+        "pinball_seconds": 4.21416353384074,
+        "mean_prediction_seconds": 24.01887589098716
+      },
+      "guard92": {
+        "n": 5956,
+        "coverage": 0.9264607118871726,
+        "pinball_seconds": 96.88172193400814,
+        "mean_prediction_seconds": 972.2657934361051
+      },
+      "direct_recent_duration_on_guard_valid": {
+        "n": 5956,
+        "coverage": 0.8472128945601075,
+        "pinball_seconds": 4.315629103425116,
+        "mean_prediction_seconds": 22.95213723975824
+      },
+      "global_residual_on_guard_valid": {
+        "n": 5956,
+        "coverage": 0.8431833445265279,
+        "pinball_seconds": 4.5383230685551625,
+        "mean_prediction_seconds": 25.337556748781466
+      },
+      "model_residual_on_guard_valid": {
+        "n": 5956,
+        "coverage": 0.8582941571524513,
+        "pinball_seconds": 4.21416353384074,
+        "mean_prediction_seconds": 24.01887589098716
+      }
+    },
+    "240": {
+      "direct_recent_duration": {
+        "n": 90274,
+        "coverage": 0.8754680195848196,
+        "pinball_seconds": 0.13457157099497088,
+        "mean_prediction_seconds": 2.8101577419855115
+      },
+      "base": {
+        "n": 90274,
+        "coverage": 0.9981168442740989,
+        "pinball_seconds": 1.451611237165607,
+        "mean_prediction_seconds": 16.37710411676599
+      },
+      "global_residual": {
+        "n": 90274,
+        "coverage": 0.7508917296231473,
+        "pinball_seconds": 0.5036414162818864,
+        "mean_prediction_seconds": 4.735995712499268
+      },
+      "model_residual": {
+        "n": 90274,
+        "coverage": 0.7422513680572479,
+        "pinball_seconds": 0.4439665639942807,
+        "mean_prediction_seconds": 3.8460254011299173
+      },
+      "guard92": {
+        "n": 90274,
+        "coverage": 0.9998670713605247,
+        "pinball_seconds": 2.0325694786920674,
+        "mean_prediction_seconds": 22.234395782794188
+      },
+      "direct_recent_duration_on_guard_valid": {
+        "n": 90274,
+        "coverage": 0.8754680195848196,
+        "pinball_seconds": 0.13457157099497088,
+        "mean_prediction_seconds": 2.8101577419855115
+      },
+      "global_residual_on_guard_valid": {
+        "n": 90274,
+        "coverage": 0.7508917296231473,
+        "pinball_seconds": 0.5036414162818864,
+        "mean_prediction_seconds": 4.735995712499268
+      },
+      "model_residual_on_guard_valid": {
+        "n": 90274,
+        "coverage": 0.7422513680572479,
+        "pinball_seconds": 0.4439665639942807,
+        "mean_prediction_seconds": 3.8460254011299173
+      }
+    },
+    "250": {
+      "direct_recent_duration": {
+        "n": 2554,
+        "coverage": 0.7133907595927956,
+        "pinball_seconds": 7.4141356930305395,
+        "mean_prediction_seconds": 17.347380422866106
+      },
+      "base": {
+        "n": 2554,
+        "coverage": 0.6499608457321848,
+        "pinball_seconds": 6.962277845213206,
+        "mean_prediction_seconds": 13.84254202384826
+      },
+      "global_residual": {
+        "n": 2554,
+        "coverage": 0.6131558339859045,
+        "pinball_seconds": 8.05380714753102,
+        "mean_prediction_seconds": 17.572244647696277
+      },
+      "model_residual": {
+        "n": 2554,
+        "coverage": 0.793657008613939,
+        "pinball_seconds": 5.846533201384879,
+        "mean_prediction_seconds": 20.577982522125108
+      },
+      "guard92": {
+        "n": 2554,
+        "coverage": 0.8406421299921691,
+        "pinball_seconds": 5.693239564816199,
+        "mean_prediction_seconds": 22.37500131617366
+      },
+      "direct_recent_duration_on_guard_valid": {
+        "n": 2554,
+        "coverage": 0.7133907595927956,
+        "pinball_seconds": 7.4141356930305395,
+        "mean_prediction_seconds": 17.347380422866106
+      },
+      "global_residual_on_guard_valid": {
+        "n": 2554,
+        "coverage": 0.6131558339859045,
+        "pinball_seconds": 8.05380714753102,
+        "mean_prediction_seconds": 17.572244647696277
+      },
+      "model_residual_on_guard_valid": {
+        "n": 2554,
+        "coverage": 0.793657008613939,
+        "pinball_seconds": 5.846533201384879,
+        "mean_prediction_seconds": 20.577982522125108
+      }
+    },
+    "260": {
+      "direct_recent_duration": {
+        "n": 54218,
+        "coverage": 0.7709985613633848,
+        "pinball_seconds": 102.89666676564978,
+        "mean_prediction_seconds": 166.21076273562284
+      },
+      "base": {
+        "n": 54218,
+        "coverage": 0.30925154007894057,
+        "pinball_seconds": 110.64784752700676,
+        "mean_prediction_seconds": 16.369026865606887
+      },
+      "global_residual": {
+        "n": 54218,
+        "coverage": 0.7700579143457892,
+        "pinball_seconds": 102.90202826511604,
+        "mean_prediction_seconds": 165.57034973310044
+      },
+      "model_residual": {
+        "n": 54218,
+        "coverage": 0.7761628979305766,
+        "pinball_seconds": 97.88098362731104,
+        "mean_prediction_seconds": 130.7558101915457
+      },
+      "guard92": {
+        "n": 54218,
+        "coverage": 0.8261278542181564,
+        "pinball_seconds": 97.09949969787063,
+        "mean_prediction_seconds": 138.9565082879421
+      },
+      "direct_recent_duration_on_guard_valid": {
+        "n": 54218,
+        "coverage": 0.7709985613633848,
+        "pinball_seconds": 102.89666676564978,
+        "mean_prediction_seconds": 166.21076273562284
+      },
+      "global_residual_on_guard_valid": {
+        "n": 54218,
+        "coverage": 0.7700579143457892,
+        "pinball_seconds": 102.90202826511604,
+        "mean_prediction_seconds": 165.57034973310044
+      },
+      "model_residual_on_guard_valid": {
+        "n": 54218,
+        "coverage": 0.7761628979305766,
+        "pinball_seconds": 97.88098362731104,
+        "mean_prediction_seconds": 130.7558101915457
+      }
+    },
+    "270": {
+      "direct_recent_duration": {
+        "n": 550403,
+        "coverage": 0.8587307845342412,
+        "pinball_seconds": 5.208849768914777,
+        "mean_prediction_seconds": 42.89331749027532
+      },
+      "base": {
+        "n": 550403,
+        "coverage": 0.43679449421605626,
+        "pinball_seconds": 9.54041874777142,
+        "mean_prediction_seconds": 10.652289536957467
+      },
+      "global_residual": {
+        "n": 550403,
+        "coverage": 0.8504332280165624,
+        "pinball_seconds": 5.239208348716466,
+        "mean_prediction_seconds": 42.37631122557149
+      },
+      "model_residual": {
+        "n": 550403,
+        "coverage": 0.8614615109292646,
+        "pinball_seconds": 4.354585479717481,
+        "mean_prediction_seconds": 37.53828200195366
+      },
+      "guard92": {
+        "n": 550403,
+        "coverage": 0.998266724563638,
+        "pinball_seconds": 16.964306722468095,
+        "mean_prediction_seconds": 184.43824239347046
+      },
+      "direct_recent_duration_on_guard_valid": {
+        "n": 550403,
+        "coverage": 0.8587307845342412,
+        "pinball_seconds": 5.208849768914777,
+        "mean_prediction_seconds": 42.89331749027532
+      },
+      "global_residual_on_guard_valid": {
+        "n": 550403,
+        "coverage": 0.8504332280165624,
+        "pinball_seconds": 5.239208348716466,
+        "mean_prediction_seconds": 42.37631122557149
+      },
+      "model_residual_on_guard_valid": {
+        "n": 550403,
+        "coverage": 0.8614615109292646,
+        "pinball_seconds": 4.354585479717481,
+        "mean_prediction_seconds": 37.53828200195366
+      }
+    }
+  },
+  "protocol_sha256": "1a531ab51dfb9d1803518492f81b0cdb0125b9970ef4a9d8debe960f2dfa7776",
+  "script_sha256": "d1f9816892b8b567b3c8f9a083f8991fe86a54c9851ff59e9622fd9d55e7d8d2",
+  "compact_sha256": "d5c2bf4cc038f936a9713f8fc7c0430703ddd1c03ed0518fb65aaf68e160997b",
+  "source_predictions_sha256": "b8be2beba63734b63b660f8234df7843a1e10dc15e8ef56f4807eb47ba60cf4f",
+  "direct_predictions_file": "/home/researcher/ai-mcmp/research/artifacts/swissai_tail_baselines_v1/direct_recent_p90_test_predictions.parquet",
+  "direct_predictions_sha256": "d3b1482d9a3c558281baec1e7ca5df534d166337acf4c346549eb321fc319998"
+}

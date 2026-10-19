@@ -1,0 +1,39 @@
+{
+  "version": "alibaba_gpu_sm_hour_v2",
+  "split_rule": "workload SHA256 bucket: train<70 days109-120; validation70-84 day121; test85-99 day122; target within split period",
+  "base_script_sha256": "3f3d1e9f15296bdfb11e4f73c8bcad34edd93d5a4e659eff256eef489a81dabd",
+  "v1_model_sha256": {
+    "one_gpu_pod": "2245eee0c2db77488344ff269aad0fcafca55b041112cc1c89a3a0c738f19e41",
+    "one_gpu_pod_and_server": "15472dcd11a5578a61bd3ea9fbdf1dfa91d4ce50272d043a7cda9cf179d70389"
+  },
+  "scope": "Next-hour source GPU SM measurement, conditional on valid same-server observability; combined previously inspected days109-122. Workload and time-disjoint exploratory evaluation, not independent confirmation.",
+  "frozen_before_fit": true,
+  "models": [
+    "direct_hgb",
+    "residual_hgb"
+  ],
+  "residual_alphas": [
+    0,
+    0.25,
+    0.5,
+    1
+  ],
+  "selection": "validation only, (row MAE + workload macro MAE)/2; ties persistence",
+  "hgb_parameters": {
+    "loss": "absolute_error",
+    "max_iter": 150,
+    "learning_rate": 0.05,
+    "max_leaf_nodes": 15,
+    "min_samples_leaf": 50,
+    "l2_regularization": 1,
+    "early_stopping": false,
+    "random_state": 42
+  },
+  "new_data_usage": "Days116-120 included in training; day121 validation; day122 seen-period evaluation",
+  "primary_cohort": "one_gpu_pod_and_server",
+  "secondary_cohort": "one_gpu_pod",
+  "paired_comparison": "v1 selected route versus v2 validation-selected route on identical day122 rows",
+  "test_driven_retuning": false,
+  "independent_confirmation": false,
+  "retention": "Keep both raw periods, v1 model and prior confirmation unchanged"
+}

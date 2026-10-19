@@ -1,0 +1,39 @@
+{
+  "research_scope": "observed per-GPU PyTorch reserved peak only; not minimum VRAM or OOM feasibility",
+  "exploratory_after_pilot": true,
+  "snapshot_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "script_sha256": "b1e03cb00d72f0f45200e4d0c5c11baaba9be0acffe40754cbd4667bab516700",
+  "pandas_version": "2.3.0+4.g1dfc98e16a",
+  "numpy_version": "2.0.2",
+  "sklearn_version": "1.6.1",
+  "campaign_rows": {
+    "khu-hf-local-exhaustive": 575,
+    "khu-hf-local-novel-matrix": 18,
+    "khu-hf-local-space-filling": 44
+  },
+  "model_count": 9,
+  "folds": [
+    "bert4",
+    "bert4_plus_distilbert",
+    "loomo:FacebookAI/roberta-base",
+    "loomo:Qwen/Qwen2.5-0.5B-Instruct",
+    "loomo:albert/albert-base-v2",
+    "loomo:distilbert/distilbert-base-uncased",
+    "loomo:google-bert/bert-base-uncased",
+    "loomo:google/bert_uncased_L-2_H-128_A-2",
+    "loomo:google/bert_uncased_L-4_H-256_A-4",
+    "loomo:google/bert_uncased_L-4_H-512_A-8",
+    "loomo:google/electra-small-discriminator"
+  ],
+  "methods": [
+    "parameter_plus_median",
+    "direct_log_ridge",
+    "direct_log_ridge_floor",
+    "direct_log_extra_trees",
+    "direct_log_extra_trees_floor",
+    "decomposed_overhead_ridge"
+  ],
+  "metric_definition": "Per-model mean absolute log error and mean absolute MiB error; macro average across held models.",
+  "static_metadata_assumption": "model_parameter_bytes from registration is known before an execution; dataset stores it in result_json and values are constant per model across campaigns.",
+  "no_target_outcomes_in_predictors": true
+}

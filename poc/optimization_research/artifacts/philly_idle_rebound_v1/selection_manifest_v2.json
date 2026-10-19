@@ -1,0 +1,16 @@
+{
+  "development_eligibility_sha256": "f801c104c9a3df0784617d9820ef5b99b59721abcf898eac7cc4a1dc1609a65f",
+  "development_source_sha256": "15f1af4669acb9823d0e6d96291e799cf33f8a9c1813d4faf51b0b9eb618ad58",
+  "freeze_manifest_sha256": "6ff43a1045c39f30e4c422dcadb224ea6ed37f09ab3575f93681e6fc2b14d388",
+  "kind": "philly_idle_rebound_selection_freeze_v1",
+  "protocol_sha256": "828e906af43963a9bfefdb564812edce0f7b4711ee5cc67da2ddd7ad45f96fb2",
+  "selected_baseline": "train_beta",
+  "selected_c": "0.1",
+  "selected_model_id": "l2_logistic",
+  "selected_model_path": "artifacts/philly_idle_rebound_v1/selected_model_v2.joblib",
+  "selected_model_sha256": "642280bef32c0faa828e8b1226a71671dc240ae3335ad902013d36196fb5ed02",
+  "selection_code_path": "scripts/select_philly_idle_rebound_v2.py",
+  "selection_code_sha256": "c5ee213bc464fd35f95f4a90af4f501f13c9e12f05a2349ba10ce331d076ee06",
+  "validation_metrics_path": "artifacts/philly_idle_rebound_v1/validation_metrics_v2.json",
+  "validation_metrics_sha256": "c18b88744f3be56a0b2e16dc2342886f50465a51d5c3aad8820b464317df4912"
+}

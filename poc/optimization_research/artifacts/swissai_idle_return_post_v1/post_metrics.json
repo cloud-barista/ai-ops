@@ -1,0 +1,1436 @@
+{
+  "acceptance_rule": "both baseline relative Brier gains >=5%; at least 4/5 fixed supported weeks beat both; equal-model Brier no worse than both",
+  "by_cohort": {
+    "existing_model": {
+      "episodes": 353,
+      "metrics": {
+        "blend": {
+          "brier": 0.2078834739478521,
+          "log_loss": 0.6054999051599799,
+          "observed_rate": 0.29461756373937675,
+          "predicted_mean": 0.368185466430397
+        },
+        "empirical": {
+          "brier": 0.2111928382883461,
+          "log_loss": 0.6131416888487187,
+          "observed_rate": 0.29461756373937675,
+          "predicted_mean": 0.37874656449801036
+        },
+        "logistic": {
+          "brier": 0.20859889535626416,
+          "log_loss": 0.6085247296631763,
+          "observed_rate": 0.29461756373937675,
+          "predicted_mean": 0.36359216729215654
+        }
+      },
+      "positive": 104
+    },
+    "global_request_in_target_window": {
+      "episodes": 802,
+      "metrics": {
+        "blend": {
+          "brier": 0.2910731537409703,
+          "log_loss": 0.78548053193091,
+          "observed_rate": 0.5523690773067331,
+          "predicted_mean": 0.32025952964940546
+        },
+        "empirical": {
+          "brier": 0.27109795420603844,
+          "log_loss": 0.7362836285052519,
+          "observed_rate": 0.5523690773067331,
+          "predicted_mean": 0.3829610960324544
+        },
+        "logistic": {
+          "brier": 0.3001878597392987,
+          "log_loss": 0.8084703044113403,
+          "observed_rate": 0.5523690773067331,
+          "predicted_mean": 0.30822144847937677
+        }
+      },
+      "positive": 443
+    },
+    "new_model": {
+      "episodes": 913,
+      "metrics": {
+        "blend": {
+          "brier": 0.22896180681955686,
+          "log_loss": 0.6509070192301764,
+          "observed_rate": 0.37130339539978097,
+          "predicted_mean": 0.29821035380163
+        },
+        "empirical": {
+          "brier": 0.23056664781269343,
+          "log_loss": 0.6536948937393859,
+          "observed_rate": 0.37130339539978097,
+          "predicted_mean": 0.3833261354413413
+        },
+        "logistic": {
+          "brier": 0.23349433166514133,
+          "log_loss": 0.6616576675389028,
+          "observed_rate": 0.37130339539978097,
+          "predicted_mean": 0.2831382521545816
+        }
+      },
+      "positive": 339
+    },
+    "no_global_request_in_target_window": {
+      "episodes": 464,
+      "metrics": {
+        "blend": {
+          "brier": 0.10556966946032116,
+          "log_loss": 0.3837590268750731,
+          "observed_rate": 0.0,
+          "predicted_mean": 0.3133348704568862
+        },
+        "empirical": {
+          "brier": 0.14577125451623366,
+          "log_loss": 0.4800926381173383,
+          "observed_rate": 0.0,
+          "predicted_mean": 0.3804730601459351
+        },
+        "logistic": {
+          "brier": 0.09927817103473656,
+          "log_loss": 0.3674773618453118,
+          "observed_rate": 0.0,
+          "predicted_mean": 0.3009906413594916
+        }
+      },
+      "positive": 0
+    }
+  },
+  "by_model": [
+    {
+      "brier": {
+        "blend": 0.06810597537999892,
+        "empirical": 0.14306511902223437,
+        "logistic": 0.06810597537999892
+      },
+      "episodes": 1,
+      "first_seen_after_post_start": true,
+      "model_alias": "01f5c30db8",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.031563428539028084,
+        "empirical": 0.14306511902223437,
+        "logistic": 0.03156342853902809
+      },
+      "episodes": 1,
+      "first_seen_after_post_start": true,
+      "model_alias": "01f6977721",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.023630801285887744,
+        "empirical": 0.14165564500383082,
+        "logistic": 0.0239113127308545
+      },
+      "episodes": 2,
+      "first_seen_after_post_start": true,
+      "model_alias": "03320014fd",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.1311312532652484,
+        "empirical": 0.17226234626840126,
+        "logistic": 0.13394108535664356
+      },
+      "episodes": 20,
+      "first_seen_after_post_start": true,
+      "model_alias": "053e1f2dd2",
+      "positive": 3
+    },
+    {
+      "brier": {
+        "blend": 0.25945572240513465,
+        "empirical": 0.24423942174492028,
+        "logistic": 0.2653292281795255
+      },
+      "episodes": 88,
+      "first_seen_after_post_start": true,
+      "model_alias": "06769d5e04",
+      "positive": 36
+    },
+    {
+      "brier": {
+        "blend": 0.14872072550683504,
+        "empirical": 0.17038814361483867,
+        "logistic": 0.14873762926821213
+      },
+      "episodes": 8,
+      "first_seen_after_post_start": true,
+      "model_alias": "070ba92a5a",
+      "positive": 1
+    },
+    {
+      "brier": {
+        "blend": 0.032519353817783564,
+        "empirical": 0.14165564500383082,
+        "logistic": 0.032729119368846454
+      },
+      "episodes": 2,
+      "first_seen_after_post_start": true,
+      "model_alias": "15602bf149",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.13940727918845758,
+        "empirical": 0.20415137937514627,
+        "logistic": 0.1384402846325875
+      },
+      "episodes": 4,
+      "first_seen_after_post_start": true,
+      "model_alias": "168acb5fba",
+      "positive": 1
+    },
+    {
+      "brier": {
+        "blend": 0.13594787773765382,
+        "empirical": 0.14306511902223437,
+        "logistic": 0.13594787773765382
+      },
+      "episodes": 1,
+      "first_seen_after_post_start": true,
+      "model_alias": "1a5a426c0a",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.27787728004656614,
+        "empirical": 0.26717302712454494,
+        "logistic": 0.2757189467289014
+      },
+      "episodes": 2,
+      "first_seen_after_post_start": true,
+      "model_alias": "1d599efcce",
+      "positive": 1
+    },
+    {
+      "brier": {
+        "blend": 0.06743612230504337,
+        "empirical": 0.14306511902223437,
+        "logistic": 0.06743612230504337
+      },
+      "episodes": 1,
+      "first_seen_after_post_start": true,
+      "model_alias": "20d996a956",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.28124462190309263,
+        "empirical": 0.22555278182940197,
+        "logistic": 0.2807809196781182
+      },
+      "episodes": 6,
+      "first_seen_after_post_start": true,
+      "model_alias": "25cd450e2f",
+      "positive": 2
+    },
+    {
+      "brier": {
+        "blend": 0.33708535715172916,
+        "empirical": 0.2676057221641973,
+        "logistic": 0.3347478401910486
+      },
+      "episodes": 4,
+      "first_seen_after_post_start": true,
+      "model_alias": "27c421de72",
+      "positive": 2
+    },
+    {
+      "brier": {
+        "blend": 0.021613602646413394,
+        "empirical": 0.14306511902223437,
+        "logistic": 0.021613602646413394
+      },
+      "episodes": 1,
+      "first_seen_after_post_start": true,
+      "model_alias": "27d7177ed8",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.3592969004584167,
+        "empirical": 0.29545072371658015,
+        "logistic": 0.3856994311728168
+      },
+      "episodes": 18,
+      "first_seen_after_post_start": true,
+      "model_alias": "2944e506a4",
+      "positive": 12
+    },
+    {
+      "brier": {
+        "blend": 0.1825532082995457,
+        "empirical": 0.19948206861011641,
+        "logistic": 0.18176426898454182
+      },
+      "episodes": 25,
+      "first_seen_after_post_start": true,
+      "model_alias": "298e8d39a1",
+      "positive": 6
+    },
+    {
+      "brier": {
+        "blend": 0.11205287687912005,
+        "empirical": 0.14306511902223437,
+        "logistic": 0.11205287687912002
+      },
+      "episodes": 1,
+      "first_seen_after_post_start": true,
+      "model_alias": "30a7b544b2",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.21800843235526118,
+        "empirical": 0.21645615639692828,
+        "logistic": 0.21700087743460714
+      },
+      "episodes": 30,
+      "first_seen_after_post_start": true,
+      "model_alias": "327b0115b9",
+      "positive": 9
+    },
+    {
+      "brier": {
+        "blend": 0.22646274310024755,
+        "empirical": 0.14165564500383082,
+        "logistic": 0.22956061648174042
+      },
+      "episodes": 2,
+      "first_seen_after_post_start": true,
+      "model_alias": "37901d269c",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.05124807715981642,
+        "empirical": 0.14165564500383082,
+        "logistic": 0.051614842914027806
+      },
+      "episodes": 2,
+      "first_seen_after_post_start": true,
+      "model_alias": "3800a65435",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.10039328430853327,
+        "empirical": 0.14306511902223437,
+        "logistic": 0.10039328430853327
+      },
+      "episodes": 1,
+      "first_seen_after_post_start": true,
+      "model_alias": "3ab9380658",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.019823925221191734,
+        "empirical": 0.14306511902223437,
+        "logistic": 0.019823925221191734
+      },
+      "episodes": 1,
+      "first_seen_after_post_start": true,
+      "model_alias": "3c57eae0a7",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.09645053495354036,
+        "empirical": 0.10392930638013707,
+        "logistic": 0.1320056960209716
+      },
+      "episodes": 19,
+      "first_seen_after_post_start": false,
+      "model_alias": "3fc8f4de3b",
+      "positive": 1
+    },
+    {
+      "brier": {
+        "blend": 0.08795711292966901,
+        "empirical": 0.13891840300650543,
+        "logistic": 0.09040217454939778
+      },
+      "episodes": 4,
+      "first_seen_after_post_start": true,
+      "model_alias": "421dfe2656",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.4594808876575737,
+        "empirical": 0.31373096483818397,
+        "logistic": 0.47115296749599894
+      },
+      "episodes": 7,
+      "first_seen_after_post_start": true,
+      "model_alias": "43903f0b39",
+      "positive": 5
+    },
+    {
+      "brier": {
+        "blend": 0.2837699027278483,
+        "empirical": 0.257784361098631,
+        "logistic": 0.29156267100318733
+      },
+      "episodes": 32,
+      "first_seen_after_post_start": true,
+      "model_alias": "43ae64c27c",
+      "positive": 15
+    },
+    {
+      "brier": {
+        "blend": 0.23581561241365223,
+        "empirical": 0.23698062992845317,
+        "logistic": 0.23162541908899809
+      },
+      "episodes": 193,
+      "first_seen_after_post_start": false,
+      "model_alias": "45363f1dab",
+      "positive": 73
+    },
+    {
+      "brier": {
+        "blend": 0.0441701181921455,
+        "empirical": 0.14165564500383082,
+        "logistic": 0.04464896295755887
+      },
+      "episodes": 2,
+      "first_seen_after_post_start": true,
+      "model_alias": "4875b3ea11",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.14086101762596082,
+        "empirical": 0.13227174465813088,
+        "logistic": 0.1523552766642392
+      },
+      "episodes": 1,
+      "first_seen_after_post_start": false,
+      "model_alias": "4ae42ccdfe",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.07175377285078839,
+        "empirical": 0.14306511902223437,
+        "logistic": 0.07175377285078839
+      },
+      "episodes": 1,
+      "first_seen_after_post_start": true,
+      "model_alias": "4dfa9432a8",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.2264764582867129,
+        "empirical": 0.27690502704102693,
+        "logistic": 0.2241509469648895
+      },
+      "episodes": 23,
+      "first_seen_after_post_start": true,
+      "model_alias": "50b9ff86e7",
+      "positive": 13
+    },
+    {
+      "brier": {
+        "blend": 0.10478928250950342,
+        "empirical": 0.14165564500383082,
+        "logistic": 0.10517189454962762
+      },
+      "episodes": 2,
+      "first_seen_after_post_start": true,
+      "model_alias": "527d8eb84f",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.34754291749530897,
+        "empirical": 0.26482561946906186,
+        "logistic": 0.34754291749530897
+      },
+      "episodes": 2,
+      "first_seen_after_post_start": true,
+      "model_alias": "5314f33876",
+      "positive": 1
+    },
+    {
+      "brier": {
+        "blend": 0.029418650206755808,
+        "empirical": 0.14306511902223437,
+        "logistic": 0.029418650206755808
+      },
+      "episodes": 1,
+      "first_seen_after_post_start": true,
+      "model_alias": "5376ef9f10",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.02294724762790152,
+        "empirical": 0.14165564500383082,
+        "logistic": 0.023089856550616128
+      },
+      "episodes": 2,
+      "first_seen_after_post_start": true,
+      "model_alias": "549d813bfb",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.060683942276897614,
+        "empirical": 0.14165564500383082,
+        "logistic": 0.06156933102558268
+      },
+      "episodes": 2,
+      "first_seen_after_post_start": true,
+      "model_alias": "54ab5c7796",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.08930347024011498,
+        "empirical": 0.14165564500383082,
+        "logistic": 0.09036406974869354
+      },
+      "episodes": 2,
+      "first_seen_after_post_start": true,
+      "model_alias": "556592a6db",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.23859930065240817,
+        "empirical": 0.24933472949975072,
+        "logistic": 0.2383858162426147
+      },
+      "episodes": 51,
+      "first_seen_after_post_start": true,
+      "model_alias": "572db18bd4",
+      "positive": 22
+    },
+    {
+      "brier": {
+        "blend": 0.23190654834408234,
+        "empirical": 0.23719581906247722,
+        "logistic": 0.22789949744123383
+      },
+      "episodes": 16,
+      "first_seen_after_post_start": true,
+      "model_alias": "5855417320",
+      "positive": 6
+    },
+    {
+      "brier": {
+        "blend": 0.03914892153131669,
+        "empirical": 0.14165564500383082,
+        "logistic": 0.039591489612328404
+      },
+      "episodes": 2,
+      "first_seen_after_post_start": true,
+      "model_alias": "5984bd92f5",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.03548497114262514,
+        "empirical": 0.14306511902223437,
+        "logistic": 0.03548497114262513
+      },
+      "episodes": 1,
+      "first_seen_after_post_start": true,
+      "model_alias": "5b5502fd20",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.11205288376320209,
+        "empirical": 0.14306511902223437,
+        "logistic": 0.11205288376320209
+      },
+      "episodes": 1,
+      "first_seen_after_post_start": true,
+      "model_alias": "5e51253146",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.12804801907175425,
+        "empirical": 0.1921269468819768,
+        "logistic": 0.12617526944390836
+      },
+      "episodes": 5,
+      "first_seen_after_post_start": true,
+      "model_alias": "600d11b72e",
+      "positive": 1
+    },
+    {
+      "brier": {
+        "blend": 0.02573846969617767,
+        "empirical": 0.14165564500383082,
+        "logistic": 0.026083142536711255
+      },
+      "episodes": 2,
+      "first_seen_after_post_start": true,
+      "model_alias": "609b65f307",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.2625183696942053,
+        "empirical": 0.22484270729351585,
+        "logistic": 0.26173237022188306
+      },
+      "episodes": 3,
+      "first_seen_after_post_start": true,
+      "model_alias": "65ebb56499",
+      "positive": 1
+    },
+    {
+      "brier": {
+        "blend": 0.21063067844638578,
+        "empirical": 0.21577049342277713,
+        "logistic": 0.21012038401949373
+      },
+      "episodes": 89,
+      "first_seen_after_post_start": true,
+      "model_alias": "692b782c62",
+      "positive": 27
+    },
+    {
+      "brier": {
+        "blend": 0.03276854337757395,
+        "empirical": 0.14306511902223437,
+        "logistic": 0.03276854337757396
+      },
+      "episodes": 1,
+      "first_seen_after_post_start": true,
+      "model_alias": "707f8a82ca",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.26784106889939224,
+        "empirical": 0.22484270729351585,
+        "logistic": 0.26703676483977457
+      },
+      "episodes": 3,
+      "first_seen_after_post_start": true,
+      "model_alias": "70ce169e49",
+      "positive": 1
+    },
+    {
+      "brier": {
+        "blend": 0.19648528934090656,
+        "empirical": 0.21723732534514614,
+        "logistic": 0.19299603504272983
+      },
+      "episodes": 20,
+      "first_seen_after_post_start": true,
+      "model_alias": "724045fd6c",
+      "positive": 6
+    },
+    {
+      "brier": {
+        "blend": 0.29901986932934627,
+        "empirical": 0.2668704885174058,
+        "logistic": 0.29854295935659614
+      },
+      "episodes": 4,
+      "first_seen_after_post_start": true,
+      "model_alias": "73e37fb207",
+      "positive": 2
+    },
+    {
+      "brier": {
+        "blend": 0.3781352439721915,
+        "empirical": 0.3242400214217274,
+        "logistic": 0.3806018774224058
+      },
+      "episodes": 4,
+      "first_seen_after_post_start": true,
+      "model_alias": "76307979e6",
+      "positive": 3
+    },
+    {
+      "brier": {
+        "blend": 0.02331591550844913,
+        "empirical": 0.14306511902223437,
+        "logistic": 0.02331591550844913
+      },
+      "episodes": 1,
+      "first_seen_after_post_start": true,
+      "model_alias": "84f56f6a46",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.028996990195017225,
+        "empirical": 0.14306511902223437,
+        "logistic": 0.028996990195017225
+      },
+      "episodes": 1,
+      "first_seen_after_post_start": true,
+      "model_alias": "88bf6081d0",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.1780782917957011,
+        "empirical": 0.17992873039569918,
+        "logistic": 0.188086757294881
+      },
+      "episodes": 74,
+      "first_seen_after_post_start": false,
+      "model_alias": "8cf5adca4b",
+      "positive": 16
+    },
+    {
+      "brier": {
+        "blend": 0.2532277332529835,
+        "empirical": 0.2590915620972876,
+        "logistic": 0.2544803325632477
+      },
+      "episodes": 48,
+      "first_seen_after_post_start": true,
+      "model_alias": "8d95bdb968",
+      "positive": 23
+    },
+    {
+      "brier": {
+        "blend": 0.25745115856429907,
+        "empirical": 0.22556309767634822,
+        "logistic": 0.25711251991669876
+      },
+      "episodes": 6,
+      "first_seen_after_post_start": true,
+      "model_alias": "8f0917e069",
+      "positive": 2
+    },
+    {
+      "brier": {
+        "blend": 0.0232174599336027,
+        "empirical": 0.14306511902223437,
+        "logistic": 0.0232174599336027
+      },
+      "episodes": 1,
+      "first_seen_after_post_start": true,
+      "model_alias": "94b9c0e0c9",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.21027424719523036,
+        "empirical": 0.2097884044966512,
+        "logistic": 0.19898046694537352
+      },
+      "episodes": 25,
+      "first_seen_after_post_start": false,
+      "model_alias": "99668f5da8",
+      "positive": 4
+    },
+    {
+      "brier": {
+        "blend": 0.13347641577361768,
+        "empirical": 0.17234258507246375,
+        "logistic": 0.13390332918297507
+      },
+      "episodes": 14,
+      "first_seen_after_post_start": true,
+      "model_alias": "9c372a9158",
+      "positive": 2
+    },
+    {
+      "brier": {
+        "blend": 0.11730475004830146,
+        "empirical": 0.14306511902223437,
+        "logistic": 0.11730475004830146
+      },
+      "episodes": 1,
+      "first_seen_after_post_start": true,
+      "model_alias": "a6ea1280a9",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.06301290050425733,
+        "empirical": 0.14306511902223437,
+        "logistic": 0.06301290050425733
+      },
+      "episodes": 1,
+      "first_seen_after_post_start": true,
+      "model_alias": "b5390bf0be",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.18550013116229122,
+        "empirical": 0.2022455484110633,
+        "logistic": 0.18385706427395998
+      },
+      "episodes": 36,
+      "first_seen_after_post_start": false,
+      "model_alias": "b65a1b099f",
+      "positive": 9
+    },
+    {
+      "brier": {
+        "blend": 0.15967665460420832,
+        "empirical": 0.20411960825231873,
+        "logistic": 0.157898258296545
+      },
+      "episodes": 8,
+      "first_seen_after_post_start": true,
+      "model_alias": "b69b5b1bb7",
+      "positive": 2
+    },
+    {
+      "brier": {
+        "blend": 0.04903007569556899,
+        "empirical": 0.14165564500383082,
+        "logistic": 0.049328219699962185
+      },
+      "episodes": 2,
+      "first_seen_after_post_start": true,
+      "model_alias": "b6b7006b0b",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.24019526164853622,
+        "empirical": 0.24483644457115417,
+        "logistic": 0.2383040851416776
+      },
+      "episodes": 73,
+      "first_seen_after_post_start": true,
+      "model_alias": "bbfd97e95d",
+      "positive": 30
+    },
+    {
+      "brier": {
+        "blend": 0.300742953587448,
+        "empirical": 0.2759231116379822,
+        "logistic": 0.3481527015878591
+      },
+      "episodes": 65,
+      "first_seen_after_post_start": true,
+      "model_alias": "bcba91f437",
+      "positive": 45
+    },
+    {
+      "brier": {
+        "blend": 0.0322157307829578,
+        "empirical": 0.13500529765663297,
+        "logistic": 0.03397209994827557
+      },
+      "episodes": 7,
+      "first_seen_after_post_start": true,
+      "model_alias": "bd6e8e4bd5",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.25706011651848704,
+        "empirical": 0.23097437210425809,
+        "logistic": 0.25694546322592776
+      },
+      "episodes": 20,
+      "first_seen_after_post_start": true,
+      "model_alias": "c1bcf79065",
+      "positive": 7
+    },
+    {
+      "brier": {
+        "blend": 0.25996309878214047,
+        "empirical": 0.26717302712454494,
+        "logistic": 0.2581965889355459
+      },
+      "episodes": 2,
+      "first_seen_after_post_start": true,
+      "model_alias": "c2c1fd154c",
+      "positive": 1
+    },
+    {
+      "brier": {
+        "blend": 0.3163766574736778,
+        "empirical": 0.26482561946906186,
+        "logistic": 0.3163766574736778
+      },
+      "episodes": 2,
+      "first_seen_after_post_start": true,
+      "model_alias": "c34d888dfd",
+      "positive": 1
+    },
+    {
+      "brier": {
+        "blend": 0.22944528801150654,
+        "empirical": 0.2263996883080005,
+        "logistic": 0.2273882465081842
+      },
+      "episodes": 3,
+      "first_seen_after_post_start": true,
+      "model_alias": "c4e2104230",
+      "positive": 1
+    },
+    {
+      "brier": {
+        "blend": 0.16857129867917028,
+        "empirical": 0.19136979780118366,
+        "logistic": 0.1676244887483247
+      },
+      "episodes": 19,
+      "first_seen_after_post_start": true,
+      "model_alias": "c6191494d5",
+      "positive": 4
+    },
+    {
+      "brier": {
+        "blend": 0.3737417181357729,
+        "empirical": 0.28873036306199473,
+        "logistic": 0.3770990380668494
+      },
+      "episodes": 5,
+      "first_seen_after_post_start": true,
+      "model_alias": "c71a35241a",
+      "positive": 3
+    },
+    {
+      "brier": {
+        "blend": 0.3749259647645498,
+        "empirical": 0.26717302712454494,
+        "logistic": 0.37359663049756825
+      },
+      "episodes": 2,
+      "first_seen_after_post_start": true,
+      "model_alias": "cd3cd746b2",
+      "positive": 1
+    },
+    {
+      "brier": {
+        "blend": 0.24343830699289104,
+        "empirical": 0.23973059322745569,
+        "logistic": 0.24537888788137993
+      },
+      "episodes": 36,
+      "first_seen_after_post_start": true,
+      "model_alias": "cf8beda854",
+      "positive": 14
+    },
+    {
+      "brier": {
+        "blend": 0.2467897249144616,
+        "empirical": 0.22640764573050456,
+        "logistic": 0.24499254702176257
+      },
+      "episodes": 3,
+      "first_seen_after_post_start": true,
+      "model_alias": "d0da2580ed",
+      "positive": 1
+    },
+    {
+      "brier": {
+        "blend": 0.09220983112349138,
+        "empirical": 0.14165564500383082,
+        "logistic": 0.09307590910285149
+      },
+      "episodes": 2,
+      "first_seen_after_post_start": true,
+      "model_alias": "d2caf9792c",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.16016657603426368,
+        "empirical": 0.14306511902223437,
+        "logistic": 0.16016657603426368
+      },
+      "episodes": 1,
+      "first_seen_after_post_start": true,
+      "model_alias": "d62d1b51fc",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.24012265536522429,
+        "empirical": 0.22640764573050456,
+        "logistic": 0.23814358107662648
+      },
+      "episodes": 3,
+      "first_seen_after_post_start": true,
+      "model_alias": "d6ee8c23a2",
+      "positive": 1
+    },
+    {
+      "brier": {
+        "blend": 0.15687548628171089,
+        "empirical": 0.17332117384353202,
+        "logistic": 0.1518909296407661
+      },
+      "episodes": 5,
+      "first_seen_after_post_start": false,
+      "model_alias": "d7b21b6c08",
+      "positive": 1
+    },
+    {
+      "brier": {
+        "blend": 0.13567559226006334,
+        "empirical": 0.17591817955473554,
+        "logistic": 0.134789192743619
+      },
+      "episodes": 7,
+      "first_seen_after_post_start": true,
+      "model_alias": "df0d0ebe51",
+      "positive": 1
+    },
+    {
+      "brier": {
+        "blend": 0.2097913442483669,
+        "empirical": 0.22640764573050456,
+        "logistic": 0.20763087124386848
+      },
+      "episodes": 3,
+      "first_seen_after_post_start": true,
+      "model_alias": "e0afb8edf2",
+      "positive": 1
+    },
+    {
+      "brier": {
+        "blend": 0.03791738452794968,
+        "empirical": 0.14306511902223437,
+        "logistic": 0.03791738452794968
+      },
+      "episodes": 1,
+      "first_seen_after_post_start": true,
+      "model_alias": "e3e15a222e",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.06723218834614275,
+        "empirical": 0.14306511902223437,
+        "logistic": 0.06723218834614275
+      },
+      "episodes": 1,
+      "first_seen_after_post_start": true,
+      "model_alias": "e7ebd147e0",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.02561696504137151,
+        "empirical": 0.14165564500383082,
+        "logistic": 0.02577892859949206
+      },
+      "episodes": 2,
+      "first_seen_after_post_start": true,
+      "model_alias": "e8ae933453",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.3537571326372008,
+        "empirical": 0.2670352035132664,
+        "logistic": 0.3538920843903954
+      },
+      "episodes": 6,
+      "first_seen_after_post_start": true,
+      "model_alias": "e99f7e2274",
+      "positive": 3
+    },
+    {
+      "brier": {
+        "blend": 0.03839779037367633,
+        "empirical": 0.14306511902223437,
+        "logistic": 0.03839779037367631
+      },
+      "episodes": 1,
+      "first_seen_after_post_start": true,
+      "model_alias": "e9aadec21c",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.2832152863191141,
+        "empirical": 0.23647894266806602,
+        "logistic": 0.28240373319771833
+      },
+      "episodes": 8,
+      "first_seen_after_post_start": true,
+      "model_alias": "ed70778674",
+      "positive": 3
+    },
+    {
+      "brier": {
+        "blend": 0.4038923822510679,
+        "empirical": 0.29536433479275753,
+        "logistic": 0.4098881801485366
+      },
+      "episodes": 8,
+      "first_seen_after_post_start": true,
+      "model_alias": "f4523fbeb7",
+      "positive": 5
+    },
+    {
+      "brier": {
+        "blend": 0.16186658853677674,
+        "empirical": 0.19327182408705562,
+        "logistic": 0.16008482423701664
+      },
+      "episodes": 27,
+      "first_seen_after_post_start": true,
+      "model_alias": "f6c74d3c34",
+      "positive": 6
+    },
+    {
+      "brier": {
+        "blend": 0.24678822872423478,
+        "empirical": 0.22640764573050456,
+        "logistic": 0.24499105099583116
+      },
+      "episodes": 3,
+      "first_seen_after_post_start": true,
+      "model_alias": "f71ba0adb6",
+      "positive": 1
+    },
+    {
+      "brier": {
+        "blend": 0.19725750786924526,
+        "empirical": 0.20417116615723951,
+        "logistic": 0.1963847620424313
+      },
+      "episodes": 4,
+      "first_seen_after_post_start": true,
+      "model_alias": "f8dc507973",
+      "positive": 1
+    },
+    {
+      "brier": {
+        "blend": 0.09230357306056676,
+        "empirical": 0.14165564500383082,
+        "logistic": 0.09331160307800818
+      },
+      "episodes": 2,
+      "first_seen_after_post_start": true,
+      "model_alias": "f9968c67a7",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.04157190859418896,
+        "empirical": 0.14306511902223437,
+        "logistic": 0.04157190859418896
+      },
+      "episodes": 1,
+      "first_seen_after_post_start": true,
+      "model_alias": "f9fdc41ffb",
+      "positive": 0
+    },
+    {
+      "brier": {
+        "blend": 0.32106345043177353,
+        "empirical": 0.25335610878903597,
+        "logistic": 0.32417219921160045
+      },
+      "episodes": 9,
+      "first_seen_after_post_start": true,
+      "model_alias": "fceeb2e559",
+      "positive": 4
+    },
+    {
+      "brier": {
+        "blend": 0.06034188717262233,
+        "empirical": 0.14306511902223437,
+        "logistic": 0.06034188717262233
+      },
+      "episodes": 1,
+      "first_seen_after_post_start": true,
+      "model_alias": "ffb370070c",
+      "positive": 0
+    }
+  ],
+  "by_week": {
+    "0": {
+      "episodes": 203,
+      "metrics": {
+        "blend": {
+          "brier": 0.1900022827024332,
+          "log_loss": 0.5682755216873275,
+          "observed_rate": 0.20689655172413793,
+          "predicted_mean": 0.3493129694488395
+        },
+        "empirical": {
+          "brier": 0.19792733978268962,
+          "log_loss": 0.587172699858646,
+          "observed_rate": 0.20689655172413793,
+          "predicted_mean": 0.3834366296699484
+        },
+        "logistic": {
+          "brier": 0.18820041228889015,
+          "log_loss": 0.5654921861918419,
+          "observed_rate": 0.20689655172413793,
+          "predicted_mean": 0.34143039472733283
+        }
+      },
+      "positive": 42,
+      "sufficient_support": true
+    },
+    "1": {
+      "episodes": 372,
+      "metrics": {
+        "blend": {
+          "brier": 0.22771440228122758,
+          "log_loss": 0.6501272544147312,
+          "observed_rate": 0.3467741935483871,
+          "predicted_mean": 0.2949801529501454
+        },
+        "empirical": {
+          "brier": 0.2246328225301302,
+          "log_loss": 0.6411869416212578,
+          "observed_rate": 0.3467741935483871,
+          "predicted_mean": 0.3752003102530803
+        },
+        "logistic": {
+          "brier": 0.2317393915848125,
+          "log_loss": 0.6604519597773072,
+          "observed_rate": 0.3467741935483871,
+          "predicted_mean": 0.2888250082977338
+        }
+      },
+      "positive": 129,
+      "sufficient_support": true
+    },
+    "2": {
+      "episodes": 388,
+      "metrics": {
+        "blend": {
+          "brier": 0.22580826378349422,
+          "log_loss": 0.6413900919834931,
+          "observed_rate": 0.3917525773195876,
+          "predicted_mean": 0.3150282991689905
+        },
+        "empirical": {
+          "brier": 0.2368667344343757,
+          "log_loss": 0.6664909120211351,
+          "observed_rate": 0.3917525773195876,
+          "predicted_mean": 0.3854129755681159
+        },
+        "logistic": {
+          "brier": 0.2241357575931227,
+          "log_loss": 0.6379204188798115,
+          "observed_rate": 0.3917525773195876,
+          "predicted_mean": 0.3033523401647712
+        }
+      },
+      "positive": 152,
+      "sufficient_support": true
+    },
+    "3": {
+      "episodes": 24,
+      "metrics": {
+        "blend": {
+          "brier": 0.2397148957536089,
+          "log_loss": 0.6873085409742151,
+          "observed_rate": 0.2916666666666667,
+          "predicted_mean": 0.2640686385595336
+        },
+        "empirical": {
+          "brier": 0.21445527880252402,
+          "log_loss": 0.6208007251140009,
+          "observed_rate": 0.2916666666666667,
+          "predicted_mean": 0.38267945892165905
+        },
+        "logistic": {
+          "brier": 0.2360375612204396,
+          "log_loss": 0.6836529053130599,
+          "observed_rate": 0.2916666666666667,
+          "predicted_mean": 0.24952247732838853
+        }
+      },
+      "positive": 7,
+      "sufficient_support": false
+    },
+    "4": {
+      "episodes": 14,
+      "metrics": {
+        "blend": {
+          "brier": 0.2103995922701706,
+          "log_loss": 0.6130212333313988,
+          "observed_rate": 0.2857142857142857,
+          "predicted_mean": 0.2880503200662488
+        },
+        "empirical": {
+          "brier": 0.21072185622861397,
+          "log_loss": 0.6131392379499419,
+          "observed_rate": 0.2857142857142857,
+          "predicted_mean": 0.35404537600514896
+        },
+        "logistic": {
+          "brier": 0.20988403074237613,
+          "log_loss": 0.6110757830740782,
+          "observed_rate": 0.2857142857142857,
+          "predicted_mean": 0.3030673227490741
+        }
+      },
+      "positive": 4,
+      "sufficient_support": false
+    },
+    "5": {
+      "episodes": 35,
+      "metrics": {
+        "blend": {
+          "brier": 0.23518277730310239,
+          "log_loss": 0.6611812850312387,
+          "observed_rate": 0.4,
+          "predicted_mean": 0.31453857790107903
+        },
+        "empirical": {
+          "brier": 0.23824807081028418,
+          "log_loss": 0.6686819277019377,
+          "observed_rate": 0.4,
+          "predicted_mean": 0.35772895790047105
+        },
+        "logistic": {
+          "brier": 0.2351968001690888,
+          "log_loss": 0.6615887382880584,
+          "observed_rate": 0.4,
+          "predicted_mean": 0.32324717569350303
+        }
+      },
+      "positive": 14,
+      "sufficient_support": false
+    },
+    "6": {
+      "episodes": 11,
+      "metrics": {
+        "blend": {
+          "brier": 0.13059741437793007,
+          "log_loss": 0.4421918316417258,
+          "observed_rate": 0.09090909090909091,
+          "predicted_mean": 0.3055548869247991
+        },
+        "empirical": {
+          "brier": 0.15408746017902433,
+          "log_loss": 0.4959094739061021,
+          "observed_rate": 0.09090909090909091,
+          "predicted_mean": 0.34572953791759525
+        },
+        "logistic": {
+          "brier": 0.1330719939398711,
+          "log_loss": 0.44330428817361506,
+          "observed_rate": 0.09090909090909091,
+          "predicted_mean": 0.316367223868292
+        }
+      },
+      "positive": 1,
+      "sufficient_support": false
+    },
+    "7": {
+      "episodes": 99,
+      "metrics": {
+        "blend": {
+          "brier": 0.24615771639551787,
+          "log_loss": 0.6909472800464311,
+          "observed_rate": 0.3838383838383838,
+          "predicted_mean": 0.3030516446529852
+        },
+        "empirical": {
+          "brier": 0.23039926312879805,
+          "log_loss": 0.6524435641981567,
+          "observed_rate": 0.3838383838383838,
+          "predicted_mean": 0.3742160388750759
+        },
+        "logistic": {
+          "brier": 0.2545705237966846,
+          "log_loss": 0.7123460411230789,
+          "observed_rate": 0.3838383838383838,
+          "predicted_mean": 0.2926667769008272
+        }
+      },
+      "positive": 38,
+      "sufficient_support": true
+    },
+    "8": {
+      "episodes": 120,
+      "metrics": {
+        "blend": {
+          "brier": 0.23995695056541472,
+          "log_loss": 0.6705500978787609,
+          "observed_rate": 0.4666666666666667,
+          "predicted_mean": 0.37182478573307604
+        },
+        "empirical": {
+          "brier": 0.23726053485501378,
+          "log_loss": 0.666770238807133,
+          "observed_rate": 0.4666666666666667,
+          "predicted_mean": 0.4100837049811118
+        },
+        "logistic": {
+          "brier": 0.26614903221580394,
+          "log_loss": 0.728246440857694,
+          "observed_rate": 0.4666666666666667,
+          "predicted_mean": 0.32000078809627913
+        }
+      },
+      "positive": 56,
+      "sufficient_support": true
+    }
+  },
+  "exploratory_acceptance": false,
+  "freeze_manifest_sha256": "b37b26f4060307c3c9a41478b1f9cbb59541e3ee3d2b13c7440594f4879f9974",
+  "model_balanced": {
+    "episodes": 1061,
+    "equal_model_brier": {
+      "blend": 0.2167921327955115,
+      "empirical": 0.2217721409340667,
+      "logistic": 0.22117832325145317
+    },
+    "minimum_episodes_per_model": 10,
+    "models": 24,
+    "positive": 389
+  },
+  "original_model_sha256": "385201d2ba936f259847de7a52d8cdc57ec6a9109bed952bbf0151b9d46d59ae",
+  "overall": {
+    "blend": {
+      "brier": 0.22308451495248596,
+      "log_loss": 0.6382461098567329,
+      "observed_rate": 0.3499210110584518,
+      "predicted_mean": 0.3177215818884821
+    },
+    "empirical": {
+      "brier": 0.22516462983315583,
+      "log_loss": 0.6423874045400135,
+      "observed_rate": 0.3499210110584518,
+      "predicted_mean": 0.38204920926203967
+    },
+    "logistic": {
+      "brier": 0.2265527131682743,
+      "log_loss": 0.6468425592686567,
+      "observed_rate": 0.3499210110584518,
+      "predicted_mean": 0.3055712948430208
+    }
+  },
+  "post_episodes": 1266,
+  "post_evaluator_sha256": "27d496896f4d6c7d5d23da76c0d995537045af17aff131e7287a7eb61315e8af",
+  "post_models": 96,
+  "post_positive": 443,
+  "protocol_sha256": "971d3fb3fa65d380be4a18ab83afbf886aaf4c4db8b8706179f13c3b8c05bddd",
+  "relative_brier_gain_vs_baseline": {
+    "empirical": 0.00923819554701466,
+    "logistic": 0.015308570651335781
+  },
+  "scope": "observed_request_return_risk_only",
+  "source_hashes": {
+    "audit_sha256": "c03b7c7c0f517eea8301113feed83fda94a8701d8c68a592da0c3de0cd6f8aab",
+    "compact_sha256": "d5c2bf4cc038f936a9713f8fc7c0430703ddd1c03ed0518fb65aaf68e160997b",
+    "raw_sha256": "79c92fd40752e40a6cac1fc897491ea2f54f37939dc4dcc48c96ea06383c81b7"
+  },
+  "supported_week_wins_against_both": 0
+}

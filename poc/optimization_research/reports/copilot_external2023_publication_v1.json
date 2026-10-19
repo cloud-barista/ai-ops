@@ -1,0 +1,160 @@
+{
+  "files": {
+    "scripts/verify_copilot_external2023.py": {
+      "source": "scripts/verify_copilot_external2023.py",
+      "sha256": "b574bb227cd9f1ddf80ec35d3e254a783f8875ffa7a8d5cd5eab004e9a41ac34"
+    },
+    "scripts/copilot_external2023.py": {
+      "source": "scripts/copilot_external2023.py",
+      "sha256": "e3ec3ebd2d76052279b177a779572542f5ab0f506c6e25394fc21ed4744a7d40"
+    },
+    "tests/test_copilot_external2023.py": {
+      "source": "tests/test_copilot_external2023.py",
+      "sha256": "0d265cc45f733a2bda7a8ba2e847a22e1208abb6936b1269cf2eba547e8865c9"
+    },
+    "reports/copilot_external2023_tests_initial_failure.log": {
+      "source": "reports/copilot_external2023_tests_initial_failure.log",
+      "sha256": "7168b000bd4c3a3099a0cbe8327b2e78ab8ce9019d28be38556af0c8e6714920"
+    },
+    "reports/copilot_external2023_evaluate.log": {
+      "source": "reports/copilot_external2023_evaluate.log",
+      "sha256": "8bc6dadbc8b7885529fd2b0e4d37ad41c47d378d085b37aa20f7da306edadae6"
+    },
+    "reports/copilot_external2023_protocol_v1.json": {
+      "source": "reports/copilot_external2023_protocol_v1.json",
+      "sha256": "109a2f43bedeb927fbf84d63bda5ebed17070a0992834ac38704f91891520e4b"
+    },
+    "reports/copilot_external2023_verify.log": {
+      "source": "reports/copilot_external2023_verify.log",
+      "sha256": "d9082700faa02119151024a882af0db1ad54c864503e34f5f283341261addd8d"
+    },
+    "reports/azure2023_data_directory_metadata.json": {
+      "source": "reports/azure2023_data_directory_metadata.json",
+      "sha256": "ac443adec15698dea2d8c595588bef25a5dde1cf975563a2927fe4d030f12d91"
+    },
+    "reports/copilot_external2023_train.log": {
+      "source": "reports/copilot_external2023_train.log",
+      "sha256": "4ea47cd802f4b9bc12160a8c2b6d27cd7411cd774afcabb76d15cd49b93683d8"
+    },
+    "reports/copilot_external2023_tests.log": {
+      "source": "reports/copilot_external2023_tests.log",
+      "sha256": "0072de450d37520d022fa3436533261b5aa939b8b1575ce98a97a302c41bccd8"
+    },
+    "reports/copilot_external2023_findings_2026_10_06.txt": {
+      "source": "reports/copilot_external2023_findings_2026_10_06.txt",
+      "sha256": "0bc584d2334beaa422124859dd156d111b329362c8230336a929f05247068e91"
+    },
+    "artifacts/copilot_external2023_v1/verification.json": {
+      "source": "artifacts/copilot_external2023_v1/verification.json",
+      "sha256": "c76de221dfec99de86c752b12c21f239b3a0f3afe37943b9381c66f82187a395"
+    },
+    "artifacts/copilot_external2023_v1/no_calendar_delay1_q90.joblib": {
+      "source": "artifacts/copilot_external2023_v1/no_calendar_delay1_q90.joblib",
+      "sha256": "300b40071cfb7ceef554a665c41f415b2b3d7fb2617eb2f806840799bb380aff"
+    },
+    "artifacts/copilot_external2023_v1/DONOR_SELECTION.json": {
+      "source": "artifacts/copilot_external2023_v1/DONOR_SELECTION.json",
+      "sha256": "de8912ded99102182db6af610970e7b37a73cf72ff6976a494cdcdb1b4f77d62"
+    },
+    "artifacts/copilot_external2023_v1/release_manifest.json": {
+      "source": "artifacts/copilot_external2023_v1/release_manifest.json",
+      "sha256": "968e9b9df35be6d1bac191a1b61131385d59a40f5d889770b1a772ae7bc0d2fd"
+    },
+    "artifacts/copilot_external2023_v1/results.json": {
+      "source": "artifacts/copilot_external2023_v1/results.json",
+      "sha256": "240f925fa173a1a4c945bfdcabfc4fd7fe108ce66f8860b38b6d108266764831"
+    },
+    "artifacts/copilot_external2023_v1/initial_verifier.py": {
+      "source": "artifacts/copilot_external2023_v1/initial_verifier.py",
+      "sha256": "07a8a432e5b6b9eb92600b1990f75b1658e97fc918b81bc8d655b49a36acd1f2"
+    },
+    "artifacts/copilot_external2023_v1/VERIFIER_FREEZE.json": {
+      "source": "artifacts/copilot_external2023_v1/VERIFIER_FREEZE.json",
+      "sha256": "02e9e55c5cce2a329ac3d0738959c66254dbe19fc1bc0acac187840db94b6ffd"
+    },
+    "artifacts/copilot_external2023_v1/FREEZE.json": {
+      "source": "artifacts/copilot_external2023_v1/FREEZE.json",
+      "sha256": "38f8c9007f0aac674869830f5defccbf1578f1322f3d16fe7042c6016267700e"
+    },
+    "artifacts/copilot_external2023_v1/no_calendar_delay6_q90.joblib": {
+      "source": "artifacts/copilot_external2023_v1/no_calendar_delay6_q90.joblib",
+      "sha256": "cafaf728aa8c883bdcb90844432972149ac0ef4df7c56811f1a9260a93cc221c"
+    },
+    "artifacts/copilot_external2023_v1/no_calendar_delay2_q90.joblib": {
+      "source": "artifacts/copilot_external2023_v1/no_calendar_delay2_q90.joblib",
+      "sha256": "b2c5c55bfbd8b9fac57ac8440e00999db9d56862664afb46b48474e1124f27f6"
+    },
+    "artifacts/copilot_external2023_v1/source_audit.json": {
+      "source": "artifacts/copilot_external2023_v1/source_audit.json",
+      "sha256": "ea6ecbe6f4d5f72674ce2f3b8e8aeaac52676809186c89d36d1616341b968f72"
+    },
+    "artifacts/copilot_external2023_v1/VERIFIER_FAILURE_HANDLING.json": {
+      "source": "artifacts/copilot_external2023_v1/VERIFIER_FAILURE_HANDLING.json",
+      "sha256": "baa763aaa158bc577ee7840f62df683d6093df2ba434fe74907655f0c2fd6649"
+    },
+    "artifacts/copilot_external2023_v1/source_snapshot/reports/copilot_external2023_tests_initial_failure.log": {
+      "source": "artifacts/copilot_external2023_v1/source_snapshot/reports/copilot_external2023_tests_initial_failure.log",
+      "sha256": "7168b000bd4c3a3099a0cbe8327b2e78ab8ce9019d28be38556af0c8e6714920"
+    },
+    "artifacts/copilot_external2023_v1/source_snapshot/reports/copilot_external2023_evaluate.log": {
+      "source": "artifacts/copilot_external2023_v1/source_snapshot/reports/copilot_external2023_evaluate.log",
+      "sha256": "8bc6dadbc8b7885529fd2b0e4d37ad41c47d378d085b37aa20f7da306edadae6"
+    },
+    "artifacts/copilot_external2023_v1/source_snapshot/reports/copilot_external2023_protocol_v1.json": {
+      "source": "artifacts/copilot_external2023_v1/source_snapshot/reports/copilot_external2023_protocol_v1.json",
+      "sha256": "109a2f43bedeb927fbf84d63bda5ebed17070a0992834ac38704f91891520e4b"
+    },
+    "artifacts/copilot_external2023_v1/source_snapshot/reports/copilot_external2023_verify.log": {
+      "source": "artifacts/copilot_external2023_v1/source_snapshot/reports/copilot_external2023_verify.log",
+      "sha256": "d9082700faa02119151024a882af0db1ad54c864503e34f5f283341261addd8d"
+    },
+    "artifacts/copilot_external2023_v1/source_snapshot/reports/azure2023_data_directory_metadata.json": {
+      "source": "artifacts/copilot_external2023_v1/source_snapshot/reports/azure2023_data_directory_metadata.json",
+      "sha256": "ac443adec15698dea2d8c595588bef25a5dde1cf975563a2927fe4d030f12d91"
+    },
+    "artifacts/copilot_external2023_v1/source_snapshot/reports/copilot_external2023_train.log": {
+      "source": "artifacts/copilot_external2023_v1/source_snapshot/reports/copilot_external2023_train.log",
+      "sha256": "4ea47cd802f4b9bc12160a8c2b6d27cd7411cd774afcabb76d15cd49b93683d8"
+    },
+    "artifacts/copilot_external2023_v1/source_snapshot/reports/copilot_external2023_tests.log": {
+      "source": "artifacts/copilot_external2023_v1/source_snapshot/reports/copilot_external2023_tests.log",
+      "sha256": "0072de450d37520d022fa3436533261b5aa939b8b1575ce98a97a302c41bccd8"
+    },
+    "artifacts/copilot_external2023_v1/source_snapshot/reports/copilot_external2023_findings_2026_10_06.txt": {
+      "source": "artifacts/copilot_external2023_v1/source_snapshot/reports/copilot_external2023_findings_2026_10_06.txt",
+      "sha256": "0bc584d2334beaa422124859dd156d111b329362c8230336a929f05247068e91"
+    },
+    "artifacts/copilot_external2023_v1/source_snapshot/scripts/verify_copilot_external2023.py": {
+      "source": "artifacts/copilot_external2023_v1/source_snapshot/scripts/verify_copilot_external2023.py",
+      "sha256": "b574bb227cd9f1ddf80ec35d3e254a783f8875ffa7a8d5cd5eab004e9a41ac34"
+    },
+    "artifacts/copilot_external2023_v1/source_snapshot/scripts/copilot_external2023.py": {
+      "source": "artifacts/copilot_external2023_v1/source_snapshot/scripts/copilot_external2023.py",
+      "sha256": "e3ec3ebd2d76052279b177a779572542f5ab0f506c6e25394fc21ed4744a7d40"
+    },
+    "artifacts/copilot_external2023_v1/source_snapshot/tests/test_copilot_external2023.py": {
+      "source": "artifacts/copilot_external2023_v1/source_snapshot/tests/test_copilot_external2023.py",
+      "sha256": "0d265cc45f733a2bda7a8ba2e847a22e1208abb6936b1269cf2eba547e8865c9"
+    },
+    "data/external/azure_llm_2023_samples/SOURCE.txt": {
+      "source": "data/SOURCE.txt",
+      "sha256": "246bc2e53ab10b24e08e4c98989b861228984f0e9c28c755f5cbf39119525f01"
+    },
+    "data/external/azure_llm_2023_samples/AzureLLMInferenceTrace_conv.csv": {
+      "source": "data/AzureLLMInferenceTrace_conv.csv",
+      "sha256": "2f1e5b666d4e3055fdbba98598ce2ec307767b9064e03e2fa46676dbcc7d0bf8"
+    },
+    "data/external/azure_llm_2023_samples/official_directory_metadata.json": {
+      "source": "data/official_directory_metadata.json",
+      "sha256": "ac443adec15698dea2d8c595588bef25a5dde1cf975563a2927fe4d030f12d91"
+    },
+    "data/external/azure_llm_2023_samples/AzureLLMInferenceTrace_code.csv": {
+      "source": "data/AzureLLMInferenceTrace_code.csv",
+      "sha256": "54e9a6d2a4bd06ba1e060304b900abbc74cbea53de96506e60fe5bb4f2277fb6"
+    }
+  },
+  "verified_source_support_failure": true,
+  "new_models": 3,
+  "external_scored_conditions": 0,
+  "operational_adoption": false
+}

@@ -1,0 +1,464 @@
+{
+  "snapshot_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "script_sha256": "072e0f4d01277f7f41908bf6d6bcbc7ce32897618afca5b544103bd2fda40df3",
+  "input_schema": {
+    "collector_version": "separate v1/v2 model; same host",
+    "gpu_count": [
+      1,
+      2
+    ],
+    "observed_log_values": "exactly k prior runs of log batch p95 latency (ms) or log benchmark requests/s"
+  },
+  "output_schema": "Normal distribution in log outcome for one future run; 90% interval",
+  "fitted_models": [
+    {
+      "collector_version": "khu-hf-direct-collector/v1",
+      "method": "nested_donor_crps",
+      "objective": "inner_crps",
+      "target": "log_latency",
+      "k": 2,
+      "historical_model_ids": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/electra-small-discriminator"
+      ],
+      "training_round_rank_end_exclusive": 43,
+      "gpu_log_variance": {
+        "1": 0.022996533980604698,
+        "2": 0.014339005128803034
+      },
+      "pseudo_count": 1.0,
+      "scale_multiplier": 0.75,
+      "inner_crps": 0.08527946784650334,
+      "inner_nll": -0.2235485965999881,
+      "inner_origin_round_rank": 23,
+      "uses_outer_test_rounds": false
+    },
+    {
+      "collector_version": "khu-hf-direct-collector/v1",
+      "method": "nested_donor_nll",
+      "objective": "inner_nll",
+      "target": "log_latency",
+      "k": 2,
+      "historical_model_ids": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/electra-small-discriminator"
+      ],
+      "training_round_rank_end_exclusive": 43,
+      "gpu_log_variance": {
+        "1": 0.022996533980604698,
+        "2": 0.014339005128803034
+      },
+      "pseudo_count": 2.0,
+      "scale_multiplier": 1.0,
+      "inner_crps": 0.08643445989126919,
+      "inner_nll": -0.42433188677665656,
+      "inner_origin_round_rank": 23,
+      "uses_outer_test_rounds": false
+    },
+    {
+      "collector_version": "khu-hf-direct-collector/v1",
+      "method": "nested_donor_crps",
+      "objective": "inner_crps",
+      "target": "log_rps",
+      "k": 2,
+      "historical_model_ids": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/electra-small-discriminator"
+      ],
+      "training_round_rank_end_exclusive": 43,
+      "gpu_log_variance": {
+        "1": 0.006503391158889871,
+        "2": 0.002686007313770711
+      },
+      "pseudo_count": 0.0,
+      "scale_multiplier": 0.75,
+      "inner_crps": 0.03557091569872743,
+      "inner_nll": 105.51609208057317,
+      "inner_origin_round_rank": 23,
+      "uses_outer_test_rounds": false
+    },
+    {
+      "collector_version": "khu-hf-direct-collector/v1",
+      "method": "nested_donor_nll",
+      "objective": "inner_nll",
+      "target": "log_rps",
+      "k": 2,
+      "historical_model_ids": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/electra-small-discriminator"
+      ],
+      "training_round_rank_end_exclusive": 43,
+      "gpu_log_variance": {
+        "1": 0.006503391158889871,
+        "2": 0.002686007313770711
+      },
+      "pseudo_count": 2.0,
+      "scale_multiplier": 0.75,
+      "inner_crps": 0.036131110861854346,
+      "inner_nll": -1.2219016754627607,
+      "inner_origin_round_rank": 23,
+      "uses_outer_test_rounds": false
+    },
+    {
+      "collector_version": "khu-hf-direct-collector/v1",
+      "method": "nested_donor_crps",
+      "objective": "inner_crps",
+      "target": "log_latency",
+      "k": 5,
+      "historical_model_ids": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/electra-small-discriminator"
+      ],
+      "training_round_rank_end_exclusive": 43,
+      "gpu_log_variance": {
+        "1": 0.022996533980604698,
+        "2": 0.014339005128803034
+      },
+      "pseudo_count": 1.0,
+      "scale_multiplier": 1.0,
+      "inner_crps": 0.07564129243251569,
+      "inner_nll": -0.3760546574480244,
+      "inner_origin_round_rank": 23,
+      "uses_outer_test_rounds": false
+    },
+    {
+      "collector_version": "khu-hf-direct-collector/v1",
+      "method": "nested_donor_nll",
+      "objective": "inner_nll",
+      "target": "log_latency",
+      "k": 5,
+      "historical_model_ids": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/electra-small-discriminator"
+      ],
+      "training_round_rank_end_exclusive": 43,
+      "gpu_log_variance": {
+        "1": 0.022996533980604698,
+        "2": 0.014339005128803034
+      },
+      "pseudo_count": 5.0,
+      "scale_multiplier": 1.0,
+      "inner_crps": 0.07720789745931561,
+      "inner_nll": -0.5228209648640382,
+      "inner_origin_round_rank": 23,
+      "uses_outer_test_rounds": false
+    },
+    {
+      "collector_version": "khu-hf-direct-collector/v1",
+      "method": "nested_donor_crps",
+      "objective": "inner_crps",
+      "target": "log_rps",
+      "k": 5,
+      "historical_model_ids": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/electra-small-discriminator"
+      ],
+      "training_round_rank_end_exclusive": 43,
+      "gpu_log_variance": {
+        "1": 0.006503391158889871,
+        "2": 0.002686007313770711
+      },
+      "pseudo_count": 0.0,
+      "scale_multiplier": 1.0,
+      "inner_crps": 0.03483709006803372,
+      "inner_nll": 0.8173548380602251,
+      "inner_origin_round_rank": 23,
+      "uses_outer_test_rounds": false
+    },
+    {
+      "collector_version": "khu-hf-direct-collector/v1",
+      "method": "nested_donor_nll",
+      "objective": "inner_nll",
+      "target": "log_rps",
+      "k": 5,
+      "historical_model_ids": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/electra-small-discriminator"
+      ],
+      "training_round_rank_end_exclusive": 43,
+      "gpu_log_variance": {
+        "1": 0.006503391158889871,
+        "2": 0.002686007313770711
+      },
+      "pseudo_count": 1.0,
+      "scale_multiplier": 1.0,
+      "inner_crps": 0.03646263593464994,
+      "inner_nll": -1.3249390102831322,
+      "inner_origin_round_rank": 23,
+      "uses_outer_test_rounds": false
+    },
+    {
+      "collector_version": "khu-hf-direct-collector/v2",
+      "method": "nested_donor_crps",
+      "objective": "inner_crps",
+      "target": "log_latency",
+      "k": 2,
+      "historical_model_ids": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/electra-small-discriminator"
+      ],
+      "training_round_rank_end_exclusive": 27,
+      "gpu_log_variance": {
+        "1": 0.035912316525009216,
+        "2": 0.017340145162524054
+      },
+      "pseudo_count": 5.0,
+      "scale_multiplier": 0.75,
+      "inner_crps": 0.10560805358146821,
+      "inner_nll": -0.09482673766615282,
+      "inner_origin_round_rank": 7,
+      "uses_outer_test_rounds": false
+    },
+    {
+      "collector_version": "khu-hf-direct-collector/v2",
+      "method": "nested_donor_nll",
+      "objective": "inner_nll",
+      "target": "log_latency",
+      "k": 2,
+      "historical_model_ids": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/electra-small-discriminator"
+      ],
+      "training_round_rank_end_exclusive": 27,
+      "gpu_log_variance": {
+        "1": 0.035912316525009216,
+        "2": 0.017340145162524054
+      },
+      "pseudo_count": 50.0,
+      "scale_multiplier": 1.0,
+      "inner_crps": 0.10729148535598304,
+      "inner_nll": -0.19201496345659022,
+      "inner_origin_round_rank": 7,
+      "uses_outer_test_rounds": false
+    },
+    {
+      "collector_version": "khu-hf-direct-collector/v2",
+      "method": "nested_donor_crps",
+      "objective": "inner_crps",
+      "target": "log_rps",
+      "k": 2,
+      "historical_model_ids": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/electra-small-discriminator"
+      ],
+      "training_round_rank_end_exclusive": 27,
+      "gpu_log_variance": {
+        "1": 0.0022795207266945693,
+        "2": 0.00029543310697363964
+      },
+      "pseudo_count": 0.0,
+      "scale_multiplier": 1.0,
+      "inner_crps": 0.023345407103137733,
+      "inner_nll": 2.3322839387450442,
+      "inner_origin_round_rank": 7,
+      "uses_outer_test_rounds": false
+    },
+    {
+      "collector_version": "khu-hf-direct-collector/v2",
+      "method": "nested_donor_nll",
+      "objective": "inner_nll",
+      "target": "log_rps",
+      "k": 2,
+      "historical_model_ids": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/electra-small-discriminator"
+      ],
+      "training_round_rank_end_exclusive": 27,
+      "gpu_log_variance": {
+        "1": 0.0022795207266945693,
+        "2": 0.00029543310697363964
+      },
+      "pseudo_count": 1.0,
+      "scale_multiplier": 1.5,
+      "inner_crps": 0.025447150504168802,
+      "inner_nll": -1.690904757892169,
+      "inner_origin_round_rank": 7,
+      "uses_outer_test_rounds": false
+    },
+    {
+      "collector_version": "khu-hf-direct-collector/v2",
+      "method": "nested_donor_crps",
+      "objective": "inner_crps",
+      "target": "log_latency",
+      "k": 5,
+      "historical_model_ids": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/electra-small-discriminator"
+      ],
+      "training_round_rank_end_exclusive": 27,
+      "gpu_log_variance": {
+        "1": 0.035912316525009216,
+        "2": 0.017340145162524054
+      },
+      "pseudo_count": 5.0,
+      "scale_multiplier": 1.0,
+      "inner_crps": 0.10070723869860398,
+      "inner_nll": -0.2764557472024156,
+      "inner_origin_round_rank": 7,
+      "uses_outer_test_rounds": false
+    },
+    {
+      "collector_version": "khu-hf-direct-collector/v2",
+      "method": "nested_donor_nll",
+      "objective": "inner_nll",
+      "target": "log_latency",
+      "k": 5,
+      "historical_model_ids": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/electra-small-discriminator"
+      ],
+      "training_round_rank_end_exclusive": 27,
+      "gpu_log_variance": {
+        "1": 0.035912316525009216,
+        "2": 0.017340145162524054
+      },
+      "pseudo_count": 5.0,
+      "scale_multiplier": 1.0,
+      "inner_crps": 0.10070723869860398,
+      "inner_nll": -0.2764557472024156,
+      "inner_origin_round_rank": 7,
+      "uses_outer_test_rounds": false
+    },
+    {
+      "collector_version": "khu-hf-direct-collector/v2",
+      "method": "nested_donor_crps",
+      "objective": "inner_crps",
+      "target": "log_rps",
+      "k": 5,
+      "historical_model_ids": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/electra-small-discriminator"
+      ],
+      "training_round_rank_end_exclusive": 27,
+      "gpu_log_variance": {
+        "1": 0.0022795207266945693,
+        "2": 0.00029543310697363964
+      },
+      "pseudo_count": 0.0,
+      "scale_multiplier": 1.0,
+      "inner_crps": 0.020797513631795272,
+      "inner_nll": 1.862614722583758,
+      "inner_origin_round_rank": 7,
+      "uses_outer_test_rounds": false
+    },
+    {
+      "collector_version": "khu-hf-direct-collector/v2",
+      "method": "nested_donor_nll",
+      "objective": "inner_nll",
+      "target": "log_rps",
+      "k": 5,
+      "historical_model_ids": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/electra-small-discriminator"
+      ],
+      "training_round_rank_end_exclusive": 27,
+      "gpu_log_variance": {
+        "1": 0.0022795207266945693,
+        "2": 0.00029543310697363964
+      },
+      "pseudo_count": 1.0,
+      "scale_multiplier": 1.25,
+      "inner_crps": 0.021397316494227412,
+      "inner_nll": -2.048787202897683,
+      "inner_origin_round_rank": 7,
+      "uses_outer_test_rounds": false
+    }
+  ],
+  "scope": "Exploratory, fixed historical GPU resource cell; no deployment or scale action"
+}

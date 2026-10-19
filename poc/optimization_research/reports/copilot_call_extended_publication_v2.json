@@ -1,0 +1,168 @@
+{
+  "files": {
+    "scripts/copilot_call_extended.py": {
+      "source": "scripts/copilot_call_extended.py",
+      "sha256": "db866dc30edefeec076bbfbff9b2b2aadd9ed947043cc6cc04ab1aaad4e69deb"
+    },
+    "tests/test_copilot_call_extended.py": {
+      "source": "tests/test_copilot_call_extended.py",
+      "sha256": "71fc195bbc838b2555da210ed6bdb495a83b931296837584c935cc0203905872"
+    },
+    "reports/ai_mcmp_rr_status_2026_10_06.txt": {
+      "source": "reports/ai_mcmp_rr_status_2026_10_06.txt",
+      "sha256": "c8eb11b5a1cc71fe4fd01aee5ba24c4e3ced9a10fff277b69c04777864a18c81"
+    },
+    "reports/copilot_call_extended_findings_2026_10_06.txt": {
+      "source": "reports/copilot_call_extended_findings_2026_10_06.txt",
+      "sha256": "1661ccc4444ceaa749d989ac23ee270d4646af027600d583fd0683c8f1ce99ba"
+    },
+    "reports/copilot_call_extended_protocol_v2.json": {
+      "source": "reports/copilot_call_extended_protocol_v2.json",
+      "sha256": "ad0482a5c49725b40fd52a51365867e47328223417b1bc0d62c746b4786dae88"
+    },
+    "reports/copilot_call_v2_aggregate_change_audit.json": {
+      "source": "reports/copilot_call_v2_aggregate_change_audit.json",
+      "sha256": "c024ed6e38872195b0033cd701fd327b7f1850620b98aa7edf1d0f01ad4554cf"
+    },
+    "reports/copilot_call_v2_posthoc_diagnosis.json": {
+      "source": "reports/copilot_call_v2_posthoc_diagnosis.json",
+      "sha256": "d061edca17b7175656d82c7b9f606d6f852c43872376e82b161937954eaee951"
+    },
+    "reports/copilot_call_v2_posthoc_diagnosis.log": {
+      "source": "reports/copilot_call_v2_posthoc_diagnosis.log",
+      "sha256": "1140316d75c5bf2946b6862a5cba973fd19f1ccc2f467b5e5421a0df4e074592"
+    },
+    "reports/copilot_call_v2_posthoc_diagnosis.py": {
+      "source": "reports/copilot_call_v2_posthoc_diagnosis.py",
+      "sha256": "8e64a0cc05f8a86a36449ece7406cc58e3b7f512986f61b9ae019d97cc75b016"
+    },
+    "reports/copilot_call_v2_posthoc_diagnosis.txt": {
+      "source": "reports/copilot_call_v2_posthoc_diagnosis.txt",
+      "sha256": "1140316d75c5bf2946b6862a5cba973fd19f1ccc2f467b5e5421a0df4e074592"
+    },
+    "reports/download_03.log": {
+      "source": "reports/download_03.log",
+      "sha256": "a76c2fab060d858538f9b7899f87c6cefa5c777e1f900afe0723c530dff323ef"
+    },
+    "reports/download_04.log": {
+      "source": "reports/download_04.log",
+      "sha256": "803eb63343f5f4b0281eda7e5a80be6ac36a2e9887f6cb37819b6f79af7fb188"
+    },
+    "reports/tests.log": {
+      "source": "reports/tests.log",
+      "sha256": "d0c1f651d100a6fc532cad569ba14c3aa7a316fdf3d7467f4252bb4c58e5a779"
+    },
+    "reports/train.log": {
+      "source": "reports/train.log",
+      "sha256": "8c76897299fdad6ac9135ff512e9bd03cff153d720d78761a71dc3e7e340cef8"
+    },
+    "reports/verify.log": {
+      "source": "reports/verify.log",
+      "sha256": "c4ebec20e477ffeebf85177a92e77e065d134508f7879e0ff2e3b5d01cc08ad0"
+    },
+    "artifacts/copilot_call_demand_v2/FREEZE.json": {
+      "source": "artifacts/copilot_call_demand_v2/FREEZE.json",
+      "sha256": "a83a8721073ea304ed7d4db75fda98a9585091f28cca8716238c546a54be2bca"
+    },
+    "artifacts/copilot_call_demand_v2/SELECTION.json": {
+      "source": "artifacts/copilot_call_demand_v2/SELECTION.json",
+      "sha256": "37d5610c1ac9ed4abcaa9c6f0e3926697a245cb43dffb471e93fa35a88eb8dc8"
+    },
+    "artifacts/copilot_call_demand_v2/copilot_delay1_extended_q90.joblib": {
+      "source": "artifacts/copilot_call_demand_v2/copilot_delay1_extended_q90.joblib",
+      "sha256": "c4ed995f73e93ca2a25c992974ae5512baaeaec095c4f852217b8f0f2aac3116"
+    },
+    "artifacts/copilot_call_demand_v2/copilot_delay2_extended_q90.joblib": {
+      "source": "artifacts/copilot_call_demand_v2/copilot_delay2_extended_q90.joblib",
+      "sha256": "e07207cf9c16cf3c2042ecd37b9d4a7c418a0043e76efc20b4f6b2a48ee1c5c3"
+    },
+    "artifacts/copilot_call_demand_v2/copilot_delay6_extended_q90.joblib": {
+      "source": "artifacts/copilot_call_demand_v2/copilot_delay6_extended_q90.joblib",
+      "sha256": "eb5ed937fcf578e28c26f5b96a8b1a30e60d02941097f179f14a7ea7035f796a"
+    },
+    "artifacts/copilot_call_demand_v2/counts.parquet": {
+      "source": "artifacts/copilot_call_demand_v2/counts.parquet",
+      "sha256": "081cadf38471c54878a4964b31083c78b76e2c9dceeff4ef21d9fbe8e0c83111"
+    },
+    "artifacts/copilot_call_demand_v2/forecasts.parquet": {
+      "source": "artifacts/copilot_call_demand_v2/forecasts.parquet",
+      "sha256": "1c97d454138b4c17312203290ee022dcec6e10ee32b311ae04245d145d36b32a"
+    },
+    "artifacts/copilot_call_demand_v2/release_manifest.json": {
+      "source": "artifacts/copilot_call_demand_v2/release_manifest.json",
+      "sha256": "2a66f68dc60e96b3df0b149f9755c923f1fc0d6e923e45033472dd548154196e"
+    },
+    "artifacts/copilot_call_demand_v2/results.json": {
+      "source": "artifacts/copilot_call_demand_v2/results.json",
+      "sha256": "b0d8178a8b036b0f3e551e7f256ebaffdc7acdb05046bc5a338fb67af30800d3"
+    },
+    "artifacts/copilot_call_demand_v2/source_audit.json": {
+      "source": "artifacts/copilot_call_demand_v2/source_audit.json",
+      "sha256": "3a1bc53da67c8e9b84450286381172aae172e89bb2a97015525375ef6c2c1196"
+    },
+    "artifacts/copilot_call_demand_v2/source_snapshot/reports/ai_mcmp_rr_status_2026_10_06.txt": {
+      "source": "artifacts/copilot_call_demand_v2/source_snapshot/reports/ai_mcmp_rr_status_2026_10_06.txt",
+      "sha256": "c8eb11b5a1cc71fe4fd01aee5ba24c4e3ced9a10fff277b69c04777864a18c81"
+    },
+    "artifacts/copilot_call_demand_v2/source_snapshot/reports/copilot_call_extended_findings_2026_10_06.txt": {
+      "source": "artifacts/copilot_call_demand_v2/source_snapshot/reports/copilot_call_extended_findings_2026_10_06.txt",
+      "sha256": "1661ccc4444ceaa749d989ac23ee270d4646af027600d583fd0683c8f1ce99ba"
+    },
+    "artifacts/copilot_call_demand_v2/source_snapshot/reports/copilot_call_extended_protocol_v2.json": {
+      "source": "artifacts/copilot_call_demand_v2/source_snapshot/reports/copilot_call_extended_protocol_v2.json",
+      "sha256": "ad0482a5c49725b40fd52a51365867e47328223417b1bc0d62c746b4786dae88"
+    },
+    "artifacts/copilot_call_demand_v2/source_snapshot/reports/copilot_call_v2_aggregate_change_audit.json": {
+      "source": "artifacts/copilot_call_demand_v2/source_snapshot/reports/copilot_call_v2_aggregate_change_audit.json",
+      "sha256": "c024ed6e38872195b0033cd701fd327b7f1850620b98aa7edf1d0f01ad4554cf"
+    },
+    "artifacts/copilot_call_demand_v2/source_snapshot/reports/copilot_call_v2_posthoc_diagnosis.json": {
+      "source": "artifacts/copilot_call_demand_v2/source_snapshot/reports/copilot_call_v2_posthoc_diagnosis.json",
+      "sha256": "d061edca17b7175656d82c7b9f606d6f852c43872376e82b161937954eaee951"
+    },
+    "artifacts/copilot_call_demand_v2/source_snapshot/reports/copilot_call_v2_posthoc_diagnosis.py": {
+      "source": "artifacts/copilot_call_demand_v2/source_snapshot/reports/copilot_call_v2_posthoc_diagnosis.py",
+      "sha256": "8e64a0cc05f8a86a36449ece7406cc58e3b7f512986f61b9ae019d97cc75b016"
+    },
+    "artifacts/copilot_call_demand_v2/source_snapshot/reports/copilot_call_v2_posthoc_diagnosis.txt": {
+      "source": "artifacts/copilot_call_demand_v2/source_snapshot/reports/copilot_call_v2_posthoc_diagnosis.txt",
+      "sha256": "1140316d75c5bf2946b6862a5cba973fd19f1ccc2f467b5e5421a0df4e074592"
+    },
+    "artifacts/copilot_call_demand_v2/source_snapshot/scripts/copilot_call_extended.py": {
+      "source": "artifacts/copilot_call_demand_v2/source_snapshot/scripts/copilot_call_extended.py",
+      "sha256": "db866dc30edefeec076bbfbff9b2b2aadd9ed947043cc6cc04ab1aaad4e69deb"
+    },
+    "artifacts/copilot_call_demand_v2/source_snapshot/tests/test_copilot_call_extended.py": {
+      "source": "artifacts/copilot_call_demand_v2/source_snapshot/tests/test_copilot_call_extended.py",
+      "sha256": "71fc195bbc838b2555da210ed6bdb495a83b931296837584c935cc0203905872"
+    },
+    "artifacts/copilot_call_demand_v2/verification.json": {
+      "source": "artifacts/copilot_call_demand_v2/verification.json",
+      "sha256": "ac37996fd31515b688ea0968aa4608839e71b7dcd4902fc0f6d292a4274c9523"
+    },
+    "data/external/ghcp_coding_agent_2026_days03_04/SOURCE.txt": {
+      "source": "data/SOURCE.txt",
+      "sha256": "497c75ce945384cfc7c56601292ce328c36c54af10ae29e8d7c908b52791d46e",
+      "raw": false
+    },
+    "data/external/ghcp_coding_agent_2026_days03_04/date.2026-06-03.tar.gz": {
+      "source": "data/date.2026-06-03.tar.gz",
+      "sha256": "622a5b0742eeb196d69d9a5ee5f6457cf82d432ddc435b9eb76eb5bb4363f1d0",
+      "raw": true
+    },
+    "data/external/ghcp_coding_agent_2026_days03_04/date.2026-06-04.tar.gz": {
+      "source": "data/date.2026-06-04.tar.gz",
+      "sha256": "fd81d45e0149cae10aa193f2c2536ae709a5eba61b5aa886e534587e80473028",
+      "raw": true
+    },
+    "data/external/ghcp_coding_agent_2026_days03_04/release_metadata.json": {
+      "source": "data/release_metadata.json",
+      "sha256": "28645cc5189529d05fe28f89191d553bc72c3ff76762a065dbbb6778600c09ab",
+      "raw": false
+    }
+  },
+  "models": 3,
+  "verified": true,
+  "evaluation_exposed": true,
+  "operational_adoption": false
+}

@@ -1,0 +1,26 @@
+AI-MCMP 지연 대응 수요 학습과 가상 용량 판단 v2 재현
+
+경로
+scripts/delay_capacity_policy.py : 미래 최대값 정답·완료오차 보정·최소유지 정책
+scripts/train_evaluate_delay_capacity.py : 서비스/지연별 HGB 6개 학습, validation 선택, 평가
+scripts/verify_delay_capacity.py : 같은 학습행 재적합·정책/시점 재생 검증
+scripts/summarize_delay_capacity.py : 상세 텍스트와 PNG/PDF 도표
+tests/test_delay_capacity_policy.py : 완료경계·hold 활성시점·최소/최대·v1 동등성
+reports/delay_capacity_protocol_v2.json : 코드 작성 때 고정한 문제·분할·선택·평가 가정
+artifacts/delay_capacity_v2 : 모델6개·예측·정책선택·전체판단·결과·검증·그림
+
+환경
+Python3.9.25, NumPy2.0.2, scikit-learn1.6.1; 기존research/requirements.txt.
+CPU의OMP/BLAS 스레드를1로 제한한다. CUDA나새네트워크다운로드는사용하지않는다.
+기존v1원본과자료는읽기전용으로해시검증한다. output이존재하면학습실행을거절한다.
+
+명령
+cd /home/researcher/ai-mcmp/research
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=scripts OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 /usr/bin/python -m unittest discover -s tests -p test_delay_capacity_policy.py -v
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=scripts OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /usr/bin/python scripts/train_evaluate_delay_capacity.py --research-root /home/researcher/ai-mcmp/research --output /tmp/delay_capacity_rerun
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=scripts OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /usr/bin/python scripts/verify_delay_capacity.py --research-root /home/researcher/ai-mcmp/research --output /tmp/delay_capacity_rerun
+PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/tmp/delay_capacity_plot_cache OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 /usr/bin/python scripts/summarize_delay_capacity.py --output /tmp/delay_capacity_rerun
+
+도표의수치는results.json에서만읽는다. plot의토큰용량·slot-minutes·부족량은가상값이며가격·GPU수·사용자지연이아니다.
+모델별horizon의target이달라기존Coding의다음5분pinball값과새peak값을직접성능비교하지않는다.
+서로다른horizon·서비스의개선율을합산하지않는다. 평가기간은이전연구에노출된탐색기간이다.

@@ -1,0 +1,77 @@
+{
+  "bucket2_audit_sha256": "1078daeb1b9e65b71dc18975bb572abb10cac40471b14606bb090c4365c7e7a2",
+  "bucket2_compact_sha256": "5a76e339c6ab5906f84b53f11cde4380dac7ff54d6fb335a77838851ec9e952e",
+  "candidate_profile": {
+    "candidates": 62534,
+    "current_high": 0,
+    "future_duplicate": 4927,
+    "future_invalid": 428,
+    "future_missing": 6275,
+    "label_observation_rate": 0.8247833179,
+    "labeled": 51577,
+    "middle_duplicate": 0,
+    "middle_invalid": 0,
+    "middle_missing": 0,
+    "old_duplicate": 0,
+    "old_invalid": 0,
+    "old_missing": 0
+  },
+  "checks": {
+    "both_days_20000_rows_300_events": true,
+    "events_at_least_1000": true,
+    "ids_at_least_500": true,
+    "label_observation_at_least_75pct": true,
+    "matured_both_states_supported": true,
+    "positive_ids_at_least_50": true,
+    "rows_at_least_50000": true
+  },
+  "days": {
+    "145": {
+      "events": 1401,
+      "rows": 24935
+    },
+    "146": {
+      "events": 896,
+      "rows": 26642
+    }
+  },
+  "events": 2297,
+  "ids": 795,
+  "matured_previous_day": {
+    "145": {
+      "rows": 21014,
+      "states": {
+        "0": {
+          "negative": 19524,
+          "positive": 636,
+          "rows": 20160
+        },
+        "1": {
+          "negative": 120,
+          "positive": 734,
+          "rows": 854
+        }
+      }
+    },
+    "146": {
+      "rows": 24402,
+      "states": {
+        "0": {
+          "negative": 22878,
+          "positive": 685,
+          "rows": 23563
+        },
+        "1": {
+          "negative": 143,
+          "positive": 696,
+          "rows": 839
+        }
+      }
+    }
+  },
+  "positive_ids": 256,
+  "release_manifest_sha256": "bf095581e690b2744d7337c6ca7dd4a830b2b3b3b39fc57325cabc946f703ef2",
+  "rows": 51577,
+  "scorer_sha256": "175479016bca4b56819e746c518a635f4ae667d3ed082edea33aec2555c6def3",
+  "status": "SUPPORT_PASS"
+}

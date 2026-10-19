@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="900" viewBox="0 0 1700 900">
+<defs>
+<filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+<feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#111827" flood-opacity="0.08"/>
+</filter>
+</defs>
+<rect width="1700" height="900" fill="#ffffff"/>
+<text x="58" y="74" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="38" font-weight="700" text-anchor="start">Local/VM 공통 검증 구조</text>
+<text x="61" y="118" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start">같은 Go 검증 명령을 로컬과 GPU VM에서 실행하고, target별 증적을 분리 저장</text>
+<rect x="1335" y="48" width="307" height="44" rx="22" fill="#ffffff" stroke="#d6dce4" stroke-width="1"/>
+<text x="1360" y="76" fill="#27496d" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="17" font-weight="700" text-anchor="start">Kyung Hee OPS · Go Prototype</text>
+<rect x="85" y="292" width="310" height="135" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="80" y="285" width="310" height="135" rx="20" fill="#ffffff" stroke="#31445a" stroke-width="2"/>
+<text x="106" y="340" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="26" font-weight="700" text-anchor="start">validate-system</text>
+<text x="106" y="373" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start">--target local 또는 vm</text>
+<text x="106" y="399" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start">--output-dir runs/...</text>
+<rect x="476" y="178" width="380" height="550" rx="26" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="470" y="170" width="380" height="550" rx="26" fill="#ffffff" stroke="#d6dce4" stroke-width="2"/>
+<text x="498" y="225" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Target Evidence</text>
+<rect x="520" y="257" width="290" height="120" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="515" y="250" width="290" height="120" rx="20" fill="#ffffff" stroke="#31445a" stroke-width="2"/>
+<text x="541" y="305" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Local Target</text>
+<text x="541" y="338" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">Go / Git / OS evidence</text>
+<text x="541" y="363" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">prototype 기능 검증</text>
+<rect x="520" y="477" width="290" height="120" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="515" y="470" width="290" height="120" rx="20" fill="#ffffff" stroke="#65758b" stroke-width="2"/>
+<text x="541" y="525" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">VM Target</text>
+<text x="541" y="558" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">GPU / metadata evidence</text>
+<text x="541" y="583" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">GPU VM 실행 환경 검증</text>
+<rect x="931" y="178" width="360" height="550" rx="26" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="925" y="170" width="360" height="550" rx="26" fill="#ffffff" stroke="#d6dce4" stroke-width="2"/>
+<text x="953" y="225" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Common Validation</text>
+<rect x="975" y="257" width="270" height="120" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="970" y="250" width="270" height="120" rx="20" fill="#ffffff" stroke="#31445a" stroke-width="2"/>
+<text x="996" y="305" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Go Tests</text>
+<text x="996" y="338" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">aiops-guard</text>
+<text x="996" y="363" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">service-control-api</text>
+<rect x="975" y="477" width="270" height="120" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="970" y="470" width="270" height="120" rx="20" fill="#ffffff" stroke="#31445a" stroke-width="2"/>
+<text x="996" y="525" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Team Validation</text>
+<text x="996" y="558" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">산출물 3개 흐름</text>
+<text x="996" y="583" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start">valid=true 확인</text>
+<rect x="1366" y="178" width="275" height="550" rx="26" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="1360" y="170" width="275" height="550" rx="26" fill="#ffffff" stroke="#d6dce4" stroke-width="2"/>
+<text x="1388" y="225" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="24" font-weight="700" text-anchor="start">Evidence Output</text>
+<rect x="1393" y="257" width="220" height="120" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="1388" y="250" width="220" height="120" rx="20" fill="#ffffff" stroke="#65758b" stroke-width="2"/>
+<text x="1414" y="305" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start">System Summary</text>
+<text x="1414" y="338" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">00_system_validation</text>
+<text x="1414" y="362" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">target 기록</text>
+<rect x="1393" y="477" width="220" height="120" rx="20" fill="#edf0f4" stroke="#edf0f4" stroke-width="0" opacity="0.78"/>
+<rect x="1388" y="470" width="220" height="120" rx="20" fill="#ffffff" stroke="#31445a" stroke-width="2"/>
+<text x="1414" y="525" fill="#111827" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="23" font-weight="700" text-anchor="start">Optional LLM</text>
+<text x="1414" y="558" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">not_executed</text>
+<text x="1414" y="582" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start">dry_run / executed</text>
+<line x1="390" y1="352" x2="515" y2="310" stroke="#27496d" stroke-width="4" stroke-linecap="round"/>
+<polygon points="515,310 505,320 501,307" fill="#27496d"/>
+<line x1="390" y1="352" x2="515" y2="530" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<polygon points="515,530 502,524 513,516" fill="#65758b"/>
+<line x1="805" y1="310" x2="970" y2="310" stroke="#27496d" stroke-width="4" stroke-linecap="round"/>
+<polygon points="970,310 957,317 957,303" fill="#27496d"/>
+<line x1="805" y1="530" x2="970" y2="530" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<polygon points="970,530 957,537 957,523" fill="#65758b"/>
+<line x1="1105" y1="370" x2="1105" y2="470" stroke="#27496d" stroke-width="4" stroke-linecap="round"/>
+<polygon points="1105,470 1098,457 1112,457" fill="#27496d"/>
+<line x1="1240" y1="530" x2="1388" y2="530" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<polygon points="1388,530 1375,537 1375,523" fill="#65758b"/>
+<line x1="1240" y1="310" x2="1320" y2="310" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<line x1="1320" y1="310" x2="1320" y2="310" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<line x1="1320" y1="310" x2="1388" y2="310" stroke="#65758b" stroke-width="4" stroke-linecap="round"/>
+<polygon points="1388,310 1375,317 1375,303" fill="#65758b"/>
+<text x="90" y="809" fill="#4b5563" font-family="Malgun Gothic, Pretendard, Noto Sans KR, Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start">해석: 로컬 검증은 Go 로직과 산출물 흐름 검증, VM 검증은 동일 로직을 실제 GPU VM 환경에서 실행했다는 환경 증적을 추가한다.</text>
+</svg>

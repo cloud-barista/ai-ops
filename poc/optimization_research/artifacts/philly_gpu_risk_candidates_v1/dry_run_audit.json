@@ -1,0 +1,598 @@
+{
+  "kind": "audit_only_dry_run_no_model_fit_no_row_level_outcome",
+  "source_audit_sha256": "438b6e7359daa2a219564ced5f0f31435f949b651dd080fe647a4fe6cd311c9d",
+  "normalization_audit_sha256": "e6070e6a4d4ac2ee854cd81275e3b788dc516cbe5f26de6a52d3c9c27fc311dc",
+  "source_sample_sha256": "0ac3931f3705d58af39a00661ffca6019e7ade2f252930bffcbf9c0085b9c2f9",
+  "normalized_sample_sha256": "15f1af4669acb9823d0e6d96291e799cf33f8a9c1813d4faf51b0b9eb618ad58",
+  "preparation_script_sha256": "e89fd8a48c8491d02194540fc362a1d50f264f589a60e52e6c3dfd3fdc25d795",
+  "source_selected_rows": 1704704,
+  "source_raw_utc_extrema_only_split": {
+    "raw_min_utc_s": 1507014000,
+    "raw_max_utc_s": 1513392120,
+    "first_full_utc_day": 17443,
+    "last_full_utc_day_exclusive": 17516,
+    "full_utc_days": 73,
+    "spans": {
+      "train": {
+        "start_utc_s": 1507075200,
+        "end_utc_s": 1510790400,
+        "start_utc_day": 17443,
+        "end_utc_day_exclusive": 17486,
+        "days": 43
+      },
+      "validation": {
+        "start_utc_s": 1510790400,
+        "end_utc_s": 1512086400,
+        "start_utc_day": 17486,
+        "end_utc_day_exclusive": 17501,
+        "days": 15
+      },
+      "test": {
+        "start_utc_s": 1512086400,
+        "end_utc_s": 1513382400,
+        "start_utc_day": 17501,
+        "end_utc_day_exclusive": 17516,
+        "days": 15
+      }
+    },
+    "duration_gate_pass": true
+  },
+  "partitioning": {
+    "machine_hash_buckets": 64,
+    "max_partition_rows": 500000,
+    "bucket_count_used": 18,
+    "max_bucket_rows_observed": 211288
+  },
+  "totals": {
+    "absent_slot_cells_excluded": 6396240,
+    "candidate_rows": 1419566,
+    "current_valid_before_split": 1436836,
+    "duplicate_minute_keys": 0,
+    "duplicate_minute_rows": 0,
+    "excluded_by_split_boundary": 17270,
+    "future_complete_rows": 1418428,
+    "observed_window_keys": 340960,
+    "observed_window_slots": 1448360,
+    "off_minute_rows": 0,
+    "raw_rows": 1704704,
+    "row_unusable_rows": 960,
+    "valid_window_slots": 1436836,
+    "width_mismatch_rows": 960
+  },
+  "minute_reason_counts": {
+    "null_na_or_empty": 52838,
+    "valid": 7184474,
+    "width_mismatch": 4080
+  },
+  "width_quality_by_machine": [
+    {
+      "machine_hash": "8972af054e8fe9a9f02cb53a306ac34df43fec2b511f6c97e192f3be2db26a60",
+      "expected_gpu_slots": 8,
+      "raw_rows": 105644,
+      "width_mismatch_rows": 60,
+      "width_mismatch_fraction": 0.0005679451743591685,
+      "passes_at_most_one_percent": true
+    },
+    {
+      "machine_hash": "465b3d7ddb954f666d6ff76ea8c5ac24b858ce026bfa93c78d18f447255f182a",
+      "expected_gpu_slots": 2,
+      "raw_rows": 105644,
+      "width_mismatch_rows": 60,
+      "width_mismatch_fraction": 0.0005679451743591685,
+      "passes_at_most_one_percent": true
+    },
+    {
+      "machine_hash": "7c9b52f70a722caabbebfbbd7f0cbd4ed12caf8b261d4b7f00092ea2f9ab4a05",
+      "expected_gpu_slots": 2,
+      "raw_rows": 105644,
+      "width_mismatch_rows": 60,
+      "width_mismatch_fraction": 0.0005679451743591685,
+      "passes_at_most_one_percent": true
+    },
+    {
+      "machine_hash": "ac13b3538853a9bc0753f03a83e9cf35104d183f5410ae19271470c70d2f5f3c",
+      "expected_gpu_slots": 8,
+      "raw_rows": 105644,
+      "width_mismatch_rows": 60,
+      "width_mismatch_fraction": 0.0005679451743591685,
+      "passes_at_most_one_percent": true
+    },
+    {
+      "machine_hash": "8a4536b3050767a3049aad4fbca42a8fe2947ee62b3dd87d8ae66bf8f7eab0a0",
+      "expected_gpu_slots": 2,
+      "raw_rows": 105644,
+      "width_mismatch_rows": 60,
+      "width_mismatch_fraction": 0.0005679451743591685,
+      "passes_at_most_one_percent": true
+    },
+    {
+      "machine_hash": "6aeb4d030290c6a94f96c487d1bcac8269a37cbb9d7081d806396ac1a26d1bce",
+      "expected_gpu_slots": 2,
+      "raw_rows": 105644,
+      "width_mismatch_rows": 60,
+      "width_mismatch_fraction": 0.0005679451743591685,
+      "passes_at_most_one_percent": true
+    },
+    {
+      "machine_hash": "13367e8da0f18ac20dac32137b99f7835a6e71804dd0c45779b928cc92f5c37c",
+      "expected_gpu_slots": 2,
+      "raw_rows": 105644,
+      "width_mismatch_rows": 60,
+      "width_mismatch_fraction": 0.0005679451743591685,
+      "passes_at_most_one_percent": true
+    },
+    {
+      "machine_hash": "3e65f7b4718fd3bffa20df0ab2ac61976aefa3e14b2a17daa12d40dbc1c1f41b",
+      "expected_gpu_slots": 2,
+      "raw_rows": 105644,
+      "width_mismatch_rows": 60,
+      "width_mismatch_fraction": 0.0005679451743591685,
+      "passes_at_most_one_percent": true
+    },
+    {
+      "machine_hash": "1cbce36ba4ebf5b23652b2404949eea56447dca4cb6808ad7c99d3383c3fe7b6",
+      "expected_gpu_slots": 2,
+      "raw_rows": 105644,
+      "width_mismatch_rows": 60,
+      "width_mismatch_fraction": 0.0005679451743591685,
+      "passes_at_most_one_percent": true
+    },
+    {
+      "machine_hash": "3476871091e8648a58c48b144ec08656397c5401cf6820d29e21dbddf6090a78",
+      "expected_gpu_slots": 2,
+      "raw_rows": 105644,
+      "width_mismatch_rows": 60,
+      "width_mismatch_fraction": 0.0005679451743591685,
+      "passes_at_most_one_percent": true
+    },
+    {
+      "machine_hash": "4f2ab29f957f8b450b1816e5ed9d22f4fb831f03cf082cab9ce268488351e000",
+      "expected_gpu_slots": 2,
+      "raw_rows": 105644,
+      "width_mismatch_rows": 60,
+      "width_mismatch_fraction": 0.0005679451743591685,
+      "passes_at_most_one_percent": true
+    },
+    {
+      "machine_hash": "0a6bc23c0f55ac93e083127b006dda75b6d466d571988e3532910656c140d2d5",
+      "expected_gpu_slots": 8,
+      "raw_rows": 105644,
+      "width_mismatch_rows": 60,
+      "width_mismatch_fraction": 0.0005679451743591685,
+      "passes_at_most_one_percent": true
+    },
+    {
+      "machine_hash": "fa92694984e82e7af5357a695c925bbce8526a6ed21bbcd0025ba01c40951609",
+      "expected_gpu_slots": 8,
+      "raw_rows": 105644,
+      "width_mismatch_rows": 60,
+      "width_mismatch_fraction": 0.0005679451743591685,
+      "passes_at_most_one_percent": true
+    },
+    {
+      "machine_hash": "2396a1256ac4b1c6849c931ddb8018bdd984bb2383be21bb819a33b95d8d603f",
+      "expected_gpu_slots": 2,
+      "raw_rows": 105644,
+      "width_mismatch_rows": 60,
+      "width_mismatch_fraction": 0.0005679451743591685,
+      "passes_at_most_one_percent": true
+    },
+    {
+      "machine_hash": "794cb43bbf29b5d7b5aaea29632019f747041699ac5d3b5e3cae3226f3207dae",
+      "expected_gpu_slots": 8,
+      "raw_rows": 105644,
+      "width_mismatch_rows": 60,
+      "width_mismatch_fraction": 0.0005679451743591685,
+      "passes_at_most_one_percent": true
+    },
+    {
+      "machine_hash": "9a1cd4d1cb2c3f98bff480e20048ea9ef46140e7b816ab3164ee4550c569cf30",
+      "expected_gpu_slots": 4,
+      "raw_rows": 2880,
+      "width_mismatch_rows": 0,
+      "width_mismatch_fraction": 0.0,
+      "passes_at_most_one_percent": true
+    },
+    {
+      "machine_hash": "1b67a076e563d9fc45dd1ebff9eddc94bac76eeca844388ee684f6ec171470b3",
+      "expected_gpu_slots": 4,
+      "raw_rows": 2880,
+      "width_mismatch_rows": 0,
+      "width_mismatch_fraction": 0.0,
+      "passes_at_most_one_percent": true
+    },
+    {
+      "machine_hash": "6130a251a222de82195432b514101551aff1292ef3a0f41a4c40b04d7d841540",
+      "expected_gpu_slots": 4,
+      "raw_rows": 2880,
+      "width_mismatch_rows": 0,
+      "width_mismatch_fraction": 0.0,
+      "passes_at_most_one_percent": true
+    },
+    {
+      "machine_hash": "ab0a4a2cbe1ce8d23d30b15b6bce678aa64cd2f9872c8beac3d506f60f824b34",
+      "expected_gpu_slots": 4,
+      "raw_rows": 2880,
+      "width_mismatch_rows": 0,
+      "width_mismatch_fraction": 0.0,
+      "passes_at_most_one_percent": true
+    },
+    {
+      "machine_hash": "4a2858728050685b2cc53ce85bb696c68394c8c97e09ee1591164fa9f62b6084",
+      "expected_gpu_slots": 4,
+      "raw_rows": 2880,
+      "width_mismatch_rows": 0,
+      "width_mismatch_fraction": 0.0,
+      "passes_at_most_one_percent": true
+    },
+    {
+      "machine_hash": "4f7b74a5bc1ff359ed85f34c69c61f23a6191bbb93ae1825aa4c24fdbe4abe4b",
+      "expected_gpu_slots": 8,
+      "raw_rows": 105644,
+      "width_mismatch_rows": 60,
+      "width_mismatch_fraction": 0.0005679451743591685,
+      "passes_at_most_one_percent": true
+    }
+  ],
+  "five_minute_input_quality_by_split": {
+    "train": {
+      "denominator": "raw-row-observed machine × 5min UTC block × expected GPU slot whose window start is in split",
+      "observed_window_slots": 844724,
+      "valid_window_slots": 834036,
+      "valid_fraction": 0.9873473465889451,
+      "passes_at_least_half": true
+    },
+    "validation": {
+      "denominator": "raw-row-observed machine × 5min UTC block × expected GPU slot whose window start is in split",
+      "observed_window_slots": 293760,
+      "valid_window_slots": 292992,
+      "valid_fraction": 0.9973856209150327,
+      "passes_at_least_half": true
+    },
+    "test": {
+      "denominator": "raw-row-observed machine × 5min UTC block × expected GPU slot whose window start is in split",
+      "observed_window_slots": 293760,
+      "valid_window_slots": 293760,
+      "valid_fraction": 1.0,
+      "passes_at_least_half": true
+    }
+  },
+  "source_quality_gates_pass": true,
+  "gate_counts_by_split_cohort_state": [
+    {
+      "split": "test",
+      "cohort": "complete",
+      "current_state": "at_least_80",
+      "candidates": 75602,
+      "future_complete": 75602,
+      "future_observation_fraction": 1.0,
+      "positive_gate_count": 73629,
+      "negative_gate_count": 1973,
+      "eligible_machine_count": 14,
+      "positive_machine_count": 14,
+      "negative_machine_count": 14,
+      "positive_utc_day_count": 15
+    },
+    {
+      "split": "test",
+      "cohort": "complete",
+      "current_state": "below_80",
+      "candidates": 217750,
+      "future_complete": 217750,
+      "future_observation_fraction": 1.0,
+      "positive_gate_count": 28325,
+      "negative_gate_count": 189425,
+      "eligible_machine_count": 16,
+      "positive_machine_count": 14,
+      "negative_machine_count": 16,
+      "positive_utc_day_count": 15
+    },
+    {
+      "split": "train",
+      "cohort": "complete",
+      "current_state": "at_least_80",
+      "candidates": 211186,
+      "future_complete": 210902,
+      "future_observation_fraction": 0.9986552138872842,
+      "positive_gate_count": 202874,
+      "negative_gate_count": 8028,
+      "eligible_machine_count": 19,
+      "positive_machine_count": 19,
+      "negative_machine_count": 19,
+      "positive_utc_day_count": 42
+    },
+    {
+      "split": "train",
+      "cohort": "complete",
+      "current_state": "below_80",
+      "candidates": 622124,
+      "future_complete": 621270,
+      "future_observation_fraction": 0.9986272833068649,
+      "positive_gate_count": 120088,
+      "negative_gate_count": 501182,
+      "eligible_machine_count": 21,
+      "positive_machine_count": 19,
+      "negative_machine_count": 21,
+      "positive_utc_day_count": 42
+    },
+    {
+      "split": "train",
+      "cohort": "partial_past",
+      "current_state": "at_least_80",
+      "candidates": 32,
+      "future_complete": 32,
+      "future_observation_fraction": 1.0,
+      "positive_gate_count": 32,
+      "negative_gate_count": 0,
+      "eligible_machine_count": 8,
+      "positive_machine_count": 8,
+      "negative_machine_count": 0,
+      "positive_utc_day_count": 2
+    },
+    {
+      "split": "train",
+      "cohort": "partial_past",
+      "current_state": "below_80",
+      "candidates": 292,
+      "future_complete": 292,
+      "future_observation_fraction": 1.0,
+      "positive_gate_count": 18,
+      "negative_gate_count": 274,
+      "eligible_machine_count": 21,
+      "positive_machine_count": 7,
+      "negative_machine_count": 21,
+      "positive_utc_day_count": 2
+    },
+    {
+      "split": "validation",
+      "cohort": "complete",
+      "current_state": "at_least_80",
+      "candidates": 85229,
+      "future_complete": 85229,
+      "future_observation_fraction": 1.0,
+      "positive_gate_count": 84283,
+      "negative_gate_count": 946,
+      "eligible_machine_count": 16,
+      "positive_machine_count": 15,
+      "negative_machine_count": 16,
+      "positive_utc_day_count": 15
+    },
+    {
+      "split": "validation",
+      "cohort": "complete",
+      "current_state": "below_80",
+      "candidates": 207347,
+      "future_complete": 207347,
+      "future_observation_fraction": 1.0,
+      "positive_gate_count": 27698,
+      "negative_gate_count": 179649,
+      "eligible_machine_count": 16,
+      "positive_machine_count": 16,
+      "negative_machine_count": 16,
+      "positive_utc_day_count": 15
+    },
+    {
+      "split": "validation",
+      "cohort": "partial_past",
+      "current_state": "below_80",
+      "candidates": 4,
+      "future_complete": 4,
+      "future_observation_fraction": 1.0,
+      "positive_gate_count": 0,
+      "negative_gate_count": 4,
+      "eligible_machine_count": 1,
+      "positive_machine_count": 0,
+      "negative_machine_count": 1,
+      "positive_utc_day_count": 0
+    }
+  ],
+  "draft_gate_checks": [
+    {
+      "split": "train",
+      "cohort": "complete",
+      "current_state": "below_80",
+      "duration_at_least_three_days": true,
+      "future_observation_at_least_half": true,
+      "eligible_at_least_2000": true,
+      "positive_at_least_100": true,
+      "negative_at_least_100": true,
+      "eligible_machines_at_least_10": true,
+      "positive_machines_at_least_5": true,
+      "negative_machines_at_least_5": true,
+      "test_positives_on_five_days": true,
+      "passes": true
+    },
+    {
+      "split": "train",
+      "cohort": "complete",
+      "current_state": "at_least_80",
+      "duration_at_least_three_days": true,
+      "future_observation_at_least_half": true,
+      "eligible_at_least_2000": true,
+      "positive_at_least_100": true,
+      "negative_at_least_100": true,
+      "eligible_machines_at_least_10": true,
+      "positive_machines_at_least_5": true,
+      "negative_machines_at_least_5": true,
+      "test_positives_on_five_days": true,
+      "passes": true
+    },
+    {
+      "split": "train",
+      "cohort": "partial_past",
+      "current_state": "below_80",
+      "duration_at_least_three_days": true,
+      "future_observation_at_least_half": true,
+      "eligible_at_least_2000": false,
+      "positive_at_least_100": false,
+      "negative_at_least_100": true,
+      "eligible_machines_at_least_10": true,
+      "positive_machines_at_least_5": true,
+      "negative_machines_at_least_5": true,
+      "test_positives_on_five_days": true,
+      "passes": false
+    },
+    {
+      "split": "train",
+      "cohort": "partial_past",
+      "current_state": "at_least_80",
+      "duration_at_least_three_days": true,
+      "future_observation_at_least_half": true,
+      "eligible_at_least_2000": false,
+      "positive_at_least_100": false,
+      "negative_at_least_100": false,
+      "eligible_machines_at_least_10": false,
+      "positive_machines_at_least_5": true,
+      "negative_machines_at_least_5": false,
+      "test_positives_on_five_days": true,
+      "passes": false
+    },
+    {
+      "split": "validation",
+      "cohort": "complete",
+      "current_state": "below_80",
+      "duration_at_least_three_days": true,
+      "future_observation_at_least_half": true,
+      "eligible_at_least_2000": true,
+      "positive_at_least_100": true,
+      "negative_at_least_100": true,
+      "eligible_machines_at_least_10": true,
+      "positive_machines_at_least_5": true,
+      "negative_machines_at_least_5": true,
+      "test_positives_on_five_days": true,
+      "passes": true
+    },
+    {
+      "split": "validation",
+      "cohort": "complete",
+      "current_state": "at_least_80",
+      "duration_at_least_three_days": true,
+      "future_observation_at_least_half": true,
+      "eligible_at_least_2000": true,
+      "positive_at_least_100": true,
+      "negative_at_least_100": true,
+      "eligible_machines_at_least_10": true,
+      "positive_machines_at_least_5": true,
+      "negative_machines_at_least_5": true,
+      "test_positives_on_five_days": true,
+      "passes": true
+    },
+    {
+      "split": "validation",
+      "cohort": "partial_past",
+      "current_state": "below_80",
+      "duration_at_least_three_days": true,
+      "future_observation_at_least_half": true,
+      "eligible_at_least_2000": false,
+      "positive_at_least_100": false,
+      "negative_at_least_100": false,
+      "eligible_machines_at_least_10": false,
+      "positive_machines_at_least_5": false,
+      "negative_machines_at_least_5": false,
+      "test_positives_on_five_days": true,
+      "passes": false
+    },
+    {
+      "split": "validation",
+      "cohort": "partial_past",
+      "current_state": "at_least_80",
+      "duration_at_least_three_days": true,
+      "future_observation_at_least_half": false,
+      "eligible_at_least_2000": false,
+      "positive_at_least_100": false,
+      "negative_at_least_100": false,
+      "eligible_machines_at_least_10": false,
+      "positive_machines_at_least_5": false,
+      "negative_machines_at_least_5": false,
+      "test_positives_on_five_days": true,
+      "passes": false
+    },
+    {
+      "split": "test",
+      "cohort": "complete",
+      "current_state": "below_80",
+      "duration_at_least_three_days": true,
+      "future_observation_at_least_half": true,
+      "eligible_at_least_2000": true,
+      "positive_at_least_100": true,
+      "negative_at_least_100": true,
+      "eligible_machines_at_least_10": true,
+      "positive_machines_at_least_5": true,
+      "negative_machines_at_least_5": true,
+      "test_positives_on_five_days": true,
+      "passes": true
+    },
+    {
+      "split": "test",
+      "cohort": "complete",
+      "current_state": "at_least_80",
+      "duration_at_least_three_days": true,
+      "future_observation_at_least_half": true,
+      "eligible_at_least_2000": true,
+      "positive_at_least_100": true,
+      "negative_at_least_100": true,
+      "eligible_machines_at_least_10": true,
+      "positive_machines_at_least_5": true,
+      "negative_machines_at_least_5": true,
+      "test_positives_on_five_days": true,
+      "passes": true
+    },
+    {
+      "split": "test",
+      "cohort": "partial_past",
+      "current_state": "below_80",
+      "duration_at_least_three_days": true,
+      "future_observation_at_least_half": false,
+      "eligible_at_least_2000": false,
+      "positive_at_least_100": false,
+      "negative_at_least_100": false,
+      "eligible_machines_at_least_10": false,
+      "positive_machines_at_least_5": false,
+      "negative_machines_at_least_5": false,
+      "test_positives_on_five_days": false,
+      "passes": false
+    },
+    {
+      "split": "test",
+      "cohort": "partial_past",
+      "current_state": "at_least_80",
+      "duration_at_least_three_days": true,
+      "future_observation_at_least_half": false,
+      "eligible_at_least_2000": false,
+      "positive_at_least_100": false,
+      "negative_at_least_100": false,
+      "eligible_machines_at_least_10": false,
+      "positive_machines_at_least_5": false,
+      "negative_machines_at_least_5": false,
+      "test_positives_on_five_days": false,
+      "passes": false
+    }
+  ],
+  "limitations": [
+    "Raw terminal empty fields are CSV delimiters for 2/4-GPU rows. Expected-slot nulls come from NA or invalid rows; the source 8-wide encoding could merge NA and empty, but the full-source audit found no extra empty tokens.",
+    "The draft protocol must be frozen separately before any predictive scoring.",
+    "Gate counts are aggregate only; candidates contain no future flags, future utilization or row-level label."
+  ],
+  "outputs": {
+    "candidates.parquet": {
+      "rows": 1419566,
+      "sha256": "ea17eb4d9e93a6ba3fe7ebe6cefb1c5b95291c9d7593b20e961ba42378707949"
+    },
+    "minute_quality.parquet": {
+      "rows": 5248,
+      "sha256": "383d216c7f963b2bd4d913705366a77fd877f14d4f504c5052e9991aa2823611"
+    },
+    "window_quality.parquet": {
+      "rows": 5160,
+      "sha256": "7bd12499652f1ad4f96fc77da6fd9f425c59f33ecc27a622a403cc57fa42f2ed"
+    },
+    "future_observability.parquet": {
+      "rows": 1419566,
+      "sha256": "f60688b50edb99020252d2a99550d5e35eb2e5bb6f05b61c9b123edef29fc0a6"
+    },
+    "future_observability_summary.parquet": {
+      "rows": 8185,
+      "sha256": "4e2c2f8f0b07fbd45a846fefc00cf2cca4ddf1db134a4007d14ded25a226deb5"
+    }
+  }
+}

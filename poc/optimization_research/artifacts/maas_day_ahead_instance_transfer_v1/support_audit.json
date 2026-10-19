@@ -1,0 +1,38 @@
+{
+  "by_day": [
+    {
+      "day": 145,
+      "normal_events": 1174,
+      "normal_rows": 25546,
+      "six_anchor_events": 370,
+      "six_anchor_rows": 11429
+    },
+    {
+      "day": 146,
+      "normal_events": 725,
+      "normal_rows": 27967,
+      "six_anchor_events": 209,
+      "six_anchor_rows": 13493
+    }
+  ],
+  "checks": {
+    "normal_events_at_least_1000": true,
+    "normal_rows_at_least_50000": true,
+    "six_anchor_events_at_least_500": true,
+    "six_anchor_rows_at_least_20000": true
+  },
+  "compact_sha256": "6f52288916f7a8be8bacb2d911bc20294ab7f6685eda2b1f0f63cfc77af77e82",
+  "normal_events": 1899,
+  "normal_instances": 786,
+  "normal_rows": 53513,
+  "original_metrics_sha256": "6c190721d2e627d5c872cff9da01566600f2ebd47ae52569a485b4fed9bdff64",
+  "original_predictions_sha256": "5ef7d233f76cfe2efe62daa63a2fc8935360dbdd515c2fb2264f27e26be58cf1",
+  "protocol_sha256": "696dbcd4169818609d74586f03783632c70bae418094153b1792119ba55daf48",
+  "script_sha256": "cb3a2c07f083b9b1f4e3812565af5040395cb7c12205f1e2728dc55ef0c338f2",
+  "six_anchor_events": 579,
+  "six_anchor_instances": 88,
+  "six_anchor_rows": 24922,
+  "source_audit_sha256": "3a24d64122dcf8e1fd9f68627acbd70dd878924483b29c334ae74a612e75cb88",
+  "source_eligible_test_rows": 217672,
+  "status": "SUPPORT_PASS"
+}

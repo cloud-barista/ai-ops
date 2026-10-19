@@ -1,0 +1,215 @@
+{
+  "kind": "test_dry_run_no_row_labels_or_scores",
+  "protocol_sha256": "0e98811595bfef6f8dd62f28ee33551a26579297fd7f47ca5d792c62886f110a",
+  "selection_sha256": "264caaa16810c6faafc3d4cf7430c9735ed2908676dc552cb41dc0b8a06766fd",
+  "raw_audit_sha256": "d0651f320c7c2ea0cd13ab04abe09b60dc165153ce7cc576035a57586413fdde",
+  "normalized_audit_sha256": "c187926d46d10aabc0f28a8ec9605cdca0a148b7dfe78856617d4a2851cbcb06",
+  "normalized_source_sha256": "1be463e5ccab9785611ef3c83dce3f4061c9be79c624d50773ed4a3ae4ec78a2",
+  "extract": {
+    "source_rows": 3512172,
+    "source_machines": 42,
+    "retained_rows": 3512172,
+    "retained_machines": 42,
+    "candidate_counts": {
+      "raw_rows": 3512172,
+      "off_minute_rows": 0,
+      "duplicate_minute_rows": 0,
+      "duplicate_minute_keys": 0,
+      "width_mismatch_rows": 1980,
+      "row_unusable_rows": 1980,
+      "absent_slot_cells_excluded": 8555200,
+      "observed_window_keys": 702474,
+      "valid_window_slots": 3893442,
+      "observed_window_slots": 3908656,
+      "current_valid_before_split": 3893442,
+      "excluded_by_split_boundary": 46736,
+      "candidate_rows": 3846706,
+      "future_complete_rows": 3843640
+    },
+    "primary_candidates": 2983132,
+    "gate_counts_by_split_cohort_state": [
+      {
+        "split": "test",
+        "cohort": "complete",
+        "current_state": "at_least_80",
+        "candidates": 194024,
+        "future_complete": 194024,
+        "future_observation_fraction": 1.0,
+        "positive_gate_count": 183195,
+        "negative_gate_count": 10829,
+        "eligible_machine_count": 32,
+        "positive_machine_count": 32,
+        "negative_machine_count": 32,
+        "positive_utc_day_count": 15
+      },
+      {
+        "split": "test",
+        "cohort": "complete",
+        "current_state": "below_80",
+        "candidates": 599752,
+        "future_complete": 599752,
+        "future_observation_fraction": 1.0,
+        "positive_gate_count": 144362,
+        "negative_gate_count": 455390,
+        "eligible_machine_count": 33,
+        "positive_machine_count": 32,
+        "negative_machine_count": 33,
+        "positive_utc_day_count": 15
+      },
+      {
+        "split": "train",
+        "cohort": "complete",
+        "current_state": "at_least_80",
+        "candidates": 472462,
+        "future_complete": 471795,
+        "future_observation_fraction": 0.9985882462504921,
+        "positive_gate_count": 450339,
+        "negative_gate_count": 21456,
+        "eligible_machine_count": 42,
+        "positive_machine_count": 41,
+        "negative_machine_count": 41,
+        "positive_utc_day_count": 42
+      },
+      {
+        "split": "train",
+        "cohort": "complete",
+        "current_state": "below_80",
+        "candidates": 1786104,
+        "future_complete": 1783761,
+        "future_observation_fraction": 0.9986882062858602,
+        "positive_gate_count": 296723,
+        "negative_gate_count": 1487038,
+        "eligible_machine_count": 42,
+        "positive_machine_count": 42,
+        "negative_machine_count": 41,
+        "positive_utc_day_count": 42
+      },
+      {
+        "split": "train",
+        "cohort": "partial_past",
+        "current_state": "at_least_80",
+        "candidates": 94,
+        "future_complete": 94,
+        "future_observation_fraction": 1.0,
+        "positive_gate_count": 94,
+        "negative_gate_count": 0,
+        "eligible_machine_count": 19,
+        "positive_machine_count": 19,
+        "negative_machine_count": 0,
+        "positive_utc_day_count": 2
+      },
+      {
+        "split": "train",
+        "cohort": "partial_past",
+        "current_state": "below_80",
+        "candidates": 766,
+        "future_complete": 766,
+        "future_observation_fraction": 1.0,
+        "positive_gate_count": 41,
+        "negative_gate_count": 725,
+        "eligible_machine_count": 41,
+        "positive_machine_count": 12,
+        "negative_machine_count": 41,
+        "positive_utc_day_count": 2
+      },
+      {
+        "split": "validation",
+        "cohort": "complete",
+        "current_state": "at_least_80",
+        "candidates": 196212,
+        "future_complete": 196212,
+        "future_observation_fraction": 1.0,
+        "positive_gate_count": 189838,
+        "negative_gate_count": 6374,
+        "eligible_machine_count": 32,
+        "positive_machine_count": 31,
+        "negative_machine_count": 32,
+        "positive_utc_day_count": 15
+      },
+      {
+        "split": "validation",
+        "cohort": "complete",
+        "current_state": "below_80",
+        "candidates": 597276,
+        "future_complete": 597220,
+        "future_observation_fraction": 0.9999062410008104,
+        "positive_gate_count": 111136,
+        "negative_gate_count": 486084,
+        "eligible_machine_count": 33,
+        "positive_machine_count": 32,
+        "negative_machine_count": 33,
+        "positive_utc_day_count": 15
+      },
+      {
+        "split": "validation",
+        "cohort": "partial_past",
+        "current_state": "below_80",
+        "candidates": 16,
+        "future_complete": 16,
+        "future_observation_fraction": 1.0,
+        "positive_gate_count": 0,
+        "negative_gate_count": 16,
+        "eligible_machine_count": 1,
+        "positive_machine_count": 0,
+        "negative_machine_count": 1,
+        "positive_utc_day_count": 0
+      }
+    ],
+    "test_half_gate_counts": [
+      {
+        "start_utc_day": 17501,
+        "end_utc_day_exclusive": 17508,
+        "positive": 79153,
+        "negative": 165837
+      },
+      {
+        "start_utc_day": 17508,
+        "end_utc_day_exclusive": 17516,
+        "positive": 65209,
+        "negative": 289553
+      }
+    ],
+    "test_input_window_quality": {
+      "observed_window_slots": 794880,
+      "valid_window_slots": 794880
+    }
+  },
+  "test_candidates": 599752,
+  "test_future_complete": 599752,
+  "test_future_complete_fraction": 1.0,
+  "test_observed_machines": 33,
+  "test_primary_gate": {
+    "split": "test",
+    "cohort": "complete",
+    "current_state": "below_80",
+    "candidates": 599752,
+    "future_complete": 599752,
+    "future_observation_fraction": 1.0,
+    "positive_gate_count": 144362,
+    "negative_gate_count": 455390,
+    "eligible_machine_count": 33,
+    "positive_machine_count": 32,
+    "negative_machine_count": 33,
+    "positive_utc_day_count": 15
+  },
+  "test_half_gate_counts": [
+    {
+      "start_utc_day": 17501,
+      "end_utc_day_exclusive": 17508,
+      "positive": 79153,
+      "negative": 165837
+    },
+    {
+      "start_utc_day": 17508,
+      "end_utc_day_exclusive": 17516,
+      "positive": 65209,
+      "negative": 289553
+    }
+  ],
+  "test_valid_window_fraction": 1.0,
+  "test_candidate_feature_observability_sha256": "4f2f069da43492fa29e7fcf36bc92387b43999920c97f11160a4013538120796",
+  "width_valid_machines": 42,
+  "width_invalid_machines": 0,
+  "excluded_machine_hashes": [],
+  "passes": true
+}

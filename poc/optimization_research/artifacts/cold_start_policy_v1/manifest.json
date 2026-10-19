@@ -1,0 +1,187 @@
+{
+  "source_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "script_sha256": "eb639a5ac6ecedbec4c128496ef0daec9e186774e88d2eab4ef8617757dae5b1",
+  "python_packages": {
+    "sklearn": "1.6.1",
+    "pandas": "2.3.0+4.g1dfc98e16a",
+    "numpy": "2.0.2"
+  },
+  "split": "leave-one-model-ID-out and four-BERT-family joint holdout",
+  "folds": [
+    {
+      "split": "FacebookAI/roberta-base",
+      "train_models": [
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "test_models": [
+        "FacebookAI/roberta-base"
+      ],
+      "threshold_pairs": 25
+    },
+    {
+      "split": "Qwen/Qwen2.5-0.5B-Instruct",
+      "train_models": [
+        "FacebookAI/roberta-base",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "test_models": [
+        "Qwen/Qwen2.5-0.5B-Instruct"
+      ],
+      "threshold_pairs": 25
+    },
+    {
+      "split": "albert/albert-base-v2",
+      "train_models": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "test_models": [
+        "albert/albert-base-v2"
+      ],
+      "threshold_pairs": 25
+    },
+    {
+      "split": "distilbert/distilbert-base-uncased",
+      "train_models": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "test_models": [
+        "distilbert/distilbert-base-uncased"
+      ],
+      "threshold_pairs": 25
+    },
+    {
+      "split": "google-bert/bert-base-uncased",
+      "train_models": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "test_models": [
+        "google-bert/bert-base-uncased"
+      ],
+      "threshold_pairs": 25
+    },
+    {
+      "split": "google/bert_uncased_L-2_H-128_A-2",
+      "train_models": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "test_models": [
+        "google/bert_uncased_L-2_H-128_A-2"
+      ],
+      "threshold_pairs": 25
+    },
+    {
+      "split": "google/bert_uncased_L-4_H-256_A-4",
+      "train_models": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "test_models": [
+        "google/bert_uncased_L-4_H-256_A-4"
+      ],
+      "threshold_pairs": 25
+    },
+    {
+      "split": "google/bert_uncased_L-4_H-512_A-8",
+      "train_models": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/electra-small-discriminator"
+      ],
+      "test_models": [
+        "google/bert_uncased_L-4_H-512_A-8"
+      ],
+      "threshold_pairs": 25
+    },
+    {
+      "split": "google/electra-small-discriminator",
+      "train_models": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8"
+      ],
+      "test_models": [
+        "google/electra-small-discriminator"
+      ],
+      "threshold_pairs": 25
+    },
+    {
+      "split": "bert_family_4",
+      "train_models": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google/electra-small-discriminator"
+      ],
+      "test_models": [
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8"
+      ],
+      "threshold_pairs": 25
+    }
+  ],
+  "threshold_source": "five donor-only quantiles on each axis, 25 correlated synthetic batch-SLO pairs",
+  "selection": "GPU count then CPU affinity cores; no price",
+  "static_model_size_assumption": "model_parameter_bytes parsed from historical result_json, treated as registration-time metadata",
+  "scope": "one local host; two physical GPUs are not two VMs; zero held-out probes",
+  "aggregation_caveat": "threshold pairs and workloads from the same model are correlated; no independent user-SLO claim"
+}

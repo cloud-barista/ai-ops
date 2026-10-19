@@ -1,0 +1,73 @@
+{
+  "status": "EXPLORATORY_NO_GO",
+  "source_revision": "e19edbaccec8add876073a3b0668e84115a59d0f",
+  "source_sha256": "d7f677cf0c4ccfd8c702c8458c4e6c3d324e90292bf13e5f09e065431e8d5f9e",
+  "protocol_sha256": "5744651734ad823f18d38a03e64fc821afe0072dfe07aa35b952dcd08a43d588",
+  "script_sha256": "3e48abfc26b26f569161674046ae332951e59d5a9b6ef290aa5bea1532dbcbda",
+  "pairs": 64,
+  "models": 7,
+  "scope": "B200 Qwen2.5 AWQ tensor-parallel warm serving response, not VM action or user p95",
+  "outcomes_seen_before_protocol": true,
+  "assessment": {
+    "methods": {
+      "output_tok_s_median": {
+        "persistence": {
+          "model_equal_male": 0.1984376676453061,
+          "row_male": 0.19814201149008395,
+          "model_equal_direction_accuracy": 0.0
+        },
+        "gpu_linear": {
+          "model_equal_male": 0.5114281410597964,
+          "row_male": 0.5117060746404938,
+          "model_equal_direction_accuracy": 0.6873015873015873
+        },
+        "donor_median": {
+          "model_equal_male": 0.07159287656939885,
+          "row_male": 0.07136467293845863,
+          "model_equal_direction_accuracy": 0.9206349206349207
+        },
+        "ridge": {
+          "model_equal_male": 0.0652614334143881,
+          "row_male": 0.06510992991148376,
+          "model_equal_direction_accuracy": 0.8412698412698411
+        }
+      },
+      "ttft_ms_p95": {
+        "persistence": {
+          "model_equal_male": 0.52132429876894,
+          "row_male": 0.5196163373331526,
+          "model_equal_direction_accuracy": 0.0
+        },
+        "gpu_linear": {
+          "model_equal_male": 0.52132429876894,
+          "row_male": 0.5196163373331526,
+          "model_equal_direction_accuracy": 0.0
+        },
+        "donor_median": {
+          "model_equal_male": 0.177453788516343,
+          "row_male": 0.17786633721964357,
+          "model_equal_direction_accuracy": 1.0
+        },
+        "ridge": {
+          "model_equal_male": 0.17625450838655718,
+          "row_male": 0.1759513748308951,
+          "model_equal_direction_accuracy": 1.0
+        }
+      }
+    },
+    "best_fixed_baseline_by_target": {
+      "output_tok_s_median": "donor_median",
+      "ttft_ms_p95": "donor_median"
+    },
+    "models_better_on_both": 2,
+    "worst_model_loss_ratio_to_best_baseline": 2.2967679070133773,
+    "gate": {
+      "all_passed": false,
+      "checks": {
+        "both_model_equal_male_at_least_5pct_better": false,
+        "at_least_5_of_7_models_better_on_both": false,
+        "no_model_metric_more_than_20pct_worse": false
+      }
+    }
+  }
+}

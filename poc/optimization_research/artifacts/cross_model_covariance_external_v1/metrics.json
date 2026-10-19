@@ -1,0 +1,388 @@
+{
+  "source_snapshot_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "script_sha256": "6dfa607a172b2049e2273a200bd2523a6958a344011189e8bc28d283838b5346",
+  "training": "only other-model main-campaign outcomes",
+  "probes": "only eight held-model main-campaign GPU1/two-core anchors",
+  "external_observations_before_prediction": 0,
+  "external_conditions_overlap_main": false,
+  "fold_prior_modes": {
+    "FacebookAI/roberta-base": {
+      "mode": "interpolated_donor_covariance_plus_kernel",
+      "aligned_donor_models": [
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "shared_main_grid_conditions": 64,
+      "interpolation_ridge": 0.1
+    },
+    "Qwen/Qwen2.5-0.5B-Instruct": {
+      "mode": "kernel_fallback_no_same_task_donors",
+      "aligned_donor_models": []
+    },
+    "albert/albert-base-v2": {
+      "mode": "interpolated_donor_covariance_plus_kernel",
+      "aligned_donor_models": [
+        "FacebookAI/roberta-base",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "shared_main_grid_conditions": 64,
+      "interpolation_ridge": 0.1
+    },
+    "distilbert/distilbert-base-uncased": {
+      "mode": "interpolated_donor_covariance_plus_kernel",
+      "aligned_donor_models": [
+        "FacebookAI/roberta-base",
+        "albert/albert-base-v2",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "shared_main_grid_conditions": 64,
+      "interpolation_ridge": 0.1
+    },
+    "google-bert/bert-base-uncased": {
+      "mode": "interpolated_donor_covariance_plus_kernel",
+      "aligned_donor_models": [
+        "FacebookAI/roberta-base",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "shared_main_grid_conditions": 64,
+      "interpolation_ridge": 0.1
+    },
+    "google/bert_uncased_L-2_H-128_A-2": {
+      "mode": "interpolated_donor_covariance_plus_kernel",
+      "aligned_donor_models": [
+        "FacebookAI/roberta-base",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "shared_main_grid_conditions": 64,
+      "interpolation_ridge": 0.1
+    },
+    "google/bert_uncased_L-4_H-256_A-4": {
+      "mode": "interpolated_donor_covariance_plus_kernel",
+      "aligned_donor_models": [
+        "FacebookAI/roberta-base",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "shared_main_grid_conditions": 64,
+      "interpolation_ridge": 0.1
+    },
+    "google/bert_uncased_L-4_H-512_A-8": {
+      "mode": "interpolated_donor_covariance_plus_kernel",
+      "aligned_donor_models": [
+        "FacebookAI/roberta-base",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/electra-small-discriminator"
+      ],
+      "shared_main_grid_conditions": 64,
+      "interpolation_ridge": 0.1
+    },
+    "google/electra-small-discriminator": {
+      "mode": "interpolated_donor_covariance_plus_kernel",
+      "aligned_donor_models": [
+        "FacebookAI/roberta-base",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8"
+      ],
+      "shared_main_grid_conditions": 64,
+      "interpolation_ridge": 0.1
+    }
+  },
+  "per_campaign_prior_method": [
+    {
+      "campaign": "khu-hf-local-novel-matrix",
+      "prior_mode": "interpolated_donor_covariance_plus_kernel",
+      "method": "space_cov_transfer",
+      "models": 8,
+      "groups": 16,
+      "latency_male": 0.3198789198409604,
+      "rps_male": 0.3794608373614284,
+      "feasible_groups": 11,
+      "successful_choices": 11,
+      "slo_violations": 0,
+      "mean_main_probe_gpu_wall_seconds": 5.757189875
+    },
+    {
+      "campaign": "khu-hf-local-novel-matrix",
+      "prior_mode": "interpolated_donor_covariance_plus_kernel",
+      "method": "space_global_mean",
+      "models": 8,
+      "groups": 16,
+      "latency_male": 0.5535488156062356,
+      "rps_male": 0.5292528413712277,
+      "feasible_groups": 11,
+      "successful_choices": 11,
+      "slo_violations": 0,
+      "mean_main_probe_gpu_wall_seconds": 5.757189875
+    },
+    {
+      "campaign": "khu-hf-local-novel-matrix",
+      "prior_mode": "interpolated_donor_covariance_plus_kernel",
+      "method": "space_kernel_transfer",
+      "models": 8,
+      "groups": 16,
+      "latency_male": 0.34577743946485445,
+      "rps_male": 0.36113021992151295,
+      "feasible_groups": 11,
+      "successful_choices": 11,
+      "slo_violations": 0,
+      "mean_main_probe_gpu_wall_seconds": 5.757189875
+    },
+    {
+      "campaign": "khu-hf-local-novel-matrix",
+      "prior_mode": "interpolated_donor_covariance_plus_kernel",
+      "method": "space_ridge",
+      "models": 8,
+      "groups": 16,
+      "latency_male": 0.34165486246573346,
+      "rps_male": 0.3481393151344793,
+      "feasible_groups": 11,
+      "successful_choices": 11,
+      "slo_violations": 0,
+      "mean_main_probe_gpu_wall_seconds": 5.757189875
+    },
+    {
+      "campaign": "khu-hf-local-novel-matrix",
+      "prior_mode": "interpolated_donor_covariance_plus_kernel",
+      "method": "zero_shot",
+      "models": 8,
+      "groups": 16,
+      "latency_male": 0.838549110807482,
+      "rps_male": 0.9061227781986811,
+      "feasible_groups": 11,
+      "successful_choices": 10,
+      "slo_violations": 1,
+      "mean_main_probe_gpu_wall_seconds": 0.0
+    },
+    {
+      "campaign": "khu-hf-local-novel-matrix",
+      "prior_mode": "kernel_fallback_no_same_task_donors",
+      "method": "space_cov_transfer",
+      "models": 1,
+      "groups": 2,
+      "latency_male": 0.32502557050974074,
+      "rps_male": 0.21041404634864833,
+      "feasible_groups": 2,
+      "successful_choices": 1,
+      "slo_violations": 1,
+      "mean_main_probe_gpu_wall_seconds": 16.540433
+    },
+    {
+      "campaign": "khu-hf-local-novel-matrix",
+      "prior_mode": "kernel_fallback_no_same_task_donors",
+      "method": "space_global_mean",
+      "models": 1,
+      "groups": 2,
+      "latency_male": 0.5949020236601206,
+      "rps_male": 0.42587691323530324,
+      "feasible_groups": 2,
+      "successful_choices": 1,
+      "slo_violations": 1,
+      "mean_main_probe_gpu_wall_seconds": 16.540433
+    },
+    {
+      "campaign": "khu-hf-local-novel-matrix",
+      "prior_mode": "kernel_fallback_no_same_task_donors",
+      "method": "space_kernel_transfer",
+      "models": 1,
+      "groups": 2,
+      "latency_male": 0.3250255705097408,
+      "rps_male": 0.21041404634864816,
+      "feasible_groups": 2,
+      "successful_choices": 1,
+      "slo_violations": 1,
+      "mean_main_probe_gpu_wall_seconds": 16.540433
+    },
+    {
+      "campaign": "khu-hf-local-novel-matrix",
+      "prior_mode": "kernel_fallback_no_same_task_donors",
+      "method": "space_ridge",
+      "models": 1,
+      "groups": 2,
+      "latency_male": 0.3937156440187874,
+      "rps_male": 0.2558421684481487,
+      "feasible_groups": 2,
+      "successful_choices": 1,
+      "slo_violations": 1,
+      "mean_main_probe_gpu_wall_seconds": 16.540433
+    },
+    {
+      "campaign": "khu-hf-local-novel-matrix",
+      "prior_mode": "kernel_fallback_no_same_task_donors",
+      "method": "zero_shot",
+      "models": 1,
+      "groups": 2,
+      "latency_male": 1.0433532691926926,
+      "rps_male": 0.9383035864607512,
+      "feasible_groups": 2,
+      "successful_choices": 1,
+      "slo_violations": 1,
+      "mean_main_probe_gpu_wall_seconds": 0.0
+    },
+    {
+      "campaign": "khu-hf-local-space-filling",
+      "prior_mode": "interpolated_donor_covariance_plus_kernel",
+      "method": "space_cov_transfer",
+      "models": 8,
+      "groups": 40,
+      "latency_male": 0.3694150650181528,
+      "rps_male": 0.3521937521349434,
+      "feasible_groups": 29,
+      "successful_choices": 27,
+      "slo_violations": 1,
+      "mean_main_probe_gpu_wall_seconds": 5.757189875
+    },
+    {
+      "campaign": "khu-hf-local-space-filling",
+      "prior_mode": "interpolated_donor_covariance_plus_kernel",
+      "method": "space_global_mean",
+      "models": 8,
+      "groups": 40,
+      "latency_male": 0.41446080102235633,
+      "rps_male": 0.3795778992297417,
+      "feasible_groups": 29,
+      "successful_choices": 26,
+      "slo_violations": 1,
+      "mean_main_probe_gpu_wall_seconds": 5.757189875
+    },
+    {
+      "campaign": "khu-hf-local-space-filling",
+      "prior_mode": "interpolated_donor_covariance_plus_kernel",
+      "method": "space_kernel_transfer",
+      "models": 8,
+      "groups": 40,
+      "latency_male": 0.35010603217169717,
+      "rps_male": 0.32361084479276736,
+      "feasible_groups": 29,
+      "successful_choices": 26,
+      "slo_violations": 1,
+      "mean_main_probe_gpu_wall_seconds": 5.757189875
+    },
+    {
+      "campaign": "khu-hf-local-space-filling",
+      "prior_mode": "interpolated_donor_covariance_plus_kernel",
+      "method": "space_ridge",
+      "models": 8,
+      "groups": 40,
+      "latency_male": 0.4021380486718665,
+      "rps_male": 0.31387662818243167,
+      "feasible_groups": 29,
+      "successful_choices": 26,
+      "slo_violations": 1,
+      "mean_main_probe_gpu_wall_seconds": 5.757189875
+    },
+    {
+      "campaign": "khu-hf-local-space-filling",
+      "prior_mode": "interpolated_donor_covariance_plus_kernel",
+      "method": "zero_shot",
+      "models": 8,
+      "groups": 40,
+      "latency_male": 0.815781986519356,
+      "rps_male": 0.832584764926095,
+      "feasible_groups": 29,
+      "successful_choices": 18,
+      "slo_violations": 5,
+      "mean_main_probe_gpu_wall_seconds": 0.0
+    },
+    {
+      "campaign": "khu-hf-local-space-filling",
+      "prior_mode": "kernel_fallback_no_same_task_donors",
+      "method": "space_cov_transfer",
+      "models": 1,
+      "groups": 4,
+      "latency_male": 0.15780998115374992,
+      "rps_male": 0.1606907046719888,
+      "feasible_groups": 4,
+      "successful_choices": 3,
+      "slo_violations": 1,
+      "mean_main_probe_gpu_wall_seconds": 16.540433
+    },
+    {
+      "campaign": "khu-hf-local-space-filling",
+      "prior_mode": "kernel_fallback_no_same_task_donors",
+      "method": "space_global_mean",
+      "models": 1,
+      "groups": 4,
+      "latency_male": 0.27806685501244444,
+      "rps_male": 0.24340810623522374,
+      "feasible_groups": 4,
+      "successful_choices": 3,
+      "slo_violations": 1,
+      "mean_main_probe_gpu_wall_seconds": 16.540433
+    },
+    {
+      "campaign": "khu-hf-local-space-filling",
+      "prior_mode": "kernel_fallback_no_same_task_donors",
+      "method": "space_kernel_transfer",
+      "models": 1,
+      "groups": 4,
+      "latency_male": 0.15780998115374995,
+      "rps_male": 0.16069070467198857,
+      "feasible_groups": 4,
+      "successful_choices": 3,
+      "slo_violations": 1,
+      "mean_main_probe_gpu_wall_seconds": 16.540433
+    },
+    {
+      "campaign": "khu-hf-local-space-filling",
+      "prior_mode": "kernel_fallback_no_same_task_donors",
+      "method": "space_ridge",
+      "models": 1,
+      "groups": 4,
+      "latency_male": 0.1694595814735588,
+      "rps_male": 0.17799250257987262,
+      "feasible_groups": 4,
+      "successful_choices": 3,
+      "slo_violations": 1,
+      "mean_main_probe_gpu_wall_seconds": 16.540433
+    },
+    {
+      "campaign": "khu-hf-local-space-filling",
+      "prior_mode": "kernel_fallback_no_same_task_donors",
+      "method": "zero_shot",
+      "models": 1,
+      "groups": 4,
+      "latency_male": 0.6460174923334572,
+      "rps_male": 0.7689632654584658,
+      "feasible_groups": 4,
+      "successful_choices": 1,
+      "slo_violations": 3,
+      "mean_main_probe_gpu_wall_seconds": 0.0
+    }
+  ]
+}

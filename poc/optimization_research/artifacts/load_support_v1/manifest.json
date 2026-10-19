@@ -1,0 +1,15 @@
+{
+  "scope": "icns host, direct collector v2, CUDA single replica, CPU affinity 2, cached local model/tokenizer loading",
+  "exploratory_existing_sqlite": true,
+  "predictor": "size-only ExtraTrees plus same-task donor-count gate",
+  "min_same_task_donors": 2,
+  "size_range_policy": "advisory flag; no default abstention",
+  "registration_metadata_assumption": "model_parameter_bytes must be supplied before the request; historical source is result_json",
+  "main_model_count": 9,
+  "snapshot_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "script_sha256": "08242a4cfb11974b2bf50e2bcf1f94118c70a197955d9d97eaf08cc243bf50a0",
+  "final_model_sha256": "39a8d614c101a89d1ec65dca136a4c24415da3b0d41ff8f4209422fd9ee76131",
+  "sklearn_version": "1.6.1",
+  "pandas_version": "2.3.0+4.g1dfc98e16a",
+  "numpy_version": "2.0.2"
+}

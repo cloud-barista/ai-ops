@@ -1,0 +1,56 @@
+{
+  "scope": "exploratory negative control on one host; no causal or novelty claim",
+  "source_snapshot_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "original_prediction_sha256": "95790ede420476c3d21879cd14233bc9185da8727df5aa4eb7f33c6fb500cd93",
+  "script_sha256": "9842cdb6e775a95739128df51bfa15cbc39dc0bd37c76550e1e655aef626e975",
+  "training": "outer leave-one-model-out no-count telemetry ExtraTrees, donor main campaign only",
+  "scoring": "GPU2/CPU2 RPS, with GPU1/CPU2 performance and four telemetry summaries observed",
+  "shuffling": "joint vector, within held-out model, 32 deterministic seeds; static and anchor performance unchanged",
+  "permutations_per_mode": 32,
+  "modes": [
+    "all_groups",
+    "within_batch"
+  ],
+  "main_campaign": [
+    {
+      "mode": "all_groups",
+      "aligned_macro_rps_male": 0.0960565277832372,
+      "shuffled_macro_rps_male_mean": 0.11670140518058925,
+      "shuffled_macro_rps_male_min": 0.11371695965547504,
+      "shuffled_macro_rps_male_max": 0.12266072674700634,
+      "shuffled_macro_rps_male_5_95_percentiles": [
+        0.11405278859254986,
+        0.11914489487289709
+      ],
+      "aligned_better_than_shuffle_seeds": 32,
+      "total_shuffle_seeds": 32,
+      "aligned_better_than_shuffled_mean_models": 7,
+      "model_count": 9,
+      "aligned_minus_shuffled_mean_model_macro": -0.020644877397352036,
+      "descriptive_model_bootstrap_95_interval": [
+        -0.035213237409637,
+        -0.007159627193066887
+      ]
+    },
+    {
+      "mode": "within_batch",
+      "aligned_macro_rps_male": 0.0960565277832372,
+      "shuffled_macro_rps_male_mean": 0.10937161837663968,
+      "shuffled_macro_rps_male_min": 0.1065805894336692,
+      "shuffled_macro_rps_male_max": 0.11273056130071864,
+      "shuffled_macro_rps_male_5_95_percentiles": [
+        0.10690258641646921,
+        0.11192808813088748
+      ],
+      "aligned_better_than_shuffle_seeds": 32,
+      "total_shuffle_seeds": 32,
+      "aligned_better_than_shuffled_mean_models": 7,
+      "model_count": 9,
+      "aligned_minus_shuffled_mean_model_macro": -0.013315090593402476,
+      "descriptive_model_bootstrap_95_interval": [
+        -0.023777150082260317,
+        -0.004146665136992519
+      ]
+    }
+  ]
+}

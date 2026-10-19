@@ -1,0 +1,48 @@
+{
+  "scope": "icns host, collector v2, CUDA single replica, CPU affinity 2; cached local model/tokenizer load only",
+  "exploratory_existing_sqlite": true,
+  "registration_metadata_assumption": "model_parameter_bytes is known when the application is registered; historical source field is result_json",
+  "feature_names": [
+    "log_parameter_gib",
+    "log_batch_size",
+    "log_max_length",
+    "log1p_request_concurrency",
+    "is_causal_lm",
+    "log_batch_x_log_length"
+  ],
+  "methods": [
+    "donor_model_median",
+    "size_affine_nnls",
+    "size_log_ridge",
+    "size_only_extra_trees",
+    "static_log_ridge",
+    "static_log_extra_trees"
+  ],
+  "panel_counts": {
+    "khu-hf-local-exhaustive": 575,
+    "khu-hf-local-novel-matrix": 18,
+    "khu-hf-local-space-filling": 44
+  },
+  "main_models": [
+    "FacebookAI/roberta-base",
+    "Qwen/Qwen2.5-0.5B-Instruct",
+    "albert/albert-base-v2",
+    "distilbert/distilbert-base-uncased",
+    "google-bert/bert-base-uncased",
+    "google/bert_uncased_L-2_H-128_A-2",
+    "google/bert_uncased_L-4_H-256_A-4",
+    "google/bert_uncased_L-4_H-512_A-8",
+    "google/electra-small-discriminator"
+  ],
+  "main_median_load_to_wall_fraction": 0.33139311421183815,
+  "snapshot_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "script_sha256": "8a3a0936f9a99561c927111c9e4a754966da09c51e09e4fe9ae58afb45e45847",
+  "final_model_sha256": {
+    "size_only_extra_trees": "af645e5eb8f66a327e0d1d82519707377c61361cc5e15ef6b7d807587dae5c02",
+    "static_log_ridge": "a1298376291591f8cde0dbaec8ac3d88193033e18336fa85c84454fb31e22e66",
+    "static_log_extra_trees": "33b51ad0aab96871c843f0d84b90dc7159dbfad16e29534d12f12672de164dc0"
+  },
+  "pandas_version": "2.3.0+4.g1dfc98e16a",
+  "numpy_version": "2.0.2",
+  "sklearn_version": "1.6.1"
+}

@@ -1,0 +1,300 @@
+{
+  "buckets": {
+    "bucket0": {
+      "by_day_recent_high_state": {
+        "145_0": {
+          "brier": {
+            "global_exact": 0.0213921973615966,
+            "high_mix50": 0.02129621664955724,
+            "last_beta": 0.022927386521482893,
+            "model_last": 0.02129621664955724,
+            "pooled": 0.021272316465134496,
+            "state_exact": 0.021307591938732485
+          },
+          "events": 578,
+          "high_mix50_ap": 0.17587065703586513,
+          "ids": 462,
+          "rows": 24817
+        },
+        "145_1": {
+          "brier": {
+            "global_exact": 0.15049504401053035,
+            "high_mix50": 0.14856865079996545,
+            "last_beta": 0.15087453412423027,
+            "model_last": 0.1480255434474223,
+            "pooled": 0.1581766399325679,
+            "state_exact": 0.1473266162036607
+          },
+          "events": 596,
+          "high_mix50_ap": 0.8313005346329105,
+          "ids": 118,
+          "rows": 729
+        },
+        "146_0": {
+          "brier": {
+            "global_exact": 0.011384823405214338,
+            "high_mix50": 0.011303512176155132,
+            "last_beta": 0.011954087577887037,
+            "model_last": 0.011303512176155132,
+            "pooled": 0.011549152906477888,
+            "state_exact": 0.011311813887955064
+          },
+          "events": 329,
+          "high_mix50_ap": 0.12568040760776317,
+          "ids": 375,
+          "rows": 27498
+        },
+        "146_1": {
+          "brier": {
+            "global_exact": 0.1637645275026836,
+            "high_mix50": 0.13117566550797535,
+            "last_beta": 0.13235115757192872,
+            "model_last": 0.13336533860907063,
+            "pooled": 0.15184869087357022,
+            "state_exact": 0.1348377819028399
+          },
+          "events": 396,
+          "high_mix50_ap": 0.7971361520140927,
+          "ids": 89,
+          "rows": 469
+        }
+      },
+      "model_last_vs_pooled": {
+        "gain_by_recent_high_state": {
+          "0": 6.161497925595721,
+          "1": 16.068841549721434
+        },
+        "high_state_share_of_net_gain": 0.7228338356039516,
+        "id_losses": 355,
+        "id_wins": 431,
+        "top_10_absolute_id_gain_share": 0.20849307572007356,
+        "top_10_positive_id_gain_sum": 17.44101509214023,
+        "total_squared_error_gain": 22.23033947531715
+      },
+      "overall": {
+        "brier": {
+          "global_exact": 0.019256376701021472,
+          "high_mix50": 0.018858223608625775,
+          "last_beta": 0.019990706553513673,
+          "model_last": 0.018870015723147664,
+          "pooled": 0.019285435144135405,
+          "state_exact": 0.018882940413720274
+        },
+        "events": 1899,
+        "high_mix50_ap": 0.5565220377181044,
+        "ids": 786,
+        "rows": 53513
+      },
+      "posthoc_mix50_relative_brier_gain_vs_pooled": 0.022152029877300583,
+      "posthoc_mix50_vs_pooled_id_bootstrap": {
+        "draws": 2000,
+        "ids": 786,
+        "percentile_95": [
+          -0.000794403520610658,
+          -7.380187128477368e-05
+        ],
+        "point": -0.00042721153550963077,
+        "seed": 43
+      }
+    },
+    "bucket1": {
+      "by_day_recent_high_state": {
+        "145_0": {
+          "brier": {
+            "global_exact": 0.02183303082296495,
+            "high_mix50": 0.02176724716470825,
+            "last_beta": 0.02290291614049212,
+            "model_last": 0.02176724716470825,
+            "pooled": 0.021738968258609666,
+            "state_exact": 0.02178212725387109
+          },
+          "events": 598,
+          "high_mix50_ap": 0.1368472499356478,
+          "ids": 464,
+          "rows": 25694
+        },
+        "145_1": {
+          "brier": {
+            "global_exact": 0.15142191067528368,
+            "high_mix50": 0.14300746969892716,
+            "last_beta": 0.14434548518691165,
+            "model_last": 0.1450390723364384,
+            "pooled": 0.15938225645871953,
+            "state_exact": 0.14543936717036524
+          },
+          "events": 623,
+          "high_mix50_ap": 0.8312388812979052,
+          "ids": 96,
+          "rows": 755
+        },
+        "146_0": {
+          "brier": {
+            "global_exact": 0.01697950911931864,
+            "high_mix50": 0.01695990399172273,
+            "last_beta": 0.017673360499572258,
+            "model_last": 0.01695990399172273,
+            "pooled": 0.017045627576203964,
+            "state_exact": 0.016958220577183044
+          },
+          "events": 509,
+          "high_mix50_ap": 0.11267042738242229,
+          "ids": 386,
+          "rows": 28330
+        },
+        "146_1": {
+          "brier": {
+            "global_exact": 0.16688855211694484,
+            "high_mix50": 0.12903195830749906,
+            "last_beta": 0.12937245107867165,
+            "model_last": 0.13165336885613976,
+            "pooled": 0.1560320464314278,
+            "state_exact": 0.13422679465485293
+          },
+          "events": 557,
+          "high_mix50_ap": 0.8226072045792079,
+          "ids": 100,
+          "rows": 657
+        }
+      },
+      "model_last_vs_pooled": {
+        "gain_by_recent_high_state": {
+          "0": 1.7019509350562412,
+          "1": 26.8458951792865
+        },
+        "high_state_share_of_net_gain": 0.9403825098314103,
+        "id_losses": 366,
+        "id_wins": 421,
+        "top_10_absolute_id_gain_share": 0.21734428551163518,
+        "top_10_positive_id_gain_sum": 17.528779976287947,
+        "total_squared_error_gain": 28.547846114342743
+      },
+      "overall": {
+        "brier": {
+          "global_exact": 0.0228367253881274,
+          "high_mix50": 0.022232959899095094,
+          "last_beta": 0.023146193302934777,
+          "model_last": 0.022291696581427475,
+          "pooled": 0.02280666602572978,
+          "state_exact": 0.02233368375991096
+        },
+        "events": 2287,
+        "high_mix50_ap": 0.5425013121359956,
+        "ids": 787,
+        "rows": 55436
+      },
+      "posthoc_mix50_relative_brier_gain_vs_pooled": 0.025155194800829173,
+      "posthoc_mix50_vs_pooled_id_bootstrap": {
+        "draws": 2000,
+        "ids": 787,
+        "percentile_95": [
+          -0.0009761463598152605,
+          -0.00022038676903480157
+        ],
+        "point": -0.0005737061266346896,
+        "seed": 43
+      }
+    },
+    "bucket2": {
+      "by_day_recent_high_state": {
+        "145_0": {
+          "brier": {
+            "global_exact": 0.02665181274383796,
+            "high_mix50": 0.026673437104943337,
+            "last_beta": 0.028034322002617008,
+            "model_last": 0.026673437104943337,
+            "pooled": 0.026660115262969283,
+            "state_exact": 0.026668566874157123
+          },
+          "events": 695,
+          "high_mix50_ap": 0.16217948119685768,
+          "ids": 473,
+          "rows": 24082
+        },
+        "145_1": {
+          "brier": {
+            "global_exact": 0.15604169084275873,
+            "high_mix50": 0.14352064089688135,
+            "last_beta": 0.14359392370538307,
+            "model_last": 0.1458440413454733,
+            "pooled": 0.1612039717046157,
+            "state_exact": 0.14735993387434168
+          },
+          "events": 706,
+          "high_mix50_ap": 0.8087169833914518,
+          "ids": 122,
+          "rows": 853
+        },
+        "146_0": {
+          "brier": {
+            "global_exact": 0.017397135238661564,
+            "high_mix50": 0.01735894961017501,
+            "last_beta": 0.018550856969285625,
+            "model_last": 0.01735894961017501,
+            "pooled": 0.017405809388687944,
+            "state_exact": 0.017358536081636625
+          },
+          "events": 491,
+          "high_mix50_ap": 0.1469385827831145,
+          "ids": 385,
+          "rows": 26120
+        },
+        "146_1": {
+          "brier": {
+            "global_exact": 0.18525996475139114,
+            "high_mix50": 0.17499105061678322,
+            "last_beta": 0.17669992548930344,
+            "model_last": 0.1766632432703547,
+            "pooled": 0.18464237693895427,
+            "state_exact": 0.17637244416705478
+          },
+          "events": 405,
+          "high_mix50_ap": 0.7404461066361274,
+          "ids": 105,
+          "rows": 522
+        }
+      },
+      "model_last_vs_pooled": {
+        "gain_by_recent_high_state": {
+          "0": 0.9031608163387491,
+          "1": 17.26712837135748
+        },
+        "high_state_share_of_net_gain": 0.9502946371954105,
+        "id_losses": 149,
+        "id_wins": 646,
+        "top_10_absolute_id_gain_share": 0.2192947517641986,
+        "top_10_positive_id_gain_sum": 17.911366190137414,
+        "total_squared_error_gain": 18.17028918769623
+      },
+      "overall": {
+        "brier": {
+          "global_exact": 0.025710130306532863,
+          "high_mix50": 0.02538988136739278,
+          "last_beta": 0.026647418510787203,
+          "model_last": 0.02544523055691162,
+          "pooled": 0.025797524974727624,
+          "state_exact": 0.02546487444725006
+        },
+        "events": 2297,
+        "high_mix50_ap": 0.530600039499198,
+        "ids": 795,
+        "rows": 51577
+      },
+      "posthoc_mix50_relative_brier_gain_vs_pooled": 0.015801655691163763,
+      "posthoc_mix50_vs_pooled_id_bootstrap": {
+        "draws": 2000,
+        "ids": 795,
+        "percentile_95": [
+          -0.0008560781415391261,
+          -2.10528341340641e-06
+        ],
+        "point": -0.0004076436073348483,
+        "seed": 43
+      }
+    }
+  },
+  "development_result_sha256": "2f29675ee37e41adab910129294505d0ea59748c91dcf032cb330417ce358c43",
+  "holdout_predictions_sha256": "55daae97f7c0919fefc125468bf8471e4e7ee8f3cbd598f2da7bf1f2b5280e8c",
+  "holdout_result_sha256": "8d1b07e92012d6c07da151d9bc24c5152b837e0eba033ba11277a6ba30e74304",
+  "selection_warning": "The 50% high-state mix was inspected after all three bucket outcomes; no independent acceptance inference.",
+  "status": "EXPOSED_COHORT_POSTHOC_ONLY"
+}

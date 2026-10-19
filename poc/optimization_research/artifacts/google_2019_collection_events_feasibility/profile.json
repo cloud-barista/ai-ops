@@ -1,0 +1,69 @@
+{
+  "adjacent_time_decreases_in_file_order": 1041955,
+  "collection_type_counts": {
+    "0": 2066882,
+    "1": 14658
+  },
+  "distinct_5m_bins_with_at_least_one_row": 8929,
+  "event_type_counts": {
+    "0": 475546,
+    "1": 46291,
+    "2": 520232,
+    "3": 519742,
+    "5": 5348,
+    "6": 133329,
+    "7": 380932,
+    "8": 50,
+    "9": 70
+  },
+  "field_presence_rows": {
+    "alloc_collection_id": 49113,
+    "collection_id": 2081540,
+    "collection_logical_name": 2081540,
+    "collection_name": 2081540,
+    "collection_type": 2081540,
+    "max_per_machine": 13710,
+    "max_per_switch": 6757,
+    "missing_type": 50,
+    "parent_collection_id": 1330621,
+    "priority": 2081540,
+    "scheduler": 2081532,
+    "scheduling_class": 2081540,
+    "start_after_collection_ids": 2081540,
+    "time": 2081540,
+    "type": 2081540,
+    "user": 2081540,
+    "vertical_scaling": 2081532
+  },
+  "five_min_bin_observed_row_count": {
+    "max": 4969,
+    "min": 31
+  },
+  "missing_essential_field_rows": {},
+  "missing_type_counts": {
+    "2": 50,
+    "ABSENT": 2081490
+  },
+  "rows": 2081540,
+  "source": {
+    "bucket": "clusterdata_2019_a",
+    "compressed_bytes": 133462892,
+    "compressed_sha256": "2288aa6bb4ef5157a68ca73719685b5bf438edcc85ef5ea5eb472c294cb271d4",
+    "generation": "1596841425790024",
+    "object": "collection_events-000000000000.json.gz",
+    "schema_bucket": "clusterdata_2019_schema",
+    "schema_generation": "1596854498220506",
+    "schema_object": "collection_events.schema.json",
+    "schema_sha256": "63e6cea700e31608b982206c375bc091fbb7ae1d6e8ab92ed499050af4c77dc3"
+  },
+  "time_us": [
+    0,
+    2678997112020
+  ],
+  "vertical_scaling_setting_counts": {
+    "1": 142859,
+    "2": 1385768,
+    "3": 552905,
+    "ABSENT": 8
+  }
+}

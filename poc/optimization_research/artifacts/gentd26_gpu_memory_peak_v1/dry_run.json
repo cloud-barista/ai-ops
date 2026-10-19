@@ -1,0 +1,51 @@
+{
+  "source_sha256": {
+    "pod_gpu_memory_used_bytes_anon.csv": "0edc1ad35284b6b7236bdd2e69795052bedc302d7b295a1a32c5bb9ff4579596",
+    "pod_gpu_duty_cycle_anon.csv": "b3a91d9bd9141156e66da6b8d34520602246ee043ac60b0d2172e689a3919f99"
+  },
+  "protocol_sha256": "213a9183c86d712f74f291d0e1420d73e6ff112a88b2bbb935629d8bba07d030",
+  "script_sha256": "227e737fbc5e88ba06c88f441af3479859444743106e715fa2ff9d674a2094cf",
+  "cohorts": {
+    "fit_development": {
+      "rows": 7164,
+      "containers": 92,
+      "duty_at_least_half_observed": 1.0
+    },
+    "fit_heldout": {
+      "rows": 1813,
+      "containers": 23,
+      "duty_at_least_half_observed": 1.0
+    },
+    "validation_development": {
+      "rows": 3672,
+      "containers": 85,
+      "duty_at_least_half_observed": 0.9980936819172114
+    },
+    "validation_heldout": {
+      "rows": 1058,
+      "containers": 25,
+      "duty_at_least_half_observed": 1.0
+    },
+    "test_development": {
+      "rows": 11185,
+      "containers": 92,
+      "duty_at_least_half_observed": 0.9628967367009388
+    },
+    "test_heldout": {
+      "rows": 3032,
+      "containers": 28,
+      "duty_at_least_half_observed": 1.0
+    },
+    "boundary_development": {
+      "rows": 1090,
+      "containers": 85,
+      "duty_at_least_half_observed": 0.9880733944954129
+    },
+    "boundary_heldout": {
+      "rows": 293,
+      "containers": 25,
+      "duty_at_least_half_observed": 1.0
+    }
+  },
+  "contains_heldout_or_test_targets": false
+}

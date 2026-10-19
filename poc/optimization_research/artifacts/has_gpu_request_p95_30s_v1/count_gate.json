@@ -1,0 +1,203 @@
+{
+  "families": [
+    {
+      "candidate_anchors": 61,
+      "eligible_anchors": 61,
+      "family": "bert",
+      "passed": true,
+      "runs": 8,
+      "runs_with_eligible_windows": 8
+    },
+    {
+      "candidate_anchors": 24,
+      "eligible_anchors": 24,
+      "family": "resnet",
+      "passed": true,
+      "runs": 4,
+      "runs_with_eligible_windows": 4
+    },
+    {
+      "candidate_anchors": 18,
+      "eligible_anchors": 18,
+      "family": "convnext",
+      "passed": true,
+      "runs": 3,
+      "runs_with_eligible_windows": 3
+    },
+    {
+      "candidate_anchors": 18,
+      "eligible_anchors": 18,
+      "family": "mobilenet",
+      "passed": true,
+      "runs": 3,
+      "runs_with_eligible_windows": 3
+    }
+  ],
+  "manifest_sha256": "1ea747f3359af1738449f9e3fbd62a90a6e64ca75aad5e84b4056ce1ec1cda9b",
+  "passed": true,
+  "runs": [
+    {
+      "candidate_anchors": 10,
+      "eligible_anchors": 10,
+      "family": "bert",
+      "future_count_pass": 10,
+      "past_count_pass": 10,
+      "request_rows": 2591,
+      "run": "1-bert"
+    },
+    {
+      "candidate_anchors": 8,
+      "eligible_anchors": 8,
+      "family": "bert",
+      "future_count_pass": 8,
+      "past_count_pass": 8,
+      "request_rows": 4858,
+      "run": "1-bert-stress"
+    },
+    {
+      "candidate_anchors": 6,
+      "eligible_anchors": 6,
+      "family": "convnext",
+      "future_count_pass": 6,
+      "past_count_pass": 6,
+      "request_rows": 2690,
+      "run": "1-convnext"
+    },
+    {
+      "candidate_anchors": 6,
+      "eligible_anchors": 6,
+      "family": "mobilenet",
+      "future_count_pass": 6,
+      "past_count_pass": 6,
+      "request_rows": 2690,
+      "run": "1-mobilenet"
+    },
+    {
+      "candidate_anchors": 6,
+      "eligible_anchors": 6,
+      "family": "mobilenet",
+      "future_count_pass": 6,
+      "past_count_pass": 6,
+      "request_rows": 4890,
+      "run": "1-mobilenet-stress"
+    },
+    {
+      "candidate_anchors": 7,
+      "eligible_anchors": 7,
+      "family": "bert",
+      "future_count_pass": 7,
+      "past_count_pass": 7,
+      "request_rows": 2651,
+      "run": "2-bert"
+    },
+    {
+      "candidate_anchors": 8,
+      "eligible_anchors": 8,
+      "family": "bert",
+      "future_count_pass": 8,
+      "past_count_pass": 8,
+      "request_rows": 4890,
+      "run": "2-bert-stress"
+    },
+    {
+      "candidate_anchors": 6,
+      "eligible_anchors": 6,
+      "family": "convnext",
+      "future_count_pass": 6,
+      "past_count_pass": 6,
+      "request_rows": 2690,
+      "run": "2-convnext"
+    },
+    {
+      "candidate_anchors": 6,
+      "eligible_anchors": 6,
+      "family": "convnext",
+      "future_count_pass": 6,
+      "past_count_pass": 6,
+      "request_rows": 4890,
+      "run": "2-convnext-stress"
+    },
+    {
+      "candidate_anchors": 6,
+      "eligible_anchors": 6,
+      "family": "mobilenet",
+      "future_count_pass": 6,
+      "past_count_pass": 6,
+      "request_rows": 2690,
+      "run": "2-mobilenet"
+    },
+    {
+      "candidate_anchors": 6,
+      "eligible_anchors": 6,
+      "family": "resnet",
+      "future_count_pass": 6,
+      "past_count_pass": 6,
+      "request_rows": 2690,
+      "run": "2-resnet"
+    },
+    {
+      "candidate_anchors": 6,
+      "eligible_anchors": 6,
+      "family": "bert",
+      "future_count_pass": 6,
+      "past_count_pass": 6,
+      "request_rows": 2681,
+      "run": "3-bert"
+    },
+    {
+      "candidate_anchors": 8,
+      "eligible_anchors": 8,
+      "family": "bert",
+      "future_count_pass": 8,
+      "past_count_pass": 8,
+      "request_rows": 4705,
+      "run": "3-bert-stress"
+    },
+    {
+      "candidate_anchors": 6,
+      "eligible_anchors": 6,
+      "family": "resnet",
+      "future_count_pass": 6,
+      "past_count_pass": 6,
+      "request_rows": 2690,
+      "run": "3-resnet"
+    },
+    {
+      "candidate_anchors": 6,
+      "eligible_anchors": 6,
+      "family": "bert",
+      "future_count_pass": 6,
+      "past_count_pass": 6,
+      "request_rows": 2690,
+      "run": "4-bert"
+    },
+    {
+      "candidate_anchors": 8,
+      "eligible_anchors": 8,
+      "family": "bert",
+      "future_count_pass": 8,
+      "past_count_pass": 8,
+      "request_rows": 4655,
+      "run": "4-bert-stress"
+    },
+    {
+      "candidate_anchors": 6,
+      "eligible_anchors": 6,
+      "family": "resnet",
+      "future_count_pass": 6,
+      "past_count_pass": 6,
+      "request_rows": 2690,
+      "run": "4-resnet"
+    },
+    {
+      "candidate_anchors": 6,
+      "eligible_anchors": 6,
+      "family": "resnet",
+      "future_count_pass": 6,
+      "past_count_pass": 6,
+      "request_rows": 2690,
+      "run": "5-resnet"
+    }
+  ],
+  "selection": "past completions and future reconstructed starts >=100"
+}

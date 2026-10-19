@@ -1,0 +1,1514 @@
+[
+  {
+    "outer_model_id": "FacebookAI/roberta-base",
+    "pseudo_model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+    "fit_model_ids": [
+      "albert/albert-base-v2",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "0c88d65cf1646a63db90acd0308f238a90ae61ef920ed677088937098babafe5",
+      "17e5586fe46d873e1dbd1dc94d39ccaaafe3d84a5d7be169c4ea08fa1e294bba",
+      "244f0994bf29a5329153f0a2a22ef8c664c04f98a7a068f4565139a70db35f49",
+      "83d77fa7995b145f88d191f6eeb4e688cad7341e86c5e0c2842ce4e2cbddd677",
+      "a27f94312d016e60ab16094cdd5aafa089af87d799ec46b81a1dacf1fabf3dbb",
+      "bdc2ed5c626822e125647e6fa9fe173ceb6487a31d3d2bc9a1dd59baf8dc6903",
+      "e6d1cc8a7dd78bb0ee5d9ab817c7bbc6a4872effb317a08698d69c3ca618c668",
+      "fcbace08a3a5b8fa7c7bbd656c5433e99a5afc9cafaff4d128be95dc4c652f3a"
+    ],
+    "covariance_mode": "kernel_fallback_no_aligned_donors"
+  },
+  {
+    "outer_model_id": "FacebookAI/roberta-base",
+    "pseudo_model_id": "distilbert/distilbert-base-uncased",
+    "fit_model_ids": [
+      "albert/albert-base-v2",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "1dcf04c0737ffee20129bc537d63be0d8763ef3c7035e05ec8bdf36b76e8ee7b",
+      "1ef767a4b8412b08cb73e2c31ea8872e447c4bc2848bae047dd1ee795253a892",
+      "6426957df78bf2880d6f052e7701cadbe542c2636245c19563d2ab04e7d8279d",
+      "88a1f09c0e5bfc28ccd3f40f30fb9d542ab80122a73b3b653598a2b0c4dd14f0",
+      "93388301a7e01ad8ce6ce8639f343bd77e1ee91374d6e5550882ef674c0d7c60",
+      "d771eb1dbd53ce4c3f3cb42dc89a81127b4610bc080e2d155d5afea4f2b69ec8",
+      "de14c6cd4831b5d6fd02836422230a5a18d770e7ce58e0199864dcd637c4bfd6",
+      "f2e3c3df5ef49ee321df5444bb0cb5cfb306a5346d6b7e2c849d3e49367b1412"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "FacebookAI/roberta-base",
+    "pseudo_model_id": "google/bert_uncased_L-2_H-128_A-2",
+    "fit_model_ids": [
+      "albert/albert-base-v2",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "24df49ec9e7cccc9aff10cafd909a23b86069e85632a34288f0cb0f863a91863",
+      "30b58e57462e57f86862b247542bc0e41d32ee4725cb082cade60503c666fec0",
+      "58b1fc77bf863a89b05868038ac93d2e08f2f278cf590f54cd98d88fb5eaa5a8",
+      "5f531032d74710fda848fd2b7dc6bf766f63d4c273c9a5d638c80d187366d45d",
+      "65bcaf1050726ea45e1be0c2b42e12791d8ee40909701b4d7b3dfe9e0f4c7460",
+      "8fa40acef3bf54b8a4acee9ab7b37bee69fc75ee98f189e669a9b97fee7f3bbd",
+      "94019ae3ab51b5cf79a333be12178b87b3550ddd24a00bd153c1cc6e78cc206d",
+      "ccb996e8caa5648ebbac35c58dc21032de19cbeedb4ff4eeea62c91973438ed8"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "FacebookAI/roberta-base",
+    "pseudo_model_id": "google/bert_uncased_L-4_H-512_A-8",
+    "fit_model_ids": [
+      "albert/albert-base-v2",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "341dd4753769adfc7713fa4bf1e5b687ff1e2b1b7bbe67fa05f260ed277c190b",
+      "3b6638b1ea8ed948986ba6b64577108b49fb7e7fb667e0ac60db7e90a4e84e7c",
+      "414fa6b226274bf405cb4eea4173bff29125e75f0cd3b9bf1cae649a3a7226bb",
+      "645ffed773fb4f7600c897b80bc00f7abef0a37551e53a04a8090f1422b2f310",
+      "8058956c65af4fe76eb97ca415c7abff3a2ad0ab4f02a18cd37ea7e80979875a",
+      "aff00ccfb93fbb8a7e9cc9202de4f3391067f76881996d9cce9efa8e86dcb5e5",
+      "bdaf03eee61f61d350431d24339b9532933a3f0e9886d2b53d56d7d55e93fecf",
+      "eed0e9e35fbc5727abea357050b17c1ae218b9b5005c326031670048b10db2fc"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "FacebookAI/roberta-base",
+    "pseudo_model_id": "albert/albert-base-v2",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "5040c567d4a4700c682837130c8057aeccca1b40d1cd9d7bdcc906ef71c63293",
+      "6c0ca92425eec580e0f94ff76af4141193647c1c8dada595e50d757a8a80c7a1",
+      "797c982c9fb93cb3a03672160922af28aad720504887aa1d89f014a35172b8a4",
+      "834f5ce9894c05e43ea4d328b23100c5068fbbaa9c59eabada3bd6549d7ac3f0",
+      "b5f194a2b057f0355b423734673b2e13f2d6e670020e665646fbe2cb17b0039a",
+      "bba8e0707f3fff3830373fb1f2dd9871d1c0b0bb3ff2a4bba496b6ccdebeaaa6",
+      "d93240dce7acf278e1eb235c46714185d14c2be2348e39fcfa24b113422c219f",
+      "dd5da64bc02b7d9f6cd7020cc863ea583485515b74cc9c97bd40b650f15b760f"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "FacebookAI/roberta-base",
+    "pseudo_model_id": "google-bert/bert-base-uncased",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "30cf9c5cb7235220ef8d982bff6f2839ce3d6b4111c588ecfb43acd9c1ed146f",
+      "436b2a7bd025cf15292aa73349b1720f49eeb2aa2c2353bf911c7101854cd426",
+      "4bff5d7622ecb846ec957b20f934a4dfdb791717b7b5fd40b3a4dc78c3cf06e2",
+      "6b1cf29f3af0e8da41aa0e1999f7d6e672b564a8466b22785061f40b8214c721",
+      "77f0678a88165ba972e07b13b30dfc691d89862b8548a57c9dc834c0e3db2375",
+      "8d2db8f4bcdd0150151305b6e2f93240648473d4ef56ed45cb234d9937bcda20",
+      "ab6cde8e545efe291ff5430ca19ec7b40e757d7cc2df9e3c00f17d0ebef2e63e",
+      "ddbe82c64ff11da1c4068988032b36ef79d8440a9a6aa8c62c0f271344f0205d"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "FacebookAI/roberta-base",
+    "pseudo_model_id": "google/bert_uncased_L-4_H-256_A-4",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "05b731b0905f0ab525ab18afecd33438e5183294d22a5b741806423d5bc80bb8",
+      "1897602d45ec3d5a8dacda7839112c4b0243f9a5807cd5b7e2a7f49f0fcbebe5",
+      "394f7d93c1441995afb0758642a7134c3696c0f05cbabdbe420aa20de223e4f4",
+      "4b1a7e0484df79ce7e88c895aeb892a15500dd56fc6027846fae7d7ccd4c5df9",
+      "4ed251ae7dcd707d8aa6931fc44eb919ef519e08804e10403ddfca46931063eb",
+      "842f96d3a69ced41cde7baa96be487e96e644b9c11bb2ade406ddf7341ed77a9",
+      "e24e9b787db66495ca870c64bd398e433a66f536df4a11547910d4fae78ac095",
+      "f85110e6b1a96e0b0073b7c03eb4038b197960b5842bb6a247b1bc4afd32f4c1"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "FacebookAI/roberta-base",
+    "pseudo_model_id": "google/electra-small-discriminator",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "21d3d15892cc15a4f31503079e0079faea6a32bece4b76e1b2d90087a2096ac5",
+      "6234be5222797023d2fa37068ff09b974dab08afd7658c2479c82deb5b9a55a8",
+      "7e8b9d800464ed5903cb251a5ac068ac122308390e8bd8523bbd1096e879a72b",
+      "a436b4f67ba2f2b8e8ca607606a381fb99434b3d96f4d40c26b5dc83804457fe",
+      "ae4309a5cc22a4e2474a06574333bac9806d184ca24f83d133b02ad1beff5844",
+      "c88cf3f5d109fc1480277b7372536cac51a51886e92c448416f2d352ba80ef7d",
+      "cd997e0ee6a6c6dae42772b1d67a00460f49e64db9a6af7d68661ded39a8181b",
+      "ce7b1f27a9680aaf3deefd504e5cfae78b6f2b9a92c613723b7fc00c061e6e4b"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+    "pseudo_model_id": "FacebookAI/roberta-base",
+    "fit_model_ids": [
+      "albert/albert-base-v2",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "116a889b99a49aa1fb1ee9996baec116e0ff5b62ca5156455823d27fb9a9feb7",
+      "351228653c37d725d76a29caf971b1473280c768d793d31c27e4b12cc65d97dd",
+      "7050c05d2c2d5431e984508fa359e9fbe390172cf6d39b2567d6f960d5f91770",
+      "980b8f1279f7d0df29647907319e443422488305f021faf09e1e033c2bbfd6ac",
+      "a2e630ba7c65c07e2019b57f111ff9bcc624e9935bb18819b0e1406fe82229f7",
+      "a3dde7e25a8b472d3330b225a0536d15fdc7495a729abcbf6875f80b2f07d170",
+      "d0841648bc1f7110a3eec6a99bd0e5d6c4e44f3a9393d0bb72dd8085d20a0831",
+      "ee5a94a904be2f007abd22264f4c77cf06dc04acc01d61b430fc6068b261b784"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+    "pseudo_model_id": "distilbert/distilbert-base-uncased",
+    "fit_model_ids": [
+      "albert/albert-base-v2",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "1dcf04c0737ffee20129bc537d63be0d8763ef3c7035e05ec8bdf36b76e8ee7b",
+      "1ef767a4b8412b08cb73e2c31ea8872e447c4bc2848bae047dd1ee795253a892",
+      "6426957df78bf2880d6f052e7701cadbe542c2636245c19563d2ab04e7d8279d",
+      "88a1f09c0e5bfc28ccd3f40f30fb9d542ab80122a73b3b653598a2b0c4dd14f0",
+      "93388301a7e01ad8ce6ce8639f343bd77e1ee91374d6e5550882ef674c0d7c60",
+      "d771eb1dbd53ce4c3f3cb42dc89a81127b4610bc080e2d155d5afea4f2b69ec8",
+      "de14c6cd4831b5d6fd02836422230a5a18d770e7ce58e0199864dcd637c4bfd6",
+      "f2e3c3df5ef49ee321df5444bb0cb5cfb306a5346d6b7e2c849d3e49367b1412"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+    "pseudo_model_id": "google/bert_uncased_L-2_H-128_A-2",
+    "fit_model_ids": [
+      "albert/albert-base-v2",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "24df49ec9e7cccc9aff10cafd909a23b86069e85632a34288f0cb0f863a91863",
+      "30b58e57462e57f86862b247542bc0e41d32ee4725cb082cade60503c666fec0",
+      "58b1fc77bf863a89b05868038ac93d2e08f2f278cf590f54cd98d88fb5eaa5a8",
+      "5f531032d74710fda848fd2b7dc6bf766f63d4c273c9a5d638c80d187366d45d",
+      "65bcaf1050726ea45e1be0c2b42e12791d8ee40909701b4d7b3dfe9e0f4c7460",
+      "8fa40acef3bf54b8a4acee9ab7b37bee69fc75ee98f189e669a9b97fee7f3bbd",
+      "94019ae3ab51b5cf79a333be12178b87b3550ddd24a00bd153c1cc6e78cc206d",
+      "ccb996e8caa5648ebbac35c58dc21032de19cbeedb4ff4eeea62c91973438ed8"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+    "pseudo_model_id": "google/bert_uncased_L-4_H-512_A-8",
+    "fit_model_ids": [
+      "albert/albert-base-v2",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "341dd4753769adfc7713fa4bf1e5b687ff1e2b1b7bbe67fa05f260ed277c190b",
+      "3b6638b1ea8ed948986ba6b64577108b49fb7e7fb667e0ac60db7e90a4e84e7c",
+      "414fa6b226274bf405cb4eea4173bff29125e75f0cd3b9bf1cae649a3a7226bb",
+      "645ffed773fb4f7600c897b80bc00f7abef0a37551e53a04a8090f1422b2f310",
+      "8058956c65af4fe76eb97ca415c7abff3a2ad0ab4f02a18cd37ea7e80979875a",
+      "aff00ccfb93fbb8a7e9cc9202de4f3391067f76881996d9cce9efa8e86dcb5e5",
+      "bdaf03eee61f61d350431d24339b9532933a3f0e9886d2b53d56d7d55e93fecf",
+      "eed0e9e35fbc5727abea357050b17c1ae218b9b5005c326031670048b10db2fc"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+    "pseudo_model_id": "albert/albert-base-v2",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "5040c567d4a4700c682837130c8057aeccca1b40d1cd9d7bdcc906ef71c63293",
+      "6c0ca92425eec580e0f94ff76af4141193647c1c8dada595e50d757a8a80c7a1",
+      "797c982c9fb93cb3a03672160922af28aad720504887aa1d89f014a35172b8a4",
+      "834f5ce9894c05e43ea4d328b23100c5068fbbaa9c59eabada3bd6549d7ac3f0",
+      "b5f194a2b057f0355b423734673b2e13f2d6e670020e665646fbe2cb17b0039a",
+      "bba8e0707f3fff3830373fb1f2dd9871d1c0b0bb3ff2a4bba496b6ccdebeaaa6",
+      "d93240dce7acf278e1eb235c46714185d14c2be2348e39fcfa24b113422c219f",
+      "dd5da64bc02b7d9f6cd7020cc863ea583485515b74cc9c97bd40b650f15b760f"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+    "pseudo_model_id": "google-bert/bert-base-uncased",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "30cf9c5cb7235220ef8d982bff6f2839ce3d6b4111c588ecfb43acd9c1ed146f",
+      "436b2a7bd025cf15292aa73349b1720f49eeb2aa2c2353bf911c7101854cd426",
+      "4bff5d7622ecb846ec957b20f934a4dfdb791717b7b5fd40b3a4dc78c3cf06e2",
+      "6b1cf29f3af0e8da41aa0e1999f7d6e672b564a8466b22785061f40b8214c721",
+      "77f0678a88165ba972e07b13b30dfc691d89862b8548a57c9dc834c0e3db2375",
+      "8d2db8f4bcdd0150151305b6e2f93240648473d4ef56ed45cb234d9937bcda20",
+      "ab6cde8e545efe291ff5430ca19ec7b40e757d7cc2df9e3c00f17d0ebef2e63e",
+      "ddbe82c64ff11da1c4068988032b36ef79d8440a9a6aa8c62c0f271344f0205d"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+    "pseudo_model_id": "google/bert_uncased_L-4_H-256_A-4",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "05b731b0905f0ab525ab18afecd33438e5183294d22a5b741806423d5bc80bb8",
+      "1897602d45ec3d5a8dacda7839112c4b0243f9a5807cd5b7e2a7f49f0fcbebe5",
+      "394f7d93c1441995afb0758642a7134c3696c0f05cbabdbe420aa20de223e4f4",
+      "4b1a7e0484df79ce7e88c895aeb892a15500dd56fc6027846fae7d7ccd4c5df9",
+      "4ed251ae7dcd707d8aa6931fc44eb919ef519e08804e10403ddfca46931063eb",
+      "842f96d3a69ced41cde7baa96be487e96e644b9c11bb2ade406ddf7341ed77a9",
+      "e24e9b787db66495ca870c64bd398e433a66f536df4a11547910d4fae78ac095",
+      "f85110e6b1a96e0b0073b7c03eb4038b197960b5842bb6a247b1bc4afd32f4c1"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+    "pseudo_model_id": "google/electra-small-discriminator",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "21d3d15892cc15a4f31503079e0079faea6a32bece4b76e1b2d90087a2096ac5",
+      "6234be5222797023d2fa37068ff09b974dab08afd7658c2479c82deb5b9a55a8",
+      "7e8b9d800464ed5903cb251a5ac068ac122308390e8bd8523bbd1096e879a72b",
+      "a436b4f67ba2f2b8e8ca607606a381fb99434b3d96f4d40c26b5dc83804457fe",
+      "ae4309a5cc22a4e2474a06574333bac9806d184ca24f83d133b02ad1beff5844",
+      "c88cf3f5d109fc1480277b7372536cac51a51886e92c448416f2d352ba80ef7d",
+      "cd997e0ee6a6c6dae42772b1d67a00460f49e64db9a6af7d68661ded39a8181b",
+      "ce7b1f27a9680aaf3deefd504e5cfae78b6f2b9a92c613723b7fc00c061e6e4b"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "albert/albert-base-v2",
+    "pseudo_model_id": "FacebookAI/roberta-base",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "116a889b99a49aa1fb1ee9996baec116e0ff5b62ca5156455823d27fb9a9feb7",
+      "351228653c37d725d76a29caf971b1473280c768d793d31c27e4b12cc65d97dd",
+      "7050c05d2c2d5431e984508fa359e9fbe390172cf6d39b2567d6f960d5f91770",
+      "980b8f1279f7d0df29647907319e443422488305f021faf09e1e033c2bbfd6ac",
+      "a2e630ba7c65c07e2019b57f111ff9bcc624e9935bb18819b0e1406fe82229f7",
+      "a3dde7e25a8b472d3330b225a0536d15fdc7495a729abcbf6875f80b2f07d170",
+      "d0841648bc1f7110a3eec6a99bd0e5d6c4e44f3a9393d0bb72dd8085d20a0831",
+      "ee5a94a904be2f007abd22264f4c77cf06dc04acc01d61b430fc6068b261b784"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "albert/albert-base-v2",
+    "pseudo_model_id": "distilbert/distilbert-base-uncased",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "1dcf04c0737ffee20129bc537d63be0d8763ef3c7035e05ec8bdf36b76e8ee7b",
+      "1ef767a4b8412b08cb73e2c31ea8872e447c4bc2848bae047dd1ee795253a892",
+      "6426957df78bf2880d6f052e7701cadbe542c2636245c19563d2ab04e7d8279d",
+      "88a1f09c0e5bfc28ccd3f40f30fb9d542ab80122a73b3b653598a2b0c4dd14f0",
+      "93388301a7e01ad8ce6ce8639f343bd77e1ee91374d6e5550882ef674c0d7c60",
+      "d771eb1dbd53ce4c3f3cb42dc89a81127b4610bc080e2d155d5afea4f2b69ec8",
+      "de14c6cd4831b5d6fd02836422230a5a18d770e7ce58e0199864dcd637c4bfd6",
+      "f2e3c3df5ef49ee321df5444bb0cb5cfb306a5346d6b7e2c849d3e49367b1412"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "albert/albert-base-v2",
+    "pseudo_model_id": "google/bert_uncased_L-2_H-128_A-2",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "24df49ec9e7cccc9aff10cafd909a23b86069e85632a34288f0cb0f863a91863",
+      "30b58e57462e57f86862b247542bc0e41d32ee4725cb082cade60503c666fec0",
+      "58b1fc77bf863a89b05868038ac93d2e08f2f278cf590f54cd98d88fb5eaa5a8",
+      "5f531032d74710fda848fd2b7dc6bf766f63d4c273c9a5d638c80d187366d45d",
+      "65bcaf1050726ea45e1be0c2b42e12791d8ee40909701b4d7b3dfe9e0f4c7460",
+      "8fa40acef3bf54b8a4acee9ab7b37bee69fc75ee98f189e669a9b97fee7f3bbd",
+      "94019ae3ab51b5cf79a333be12178b87b3550ddd24a00bd153c1cc6e78cc206d",
+      "ccb996e8caa5648ebbac35c58dc21032de19cbeedb4ff4eeea62c91973438ed8"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "albert/albert-base-v2",
+    "pseudo_model_id": "google/bert_uncased_L-4_H-512_A-8",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "341dd4753769adfc7713fa4bf1e5b687ff1e2b1b7bbe67fa05f260ed277c190b",
+      "3b6638b1ea8ed948986ba6b64577108b49fb7e7fb667e0ac60db7e90a4e84e7c",
+      "414fa6b226274bf405cb4eea4173bff29125e75f0cd3b9bf1cae649a3a7226bb",
+      "645ffed773fb4f7600c897b80bc00f7abef0a37551e53a04a8090f1422b2f310",
+      "8058956c65af4fe76eb97ca415c7abff3a2ad0ab4f02a18cd37ea7e80979875a",
+      "aff00ccfb93fbb8a7e9cc9202de4f3391067f76881996d9cce9efa8e86dcb5e5",
+      "bdaf03eee61f61d350431d24339b9532933a3f0e9886d2b53d56d7d55e93fecf",
+      "eed0e9e35fbc5727abea357050b17c1ae218b9b5005c326031670048b10db2fc"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "albert/albert-base-v2",
+    "pseudo_model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "0c88d65cf1646a63db90acd0308f238a90ae61ef920ed677088937098babafe5",
+      "17e5586fe46d873e1dbd1dc94d39ccaaafe3d84a5d7be169c4ea08fa1e294bba",
+      "244f0994bf29a5329153f0a2a22ef8c664c04f98a7a068f4565139a70db35f49",
+      "83d77fa7995b145f88d191f6eeb4e688cad7341e86c5e0c2842ce4e2cbddd677",
+      "a27f94312d016e60ab16094cdd5aafa089af87d799ec46b81a1dacf1fabf3dbb",
+      "bdc2ed5c626822e125647e6fa9fe173ceb6487a31d3d2bc9a1dd59baf8dc6903",
+      "e6d1cc8a7dd78bb0ee5d9ab817c7bbc6a4872effb317a08698d69c3ca618c668",
+      "fcbace08a3a5b8fa7c7bbd656c5433e99a5afc9cafaff4d128be95dc4c652f3a"
+    ],
+    "covariance_mode": "kernel_fallback_no_aligned_donors"
+  },
+  {
+    "outer_model_id": "albert/albert-base-v2",
+    "pseudo_model_id": "google-bert/bert-base-uncased",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "30cf9c5cb7235220ef8d982bff6f2839ce3d6b4111c588ecfb43acd9c1ed146f",
+      "436b2a7bd025cf15292aa73349b1720f49eeb2aa2c2353bf911c7101854cd426",
+      "4bff5d7622ecb846ec957b20f934a4dfdb791717b7b5fd40b3a4dc78c3cf06e2",
+      "6b1cf29f3af0e8da41aa0e1999f7d6e672b564a8466b22785061f40b8214c721",
+      "77f0678a88165ba972e07b13b30dfc691d89862b8548a57c9dc834c0e3db2375",
+      "8d2db8f4bcdd0150151305b6e2f93240648473d4ef56ed45cb234d9937bcda20",
+      "ab6cde8e545efe291ff5430ca19ec7b40e757d7cc2df9e3c00f17d0ebef2e63e",
+      "ddbe82c64ff11da1c4068988032b36ef79d8440a9a6aa8c62c0f271344f0205d"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "albert/albert-base-v2",
+    "pseudo_model_id": "google/bert_uncased_L-4_H-256_A-4",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "05b731b0905f0ab525ab18afecd33438e5183294d22a5b741806423d5bc80bb8",
+      "1897602d45ec3d5a8dacda7839112c4b0243f9a5807cd5b7e2a7f49f0fcbebe5",
+      "394f7d93c1441995afb0758642a7134c3696c0f05cbabdbe420aa20de223e4f4",
+      "4b1a7e0484df79ce7e88c895aeb892a15500dd56fc6027846fae7d7ccd4c5df9",
+      "4ed251ae7dcd707d8aa6931fc44eb919ef519e08804e10403ddfca46931063eb",
+      "842f96d3a69ced41cde7baa96be487e96e644b9c11bb2ade406ddf7341ed77a9",
+      "e24e9b787db66495ca870c64bd398e433a66f536df4a11547910d4fae78ac095",
+      "f85110e6b1a96e0b0073b7c03eb4038b197960b5842bb6a247b1bc4afd32f4c1"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "albert/albert-base-v2",
+    "pseudo_model_id": "google/electra-small-discriminator",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "21d3d15892cc15a4f31503079e0079faea6a32bece4b76e1b2d90087a2096ac5",
+      "6234be5222797023d2fa37068ff09b974dab08afd7658c2479c82deb5b9a55a8",
+      "7e8b9d800464ed5903cb251a5ac068ac122308390e8bd8523bbd1096e879a72b",
+      "a436b4f67ba2f2b8e8ca607606a381fb99434b3d96f4d40c26b5dc83804457fe",
+      "ae4309a5cc22a4e2474a06574333bac9806d184ca24f83d133b02ad1beff5844",
+      "c88cf3f5d109fc1480277b7372536cac51a51886e92c448416f2d352ba80ef7d",
+      "cd997e0ee6a6c6dae42772b1d67a00460f49e64db9a6af7d68661ded39a8181b",
+      "ce7b1f27a9680aaf3deefd504e5cfae78b6f2b9a92c613723b7fc00c061e6e4b"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "distilbert/distilbert-base-uncased",
+    "pseudo_model_id": "FacebookAI/roberta-base",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "116a889b99a49aa1fb1ee9996baec116e0ff5b62ca5156455823d27fb9a9feb7",
+      "351228653c37d725d76a29caf971b1473280c768d793d31c27e4b12cc65d97dd",
+      "7050c05d2c2d5431e984508fa359e9fbe390172cf6d39b2567d6f960d5f91770",
+      "980b8f1279f7d0df29647907319e443422488305f021faf09e1e033c2bbfd6ac",
+      "a2e630ba7c65c07e2019b57f111ff9bcc624e9935bb18819b0e1406fe82229f7",
+      "a3dde7e25a8b472d3330b225a0536d15fdc7495a729abcbf6875f80b2f07d170",
+      "d0841648bc1f7110a3eec6a99bd0e5d6c4e44f3a9393d0bb72dd8085d20a0831",
+      "ee5a94a904be2f007abd22264f4c77cf06dc04acc01d61b430fc6068b261b784"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "distilbert/distilbert-base-uncased",
+    "pseudo_model_id": "albert/albert-base-v2",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "5040c567d4a4700c682837130c8057aeccca1b40d1cd9d7bdcc906ef71c63293",
+      "6c0ca92425eec580e0f94ff76af4141193647c1c8dada595e50d757a8a80c7a1",
+      "797c982c9fb93cb3a03672160922af28aad720504887aa1d89f014a35172b8a4",
+      "834f5ce9894c05e43ea4d328b23100c5068fbbaa9c59eabada3bd6549d7ac3f0",
+      "b5f194a2b057f0355b423734673b2e13f2d6e670020e665646fbe2cb17b0039a",
+      "bba8e0707f3fff3830373fb1f2dd9871d1c0b0bb3ff2a4bba496b6ccdebeaaa6",
+      "d93240dce7acf278e1eb235c46714185d14c2be2348e39fcfa24b113422c219f",
+      "dd5da64bc02b7d9f6cd7020cc863ea583485515b74cc9c97bd40b650f15b760f"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "distilbert/distilbert-base-uncased",
+    "pseudo_model_id": "google/bert_uncased_L-2_H-128_A-2",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "24df49ec9e7cccc9aff10cafd909a23b86069e85632a34288f0cb0f863a91863",
+      "30b58e57462e57f86862b247542bc0e41d32ee4725cb082cade60503c666fec0",
+      "58b1fc77bf863a89b05868038ac93d2e08f2f278cf590f54cd98d88fb5eaa5a8",
+      "5f531032d74710fda848fd2b7dc6bf766f63d4c273c9a5d638c80d187366d45d",
+      "65bcaf1050726ea45e1be0c2b42e12791d8ee40909701b4d7b3dfe9e0f4c7460",
+      "8fa40acef3bf54b8a4acee9ab7b37bee69fc75ee98f189e669a9b97fee7f3bbd",
+      "94019ae3ab51b5cf79a333be12178b87b3550ddd24a00bd153c1cc6e78cc206d",
+      "ccb996e8caa5648ebbac35c58dc21032de19cbeedb4ff4eeea62c91973438ed8"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "distilbert/distilbert-base-uncased",
+    "pseudo_model_id": "google/bert_uncased_L-4_H-512_A-8",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "341dd4753769adfc7713fa4bf1e5b687ff1e2b1b7bbe67fa05f260ed277c190b",
+      "3b6638b1ea8ed948986ba6b64577108b49fb7e7fb667e0ac60db7e90a4e84e7c",
+      "414fa6b226274bf405cb4eea4173bff29125e75f0cd3b9bf1cae649a3a7226bb",
+      "645ffed773fb4f7600c897b80bc00f7abef0a37551e53a04a8090f1422b2f310",
+      "8058956c65af4fe76eb97ca415c7abff3a2ad0ab4f02a18cd37ea7e80979875a",
+      "aff00ccfb93fbb8a7e9cc9202de4f3391067f76881996d9cce9efa8e86dcb5e5",
+      "bdaf03eee61f61d350431d24339b9532933a3f0e9886d2b53d56d7d55e93fecf",
+      "eed0e9e35fbc5727abea357050b17c1ae218b9b5005c326031670048b10db2fc"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "distilbert/distilbert-base-uncased",
+    "pseudo_model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "0c88d65cf1646a63db90acd0308f238a90ae61ef920ed677088937098babafe5",
+      "17e5586fe46d873e1dbd1dc94d39ccaaafe3d84a5d7be169c4ea08fa1e294bba",
+      "244f0994bf29a5329153f0a2a22ef8c664c04f98a7a068f4565139a70db35f49",
+      "83d77fa7995b145f88d191f6eeb4e688cad7341e86c5e0c2842ce4e2cbddd677",
+      "a27f94312d016e60ab16094cdd5aafa089af87d799ec46b81a1dacf1fabf3dbb",
+      "bdc2ed5c626822e125647e6fa9fe173ceb6487a31d3d2bc9a1dd59baf8dc6903",
+      "e6d1cc8a7dd78bb0ee5d9ab817c7bbc6a4872effb317a08698d69c3ca618c668",
+      "fcbace08a3a5b8fa7c7bbd656c5433e99a5afc9cafaff4d128be95dc4c652f3a"
+    ],
+    "covariance_mode": "kernel_fallback_no_aligned_donors"
+  },
+  {
+    "outer_model_id": "distilbert/distilbert-base-uncased",
+    "pseudo_model_id": "google-bert/bert-base-uncased",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "30cf9c5cb7235220ef8d982bff6f2839ce3d6b4111c588ecfb43acd9c1ed146f",
+      "436b2a7bd025cf15292aa73349b1720f49eeb2aa2c2353bf911c7101854cd426",
+      "4bff5d7622ecb846ec957b20f934a4dfdb791717b7b5fd40b3a4dc78c3cf06e2",
+      "6b1cf29f3af0e8da41aa0e1999f7d6e672b564a8466b22785061f40b8214c721",
+      "77f0678a88165ba972e07b13b30dfc691d89862b8548a57c9dc834c0e3db2375",
+      "8d2db8f4bcdd0150151305b6e2f93240648473d4ef56ed45cb234d9937bcda20",
+      "ab6cde8e545efe291ff5430ca19ec7b40e757d7cc2df9e3c00f17d0ebef2e63e",
+      "ddbe82c64ff11da1c4068988032b36ef79d8440a9a6aa8c62c0f271344f0205d"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "distilbert/distilbert-base-uncased",
+    "pseudo_model_id": "google/bert_uncased_L-4_H-256_A-4",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "05b731b0905f0ab525ab18afecd33438e5183294d22a5b741806423d5bc80bb8",
+      "1897602d45ec3d5a8dacda7839112c4b0243f9a5807cd5b7e2a7f49f0fcbebe5",
+      "394f7d93c1441995afb0758642a7134c3696c0f05cbabdbe420aa20de223e4f4",
+      "4b1a7e0484df79ce7e88c895aeb892a15500dd56fc6027846fae7d7ccd4c5df9",
+      "4ed251ae7dcd707d8aa6931fc44eb919ef519e08804e10403ddfca46931063eb",
+      "842f96d3a69ced41cde7baa96be487e96e644b9c11bb2ade406ddf7341ed77a9",
+      "e24e9b787db66495ca870c64bd398e433a66f536df4a11547910d4fae78ac095",
+      "f85110e6b1a96e0b0073b7c03eb4038b197960b5842bb6a247b1bc4afd32f4c1"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "distilbert/distilbert-base-uncased",
+    "pseudo_model_id": "google/electra-small-discriminator",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "21d3d15892cc15a4f31503079e0079faea6a32bece4b76e1b2d90087a2096ac5",
+      "6234be5222797023d2fa37068ff09b974dab08afd7658c2479c82deb5b9a55a8",
+      "7e8b9d800464ed5903cb251a5ac068ac122308390e8bd8523bbd1096e879a72b",
+      "a436b4f67ba2f2b8e8ca607606a381fb99434b3d96f4d40c26b5dc83804457fe",
+      "ae4309a5cc22a4e2474a06574333bac9806d184ca24f83d133b02ad1beff5844",
+      "c88cf3f5d109fc1480277b7372536cac51a51886e92c448416f2d352ba80ef7d",
+      "cd997e0ee6a6c6dae42772b1d67a00460f49e64db9a6af7d68661ded39a8181b",
+      "ce7b1f27a9680aaf3deefd504e5cfae78b6f2b9a92c613723b7fc00c061e6e4b"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google-bert/bert-base-uncased",
+    "pseudo_model_id": "FacebookAI/roberta-base",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "116a889b99a49aa1fb1ee9996baec116e0ff5b62ca5156455823d27fb9a9feb7",
+      "351228653c37d725d76a29caf971b1473280c768d793d31c27e4b12cc65d97dd",
+      "7050c05d2c2d5431e984508fa359e9fbe390172cf6d39b2567d6f960d5f91770",
+      "980b8f1279f7d0df29647907319e443422488305f021faf09e1e033c2bbfd6ac",
+      "a2e630ba7c65c07e2019b57f111ff9bcc624e9935bb18819b0e1406fe82229f7",
+      "a3dde7e25a8b472d3330b225a0536d15fdc7495a729abcbf6875f80b2f07d170",
+      "d0841648bc1f7110a3eec6a99bd0e5d6c4e44f3a9393d0bb72dd8085d20a0831",
+      "ee5a94a904be2f007abd22264f4c77cf06dc04acc01d61b430fc6068b261b784"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google-bert/bert-base-uncased",
+    "pseudo_model_id": "albert/albert-base-v2",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "5040c567d4a4700c682837130c8057aeccca1b40d1cd9d7bdcc906ef71c63293",
+      "6c0ca92425eec580e0f94ff76af4141193647c1c8dada595e50d757a8a80c7a1",
+      "797c982c9fb93cb3a03672160922af28aad720504887aa1d89f014a35172b8a4",
+      "834f5ce9894c05e43ea4d328b23100c5068fbbaa9c59eabada3bd6549d7ac3f0",
+      "b5f194a2b057f0355b423734673b2e13f2d6e670020e665646fbe2cb17b0039a",
+      "bba8e0707f3fff3830373fb1f2dd9871d1c0b0bb3ff2a4bba496b6ccdebeaaa6",
+      "d93240dce7acf278e1eb235c46714185d14c2be2348e39fcfa24b113422c219f",
+      "dd5da64bc02b7d9f6cd7020cc863ea583485515b74cc9c97bd40b650f15b760f"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google-bert/bert-base-uncased",
+    "pseudo_model_id": "google/bert_uncased_L-2_H-128_A-2",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "24df49ec9e7cccc9aff10cafd909a23b86069e85632a34288f0cb0f863a91863",
+      "30b58e57462e57f86862b247542bc0e41d32ee4725cb082cade60503c666fec0",
+      "58b1fc77bf863a89b05868038ac93d2e08f2f278cf590f54cd98d88fb5eaa5a8",
+      "5f531032d74710fda848fd2b7dc6bf766f63d4c273c9a5d638c80d187366d45d",
+      "65bcaf1050726ea45e1be0c2b42e12791d8ee40909701b4d7b3dfe9e0f4c7460",
+      "8fa40acef3bf54b8a4acee9ab7b37bee69fc75ee98f189e669a9b97fee7f3bbd",
+      "94019ae3ab51b5cf79a333be12178b87b3550ddd24a00bd153c1cc6e78cc206d",
+      "ccb996e8caa5648ebbac35c58dc21032de19cbeedb4ff4eeea62c91973438ed8"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google-bert/bert-base-uncased",
+    "pseudo_model_id": "google/bert_uncased_L-4_H-512_A-8",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "341dd4753769adfc7713fa4bf1e5b687ff1e2b1b7bbe67fa05f260ed277c190b",
+      "3b6638b1ea8ed948986ba6b64577108b49fb7e7fb667e0ac60db7e90a4e84e7c",
+      "414fa6b226274bf405cb4eea4173bff29125e75f0cd3b9bf1cae649a3a7226bb",
+      "645ffed773fb4f7600c897b80bc00f7abef0a37551e53a04a8090f1422b2f310",
+      "8058956c65af4fe76eb97ca415c7abff3a2ad0ab4f02a18cd37ea7e80979875a",
+      "aff00ccfb93fbb8a7e9cc9202de4f3391067f76881996d9cce9efa8e86dcb5e5",
+      "bdaf03eee61f61d350431d24339b9532933a3f0e9886d2b53d56d7d55e93fecf",
+      "eed0e9e35fbc5727abea357050b17c1ae218b9b5005c326031670048b10db2fc"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google-bert/bert-base-uncased",
+    "pseudo_model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "0c88d65cf1646a63db90acd0308f238a90ae61ef920ed677088937098babafe5",
+      "17e5586fe46d873e1dbd1dc94d39ccaaafe3d84a5d7be169c4ea08fa1e294bba",
+      "244f0994bf29a5329153f0a2a22ef8c664c04f98a7a068f4565139a70db35f49",
+      "83d77fa7995b145f88d191f6eeb4e688cad7341e86c5e0c2842ce4e2cbddd677",
+      "a27f94312d016e60ab16094cdd5aafa089af87d799ec46b81a1dacf1fabf3dbb",
+      "bdc2ed5c626822e125647e6fa9fe173ceb6487a31d3d2bc9a1dd59baf8dc6903",
+      "e6d1cc8a7dd78bb0ee5d9ab817c7bbc6a4872effb317a08698d69c3ca618c668",
+      "fcbace08a3a5b8fa7c7bbd656c5433e99a5afc9cafaff4d128be95dc4c652f3a"
+    ],
+    "covariance_mode": "kernel_fallback_no_aligned_donors"
+  },
+  {
+    "outer_model_id": "google-bert/bert-base-uncased",
+    "pseudo_model_id": "distilbert/distilbert-base-uncased",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "1dcf04c0737ffee20129bc537d63be0d8763ef3c7035e05ec8bdf36b76e8ee7b",
+      "1ef767a4b8412b08cb73e2c31ea8872e447c4bc2848bae047dd1ee795253a892",
+      "6426957df78bf2880d6f052e7701cadbe542c2636245c19563d2ab04e7d8279d",
+      "88a1f09c0e5bfc28ccd3f40f30fb9d542ab80122a73b3b653598a2b0c4dd14f0",
+      "93388301a7e01ad8ce6ce8639f343bd77e1ee91374d6e5550882ef674c0d7c60",
+      "d771eb1dbd53ce4c3f3cb42dc89a81127b4610bc080e2d155d5afea4f2b69ec8",
+      "de14c6cd4831b5d6fd02836422230a5a18d770e7ce58e0199864dcd637c4bfd6",
+      "f2e3c3df5ef49ee321df5444bb0cb5cfb306a5346d6b7e2c849d3e49367b1412"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google-bert/bert-base-uncased",
+    "pseudo_model_id": "google/bert_uncased_L-4_H-256_A-4",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "05b731b0905f0ab525ab18afecd33438e5183294d22a5b741806423d5bc80bb8",
+      "1897602d45ec3d5a8dacda7839112c4b0243f9a5807cd5b7e2a7f49f0fcbebe5",
+      "394f7d93c1441995afb0758642a7134c3696c0f05cbabdbe420aa20de223e4f4",
+      "4b1a7e0484df79ce7e88c895aeb892a15500dd56fc6027846fae7d7ccd4c5df9",
+      "4ed251ae7dcd707d8aa6931fc44eb919ef519e08804e10403ddfca46931063eb",
+      "842f96d3a69ced41cde7baa96be487e96e644b9c11bb2ade406ddf7341ed77a9",
+      "e24e9b787db66495ca870c64bd398e433a66f536df4a11547910d4fae78ac095",
+      "f85110e6b1a96e0b0073b7c03eb4038b197960b5842bb6a247b1bc4afd32f4c1"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google-bert/bert-base-uncased",
+    "pseudo_model_id": "google/electra-small-discriminator",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "21d3d15892cc15a4f31503079e0079faea6a32bece4b76e1b2d90087a2096ac5",
+      "6234be5222797023d2fa37068ff09b974dab08afd7658c2479c82deb5b9a55a8",
+      "7e8b9d800464ed5903cb251a5ac068ac122308390e8bd8523bbd1096e879a72b",
+      "a436b4f67ba2f2b8e8ca607606a381fb99434b3d96f4d40c26b5dc83804457fe",
+      "ae4309a5cc22a4e2474a06574333bac9806d184ca24f83d133b02ad1beff5844",
+      "c88cf3f5d109fc1480277b7372536cac51a51886e92c448416f2d352ba80ef7d",
+      "cd997e0ee6a6c6dae42772b1d67a00460f49e64db9a6af7d68661ded39a8181b",
+      "ce7b1f27a9680aaf3deefd504e5cfae78b6f2b9a92c613723b7fc00c061e6e4b"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/bert_uncased_L-2_H-128_A-2",
+    "pseudo_model_id": "FacebookAI/roberta-base",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "116a889b99a49aa1fb1ee9996baec116e0ff5b62ca5156455823d27fb9a9feb7",
+      "351228653c37d725d76a29caf971b1473280c768d793d31c27e4b12cc65d97dd",
+      "7050c05d2c2d5431e984508fa359e9fbe390172cf6d39b2567d6f960d5f91770",
+      "980b8f1279f7d0df29647907319e443422488305f021faf09e1e033c2bbfd6ac",
+      "a2e630ba7c65c07e2019b57f111ff9bcc624e9935bb18819b0e1406fe82229f7",
+      "a3dde7e25a8b472d3330b225a0536d15fdc7495a729abcbf6875f80b2f07d170",
+      "d0841648bc1f7110a3eec6a99bd0e5d6c4e44f3a9393d0bb72dd8085d20a0831",
+      "ee5a94a904be2f007abd22264f4c77cf06dc04acc01d61b430fc6068b261b784"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/bert_uncased_L-2_H-128_A-2",
+    "pseudo_model_id": "albert/albert-base-v2",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "5040c567d4a4700c682837130c8057aeccca1b40d1cd9d7bdcc906ef71c63293",
+      "6c0ca92425eec580e0f94ff76af4141193647c1c8dada595e50d757a8a80c7a1",
+      "797c982c9fb93cb3a03672160922af28aad720504887aa1d89f014a35172b8a4",
+      "834f5ce9894c05e43ea4d328b23100c5068fbbaa9c59eabada3bd6549d7ac3f0",
+      "b5f194a2b057f0355b423734673b2e13f2d6e670020e665646fbe2cb17b0039a",
+      "bba8e0707f3fff3830373fb1f2dd9871d1c0b0bb3ff2a4bba496b6ccdebeaaa6",
+      "d93240dce7acf278e1eb235c46714185d14c2be2348e39fcfa24b113422c219f",
+      "dd5da64bc02b7d9f6cd7020cc863ea583485515b74cc9c97bd40b650f15b760f"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/bert_uncased_L-2_H-128_A-2",
+    "pseudo_model_id": "google-bert/bert-base-uncased",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "30cf9c5cb7235220ef8d982bff6f2839ce3d6b4111c588ecfb43acd9c1ed146f",
+      "436b2a7bd025cf15292aa73349b1720f49eeb2aa2c2353bf911c7101854cd426",
+      "4bff5d7622ecb846ec957b20f934a4dfdb791717b7b5fd40b3a4dc78c3cf06e2",
+      "6b1cf29f3af0e8da41aa0e1999f7d6e672b564a8466b22785061f40b8214c721",
+      "77f0678a88165ba972e07b13b30dfc691d89862b8548a57c9dc834c0e3db2375",
+      "8d2db8f4bcdd0150151305b6e2f93240648473d4ef56ed45cb234d9937bcda20",
+      "ab6cde8e545efe291ff5430ca19ec7b40e757d7cc2df9e3c00f17d0ebef2e63e",
+      "ddbe82c64ff11da1c4068988032b36ef79d8440a9a6aa8c62c0f271344f0205d"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/bert_uncased_L-2_H-128_A-2",
+    "pseudo_model_id": "google/bert_uncased_L-4_H-512_A-8",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "341dd4753769adfc7713fa4bf1e5b687ff1e2b1b7bbe67fa05f260ed277c190b",
+      "3b6638b1ea8ed948986ba6b64577108b49fb7e7fb667e0ac60db7e90a4e84e7c",
+      "414fa6b226274bf405cb4eea4173bff29125e75f0cd3b9bf1cae649a3a7226bb",
+      "645ffed773fb4f7600c897b80bc00f7abef0a37551e53a04a8090f1422b2f310",
+      "8058956c65af4fe76eb97ca415c7abff3a2ad0ab4f02a18cd37ea7e80979875a",
+      "aff00ccfb93fbb8a7e9cc9202de4f3391067f76881996d9cce9efa8e86dcb5e5",
+      "bdaf03eee61f61d350431d24339b9532933a3f0e9886d2b53d56d7d55e93fecf",
+      "eed0e9e35fbc5727abea357050b17c1ae218b9b5005c326031670048b10db2fc"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/bert_uncased_L-2_H-128_A-2",
+    "pseudo_model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "0c88d65cf1646a63db90acd0308f238a90ae61ef920ed677088937098babafe5",
+      "17e5586fe46d873e1dbd1dc94d39ccaaafe3d84a5d7be169c4ea08fa1e294bba",
+      "244f0994bf29a5329153f0a2a22ef8c664c04f98a7a068f4565139a70db35f49",
+      "83d77fa7995b145f88d191f6eeb4e688cad7341e86c5e0c2842ce4e2cbddd677",
+      "a27f94312d016e60ab16094cdd5aafa089af87d799ec46b81a1dacf1fabf3dbb",
+      "bdc2ed5c626822e125647e6fa9fe173ceb6487a31d3d2bc9a1dd59baf8dc6903",
+      "e6d1cc8a7dd78bb0ee5d9ab817c7bbc6a4872effb317a08698d69c3ca618c668",
+      "fcbace08a3a5b8fa7c7bbd656c5433e99a5afc9cafaff4d128be95dc4c652f3a"
+    ],
+    "covariance_mode": "kernel_fallback_no_aligned_donors"
+  },
+  {
+    "outer_model_id": "google/bert_uncased_L-2_H-128_A-2",
+    "pseudo_model_id": "distilbert/distilbert-base-uncased",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "1dcf04c0737ffee20129bc537d63be0d8763ef3c7035e05ec8bdf36b76e8ee7b",
+      "1ef767a4b8412b08cb73e2c31ea8872e447c4bc2848bae047dd1ee795253a892",
+      "6426957df78bf2880d6f052e7701cadbe542c2636245c19563d2ab04e7d8279d",
+      "88a1f09c0e5bfc28ccd3f40f30fb9d542ab80122a73b3b653598a2b0c4dd14f0",
+      "93388301a7e01ad8ce6ce8639f343bd77e1ee91374d6e5550882ef674c0d7c60",
+      "d771eb1dbd53ce4c3f3cb42dc89a81127b4610bc080e2d155d5afea4f2b69ec8",
+      "de14c6cd4831b5d6fd02836422230a5a18d770e7ce58e0199864dcd637c4bfd6",
+      "f2e3c3df5ef49ee321df5444bb0cb5cfb306a5346d6b7e2c849d3e49367b1412"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/bert_uncased_L-2_H-128_A-2",
+    "pseudo_model_id": "google/bert_uncased_L-4_H-256_A-4",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "05b731b0905f0ab525ab18afecd33438e5183294d22a5b741806423d5bc80bb8",
+      "1897602d45ec3d5a8dacda7839112c4b0243f9a5807cd5b7e2a7f49f0fcbebe5",
+      "394f7d93c1441995afb0758642a7134c3696c0f05cbabdbe420aa20de223e4f4",
+      "4b1a7e0484df79ce7e88c895aeb892a15500dd56fc6027846fae7d7ccd4c5df9",
+      "4ed251ae7dcd707d8aa6931fc44eb919ef519e08804e10403ddfca46931063eb",
+      "842f96d3a69ced41cde7baa96be487e96e644b9c11bb2ade406ddf7341ed77a9",
+      "e24e9b787db66495ca870c64bd398e433a66f536df4a11547910d4fae78ac095",
+      "f85110e6b1a96e0b0073b7c03eb4038b197960b5842bb6a247b1bc4afd32f4c1"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/bert_uncased_L-2_H-128_A-2",
+    "pseudo_model_id": "google/electra-small-discriminator",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "21d3d15892cc15a4f31503079e0079faea6a32bece4b76e1b2d90087a2096ac5",
+      "6234be5222797023d2fa37068ff09b974dab08afd7658c2479c82deb5b9a55a8",
+      "7e8b9d800464ed5903cb251a5ac068ac122308390e8bd8523bbd1096e879a72b",
+      "a436b4f67ba2f2b8e8ca607606a381fb99434b3d96f4d40c26b5dc83804457fe",
+      "ae4309a5cc22a4e2474a06574333bac9806d184ca24f83d133b02ad1beff5844",
+      "c88cf3f5d109fc1480277b7372536cac51a51886e92c448416f2d352ba80ef7d",
+      "cd997e0ee6a6c6dae42772b1d67a00460f49e64db9a6af7d68661ded39a8181b",
+      "ce7b1f27a9680aaf3deefd504e5cfae78b6f2b9a92c613723b7fc00c061e6e4b"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/bert_uncased_L-4_H-256_A-4",
+    "pseudo_model_id": "FacebookAI/roberta-base",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "116a889b99a49aa1fb1ee9996baec116e0ff5b62ca5156455823d27fb9a9feb7",
+      "351228653c37d725d76a29caf971b1473280c768d793d31c27e4b12cc65d97dd",
+      "7050c05d2c2d5431e984508fa359e9fbe390172cf6d39b2567d6f960d5f91770",
+      "980b8f1279f7d0df29647907319e443422488305f021faf09e1e033c2bbfd6ac",
+      "a2e630ba7c65c07e2019b57f111ff9bcc624e9935bb18819b0e1406fe82229f7",
+      "a3dde7e25a8b472d3330b225a0536d15fdc7495a729abcbf6875f80b2f07d170",
+      "d0841648bc1f7110a3eec6a99bd0e5d6c4e44f3a9393d0bb72dd8085d20a0831",
+      "ee5a94a904be2f007abd22264f4c77cf06dc04acc01d61b430fc6068b261b784"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/bert_uncased_L-4_H-256_A-4",
+    "pseudo_model_id": "albert/albert-base-v2",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "5040c567d4a4700c682837130c8057aeccca1b40d1cd9d7bdcc906ef71c63293",
+      "6c0ca92425eec580e0f94ff76af4141193647c1c8dada595e50d757a8a80c7a1",
+      "797c982c9fb93cb3a03672160922af28aad720504887aa1d89f014a35172b8a4",
+      "834f5ce9894c05e43ea4d328b23100c5068fbbaa9c59eabada3bd6549d7ac3f0",
+      "b5f194a2b057f0355b423734673b2e13f2d6e670020e665646fbe2cb17b0039a",
+      "bba8e0707f3fff3830373fb1f2dd9871d1c0b0bb3ff2a4bba496b6ccdebeaaa6",
+      "d93240dce7acf278e1eb235c46714185d14c2be2348e39fcfa24b113422c219f",
+      "dd5da64bc02b7d9f6cd7020cc863ea583485515b74cc9c97bd40b650f15b760f"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/bert_uncased_L-4_H-256_A-4",
+    "pseudo_model_id": "google-bert/bert-base-uncased",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "30cf9c5cb7235220ef8d982bff6f2839ce3d6b4111c588ecfb43acd9c1ed146f",
+      "436b2a7bd025cf15292aa73349b1720f49eeb2aa2c2353bf911c7101854cd426",
+      "4bff5d7622ecb846ec957b20f934a4dfdb791717b7b5fd40b3a4dc78c3cf06e2",
+      "6b1cf29f3af0e8da41aa0e1999f7d6e672b564a8466b22785061f40b8214c721",
+      "77f0678a88165ba972e07b13b30dfc691d89862b8548a57c9dc834c0e3db2375",
+      "8d2db8f4bcdd0150151305b6e2f93240648473d4ef56ed45cb234d9937bcda20",
+      "ab6cde8e545efe291ff5430ca19ec7b40e757d7cc2df9e3c00f17d0ebef2e63e",
+      "ddbe82c64ff11da1c4068988032b36ef79d8440a9a6aa8c62c0f271344f0205d"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/bert_uncased_L-4_H-256_A-4",
+    "pseudo_model_id": "google/bert_uncased_L-4_H-512_A-8",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "341dd4753769adfc7713fa4bf1e5b687ff1e2b1b7bbe67fa05f260ed277c190b",
+      "3b6638b1ea8ed948986ba6b64577108b49fb7e7fb667e0ac60db7e90a4e84e7c",
+      "414fa6b226274bf405cb4eea4173bff29125e75f0cd3b9bf1cae649a3a7226bb",
+      "645ffed773fb4f7600c897b80bc00f7abef0a37551e53a04a8090f1422b2f310",
+      "8058956c65af4fe76eb97ca415c7abff3a2ad0ab4f02a18cd37ea7e80979875a",
+      "aff00ccfb93fbb8a7e9cc9202de4f3391067f76881996d9cce9efa8e86dcb5e5",
+      "bdaf03eee61f61d350431d24339b9532933a3f0e9886d2b53d56d7d55e93fecf",
+      "eed0e9e35fbc5727abea357050b17c1ae218b9b5005c326031670048b10db2fc"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/bert_uncased_L-4_H-256_A-4",
+    "pseudo_model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "0c88d65cf1646a63db90acd0308f238a90ae61ef920ed677088937098babafe5",
+      "17e5586fe46d873e1dbd1dc94d39ccaaafe3d84a5d7be169c4ea08fa1e294bba",
+      "244f0994bf29a5329153f0a2a22ef8c664c04f98a7a068f4565139a70db35f49",
+      "83d77fa7995b145f88d191f6eeb4e688cad7341e86c5e0c2842ce4e2cbddd677",
+      "a27f94312d016e60ab16094cdd5aafa089af87d799ec46b81a1dacf1fabf3dbb",
+      "bdc2ed5c626822e125647e6fa9fe173ceb6487a31d3d2bc9a1dd59baf8dc6903",
+      "e6d1cc8a7dd78bb0ee5d9ab817c7bbc6a4872effb317a08698d69c3ca618c668",
+      "fcbace08a3a5b8fa7c7bbd656c5433e99a5afc9cafaff4d128be95dc4c652f3a"
+    ],
+    "covariance_mode": "kernel_fallback_no_aligned_donors"
+  },
+  {
+    "outer_model_id": "google/bert_uncased_L-4_H-256_A-4",
+    "pseudo_model_id": "distilbert/distilbert-base-uncased",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "1dcf04c0737ffee20129bc537d63be0d8763ef3c7035e05ec8bdf36b76e8ee7b",
+      "1ef767a4b8412b08cb73e2c31ea8872e447c4bc2848bae047dd1ee795253a892",
+      "6426957df78bf2880d6f052e7701cadbe542c2636245c19563d2ab04e7d8279d",
+      "88a1f09c0e5bfc28ccd3f40f30fb9d542ab80122a73b3b653598a2b0c4dd14f0",
+      "93388301a7e01ad8ce6ce8639f343bd77e1ee91374d6e5550882ef674c0d7c60",
+      "d771eb1dbd53ce4c3f3cb42dc89a81127b4610bc080e2d155d5afea4f2b69ec8",
+      "de14c6cd4831b5d6fd02836422230a5a18d770e7ce58e0199864dcd637c4bfd6",
+      "f2e3c3df5ef49ee321df5444bb0cb5cfb306a5346d6b7e2c849d3e49367b1412"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/bert_uncased_L-4_H-256_A-4",
+    "pseudo_model_id": "google/bert_uncased_L-2_H-128_A-2",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "24df49ec9e7cccc9aff10cafd909a23b86069e85632a34288f0cb0f863a91863",
+      "30b58e57462e57f86862b247542bc0e41d32ee4725cb082cade60503c666fec0",
+      "58b1fc77bf863a89b05868038ac93d2e08f2f278cf590f54cd98d88fb5eaa5a8",
+      "5f531032d74710fda848fd2b7dc6bf766f63d4c273c9a5d638c80d187366d45d",
+      "65bcaf1050726ea45e1be0c2b42e12791d8ee40909701b4d7b3dfe9e0f4c7460",
+      "8fa40acef3bf54b8a4acee9ab7b37bee69fc75ee98f189e669a9b97fee7f3bbd",
+      "94019ae3ab51b5cf79a333be12178b87b3550ddd24a00bd153c1cc6e78cc206d",
+      "ccb996e8caa5648ebbac35c58dc21032de19cbeedb4ff4eeea62c91973438ed8"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/bert_uncased_L-4_H-256_A-4",
+    "pseudo_model_id": "google/electra-small-discriminator",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "21d3d15892cc15a4f31503079e0079faea6a32bece4b76e1b2d90087a2096ac5",
+      "6234be5222797023d2fa37068ff09b974dab08afd7658c2479c82deb5b9a55a8",
+      "7e8b9d800464ed5903cb251a5ac068ac122308390e8bd8523bbd1096e879a72b",
+      "a436b4f67ba2f2b8e8ca607606a381fb99434b3d96f4d40c26b5dc83804457fe",
+      "ae4309a5cc22a4e2474a06574333bac9806d184ca24f83d133b02ad1beff5844",
+      "c88cf3f5d109fc1480277b7372536cac51a51886e92c448416f2d352ba80ef7d",
+      "cd997e0ee6a6c6dae42772b1d67a00460f49e64db9a6af7d68661ded39a8181b",
+      "ce7b1f27a9680aaf3deefd504e5cfae78b6f2b9a92c613723b7fc00c061e6e4b"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/bert_uncased_L-4_H-512_A-8",
+    "pseudo_model_id": "FacebookAI/roberta-base",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "116a889b99a49aa1fb1ee9996baec116e0ff5b62ca5156455823d27fb9a9feb7",
+      "351228653c37d725d76a29caf971b1473280c768d793d31c27e4b12cc65d97dd",
+      "7050c05d2c2d5431e984508fa359e9fbe390172cf6d39b2567d6f960d5f91770",
+      "980b8f1279f7d0df29647907319e443422488305f021faf09e1e033c2bbfd6ac",
+      "a2e630ba7c65c07e2019b57f111ff9bcc624e9935bb18819b0e1406fe82229f7",
+      "a3dde7e25a8b472d3330b225a0536d15fdc7495a729abcbf6875f80b2f07d170",
+      "d0841648bc1f7110a3eec6a99bd0e5d6c4e44f3a9393d0bb72dd8085d20a0831",
+      "ee5a94a904be2f007abd22264f4c77cf06dc04acc01d61b430fc6068b261b784"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/bert_uncased_L-4_H-512_A-8",
+    "pseudo_model_id": "albert/albert-base-v2",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "5040c567d4a4700c682837130c8057aeccca1b40d1cd9d7bdcc906ef71c63293",
+      "6c0ca92425eec580e0f94ff76af4141193647c1c8dada595e50d757a8a80c7a1",
+      "797c982c9fb93cb3a03672160922af28aad720504887aa1d89f014a35172b8a4",
+      "834f5ce9894c05e43ea4d328b23100c5068fbbaa9c59eabada3bd6549d7ac3f0",
+      "b5f194a2b057f0355b423734673b2e13f2d6e670020e665646fbe2cb17b0039a",
+      "bba8e0707f3fff3830373fb1f2dd9871d1c0b0bb3ff2a4bba496b6ccdebeaaa6",
+      "d93240dce7acf278e1eb235c46714185d14c2be2348e39fcfa24b113422c219f",
+      "dd5da64bc02b7d9f6cd7020cc863ea583485515b74cc9c97bd40b650f15b760f"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/bert_uncased_L-4_H-512_A-8",
+    "pseudo_model_id": "google-bert/bert-base-uncased",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "30cf9c5cb7235220ef8d982bff6f2839ce3d6b4111c588ecfb43acd9c1ed146f",
+      "436b2a7bd025cf15292aa73349b1720f49eeb2aa2c2353bf911c7101854cd426",
+      "4bff5d7622ecb846ec957b20f934a4dfdb791717b7b5fd40b3a4dc78c3cf06e2",
+      "6b1cf29f3af0e8da41aa0e1999f7d6e672b564a8466b22785061f40b8214c721",
+      "77f0678a88165ba972e07b13b30dfc691d89862b8548a57c9dc834c0e3db2375",
+      "8d2db8f4bcdd0150151305b6e2f93240648473d4ef56ed45cb234d9937bcda20",
+      "ab6cde8e545efe291ff5430ca19ec7b40e757d7cc2df9e3c00f17d0ebef2e63e",
+      "ddbe82c64ff11da1c4068988032b36ef79d8440a9a6aa8c62c0f271344f0205d"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/bert_uncased_L-4_H-512_A-8",
+    "pseudo_model_id": "google/bert_uncased_L-4_H-256_A-4",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/electra-small-discriminator"
+    ],
+    "probe_groups": [
+      "05b731b0905f0ab525ab18afecd33438e5183294d22a5b741806423d5bc80bb8",
+      "1897602d45ec3d5a8dacda7839112c4b0243f9a5807cd5b7e2a7f49f0fcbebe5",
+      "394f7d93c1441995afb0758642a7134c3696c0f05cbabdbe420aa20de223e4f4",
+      "4b1a7e0484df79ce7e88c895aeb892a15500dd56fc6027846fae7d7ccd4c5df9",
+      "4ed251ae7dcd707d8aa6931fc44eb919ef519e08804e10403ddfca46931063eb",
+      "842f96d3a69ced41cde7baa96be487e96e644b9c11bb2ade406ddf7341ed77a9",
+      "e24e9b787db66495ca870c64bd398e433a66f536df4a11547910d4fae78ac095",
+      "f85110e6b1a96e0b0073b7c03eb4038b197960b5842bb6a247b1bc4afd32f4c1"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/bert_uncased_L-4_H-512_A-8",
+    "pseudo_model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4"
+    ],
+    "probe_groups": [
+      "0c88d65cf1646a63db90acd0308f238a90ae61ef920ed677088937098babafe5",
+      "17e5586fe46d873e1dbd1dc94d39ccaaafe3d84a5d7be169c4ea08fa1e294bba",
+      "244f0994bf29a5329153f0a2a22ef8c664c04f98a7a068f4565139a70db35f49",
+      "83d77fa7995b145f88d191f6eeb4e688cad7341e86c5e0c2842ce4e2cbddd677",
+      "a27f94312d016e60ab16094cdd5aafa089af87d799ec46b81a1dacf1fabf3dbb",
+      "bdc2ed5c626822e125647e6fa9fe173ceb6487a31d3d2bc9a1dd59baf8dc6903",
+      "e6d1cc8a7dd78bb0ee5d9ab817c7bbc6a4872effb317a08698d69c3ca618c668",
+      "fcbace08a3a5b8fa7c7bbd656c5433e99a5afc9cafaff4d128be95dc4c652f3a"
+    ],
+    "covariance_mode": "kernel_fallback_no_aligned_donors"
+  },
+  {
+    "outer_model_id": "google/bert_uncased_L-4_H-512_A-8",
+    "pseudo_model_id": "distilbert/distilbert-base-uncased",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4"
+    ],
+    "probe_groups": [
+      "1dcf04c0737ffee20129bc537d63be0d8763ef3c7035e05ec8bdf36b76e8ee7b",
+      "1ef767a4b8412b08cb73e2c31ea8872e447c4bc2848bae047dd1ee795253a892",
+      "6426957df78bf2880d6f052e7701cadbe542c2636245c19563d2ab04e7d8279d",
+      "88a1f09c0e5bfc28ccd3f40f30fb9d542ab80122a73b3b653598a2b0c4dd14f0",
+      "93388301a7e01ad8ce6ce8639f343bd77e1ee91374d6e5550882ef674c0d7c60",
+      "d771eb1dbd53ce4c3f3cb42dc89a81127b4610bc080e2d155d5afea4f2b69ec8",
+      "de14c6cd4831b5d6fd02836422230a5a18d770e7ce58e0199864dcd637c4bfd6",
+      "f2e3c3df5ef49ee321df5444bb0cb5cfb306a5346d6b7e2c849d3e49367b1412"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/bert_uncased_L-4_H-512_A-8",
+    "pseudo_model_id": "google/bert_uncased_L-2_H-128_A-2",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4"
+    ],
+    "probe_groups": [
+      "24df49ec9e7cccc9aff10cafd909a23b86069e85632a34288f0cb0f863a91863",
+      "30b58e57462e57f86862b247542bc0e41d32ee4725cb082cade60503c666fec0",
+      "58b1fc77bf863a89b05868038ac93d2e08f2f278cf590f54cd98d88fb5eaa5a8",
+      "5f531032d74710fda848fd2b7dc6bf766f63d4c273c9a5d638c80d187366d45d",
+      "65bcaf1050726ea45e1be0c2b42e12791d8ee40909701b4d7b3dfe9e0f4c7460",
+      "8fa40acef3bf54b8a4acee9ab7b37bee69fc75ee98f189e669a9b97fee7f3bbd",
+      "94019ae3ab51b5cf79a333be12178b87b3550ddd24a00bd153c1cc6e78cc206d",
+      "ccb996e8caa5648ebbac35c58dc21032de19cbeedb4ff4eeea62c91973438ed8"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/bert_uncased_L-4_H-512_A-8",
+    "pseudo_model_id": "google/electra-small-discriminator",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4"
+    ],
+    "probe_groups": [
+      "21d3d15892cc15a4f31503079e0079faea6a32bece4b76e1b2d90087a2096ac5",
+      "6234be5222797023d2fa37068ff09b974dab08afd7658c2479c82deb5b9a55a8",
+      "7e8b9d800464ed5903cb251a5ac068ac122308390e8bd8523bbd1096e879a72b",
+      "a436b4f67ba2f2b8e8ca607606a381fb99434b3d96f4d40c26b5dc83804457fe",
+      "ae4309a5cc22a4e2474a06574333bac9806d184ca24f83d133b02ad1beff5844",
+      "c88cf3f5d109fc1480277b7372536cac51a51886e92c448416f2d352ba80ef7d",
+      "cd997e0ee6a6c6dae42772b1d67a00460f49e64db9a6af7d68661ded39a8181b",
+      "ce7b1f27a9680aaf3deefd504e5cfae78b6f2b9a92c613723b7fc00c061e6e4b"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/electra-small-discriminator",
+    "pseudo_model_id": "FacebookAI/roberta-base",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "116a889b99a49aa1fb1ee9996baec116e0ff5b62ca5156455823d27fb9a9feb7",
+      "351228653c37d725d76a29caf971b1473280c768d793d31c27e4b12cc65d97dd",
+      "7050c05d2c2d5431e984508fa359e9fbe390172cf6d39b2567d6f960d5f91770",
+      "980b8f1279f7d0df29647907319e443422488305f021faf09e1e033c2bbfd6ac",
+      "a2e630ba7c65c07e2019b57f111ff9bcc624e9935bb18819b0e1406fe82229f7",
+      "a3dde7e25a8b472d3330b225a0536d15fdc7495a729abcbf6875f80b2f07d170",
+      "d0841648bc1f7110a3eec6a99bd0e5d6c4e44f3a9393d0bb72dd8085d20a0831",
+      "ee5a94a904be2f007abd22264f4c77cf06dc04acc01d61b430fc6068b261b784"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/electra-small-discriminator",
+    "pseudo_model_id": "albert/albert-base-v2",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "5040c567d4a4700c682837130c8057aeccca1b40d1cd9d7bdcc906ef71c63293",
+      "6c0ca92425eec580e0f94ff76af4141193647c1c8dada595e50d757a8a80c7a1",
+      "797c982c9fb93cb3a03672160922af28aad720504887aa1d89f014a35172b8a4",
+      "834f5ce9894c05e43ea4d328b23100c5068fbbaa9c59eabada3bd6549d7ac3f0",
+      "b5f194a2b057f0355b423734673b2e13f2d6e670020e665646fbe2cb17b0039a",
+      "bba8e0707f3fff3830373fb1f2dd9871d1c0b0bb3ff2a4bba496b6ccdebeaaa6",
+      "d93240dce7acf278e1eb235c46714185d14c2be2348e39fcfa24b113422c219f",
+      "dd5da64bc02b7d9f6cd7020cc863ea583485515b74cc9c97bd40b650f15b760f"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/electra-small-discriminator",
+    "pseudo_model_id": "google-bert/bert-base-uncased",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "30cf9c5cb7235220ef8d982bff6f2839ce3d6b4111c588ecfb43acd9c1ed146f",
+      "436b2a7bd025cf15292aa73349b1720f49eeb2aa2c2353bf911c7101854cd426",
+      "4bff5d7622ecb846ec957b20f934a4dfdb791717b7b5fd40b3a4dc78c3cf06e2",
+      "6b1cf29f3af0e8da41aa0e1999f7d6e672b564a8466b22785061f40b8214c721",
+      "77f0678a88165ba972e07b13b30dfc691d89862b8548a57c9dc834c0e3db2375",
+      "8d2db8f4bcdd0150151305b6e2f93240648473d4ef56ed45cb234d9937bcda20",
+      "ab6cde8e545efe291ff5430ca19ec7b40e757d7cc2df9e3c00f17d0ebef2e63e",
+      "ddbe82c64ff11da1c4068988032b36ef79d8440a9a6aa8c62c0f271344f0205d"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/electra-small-discriminator",
+    "pseudo_model_id": "google/bert_uncased_L-4_H-256_A-4",
+    "fit_model_ids": [
+      "Qwen/Qwen2.5-0.5B-Instruct",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "probe_groups": [
+      "05b731b0905f0ab525ab18afecd33438e5183294d22a5b741806423d5bc80bb8",
+      "1897602d45ec3d5a8dacda7839112c4b0243f9a5807cd5b7e2a7f49f0fcbebe5",
+      "394f7d93c1441995afb0758642a7134c3696c0f05cbabdbe420aa20de223e4f4",
+      "4b1a7e0484df79ce7e88c895aeb892a15500dd56fc6027846fae7d7ccd4c5df9",
+      "4ed251ae7dcd707d8aa6931fc44eb919ef519e08804e10403ddfca46931063eb",
+      "842f96d3a69ced41cde7baa96be487e96e644b9c11bb2ade406ddf7341ed77a9",
+      "e24e9b787db66495ca870c64bd398e433a66f536df4a11547910d4fae78ac095",
+      "f85110e6b1a96e0b0073b7c03eb4038b197960b5842bb6a247b1bc4afd32f4c1"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/electra-small-discriminator",
+    "pseudo_model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4"
+    ],
+    "probe_groups": [
+      "0c88d65cf1646a63db90acd0308f238a90ae61ef920ed677088937098babafe5",
+      "17e5586fe46d873e1dbd1dc94d39ccaaafe3d84a5d7be169c4ea08fa1e294bba",
+      "244f0994bf29a5329153f0a2a22ef8c664c04f98a7a068f4565139a70db35f49",
+      "83d77fa7995b145f88d191f6eeb4e688cad7341e86c5e0c2842ce4e2cbddd677",
+      "a27f94312d016e60ab16094cdd5aafa089af87d799ec46b81a1dacf1fabf3dbb",
+      "bdc2ed5c626822e125647e6fa9fe173ceb6487a31d3d2bc9a1dd59baf8dc6903",
+      "e6d1cc8a7dd78bb0ee5d9ab817c7bbc6a4872effb317a08698d69c3ca618c668",
+      "fcbace08a3a5b8fa7c7bbd656c5433e99a5afc9cafaff4d128be95dc4c652f3a"
+    ],
+    "covariance_mode": "kernel_fallback_no_aligned_donors"
+  },
+  {
+    "outer_model_id": "google/electra-small-discriminator",
+    "pseudo_model_id": "distilbert/distilbert-base-uncased",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4"
+    ],
+    "probe_groups": [
+      "1dcf04c0737ffee20129bc537d63be0d8763ef3c7035e05ec8bdf36b76e8ee7b",
+      "1ef767a4b8412b08cb73e2c31ea8872e447c4bc2848bae047dd1ee795253a892",
+      "6426957df78bf2880d6f052e7701cadbe542c2636245c19563d2ab04e7d8279d",
+      "88a1f09c0e5bfc28ccd3f40f30fb9d542ab80122a73b3b653598a2b0c4dd14f0",
+      "93388301a7e01ad8ce6ce8639f343bd77e1ee91374d6e5550882ef674c0d7c60",
+      "d771eb1dbd53ce4c3f3cb42dc89a81127b4610bc080e2d155d5afea4f2b69ec8",
+      "de14c6cd4831b5d6fd02836422230a5a18d770e7ce58e0199864dcd637c4bfd6",
+      "f2e3c3df5ef49ee321df5444bb0cb5cfb306a5346d6b7e2c849d3e49367b1412"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/electra-small-discriminator",
+    "pseudo_model_id": "google/bert_uncased_L-2_H-128_A-2",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4"
+    ],
+    "probe_groups": [
+      "24df49ec9e7cccc9aff10cafd909a23b86069e85632a34288f0cb0f863a91863",
+      "30b58e57462e57f86862b247542bc0e41d32ee4725cb082cade60503c666fec0",
+      "58b1fc77bf863a89b05868038ac93d2e08f2f278cf590f54cd98d88fb5eaa5a8",
+      "5f531032d74710fda848fd2b7dc6bf766f63d4c273c9a5d638c80d187366d45d",
+      "65bcaf1050726ea45e1be0c2b42e12791d8ee40909701b4d7b3dfe9e0f4c7460",
+      "8fa40acef3bf54b8a4acee9ab7b37bee69fc75ee98f189e669a9b97fee7f3bbd",
+      "94019ae3ab51b5cf79a333be12178b87b3550ddd24a00bd153c1cc6e78cc206d",
+      "ccb996e8caa5648ebbac35c58dc21032de19cbeedb4ff4eeea62c91973438ed8"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  },
+  {
+    "outer_model_id": "google/electra-small-discriminator",
+    "pseudo_model_id": "google/bert_uncased_L-4_H-512_A-8",
+    "fit_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4"
+    ],
+    "probe_groups": [
+      "341dd4753769adfc7713fa4bf1e5b687ff1e2b1b7bbe67fa05f260ed277c190b",
+      "3b6638b1ea8ed948986ba6b64577108b49fb7e7fb667e0ac60db7e90a4e84e7c",
+      "414fa6b226274bf405cb4eea4173bff29125e75f0cd3b9bf1cae649a3a7226bb",
+      "645ffed773fb4f7600c897b80bc00f7abef0a37551e53a04a8090f1422b2f310",
+      "8058956c65af4fe76eb97ca415c7abff3a2ad0ab4f02a18cd37ea7e80979875a",
+      "aff00ccfb93fbb8a7e9cc9202de4f3391067f76881996d9cce9efa8e86dcb5e5",
+      "bdaf03eee61f61d350431d24339b9532933a3f0e9886d2b53d56d7d55e93fecf",
+      "eed0e9e35fbc5727abea357050b17c1ae218b9b5005c326031670048b10db2fc"
+    ],
+    "covariance_mode": "aligned_empirical_plus_kernel"
+  }
+]

@@ -1,0 +1,286 @@
+{
+  "groups": [
+    {
+      "latency_slo_ms": 346.0,
+      "model_id": "FacebookAI/roberta-base",
+      "target_throughput_rps": 192.0,
+      "workload_group": "20699d45f0c5faaecf3c50785872a84ef5a1160c182783993c90c2d7deada203"
+    },
+    {
+      "latency_slo_ms": 490.0,
+      "model_id": "FacebookAI/roberta-base",
+      "target_throughput_rps": 36.0,
+      "workload_group": "7cfa5683b7904c3462c501a26a1647c23bd807663468cdd05715ec9e1314e36a"
+    },
+    {
+      "latency_slo_ms": 586.0,
+      "model_id": "FacebookAI/roberta-base",
+      "target_throughput_rps": 384.0,
+      "workload_group": "5436675e17f396c82725f65666a16c58d44bc37c0278e842f11aa799baf7daf7"
+    },
+    {
+      "latency_slo_ms": 1498.0,
+      "model_id": "FacebookAI/roberta-base",
+      "target_throughput_rps": 12.0,
+      "workload_group": "1999be0dd0624051a952508f843ed01fa505525f28c52c40bd4926663a2956f9"
+    },
+    {
+      "latency_slo_ms": 1498.0,
+      "model_id": "FacebookAI/roberta-base",
+      "target_throughput_rps": 864.0,
+      "workload_group": "980b8f1279f7d0df29647907319e443422488305f021faf09e1e033c2bbfd6ac"
+    },
+    {
+      "latency_slo_ms": 1744.0,
+      "model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+      "target_throughput_rps": 32.0,
+      "workload_group": "45a2dd19370c2396cf67e43e25317745ba6e9cf43f3f8e29839b317aaca2b2ba"
+    },
+    {
+      "latency_slo_ms": 3472.0,
+      "model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+      "target_throughput_rps": 256.0,
+      "workload_group": "ce7c08629e524e7f033710c2461f400a99b01c30050af083f832eace08ab4def"
+    },
+    {
+      "latency_slo_ms": 880.0,
+      "model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+      "target_throughput_rps": 64.0,
+      "workload_group": "ef1a309c9c6c8dbc0fca6a757fe7c13f789683672b02b52c9a0cf0b8a974ccdf"
+    },
+    {
+      "latency_slo_ms": 1936.0,
+      "model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+      "target_throughput_rps": 256.0,
+      "workload_group": "08658503e916f912a63da15462e95ccdd332e5dc718706b46fc483ff901d2c6d"
+    },
+    {
+      "latency_slo_ms": 880.0,
+      "model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+      "target_throughput_rps": 32.0,
+      "workload_group": "a4762292bdd100d83afd79aea54f7032c66e05d21b3d55bf1500cf5e7cd3ea1a"
+    },
+    {
+      "latency_slo_ms": 730.0,
+      "model_id": "albert/albert-base-v2",
+      "target_throughput_rps": 144.0,
+      "workload_group": "3584132fee8326705869d23b8c6ce2799e85783605f7746faed7e1c7250388cd"
+    },
+    {
+      "latency_slo_ms": 586.0,
+      "model_id": "albert/albert-base-v2",
+      "target_throughput_rps": 48.0,
+      "workload_group": "05f23e6bafff8aa73e38d2b131275973a5f664dcce3ff6d723d2a90ee7ca5433"
+    },
+    {
+      "latency_slo_ms": 490.0,
+      "model_id": "albert/albert-base-v2",
+      "target_throughput_rps": 96.0,
+      "workload_group": "b5f194a2b057f0355b423734673b2e13f2d6e670020e665646fbe2cb17b0039a"
+    },
+    {
+      "latency_slo_ms": 730.0,
+      "model_id": "albert/albert-base-v2",
+      "target_throughput_rps": 288.0,
+      "workload_group": "23e92d746454afad82bca4820884979e1ad8f4df4bddc6a1e34b55cf5c329b3a"
+    },
+    {
+      "latency_slo_ms": 1306.0,
+      "model_id": "albert/albert-base-v2",
+      "target_throughput_rps": 24.0,
+      "workload_group": "834f5ce9894c05e43ea4d328b23100c5068fbbaa9c59eabada3bd6549d7ac3f0"
+    },
+    {
+      "latency_slo_ms": 394.0,
+      "model_id": "distilbert/distilbert-base-uncased",
+      "target_throughput_rps": 192.0,
+      "workload_group": "9da75a4b80ec1f61dae0a164e64eb869f75dce29f371562a370148af6c679826"
+    },
+    {
+      "latency_slo_ms": 730.0,
+      "model_id": "distilbert/distilbert-base-uncased",
+      "target_throughput_rps": 96.0,
+      "workload_group": "97b6a04e6a5a6cd84db7aa2e01fb0b7497cc3659e03ffc791681065e4c648151"
+    },
+    {
+      "latency_slo_ms": 1786.0,
+      "model_id": "distilbert/distilbert-base-uncased",
+      "target_throughput_rps": 192.0,
+      "workload_group": "a53a3bc430331a39c79dbd587604160e7ce9cb89acb602c731635059024bb69b"
+    },
+    {
+      "latency_slo_ms": 346.0,
+      "model_id": "distilbert/distilbert-base-uncased",
+      "target_throughput_rps": 72.0,
+      "workload_group": "f4cdfc9e3474b6d60191ce0779ea5008f45f095cddca7913ff336f1d8e991e4a"
+    },
+    {
+      "latency_slo_ms": 1306.0,
+      "model_id": "distilbert/distilbert-base-uncased",
+      "target_throughput_rps": 288.0,
+      "workload_group": "07e0f75331b55f79d89e53317e59349fa0b55bda449cd516525192f58af119de"
+    },
+    {
+      "latency_slo_ms": 1306.0,
+      "model_id": "google-bert/bert-base-uncased",
+      "target_throughput_rps": 96.0,
+      "workload_group": "23f144e388e7c707158ecd3e47ac5b18f69c86a679d46f4cb6708baa05f14986"
+    },
+    {
+      "latency_slo_ms": 346.0,
+      "model_id": "google-bert/bert-base-uncased",
+      "target_throughput_rps": 576.0,
+      "workload_group": "40aa78e250e7214dfe68272b082989ff595bb29a936c9c027c07b5957c1a42d6"
+    },
+    {
+      "latency_slo_ms": 586.0,
+      "model_id": "google-bert/bert-base-uncased",
+      "target_throughput_rps": 576.0,
+      "workload_group": "adb027b1717c497397570ff727c52895b4f73cbf5944c9c859750fd220ad636e"
+    },
+    {
+      "latency_slo_ms": 1498.0,
+      "model_id": "google-bert/bert-base-uncased",
+      "target_throughput_rps": 144.0,
+      "workload_group": "3f05a1280944c6f8c8bf5ddaf4452a867b32150e3ccc9aaa526386948b351084"
+    },
+    {
+      "latency_slo_ms": 730.0,
+      "model_id": "google-bert/bert-base-uncased",
+      "target_throughput_rps": 288.0,
+      "workload_group": "a82c4a3d28c31c4ae073122a74e5a9e793bb3a4ac9b3dbadf6d9496a551da806"
+    },
+    {
+      "latency_slo_ms": 1498.0,
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "target_throughput_rps": 1536.0,
+      "workload_group": "140a1b46d494ea7374b4482a35952f2fcb8ebfdbbc54b5e926da5febd4abe71a"
+    },
+    {
+      "latency_slo_ms": 1306.0,
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "target_throughput_rps": 1152.0,
+      "workload_group": "627b6fe645a566b8481595052a03c97fc4df8433da7d7669dbd655544c6134df"
+    },
+    {
+      "latency_slo_ms": 1498.0,
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "target_throughput_rps": 144.0,
+      "workload_group": "9e1ff364eda7a028ad35f746d07dac20c3141ef8643eb94bf400c31a8382c6f1"
+    },
+    {
+      "latency_slo_ms": 490.0,
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "target_throughput_rps": 288.0,
+      "workload_group": "fd6be210cabfb08382d6319acb83122f285cd9ea5b8dd40750f0265f2d6bc40a"
+    },
+    {
+      "latency_slo_ms": 730.0,
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "target_throughput_rps": 96.0,
+      "workload_group": "399741862e70b97236914646cf8da2b4a2beaac7208c37d998d1648f7a9ff21d"
+    },
+    {
+      "latency_slo_ms": 1690.0,
+      "model_id": "google/bert_uncased_L-4_H-256_A-4",
+      "target_throughput_rps": 12.0,
+      "workload_group": "cfb640426256bccc10a0c4c2f2f207e55c4666df94930f3e78d12c530a16cfce"
+    },
+    {
+      "latency_slo_ms": 922.0,
+      "model_id": "google/bert_uncased_L-4_H-256_A-4",
+      "target_throughput_rps": 192.0,
+      "workload_group": "b7d634cb80221df6bed39ab9bddb662c3c894f24c3177aa55008cf6dc6ce6b14"
+    },
+    {
+      "latency_slo_ms": 730.0,
+      "model_id": "google/bert_uncased_L-4_H-256_A-4",
+      "target_throughput_rps": 48.0,
+      "workload_group": "00ca42d9606f35a9dc86801b6f012ebda9a1c778ef63a59cf0ce18577865cd3c"
+    },
+    {
+      "latency_slo_ms": 1690.0,
+      "model_id": "google/bert_uncased_L-4_H-256_A-4",
+      "target_throughput_rps": 48.0,
+      "workload_group": "f85110e6b1a96e0b0073b7c03eb4038b197960b5842bb6a247b1bc4afd32f4c1"
+    },
+    {
+      "latency_slo_ms": 1114.0,
+      "model_id": "google/bert_uncased_L-4_H-256_A-4",
+      "target_throughput_rps": 96.0,
+      "workload_group": "1c5b04796629334078d8360d868d73816bf4ad47c92dd179ea9390cb7d38a4b7"
+    },
+    {
+      "latency_slo_ms": 1786.0,
+      "model_id": "google/bert_uncased_L-4_H-512_A-8",
+      "target_throughput_rps": 72.0,
+      "workload_group": "a7c3960f42c4e4940f2a187fb075278df2416ecdce764ae06b7c34dbf02a3beb"
+    },
+    {
+      "latency_slo_ms": 490.0,
+      "model_id": "google/bert_uncased_L-4_H-512_A-8",
+      "target_throughput_rps": 384.0,
+      "workload_group": "018d848cb8c888aec1f58cd9b3fa66d747c5bc35cca7dc7583687acf2a98ceb9"
+    },
+    {
+      "latency_slo_ms": 586.0,
+      "model_id": "google/bert_uncased_L-4_H-512_A-8",
+      "target_throughput_rps": 144.0,
+      "workload_group": "3405f65674a4af6ed05af8807ed0d65398844684dbf38350f85fd1da98bae742"
+    },
+    {
+      "latency_slo_ms": 730.0,
+      "model_id": "google/bert_uncased_L-4_H-512_A-8",
+      "target_throughput_rps": 288.0,
+      "workload_group": "a2360374860019597ee419ffa8e8ce367dfcc3b3ceeea464be34ace84a5f0659"
+    },
+    {
+      "latency_slo_ms": 586.0,
+      "model_id": "google/bert_uncased_L-4_H-512_A-8",
+      "target_throughput_rps": 384.0,
+      "workload_group": "2da8050d58f8895ec11988da30398f5cf9e9c9885b089168d3a7e369dde68dfe"
+    },
+    {
+      "latency_slo_ms": 1306.0,
+      "model_id": "google/electra-small-discriminator",
+      "target_throughput_rps": 576.0,
+      "workload_group": "7c1cd516956dfa8c2057f32f58ac2d64675f9628cb792f2efa42f9f289e9baca"
+    },
+    {
+      "latency_slo_ms": 490.0,
+      "model_id": "google/electra-small-discriminator",
+      "target_throughput_rps": 288.0,
+      "workload_group": "73f9c70a020598077527032ceb6a2ff9ca572d9040bb8b6cfdb18d270a8a7284"
+    },
+    {
+      "latency_slo_ms": 586.0,
+      "model_id": "google/electra-small-discriminator",
+      "target_throughput_rps": 144.0,
+      "workload_group": "4c4fde1a7a1ac315e77a6f5f59ec0fb3ff11ee438b856fbd873a93ee2df9b2a1"
+    },
+    {
+      "latency_slo_ms": 730.0,
+      "model_id": "google/electra-small-discriminator",
+      "target_throughput_rps": 96.0,
+      "workload_group": "8b1b89b450298b1110ade1db4cbe3b0d304e9a04746fdaade5a6e9c240a61c12"
+    },
+    {
+      "latency_slo_ms": 1306.0,
+      "model_id": "google/electra-small-discriminator",
+      "target_throughput_rps": 96.0,
+      "workload_group": "fa0419293b84d46dd49d25c159533d18ac46eb1740fc1648fee6480d8f50d618"
+    }
+  ],
+  "kind": "slo_reuse_frozen_selection_v1",
+  "model_sha256": "7a934da440ea0c7473e4e59eb5fa0c8c57f347389272bd303cb0051ef918b161",
+  "protocol_sha256": "b81fc60da43e5df7ecb11b3d560b24fd5f89b158c2bad360a1aae448385a817a",
+  "selection": "per model first 5 by sha256(workload_group), tie by id",
+  "slo_multipliers": [
+    0.5,
+    0.75,
+    1.0,
+    1.25,
+    1.5
+  ],
+  "source_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906"
+}

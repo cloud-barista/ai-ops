@@ -1,0 +1,185 @@
+{
+  "scope": "oracle support audit only; no prediction values or model training",
+  "source_snapshot_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "probe_manifest_sha256": "70e09d6a07f5b753224421975a7dd972d69b65850150aaa050492cde89049397",
+  "script_sha256": "f42051d5c27c3d156fba9a07284f46f71ec0632e7b5bcb7db33a120c3ddc263f",
+  "envelopes": [
+    "ordinary: batch<12 and max_length<512",
+    "high: batch>=12 or max_length>=512"
+  ],
+  "probes_excluded_from_oracle": 8,
+  "minimum_unprobed_conditions": 10,
+  "coverage_target": 0.9,
+  "thresholds": "original collector targets plus 25 donor-only quantile pairs per held model",
+  "gate": {
+    "original": {
+      "total_cases": 18,
+      "nontrivial_cases": 3,
+      "models_with_nontrivial_case": 3,
+      "zero_feasible_cases": 15,
+      "all_eight_feasible_cases": 0,
+      "minimum_nontrivial_cases": 4,
+      "minimum_models": 3,
+      "passes": false
+    },
+    "synthetic": {
+      "total_cases": 450,
+      "nontrivial_cases": 75,
+      "models_with_nontrivial_case": 9,
+      "zero_feasible_cases": 335,
+      "all_eight_feasible_cases": 40,
+      "minimum_nontrivial_cases": 30,
+      "minimum_models": 5,
+      "passes": true
+    },
+    "overall_passes": false
+  },
+  "decision": "STOP_NO_TRAINING",
+  "decision_reason": "Original generated SLO has fewer than four nontrivial bundles",
+  "per_model": [
+    {
+      "model_id": "FacebookAI/roberta-base",
+      "source": "original",
+      "cases": 2,
+      "nontrivial_cases": 0,
+      "zero_feasible": 2,
+      "all_eight": 0
+    },
+    {
+      "model_id": "FacebookAI/roberta-base",
+      "source": "synthetic",
+      "cases": 50,
+      "nontrivial_cases": 4,
+      "zero_feasible": 46,
+      "all_eight": 0
+    },
+    {
+      "model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+      "source": "original",
+      "cases": 2,
+      "nontrivial_cases": 0,
+      "zero_feasible": 2,
+      "all_eight": 0
+    },
+    {
+      "model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+      "source": "synthetic",
+      "cases": 50,
+      "nontrivial_cases": 4,
+      "zero_feasible": 46,
+      "all_eight": 0
+    },
+    {
+      "model_id": "albert/albert-base-v2",
+      "source": "original",
+      "cases": 2,
+      "nontrivial_cases": 0,
+      "zero_feasible": 2,
+      "all_eight": 0
+    },
+    {
+      "model_id": "albert/albert-base-v2",
+      "source": "synthetic",
+      "cases": 50,
+      "nontrivial_cases": 4,
+      "zero_feasible": 46,
+      "all_eight": 0
+    },
+    {
+      "model_id": "distilbert/distilbert-base-uncased",
+      "source": "original",
+      "cases": 2,
+      "nontrivial_cases": 0,
+      "zero_feasible": 2,
+      "all_eight": 0
+    },
+    {
+      "model_id": "distilbert/distilbert-base-uncased",
+      "source": "synthetic",
+      "cases": 50,
+      "nontrivial_cases": 7,
+      "zero_feasible": 42,
+      "all_eight": 1
+    },
+    {
+      "model_id": "google-bert/bert-base-uncased",
+      "source": "original",
+      "cases": 2,
+      "nontrivial_cases": 0,
+      "zero_feasible": 2,
+      "all_eight": 0
+    },
+    {
+      "model_id": "google-bert/bert-base-uncased",
+      "source": "synthetic",
+      "cases": 50,
+      "nontrivial_cases": 4,
+      "zero_feasible": 46,
+      "all_eight": 0
+    },
+    {
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "source": "original",
+      "cases": 2,
+      "nontrivial_cases": 1,
+      "zero_feasible": 1,
+      "all_eight": 0
+    },
+    {
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "source": "synthetic",
+      "cases": 50,
+      "nontrivial_cases": 16,
+      "zero_feasible": 20,
+      "all_eight": 14
+    },
+    {
+      "model_id": "google/bert_uncased_L-4_H-256_A-4",
+      "source": "original",
+      "cases": 2,
+      "nontrivial_cases": 1,
+      "zero_feasible": 1,
+      "all_eight": 0
+    },
+    {
+      "model_id": "google/bert_uncased_L-4_H-256_A-4",
+      "source": "synthetic",
+      "cases": 50,
+      "nontrivial_cases": 15,
+      "zero_feasible": 23,
+      "all_eight": 12
+    },
+    {
+      "model_id": "google/bert_uncased_L-4_H-512_A-8",
+      "source": "original",
+      "cases": 2,
+      "nontrivial_cases": 1,
+      "zero_feasible": 1,
+      "all_eight": 0
+    },
+    {
+      "model_id": "google/bert_uncased_L-4_H-512_A-8",
+      "source": "synthetic",
+      "cases": 50,
+      "nontrivial_cases": 12,
+      "zero_feasible": 26,
+      "all_eight": 12
+    },
+    {
+      "model_id": "google/electra-small-discriminator",
+      "source": "original",
+      "cases": 2,
+      "nontrivial_cases": 0,
+      "zero_feasible": 2,
+      "all_eight": 0
+    },
+    {
+      "model_id": "google/electra-small-discriminator",
+      "source": "synthetic",
+      "cases": 50,
+      "nontrivial_cases": 9,
+      "zero_feasible": 40,
+      "all_eight": 1
+    }
+  ]
+}

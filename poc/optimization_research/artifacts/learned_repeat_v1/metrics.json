@@ -1,0 +1,35 @@
+{
+  "research_scope": "future single-run log latency/RPS distribution at fixed GPU cell",
+  "snapshot_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "script_sha256": "072e0f4d01277f7f41908bf6d6bcbc7ce32897618afca5b544103bd2fda40df3",
+  "outer_test_rounds_per_version": 20,
+  "inner_validation_rounds_per_version": 20,
+  "k_values": [
+    2,
+    5
+  ],
+  "candidate_pseudo_counts": [
+    0.0,
+    1.0,
+    2.0,
+    5.0,
+    10.0,
+    20.0,
+    50.0
+  ],
+  "candidate_scale_multipliers": [
+    0.75,
+    1.0,
+    1.25,
+    1.5
+  ],
+  "outer_held_models": 8,
+  "forecast_rows": 768,
+  "future_scored_rows": 15360,
+  "selection_rows": 128,
+  "full_trained_models": 16,
+  "paired_comparison_rows": 64,
+  "grid_rows": 1792,
+  "main_score": "CRPS on log outcome, model-balanced; smaller is better",
+  "warning": "Exploratory reuse of the same SQLite; no independent host, application SLO or scale-action outcome."
+}

@@ -1,0 +1,21 @@
+{
+  "status": "RETROSPECTIVE_CROSS_SERVICE_TRANSFER",
+  "source": "Verified BurstGPT_3.csv; relative days225-254 only; raw source preserved",
+  "cohorts": ["ChatGPT|API log", "ChatGPT|Conversation log", "GPT-4|API log", "GPT-4|Conversation log"],
+  "unit": "All recorded submitted requests per model/log cohort per5min; unsuccessful records retained",
+  "known_range": "Only complete5min bins bounded by raw audited first/last timestamps; outside is unknown, never true zero",
+  "internal_empty_bins": "Zero recorded requests, without source heartbeat or guarantee of actual zero traffic",
+  "fixed_models": "Three no-calendar7-feature Copilot models from copilot_external2023_v1; no fit or parameter search",
+  "model_target": "Maximum recorded call count from origin through assumed READY bin; delays1/2/6",
+  "feedback": "Existing q90 positive normalized raw residual; minimum96, window288, current scale>=1; same for all four baselines",
+  "feedback_available": "At i+h+1; assumed immediate delivery; actual delivery times absent",
+  "validation": "Relative day225 complete causal origins only; choose corrected simple baseline with lowest pinball for each cohort/horizon",
+  "test": "Relative days226-254; no target or origin outside observed range; no validation label crossing day226 boundary",
+  "support_gate": "validation>=144 supported origins AND>=80% coverage; test>=144 supported origins AND>=80% coverage; identical common support for all methods",
+  "gate": "Each scored cohort/horizon pinball>=5% lower than validation-selected identically corrected baseline AND model coverage85..95%; no weakening after scores",
+  "overall_transfer": "Requires all12conditions to pass; support failures count as unproven transfer",
+  "report": "All conditions, daily scores/support, raw/corrected model and all baselines; no pooling arbitrary services",
+  "prior_exposure": "Raw source and other targets have been explored in earlier studies; retrospective chronological transfer, not blind independent confirmation",
+  "deployment_boundary": "No GPU/VM demand, minimum shape, application SLO or scaling action effect labels",
+  "operational_adoption": false
+}

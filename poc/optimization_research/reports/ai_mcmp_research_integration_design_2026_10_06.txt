@@ -1,0 +1,400 @@
+AI-MCMP 경희대학교 연구 모듈 통합 설계서
+2026-10-06 | ETRI·이노그리드 협의 및 후속 개발용 초안
+
+문서의 성격
+현재 연구 함수·모델·계약과 기존 Go PoC 사이의 연결 경계를 정리한다. 제안한 공통 결과 객체, 서비스 선택기, 운영 이력 Adapter와 판단 연결은 기관 협의 전 설계다. 이번 작업에서 API·스키마·Go 코드·연구 코드를 변경하거나 통합 서버를 구현하지 않았다. 학습·실험·다운로드도 재개하지 않았다.
+함수가 존재한다는 사실, 오프라인 개선이 확인됐다는 사실, 실제 플랫폼 연동과 행동 효과가 검증됐다는 사실은 각각 다른 상태다. 미구현 연결을 완료 기능으로 표시하지 않는다.
+
+경로
+R=/home/researcher/ai-mcmp/research
+G=/home/researcher/ai-mcmp/deployment_agent
+동반 원고 R/reports/ai_mcmp_research_ppt_detail_2026_10_06.txt
+
+======================================================================
+1. 통합 목적과 기관 경계
+======================================================================
+
+목적은 여러 연구 출력을 출처·시간·단위를 보존한 근거로 연결하고, 이후 경희대 판단 계층이 안전하게 읽을 수 있게 하는 것이다. 현재 자료만으로 모든 자원 항목과 실제 동작을 자동 결정하는 통합 모델을 만들었다고 주장하지 않는다.
+
+기관 | 제공하거나 수행하는 것 | 경희대 모듈과 연결
+경희대 | 앱 요구 해석, 추상 형상 추천, 위험/수요 입력, 배포·스케일 판단 및 추론 최적화 | 예측·증거·보류, 향후 행동 판단
+이노그리드 | 앱 등록/버전/운영 정보, 모니터링 수집·관리, 실제 명세 변환·응용 실행 | 구조화 앱·관측·피드백 제공, 경희대 결과를 실행 흐름에 연결
+ETRI | 인프라 조회, 기본 추천·스케줄링, 실제 CSP/리전/VM 선택과 생성·삭제 | 자원 유형/가용량/가격/상태 제공, 실행 요청과 실제 자원 결과
+
+한 VM에 하나의 주요 AI 응용을 가정한다. 빈패킹, CPU affinity 제어, GPU 공유, 우선순위 프로세스 스케줄러, K8s 배포를 현재 필수 통합 항목으로 추가하지 않는다. 기존 실험의 affinity·pod 기록은 연구 데이터의 조건이며 해당 플랫폼 기능 개발을 뜻하지 않는다.
+
+실행 흐름의 기관 경계
+경희대 추상 형상/판단
+ → 이노그리드가 실행 흐름을 관리하고 인프라 요청
+ → ETRI가 실제 CSP·리전·VM을 결정·제어
+ → ETRI가 생성 결과를 이노그리드에 반환
+ → 이노그리드가 응용을 배포·상태 및 사용자 결과를 연결
+ → 경희대가 가용한 완료 결과를 후속 판단·보정에 사용
+이 구조는 역할 설계이며 현재 연구 데이터의 실제 실행 로그가 이 경로를 모두 증명하지는 않는다.
+
+======================================================================
+2. 현재 구현 상태와 연결 범위
+======================================================================
+
+구성 | 현재 상태 | 통합에서 추가할 것
+정적 형상 평가/v7 | 연구 함수·검증된 모델·보류·동일 출력 계산 경로 존재 | 공식 앱/후보 식별자 연결과 실제 VM 형상 대응 검증
+Philly 기본 확률 | 학습/평가 코드와 JSON 모델 모수 존재 | 실서비스 GPU 창/슬롯 의미 Adapter와 기본 확률 계산 포장
+Philly 슬롯 보정 | 플랫폼 중립 calibrate_day() 존재 | 운영 available_at, 앱↔GPU 슬롯 식별 및 하루 이력 제공
+Coding q90 | 집계·전처리·모델 추론 연구 함수 존재 | 가용 시각을 보존한 스트림 이력과 서비스 지원 체크
+준비 지연 수요 | 서비스×지연별 6모델·정답/보정 코드 존재 | 준비 지연 출처, 모델 선택, 운영 추론 포장
+Copilot 피드백 | 완료 잔차 재생 함수·고정 parent모델 존재 | 전체 target배열 대신 완료 이력을 제공하는 상태 Adapter
+BurstGPT | 집합별 24모델·검증·후속 평가 존재 | 검증된 서비스/유형으로 라우팅, 미채택 조건을 표시하는 지원 정책
+Alibaba SM | 저장 모델·고정 예측 함수·미래 검증 존재 | 현장 hourly 계측 정의/연속성·GPU 지원 확인, 운영 함수 포장
+요구/형상 증거 | 버전형 JSON 스키마·생성기·검증기 존재 | 공통 결과와 증거 객체의 연결 위치 합의
+기존 Go 판단 | formal 계약·판단·Guard·계획 코드 존재 | 연구 근거를 읽는 별도 연결 및 실제 자원 정보 검증
+실제 행동 효과 | 현재 연구 자료에서 검증 부족 | action/READY/라우팅/요청 SLO·가격·비교군
+통합 에이전트 | 미완료 | 계약 합의→모듈 연결→Shadow→제한 실측
+
+개별 연구의 채택 상태와 운영 채택 상태는 분리한다. 조건부 예측 개선이 있는 BurstGPT의 전체 조건 채택은 false이며, Copilot은 후향 EXPLORATORY_PASS다. 이를 플랫폼 전체의 운영 채택 표시로 승격하지 않는다.
+
+======================================================================
+3. 제안 전체 구조와 연결선별 데이터 계약
+======================================================================
+
+INNO 앱/요구/운영 이력 ─┐
+ETRI 자원·GPU 정보 ────┼→ [식별·단위·시간·지원 검사: 제안]
+KHU 저장 모델·증거 ────┘              │
+                                     ├→ [정적 형상 v7]
+                                     ├→ [토큰/호출 q90: 서비스·지연별]
+                                     ├→ [GPU 위험/전날 보정]
+                                     └→ [hourly SM 잔차]
+                                              │
+                            [단위별 연구 증거 묶음: 제안]
+                                              │
+                       [추가 용량/자원/SLO 매핑: 미확보]
+                                              │
+                       [기존 Go 판단·Guard·계획 경로]
+                                              │
+                              [INNO 실행 Adapter]
+                                              │
+                                [ETRI 인프라 제어]
+                                              │
+                       [실행/READY/트래픽/요청 결과]
+                                              │
+                       [완료·전달 검사/피드백 이력: 제안]
+                                              └→ 다음 연구 모듈 호출
+
+선 | 입력 제공자 | 값과 단위 | 지원 조건 | 현재 연결 상태
+앱→형상 | INNO/사용자, KHU 모델 메타 검증 | model/revision,batch,길이,동시성,배치 목표ms/호출초 | 모델·장치·호스트·입력 범위와8후보 완전성 | 연구 요청 가능; 공식 앱 계약 매핑 미구현
+자원→형상 | ETRI, KHU 후보 구성 | 실제 CPU/RAM/GPU/가격·가용량 | 원본 단위·observed_at/available_at·유효기간 | 실제 후보↔정적 프로세스 대응 미검증
+토큰 관측→수요 | INNO | 5분 기록 입력토큰 합계 | 서비스 모델과 표본 범위 일치, 과거만 가용 | 공개 자료 재생 존재; 현장 Adapter 미구현
+호출 관측→수요 | INNO | 5분 기록 호출 수 | 서비스/종류 일치, 희소·결측 구분 | 공개 자료 재생 존재; 현장 Adapter 미구현
+GPU 관측→위험 | INNO 계측관리, ETRI 슬롯/장치 정보 | 1분값→5분평균% | 완전 과거·현재<80%, 슬롯 대응 | Philly 코어/재생 존재; 현장 대응 미구현
+GPU hourly→SM | INNO 계측관리, ETRI 자원식별 | 시간별 SM%,CPU요청cores | 연속3시간·1GPU조건·동일server | Alibaba 평가 경로 존재; 현장 대응 미구현
+연구→판단 | KHU | 개별 예측·단위·기간·근거·보류 | 모델/출처 검증, 필요한 후속 근거 확보 | 공통 객체/Go 연결 제안
+판단→INNO | KHU/Go Guard | 추상형상·Operation·근거 | 앱/후보/실행 가능성 및 정책 조건 | 기존 PoC 계약 존재; 연구 전체 자동 연결 미완료
+INNO→ETRI | INNO | VM 생성/삭제 요청 | 기관 API 합의·실행 식별자 | 연구 원본의 실측 연결 없음
+결과→피드백 | INNO 실행/계측, ETRI 실제 자원 결과 | action/READY/요청/SLO와 가용 시각 | 완료·수집 가능·중복/재시도 구분 | 좁은 사건 계약·합성 예시; 실제 수집 필요
+
+데이터 제공자 배분은 협의용이다. 모니터링을 ETRI와 INNO 중 어느 API로 전달할지는 기관 합의가 필요하며, 경희대가 새 수집·저장 플랫폼을 만드는 전제로 두지 않는다.
+
+======================================================================
+4. 공통 연구 결과 객체: 신규 구현 전 초안
+======================================================================
+
+이 절의 필드명은 새 API 명세 확정값이 아니다. 기존 계약을 수정하지 않고 별도의 연구 증거 봉투로 설계한다. 기존 객체에 없는 필드를 임의 삽입하거나 Go에서 해석된다고 가정하지 않는다.
+
+필드 | 의미와 규칙
+evidence_version | 연구 결과 봉투의 버전; 기존 증거 버전과 별도
+module_id,module_version | 형상/수요/위험/SM/요구 신호 및 코드 버전
+model_id,model_version,model_sha256 | 예측기 식별자; 응용 model_id와 구분
+application_ref | app_id,app_version,profile_id,workload_id와 연결된 원본 식별자
+request_id,correlation_id | 요청·결과 추적; 원래 연구 함수에 없으면 Adapter가 실제 요청에서 부여
+decision_at,time_basis | UTC 절대시각 또는 relative_seconds와 명시적 origin; 임의 날짜 생성 금지
+observation_window | 특징으로 사용한 과거 창의 시작·끝
+forecast_window,target_definition | 예측 대상 기간과 최대/합계/사건 정의
+latest_input_available_at | 판단에 사용한 입력 중 가장 늦은 실제 가용 시각
+ready_delay_minutes | 준비 지연 관련 수요에만 사용; 해당하지 않으면 null
+support_status | SUPPORTED/UNSUPPORTED/INSUFFICIENT_HISTORY 등 제안값; 기존 status와 대응표 필요
+result_status | RESEARCH_ESTIMATE 또는 ABSTAIN; 실행 승인과 구분
+abstain_reasons | 누락·지원 밖·시간·모델 불일치 등; 기존 이유를 보존
+estimates[] | metric,value,unit,aggregation,quantile/threshold,target_scope
+feedback | 보정 유무,원시 예측,보정량,적격 표본 수,완료 경계와 마지막available_at
+provenance | 데이터/모델/특징코드 해시,자료 출처,검증 여부,가정,결과파일
+scope,limitations | 지원되는서비스·장치·호스트·시간·사건; 운영 효과 미검증 등
+operational_adoption | 연구 평가와 운영 채택을 구분; 현재 관련 연구는 자동 운영 채택 false
+
+숫자 규칙
+- 값 미존재/미지원/보류는 null 또는 estimate 부재로 표현한다. 0으로 채우지 않는다.
+- p0,p_final은 확률 0~1이며 GPU사용률 80%와 같은 단위로 더하지 않는다.
+- 토큰 합계·호출 수는 requests/sec가 아니다. 집계bin_seconds=300과 대상 범위를 함께 둔다.
+- peak 창은10/15/35분이지만 단위는 '그 창 안의 최대 5분 기록량'이다.
+- 배치p95와사용자E2Ep95는 다른 metric_id를 쓴다.
+- CPU affinity cores와VM vCPU, 프로세스replicas와nodes는 다른 필드다.
+- 선택된 후보가 없으면 selected=null이며, downstream이 큰 VM이나KEEP를 자동 대입하지 않는다.
+- 모델의q90를 확정 상한이라고 쓰지 않는다. 통합 시 실제 피복 검증을 별도로 남긴다.
+
+개념 예시(구현된 스키마가 아닌 형상 결과 봉투)
+{
+  "evidence_version": "draft-2026-10-06",
+  "module_id": "static_gpu_shape",
+  "model_id": "performance_v1_extra_trees",
+  "model_sha256": "<검증한 모델 파일 SHA256>",
+  "application_ref": {"app_id": "<INNO app_id>", "profile_id": "<profile_id>"},
+  "decision_at": "<실제 요청 UTC 시각>",
+  "time_basis": "UTC",
+  "latest_input_available_at": "<원본 입력이 전달된 UTC 시각>",
+  "result_status": "RESEARCH_ESTIMATE",
+  "target_definition": "same-host static batch performance under submitted profile",
+  "estimates": [
+    {"metric": "batch_latency_p95", "value": "<원 함수 숫자>", "unit": "ms"},
+    {"metric": "benchmark_call_rate", "value": "<examples/sec divided by batch>", "unit": "calls/s"}
+  ],
+  "selected_process_shape": {"gpu_replicas": "<원 함수 값>", "cpu_affinity_cores": "<원 함수 값>"},
+  "desired_vm_infrastructure": null,
+  "operational_adoption": false
+}
+꺾쇠 값은 설명용 자리표시자다. 실제 숫자형·식별자·해시로 대체되기 전 유효한 운영 입력이 아니다. desired_vm_infrastructure가 null인 이유는 변환에 필요한 자료가 없기 때문이다.
+
+======================================================================
+5. 모듈별 입력·출력·기존 함수 대응
+======================================================================
+
+5-1. 정적 형상과 v7
+기존 로더: scripts/assess_gpu_shape.py의load_verified_bundle(model_path,source_path).
+모델: R/artifacts/performance_v1/performance_model.joblib.
+자료: R/data/audit_v1/measurements.parquet.
+계산: scripts/assess_gpu_shape_microbatch_v7.py의assess_gpu_shape_microbatch_v7(bundle,requests,max_grids=256).
+실제 요청 키: batch_latency_p95_limit_ms,min_requests_per_second,candidates.
+후보키: 학습 10 특징 + application_id,workload_id,host,device_name.
+공통 workload/model/revision/device/host/device_name/batch/max_length/concurrency/repeats가 같고 1/2replica×2/4/8/16affinity8형상이 완전해야 한다. 입력지원 검사가 하나라도 실패하면 요청 전체 ABSTAIN을 유지한다.
+기존 출력: status,reasons,candidate_assessments,selected,scope,provenance 등. 후보 결과의gpu_replicas,cpu_affinity_cores,predicted_batch_latency_p95_ms,predicted_requests_per_second,batch_latency_margin_ms,requests_per_second_margin,meets_estimated_slo를 보존한다.
+시간 의미: 정적 실험 조건 성능이며 특정 미래시간열 예측이 아니다. 공통 봉투에는 요청 시각을 기록하되 새 시간 예측 성과로 표시하지 않는다.
+v7은 model/candidate/SLO/보류 규칙을 바꾸지 않는다. 256격자·1,024행이상2worker를 사용하고 tree누적순서를 유지한다. 작은입력은 직렬, 큰 예측 실패는 기존 격자추론으로 재시도한다. 온라인 동시성 CPU 비용은 추가 검증 과제다.
+기존 형상 증거: contracts/gpu_shape_evidence_v0.2.0.schema.json; generate_gpu_shape_evidence_v0_2.py/validate_gpu_shape_evidence_v0_2.py. 기존 증거 필드는 새봉투와 대응하되 삭제·재명명하지 않는다.
+
+5-2. 구조화 요구 신호
+scripts/assess_requirement_signals.py의load_verified_bundles/assess_requirement_signals.
+대상별 지원을 확인해 관측 예약 VRAM 피크(GiB)와 로컬 캐시 적재시간(seconds)을 추정한다. 필드 출처·불확실성·보류를 유지한다.
+contracts/requirement_signal_evidence_v0.1.0.schema.json과 생성/검증 코드는 요청·결과·출처를 묶는 기반이다. 이를 앱 설명·사용자 자연어를 이해한 최소 RAM 정답으로 대체하지 않는다. 현장 metadata의 dtype/revision/replica 정의와 일치하는지 확인해야 한다.
+
+5-3. Philly 기본 위험과 슬롯 보정
+기본 p0 모수는 artifacts/philly_machine_holdout_model_v1/model_spec.json이다. scripts/philly_risk_models.py와 evaluate_philly_machine_holdout.py의 특징 순서·전처리 모수를 유지한다.
+보정 API: policies/philly_slot_day.py의calibrate_day(targets,previous_day_feedback,day_start_utc_s=...).
+targets 정확열: machine_hash,gpu_index,decision_utc_s,p0.
+feedback의 정확한 열은 targets4열과 y,label_available_at_utc_s다. 코어가 열 집합을 검증하므로 공통 봉투의 여분 열을 그대로 넘기지 않는다. Adapter에서 기존 함수 입력으로 분리한다.
+출력 정확열: targets에machine_probability,slot_probability,machine_shift,slot_shift,previous_day_machine_rows,previous_day_slot_rows를 더한다.
+complete past/current<80%에 대한 p0가 맞는지는 Adapter가 확인해야 한다. 현재일 targets에 y를 넣지 않는다. 기계/slot/판단 중복을 거절하며 day_start는 UTC00:00이다. 전날의 시간당 첫 판단을 먼저 선택한 뒤 완료·전달 필터를 적용하는 현재 코어 순서를 유지한다.
+결과 metric은 next_30min_any_5min_util_ge80_probability다. threshold80, 사용률 단위%, 사건 창1800초와 확률 단위0~1을 명시한다. 단순 SM 계측과 다른 사건이다.
+
+5-4. Coding 단기 토큰
+scripts/evaluate_azure_code_input_demand.py의design_from_aggregates(y,...),predict_from_bundle(fitted,frame).
+bundle: artifacts/azure_code_input_demand_v1/relative_q90_model.joblib.
+5분 단위의 기록 ContextTokens 합계와 학습 당시의 UTC 특징을 구성한다. scale<1000 또는 시간/자료 지원 밖이면 보류한다. 다음5분 sample_input_tokens_q90를 반환한다. 다른 서비스에 Coding 모델을 자동 이관하지 않는다.
+현재 함수는 연구 DataFrame/배열 추론이다. 운영 JSON 요청→이력 창→추론→공통 결과의 API는 미구현이다.
+
+5-5. 준비 지연 토큰
+scripts/train_evaluate_delay_capacity.py의 FEATURES/PARAMS와 scripts/delay_capacity_policy.py의 정답·완료 보정 규칙을 사용한다.
+서비스 coding/lmm과 지연1/2/6bin에 맞춰 artifacts/delay_capacity_v2의6joblib 중 선택한다. bundle의 features/delay와 요청 조건을 대조한다.
+결과 metric은 peak_5min_sample_input_tokens_q90다. bin_seconds300, forecast_window600/900/2100초, ready_delay300/600/1800초다. 이를1분 순간 peak 또는35분 누적량으로 바꾸지 않는다.
+서비스별로 학습한 모델이므로 같은 model_id로 묶지 않는다. LMM10분의4.19%는5% 개선 기준에 미달한다는 평가 상태를 모델 등록 정보에 남긴다.
+
+5-6. Copilot·BurstGPT 호출
+Copilot parent모델3개: artifacts/copilot_call_demand_v2/copilot_delay1_extended_q90.joblib와delay2,delay6.
+scripts/copilot_call_feedback.py의correct_completed(target,prediction,scale,horizon,first_origin=864,window=288,minimum=96,delivery_lag=0).
+기존 API는 전체 target 배열을 받는 재생 함수다. 내부 완료 필터로 오프라인 누출 검증을 했지만 실서비스에는 완료 이력만 전달하는 별도 Adapter가 필요하다. 운영 추론에 미래 target를 만들어 전달하지 않는다.
+BurstGPT는 scripts/burstgpt_sparse_calls.py의 design/targets와 저장 모델을 사용한다. 전체24개에는 상대·절대 비교 모델이 함께 있다. 지원된 집합·지연의 상대(stabilized) 모델을 선택한다. cohort 키는 ChatGPT|API log, ChatGPT|Conversation log, GPT-4|API log, GPT-4|Conversation log다. Copilot 서비스 키와 합치지 않는다.
+결과 metric은 peak_5min_recorded_calls_q90다. 단위는 calls/5minbin이며 대상 창은600/900/2100초다. Copilot은 m, BurstGPT는 s=max(mean,1)로 각 정의를 유지한다. 이는 토큰 수요나 처리 용량이 아니다.
+보정에는 raw_prediction_id, scale, 고정 모델 버전, 완료 target_id, 완료·전달 시각, 적격 표본 수를 연결한다. 보정 후 예측의 잔차를 다시 쌓는 방식으로 바꾸지 않는다. 부모 모델이 변경되면 기존 잔차 이력을 분리하는 규칙을 합의하고 검증해야 한다.
+조건별 개선은 검증 범위 정보다. 성공 조건만으로 운영 모델 자동 선택기를 학습했다고 말하지 않는다.
+
+5-7. Alibaba SM
+scripts/evaluate_alibaba_gpu_sm_future.py의fixed_predictions(frame,bundle)는실제예측함수다. 선택된출력residual_hgb_alpha_1를사용한다.
+엄격 주 경로는 artifacts/alibaba_gpu_sm_hour_v1/one_gpu_pod_and_server/model_bundle.joblib다. one_gpu_pod/model_bundle.joblib는 보조 경로이며 지원 조건을 섞지 않는다.
+12개월신규 모델이나Spot우선순위스케줄러가아니다. sourceunit,workload/pod/server,GPU요청1개,엄격경로serverGPU1개,연속3과거hourly값을검사한다. next_hour_sm_percent를반환하고clip0~100과사용한currentSM을기록한다.
+저장 평가의 정답 구성에는 미래 시간까지 server가 같다는 조건이 있다. 실제 추론에서 미래 이동은 알 수 없으므로 당시 가용한 과거 연속성과 예측 기간의 배치 유지 조건을 확인한다. 이후 이동이 발생하면 평가 집합을 따로 분리한다. 미래 server 정보를 특징이나 지원 검사에 미리 사용하지 않는다. 이 현장 규칙은 설계이며 운영 검증이 필요하다.
+
+======================================================================
+6. 서비스·단위·준비 지연에 따른 모듈 선택
+======================================================================
+
+라우팅 키 초안=(task_type,source_service,metric_unit,target_definition,ready_delay,model_support_version).
+데이터셋 이름만으로 선택하지 않는다. 실제 서비스와 공개 자료의 입력 의미가 대응하는지 확인해야 한다. 모든 AI 앱에 Coding 모델을 사용하는 기본값을 두지 않는다.
+
+요청 목적 | 조건 | 선택 | 조건 불충족
+지원된 정적8후보 공동배치 목표 | 기존 모델·호스트·장치·범위 | performance_v1+v7 | 기존ABSTAIN 이유보존
+Coding다음5분token예산 | sameunit·유효scale·과거가용 | Codingrelativeq90 | 서비스/scale미지원보류
+Coding/LMM준비 지연token peak | 서비스별모델·지연5/10/30 | delay_capacity_v2의해당bundle | 중간지연자동보간없이보류
+Copilot기록호출peak | 부모 모델·동일scope·적격피드백 | parentq90+completedcorrection | 보정없음/지원없음상태구분
+BurstGPT기록호출peak | 정확cohort·지연·조건별검증 | 해당stabilizedbundle+보정 | 실패조건운영 채택금지;연구 출력은별도표시
+GPU30분80%사건 | 동일창/사용률정의·완전과거·현재<80 | p0+전날machine/slot | 다른층보류/별도모델
+hourlySM | 지원GPU·1GPU·연속성·source정의 | residualalpha1엄격/보조별 | 정의불일치/이동/미지원보류
+
+토큰 요청에 호출 기록만 있다면 UNIT_MISMATCH로 보류한다. 호출당 평균 토큰을 임의 상수로 만들지 않는다. 같은 앱에서 실측한 처리 용량 없이 forecast/capacity로 필요한 GPU 수를 산출하지 않는다.
+
+미지원 결과의 후속 처리 초안
+- 연구 모듈 보류는 이유와 필요한 자료를 함께 상위 계층에 반환한다.
+- 상위 계층은 보류를 자동 SCALE_OUT 또는 KEEP로 바꾸지 않는다.
+- 별도 검증된기본 정책이있으면그정책출처·버전을새로기록한다. 연구신호를사용하지않은판단과사용한판단을구분한다.
+- 기존 Go 계약에 ABSTAIN operation을 새로 추가하지 않는다. 연구 보류를 formal 응답의 어떤 오류 또는 계획 부재로 연결할지는 별도 합의가 필요하다.
+
+======================================================================
+7. 시점·피드백·재현성 규칙
+======================================================================
+
+공통 시간 검사(초안)
+1. observed_at은 관측이 발생한 시각, available_at은 판단측에서 사용할 수 있게 된 시각이다.
+2. 판단 시각D의 특징은 창이 완료됐고 available_at≤D여야 한다.
+3. target_completed_at>D면 피드백에서 제외한다. 완료됐어도 target_available_at>D면 제외한다.
+4. 지연 peak 정답은 origin+h+1에서 완료된다. 12:00/10분 준비는12:15에 정답이 완료된다.
+5. Philly는 전날의 판단 중 정답 완료·전달 조건을 만족하는 기록을 현재 코어의 순서대로 사용한다.
+6. 이전 원시 예측·target·scale·model 버전을 연결해 잔차를 계산한다. 원시 관측 수정이나 버전 변경 시 이력을 그대로 재사용하지 않는다.
+7. 실제 available_at이 없으면 assumed_immediate_at_window_close를 가정으로 명시한다. 실제 전달 로그처럼 표현하지 않는다.
+8. BurstGPT 상대시간을 UTC로 변환할 기준이 없으면 상대 origin/bin_index를 보존한다. 절대시각·요일 특징을 새로 만들지 않는다.
+9. 관측된0, 결측, 수집 실패를 구분한다. heartbeat가 없으면 실제 무호출을 확인하지 못했다는 한계를 남긴다.
+10. app/model/host/slot/workload 식별자 변경·action 재시도·중복을 확인한다. 같은 사건을 독립 학습 사례로 중복 계산하지 않는다.
+
+모델·환경검증
+현재 bundle의 학습 자료/모델 해시, 특징 순서, 라이브러리 버전과 source 조건을 대조한다. 모델 로드가 성공해도 지원 검사를 생략하지 않는다. 검증 실패는 기존 함수의 거절을 유지한다.
+정적 예측 캐시는 한 묶음 호출 안에서만 유효하다. model/input이 달라진 다음 호출에 재사용하지 않는다. v7은 출력 동등성을 유지하는 계산 변경이다. private sklearn API 버전이 바뀌면 출력·지원·성능을 다시 확인해야 한다.
+소스 해시는 출처 연결과 변경 검사의 근거다. 실제 action 성공, 사람 검토 metadata, 전자서명까지 보증하는 것은 아니다.
+
+======================================================================
+8. 기존 Go 계약과 연구 증거의 연결 경계
+======================================================================
+
+기준 코드 G/go/service-control-api/internal/agentcontrol/models.go
+지침 G/AGENTS.md
+경계 설명 G/docs/design/integration_boundary.md
+연구 근거 R/reports/research_to_deployment_spec_boundary.md
+
+formal 경로
+ApplicationProfile + ResourceRecommendation
+ → 판단·Guard
+ → DeploymentPlan
+ → DesiredDeploymentSpec/기관 Adapter 경계
+현재 브랜치의 legacy profile 생성·resource 수집/순위 경로를 formal 서버에 다시 연결하지 않는다. 이번 문서화에서 Go 계약을 수정하지 않았다.
+
+기존 필드 | 연구 출력/입력 연결 | 자동 대입 가능 여부와 필요한 근거
+ApplicationProfile.profile_id/app_id/app_version | 공통application_ref | INNO원본과동일식별확인후연결;연구가ID생성하지않음
+ApplicationRequirements.SLO | 사용자 목표 | 실제 SLO정의/단위제공 필요;batch목표와E2E목표분리
+InferenceConfiguration | model/batch/revision/replicas등실행 조건 | 해당 앱실행정의검증필요;processreplica동일성의 자동 가정 금지
+ResourceCandidate.DesiredInfrastructure.CPUCoresPerNode | cpu_affinity_cores | 자동 대입 불가;VMCPU프로파일실측 대응 필요
+DesiredInfrastructure.NodeCount | localGPUreplicas | 자동 대입 불가;실제VM/서비스replica토폴로지와scale효과필요
+Accelerator.Count/MemoryMiBMinPerDevice | replica수/예약VRAM | 자동 대입 불가;물리GPU 종류·메모리·OOM최소경계필요
+MemoryMiBPerNode | 관측VRAM/실행메모리 | 자동 대입 불가;실제RAM조건/부족 실패경계필요
+Placement/이미지/labels | 현재부분 입력조건 | 등록 이미지/요구 라벨/자원 라벨/배치 제약을INNO·ETRI에서제공
+ResourceScores.SLOHeadroom | 예측배치 목표margin | 증거로는가능;원Mock점수필드에자동 대입하지않음
+CostEfficiency/Availability | 수요/성능추정 | 자동 대입 불가;실제 가격·가용량·유효시각필요
+ResourceCandidate.Feasible | predictedmeetsSLO | 자동 대입 불가;자원/앱호환성·실제 SLO조건을별도 검증
+SelectedCandidateID/resource_hints | 연구selectedprocessshape | 자동 대입 불가;실제후보와검증된매핑 필요
+DeploymentPlan.Operation | 위험/수요 | 예측자체가명령이아님;상태·정책·용량·READY·Guard필요
+DesiredDeploymentSpec | 연구봉투 | 별도객체;완전한 spec생성근거부족을null/보류로유지
+
+현재 Mock 점수의 제약
+resource_recommender.go의 SLOHeadroom=.5+.5×ResourceFit, Total 반영20%는 실제 지연·처리량 SLO 추정이 아니다. 자원 최소 조건 Feasible과 사용자 SLO 적합성을 구분한다. 이번에 코드를 변경하지 않았으며 점수 의미와 연구 증거 전달 위치는 후속 협의가 필요하다.
+
+DeploymentPlan의 대표 필드
+plan_id,operation,profile_id,app_id,app_version,selected_candidate_id,target_runtime,desired_infrastructure,inference_configuration,resource_hints,reasoning_mode,created_at.
+DesiredDeploymentSpec의 대표 필드
+spec_version,decision_id,operation,application,target_runtime,desired_infrastructure,inference_configuration,runtime,policy_hints,metadata.
+상세 필드는 models.go의 실제 타입을 따른다. 연구 공통 객체를 기존 필드 목록의 대체 API로 사용하지 않는다.
+
+======================================================================
+9. 추가로 확보해야 하는 입력·정답·사건
+======================================================================
+
+앱 요구: app_id/version/profile_id, model_id/revision/dtype, 작업 종류, 입력 크기·토큰 범위, 동시성, 사용자 SLO, 비용 한도, 이미지, 필수 labels·배치 조건, 근거와 사람 승인 라벨.
+자원 후보: resource_id, CSP/리전, CPU/RAM/GPU 종류·수·메모리, 총량·가용량, 건강 상태, 가격·통화·시간 기준·유효기간, 출처와 관측·가용 시각.
+처리 용량: 같은 앱·revision·형상·입력 복잡도에서 반복 측정한 E2E 지연·오류·요청률과 토큰/호출 처리량. 출력 토큰·동시성·batch 영향을 포함한다. 이 대응이 없으면 수요를 GPU/VM 수로 환산할 수 없다.
+배포 판단: decision_id, correlation_id, policy_version, 판단 시각, 사용한 입력 중 가장 늦은 available_at, 추상 형상, Operation과 후보 점수·지원·보류 근거.
+실행 사건: 실행측 action_id와 decision 연결, 명령 접수·재시도·실패 이유, 요청·접수·완료 시각, 실제 준비된 VM/replica 수, READY/FAILED, 트래픽 라우팅 전환·버전.
+사용자 결과: request_id, 실제 처리 deployment/action 연결, 입력 크기, 시작·종료·가용 시각, 성공·오류·E2E 지연, 부하·가격. 비교 창과 비개입·통제군을 고정한다.
+
+현재 scale_action_events v0.2.0은1회+1replica SCALE_OUT의 좁은 수집 형식이다. 예시는 합성이다. Scale-in/Update/Keep 전체를 포괄하지 않으며 명령 요청을 실제 적용 성공으로 바꾸지 않는다.
+실제 판단 효과 학습에는 요청→action 접수→READY→라우팅→사용자 결과의 시간 연결과 적절한 비교 조건이 필요하다. 공개 GPU/호출 trace로 이 결과를 대체할 수 없다.
+
+======================================================================
+10. 후속 통합의 검수 시나리오: 제안이며 이번에 실행하지 않음
+======================================================================
+
+시나리오 | 기대 결과 | 검증 목적
+유효한 기존8형상 요청 | v7과기존평가기JSON동일 | 기존 추천·보류 의미 유지
+8형상중하나누락 | 기존 ABSTAIN | 후보불완전성은추정으로메우지않음
+신규 모델/revision/호스트 | 지원 밖 보류 | 다른 앱 일반화의 자동 가정 금지
+SLO만변경한25요청 | 원시 예측 재사용,판정 각각 재계산 | 캐시와목표 결정분리
+call자료로token요청 | UNIT_MISMATCH/보류 | 임의 단위 환산 금지
+7분ready_delay | 지원밖/합의된별도 검증경로 | 미검증 보간 금지
+12:15완료target가12:17도착 | 12:16판단에제외 | available_at누출 방지
+Philly새slot전날기록없음 | 해당slotshift0,표본0 | 무피드백기본처리
+Philly현재≥80% | 기존주평가층미지원표시 | 지원 집합차이보존
+BurstGPT관측 없음과0 | 둘을구분,자료 품질표시 | 희소라벨해석
+SMserver이동/중복 | 과거품질거절,향후이동은사후 집합분리 | 미래 이동정보입력누출금지
+CPUaffinity8선택 | VMvCPU8로자동 대입안함 | 프로세스/VM경계
+수요모델양수+용량없음 | GPU/NodeCount미생성 | 정보 부재보존
+모델hash/feature 순서 불일치 | 로드/호출거절 | 다른모델잘못로드방지
+연구ABSTAIN | reason보존,자동KEEP/SCALE_OUT없음 | 판단과예측경계
+MockFeasible=true | 실제 SLO충족완료표시안함 | 기존Mock의미 보존
+실행요청만있고READY없음 | 행동성공 라벨없음 | 명령≠완료
+v7온라인 동시 요청 | 벽시계·누적 CPU/RSS·처리량별도 평가 | CPU증가의운영영향
+
+테스트는 후속 구현 변경과 함께 필요한 범위로 추가한다. 문서 작성을 위해 기존 학습·벤치마크를 다시 실행하지 않았다.
+
+======================================================================
+11. 다음 개발 순서와 완료 조건
+======================================================================
+
+단계 1. 기관 계약 합의
+앱/SLO/모니터링 입력, resource 후보·가격, 공통 식별자·available_at, 형상 추천 범위, 연구 증거 전달 위치, 별도 서비스 또는 내부 모듈 방식을 합의한다.
+완료 조건: INNO/ETRI/KHU의 필드 제공자·단위·시간·누락 동작·버전 책임을 명시한 합의문. 현재 문서는 그 합의 완료를 뜻하지 않는다.
+
+단계 2. 연구 Adapter와 조회형 연결
+기존 스키마 검증과 모델 해시를 유지하는 wrapper, 서비스·지연 라우팅, 공통 증거·보류, 완료 피드백 이력 변환을 구현한다. 별도 검토 없이 기존 Go formal 계약을 수정하지 않는다.
+완료 조건: 저장 자료 재생에서 기존 출력의 단위·지원·시점을 보존하고 실행을 자동 발행하지 않는 연결 검증.
+
+단계 3. 실제 용량·요구·실행 기록 확보
+새 앱/호스트/CPU/RAM/GPU 후보를 실제 사용자 SLO로 반복 측정하고 action/READY/라우팅/요청 결과를 연결한다. train/calibration/confirmation은 app/model/host/time으로 분리한다.
+완료 조건: 미사용 확인 집합, 재현 가능한 용량 대응, 자원 부족·실패 경계, 실제 READY/available_at 분포. 기존 노출90작업을 새로운 독립 시험으로 재사용하지 않는다.
+
+단계4. 판단 정책의 offline/Shadow 검증
+간단한 기준선과 예측 입력 정책을 같은 비용·SLO·준비·축소 진동 조건에서 비교한다. cooldown·히스테리시스·최소 유지 시간은 가정을 명시해 평가한다.
+완료 조건: 같은 단위의 실제 지표 개선을 확인하고 보류·실패·가능했지만 누락한 사례도 보고한다. 가상 slot 비용을 실제 GPU/VM 비용으로 바꾸지 않는다.
+
+단계 5. 제한된 실제 효과 확인
+합의된 범위의 canary/통제 실험에서 행동 전후의 요청 SLO·비용·READY·자원 수 변화를 관측한다.
+완료 조건: action과 결과가 연결되고 비교군·교란을 명시한 증거. 이 조건 전에 학습된 통합 오토스케일러가 완료됐다고 주장하지 않는다.
+
+이 순서는 재개 후 개발 계획이다. 현재의 실험 중지 상태를 해제하거나 실행 승인으로 해석하지 않는다.
+
+======================================================================
+12. 기관 회의에서 확정할 질문
+======================================================================
+
+1. 경희대는 추상 형상만 반환하는가, ETRI 실제 후보 ID의 점수까지 반환하는가?
+2. INNO가 경희대 모듈을 별도 서비스로 호출하는가, 내부 모듈로 포함하는가?
+3. 앱 model/revision/dtype/batch/입력/동시성/SLO/이미지/labels는 누가 검증·제공하는가?
+4. 계측 available_at, GPU 슬롯·앱 연결, 집계 완료·결측·heartbeat는 어떤 API로 전달하는가?
+5. ETRI의 총량·가용량·가격·유효 시각·accelerator 정보는 어떤 스키마인가?
+6. 연구 증거는 formal 계약의 어떤 별도 객체·호출로 전달하고 보류는 어떻게 처리하는가?
+7. 실제 READY 시간 분포와 서비스별 토큰/호출 처리 용량을 어디서 측정하는가?
+8. action/decision/READY/route/request 식별자와 재시도·실패·KEEP 기록의 책임은 누구인가?
+9. Scale-out/in의 실측·학습 구현 연차, 공동 개발과 보고서 작성 책임은 어떻게 나누는가?
+10. 새 호스트/앱 독립 시험과 Shadow/통제 시험의 환경·목표·가격 자료는 언제 제공되는가?
+
+======================================================================
+13. 근거 파일과 개발자 시작점
+======================================================================
+
+상태 R/reports/ai_mcmp_rr_status_2026_10_06.txt
+연구↔spec경계 R/reports/research_to_deployment_spec_boundary.md
+formal타입 G/go/service-control-api/internal/agentcontrol/models.go
+GoAdapter경계 G/docs/design/integration_boundary.md; 브랜치지침 G/AGENTS.md
+형상/v7 R/scripts/assess_gpu_shape.py; assess_gpu_shape_microbatch_v7.py; assess_gpu_shape_row_partition.py
+위험보정 R/policies/philly_slot_day.py; R/artifacts/philly_machine_holdout_model_v1/model_spec.json
+단기token R/scripts/evaluate_azure_code_input_demand.py
+지연token R/scripts/train_evaluate_delay_capacity.py; delay_capacity_policy.py
+Copilot R/scripts/copilot_call_extended.py; copilot_call_feedback.py; evaluate_copilot_call_feedback.py
+BurstGPT R/scripts/burstgpt_sparse_calls.py; verify_burstgpt_sparse_calls_precision.py
+SM R/scripts/train_alibaba_gpu_sm_hour.py; evaluate_alibaba_gpu_sm_future.py
+요구/형상계약 R/contracts/requirement_signal_evidence_v0.1.0.schema.json; gpu_shape_evidence_v0.2.0.schema.json
+행동계약 R/reports/scale_action_events_v0_2_0.md; scale_effect_data_contract_v1.md
+추가데이터우선순위 R/reports/next_research_priority_2026_09_28.md
+모델·지표·원본의 정확한 위치는 동반 PPT 원고 A1~A7[10], C1, C9~C10에 있다.
+
+최종 경계
+현재 연구 모듈은 형상 후보 근거, 미래 수요, 계측 위험·보정 확률과 계산 효율을 제공한다. 완전한 자원 형상과 행동을 결정하려면 사용자 요구·후보·처리 용량·실행 결과가 더 필요하다. 이 문서는 그 경계를 보존한 통합 초안이며 완료된 연동 시스템의 보고서가 아니다.

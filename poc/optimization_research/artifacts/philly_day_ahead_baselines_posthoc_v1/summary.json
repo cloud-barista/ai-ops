@@ -1,0 +1,159 @@
+{
+  "status": "POST_HOC_EXPOSED_MACHINE_BASELINE_CHALLENGE",
+  "scope": "three previously scored cohorts; no new independent validation",
+  "methods": {
+    "previous_day_newton": "frozen one-Newton-step logit shift, penalty 20, clip ±0.5",
+    "previous_day_exact": "exact penalized logistic intercept with same penalty and clip",
+    "previous_two_days_newton": "same Newton formula using two prior completed UTC days",
+    "previous_day_rate": "previous-day machine y rate with 20 pseudo-counts at previous-day mean p0"
+  },
+  "cohorts": {
+    "machine_bucket_5_15": {
+      "predictions_sha256": "3907dcfde07f7127157ac5c4a5705df7d1790e11a197b726aa66aed06f3aed6c",
+      "rows": 741597,
+      "machines": 37,
+      "metrics": {
+        "p0": {
+          "row_brier": 0.0777833143965972,
+          "machine_equal_brier": 0.06949132839310332,
+          "average_precision": 0.7073396882186699,
+          "first_seven_days_brier": 0.0709433900653773,
+          "last_eight_days_brier": 0.08358099034904853
+        },
+        "previous_day_newton": {
+          "row_brier": 0.07433557575619808,
+          "machine_equal_brier": 0.06584678410471008,
+          "average_precision": 0.7264650770662604,
+          "first_seven_days_brier": 0.06725231969278898,
+          "last_eight_days_brier": 0.08033950523776276,
+          "days_better_than_p0": 14
+        },
+        "previous_day_exact": {
+          "row_brier": 0.07428912387812218,
+          "machine_equal_brier": 0.06580815971718759,
+          "average_precision": 0.7266393087966787,
+          "first_seven_days_brier": 0.06721207706392643,
+          "last_eight_days_brier": 0.08028779025835647,
+          "days_better_than_p0": 14,
+          "days_better_than_current": 14
+        },
+        "previous_two_days_newton": {
+          "row_brier": 0.07447466213467217,
+          "machine_equal_brier": 0.06583869487707118,
+          "average_precision": 0.7238773647860995,
+          "first_seven_days_brier": 0.06742563096870856,
+          "last_eight_days_brier": 0.08044958181213858,
+          "days_better_than_p0": 14,
+          "days_better_than_current": 6
+        },
+        "previous_day_rate": {
+          "row_brier": 0.11906781303822102,
+          "machine_equal_brier": 0.11615139946257798,
+          "average_precision": 0.4671715093269776,
+          "first_seven_days_brier": 0.10822441532997049,
+          "last_eight_days_brier": 0.12825892438561473,
+          "days_better_than_p0": 0,
+          "days_better_than_current": 0
+        }
+      }
+    },
+    "machine_bucket_15_25": {
+      "predictions_sha256": "5e570375ed7bd8639f38ba75301c34880e9772fb62b9cc7b580d8e6e42fe375b",
+      "rows": 599752,
+      "machines": 33,
+      "metrics": {
+        "p0": {
+          "row_brier": 0.10941584675910247,
+          "machine_equal_brier": 0.09068569294742959,
+          "average_precision": 0.7486543324328452,
+          "first_seven_days_brier": 0.10576307027768987,
+          "last_eight_days_brier": 0.1119383652649776
+        },
+        "previous_day_newton": {
+          "row_brier": 0.10521601136264977,
+          "machine_equal_brier": 0.08619817456905768,
+          "average_precision": 0.7640614470258219,
+          "first_seven_days_brier": 0.09921482752454754,
+          "last_eight_days_brier": 0.10936028281364138,
+          "days_better_than_p0": 14
+        },
+        "previous_day_exact": {
+          "row_brier": 0.10519532662999445,
+          "machine_equal_brier": 0.08617122847551922,
+          "average_precision": 0.764290591045752,
+          "first_seven_days_brier": 0.09920586790003058,
+          "last_eight_days_brier": 0.10933150100677053,
+          "days_better_than_p0": 14,
+          "days_better_than_current": 12
+        },
+        "previous_two_days_newton": {
+          "row_brier": 0.10548953104032927,
+          "machine_equal_brier": 0.0861776672371732,
+          "average_precision": 0.7612134907292887,
+          "first_seven_days_brier": 0.09870773268154005,
+          "last_eight_days_brier": 0.11017287587410445,
+          "days_better_than_p0": 12,
+          "days_better_than_current": 6
+        },
+        "previous_day_rate": {
+          "row_brier": 0.16287718621565267,
+          "machine_equal_brier": 0.14073829657584927,
+          "average_precision": 0.5789230210654012,
+          "first_seven_days_brier": 0.1639799610644832,
+          "last_eight_days_brier": 0.16211563675371765,
+          "days_better_than_p0": 0,
+          "days_better_than_current": 0
+        }
+      }
+    },
+    "machine_bucket_25_35": {
+      "predictions_sha256": "fa0340ebc60fb8cb2acbcad3494cd856deee614a0ea1be78f5c72cacb301d356",
+      "rows": 685940,
+      "machines": 41,
+      "metrics": {
+        "p0": {
+          "row_brier": 0.08698813372210147,
+          "machine_equal_brier": 0.07770758718573738,
+          "average_precision": 0.8087943527647371,
+          "first_seven_days_brier": 0.08798938698351559,
+          "last_eight_days_brier": 0.08611181300784533
+        },
+        "previous_day_newton": {
+          "row_brier": 0.08276638040762933,
+          "machine_equal_brier": 0.07377591805994237,
+          "average_precision": 0.8208128021927348,
+          "first_seven_days_brier": 0.08358775456682858,
+          "last_eight_days_brier": 0.08204749417015088,
+          "days_better_than_p0": 14
+        },
+        "previous_day_exact": {
+          "row_brier": 0.08274872633909985,
+          "machine_equal_brier": 0.07375675168789364,
+          "average_precision": 0.820850668514796,
+          "first_seven_days_brier": 0.08356427242415453,
+          "last_eight_days_brier": 0.08203494097099577,
+          "days_better_than_p0": 14,
+          "days_better_than_current": 9
+        },
+        "previous_two_days_newton": {
+          "row_brier": 0.08347271927708488,
+          "machine_equal_brier": 0.07421705061739686,
+          "average_precision": 0.8177997264338629,
+          "first_seven_days_brier": 0.08395951100924116,
+          "last_eight_days_brier": 0.08304666755285398,
+          "days_better_than_p0": 13,
+          "days_better_than_current": 3
+        },
+        "previous_day_rate": {
+          "row_brier": 0.15350929634838667,
+          "machine_equal_brier": 0.14560377078668496,
+          "average_precision": 0.5596766243707041,
+          "first_seven_days_brier": 0.13455049280472897,
+          "last_eight_days_brier": 0.1701024929981087,
+          "days_better_than_p0": 0,
+          "days_better_than_current": 0
+        }
+      }
+    }
+  }
+}

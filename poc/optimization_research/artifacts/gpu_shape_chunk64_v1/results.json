@@ -1,0 +1,277 @@
+{
+  "gates": {
+    "copied_speedup_at_least_1_10": true,
+    "full_json_all_scenarios": true,
+    "peak_rss_increase_at_most_20_mib": true,
+    "shared_speed_ratio_at_least_0_90": true,
+    "unique_speed_ratio_at_least_0_90": true
+  },
+  "memory": {
+    "copied_slo": {
+      "64": {
+        "batch": 64,
+        "outputs": 1125,
+        "peak_rss_mib": 444.039,
+        "scenario": "copied_slo"
+      },
+      "8": {
+        "batch": 8,
+        "outputs": 1125,
+        "peak_rss_mib": 443.648,
+        "scenario": "copied_slo"
+      }
+    },
+    "shared_slo": {
+      "64": {
+        "batch": 64,
+        "outputs": 1125,
+        "peak_rss_mib": 438.77,
+        "scenario": "shared_slo"
+      },
+      "8": {
+        "batch": 8,
+        "outputs": 1125,
+        "peak_rss_mib": 438.359,
+        "scenario": "shared_slo"
+      }
+    },
+    "unique_grids": {
+      "64": {
+        "batch": 64,
+        "outputs": 575,
+        "peak_rss_mib": 442.309,
+        "scenario": "unique_grids"
+      },
+      "8": {
+        "batch": 8,
+        "outputs": 575,
+        "peak_rss_mib": 441.285,
+        "scenario": "unique_grids"
+      }
+    }
+  },
+  "provenance": {
+    "model_sha256": "7a934da440ea0c7473e4e59eb5fa0c8c57f347389272bd303cb0051ef918b161",
+    "protocol_sha256": "acc8a414ba5b4240180decf04aeadf254f06103f3e1883bb036fe4ea2b8f40ea",
+    "script_sha256": "7959f02578900c2ba8877f3ec158b0bd949e319f29e7c56e39557ff22f0970ee",
+    "source_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+    "v4_code_sha256": "191bb2b3fd5d4306078bd4e5d2ebd3d1c8f800023e3eccd8963a1af1fc57dbef"
+  },
+  "repetitions": 7,
+  "scenarios": {
+    "copied_slo": {
+      "blocks": 45,
+      "canonical_result_sha256": "87834d2c56f7b1924adecbaaf3bfa40e4a4821cf7e8f0f4a07943abb5fbcc924",
+      "full_json_equal_all_pairs": true,
+      "median_paired_wall_speedup_8_over_64": 2.0073,
+      "median_wall_ms": {
+        "64": 225.578,
+        "8": 434.306
+      },
+      "paired_wall_speedups_8_over_64": [
+        2.219,
+        1.796,
+        1.8349,
+        2.0073,
+        2.1678,
+        1.6502,
+        2.0499
+      ],
+      "prediction_calls": {
+        "64": 1,
+        "8": 6
+      },
+      "requests": 1125,
+      "scenario": "copied_slo",
+      "status_counts": {
+        "ABSTAIN": 405,
+        "RESEARCH_ESTIMATE": 720
+      },
+      "timing_ms": {
+        "64": {
+          "cpu_ms": [
+            198.828,
+            264.995,
+            225.528,
+            192.562,
+            230.732,
+            263.183,
+            191.067
+          ],
+          "wall_ms": [
+            198.819,
+            265.002,
+            225.578,
+            192.551,
+            230.719,
+            263.181,
+            191.061
+          ]
+        },
+        "8": {
+          "cpu_ms": [
+            441.146,
+            475.944,
+            413.911,
+            386.509,
+            500.108,
+            434.298,
+            391.63
+          ],
+          "wall_ms": [
+            441.176,
+            475.956,
+            413.923,
+            386.511,
+            500.142,
+            434.306,
+            391.653
+          ]
+        }
+      }
+    },
+    "shared_slo": {
+      "blocks": 45,
+      "canonical_result_sha256": "87834d2c56f7b1924adecbaaf3bfa40e4a4821cf7e8f0f4a07943abb5fbcc924",
+      "full_json_equal_all_pairs": true,
+      "median_paired_wall_speedup_8_over_64": 2.3539,
+      "median_wall_ms": {
+        "64": 158.901,
+        "8": 387.147
+      },
+      "paired_wall_speedups_8_over_64": [
+        2.05,
+        2.449,
+        1.4123,
+        2.3539,
+        2.6099,
+        1.589,
+        2.6752
+      ],
+      "prediction_calls": {
+        "64": 1,
+        "8": 6
+      },
+      "requests": 1125,
+      "scenario": "shared_slo",
+      "status_counts": {
+        "ABSTAIN": 405,
+        "RESEARCH_ESTIMATE": 720
+      },
+      "timing_ms": {
+        "64": {
+          "cpu_ms": [
+            174.012,
+            139.064,
+            299.349,
+            158.868,
+            148.35,
+            265.093,
+            153.003
+          ],
+          "wall_ms": [
+            174.001,
+            139.08,
+            299.33,
+            158.901,
+            148.34,
+            265.082,
+            152.981
+          ]
+        },
+        "8": {
+          "cpu_ms": [
+            356.687,
+            340.621,
+            422.75,
+            374.046,
+            387.138,
+            421.094,
+            409.024
+          ],
+          "wall_ms": [
+            356.697,
+            340.61,
+            422.736,
+            374.036,
+            387.147,
+            421.209,
+            409.26
+          ]
+        }
+      }
+    },
+    "unique_grids": {
+      "blocks": 575,
+      "canonical_result_sha256": "1054a72560b9c6ba06deece136633e92fb9eeecd3d10a0915edb8812bd141e99",
+      "full_json_equal_all_pairs": true,
+      "median_paired_wall_speedup_8_over_64": 3.7531,
+      "median_wall_ms": {
+        "64": 950.536,
+        "8": 3565.453
+      },
+      "paired_wall_speedups_8_over_64": [
+        3.7564,
+        3.2465,
+        3.7531,
+        4.0048,
+        3.6687,
+        4.0005,
+        3.6151
+      ],
+      "prediction_calls": {
+        "64": 9,
+        "8": 72
+      },
+      "requests": 575,
+      "scenario": "unique_grids",
+      "status_counts": {
+        "ABSTAIN": 220,
+        "RESEARCH_ESTIMATE": 355
+      },
+      "timing_ms": {
+        "64": {
+          "cpu_ms": [
+            933.16,
+            1051.841,
+            931.394,
+            950.506,
+            977.8,
+            937.853,
+            986.24
+          ],
+          "wall_ms": [
+            933.18,
+            1051.882,
+            931.826,
+            950.536,
+            979.503,
+            937.908,
+            986.259
+          ]
+        },
+        "8": {
+          "cpu_ms": [
+            3505.439,
+            3414.394,
+            3495.633,
+            3805.428,
+            3593.356,
+            3751.992,
+            3565.247
+          ],
+          "wall_ms": [
+            3505.409,
+            3414.89,
+            3497.197,
+            3806.734,
+            3593.474,
+            3752.062,
+            3565.453
+          ]
+        }
+      }
+    }
+  },
+  "status": "GO_CHUNK64"
+}

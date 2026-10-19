@@ -1,0 +1,165 @@
+{
+  "scope": "retrospective next-benchmark-run confirmation; no user SLO, VM action, or independent validation",
+  "snapshot_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "script_sha256": "8d0556b1685074bc4cd0ceb488596ce3aadb1490a81a4c3715cb57a4b5be1930",
+  "decision_rows_sha256": "a0b9d400e5ec081f5be97de8c9104f033a152d1adbb0ee23308e3ee23cedb07e",
+  "time_order": "run minimum started_at; every previous run finishes before next run begins",
+  "calibration": "first 20 complete rounds per collector version; per-condition latency q90 and throughput q10 fixed thereafter",
+  "decision": "at round t, accept iff all previous k outcomes passed; score only current round t",
+  "streaks": [
+    1,
+    2,
+    3,
+    5
+  ],
+  "aggregates": [
+    {
+      "collector_version": "khu-hf-direct-collector/v1",
+      "scenario": "original_generated",
+      "decisions": 688,
+      "cells": 16,
+      "rounds": 43,
+      "next_pass": 387,
+      "next_fail": 301,
+      "last_1": {
+        "accepted": 387,
+        "next_success": 387,
+        "next_failure": 0,
+        "accept_rate": 0.5625,
+        "failure_rate_given_accept": 0.0
+      },
+      "last_2": {
+        "accepted": 387,
+        "next_success": 387,
+        "next_failure": 0,
+        "accept_rate": 0.5625,
+        "failure_rate_given_accept": 0.0
+      },
+      "last_3": {
+        "accepted": 386,
+        "next_success": 386,
+        "next_failure": 0,
+        "accept_rate": 0.561046511627907,
+        "failure_rate_given_accept": 0.0
+      },
+      "last_5": {
+        "accepted": 384,
+        "next_success": 384,
+        "next_failure": 0,
+        "accept_rate": 0.5581395348837209,
+        "failure_rate_given_accept": 0.0
+      }
+    },
+    {
+      "collector_version": "khu-hf-direct-collector/v1",
+      "scenario": "prefix_q90_latency_q10_rps",
+      "decisions": 688,
+      "cells": 16,
+      "rounds": 43,
+      "next_pass": 571,
+      "next_fail": 117,
+      "last_1": {
+        "accepted": 571,
+        "next_success": 482,
+        "next_failure": 89,
+        "accept_rate": 0.8299418604651163,
+        "failure_rate_given_accept": 0.15586690017513136
+      },
+      "last_2": {
+        "accepted": 483,
+        "next_success": 414,
+        "next_failure": 69,
+        "accept_rate": 0.7020348837209303,
+        "failure_rate_given_accept": 0.14285714285714285
+      },
+      "last_3": {
+        "accepted": 415,
+        "next_success": 361,
+        "next_failure": 54,
+        "accept_rate": 0.6031976744186046,
+        "failure_rate_given_accept": 0.13012048192771083
+      },
+      "last_5": {
+        "accepted": 325,
+        "next_success": 289,
+        "next_failure": 36,
+        "accept_rate": 0.47238372093023256,
+        "failure_rate_given_accept": 0.11076923076923077
+      }
+    },
+    {
+      "collector_version": "khu-hf-direct-collector/v2",
+      "scenario": "original_generated",
+      "decisions": 432,
+      "cells": 16,
+      "rounds": 27,
+      "next_pass": 243,
+      "next_fail": 189,
+      "last_1": {
+        "accepted": 243,
+        "next_success": 243,
+        "next_failure": 0,
+        "accept_rate": 0.5625,
+        "failure_rate_given_accept": 0.0
+      },
+      "last_2": {
+        "accepted": 243,
+        "next_success": 243,
+        "next_failure": 0,
+        "accept_rate": 0.5625,
+        "failure_rate_given_accept": 0.0
+      },
+      "last_3": {
+        "accepted": 243,
+        "next_success": 243,
+        "next_failure": 0,
+        "accept_rate": 0.5625,
+        "failure_rate_given_accept": 0.0
+      },
+      "last_5": {
+        "accepted": 243,
+        "next_success": 243,
+        "next_failure": 0,
+        "accept_rate": 0.5625,
+        "failure_rate_given_accept": 0.0
+      }
+    },
+    {
+      "collector_version": "khu-hf-direct-collector/v2",
+      "scenario": "prefix_q90_latency_q10_rps",
+      "decisions": 432,
+      "cells": 16,
+      "rounds": 27,
+      "next_pass": 321,
+      "next_fail": 111,
+      "last_1": {
+        "accepted": 324,
+        "next_success": 245,
+        "next_failure": 79,
+        "accept_rate": 0.75,
+        "failure_rate_given_accept": 0.24382716049382716
+      },
+      "last_2": {
+        "accepted": 250,
+        "next_success": 190,
+        "next_failure": 60,
+        "accept_rate": 0.5787037037037037,
+        "failure_rate_given_accept": 0.24
+      },
+      "last_3": {
+        "accepted": 196,
+        "next_success": 146,
+        "next_failure": 50,
+        "accept_rate": 0.4537037037037037,
+        "failure_rate_given_accept": 0.25510204081632654
+      },
+      "last_5": {
+        "accepted": 112,
+        "next_success": 83,
+        "next_failure": 29,
+        "accept_rate": 0.25925925925925924,
+        "failure_rate_given_accept": 0.25892857142857145
+      }
+    }
+  ]
+}

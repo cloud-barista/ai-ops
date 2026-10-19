@@ -1,0 +1,282 @@
+{
+  "cross_part_job_event_id_intersection": {
+    "00050:00200": 0,
+    "00050:00400": 0,
+    "00050:00450": 0,
+    "00200:00400": 0,
+    "00200:00450": 0,
+    "00400:00450": 0
+  },
+  "official_manifest_sha256": "b68993eefffd34d42f2fc6613187048112602d185ffe61992292bacf2c2e9940",
+  "parts": [
+    {
+      "common_time_us": [
+        251164664340,
+        256169389838
+      ],
+      "distinct_job_event_ids": 1819,
+      "distinct_task_event_job_ids": 2207,
+      "distinct_task_indices_submitted_in_first_60s": {
+        "all_seen_by_1s_jobs": 1533,
+        "max_per_job": 10500,
+        "median_per_job": 1,
+        "p90_per_job": 15,
+        "seen_by_1s_task_indices": 42164,
+        "seen_by_60s_task_indices": 42184,
+        "zero_jobs": 0
+      },
+      "distinct_task_submit_job_ids": 1992,
+      "first_60s_task_cpu_request_sum_median_normalized": 0.01874,
+      "first_60s_task_ram_request_sum_median_normalized": 0.01553,
+      "first_task_submit_relative_to_job_submit": {
+        "after": 1573,
+        "before": 0,
+        "max_delay_us": 59611414,
+        "median_delay_us": 2,
+        "p90_delay_us": 16,
+        "same_microsecond": 0,
+        "within_1s": 1555
+      },
+      "full_5m_bins": 15,
+      "full_5m_job_arrivals": {
+        "max": 123,
+        "median": 91,
+        "min": 65,
+        "p90": 117
+      },
+      "job_event_missing_info_rows": 0,
+      "job_event_rows": 4770,
+      "job_event_time_us": [
+        251164664340,
+        256169389838
+      ],
+      "job_event_type_counts": {
+        "0": 1573,
+        "1": 1572,
+        "3": 13,
+        "4": 865,
+        "5": 747
+      },
+      "job_submit_ids": 1573,
+      "job_submit_with_schedule_same_part": 1571,
+      "job_submit_with_task_submit_same_part": 1573,
+      "job_submit_with_terminal_same_part": 1379,
+      "job_submits_with_full_60s_in_common_part": 1551,
+      "part": "00050",
+      "source_sha256": {
+        "job_events/part-00050-of-00500.csv.gz": "8c813793de20270b9e892e614085a57ede0ec37ff310427493847fe39bde496c",
+        "task_events/part-00050-of-00500.csv.gz": "9e2e370e893a559c87e97b8ce92e6e1d688a1501ae762923650318dcf8ea828e"
+      },
+      "task_event_rows": 485885,
+      "task_event_time_us": [
+        251162204956,
+        256171048112
+      ],
+      "task_submit_job_with_any_job_event_same_part": 1609,
+      "task_submit_missing_cpu_or_ram_request_rows": 0,
+      "task_submit_rows": 159854
+    },
+    {
+      "common_time_us": [
+        1002841671174,
+        1007847492727
+      ],
+      "distinct_job_event_ids": 1529,
+      "distinct_task_event_job_ids": 1911,
+      "distinct_task_indices_submitted_in_first_60s": {
+        "all_seen_by_1s_jobs": 1341,
+        "max_per_job": 2000,
+        "median_per_job": 1,
+        "p90_per_job": 15,
+        "seen_by_1s_task_indices": 23329,
+        "seen_by_60s_task_indices": 23339,
+        "zero_jobs": 0
+      },
+      "distinct_task_submit_job_ids": 1750,
+      "first_60s_task_cpu_request_sum_median_normalized": 0.02499,
+      "first_60s_task_ram_request_sum_median_normalized": 0.01553,
+      "first_task_submit_relative_to_job_submit": {
+        "after": 1359,
+        "before": 0,
+        "max_delay_us": 19814524,
+        "median_delay_us": 2,
+        "p90_delay_us": 12,
+        "same_microsecond": 0,
+        "within_1s": 1349
+      },
+      "full_5m_bins": 16,
+      "full_5m_job_arrivals": {
+        "max": 114,
+        "median": 79.5,
+        "min": 50,
+        "p90": 107
+      },
+      "job_event_missing_info_rows": 0,
+      "job_event_rows": 4098,
+      "job_event_time_us": [
+        1002841671174,
+        1007847492727
+      ],
+      "job_event_type_counts": {
+        "0": 1359,
+        "1": 1362,
+        "3": 29,
+        "4": 766,
+        "5": 582
+      },
+      "job_submit_ids": 1359,
+      "job_submit_with_schedule_same_part": 1358,
+      "job_submit_with_task_submit_same_part": 1359,
+      "job_submit_with_terminal_same_part": 1209,
+      "job_submits_with_full_60s_in_common_part": 1351,
+      "part": "00200",
+      "source_sha256": {
+        "job_events/part-00200-of-00500.csv.gz": "87c951f569304bcd988de3d040e279a1c0dfb096fb394b2a49037b7c562d9bfd",
+        "task_events/part-00200-of-00500.csv.gz": "df8befaa4899af4ee555384c590a5e5da8160ea63500ee599a3c3f0a6bc8cefc"
+      },
+      "task_event_rows": 270458,
+      "task_event_time_us": [
+        1002840343963,
+        1007850758986
+      ],
+      "task_submit_job_with_any_job_event_same_part": 1375,
+      "task_submit_missing_cpu_or_ram_request_rows": 0,
+      "task_submit_rows": 87572
+    },
+    {
+      "common_time_us": [
+        2005093197952,
+        2010088192841
+      ],
+      "distinct_job_event_ids": 1726,
+      "distinct_task_event_job_ids": 1879,
+      "distinct_task_indices_submitted_in_first_60s": {
+        "all_seen_by_1s_jobs": 1603,
+        "max_per_job": 3900,
+        "median_per_job": 1,
+        "p90_per_job": 23,
+        "seen_by_1s_task_indices": 41302,
+        "seen_by_60s_task_indices": 41302,
+        "zero_jobs": 0
+      },
+      "distinct_task_submit_job_ids": 1774,
+      "first_60s_task_cpu_request_sum_median_normalized": 0.01874,
+      "first_60s_task_ram_request_sum_median_normalized": 0.02096,
+      "first_task_submit_relative_to_job_submit": {
+        "after": 1609,
+        "before": 0,
+        "max_delay_us": 1051,
+        "median_delay_us": 2,
+        "p90_delay_us": 16,
+        "same_microsecond": 0,
+        "within_1s": 1609
+      },
+      "full_5m_bins": 16,
+      "full_5m_job_arrivals": {
+        "max": 163,
+        "median": 100.0,
+        "min": 41,
+        "p90": 147
+      },
+      "job_event_missing_info_rows": 0,
+      "job_event_rows": 4812,
+      "job_event_time_us": [
+        2005093197952,
+        2010088192841
+      ],
+      "job_event_type_counts": {
+        "0": 1609,
+        "1": 1609,
+        "3": 20,
+        "4": 832,
+        "5": 742
+      },
+      "job_submit_ids": 1609,
+      "job_submit_with_schedule_same_part": 1608,
+      "job_submit_with_task_submit_same_part": 1609,
+      "job_submit_with_terminal_same_part": 1478,
+      "job_submits_with_full_60s_in_common_part": 1603,
+      "part": "00400",
+      "source_sha256": {
+        "job_events/part-00400-of-00500.csv.gz": "34c1cbed9f5b0c1891c133b5382e6911b6a181423ce643b5da338d7f8bfed82a",
+        "task_events/part-00400-of-00500.csv.gz": "6356f733e54f5b8782d284c592c1474c6df5d84c5442460c7a1a6433db499a7c"
+      },
+      "task_event_rows": 152597,
+      "task_event_time_us": [
+        2005080071440,
+        2010091009212
+      ],
+      "task_submit_job_with_any_job_event_same_part": 1623,
+      "task_submit_missing_cpu_or_ram_request_rows": 0,
+      "task_submit_rows": 48635
+    },
+    {
+      "common_time_us": [
+        2255641254957,
+        2260640264271
+      ],
+      "distinct_job_event_ids": 2337,
+      "distinct_task_event_job_ids": 2614,
+      "distinct_task_indices_submitted_in_first_60s": {
+        "all_seen_by_1s_jobs": 2097,
+        "max_per_job": 5000,
+        "median_per_job": 1,
+        "p90_per_job": 15,
+        "seen_by_1s_task_indices": 88889,
+        "seen_by_60s_task_indices": 88889,
+        "zero_jobs": 0
+      },
+      "distinct_task_submit_job_ids": 2426,
+      "first_60s_task_cpu_request_sum_median_normalized": 0.05627,
+      "first_60s_task_ram_request_sum_median_normalized": 0.04773,
+      "first_task_submit_relative_to_job_submit": {
+        "after": 2120,
+        "before": 0,
+        "max_delay_us": 2501,
+        "median_delay_us": 2.0,
+        "p90_delay_us": 16,
+        "same_microsecond": 0,
+        "within_1s": 2120
+      },
+      "full_5m_bins": 16,
+      "full_5m_job_arrivals": {
+        "max": 234,
+        "median": 118.5,
+        "min": 90,
+        "p90": 189
+      },
+      "job_event_missing_info_rows": 0,
+      "job_event_rows": 6378,
+      "job_event_time_us": [
+        2255641254957,
+        2260640264271
+      ],
+      "job_event_type_counts": {
+        "0": 2120,
+        "1": 2119,
+        "3": 20,
+        "4": 946,
+        "5": 1173
+      },
+      "job_submit_ids": 2120,
+      "job_submit_with_schedule_same_part": 2119,
+      "job_submit_with_task_submit_same_part": 2120,
+      "job_submit_with_terminal_same_part": 1922,
+      "job_submits_with_full_60s_in_common_part": 2097,
+      "part": "00450",
+      "source_sha256": {
+        "job_events/part-00450-of-00500.csv.gz": "845b44b78f05438c9e73054e2d7bbc537eef741537f349cddada4bd29d54162c",
+        "task_events/part-00450-of-00500.csv.gz": "e6184d294745eab2fc9679c1c73cd2385c2ee2ba5cbace663339c61b8ad1d401"
+      },
+      "task_event_rows": 335193,
+      "task_event_time_us": [
+        2255640632119,
+        2260648314898
+      ],
+      "task_submit_job_with_any_job_event_same_part": 2152,
+      "task_submit_missing_cpu_or_ram_request_rows": 0,
+      "task_submit_rows": 116131
+    }
+  ],
+  "schema_sha256": "b3490ab5ad8806ef30eb5bdf432b662bc4e280abdec549bb3c3edb4b1ab6baeb"
+}

@@ -1,0 +1,15 @@
+{
+  "protocol_sha256": "d449343c4ef45190dd5b86cd3e5644e6193176180a21dfe2480a4107964ed729",
+  "script_sha256": "b3edcc0ea9e4552196fa2271897fbd34e9aff1ca8ae454224924a2b52cfd55ab",
+  "source_sha256": "263fb88f1095f62d360cf89ded8cfc24fa2c5d111c1b16e7aaa9ccbfc4b37d78",
+  "test_scoring_available": false,
+  "tests_sha256": "885a8fe47483eb5addc2435a6d4df166bfe1230efc1347f103710733680d8d6f",
+  "train_end_exclusive": "2024-11-29T00:00:00",
+  "validation_end_exclusive": "2024-12-04T00:00:00",
+  "versions": {
+    "joblib": "1.5.1",
+    "numpy": "2.0.2",
+    "pandas": "2.3.0+4.g1dfc98e16a",
+    "sklearn": "1.6.1"
+  }
+}

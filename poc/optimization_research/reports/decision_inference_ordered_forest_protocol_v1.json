@@ -1,0 +1,46 @@
+{
+  "version": "ordered_forest_v1",
+  "frozen_at_utc": "2026-10-05T10:29:49.817400+00:00",
+  "question": "Can validating forest input once and summing individual tree predictions in fixed estimator order reduce warm inference time while preserving full JSON exactly?",
+  "modes": [
+    "v6",
+    "ordered1",
+    "ordered2",
+    "ordered4"
+  ],
+  "baseline": "current v6 max_grids=256 and one sklearn prediction worker",
+  "algorithm": "Call forest _validate_X_predict once; tree.predict(check_input=False); accumulate float64 in original estimator order then divide; optional bounded ordered threaded map window16 trees, threshold1024 supported rows. Small inputs use serial ordered loop. No refit, cache across calls or shared mutation.",
+  "fixed_settings": {
+    "batch_grids": 256,
+    "thread_window_trees": 16,
+    "parallel_min_supported_rows": 1024,
+    "BLAS_OMP_MKL_threads": 1
+  },
+  "scenarios": [
+    "shared_slo",
+    "copied_slo",
+    "unique_grids"
+  ],
+  "repetitions": 9,
+  "pair_order": "rotate/reverse fixed modes; request block ordering changes with frozen seeds",
+  "exactness": "canonical JSON all output fields, all initial and timed pairs; edge tests malformed/unsupported/unverified, boundary SLO, retry, NaN/sparse/single and multioutput, concurrent calls",
+  "gates": {
+    "exact_json": true,
+    "unique_median_speedup_min": 1.1,
+    "shared_copied_max_slowdown": 1.1,
+    "peak_rss_extra_mib_max": 20
+  },
+  "memory": "one isolated process per scenario/mode, loading plus whole call; measurement must include thread pool creation/destruction",
+  "candidate_selection": "report all three fixed candidates, adopt only each fully passing mode; no speed tuning after evaluation",
+  "scope": "same-host frozen ExtraTrees offline shape decision function; excludes model load/network/deployment/actual application inference",
+  "hashes": {
+    "scripts/assess_gpu_shape.py": "e904a76d9e7940630e8a53f3f0e5d952bb98760fa74697bd7c42bfadb6a1e30e",
+    "scripts/predict_performance.py": "46c85961fb4d9388c99bc073522f8cf9c839065a1f4fe67a1b92aa33f3123075",
+    "scripts/assess_gpu_shape_microbatch_v6.py": "f664b0ea3ebcef7fe96e54b14b321742d764f69a651c92c599e581969fd81f51",
+    "scripts/train_performance.py": "80d45d0d542cbf4574add341de5c29c5ada8e56d095f56d77ddaf564fa19b569",
+    "scripts/benchmark_gpu_shape_microbatch_v4.py": "ab804657c945b6ca1a54f1b065b552a3e78b43bd71cee2bcc6a583742aee9f97",
+    "artifacts/performance_v1/performance_model.joblib": "7a934da440ea0c7473e4e59eb5fa0c8c57f347389272bd303cb0051ef918b161",
+    "/home/researcher/ai-mcmp/research/data/audit_v1/measurements.parquet": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+    "/home/researcher/ai-mcmp/research/artifacts/slo_reuse_v1/manifest.json": "dcea7d8dc21ab6928da990d0fd3a4cfb6883fe1d01a831462c214d059d8ba679"
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "acceptance": {
+    "all_pass": false,
+    "both_halves_no_worse_than_each_half_best_of_six": false,
+    "candidate_2pct_better_than_every_adaptive_baseline": false,
+    "candidate_5pct_better_than_frozen_train_beta": false,
+    "low_risk_20pct_event_rate_no_higher": false,
+    "machine_bootstrap_upper_below_zero": false,
+    "machine_equal_no_worse_than_best_of_six": false,
+    "utc_day_bootstrap_upper_below_zero": false
+  },
+  "authorization_sha256": "c75845d6f28316a2c22d1080c98ebf17a7815522baceb729573cbd3a15184d06",
+  "best_adaptive_baseline_brier": 0.04505448254139408,
+  "best_full_validation_simple_baseline": "decayed_machine_3d_20",
+  "best_machine_equal_simple_brier": 0.08237040883881092,
+  "development_source_sha256": "15f1af4669acb9823d0e6d96291e799cf33f8a9c1813d4faf51b0b9eb618ad58",
+  "halves": [
+    {
+      "best_simple_brier": 0.04911293445702807,
+      "brier": {
+        "candidate": 0.04880007221481302,
+        "decayed_fleet_3d_40": 0.049394255544219626,
+        "decayed_machine_3d_20": 0.04935480574528928,
+        "expanding_fleet_40": 0.05003474534620433,
+        "expanding_hierarchical_40_20": 0.04911293445702807,
+        "frozen_train_beta": 0.049258202793534794,
+        "rolling_fleet_7d_40": 0.05003474534620433
+      },
+      "candidate_no_worse": true,
+      "name": "nov16_to_nov23",
+      "positive": 112,
+      "rows": 2189
+    },
+    {
+      "best_simple_brier": 0.04150225329862934,
+      "brier": {
+        "candidate": 0.04212218419874522,
+        "decayed_fleet_3d_40": 0.042635471315775636,
+        "decayed_machine_3d_20": 0.04150225329862934,
+        "expanding_fleet_40": 0.042570100732817584,
+        "expanding_hierarchical_40_20": 0.042064267457977186,
+        "frozen_train_beta": 0.043336054308911784,
+        "rolling_fleet_7d_40": 0.04231953380908624
+      },
+      "candidate_no_worse": false,
+      "name": "nov23_to_dec01",
+      "positive": 117,
+      "rows": 2650
+    }
+  ],
+  "kind": "philly_idle_rebound_adaptive_v3_exploratory_validation",
+  "low_risk_20pct": {
+    "candidate": {
+      "event_rate": 0.045454545454545456,
+      "positive": 44,
+      "rows": 968
+    },
+    "decayed_machine_3d_20": {
+      "event_rate": 0.024793388429752067,
+      "positive": 24,
+      "rows": 968
+    }
+  },
+  "machine_equal_brier": {
+    "candidate": 0.08571746206347518,
+    "decayed_fleet_3d_40": 0.08647379729717676,
+    "decayed_machine_3d_20": 0.08237040883881092,
+    "expanding_fleet_40": 0.08611179829081596,
+    "expanding_hierarchical_40_20": 0.0852330801596093,
+    "frozen_train_beta": 0.08389815767477858,
+    "rolling_fleet_7d_40": 0.08639213566075035
+  },
+  "note": "Development validation is exploratory; no December or other-machine idle-rebound label was read.",
+  "paired_bootstrap": {
+    "machine_id": {
+      "clusters": 13,
+      "draws": 2000,
+      "group": "machine_id",
+      "percentile_95": [
+        -0.0004307396272092339,
+        0.0008792725454624129
+      ],
+      "point_delta": 8.855242552068182e-05,
+      "seed": 43
+    },
+    "utc_day": {
+      "clusters": 15,
+      "draws": 2000,
+      "group": "utc_day",
+      "percentile_95": [
+        -0.0004760008169050142,
+        0.0006876395635510822
+      ],
+      "point_delta": 8.855242552068182e-05,
+      "seed": 43
+    }
+  },
+  "positive": 229,
+  "predictions_sha256": "4dbe00675678993b2471e232adb33b139baea9235420f94268e60c59a73290dd",
+  "row_brier": {
+    "candidate": 0.04514303496691476,
+    "decayed_fleet_3d_40": 0.0456929167954334,
+    "decayed_machine_3d_20": 0.04505448254139408,
+    "expanding_fleet_40": 0.045946853586445104,
+    "expanding_hierarchical_40_20": 0.0452528461025158,
+    "frozen_train_beta": 0.046015034063580054,
+    "rolling_fleet_7d_40": 0.04580963466768336
+  },
+  "rows": 4839,
+  "score_free_freeze_sha256": "d0d0f24915773d0f7536d2737c9fabe65d1d3b18d90999d8e8a2c6c8815a55d4",
+  "score_free_support_sha256": "1eddb9f400c7aefa0a5260743a71cd3a672cd24c3377ef36331664f17c96f7fa",
+  "scorer_sha256": "8276a352a33ecf7d8f9eed218fefded57bbc719c3a94483af706fddef79023a0",
+  "test_sha256": "3bee35b838bb585bd74f0bb289cfcbe89af4d11afcae48d08b3699a2efe83928"
+}

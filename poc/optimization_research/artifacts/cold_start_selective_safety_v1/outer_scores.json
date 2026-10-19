@@ -1,0 +1,256 @@
+{
+  "bert_family_aggregate": [
+    {
+      "approved_groups": 0,
+      "exact_minimal": 0,
+      "false_approvals": 0,
+      "fold": "bert_family_4",
+      "method": "donor_selected",
+      "missed_feasible": 4898,
+      "oracle_feasible": 4898,
+      "queries": 6400,
+      "selected": 0,
+      "successful": 0
+    },
+    {
+      "approved_groups": 244,
+      "exact_minimal": 1815,
+      "false_approvals": 71,
+      "fold": "bert_family_4",
+      "method": "fixed_005",
+      "missed_feasible": 1722,
+      "oracle_feasible": 4898,
+      "queries": 6400,
+      "selected": 3247,
+      "successful": 3176
+    },
+    {
+      "approved_groups": 240,
+      "exact_minimal": 1607,
+      "false_approvals": 28,
+      "fold": "bert_family_4",
+      "method": "fixed_020",
+      "missed_feasible": 1925,
+      "oracle_feasible": 4898,
+      "queries": 6400,
+      "selected": 3001,
+      "successful": 2973
+    },
+    {
+      "approved_groups": 244,
+      "exact_minimal": 1915,
+      "false_approvals": 95,
+      "fold": "bert_family_4",
+      "method": "zero",
+      "missed_feasible": 1535,
+      "oracle_feasible": 4898,
+      "queries": 6400,
+      "selected": 3458,
+      "successful": 3363
+    }
+  ],
+  "finalizer_script_sha256": "d98241d53faf6bc57a3e9792bc332db97169be57c4f814e628a4103a4d78de6f",
+  "frozen_manifest_sha256": "e3730c211b44ba3ab3508b68b8e1c8cf1a31d7218cb7647b8975446f0b45db25",
+  "frozen_script_sha256": "2f1f8d6d8b08b588badd31e5ce8e2a1279f5a8498b58f8db9037e7fde6ca90ca",
+  "gate": {
+    "all_pass": false,
+    "criteria": {
+      "all_models_approval_floor": false,
+      "every_model_retains_70pct_success": false,
+      "false_approvals_reduced_25pct": true,
+      "false_rate_no_worse_than_fixed_005": true,
+      "successful_retained_75pct": false
+    }
+  },
+  "main_loo_aggregate": [
+    {
+      "approved_groups": 54,
+      "exact_minimal": 103,
+      "false_approvals": 0,
+      "method": "donor_selected",
+      "missed_feasible": 6381,
+      "oracle_feasible": 6746,
+      "queries": 14375,
+      "selected": 365,
+      "successful": 365
+    },
+    {
+      "approved_groups": 559,
+      "exact_minimal": 3685,
+      "false_approvals": 1215,
+      "method": "fixed_005",
+      "missed_feasible": 2009,
+      "oracle_feasible": 6746,
+      "queries": 14375,
+      "selected": 5952,
+      "successful": 4737
+    },
+    {
+      "approved_groups": 550,
+      "exact_minimal": 3288,
+      "false_approvals": 929,
+      "method": "fixed_020",
+      "missed_feasible": 2224,
+      "oracle_feasible": 6746,
+      "queries": 14375,
+      "selected": 5451,
+      "successful": 4522
+    },
+    {
+      "approved_groups": 560,
+      "exact_minimal": 3782,
+      "false_approvals": 1321,
+      "method": "zero",
+      "missed_feasible": 1967,
+      "oracle_feasible": 6746,
+      "queries": 14375,
+      "selected": 6100,
+      "successful": 4779
+    }
+  ],
+  "main_loo_by_stratum": [
+    {
+      "false_approvals": 0,
+      "method": "donor_selected",
+      "queries": 2952,
+      "selected": 335,
+      "stratum": "all",
+      "successful": 335
+    },
+    {
+      "false_approvals": 0,
+      "method": "donor_selected",
+      "queries": 7629,
+      "selected": 0,
+      "stratum": "none",
+      "successful": 0
+    },
+    {
+      "false_approvals": 0,
+      "method": "donor_selected",
+      "queries": 3794,
+      "selected": 30,
+      "stratum": "partial",
+      "successful": 30
+    },
+    {
+      "false_approvals": 0,
+      "method": "fixed_005",
+      "queries": 2952,
+      "selected": 2726,
+      "stratum": "all",
+      "successful": 2726
+    },
+    {
+      "false_approvals": 767,
+      "method": "fixed_005",
+      "queries": 7629,
+      "selected": 767,
+      "stratum": "none",
+      "successful": 0
+    },
+    {
+      "false_approvals": 448,
+      "method": "fixed_005",
+      "queries": 3794,
+      "selected": 2459,
+      "stratum": "partial",
+      "successful": 2011
+    },
+    {
+      "false_approvals": 0,
+      "method": "fixed_020",
+      "queries": 2952,
+      "selected": 2655,
+      "stratum": "all",
+      "successful": 2655
+    },
+    {
+      "false_approvals": 600,
+      "method": "fixed_020",
+      "queries": 7629,
+      "selected": 600,
+      "stratum": "none",
+      "successful": 0
+    },
+    {
+      "false_approvals": 329,
+      "method": "fixed_020",
+      "queries": 3794,
+      "selected": 2196,
+      "stratum": "partial",
+      "successful": 1867
+    },
+    {
+      "false_approvals": 0,
+      "method": "zero",
+      "queries": 2952,
+      "selected": 2751,
+      "stratum": "all",
+      "successful": 2751
+    },
+    {
+      "false_approvals": 828,
+      "method": "zero",
+      "queries": 7629,
+      "selected": 828,
+      "stratum": "none",
+      "successful": 0
+    },
+    {
+      "false_approvals": 493,
+      "method": "zero",
+      "queries": 3794,
+      "selected": 2521,
+      "stratum": "partial",
+      "successful": 2028
+    }
+  ],
+  "note": "Outer scores were saved by frozen script; JSON serialization failed on np.bool_. This finalizer did not rescore or retune.",
+  "outer_by_stratum_sha256": "4b2d62788c79d99d6b2375a9602b163f4c28d22dbabf3f9c67a846719140b12a",
+  "outer_per_model_sha256": "531bda2f14d1257ad42f986a02ea6fae89a7e842fe47c8078647e3bdead60b1d",
+  "outer_per_workgroup_sha256": "9b33d4511a9cd4c107a54c5a99b7d46df8d2cf094b1b4941ef550abca0540eb6",
+  "paired_workgroup_bootstrap": {
+    "bert_family_4": {
+      "false_approvals": {
+        "draws": 2000,
+        "seed": 2026,
+        "total_difference": -71.0,
+        "workgroup_cluster_bootstrap_ci95": [
+          -98.0,
+          -45.0
+        ]
+      },
+      "successful": {
+        "draws": 2000,
+        "seed": 2026,
+        "total_difference": -3176.0,
+        "workgroup_cluster_bootstrap_ci95": [
+          -3363.0,
+          -2988.9500000000003
+        ]
+      }
+    },
+    "main_loo": {
+      "false_approvals": {
+        "draws": 2000,
+        "seed": 2026,
+        "total_difference": -1215.0,
+        "workgroup_cluster_bootstrap_ci95": [
+          -1307.0,
+          -1122.9750000000001
+        ]
+      },
+      "successful": {
+        "draws": 2000,
+        "seed": 2026,
+        "total_difference": -4372.0,
+        "workgroup_cluster_bootstrap_ci95": [
+          -4536.05,
+          -4204.0
+        ]
+      }
+    }
+  },
+  "scope": "exploratory reused SQLite, donor synthetic batch-SLO, no real deployment safety"
+}

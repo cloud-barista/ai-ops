@@ -1,0 +1,15 @@
+{
+  "candidate_results_compared": 4600,
+  "canonical_results_sha256": "1054a72560b9c6ba06deece136633e92fb9eeecd3d10a0915edb8812bd141e99",
+  "exact_match": true,
+  "kind": "pinned_primary_cuda_exhaustive_microbatch_parity_v1",
+  "max_grids_per_predict_call": 8,
+  "model_sha256": "7a934da440ea0c7473e4e59eb5fa0c8c57f347389272bd303cb0051ef918b161",
+  "models_compared": 9,
+  "source_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "status_counts": {
+    "ABSTAIN": 220,
+    "RESEARCH_ESTIMATE": 355
+  },
+  "workloads_compared": 575
+}

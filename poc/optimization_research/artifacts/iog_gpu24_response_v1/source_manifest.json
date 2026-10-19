@@ -1,0 +1,611 @@
+{
+  "schema_version": "iog_source_manifest_v1",
+  "repository": "IOG-Foundation/llm-inference-benchmarks",
+  "commit": "4990a807c6f1971edda635c18d98550059782eb8",
+  "file_count": 120,
+  "byte_count": 182641,
+  "record_count": 130,
+  "aggregate_sha256": "92ffc3479de653491c7f252c88adfc3ff9c1e231ad23672978b8d3962d32f215",
+  "files": [
+    {
+      "path": "results/vllm_200prompts16qps_AceMath-7B-Instruct_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "198dab64192aeca9f9966c3be3b9942aee970d25db83636375681fa814c8ec1a",
+      "bytes": 1391
+    },
+    {
+      "path": "results/vllm_200prompts16qps_DeepSeek-R1-Distill-Llama-70B_sharegpt_2xNVIDIA-H100-PCIe.json",
+      "sha256": "e2500a6268c5e51c3680a3646ee0aecd6165e226d742d1f99fbee248549f5b13",
+      "bytes": 1402
+    },
+    {
+      "path": "results/vllm_200prompts16qps_DeepSeek-R1-Distill-Llama-8B_sharegpt_1xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "2ceea2f241616a1a04ca8378af53f0f444c644b1fa47ec7b7024bd4835be9f4f",
+      "bytes": 1406
+    },
+    {
+      "path": "results/vllm_200prompts16qps_DeepSeek-R1-Distill-Llama-8B_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "80a608b3520405d283406cb796ca4f0910855ba60ac44c36168b8618f1bb9eb0",
+      "bytes": 1418
+    },
+    {
+      "path": "results/vllm_200prompts16qps_DeepSeek-R1-Distill-Llama-8B_sharegpt_2xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "8a3fb6791c63dfba2c4364f655ca59af1efc7cca43f9e658f437cce12647ba5b",
+      "bytes": 1415
+    },
+    {
+      "path": "results/vllm_200prompts16qps_DeepSeek-R1-Distill-Llama-8B_sharegpt_4xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "c31d3b0f310091152a18081f42a77cfaa09e02cd3ecd45b98e094bd8e6f286bb",
+      "bytes": 1412
+    },
+    {
+      "path": "results/vllm_200prompts16qps_DeepSeek-R1-Distill-Qwen-1.5B_sharegpt_1xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "ea512231574b031578cf366f173873359abfd1045bed2ffd5610f9f60349cc3c",
+      "bytes": 2838
+    },
+    {
+      "path": "results/vllm_200prompts16qps_DeepSeek-R1-Distill-Qwen-1.5B_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "9831799a8abd6562d80855c7c5a1fc882624e28f4b37b9897f95bfcf70564987",
+      "bytes": 1410
+    },
+    {
+      "path": "results/vllm_200prompts16qps_DeepSeek-R1-Distill-Qwen-14B_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "6e91d25fb3d21cb3cddb9508446a7864b8cb55f37b6691ce5e6df2ba1d935de5",
+      "bytes": 2812
+    },
+    {
+      "path": "results/vllm_200prompts16qps_DeepSeek-R1-Distill-Qwen-14B_sharegpt_2xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "3b0f6c93a6fe108527ab1a39376cbfc0f9fccfcdfb4acd1885982b3d0b9f0f84",
+      "bytes": 1412
+    },
+    {
+      "path": "results/vllm_200prompts16qps_DeepSeek-R1-Distill-Qwen-14B_sharegpt_4xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "7fcbe974fd90cf53912136db0d3aebbbd1c2812f8a04469a4e4fc2ac16bdab65",
+      "bytes": 1408
+    },
+    {
+      "path": "results/vllm_200prompts16qps_DeepSeek-R1-Distill-Qwen-14B_sharegpt_8xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "6643ad93d870ff8e6825a0a9cd9df2268e2f87bfc97369b9151ca677cbacb3b2",
+      "bytes": 1414
+    },
+    {
+      "path": "results/vllm_200prompts16qps_DeepSeek-R1-Distill-Qwen-32B_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "3c37d354e236a097a2414a40c1763d8c3fe5c80d3fdd1e5cabd7f820a6417106",
+      "bytes": 1406
+    },
+    {
+      "path": "results/vllm_200prompts16qps_DeepSeek-R1-Distill-Qwen-7B_sharegpt_1xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "7cf4c3cc42d0b3888b25aca976b6f7247534dac9336f17e30b55aad565c501cb",
+      "bytes": 1410
+    },
+    {
+      "path": "results/vllm_200prompts16qps_DeepSeek-R1-Distill-Qwen-7B_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "bbea8b789bf21b0780926cf8486a17d9b55c2f421c22f6236c63b7f5c6230ade",
+      "bytes": 1407
+    },
+    {
+      "path": "results/vllm_200prompts16qps_DeepSeek-R1-Distill-Qwen-7B_sharegpt_2xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "54ec8dc06df7ca6b75ba6e7b79dbd54ba1922ba60817661319e9abe9d42a637e",
+      "bytes": 1410
+    },
+    {
+      "path": "results/vllm_200prompts16qps_DeepSeek-R1-Distill-Qwen-7B_sharegpt_4xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "eec83fff463b1d6f974be1f129a9a1c978a6ec2f0e7c771f0002f91c4b0c723a",
+      "bytes": 1412
+    },
+    {
+      "path": "results/vllm_200prompts16qps_Llama-3.1-Nemotron-70B-Instruct-HF-FP8-dynamic_sharegpt_2xNVIDIA-H100-PCIe.json",
+      "sha256": "d104cbb39f344a3d4d88f64e0c3935c77a9345be9354bd78665830b639fef171",
+      "bytes": 1428
+    },
+    {
+      "path": "results/vllm_200prompts16qps_Meta-Llama-3-70B-Instruct_sharegpt_2xNVIDIA-H100-PCIe.json",
+      "sha256": "d3f3da891c454aa680d3a978e357d4194199f5173f3c8555a7f640927908aa06",
+      "bytes": 1397
+    },
+    {
+      "path": "results/vllm_200prompts16qps_Meta-Llama-3-8B-Instruct_sharegpt_1xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "d5b7ecba91296322ba8898e86b144e348609801c90c5cbe4afd29e00f79b85cf",
+      "bytes": 1404
+    },
+    {
+      "path": "results/vllm_200prompts16qps_Meta-Llama-3-8B-Instruct_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "b9358a0313dcc1965fc7c3777e46849ede9a2fa38af1f929c3a5eb9f04e77766",
+      "bytes": 1404
+    },
+    {
+      "path": "results/vllm_200prompts16qps_QwQ-32B-Preview_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "131499721c27fd858b616be50a4117ed9280dad15cf741c14c5322c2b5709fbf",
+      "bytes": 1365
+    },
+    {
+      "path": "results/vllm_200prompts16qps_gemma-2-9b-it_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "9aab6d678e2a9bee517ebadf1a432fb49be61ac7ef926dcf4bab6b0d026661a5",
+      "bytes": 1367
+    },
+    {
+      "path": "results/vllm_200prompts16qps_phi-4_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "b7b4acff140b6cf7f764129a562429802f03643c38d7e77133cc6aaca2ad1808",
+      "bytes": 1358
+    },
+    {
+      "path": "results/vllm_200prompts1qps_AceMath-7B-Instruct_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "f176b2f45e0befb8334a63a39603e6ac2a2872be6ab67ceb188d379f29cc317f",
+      "bytes": 1391
+    },
+    {
+      "path": "results/vllm_200prompts1qps_DeepSeek-R1-Distill-Llama-70B_sharegpt_2xNVIDIA-H100-PCIe.json",
+      "sha256": "1f987982a538293f752f2d7b81ad6415dd4de6bd172bf6c9793a3db7049dc18e",
+      "bytes": 1409
+    },
+    {
+      "path": "results/vllm_200prompts1qps_DeepSeek-R1-Distill-Llama-8B_sharegpt_1xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "be2e0a83b143538b2fdcd45e35fa3e749cd37b3319d3cd05bbf6b61a00662945",
+      "bytes": 1425
+    },
+    {
+      "path": "results/vllm_200prompts1qps_DeepSeek-R1-Distill-Llama-8B_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "f2fcddfcafc6481fe46b83e7fb8f13a971bac5819d675acde15b4805ce819687",
+      "bytes": 1414
+    },
+    {
+      "path": "results/vllm_200prompts1qps_DeepSeek-R1-Distill-Llama-8B_sharegpt_2xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "95c3d34171f49b311c4932ba33f4cdb314a08fba81a788cd87de5211f411018c",
+      "bytes": 1417
+    },
+    {
+      "path": "results/vllm_200prompts1qps_DeepSeek-R1-Distill-Llama-8B_sharegpt_4xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "c77654d3142c9aca7a904855aa73146ead3a9d0074ef1f75db724b0d26bf8c34",
+      "bytes": 1411
+    },
+    {
+      "path": "results/vllm_200prompts1qps_DeepSeek-R1-Distill-Qwen-1.5B_sharegpt_1xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "c4be771ba40562eacd3569edb4410c142b0cf685a0d20168507bfdf3d4f7d2e1",
+      "bytes": 2853
+    },
+    {
+      "path": "results/vllm_200prompts1qps_DeepSeek-R1-Distill-Qwen-1.5B_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "2ab9d23f701e447165fe9ddac39f39bf828c8cdaf0fe15a4baf744c733eb0b4d",
+      "bytes": 1410
+    },
+    {
+      "path": "results/vllm_200prompts1qps_DeepSeek-R1-Distill-Qwen-14B_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "1821baec65f20271384a50c9b46f318cd962cbe1153aa5cbb8ace87f0c8a6a64",
+      "bytes": 2823
+    },
+    {
+      "path": "results/vllm_200prompts1qps_DeepSeek-R1-Distill-Qwen-14B_sharegpt_2xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "3c785f22e398de165ea60b7af3c18492e1f5ded861a5e5da86570a3588bb8439",
+      "bytes": 1411
+    },
+    {
+      "path": "results/vllm_200prompts1qps_DeepSeek-R1-Distill-Qwen-14B_sharegpt_4xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "e1fddae9deec92378bfbb08e08569a78caff8832a699b91a7a314b7d8c953236",
+      "bytes": 1412
+    },
+    {
+      "path": "results/vllm_200prompts1qps_DeepSeek-R1-Distill-Qwen-14B_sharegpt_8xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "3764e0f7d0e6ea0d25fc95be7f187adbb8cc160c11a2a4e2e5027212c334707f",
+      "bytes": 1412
+    },
+    {
+      "path": "results/vllm_200prompts1qps_DeepSeek-R1-Distill-Qwen-32B_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "4209c1d45979769e91704d0aaf1349da195452bdd7bbe0d7b7b1a8dd4d54045f",
+      "bytes": 1407
+    },
+    {
+      "path": "results/vllm_200prompts1qps_DeepSeek-R1-Distill-Qwen-7B_sharegpt_1xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "f0e4b444aa515850c578508390b077da450964807923f3cf1f785e7586ad7abc",
+      "bytes": 1415
+    },
+    {
+      "path": "results/vllm_200prompts1qps_DeepSeek-R1-Distill-Qwen-7B_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "0c90e13267bbfa84ef7c351a6c0ffea67e8e7097aea9b22e63af5ef5259ab290",
+      "bytes": 1413
+    },
+    {
+      "path": "results/vllm_200prompts1qps_DeepSeek-R1-Distill-Qwen-7B_sharegpt_2xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "076d86e1bc972fc7beeb00f69a13fe5f323c2929b87e0cd4e153442a9c22488a",
+      "bytes": 1408
+    },
+    {
+      "path": "results/vllm_200prompts1qps_DeepSeek-R1-Distill-Qwen-7B_sharegpt_4xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "d8a71795d8225eb7105ef091c5faebea3cafadcc99336c89ca3c4085abeb75e0",
+      "bytes": 1410
+    },
+    {
+      "path": "results/vllm_200prompts1qps_Llama-3.1-Nemotron-70B-Instruct-HF-FP8-dynamic_sharegpt_2xNVIDIA-H100-PCIe.json",
+      "sha256": "9345c12f53186009ec0ee1d817ab962ec527b13f244f50471ed23cf39504aa0b",
+      "bytes": 1441
+    },
+    {
+      "path": "results/vllm_200prompts1qps_Meta-Llama-3-70B-Instruct_sharegpt_2xNVIDIA-H100-PCIe.json",
+      "sha256": "ca4526b2260186f19e13d5ea08f208fadb8ef285fafde2d7124f520c536ccec9",
+      "bytes": 1400
+    },
+    {
+      "path": "results/vllm_200prompts1qps_Meta-Llama-3-8B-Instruct_sharegpt_1xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "f573cc44f8ca26af8a01f1c39560d56b9cf7425d74011acec0a2697f128643ea",
+      "bytes": 1403
+    },
+    {
+      "path": "results/vllm_200prompts1qps_Meta-Llama-3-8B-Instruct_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "4446acaec6b248bd043b2dca98a998336ca1272ba0d7b0a4a7111e66996bae33",
+      "bytes": 1407
+    },
+    {
+      "path": "results/vllm_200prompts1qps_QwQ-32B-Preview_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "e466dcc1383374019368a1963a221c5e17d34ae55034ddce243c5b43327caf8e",
+      "bytes": 1363
+    },
+    {
+      "path": "results/vllm_200prompts1qps_gemma-2-9b-it_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "506384cf3df483a048f84e2a117bc4e9a3276281f52d9c0a141cc066a4677f97",
+      "bytes": 1370
+    },
+    {
+      "path": "results/vllm_200prompts1qps_phi-4_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "b68a56f3401d0ff361a739e74b13f6a5d816b36f1bf0fe43d442f7668fb10be7",
+      "bytes": 1361
+    },
+    {
+      "path": "results/vllm_200prompts32qps_AceMath-7B-Instruct_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "69f0a24cd9fe5c8f012504415dc2bddf0d3aca313d16c68ff65fc8642f48fd99",
+      "bytes": 1383
+    },
+    {
+      "path": "results/vllm_200prompts32qps_DeepSeek-R1-Distill-Llama-70B_sharegpt_2xNVIDIA-H100-PCIe.json",
+      "sha256": "e672fb8b832dfc7762f4a1a866991bdbea1850038a9f33a2d1ed847c03054ede",
+      "bytes": 1406
+    },
+    {
+      "path": "results/vllm_200prompts32qps_DeepSeek-R1-Distill-Llama-8B_sharegpt_1xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "1a06bbe59c20054ea64431c4150beb99993d123d37dd859b7133dcbba1e981d4",
+      "bytes": 1418
+    },
+    {
+      "path": "results/vllm_200prompts32qps_DeepSeek-R1-Distill-Llama-8B_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "8b9df15a2e0dea14c11d755c10efd34053e888596ffc7214180e3896162d0542",
+      "bytes": 1410
+    },
+    {
+      "path": "results/vllm_200prompts32qps_DeepSeek-R1-Distill-Llama-8B_sharegpt_2xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "1d27774ac3c63da705174825ef1309f7c7523785662507ec49daf9fe6af81540",
+      "bytes": 1410
+    },
+    {
+      "path": "results/vllm_200prompts32qps_DeepSeek-R1-Distill-Llama-8B_sharegpt_4xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "79feb3b42cf64e482d5311e811ff50d69ded13c3eacb0f2c49cee54be1de7c80",
+      "bytes": 1411
+    },
+    {
+      "path": "results/vllm_200prompts32qps_DeepSeek-R1-Distill-Qwen-1.5B_sharegpt_1xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "6b3b6a3513f806553a9a755e2c0c7cba649b25474ba154f0073ba6adfcaec7d4",
+      "bytes": 2840
+    },
+    {
+      "path": "results/vllm_200prompts32qps_DeepSeek-R1-Distill-Qwen-1.5B_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "dc73f6c6ed602de355b816c49b215638827028520cd14287c4573ed7f6d6db15",
+      "bytes": 1399
+    },
+    {
+      "path": "results/vllm_200prompts32qps_DeepSeek-R1-Distill-Qwen-14B_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "e543cfe855641a66a0efd173d0320b0d01f4173cab0f6256455a6e1558ef0347",
+      "bytes": 2809
+    },
+    {
+      "path": "results/vllm_200prompts32qps_DeepSeek-R1-Distill-Qwen-14B_sharegpt_2xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "cf97e0810030de74f04a5a52f267aa76b191000a508099eaa76ebadaabca9a1c",
+      "bytes": 1410
+    },
+    {
+      "path": "results/vllm_200prompts32qps_DeepSeek-R1-Distill-Qwen-14B_sharegpt_4xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "93bf23bfc0e70d8f710a1120faf44760c1cd09310c6bba1311983fedce7329c5",
+      "bytes": 1407
+    },
+    {
+      "path": "results/vllm_200prompts32qps_DeepSeek-R1-Distill-Qwen-14B_sharegpt_8xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "2da16ff87aa10f52e262f0653e9b93a099da6ac6ea5400299172c59b61027f65",
+      "bytes": 1411
+    },
+    {
+      "path": "results/vllm_200prompts32qps_DeepSeek-R1-Distill-Qwen-32B_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "3012d6ccf46e729fcd210bec3667cd290280b00914e66570bfccda2050a93bb7",
+      "bytes": 1404
+    },
+    {
+      "path": "results/vllm_200prompts32qps_DeepSeek-R1-Distill-Qwen-7B_sharegpt_1xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "c8d696e43a3ea2453515b744b8dc4757e12b7859a4cd6be9b657b37b5dc17686",
+      "bytes": 1410
+    },
+    {
+      "path": "results/vllm_200prompts32qps_DeepSeek-R1-Distill-Qwen-7B_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "e827ba67c1b6116cc670a0e7b6f82ca6b007ed99d378bb6fdc4a8a1d9ee7d93f",
+      "bytes": 1411
+    },
+    {
+      "path": "results/vllm_200prompts32qps_DeepSeek-R1-Distill-Qwen-7B_sharegpt_2xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "877d0fb4169d337529f4b6beaa2e19ed915fd4812ff370960de96fcfb712f278",
+      "bytes": 1408
+    },
+    {
+      "path": "results/vllm_200prompts32qps_DeepSeek-R1-Distill-Qwen-7B_sharegpt_4xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "e479504b9e41b924c468d2b01ab3918605ae977129cde53d5e16f6ec13a99ff0",
+      "bytes": 1414
+    },
+    {
+      "path": "results/vllm_200prompts32qps_Llama-3.1-Nemotron-70B-Instruct-HF-FP8-dynamic_sharegpt_2xNVIDIA-H100-PCIe.json",
+      "sha256": "ce7561714210bde6c6f9bf2b55e48d282c6ca590860af5dc97cf36a0dc52f91d",
+      "bytes": 1444
+    },
+    {
+      "path": "results/vllm_200prompts32qps_Meta-Llama-3-70B-Instruct_sharegpt_2xNVIDIA-H100-PCIe.json",
+      "sha256": "ac7f4dcd52759e2ad3fdf60024c4aefc99c21a0709faf7c2d17c40168d3f4bde",
+      "bytes": 1387
+    },
+    {
+      "path": "results/vllm_200prompts32qps_Meta-Llama-3-8B-Instruct_sharegpt_1xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "bc7ae554ed95e01d527ea669c84a038b99ae81a6bcc8013693df22331c466e0d",
+      "bytes": 1399
+    },
+    {
+      "path": "results/vllm_200prompts32qps_Meta-Llama-3-8B-Instruct_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "5ff5f15576e2d9eb23abf0686ee3a7174cce6942cdc74b9acef0f317368ca64f",
+      "bytes": 1404
+    },
+    {
+      "path": "results/vllm_200prompts32qps_QwQ-32B-Preview_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "e1521644e49a052eb566218dc778457322ab931135be12c3567b79b063a967a1",
+      "bytes": 1363
+    },
+    {
+      "path": "results/vllm_200prompts32qps_gemma-2-9b-it_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "54fefe4bd635f4837bb67f19478e0fc1e9054e0174147610eec44e504cdf9ea8",
+      "bytes": 1363
+    },
+    {
+      "path": "results/vllm_200prompts32qps_phi-4_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "8316b1cc401c77ea9a2d9dd0dcfad9de7ea927064b332dc5cf443d04db820ad3",
+      "bytes": 1354
+    },
+    {
+      "path": "results/vllm_200prompts4qps_AceMath-7B-Instruct_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "9ca03713db1ece94c5c931d258c2ee551ea1cd7d484baf6b0047bc3edd58bde5",
+      "bytes": 1389
+    },
+    {
+      "path": "results/vllm_200prompts4qps_DeepSeek-R1-Distill-Llama-70B_sharegpt_2xNVIDIA-H100-PCIe.json",
+      "sha256": "6a8ec3e1b37a3fc76a89b3a1acff720b8bb4dd49c0e3eb21eb062739f8ebd10e",
+      "bytes": 1400
+    },
+    {
+      "path": "results/vllm_200prompts4qps_DeepSeek-R1-Distill-Llama-8B_sharegpt_1xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "129b1b2d37f40cffa448e0f22359d401edcdf9172cc16d1324661a95619a3712",
+      "bytes": 1420
+    },
+    {
+      "path": "results/vllm_200prompts4qps_DeepSeek-R1-Distill-Llama-8B_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "80078bd7b3e3ebb5755a76da36fad8ace0f07914bbd7c1669cffecb1f0af8c22",
+      "bytes": 1414
+    },
+    {
+      "path": "results/vllm_200prompts4qps_DeepSeek-R1-Distill-Llama-8B_sharegpt_2xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "5a2c8535f3a4f4ce1e839e6db75f8d728fadadf63e67a753956662ea737ff0d7",
+      "bytes": 1408
+    },
+    {
+      "path": "results/vllm_200prompts4qps_DeepSeek-R1-Distill-Llama-8B_sharegpt_4xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "10e2546074402ed8ba259d380d234857cc326482e0f249bca2e5c9315bf7fd60",
+      "bytes": 1416
+    },
+    {
+      "path": "results/vllm_200prompts4qps_DeepSeek-R1-Distill-Qwen-1.5B_sharegpt_1xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "655764a0c379e87f2871c449241685d7c341d7aeaba1ed438c3869c159f638d4",
+      "bytes": 2847
+    },
+    {
+      "path": "results/vllm_200prompts4qps_DeepSeek-R1-Distill-Qwen-1.5B_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "e53920bbe598f7c21c6c69793aab404da7110a51fd94a82d28a7b9c467945efc",
+      "bytes": 1408
+    },
+    {
+      "path": "results/vllm_200prompts4qps_DeepSeek-R1-Distill-Qwen-14B_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "3c9339d4670d79d0ef751b104bc3fbae57177f22c445a45742ab078df64adec6",
+      "bytes": 2823
+    },
+    {
+      "path": "results/vllm_200prompts4qps_DeepSeek-R1-Distill-Qwen-14B_sharegpt_2xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "dea1c7660b0bf9b9298585b00b543c38a7043092b67d366be77a333ddd9efd92",
+      "bytes": 1412
+    },
+    {
+      "path": "results/vllm_200prompts4qps_DeepSeek-R1-Distill-Qwen-14B_sharegpt_4xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "81ca1005803ab3990957edf97b644ea859c82cafed9701ef24f15e389735edcc",
+      "bytes": 1408
+    },
+    {
+      "path": "results/vllm_200prompts4qps_DeepSeek-R1-Distill-Qwen-14B_sharegpt_8xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "b2b975a092021c90e624fb5064832c758cc77740a224f4ba80972b28c45fa104",
+      "bytes": 1409
+    },
+    {
+      "path": "results/vllm_200prompts4qps_DeepSeek-R1-Distill-Qwen-32B_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "da69ac41bf52fba102e15d66dc6a10ae5683b7fea5475d286276d70c00115426",
+      "bytes": 1409
+    },
+    {
+      "path": "results/vllm_200prompts4qps_DeepSeek-R1-Distill-Qwen-7B_sharegpt_1xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "c8392d1926900a9b638698cc46b38be6e21f98fa96a4fd5cd453e3af2c1c4768",
+      "bytes": 1406
+    },
+    {
+      "path": "results/vllm_200prompts4qps_DeepSeek-R1-Distill-Qwen-7B_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "46824621a492ce19a560e3a1d8495d9a51152f9bdd59627f297bce8c523a2c05",
+      "bytes": 1411
+    },
+    {
+      "path": "results/vllm_200prompts4qps_DeepSeek-R1-Distill-Qwen-7B_sharegpt_2xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "6da4c1e8a33b7565284d9e83fc0d5c326f2c9a55fdeddc7301470e62eb9d860a",
+      "bytes": 1414
+    },
+    {
+      "path": "results/vllm_200prompts4qps_DeepSeek-R1-Distill-Qwen-7B_sharegpt_4xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "baf45543017997d9e322ba65e1ffd4f99a3dd750fea0260901d7b4de523198d1",
+      "bytes": 1417
+    },
+    {
+      "path": "results/vllm_200prompts4qps_Llama-3.1-Nemotron-70B-Instruct-HF-FP8-dynamic_sharegpt_2xNVIDIA-H100-PCIe.json",
+      "sha256": "dc75ee48d47c7f52e0162f78cae18e778fbf4b6d715f665ea9d3881cd82d105a",
+      "bytes": 1436
+    },
+    {
+      "path": "results/vllm_200prompts4qps_Meta-Llama-3-70B-Instruct_sharegpt_2xNVIDIA-H100-PCIe.json",
+      "sha256": "eaf1d13fcc7d31048cdaad4329a88bec14c2cd1b1e8bd172291aa2633277e818",
+      "bytes": 1392
+    },
+    {
+      "path": "results/vllm_200prompts4qps_Meta-Llama-3-8B-Instruct_sharegpt_1xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "49ae23f66d123824de28c266142094fdeaafe1e034638e487494010c95e25beb",
+      "bytes": 1401
+    },
+    {
+      "path": "results/vllm_200prompts4qps_Meta-Llama-3-8B-Instruct_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "49a31e7cbc0d20dbdde17d4fa9c28f5318937974e04ef444ac0286d170dff132",
+      "bytes": 1408
+    },
+    {
+      "path": "results/vllm_200prompts4qps_QwQ-32B-Preview_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "d75de2b27b77ea8a0432e165ba425ce7bf187b2b518cfdf7dbc24e9abd05e9ab",
+      "bytes": 1369
+    },
+    {
+      "path": "results/vllm_200prompts4qps_gemma-2-9b-it_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "9d9ea5b3d4cb89a3b9f1f5690797a98ba7881f3d53f0e461acf672c6c7861007",
+      "bytes": 1373
+    },
+    {
+      "path": "results/vllm_200prompts4qps_phi-4_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "e8c652df34781ccda5c052468d45ace4e24067a52121734b6a00bfa2d774261b",
+      "bytes": 1360
+    },
+    {
+      "path": "results/vllm_200prompts8qps_AceMath-7B-Instruct_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "ed20535b378ffa592969ffcf0e51e136ed8eb5e40418dc913347b86589e5f8f6",
+      "bytes": 1383
+    },
+    {
+      "path": "results/vllm_200prompts8qps_DeepSeek-R1-Distill-Llama-70B_sharegpt_2xNVIDIA-H100-PCIe.json",
+      "sha256": "1e86425c4f1ef2ef3da1e5ecae256f5e2a71dcd743d554115e213fb83f5797d3",
+      "bytes": 1406
+    },
+    {
+      "path": "results/vllm_200prompts8qps_DeepSeek-R1-Distill-Llama-8B_sharegpt_1xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "e1c71c960efbcd9d80ef6ae4d60669a3fe292dadf3e8282daa713c9076ea9a8d",
+      "bytes": 1412
+    },
+    {
+      "path": "results/vllm_200prompts8qps_DeepSeek-R1-Distill-Llama-8B_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "865b0b76ed393f2095cd5930925e3ebb627606543bf2f51ae11a9ee1085c2102",
+      "bytes": 1411
+    },
+    {
+      "path": "results/vllm_200prompts8qps_DeepSeek-R1-Distill-Llama-8B_sharegpt_2xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "2092450149d59caba1481b37ebc4f8dac9252c6cc4845e782caea75dbb418686",
+      "bytes": 1410
+    },
+    {
+      "path": "results/vllm_200prompts8qps_DeepSeek-R1-Distill-Llama-8B_sharegpt_4xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "3d99826283bcd3a37287d1fa829e077e84cc8f3d46da7785ce320671e8b50cb2",
+      "bytes": 1415
+    },
+    {
+      "path": "results/vllm_200prompts8qps_DeepSeek-R1-Distill-Qwen-1.5B_sharegpt_1xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "54de389e5faf5f13624d6dd94d25bceb765c40eba7189fca67008e79ab0dba94",
+      "bytes": 2849
+    },
+    {
+      "path": "results/vllm_200prompts8qps_DeepSeek-R1-Distill-Qwen-1.5B_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "beddaccd6b192579d227e4956869b80e2acaa793881b4d870b6715536296d078",
+      "bytes": 1411
+    },
+    {
+      "path": "results/vllm_200prompts8qps_DeepSeek-R1-Distill-Qwen-14B_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "a9fa94419c82d428ec01553ee1464830d1ecf03cd70ff34ccf993758211484f9",
+      "bytes": 2821
+    },
+    {
+      "path": "results/vllm_200prompts8qps_DeepSeek-R1-Distill-Qwen-14B_sharegpt_2xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "bb3e3ff55e40bb34a2fd4b52716af3c9d8384a67b89471950cd5abf55c8c5012",
+      "bytes": 1412
+    },
+    {
+      "path": "results/vllm_200prompts8qps_DeepSeek-R1-Distill-Qwen-14B_sharegpt_4xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "36e6fe9fbada448c064ae4cd4e666a43e82160e69d0e40215c6980a2e0162c94",
+      "bytes": 1405
+    },
+    {
+      "path": "results/vllm_200prompts8qps_DeepSeek-R1-Distill-Qwen-14B_sharegpt_8xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "7b21684b95f30f53c4c036f3249003256b00bfef552fb57d988f84ba420ec9ed",
+      "bytes": 1408
+    },
+    {
+      "path": "results/vllm_200prompts8qps_DeepSeek-R1-Distill-Qwen-32B_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "20c75a9669ddd034d30a8ab7d4255bebd04153af5d3497370af5bfc43b998ebc",
+      "bytes": 1407
+    },
+    {
+      "path": "results/vllm_200prompts8qps_DeepSeek-R1-Distill-Qwen-7B_sharegpt_1xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "79afa82d7d2caa80979d08561e97aee3ec5405803a13f06179fff669b8b795ea",
+      "bytes": 1408
+    },
+    {
+      "path": "results/vllm_200prompts8qps_DeepSeek-R1-Distill-Qwen-7B_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "81b308eb0a86901ed72deac4f347092c1df56520c749183dd985e327f3e0ee31",
+      "bytes": 1409
+    },
+    {
+      "path": "results/vllm_200prompts8qps_DeepSeek-R1-Distill-Qwen-7B_sharegpt_2xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "44507eef71327b3aff3205d07da40d734b13310cbfbd94d5d8887e2df658e9ae",
+      "bytes": 1412
+    },
+    {
+      "path": "results/vllm_200prompts8qps_DeepSeek-R1-Distill-Qwen-7B_sharegpt_4xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "daaf9f65eb7a9b998796a8f8525dec8707f781b8246a5e81bc632f0fdbc2d60f",
+      "bytes": 1411
+    },
+    {
+      "path": "results/vllm_200prompts8qps_Llama-3.1-Nemotron-70B-Instruct-HF-FP8-dynamic_sharegpt_2xNVIDIA-H100-PCIe.json",
+      "sha256": "b3fa23873f94e44982ad3f66d402fabc44e1f758dc9efd7ce8a37acda5bce91b",
+      "bytes": 1440
+    },
+    {
+      "path": "results/vllm_200prompts8qps_Meta-Llama-3-70B-Instruct_sharegpt_2xNVIDIA-H100-PCIe.json",
+      "sha256": "8141696dd36df4400fcb7a67a52e3135e916d66d048f6a3fe1e994168f42430e",
+      "bytes": 1401
+    },
+    {
+      "path": "results/vllm_200prompts8qps_Meta-Llama-3-8B-Instruct_sharegpt_1xNVIDIA-GeForce-RTX-4090.json",
+      "sha256": "805119e299a6f37de80806ac5e91484b7cc7e46fdc6d0e0a1eb7800302f51772",
+      "bytes": 1403
+    },
+    {
+      "path": "results/vllm_200prompts8qps_Meta-Llama-3-8B-Instruct_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "5fbca7f496aea0930a7fa36525228472bd417ea4f57f0fe2285bd1620480233d",
+      "bytes": 1405
+    },
+    {
+      "path": "results/vllm_200prompts8qps_QwQ-32B-Preview_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "4be6bc9f5d0328aa14e0c92e1d7e641159d1bfb6c3492c4b093ff68834ae6a81",
+      "bytes": 1365
+    },
+    {
+      "path": "results/vllm_200prompts8qps_gemma-2-9b-it_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "a7ec09f8d34b0b13ba4875698b35e1511d8c17ae0ed70c90879a52ec727a67e1",
+      "bytes": 1366
+    },
+    {
+      "path": "results/vllm_200prompts8qps_phi-4_sharegpt_1xNVIDIA-H100-PCIe.json",
+      "sha256": "242752236e9930becf279447ac1e66c118e78f558a774489a3e9cd9be939e556",
+      "bytes": 1354
+    }
+  ]
+}

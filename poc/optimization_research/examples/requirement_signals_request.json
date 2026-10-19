@@ -1,0 +1,26 @@
+{
+  "model_id": "example/offline-new-encoder",
+  "model_revision": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "workload_task": "inference",
+  "batch_size": 1,
+  "max_length": 32,
+  "request_concurrency": 1,
+  "decision_at": "2026-09-28T12:00:00Z",
+  "parameter_metadata": {
+    "model_parameter_count": 20000000,
+    "model_parameter_bytes": 80000000,
+    "dtype": "float32",
+    "calculation": "sum(parameter.numel() * parameter.element_size() for parameter in model.parameters())",
+    "source": "registration_manifest",
+    "available_at": "2026-09-28T11:00:00Z"
+  },
+  "hardware_profile": {
+    "host": "icns",
+    "device": "cuda",
+    "device_name": "NVIDIA RTX PRO 5000 Blackwell",
+    "gpu_indices": [0],
+    "replica_count": 1,
+    "cpu_core_limit": 2,
+    "cpu_threads": 2
+  }
+}

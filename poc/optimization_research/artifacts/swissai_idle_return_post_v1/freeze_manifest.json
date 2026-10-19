@@ -1,0 +1,103 @@
+{
+  "kappa": 100,
+  "model_features": [
+    "own10_log",
+    "own30_log",
+    "own120_log",
+    "global10_log",
+    "global30_log",
+    "global120_log",
+    "gap20_mean_log",
+    "gap20_p90_log",
+    "gap20_count",
+    "age_min_log",
+    "sin_day",
+    "cos_day",
+    "sin_week",
+    "cos_week"
+  ],
+  "numpy_version": "2.2.6",
+  "original_evaluator_sha256": "51707577c35ea9f4c1a810fb5dc5fe43313cb9ee634fe08f4e8bb7fe2a395966",
+  "original_model_sha256": "385201d2ba936f259847de7a52d8cdc57ec6a9109bed952bbf0151b9d46d59ae",
+  "original_model_spec_sha256": "f0211ebaeeb8f45260e45be5625be7472217f7891e447985762893fb2a5ca719",
+  "pandas_version": "2.2.3",
+  "post_end_utc": "2025-10-16T00:00:00Z",
+  "post_evaluator_sha256": "27d496896f4d6c7d5d23da76c0d995537045af17aff131e7287a7eb61315e8af",
+  "post_start_utc": "2025-08-16T00:00:00Z",
+  "post_support_gate": {
+    "episodes": 1266,
+    "positive": 443
+  },
+  "pre_support": {
+    "0": {
+      "episodes": 2237,
+      "positive": 846
+    },
+    "1": {
+      "episodes": 780,
+      "positive": 335
+    },
+    "2": {
+      "episodes": 845,
+      "positive": 276
+    }
+  },
+  "prior_denominator": 2238,
+  "prior_numerator": 846.5,
+  "prior_probability": 0.3782394995531725,
+  "protocol_sha256": "971d3fb3fa65d380be4a18ab83afbf886aaf4c4db8b8706179f13c3b8c05bddd",
+  "research_scope": "observed_request_return_only",
+  "schema_version": "swissai-idle-return-post-freeze/v1",
+  "scikit_learn_version": "1.5.2",
+  "selected_original_model": "logistic",
+  "source_hashes": {
+    "audit_sha256": "c03b7c7c0f517eea8301113feed83fda94a8701d8c68a592da0c3de0cd6f8aab",
+    "compact_sha256": "d5c2bf4cc038f936a9713f8fc7c0430703ddd1c03ed0518fb65aaf68e160997b",
+    "raw_sha256": "79c92fd40752e40a6cac1fc897491ea2f54f37939dc4dcc48c96ea06383c81b7"
+  },
+  "supported_week_indices": [
+    0,
+    1,
+    2,
+    7,
+    8
+  ],
+  "week_support_gate": [
+    [
+      203,
+      42
+    ],
+    [
+      372,
+      129
+    ],
+    [
+      388,
+      152
+    ],
+    [
+      24,
+      7
+    ],
+    [
+      14,
+      4
+    ],
+    [
+      35,
+      14
+    ],
+    [
+      11,
+      1
+    ],
+    [
+      99,
+      38
+    ],
+    [
+      120,
+      56
+    ]
+  ]
+}

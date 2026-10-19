@@ -1,0 +1,79 @@
+{
+  "source_snapshot_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "script_sha256": "b77a26c6831530069ae0a86c6c6308f1f43cda8047675d79c94dbaa8e1c82f52",
+  "sklearn_version": "1.6.1",
+  "campaign": "khu-hf-local-exhaustive",
+  "scope": "Eight encoder models with CPU2/GPU1 exact workload pairs; Qwen has no CPU main-campaign records",
+  "outer_split": "leave one model_id out",
+  "inner_split": "donor CPU and GPU residuals each leave their donor model out",
+  "heldout_observations_cpu_method": "only eight CPU2 outcomes and their registration metadata; no heldout GPU outcomes or result JSON; eight CPU probes were not all completed before the first GPU in the actual campaign, so this is an offline reordered policy",
+  "gpu_baseline_observations": "GPU1/two-core outcomes for the exact eight CPU-measured workload conditions",
+  "scored_population": "all 64 workload conditions times seven non-anchor GPU resources per model",
+  "cpu_pseudo_observation_noise_fraction": 0.5,
+  "mean_cpu_wall_seconds_per_model": 529.236070375,
+  "mean_gpu_wall_seconds_per_model": 8.27320425,
+  "mean_gpu4_wall_seconds_per_model": 4.108754374999999,
+  "macro": [
+    {
+      "method": "cpu8_transfer",
+      "models": 8,
+      "latency_male": 0.3993761694140947,
+      "rps_male": 0.3861681237886325,
+      "feasible_groups": 309,
+      "successful_choices": 276,
+      "slo_violations": 38,
+      "missed_feasible_groups": 33
+    },
+    {
+      "method": "gpu4_covariance",
+      "models": 8,
+      "latency_male": 0.23140670527862228,
+      "rps_male": 0.15772563843816645,
+      "feasible_groups": 309,
+      "successful_choices": 295,
+      "slo_violations": 9,
+      "missed_feasible_groups": 14
+    },
+    {
+      "method": "gpu4_cpu8_fusion",
+      "models": 8,
+      "latency_male": 0.23504657331832385,
+      "rps_male": 0.1534376446011781,
+      "feasible_groups": 309,
+      "successful_choices": 297,
+      "slo_violations": 13,
+      "missed_feasible_groups": 12
+    },
+    {
+      "method": "gpu8_covariance",
+      "models": 8,
+      "latency_male": 0.2442808359376359,
+      "rps_male": 0.14265429929999437,
+      "feasible_groups": 309,
+      "successful_choices": 298,
+      "slo_violations": 10,
+      "missed_feasible_groups": 11
+    },
+    {
+      "method": "gpu8_kernel",
+      "models": 8,
+      "latency_male": 0.2663498826632765,
+      "rps_male": 0.15642854321016234,
+      "feasible_groups": 309,
+      "successful_choices": 296,
+      "slo_violations": 13,
+      "missed_feasible_groups": 13
+    },
+    {
+      "method": "zero_shot",
+      "models": 8,
+      "latency_male": 0.6378753881062968,
+      "rps_male": 0.628879748877491,
+      "feasible_groups": 309,
+      "successful_choices": 250,
+      "slo_violations": 35,
+      "missed_feasible_groups": 59
+    }
+  ],
+  "limitation": "Batch latency/throughput and collection-script SLOs, not user-request measurements or VM price"
+}

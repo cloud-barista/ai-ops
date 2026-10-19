@@ -1,0 +1,237 @@
+{
+  "source_snapshot_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "script_sha256": "40b5501b2f97d8aac82eaae703f54051621ef7ddc630c05257b70deafb5ba6f3",
+  "dependency_sha256": {
+    "conditional_response.py": "165871a1f70ea1efcd73e64719667f47fd9b94fdfecc461d12582ab584ea6993",
+    "sparse_anchor_transfer.py": "8e416feb6e29edb42f9b1ff09fb6c1a0273550160edce35ad8a16b492b1a1869",
+    "cross_model_covariance.py": "e7ff1f5322f71a630eeddeab6ddd443ec546a5e9f9f1ad845b917cb6fb333850",
+    "probe_design.py": "7beb6b57fbb91839ba3cca8bbe1fbe2024fb64de25d5dccd52f5e951ed935f73"
+  },
+  "sklearn_version": "1.6.1",
+  "seed": 42,
+  "budget": 4,
+  "remote_selection": {
+    "selection": "eligible, complete, CUDA replica 1/2 and CPU core 2/4/8/16; first by started_at then execution_id within each workload\u00d7resource cell",
+    "outcome_aggregation": "first",
+    "median_note": null,
+    "pre_dedup_rows": 497,
+    "repeated_rows_removed": 305,
+    "distinct_cells": 192,
+    "workload_groups": 24,
+    "models": [
+      "EleutherAI/pythia-160m-deduped",
+      "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+    ],
+    "host": "lab-user",
+    "gpu": "NVIDIA GeForce RTX 5070 Ti"
+  },
+  "local_training_models": [
+    "FacebookAI/roberta-base",
+    "Qwen/Qwen2.5-0.5B-Instruct",
+    "albert/albert-base-v2",
+    "distilbert/distilbert-base-uncased",
+    "google-bert/bert-base-uncased",
+    "google/bert_uncased_L-2_H-128_A-2",
+    "google/bert_uncased_L-4_H-256_A-4",
+    "google/bert_uncased_L-4_H-512_A-8",
+    "google/electra-small-discriminator"
+  ],
+  "training_rows": 4600,
+  "scored_population": "all seven nonanchor GPU choices for each of 12 workloads per remote model",
+  "primary_outcomes": "MALE of batch p95 latency and examples/sec divided by batch size; SLO is omitted because collection profiles hard-code it",
+  "transfer_caveat": "Remote model IDs, GPU hardware, host, and causal-LM input conditions shift together; this is a retrospective stress test and cannot identify which shift caused an error",
+  "manifest": [
+    {
+      "heldout_model_id": "EleutherAI/pythia-160m-deduped",
+      "probe_groups": [
+        "62208476fa744d8ce7d1b033d568ac9fa98c4927f568db5937b0f83b3a985a5b",
+        "753eff9a1ac3fbbc246cfeb8c5ed924ae0e966b06888bf5b544efad504d4ce74",
+        "ef889805b013b091ef446bc651fa23767877d780b680c55ff9ab0e087eef1df4",
+        "f828b766d6ca5b5f8f486b3d0eb5f9858c96ff60175720746885d33b4e1fc0b9"
+      ],
+      "total_groups": 12,
+      "prior_mode": "kernel_fallback_no_aligned_donors",
+      "probe_gpu_wall_seconds": 2.856337,
+      "full_anchor_gpu_wall_seconds": 9.131221
+    },
+    {
+      "heldout_model_id": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+      "probe_groups": [
+        "0bf772ddd3040d73fd41e2e7833c5a7e94fd79d2d1765c60d7783ef880101ca1",
+        "43d5cbd99650a6cdf57920b0056546909ce4d4ef6f579fc0625ab59c6ce80416",
+        "562bbf4903e6fa695ccd07c83ff266017225292033564f259aae2949a63ca509",
+        "b27e01774bd2228312febb9cd4a3fc0a60c8fdb5f17a37ae89209f7ee284505d"
+      ],
+      "total_groups": 12,
+      "prior_mode": "kernel_fallback_no_aligned_donors",
+      "probe_gpu_wall_seconds": 8.868764,
+      "full_anchor_gpu_wall_seconds": 23.523661
+    }
+  ],
+  "per_model": [
+    {
+      "method": "zero_shot",
+      "workload_groups": 12,
+      "scored_nonanchor_cells": 84,
+      "latency_male": 0.4451179261248034,
+      "rps_male": 0.3404630549359833,
+      "heldout_model_id": "EleutherAI/pythia-160m-deduped",
+      "probe_budget": 4,
+      "probe_gpu_wall_seconds": 0.0
+    },
+    {
+      "method": "global_mean",
+      "workload_groups": 12,
+      "scored_nonanchor_cells": 84,
+      "latency_male": 0.1778054363756437,
+      "rps_male": 0.17643911896888792,
+      "heldout_model_id": "EleutherAI/pythia-160m-deduped",
+      "probe_budget": 4,
+      "probe_gpu_wall_seconds": 2.856337
+    },
+    {
+      "method": "ridge_shift",
+      "workload_groups": 12,
+      "scored_nonanchor_cells": 84,
+      "latency_male": 0.21721773143420817,
+      "rps_male": 0.11773012812517678,
+      "heldout_model_id": "EleutherAI/pythia-160m-deduped",
+      "probe_budget": 4,
+      "probe_gpu_wall_seconds": 2.856337
+    },
+    {
+      "method": "sparse_conditional",
+      "workload_groups": 12,
+      "scored_nonanchor_cells": 84,
+      "latency_male": 0.20573679625477911,
+      "rps_male": 0.13704034131871035,
+      "heldout_model_id": "EleutherAI/pythia-160m-deduped",
+      "probe_budget": 4,
+      "probe_gpu_wall_seconds": 2.856337
+    },
+    {
+      "method": "kernel_transfer",
+      "workload_groups": 12,
+      "scored_nonanchor_cells": 84,
+      "latency_male": 0.18211482080304267,
+      "rps_male": 0.1630942190306605,
+      "heldout_model_id": "EleutherAI/pythia-160m-deduped",
+      "probe_budget": 4,
+      "probe_gpu_wall_seconds": 2.856337
+    },
+    {
+      "method": "full_anchor_reference",
+      "workload_groups": 12,
+      "scored_nonanchor_cells": 84,
+      "latency_male": 0.2719446606333961,
+      "rps_male": 0.12744060371133537,
+      "heldout_model_id": "EleutherAI/pythia-160m-deduped",
+      "probe_budget": 4,
+      "probe_gpu_wall_seconds": 9.131221
+    },
+    {
+      "method": "zero_shot",
+      "workload_groups": 12,
+      "scored_nonanchor_cells": 84,
+      "latency_male": 0.20875609828494582,
+      "rps_male": 0.2575998743673578,
+      "heldout_model_id": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+      "probe_budget": 4,
+      "probe_gpu_wall_seconds": 0.0
+    },
+    {
+      "method": "global_mean",
+      "workload_groups": 12,
+      "scored_nonanchor_cells": 84,
+      "latency_male": 0.25851306441982863,
+      "rps_male": 0.12443043981111941,
+      "heldout_model_id": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+      "probe_budget": 4,
+      "probe_gpu_wall_seconds": 8.868764
+    },
+    {
+      "method": "ridge_shift",
+      "workload_groups": 12,
+      "scored_nonanchor_cells": 84,
+      "latency_male": 0.17091220334065427,
+      "rps_male": 0.08388952232252812,
+      "heldout_model_id": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+      "probe_budget": 4,
+      "probe_gpu_wall_seconds": 8.868764
+    },
+    {
+      "method": "sparse_conditional",
+      "workload_groups": 12,
+      "scored_nonanchor_cells": 84,
+      "latency_male": 0.13219318078063955,
+      "rps_male": 0.09137121291659418,
+      "heldout_model_id": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+      "probe_budget": 4,
+      "probe_gpu_wall_seconds": 8.868764
+    },
+    {
+      "method": "kernel_transfer",
+      "workload_groups": 12,
+      "scored_nonanchor_cells": 84,
+      "latency_male": 0.20172165196545047,
+      "rps_male": 0.063232589025618,
+      "heldout_model_id": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+      "probe_budget": 4,
+      "probe_gpu_wall_seconds": 8.868764
+    },
+    {
+      "method": "full_anchor_reference",
+      "workload_groups": 12,
+      "scored_nonanchor_cells": 84,
+      "latency_male": 0.13046222284732753,
+      "rps_male": 0.07899778016948943,
+      "heldout_model_id": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+      "probe_budget": 4,
+      "probe_gpu_wall_seconds": 23.523661
+    }
+  ],
+  "macro_two_models": [
+    {
+      "method": "full_anchor_reference",
+      "model_count": 2,
+      "latency_male": 0.2012034417403618,
+      "rps_male": 0.1032191919404124,
+      "probe_gpu_wall_seconds": 16.327441
+    },
+    {
+      "method": "global_mean",
+      "model_count": 2,
+      "latency_male": 0.21815925039773615,
+      "rps_male": 0.15043477939000366,
+      "probe_gpu_wall_seconds": 5.8625505
+    },
+    {
+      "method": "kernel_transfer",
+      "model_count": 2,
+      "latency_male": 0.19191823638424657,
+      "rps_male": 0.11316340402813924,
+      "probe_gpu_wall_seconds": 5.8625505
+    },
+    {
+      "method": "ridge_shift",
+      "model_count": 2,
+      "latency_male": 0.19406496738743123,
+      "rps_male": 0.10080982522385246,
+      "probe_gpu_wall_seconds": 5.8625505
+    },
+    {
+      "method": "sparse_conditional",
+      "model_count": 2,
+      "latency_male": 0.16896498851770933,
+      "rps_male": 0.11420577711765226,
+      "probe_gpu_wall_seconds": 5.8625505
+    },
+    {
+      "method": "zero_shot",
+      "model_count": 2,
+      "latency_male": 0.3269370122048746,
+      "rps_male": 0.2990314646516705,
+      "probe_gpu_wall_seconds": 0.0
+    }
+  ]
+}

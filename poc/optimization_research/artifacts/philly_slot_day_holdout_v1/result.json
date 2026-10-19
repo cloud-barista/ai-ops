@@ -1,0 +1,63 @@
+{
+  "status": "NEW_MACHINE_EXPLORATORY_GO",
+  "scope": "Philly GPU utilization risk only; no VM action or user SLO",
+  "freeze_sha256": "df9bf62726755d47ea93cbad4e256cb88caef035a5f89d1d7806ed4aded8eea2",
+  "support_sha256": "b62cc0b77648f5131b6ff12593ab7ab5a6a36ed24df59d5ba4dc35b7f56fbd14",
+  "predictions_sha256": "a823adb09685f76a118b74a4a89eb2c1bd104334114607d3bf1971f8c1217762",
+  "test_rows": 812729,
+  "test_machines": 51,
+  "machines_slot_better_than_exact": 44,
+  "scores": {
+    "p0": {
+      "row_brier": 0.09243057497814043,
+      "machine_equal_brier": 0.08764416610639933,
+      "average_precision": 0.8532534668219028,
+      "first_seven_days_brier": 0.07879405881952158,
+      "last_eight_days_brier": 0.10258514529395729
+    },
+    "previous_day_newton": {
+      "row_brier": 0.0858207305453716,
+      "machine_equal_brier": 0.08118662468946795,
+      "average_precision": 0.8700901238540114,
+      "first_seven_days_brier": 0.07171395469975612,
+      "last_eight_days_brier": 0.09632548451533841
+    },
+    "previous_day_exact": {
+      "row_brier": 0.08578645562525393,
+      "machine_equal_brier": 0.08115188527695055,
+      "average_precision": 0.870158641053413,
+      "first_seven_days_brier": 0.07167869292832928,
+      "last_eight_days_brier": 0.09629194446407527
+    },
+    "previous_day_machine_slot": {
+      "row_brier": 0.08353208427019232,
+      "machine_equal_brier": 0.07869322250682365,
+      "average_precision": 0.8738251989649173,
+      "first_seven_days_brier": 0.06959976268956906,
+      "last_eight_days_brier": 0.09390692909913281
+    }
+  },
+  "machine_bootstrap": {
+    "draws": 2000,
+    "seed": 43,
+    "candidate_minus_base_row_brier": -0.002254371355061609,
+    "percentile_95": [
+      -0.0031051067780084453,
+      -0.0014432629788999538
+    ]
+  },
+  "gate": {
+    "all_passed": true,
+    "checks": {
+      "row_brier_at_least_1pct_below_exact": true,
+      "machine_equal_brier_below_exact": true,
+      "both_calendar_halves_below_exact": true,
+      "at_least_60pct_machines_improve": true,
+      "ap_drop_less_than_0p005": true,
+      "machine_bootstrap_upper_below_zero": true
+    },
+    "failed": []
+  },
+  "prior_three_cohorts_exposed_before_method_selection": true,
+  "new_bucket_rows_seen_before_freeze": false
+}

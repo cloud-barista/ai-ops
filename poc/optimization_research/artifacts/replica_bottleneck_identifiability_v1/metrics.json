@@ -1,0 +1,178 @@
+{
+  "snapshot_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "script_sha256": "ef6b7fd7c1db762cf1bc623565498c9508c4ca0b924e82fd1cf7ce7d3c88f6bf",
+  "baseline_artifact_sha256": {
+    "model_holdout": "95790ede420476c3d21879cd14233bc9185da8727df5aa4eb7f33c6fb500cd93",
+    "bert4_holdout": "a1e4d6ad5aa25a071cf67b0376fc7bc6a8572cc65e51d75e235ed224702077b5",
+    "bert5_holdout": "690c1d234c687b315ba263cd2af13a7ad7a09b893e683931f20260b834460554"
+  },
+  "protocol": "GPU2 uses two concurrent workers, each running the full profile; reported RPS is the sum of worker RPS; CPU seconds include load; GPU2 follows GPU1",
+  "metric": "model-macro mean absolute log error of requests per second",
+  "capped_oracle_lower_bound": "mean(max(log(R2)-log(2*R1), 0)); best possible for any predictor constrained to R2hat <= 2*R1",
+  "protocol_summary": [
+    {
+      "campaign": "khu-hf-local-exhaustive",
+      "pairs": 575,
+      "gpu2_examples_exactly_double": 575,
+      "gpu2_starts_after_gpu1_ends": 575,
+      "gpu2_to_gpu1_rps_median": 2.2973103999672784,
+      "gpu2_to_gpu1_rps_p90": 2.985846541260879,
+      "gpu2_to_gpu1_rps_above_two": 523,
+      "gpu1_cpu_seconds_over_wall_median": 1.006615642817183,
+      "gpu1_compute_seconds_over_wall_median": 0.509545036990863,
+      "gpu1_load_seconds_over_wall_median": 0.33139311421183815
+    },
+    {
+      "campaign": "khu-hf-local-novel-matrix",
+      "pairs": 18,
+      "gpu2_examples_exactly_double": 18,
+      "gpu2_starts_after_gpu1_ends": 18,
+      "gpu2_to_gpu1_rps_median": 2.2994737160132925,
+      "gpu2_to_gpu1_rps_p90": 2.7603022651103823,
+      "gpu2_to_gpu1_rps_above_two": 18,
+      "gpu1_cpu_seconds_over_wall_median": 1.0042998041980828,
+      "gpu1_compute_seconds_over_wall_median": 0.47425304149593844,
+      "gpu1_load_seconds_over_wall_median": 0.2826083833247902
+    },
+    {
+      "campaign": "khu-hf-local-space-filling",
+      "pairs": 44,
+      "gpu2_examples_exactly_double": 44,
+      "gpu2_starts_after_gpu1_ends": 44,
+      "gpu2_to_gpu1_rps_median": 2.1492661808301734,
+      "gpu2_to_gpu1_rps_p90": 2.9694310305208655,
+      "gpu2_to_gpu1_rps_above_two": 42,
+      "gpu1_cpu_seconds_over_wall_median": 1.0076438460993047,
+      "gpu1_compute_seconds_over_wall_median": 0.4839896989565694,
+      "gpu1_load_seconds_over_wall_median": 0.2831478004812979
+    }
+  ],
+  "prediction_summary": [
+    {
+      "split": "model_holdout",
+      "campaign": "khu-hf-local-exhaustive",
+      "models": 9,
+      "pairs": 575,
+      "macro": {
+        "ideal_two_mae": 0.1723715669403882,
+        "capped_oracle_lower_bound": 0.16987551717425284,
+        "above_two": 0.9095017636684304,
+        "baseline_mae": 0.11199578097272256,
+        "no_count_mae": 0.0960565277832372,
+        "telemetry_mae": 0.09756392714099481
+      }
+    },
+    {
+      "split": "model_holdout",
+      "campaign": "khu-hf-local-novel-matrix",
+      "models": 9,
+      "pairs": 18,
+      "macro": {
+        "ideal_two_mae": 0.14845753384603577,
+        "capped_oracle_lower_bound": 0.14845753384603577,
+        "above_two": 1.0,
+        "baseline_mae": 0.11926275293346089,
+        "no_count_mae": 0.11516030673120424,
+        "telemetry_mae": 0.11131879499718164
+      }
+    },
+    {
+      "split": "model_holdout",
+      "campaign": "khu-hf-local-space-filling",
+      "models": 9,
+      "pairs": 44,
+      "macro": {
+        "ideal_two_mae": 0.169710462164491,
+        "capped_oracle_lower_bound": 0.16850697880637985,
+        "above_two": 0.9500000000000001,
+        "baseline_mae": 0.17074654810146178,
+        "no_count_mae": 0.12512216350369507,
+        "telemetry_mae": 0.12289293790393778
+      }
+    },
+    {
+      "split": "bert4_holdout",
+      "campaign": "khu-hf-local-exhaustive",
+      "models": 4,
+      "pairs": 256,
+      "macro": {
+        "ideal_two_mae": 0.16078586231787004,
+        "capped_oracle_lower_bound": 0.1559394454155084,
+        "above_two": 0.8515625,
+        "baseline_mae": 0.09517894068458828,
+        "no_count_mae": 0.09591417177518907,
+        "telemetry_mae": 0.09466714332041204
+      }
+    },
+    {
+      "split": "bert4_holdout",
+      "campaign": "khu-hf-local-novel-matrix",
+      "models": 4,
+      "pairs": 8,
+      "macro": {
+        "ideal_two_mae": 0.11820300862823374,
+        "capped_oracle_lower_bound": 0.11820300862823374,
+        "above_two": 1.0,
+        "baseline_mae": 0.08776709333398197,
+        "no_count_mae": 0.08887223268596484,
+        "telemetry_mae": 0.09862937587797915
+      }
+    },
+    {
+      "split": "bert4_holdout",
+      "campaign": "khu-hf-local-space-filling",
+      "models": 4,
+      "pairs": 20,
+      "macro": {
+        "ideal_two_mae": 0.15108401142380878,
+        "capped_oracle_lower_bound": 0.14897065705361096,
+        "above_two": 0.95,
+        "baseline_mae": 0.11554076050345854,
+        "no_count_mae": 0.10846386903813685,
+        "telemetry_mae": 0.10503155674789985
+      }
+    },
+    {
+      "split": "bert5_holdout",
+      "campaign": "khu-hf-local-exhaustive",
+      "models": 5,
+      "pairs": 320,
+      "macro": {
+        "ideal_two_mae": 0.15283546600455128,
+        "capped_oracle_lower_bound": 0.14895833248266194,
+        "above_two": 0.88125,
+        "baseline_mae": 0.10004371228714617,
+        "no_count_mae": 0.09758381790369933,
+        "telemetry_mae": 0.09598350196178704
+      }
+    },
+    {
+      "split": "bert5_holdout",
+      "campaign": "khu-hf-local-novel-matrix",
+      "models": 5,
+      "pairs": 10,
+      "macro": {
+        "ideal_two_mae": 0.12907965797851237,
+        "capped_oracle_lower_bound": 0.12907965797851237,
+        "above_two": 1.0,
+        "baseline_mae": 0.12202091252160056,
+        "no_count_mae": 0.12670687187668678,
+        "telemetry_mae": 0.12456069127659797
+      }
+    },
+    {
+      "split": "bert5_holdout",
+      "campaign": "khu-hf-local-space-filling",
+      "models": 5,
+      "pairs": 25,
+      "macro": {
+        "ideal_two_mae": 0.13921239762682472,
+        "capped_oracle_lower_bound": 0.13752171413066644,
+        "above_two": 0.96,
+        "baseline_mae": 0.15150193817190066,
+        "no_count_mae": 0.13400010783572452,
+        "telemetry_mae": 0.12844513502268362
+      }
+    }
+  ]
+}

@@ -1,0 +1,1918 @@
+{
+  "baseline_to_retain_if_gate_fails": "empirical",
+  "by_cohort": {
+    "first_seen_before_fit_end": {
+      "metrics": {
+        "empirical": {
+          "brier": 0.2354922724932681,
+          "log_loss": 0.663789006597114,
+          "observed_rate": 0.3671586715867159,
+          "predicted_mean": 0.4186367619412098
+        },
+        "poisson120": {
+          "brier": 0.4655650278420349,
+          "log_loss": 4.5113458742710675,
+          "observed_rate": 0.3671586715867159,
+          "predicted_mean": 0.7972912675766717
+        },
+        "poisson30": {
+          "brier": 0.4975283397662983,
+          "log_loss": 4.480501209892999,
+          "observed_rate": 0.3671586715867159,
+          "predicted_mean": 0.8666095391465537
+        },
+        "poisson_selected": {
+          "brier": 0.4655650278420349,
+          "log_loss": 4.5113458742710675,
+          "observed_rate": 0.3671586715867159,
+          "predicted_mean": 0.7972912675766717
+        },
+        "selected_model": {
+          "brier": 0.2261009737887191,
+          "log_loss": 0.6439905881617434,
+          "observed_rate": 0.3671586715867159,
+          "predicted_mean": 0.43441648909091474
+        }
+      },
+      "negative": 343,
+      "positive": 199,
+      "reportable": true,
+      "rows": 542
+    },
+    "first_seen_since_fit_end": {
+      "metrics": {
+        "empirical": {
+          "brier": 0.19899490317082735,
+          "log_loss": 0.5884241158157758,
+          "observed_rate": 0.25412541254125415,
+          "predicted_mean": 0.3540626273236252
+        },
+        "poisson120": {
+          "brier": 0.4249610248760958,
+          "log_loss": 2.9508060310644306,
+          "observed_rate": 0.25412541254125415,
+          "predicted_mean": 0.6556037034182558
+        },
+        "poisson30": {
+          "brier": 0.5193482543309763,
+          "log_loss": 3.522262419496807,
+          "observed_rate": 0.25412541254125415,
+          "predicted_mean": 0.7837735393634089
+        },
+        "poisson_selected": {
+          "brier": 0.4249610248760958,
+          "log_loss": 2.9508060310644306,
+          "observed_rate": 0.25412541254125415,
+          "predicted_mean": 0.6556037034182558
+        },
+        "selected_model": {
+          "brier": 0.19297543433447747,
+          "log_loss": 0.5718523296918752,
+          "observed_rate": 0.25412541254125415,
+          "predicted_mean": 0.316813371290628
+        }
+      },
+      "negative": 226,
+      "positive": 77,
+      "reportable": true,
+      "rows": 303
+    },
+    "future_global_observed": {
+      "metrics": {
+        "empirical": {
+          "brier": 0.2633384922141862,
+          "log_loss": 0.7206212362200973,
+          "observed_rate": 0.5277246653919694,
+          "predicted_mean": 0.3976243994733894
+        },
+        "poisson120": {
+          "brier": 0.3247374931549683,
+          "log_loss": 2.4820777127563036,
+          "observed_rate": 0.5277246653919694,
+          "predicted_mean": 0.7408357411022113
+        },
+        "poisson30": {
+          "brier": 0.352268402043003,
+          "log_loss": 2.78941504941548,
+          "observed_rate": 0.5277246653919694,
+          "predicted_mean": 0.8343326864597469
+        },
+        "poisson_selected": {
+          "brier": 0.3247374931549683,
+          "log_loss": 2.4820777127563036,
+          "observed_rate": 0.5277246653919694,
+          "predicted_mean": 0.7408357411022113
+        },
+        "selected_model": {
+          "brier": 0.25231439291280466,
+          "log_loss": 0.7005141384170612,
+          "observed_rate": 0.5277246653919694,
+          "predicted_mean": 0.405606942143466
+        }
+      },
+      "negative": 247,
+      "positive": 276,
+      "reportable": true,
+      "rows": 523
+    },
+    "future_global_zero": {
+      "metrics": {
+        "empirical": {
+          "brier": 0.15591998734190246,
+          "log_loss": 0.5005628637413198,
+          "observed_rate": 0.0,
+          "predicted_mean": 0.3920016774118369
+        },
+        "poisson120": {
+          "brier": 0.6560923189682968,
+          "log_loss": 6.33887281831023,
+          "observed_rate": 0.0,
+          "predicted_mean": 0.7556605483410901
+        },
+        "poisson30": {
+          "brier": 0.7539953631898414,
+          "log_loss": 6.325506515606341,
+          "observed_rate": 0.0,
+          "predicted_mean": 0.8410862038077557
+        },
+        "poisson_selected": {
+          "brier": 0.6560923189682968,
+          "log_loss": 6.33887281831023,
+          "observed_rate": 0.0,
+          "predicted_mean": 0.7556605483410901
+        },
+        "selected_model": {
+          "brier": 0.15235359286781242,
+          "log_loss": 0.48430205058440995,
+          "observed_rate": 0.0,
+          "predicted_mean": 0.37054583182392337
+        }
+      },
+      "negative": 322,
+      "positive": 0,
+      "reportable": true,
+      "rows": 322
+    },
+    "has_fit_eligible_episode": {
+      "metrics": {
+        "empirical": {
+          "brier": 0.23527092069284622,
+          "log_loss": 0.6633366681254197,
+          "observed_rate": 0.36617100371747213,
+          "predicted_mean": 0.41890301031041344
+        },
+        "poisson120": {
+          "brier": 0.46628717920939317,
+          "log_loss": 4.537867518191754,
+          "observed_rate": 0.36617100371747213,
+          "predicted_mean": 0.7999998607465835
+        },
+        "poisson30": {
+          "brier": 0.4979963036716834,
+          "log_loss": 4.503680788774764,
+          "observed_rate": 0.36617100371747213,
+          "predicted_mean": 0.866703392175444
+        },
+        "poisson_selected": {
+          "brier": 0.46628717920939317,
+          "log_loss": 4.537867518191754,
+          "observed_rate": 0.36617100371747213,
+          "predicted_mean": 0.7999998607465835
+        },
+        "selected_model": {
+          "brier": 0.22694734109216055,
+          "log_loss": 0.6459442850056442,
+          "observed_rate": 0.36617100371747213,
+          "predicted_mean": 0.4349839959868067
+        }
+      },
+      "negative": 341,
+      "positive": 197,
+      "reportable": true,
+      "rows": 538
+    },
+    "other_model_active_previous10m": {
+      "metrics": {
+        "empirical": {
+          "brier": 0.21341764809716915,
+          "log_loss": 0.6185655393402626,
+          "observed_rate": 0.2782258064516129,
+          "predicted_mean": 0.3956297631058246
+        },
+        "poisson120": {
+          "brier": 0.43348758337434506,
+          "log_loss": 3.404927266005627,
+          "observed_rate": 0.2782258064516129,
+          "predicted_mean": 0.684460366542966
+        },
+        "poisson30": {
+          "brier": 0.5034515417053914,
+          "log_loss": 3.656273027562138,
+          "observed_rate": 0.2782258064516129,
+          "predicted_mean": 0.793620611444055
+        },
+        "poisson_selected": {
+          "brier": 0.43348758337434506,
+          "log_loss": 3.404927266005627,
+          "observed_rate": 0.2782258064516129,
+          "predicted_mean": 0.684460366542966
+        },
+        "selected_model": {
+          "brier": 0.20695292880972918,
+          "log_loss": 0.6029647872411327,
+          "observed_rate": 0.2782258064516129,
+          "predicted_mean": 0.37963461188124753
+        }
+      },
+      "negative": 358,
+      "positive": 138,
+      "reportable": true,
+      "rows": 496
+    },
+    "zero_fit_eligible_episodes": {
+      "metrics": {
+        "empirical": {
+          "brier": 0.19985834533993724,
+          "log_loss": 0.5901987661770034,
+          "observed_rate": 0.25732899022801303,
+          "predicted_mean": 0.35443739903645505
+        },
+        "poisson120": {
+          "brier": 0.42422453815370176,
+          "log_loss": 2.924661128600253,
+          "observed_rate": 0.25732899022801303,
+          "predicted_mean": 0.652703140327771
+        },
+        "poisson30": {
+          "brier": 0.5182438757011525,
+          "log_loss": 3.4941267247840875,
+          "observed_rate": 0.25732899022801303,
+          "predicted_mean": 0.7846883636943195
+        },
+        "poisson_selected": {
+          "brier": 0.42422453815370176,
+          "log_loss": 2.924661128600253,
+          "observed_rate": 0.25732899022801303,
+          "predicted_mean": 0.652703140327771
+        },
+        "selected_model": {
+          "brier": 0.19192382700081448,
+          "log_loss": 0.5693684995024966,
+          "observed_rate": 0.25732899022801303,
+          "predicted_mean": 0.3173511359851272
+        }
+      },
+      "negative": 228,
+      "positive": 79,
+      "reportable": true,
+      "rows": 307
+    }
+  },
+  "by_model_alias": {
+    "05c4249eab": {
+      "brier": {
+        "empirical": 0.14306511902223437,
+        "poisson120": 0.5090754049035185,
+        "poisson30": 0.9865695059315915,
+        "poisson_selected": 0.5090754049035185,
+        "selected_model": 0.03151319419511851
+      },
+      "positive": 0,
+      "rows": 1
+    },
+    "06992c5fb7": {
+      "brier": {
+        "empirical": 0.14306511902223437,
+        "poisson120": 0.15481812174617549,
+        "poisson30": 0.7476450724155088,
+        "poisson_selected": 0.15481812174617549,
+        "selected_model": 0.08025086850512102
+      },
+      "positive": 0,
+      "rows": 1
+    },
+    "08a20b291e": {
+      "brier": {
+        "empirical": 0.1282390650934324,
+        "poisson120": 1.0,
+        "poisson30": 1.0,
+        "poisson_selected": 1.0,
+        "selected_model": 0.14857396669203857
+      },
+      "positive": 0,
+      "rows": 1
+    },
+    "0a688ddece": {
+      "brier": {
+        "empirical": 0.14306511902223437,
+        "poisson120": 0.7476450724155088,
+        "poisson30": 0.9993291872793697,
+        "poisson_selected": 0.7476450724155088,
+        "selected_model": 0.016319573911546825
+      },
+      "positive": 0,
+      "rows": 1
+    },
+    "0e7b0e8855": {
+      "brier": {
+        "empirical": 0.14306511902223437,
+        "poisson120": 0.6315645283494579,
+        "poisson30": 0.9964509474523363,
+        "poisson_selected": 0.6315645283494579,
+        "selected_model": 0.020590065539563957
+      },
+      "positive": 0,
+      "rows": 1
+    },
+    "1a67e1afa7": {
+      "brier": {
+        "empirical": 0.30599707985927105,
+        "poisson120": 0.4396415179944125,
+        "poisson30": 0.3302345685174914,
+        "poisson_selected": 0.4396415179944125,
+        "selected_model": 0.1450710493053589
+      },
+      "positive": 2,
+      "rows": 3
+    },
+    "1b1ae70697": {
+      "brier": {
+        "empirical": 0.14024617098542727,
+        "poisson120": 0.04892909356982368,
+        "poisson30": 0.39957640089372803,
+        "poisson_selected": 0.04892909356982368,
+        "selected_model": 0.011808475100226474
+      },
+      "positive": 0,
+      "rows": 1
+    },
+    "1f1f3f39f7": {
+      "brier": {
+        "empirical": 0.25202102655832975,
+        "poisson120": 0.3127302482632876,
+        "poisson30": 0.48686870900405027,
+        "poisson_selected": 0.3127302482632876,
+        "selected_model": 0.2907611236335622
+      },
+      "positive": 3,
+      "rows": 7
+    },
+    "226276a6da": {
+      "brier": {
+        "empirical": 0.14306511902223437,
+        "poisson120": 1.0,
+        "poisson30": 1.0,
+        "poisson_selected": 1.0,
+        "selected_model": 0.02951281180597267
+      },
+      "positive": 0,
+      "rows": 1
+    },
+    "24574482cd": {
+      "brier": {
+        "empirical": 0.14306511902223437,
+        "poisson120": 0.04892909356982368,
+        "poisson30": 0.39957640089372803,
+        "poisson_selected": 0.04892909356982368,
+        "selected_model": 0.10102718742946473
+      },
+      "positive": 0,
+      "rows": 1
+    },
+    "27af7c76b6": {
+      "brier": {
+        "empirical": 0.20323472585766322,
+        "poisson120": 0.3697781874650655,
+        "poisson30": 0.5980381081971089,
+        "poisson_selected": 0.3697781874650655,
+        "selected_model": 0.23008758972462853
+      },
+      "positive": 1,
+      "rows": 4
+    },
+    "28d0412d08": {
+      "brier": {
+        "empirical": 0.14306511902223437,
+        "poisson120": 1.0,
+        "poisson30": 1.0,
+        "poisson_selected": 1.0,
+        "selected_model": 0.03060313893054568
+      },
+      "positive": 0,
+      "rows": 1
+    },
+    "37268335dd": {
+      "brier": {
+        "empirical": 0.14306511902223437,
+        "poisson120": 0.006392895631967578,
+        "poisson30": 0.08035449788501352,
+        "poisson_selected": 0.006392895631967578,
+        "selected_model": 0.19768089663427824
+      },
+      "positive": 0,
+      "rows": 1
+    },
+    "39aa661548": {
+      "brier": {
+        "empirical": 0.14165564500383082,
+        "poisson120": 0.09823572299560213,
+        "poisson30": 0.6001059813317384,
+        "poisson_selected": 0.09823572299560213,
+        "selected_model": 0.1953459062925348
+      },
+      "positive": 0,
+      "rows": 2
+    },
+    "3fc8f4de3b": {
+      "brier": {
+        "empirical": 0.1453242701037485,
+        "poisson120": 0.35254574014038154,
+        "poisson30": 0.743429141592868,
+        "poisson_selected": 0.35254574014038154,
+        "selected_model": 0.10732359235856924
+      },
+      "positive": 1,
+      "rows": 7
+    },
+    "45363f1dab": {
+      "brier": {
+        "empirical": 0.24307958661026843,
+        "poisson120": 0.43798519881386166,
+        "poisson30": 0.4534283877410916,
+        "poisson_selected": 0.43798519881386166,
+        "selected_model": 0.23233834720241678
+      },
+      "positive": 97,
+      "rows": 235
+    },
+    "487b91042c": {
+      "brier": {
+        "empirical": 0.14306511902223437,
+        "poisson120": 0.2783970546664004,
+        "poisson30": 0.9029046154409385,
+        "poisson_selected": 0.2783970546664004,
+        "selected_model": 0.10223159803203449
+      },
+      "positive": 0,
+      "rows": 1
+    },
+    "4ae42ccdfe": {
+      "brier": {
+        "empirical": 0.13485259593009177,
+        "poisson120": 0.11611694810619075,
+        "poisson30": 0.6579227876721289,
+        "poisson_selected": 0.11611694810619075,
+        "selected_model": 0.021708759946234953
+      },
+      "positive": 0,
+      "rows": 1
+    },
+    "4ebf812061": {
+      "brier": {
+        "empirical": 0.21031713998310783,
+        "poisson120": 0.6901956527769239,
+        "poisson30": 0.6028512731133575,
+        "poisson_selected": 0.6901956527769239,
+        "selected_model": 0.25489860222858435
+      },
+      "positive": 3,
+      "rows": 11
+    },
+    "53873194a2": {
+      "brier": {
+        "empirical": 0.14487688294242385,
+        "poisson120": 0.9999999999722242,
+        "poisson30": 1.0,
+        "poisson_selected": 0.9999999999722242,
+        "selected_model": 0.1427262492816807
+      },
+      "positive": 0,
+      "rows": 1
+    },
+    "554181f69f": {
+      "brier": {
+        "empirical": 0.14306511902223437,
+        "poisson120": 0.15481812174617549,
+        "poisson30": 0.7476450724155088,
+        "poisson_selected": 0.15481812174617549,
+        "selected_model": 0.0758882143899524
+      },
+      "positive": 0,
+      "rows": 1
+    },
+    "55daabb935": {
+      "brier": {
+        "empirical": 0.14024617098542727,
+        "poisson120": 0.023567860792561103,
+        "poisson30": 0.23676290005054268,
+        "poisson_selected": 0.023567860792561103,
+        "selected_model": 0.029188856528091913
+      },
+      "positive": 0,
+      "rows": 1
+    },
+    "6d43060e8b": {
+      "brier": {
+        "empirical": 0.14306511902223437,
+        "poisson120": 1.0,
+        "poisson30": 1.0,
+        "poisson_selected": 1.0,
+        "selected_model": 0.032123070820146614
+      },
+      "positive": 0,
+      "rows": 1
+    },
+    "8350238b15": {
+      "brier": {
+        "empirical": 0.2248561176556683,
+        "poisson120": 0.22891379993400532,
+        "poisson30": 0.4017650116316027,
+        "poisson_selected": 0.22891379993400532,
+        "selected_model": 0.22337169403479273
+      },
+      "positive": 1,
+      "rows": 3
+    },
+    "83a2a07f0f": {
+      "brier": {
+        "empirical": 0.14306511902223437,
+        "poisson120": 0.23676290005054268,
+        "poisson30": 0.8658610475482283,
+        "poisson_selected": 0.23676290005054268,
+        "selected_model": 0.08851891429471079
+      },
+      "positive": 0,
+      "rows": 1
+    },
+    "8cf5adca4b": {
+      "brier": {
+        "empirical": 0.21322406112557368,
+        "poisson120": 0.4394326796682503,
+        "poisson30": 0.47809632112466666,
+        "poisson_selected": 0.4394326796682503,
+        "selected_model": 0.21656440766585972
+      },
+      "positive": 49,
+      "rows": 164
+    },
+    "8e47676e31": {
+      "brier": {
+        "empirical": 0.12311819179865387,
+        "poisson120": 0.15481812174617549,
+        "poisson30": 0.7476450724155088,
+        "poisson_selected": 0.15481812174617549,
+        "selected_model": 0.017630177690139307
+      },
+      "positive": 0,
+      "rows": 2
+    },
+    "99668f5da8": {
+      "brier": {
+        "empirical": 0.235883091158541,
+        "poisson120": 0.4881811886821128,
+        "poisson30": 0.5125213652686829,
+        "poisson_selected": 0.4881811886821128,
+        "selected_model": 0.228668211514359
+      },
+      "positive": 92,
+      "rows": 264
+    },
+    "99921afa0f": {
+      "brier": {
+        "empirical": 0.14306511902223437,
+        "poisson120": 0.3601804373899992,
+        "poisson30": 0.9495303255668525,
+        "poisson_selected": 0.3601804373899992,
+        "selected_model": 0.07379633817286366
+      },
+      "positive": 0,
+      "rows": 1
+    },
+    "9b3654a6ac": {
+      "brier": {
+        "empirical": 0.14306511902223437,
+        "poisson120": 0.006392895631967578,
+        "poisson30": 0.08035449788501352,
+        "poisson_selected": 0.006392895631967578,
+        "selected_model": 0.18311401145509026
+      },
+      "positive": 0,
+      "rows": 1
+    },
+    "a82fd54762": {
+      "brier": {
+        "empirical": 0.12047619644209888,
+        "poisson120": 0.5271506650729884,
+        "poisson30": 0.8945998742495345,
+        "poisson_selected": 0.5271506650729884,
+        "selected_model": 0.04901743814093581
+      },
+      "positive": 0,
+      "rows": 6
+    },
+    "ac8584a01e": {
+      "brier": {
+        "empirical": 0.14306511902223437,
+        "poisson120": 0.15481812174617549,
+        "poisson30": 0.7476450724155088,
+        "poisson_selected": 0.15481812174617549,
+        "selected_model": 0.0692742009305914
+      },
+      "positive": 0,
+      "rows": 1
+    },
+    "b65a1b099f": {
+      "brier": {
+        "empirical": 0.2500712456894128,
+        "poisson120": 0.24117231195236627,
+        "poisson30": 0.44074620953969157,
+        "poisson_selected": 0.24117231195236627,
+        "selected_model": 0.2746747699227244
+      },
+      "positive": 3,
+      "rows": 7
+    },
+    "c3ea901cc1": {
+      "brier": {
+        "empirical": 0.14306511902223437,
+        "poisson120": 1.0,
+        "poisson30": 1.0,
+        "poisson_selected": 1.0,
+        "selected_model": 0.037524405971301716
+      },
+      "positive": 0,
+      "rows": 1
+    },
+    "c4c663e69f": {
+      "brier": {
+        "empirical": 0.14306511902223437,
+        "poisson120": 1.0,
+        "poisson30": 1.0,
+        "poisson_selected": 1.0,
+        "selected_model": 0.02698827397674467
+      },
+      "positive": 0,
+      "rows": 1
+    },
+    "ce8041ab45": {
+      "brier": {
+        "empirical": 0.14306511902223437,
+        "poisson120": 1.0,
+        "poisson30": 1.0,
+        "poisson_selected": 1.0,
+        "selected_model": 0.04648451780202502
+      },
+      "positive": 0,
+      "rows": 1
+    },
+    "e04d956d48": {
+      "brier": {
+        "empirical": 0.18712975537579368,
+        "poisson120": 0.4195347200732854,
+        "poisson30": 0.5262217680607802,
+        "poisson_selected": 0.4195347200732854,
+        "selected_model": 0.1795848281739477
+      },
+      "positive": 24,
+      "rows": 102
+    },
+    "e3814f050e": {
+      "brier": {
+        "empirical": 0.14165564500383082,
+        "poisson120": 0.5762388667318397,
+        "poisson30": 0.8738225362058749,
+        "poisson_selected": 0.5762388667318397,
+        "selected_model": 0.08238124738201111
+      },
+      "positive": 0,
+      "rows": 2
+    },
+    "ea528b0af2": {
+      "brier": {
+        "empirical": 0.14306511902223437,
+        "poisson120": 0.15481812174617549,
+        "poisson30": 0.7476450724155088,
+        "poisson_selected": 0.15481812174617549,
+        "selected_model": 0.01384513798728735
+      },
+      "positive": 0,
+      "rows": 1
+    },
+    "f0039c47cc": {
+      "brier": {
+        "empirical": 0.14306511902223437,
+        "poisson120": 0.2783970546664004,
+        "poisson30": 0.9029046154409385,
+        "poisson_selected": 0.2783970546664004,
+        "selected_model": 0.09500296921484587
+      },
+      "positive": 0,
+      "rows": 1
+    },
+    "f4f104892b": {
+      "brier": {
+        "empirical": 0.14306511902223437,
+        "poisson120": 0.2783970546664004,
+        "poisson30": 0.9029046154409385,
+        "poisson_selected": 0.2783970546664004,
+        "selected_model": 0.08615502957018498
+      },
+      "positive": 0,
+      "rows": 1
+    }
+  },
+  "by_week": {
+    "0": {
+      "by_model_alias": {
+        "3fc8f4de3b": {
+          "brier": {
+            "empirical": 0.08667500128986402,
+            "poisson120": 0.21660758820628795,
+            "poisson30": 0.8252748439282236,
+            "poisson_selected": 0.21660758820628795,
+            "selected_model": 0.02931542253502982
+          },
+          "positive": 0,
+          "rows": 2
+        },
+        "45363f1dab": {
+          "brier": {
+            "empirical": 0.23409564857114815,
+            "poisson120": 0.5504188789834067,
+            "poisson30": 0.5725667321196214,
+            "poisson_selected": 0.5504188789834067,
+            "selected_model": 0.2317963524983321
+          },
+          "positive": 17,
+          "rows": 48
+        },
+        "554181f69f": {
+          "brier": {
+            "empirical": 0.14306511902223437,
+            "poisson120": 0.15481812174617549,
+            "poisson30": 0.7476450724155088,
+            "poisson_selected": 0.15481812174617549,
+            "selected_model": 0.0758882143899524
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "99668f5da8": {
+          "brier": {
+            "empirical": 0.206169171991816,
+            "poisson120": 0.8018535039926071,
+            "poisson30": 0.7965885693632648,
+            "poisson_selected": 0.8018535039926071,
+            "selected_model": 0.1924915250975624
+          },
+          "positive": 1,
+          "rows": 16
+        },
+        "a82fd54762": {
+          "brier": {
+            "empirical": 0.12407246901450995,
+            "poisson120": 0.9999925467075438,
+            "poisson30": 1.0,
+            "poisson_selected": 0.9999925467075438,
+            "selected_model": 0.12421709781368404
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "c3ea901cc1": {
+          "brier": {
+            "empirical": 0.14306511902223437,
+            "poisson120": 1.0,
+            "poisson30": 1.0,
+            "poisson_selected": 1.0,
+            "selected_model": 0.037524405971301716
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "e04d956d48": {
+          "brier": {
+            "empirical": 0.1995975539781709,
+            "poisson120": 0.4387031682572459,
+            "poisson30": 0.5893940723120694,
+            "poisson_selected": 0.4387031682572459,
+            "selected_model": 0.18609689654410924
+          },
+          "positive": 14,
+          "rows": 53
+        },
+        "f4f104892b": {
+          "brier": {
+            "empirical": 0.14306511902223437,
+            "poisson120": 0.2783970546664004,
+            "poisson30": 0.9029046154409385,
+            "poisson_selected": 0.2783970546664004,
+            "selected_model": 0.08615502957018498
+          },
+          "positive": 0,
+          "rows": 1
+        }
+      },
+      "metrics": {
+        "empirical": {
+          "brier": 0.21008606563242413,
+          "log_loss": 0.6115730810016263,
+          "observed_rate": 0.2601626016260163,
+          "predicted_mean": 0.3768094287311903
+        },
+        "poisson120": {
+          "brier": 0.5314427079044874,
+          "log_loss": 4.714627176067814,
+          "observed_rate": 0.2601626016260163,
+          "predicted_mean": 0.7954069982379512
+        },
+        "poisson30": {
+          "brier": 0.6241268736569646,
+          "log_loss": 5.278554200017623,
+          "observed_rate": 0.2601626016260163,
+          "predicted_mean": 0.9000914847701504
+        },
+        "poisson_selected": {
+          "brier": 0.5314427079044874,
+          "log_loss": 4.714627176067814,
+          "observed_rate": 0.2601626016260163,
+          "predicted_mean": 0.7954069982379512
+        },
+        "selected_model": {
+          "brier": 0.19879382464336515,
+          "log_loss": 0.5819271353080828,
+          "observed_rate": 0.2601626016260163,
+          "predicted_mean": 0.3559548545635991
+        }
+      },
+      "models": 8,
+      "paired_brier_delta_vs_baseline": {
+        "empirical": -0.011292240989058983,
+        "poisson_selected": -0.3326488832611223
+      },
+      "positive": 32,
+      "rows": 123
+    },
+    "1": {
+      "by_model_alias": {
+        "05c4249eab": {
+          "brier": {
+            "empirical": 0.14306511902223437,
+            "poisson120": 0.5090754049035185,
+            "poisson30": 0.9865695059315915,
+            "poisson_selected": 0.5090754049035185,
+            "selected_model": 0.03151319419511851
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "0a688ddece": {
+          "brier": {
+            "empirical": 0.14306511902223437,
+            "poisson120": 0.7476450724155088,
+            "poisson30": 0.9993291872793697,
+            "poisson_selected": 0.7476450724155088,
+            "selected_model": 0.016319573911546825
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "1b1ae70697": {
+          "brier": {
+            "empirical": 0.14024617098542727,
+            "poisson120": 0.04892909356982368,
+            "poisson30": 0.39957640089372803,
+            "poisson_selected": 0.04892909356982368,
+            "selected_model": 0.011808475100226474
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "27af7c76b6": {
+          "brier": {
+            "empirical": 0.26575161697238525,
+            "poisson120": 0.4133284541097171,
+            "poisson30": 0.4987636960178435,
+            "poisson_selected": 0.4133284541097171,
+            "selected_model": 0.42244788623286283
+          },
+          "positive": 1,
+          "rows": 2
+        },
+        "3fc8f4de3b": {
+          "brier": {
+            "empirical": 0.08528820485011324,
+            "poisson120": 0.3455806414945268,
+            "poisson30": 0.8511514344324619,
+            "poisson_selected": 0.3455806414945268,
+            "selected_model": 0.043123802528635014
+          },
+          "positive": 0,
+          "rows": 3
+        },
+        "45363f1dab": {
+          "brier": {
+            "empirical": 0.2061670417100716,
+            "poisson120": 0.555406497888358,
+            "poisson30": 0.5560571883541185,
+            "poisson_selected": 0.555406497888358,
+            "selected_model": 0.22266785770873151
+          },
+          "positive": 7,
+          "rows": 34
+        },
+        "487b91042c": {
+          "brier": {
+            "empirical": 0.14306511902223437,
+            "poisson120": 0.2783970546664004,
+            "poisson30": 0.9029046154409385,
+            "poisson_selected": 0.2783970546664004,
+            "selected_model": 0.10223159803203449
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "4ebf812061": {
+          "brier": {
+            "empirical": 0.23628532292843576,
+            "poisson120": 0.5754408435088756,
+            "poisson30": 0.4539205007954244,
+            "poisson_selected": 0.5754408435088756,
+            "selected_model": 0.248235971315244
+          },
+          "positive": 3,
+          "rows": 8
+        },
+        "53873194a2": {
+          "brier": {
+            "empirical": 0.14487688294242385,
+            "poisson120": 0.9999999999722242,
+            "poisson30": 1.0,
+            "poisson_selected": 0.9999999999722242,
+            "selected_model": 0.1427262492816807
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "8cf5adca4b": {
+          "brier": {
+            "empirical": 0.2654605187778182,
+            "poisson120": 0.36134354655508316,
+            "poisson30": 0.4224085426984523,
+            "poisson_selected": 0.36134354655508316,
+            "selected_model": 0.2789372854870586
+          },
+          "positive": 20,
+          "rows": 39
+        },
+        "8e47676e31": {
+          "brier": {
+            "empirical": 0.12420291252593096,
+            "poisson120": 0.15481812174617549,
+            "poisson30": 0.7476450724155088,
+            "poisson_selected": 0.15481812174617549,
+            "selected_model": 0.01682338265748582
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "99668f5da8": {
+          "brier": {
+            "empirical": 0.2459220027071967,
+            "poisson120": 0.43929030983691825,
+            "poisson30": 0.4688857516157884,
+            "poisson_selected": 0.43929030983691825,
+            "selected_model": 0.23682833382618307
+          },
+          "positive": 43,
+          "rows": 99
+        },
+        "a82fd54762": {
+          "brier": {
+            "empirical": 0.12187651541033506,
+            "poisson120": 0.5477753907256661,
+            "poisson30": 0.8946922008023819,
+            "poisson_selected": 0.5477753907256661,
+            "selected_model": 0.036080283896155106
+          },
+          "positive": 0,
+          "rows": 2
+        },
+        "e04d956d48": {
+          "brier": {
+            "empirical": 0.18319809027250722,
+            "poisson120": 0.42322940981193563,
+            "poisson30": 0.4513438868959856,
+            "poisson_selected": 0.42322940981193563,
+            "selected_model": 0.18329378511649652
+          },
+          "positive": 10,
+          "rows": 44
+        },
+        "ea528b0af2": {
+          "brier": {
+            "empirical": 0.14306511902223437,
+            "poisson120": 0.15481812174617549,
+            "poisson30": 0.7476450724155088,
+            "poisson_selected": 0.15481812174617549,
+            "selected_model": 0.01384513798728735
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "f0039c47cc": {
+          "brier": {
+            "empirical": 0.14306511902223437,
+            "poisson120": 0.2783970546664004,
+            "poisson30": 0.9029046154409385,
+            "poisson_selected": 0.2783970546664004,
+            "selected_model": 0.09500296921484587
+          },
+          "positive": 0,
+          "rows": 1
+        }
+      },
+      "metrics": {
+        "empirical": {
+          "brier": 0.2251702465053906,
+          "log_loss": 0.6421477884694584,
+          "observed_rate": 0.3514644351464435,
+          "predicted_mean": 0.39817433666338403
+        },
+        "poisson120": {
+          "brier": 0.44277242776294584,
+          "log_loss": 3.8937033056409533,
+          "observed_rate": 0.3514644351464435,
+          "predicted_mean": 0.755543138803386
+        },
+        "poisson30": {
+          "brier": 0.4908661195639536,
+          "log_loss": 3.91970383170005,
+          "observed_rate": 0.3514644351464435,
+          "predicted_mean": 0.8387027810667812
+        },
+        "poisson_selected": {
+          "brier": 0.44277242776294584,
+          "log_loss": 3.8937033056409533,
+          "observed_rate": 0.3514644351464435,
+          "predicted_mean": 0.755543138803386
+        },
+        "selected_model": {
+          "brier": 0.2235262719194822,
+          "log_loss": 0.6391901395605599,
+          "observed_rate": 0.3514644351464435,
+          "predicted_mean": 0.39030860200595546
+        }
+      },
+      "models": 16,
+      "paired_brier_delta_vs_baseline": {
+        "empirical": -0.0016439745859083976,
+        "poisson_selected": -0.21924615584346363
+      },
+      "positive": 84,
+      "rows": 239
+    },
+    "2": {
+      "by_model_alias": {
+        "1f1f3f39f7": {
+          "brier": {
+            "empirical": 0.27226172370156043,
+            "poisson120": 0.31667806968783696,
+            "poisson30": 0.46654871181565005,
+            "poisson_selected": 0.31667806968783696,
+            "selected_model": 0.32516749744647283
+          },
+          "positive": 2,
+          "rows": 4
+        },
+        "226276a6da": {
+          "brier": {
+            "empirical": 0.14306511902223437,
+            "poisson120": 1.0,
+            "poisson30": 1.0,
+            "poisson_selected": 1.0,
+            "selected_model": 0.02951281180597267
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "28d0412d08": {
+          "brier": {
+            "empirical": 0.14306511902223437,
+            "poisson120": 1.0,
+            "poisson30": 1.0,
+            "poisson_selected": 1.0,
+            "selected_model": 0.03060313893054568
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "45363f1dab": {
+          "brier": {
+            "empirical": 0.19519636090033826,
+            "poisson120": 0.46132116939377926,
+            "poisson30": 0.5325243525797222,
+            "poisson_selected": 0.46132116939377926,
+            "selected_model": 0.16692463138750466
+          },
+          "positive": 6,
+          "rows": 33
+        },
+        "6d43060e8b": {
+          "brier": {
+            "empirical": 0.14306511902223437,
+            "poisson120": 1.0,
+            "poisson30": 1.0,
+            "poisson_selected": 1.0,
+            "selected_model": 0.032123070820146614
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "8350238b15": {
+          "brier": {
+            "empirical": 0.2248561176556683,
+            "poisson120": 0.22891379993400532,
+            "poisson30": 0.4017650116316027,
+            "poisson_selected": 0.22891379993400532,
+            "selected_model": 0.22337169403479273
+          },
+          "positive": 1,
+          "rows": 3
+        },
+        "8cf5adca4b": {
+          "brier": {
+            "empirical": 0.21065176433909233,
+            "poisson120": 0.46919169326344384,
+            "poisson30": 0.5050482178671698,
+            "poisson_selected": 0.46919169326344384,
+            "selected_model": 0.19766873513876648
+          },
+          "positive": 19,
+          "rows": 72
+        },
+        "99668f5da8": {
+          "brier": {
+            "empirical": 0.23411980388314543,
+            "poisson120": 0.4614710480249616,
+            "poisson30": 0.5128491488640323,
+            "poisson_selected": 0.4614710480249616,
+            "selected_model": 0.21886590158824637
+          },
+          "positive": 32,
+          "rows": 96
+        },
+        "a82fd54762": {
+          "brier": {
+            "empirical": 0.11973207918151099,
+            "poisson120": 0.6315645283494579,
+            "poisson30": 0.9903674091134801,
+            "poisson_selected": 0.6315645283494579,
+            "selected_model": 0.03910652034409608
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "c4c663e69f": {
+          "brier": {
+            "empirical": 0.14306511902223437,
+            "poisson120": 1.0,
+            "poisson30": 1.0,
+            "poisson_selected": 1.0,
+            "selected_model": 0.02698827397674467
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "e04d956d48": {
+          "brier": {
+            "empirical": 0.08994063070835612,
+            "poisson120": 0.22819665062098296,
+            "poisson30": 0.6243122470878799,
+            "poisson_selected": 0.22819665062098296,
+            "selected_model": 0.06299774167305724
+          },
+          "positive": 0,
+          "rows": 4
+        }
+      },
+      "metrics": {
+        "empirical": {
+          "brier": 0.2161257071003912,
+          "log_loss": 0.6243649275889598,
+          "observed_rate": 0.2764976958525346,
+          "predicted_mean": 0.41088579944935455
+        },
+        "poisson120": {
+          "brier": 0.4645365249988283,
+          "log_loss": 3.4604414715931404,
+          "observed_rate": 0.2764976958525346,
+          "predicted_mean": 0.7242273320585648
+        },
+        "poisson30": {
+          "brier": 0.5240986170144541,
+          "log_loss": 3.6896197817295593,
+          "observed_rate": 0.2764976958525346,
+          "predicted_mean": 0.819616693762978
+        },
+        "poisson_selected": {
+          "brier": 0.4645365249988283,
+          "log_loss": 3.4604414715931404,
+          "observed_rate": 0.2764976958525346,
+          "predicted_mean": 0.7242273320585648
+        },
+        "selected_model": {
+          "brier": 0.19876911600327418,
+          "log_loss": 0.5865788359431243,
+          "observed_rate": 0.2764976958525346,
+          "predicted_mean": 0.37441980803480995
+        }
+      },
+      "models": 11,
+      "paired_brier_delta_vs_baseline": {
+        "empirical": -0.017356591097117013,
+        "poisson_selected": -0.2657674089955541
+      },
+      "positive": 60,
+      "rows": 217
+    },
+    "3": {
+      "by_model_alias": {
+        "06992c5fb7": {
+          "brier": {
+            "empirical": 0.14306511902223437,
+            "poisson120": 0.15481812174617549,
+            "poisson30": 0.7476450724155088,
+            "poisson_selected": 0.15481812174617549,
+            "selected_model": 0.08025086850512102
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "08a20b291e": {
+          "brier": {
+            "empirical": 0.1282390650934324,
+            "poisson120": 1.0,
+            "poisson30": 1.0,
+            "poisson_selected": 1.0,
+            "selected_model": 0.14857396669203857
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "1f1f3f39f7": {
+          "brier": {
+            "empirical": 0.22503343036735549,
+            "poisson120": 0.30746648636388857,
+            "poisson30": 0.5139620385885838,
+            "poisson_selected": 0.30746648636388857,
+            "selected_model": 0.24488595854968143
+          },
+          "positive": 1,
+          "rows": 3
+        },
+        "24574482cd": {
+          "brier": {
+            "empirical": 0.14306511902223437,
+            "poisson120": 0.04892909356982368,
+            "poisson30": 0.39957640089372803,
+            "poisson_selected": 0.04892909356982368,
+            "selected_model": 0.10102718742946473
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "27af7c76b6": {
+          "brier": {
+            "empirical": 0.1407178347429412,
+            "poisson120": 0.326227920820414,
+            "poisson30": 0.6973125203763744,
+            "poisson_selected": 0.326227920820414,
+            "selected_model": 0.03772729321639422
+          },
+          "positive": 0,
+          "rows": 2
+        },
+        "37268335dd": {
+          "brier": {
+            "empirical": 0.14306511902223437,
+            "poisson120": 0.006392895631967578,
+            "poisson30": 0.08035449788501352,
+            "poisson_selected": 0.006392895631967578,
+            "selected_model": 0.19768089663427824
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "39aa661548": {
+          "brier": {
+            "empirical": 0.14165564500383082,
+            "poisson120": 0.09823572299560213,
+            "poisson30": 0.6001059813317384,
+            "poisson_selected": 0.09823572299560213,
+            "selected_model": 0.1953459062925348
+          },
+          "positive": 0,
+          "rows": 2
+        },
+        "3fc8f4de3b": {
+          "brier": {
+            "empirical": 0.29402763679808586,
+            "poisson120": 0.4989315400432573,
+            "poisson30": 0.49999999999812134,
+            "poisson_selected": 0.4989315400432573,
+            "selected_model": 0.2816314469270099
+          },
+          "positive": 1,
+          "rows": 2
+        },
+        "45363f1dab": {
+          "brier": {
+            "empirical": 0.24269510417724735,
+            "poisson120": 0.4272137224661543,
+            "poisson30": 0.4416809941324648,
+            "poisson_selected": 0.4272137224661543,
+            "selected_model": 0.2290658272757921
+          },
+          "positive": 25,
+          "rows": 61
+        },
+        "4ae42ccdfe": {
+          "brier": {
+            "empirical": 0.13485259593009177,
+            "poisson120": 0.11611694810619075,
+            "poisson30": 0.6579227876721289,
+            "poisson_selected": 0.11611694810619075,
+            "selected_model": 0.021708759946234953
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "4ebf812061": {
+          "brier": {
+            "empirical": 0.14106865212890018,
+            "poisson120": 0.9962084774917193,
+            "poisson30": 0.9999999992945123,
+            "poisson_selected": 0.9962084774917193,
+            "selected_model": 0.27266561799749206
+          },
+          "positive": 0,
+          "rows": 3
+        },
+        "55daabb935": {
+          "brier": {
+            "empirical": 0.14024617098542727,
+            "poisson120": 0.023567860792561103,
+            "poisson30": 0.23676290005054268,
+            "poisson_selected": 0.023567860792561103,
+            "selected_model": 0.029188856528091913
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "83a2a07f0f": {
+          "brier": {
+            "empirical": 0.14306511902223437,
+            "poisson120": 0.23676290005054268,
+            "poisson30": 0.8658610475482283,
+            "poisson_selected": 0.23676290005054268,
+            "selected_model": 0.08851891429471079
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "8cf5adca4b": {
+          "brier": {
+            "empirical": 0.17447327434827734,
+            "poisson120": 0.5015885490632433,
+            "poisson30": 0.5396505955893524,
+            "poisson_selected": 0.5015885490632433,
+            "selected_model": 0.1888319212473813
+          },
+          "positive": 6,
+          "rows": 35
+        },
+        "8e47676e31": {
+          "brier": {
+            "empirical": 0.12203347107137677,
+            "poisson120": 0.15481812174617549,
+            "poisson30": 0.7476450724155088,
+            "poisson_selected": 0.15481812174617549,
+            "selected_model": 0.018436972722792794
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "99668f5da8": {
+          "brier": {
+            "empirical": 0.2237924798915858,
+            "poisson120": 0.604478821518798,
+            "poisson30": 0.6001412682351716,
+            "poisson_selected": 0.604478821518798,
+            "selected_model": 0.2455565958125129
+          },
+          "positive": 9,
+          "rows": 35
+        },
+        "99921afa0f": {
+          "brier": {
+            "empirical": 0.14306511902223437,
+            "poisson120": 0.3601804373899992,
+            "poisson30": 0.9495303255668525,
+            "poisson_selected": 0.3601804373899992,
+            "selected_model": 0.07379633817286366
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "a82fd54762": {
+          "brier": {
+            "empirical": 0.11833579865071878,
+            "poisson120": 0.11611694810619075,
+            "poisson30": 0.6579227876721289,
+            "poisson_selected": 0.11611694810619075,
+            "selected_model": 0.03392470198639911
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "ac8584a01e": {
+          "brier": {
+            "empirical": 0.14306511902223437,
+            "poisson120": 0.15481812174617549,
+            "poisson30": 0.7476450724155088,
+            "poisson_selected": 0.15481812174617549,
+            "selected_model": 0.0692742009305914
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "e04d956d48": {
+          "brier": {
+            "empirical": 0.08808619266416086,
+            "poisson120": 0.006392895631967578,
+            "poisson30": 0.08035449788501352,
+            "poisson_selected": 0.006392895631967578,
+            "selected_model": 0.13759944508680425
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "e3814f050e": {
+          "brier": {
+            "empirical": 0.14165564500383082,
+            "poisson120": 0.5762388667318397,
+            "poisson30": 0.8738225362058749,
+            "poisson_selected": 0.5762388667318397,
+            "selected_model": 0.08238124738201111
+          },
+          "positive": 0,
+          "rows": 2
+        }
+      },
+      "metrics": {
+        "empirical": {
+          "brier": 0.20935227090650993,
+          "log_loss": 0.6102833589322413,
+          "observed_rate": 0.267515923566879,
+          "predicted_mean": 0.385197743828495
+        },
+        "poisson120": {
+          "brier": 0.4717299514526985,
+          "log_loss": 4.561129157488251,
+          "observed_rate": 0.267515923566879,
+          "predicted_mean": 0.6995238111046529
+        },
+        "poisson30": {
+          "brier": 0.5343365893492507,
+          "log_loss": 5.042841225368919,
+          "observed_rate": 0.267515923566879,
+          "predicted_mean": 0.8162739375147731
+        },
+        "poisson_selected": {
+          "brier": 0.4717299514526985,
+          "log_loss": 4.561129157488251,
+          "observed_rate": 0.267515923566879,
+          "predicted_mean": 0.6995238111046529
+        },
+        "selected_model": {
+          "brier": 0.2097033196632256,
+          "log_loss": 0.6073448315989777,
+          "observed_rate": 0.267515923566879,
+          "predicted_mean": 0.40505453107814415
+        }
+      },
+      "models": 21,
+      "paired_brier_delta_vs_baseline": {
+        "empirical": 0.0003510487567156828,
+        "poisson_selected": -0.26202663178947294
+      },
+      "positive": 42,
+      "rows": 157
+    },
+    "4": {
+      "by_model_alias": {
+        "0e7b0e8855": {
+          "brier": {
+            "empirical": 0.14306511902223437,
+            "poisson120": 0.6315645283494579,
+            "poisson30": 0.9964509474523363,
+            "poisson_selected": 0.6315645283494579,
+            "selected_model": 0.020590065539563957
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "1a67e1afa7": {
+          "brier": {
+            "empirical": 0.30599707985927105,
+            "poisson120": 0.4396415179944125,
+            "poisson30": 0.3302345685174914,
+            "poisson_selected": 0.4396415179944125,
+            "selected_model": 0.1450710493053589
+          },
+          "positive": 2,
+          "rows": 3
+        },
+        "45363f1dab": {
+          "brier": {
+            "empirical": 0.29883984812427605,
+            "poisson120": 0.2769315074816892,
+            "poisson30": 0.2652657507824321,
+            "poisson_selected": 0.2769315074816892,
+            "selected_model": 0.27832290188034176
+          },
+          "positive": 42,
+          "rows": 59
+        },
+        "8cf5adca4b": {
+          "brier": {
+            "empirical": 0.18568300875860091,
+            "poisson120": 0.36873111209796255,
+            "poisson30": 0.3712567203967853,
+            "poisson_selected": 0.36873111209796255,
+            "selected_model": 0.21093014164200963
+          },
+          "positive": 4,
+          "rows": 18
+        },
+        "99668f5da8": {
+          "brier": {
+            "empirical": 0.23999517094365785,
+            "poisson120": 0.3945809839326063,
+            "poisson30": 0.32789284622105025,
+            "poisson_selected": 0.3945809839326063,
+            "selected_model": 0.23538505464044718
+          },
+          "positive": 7,
+          "rows": 18
+        },
+        "9b3654a6ac": {
+          "brier": {
+            "empirical": 0.14306511902223437,
+            "poisson120": 0.006392895631967578,
+            "poisson30": 0.08035449788501352,
+            "poisson_selected": 0.006392895631967578,
+            "selected_model": 0.18311401145509026
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "a82fd54762": {
+          "brier": {
+            "empirical": 0.11696380098518347,
+            "poisson120": 0.31967918582340543,
+            "poisson30": 0.929924647106835,
+            "poisson_selected": 0.31967918582340543,
+            "selected_model": 0.024695740909125363
+          },
+          "positive": 0,
+          "rows": 1
+        },
+        "b65a1b099f": {
+          "brier": {
+            "empirical": 0.2500712456894128,
+            "poisson120": 0.24117231195236627,
+            "poisson30": 0.44074620953969157,
+            "poisson_selected": 0.24117231195236627,
+            "selected_model": 0.2746747699227244
+          },
+          "positive": 3,
+          "rows": 7
+        },
+        "ce8041ab45": {
+          "brier": {
+            "empirical": 0.14306511902223437,
+            "poisson120": 1.0,
+            "poisson30": 1.0,
+            "poisson_selected": 1.0,
+            "selected_model": 0.04648451780202502
+          },
+          "positive": 0,
+          "rows": 1
+        }
+      },
+      "metrics": {
+        "empirical": {
+          "brier": 0.26154502193971135,
+          "log_loss": 0.7162170790940289,
+          "observed_rate": 0.5321100917431193,
+          "predicted_mean": 0.3947945925974796
+        },
+        "poisson120": {
+          "brier": 0.3214985689671976,
+          "log_loss": 3.3186823990967462,
+          "observed_rate": 0.5321100917431193,
+          "predicted_mean": 0.7833701725217546
+        },
+        "poisson30": {
+          "brier": 0.3240186124776058,
+          "log_loss": 2.9103873529616893,
+          "observed_rate": 0.5321100917431193,
+          "predicted_mean": 0.825804629417158
+        },
+        "poisson_selected": {
+          "brier": 0.3214985689671976,
+          "log_loss": 3.3186823990967462,
+          "observed_rate": 0.5321100917431193,
+          "predicted_mean": 0.7833701725217546
+        },
+        "selected_model": {
+          "brier": 0.24850959281748017,
+          "log_loss": 0.6911002543278676,
+          "observed_rate": 0.5321100917431193,
+          "predicted_mean": 0.4544892282088773
+        }
+      },
+      "models": 9,
+      "paired_brier_delta_vs_baseline": {
+        "empirical": -0.013035429122231185,
+        "poisson_selected": -0.07298897614971742
+      },
+      "positive": 58,
+      "rows": 109
+    }
+  },
+  "calibration": {
+    "empirical": [
+      {
+        "lower": 0.0,
+        "observed_rate": null,
+        "predicted_mean": null,
+        "rows": 0,
+        "upper": 0.2
+      },
+      {
+        "lower": 0.2,
+        "observed_rate": 0.28438228438228436,
+        "predicted_mean": 0.35972794364180566,
+        "rows": 429,
+        "upper": 0.4
+      },
+      {
+        "lower": 0.4,
+        "observed_rate": 0.3701923076923077,
+        "predicted_mean": 0.43235291641552764,
+        "rows": 416,
+        "upper": 0.6
+      },
+      {
+        "lower": 0.6,
+        "observed_rate": null,
+        "predicted_mean": null,
+        "rows": 0,
+        "upper": 0.8
+      },
+      {
+        "lower": 0.8,
+        "observed_rate": null,
+        "predicted_mean": null,
+        "rows": 0,
+        "upper": 1.0
+      }
+    ],
+    "poisson120": [
+      {
+        "lower": 0.0,
+        "observed_rate": 0.203125,
+        "predicted_mean": 0.11788634726719865,
+        "rows": 64,
+        "upper": 0.2
+      },
+      {
+        "lower": 0.2,
+        "observed_rate": 0.23577235772357724,
+        "predicted_mean": 0.31768581177544924,
+        "rows": 123,
+        "upper": 0.4
+      },
+      {
+        "lower": 0.4,
+        "observed_rate": 0.27692307692307694,
+        "predicted_mean": 0.5104375005400914,
+        "rows": 65,
+        "upper": 0.6
+      },
+      {
+        "lower": 0.6,
+        "observed_rate": 0.30097087378640774,
+        "predicted_mean": 0.6993287752917379,
+        "rows": 103,
+        "upper": 0.8
+      },
+      {
+        "lower": 0.8,
+        "observed_rate": 0.37755102040816324,
+        "predicted_mean": 0.977449809589085,
+        "rows": 490,
+        "upper": 1.0
+      }
+    ],
+    "poisson30": [
+      {
+        "lower": 0.0,
+        "observed_rate": null,
+        "predicted_mean": null,
+        "rows": 0,
+        "upper": 0.2
+      },
+      {
+        "lower": 0.2,
+        "observed_rate": 0.19444444444444445,
+        "predicted_mean": 0.2834686894262108,
+        "rows": 72,
+        "upper": 0.4
+      },
+      {
+        "lower": 0.4,
+        "observed_rate": 0.27419354838709675,
+        "predicted_mean": 0.48658288096740787,
+        "rows": 62,
+        "upper": 0.6
+      },
+      {
+        "lower": 0.6,
+        "observed_rate": 0.24786324786324787,
+        "predicted_mean": 0.6873812664307317,
+        "rows": 117,
+        "upper": 0.8
+      },
+      {
+        "lower": 0.8,
+        "observed_rate": 0.36363636363636365,
+        "predicted_mean": 0.9700071720765706,
+        "rows": 594,
+        "upper": 1.0
+      }
+    ],
+    "poisson_selected": [
+      {
+        "lower": 0.0,
+        "observed_rate": 0.203125,
+        "predicted_mean": 0.11788634726719865,
+        "rows": 64,
+        "upper": 0.2
+      },
+      {
+        "lower": 0.2,
+        "observed_rate": 0.23577235772357724,
+        "predicted_mean": 0.31768581177544924,
+        "rows": 123,
+        "upper": 0.4
+      },
+      {
+        "lower": 0.4,
+        "observed_rate": 0.27692307692307694,
+        "predicted_mean": 0.5104375005400914,
+        "rows": 65,
+        "upper": 0.6
+      },
+      {
+        "lower": 0.6,
+        "observed_rate": 0.30097087378640774,
+        "predicted_mean": 0.6993287752917379,
+        "rows": 103,
+        "upper": 0.8
+      },
+      {
+        "lower": 0.8,
+        "observed_rate": 0.37755102040816324,
+        "predicted_mean": 0.977449809589085,
+        "rows": 490,
+        "upper": 1.0
+      }
+    ],
+    "selected_model": [
+      {
+        "lower": 0.0,
+        "observed_rate": 0.10416666666666667,
+        "predicted_mean": 0.16180743628300512,
+        "rows": 48,
+        "upper": 0.2
+      },
+      {
+        "lower": 0.2,
+        "observed_rate": 0.279126213592233,
+        "predicted_mean": 0.31755760896648266,
+        "rows": 412,
+        "upper": 0.4
+      },
+      {
+        "lower": 0.4,
+        "observed_rate": 0.3812316715542522,
+        "predicted_mean": 0.478508872578769,
+        "rows": 341,
+        "upper": 0.6
+      },
+      {
+        "lower": 0.6,
+        "observed_rate": 0.5813953488372093,
+        "predicted_mean": 0.6708551434487262,
+        "rows": 43,
+        "upper": 0.8
+      },
+      {
+        "lower": 0.8,
+        "observed_rate": 1.0,
+        "predicted_mean": 0.8294000349054548,
+        "rows": 1,
+        "upper": 1.0
+      }
+    ]
+  },
+  "candidate_sha256": "e2cecd798b0e9381304d49dbb4d08edee051ceec1ab5561a36f2c7919fa87dca",
+  "code_sha256": "51707577c35ea9f4c1a810fb5dc5fe43313cb9ee634fe08f4e8bb7fe2a395966",
+  "dry_run_sha256": "7444ee2a2e745fe64264d1c7ba2187a25e606e0062854e55e536682d70733143",
+  "exploratory_adoption_gate_pass": false,
+  "mode": "locked_test",
+  "model_macro_brier": {
+    "empirical": 0.21792672685065692,
+    "poisson120": 0.49506588800288676,
+    "poisson30": 0.5146238230617158,
+    "poisson_selected": 0.49506588800288676,
+    "selected_model": 0.2224108793570335
+  },
+  "model_macro_support": {
+    "models_excluded_fewer_than_10": 36,
+    "models_excluded_single_class": 0,
+    "models_included": 5
+  },
+  "model_spec_sha256": "f0211ebaeeb8f45260e45be5625be7472217f7891e447985762893fb2a5ca719",
+  "overall": {
+    "empirical": {
+      "brier": 0.22240505012084258,
+      "log_loss": 0.6367646729796637,
+      "observed_rate": 0.32662721893491126,
+      "predicted_mean": 0.3954817763919457
+    },
+    "poisson120": {
+      "brier": 0.45100524926371593,
+      "log_loss": 3.951767681973303,
+      "observed_rate": 0.32662721893491126,
+      "predicted_mean": 0.7464849575885059
+    },
+    "poisson30": {
+      "brier": 0.5053525221486621,
+      "log_loss": 4.136896057833773,
+      "observed_rate": 0.32662721893491126,
+      "predicted_mean": 0.8369062161473906
+    },
+    "poisson_selected": {
+      "brier": 0.45100524926371593,
+      "log_loss": 3.951767681973303,
+      "observed_rate": 0.32662721893491126,
+      "predicted_mean": 0.7464849575885059
+    },
+    "selected_model": {
+      "brier": 0.2142228217713993,
+      "log_loss": 0.61812325997669,
+      "observed_rate": 0.32662721893491126,
+      "predicted_mean": 0.3922463770276166
+    }
+  },
+  "paired_model_week_bootstrap": {
+    "empirical": {
+      "brier_delta": -0.008182228349443271,
+      "ci95_high": -0.0018150185009935121,
+      "ci95_low": -0.013992481970709835,
+      "paired_model_week_cells": 65
+    },
+    "poisson_selected": {
+      "brier_delta": -0.23678242749231665,
+      "ci95_high": -0.18593657277714645,
+      "ci95_low": -0.282977993636276,
+      "paired_model_week_cells": 65
+    }
+  },
+  "protocol_sha256": "fde797fe622163b796565ebbb97a88656ae1c1a4e1a77f8035c370037cc9e415",
+  "relative_brier_gain_vs_selected_baselines": {
+    "empirical": 0.03678975969744166,
+    "poisson_selected": 0.5250103582582983
+  },
+  "selection_manifest_sha256": "0f13221e2b662040b9c7da157bc1ab24cdbed9094ed28956a7df8bbcfcf86feb",
+  "source_hashes": {
+    "audit_sha256": "c03b7c7c0f517eea8301113feed83fda94a8701d8c68a592da0c3de0cd6f8aab",
+    "compact_sha256": "d5c2bf4cc038f936a9713f8fc7c0430703ddd1c03ed0518fb65aaf68e160997b",
+    "raw_sha256": "79c92fd40752e40a6cac1fc897491ea2f54f37939dc4dcc48c96ea06383c81b7"
+  }
+}

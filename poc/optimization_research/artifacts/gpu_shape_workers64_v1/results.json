@@ -1,0 +1,108 @@
+{
+  "provenance": {
+    "model_sha256": "7a934da440ea0c7473e4e59eb5fa0c8c57f347389272bd303cb0051ef918b161",
+    "protocol_sha256": "7a0b3ca52d54e57bbf7334a09900b9ae1c36bfa2ab0bf58e90d9f47621e6f486",
+    "script_sha256": "64ffacd7a30a4a8f0b5efdde034ad74c5e47eccaa25109ec58c27556071dbf3b",
+    "source_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+    "v5_code_sha256": "7dac3164597aaff2bbe8565fd88cfe46fdd9bdcd0cb565a20ba61826f3677de9"
+  },
+  "scenarios": {
+    "copied_slo": {
+      "difference_from_worker1": {
+        "2": {
+          "decision_status_changed": 0,
+          "maximum_absolute_numeric_difference": 1.5916157281026244e-12,
+          "maximum_relative_numeric_difference": 8.301304807598871e-14,
+          "numeric_fields_changed": 1410,
+          "other_fields_changed": 0,
+          "selected_shape_changed": 0
+        },
+        "4": {
+          "decision_status_changed": 0,
+          "maximum_absolute_numeric_difference": 2.2737367544323206e-12,
+          "maximum_relative_numeric_difference": 6.451360767154034e-13,
+          "numeric_fields_changed": 6123,
+          "other_fields_changed": 0,
+          "selected_shape_changed": 0
+        }
+      },
+      "initial_canonical_result_sha256": {
+        "1": "87834d2c56f7b1924adecbaaf3bfa40e4a4821cf7e8f0f4a07943abb5fbcc924",
+        "2": "b18cac8f4c945264eaa8e3e2731cc035730a6638d9959e108b423069af3688b2",
+        "4": "640364ba181d244ce41b130312d8916527f04b28c47bdb98f501617711678d3c"
+      },
+      "initial_exact_json_equal_to_worker1": {
+        "1": true,
+        "2": false,
+        "4": false
+      },
+      "requests": 1125,
+      "scenario": "copied_slo"
+    },
+    "shared_slo": {
+      "difference_from_worker1": {
+        "2": {
+          "decision_status_changed": 0,
+          "maximum_absolute_numeric_difference": 1.3642420526593924e-12,
+          "maximum_relative_numeric_difference": 1.1686127686711514e-13,
+          "numeric_fields_changed": 2007,
+          "other_fields_changed": 0,
+          "selected_shape_changed": 0
+        },
+        "4": {
+          "decision_status_changed": 0,
+          "maximum_absolute_numeric_difference": 2.7284841053187847e-12,
+          "maximum_relative_numeric_difference": 3.225680383577017e-13,
+          "numeric_fields_changed": 6785,
+          "other_fields_changed": 0,
+          "selected_shape_changed": 0
+        }
+      },
+      "initial_canonical_result_sha256": {
+        "1": "87834d2c56f7b1924adecbaaf3bfa40e4a4821cf7e8f0f4a07943abb5fbcc924",
+        "2": "0f5708670dfd194786a5c542d9c2c9b5dc2af55bee9275832adc75325e2ba8ff",
+        "4": "a0e87a15c1819334aa16a67c33fadddda531fc62400aaa0653ea3805d40e1431"
+      },
+      "initial_exact_json_equal_to_worker1": {
+        "1": true,
+        "2": false,
+        "4": false
+      },
+      "requests": 1125,
+      "scenario": "shared_slo"
+    },
+    "unique_grids": {
+      "difference_from_worker1": {
+        "2": {
+          "decision_status_changed": 0,
+          "maximum_absolute_numeric_difference": 7.275957614183426e-12,
+          "maximum_relative_numeric_difference": 4.205197081316153e-13,
+          "numeric_fields_changed": 535,
+          "other_fields_changed": 0,
+          "selected_shape_changed": 0
+        },
+        "4": {
+          "decision_status_changed": 0,
+          "maximum_absolute_numeric_difference": 1.318767317570746e-11,
+          "maximum_relative_numeric_difference": 3.648522531337835e-12,
+          "numeric_fields_changed": 3626,
+          "other_fields_changed": 0,
+          "selected_shape_changed": 0
+        }
+      },
+      "initial_canonical_result_sha256": {
+        "1": "1054a72560b9c6ba06deece136633e92fb9eeecd3d10a0915edb8812bd141e99",
+        "2": "bbf6e763e676e640ce2f6141bea37a08ab4c5fc529de0956d10243a5a7e27c69",
+        "4": "edf735ad5fbba94534f333de6622f6bf0122d522c80f8e559b1f39a6ffca3fc2"
+      },
+      "initial_exact_json_equal_to_worker1": {
+        "1": true,
+        "2": false,
+        "4": false
+      },
+      "requests": 575,
+      "scenario": "unique_grids"
+    }
+  },
+  "status": "NO_GO_EXACT_OUTPUT"
+}

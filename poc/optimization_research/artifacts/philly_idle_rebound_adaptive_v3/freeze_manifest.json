@@ -1,0 +1,14 @@
+{
+  "kind": "khu.philly_idle_rebound_adaptive_v3.freeze",
+  "frozen_at_utc": "2026-09-28 21:02:46 UTC",
+  "status": "score_free_support_only",
+  "protocol_sha256": "6717b02433869fbb1f262309a90a154f326209e7f10c01c404601a494153aaa2",
+  "method_sha256": "d74459f6a97233c8eb7301634a0d18f1a13aabcc7ee4670f80efaf0a5d2b026d",
+  "audit_sha256": "17160dd043a48a061d2cfcacf250feffaf2c64fba8e7f997245c8c6ddcc292c4",
+  "test_sha256": "b0edf8c50b2a3e883d84301dec62461059f532b4faf24fc53461e6d2826cb4b4",
+  "v2_eligibility_sha256": "f801c104c9a3df0784617d9820ef5b99b59721abcf898eac7cc4a1dc1609a65f",
+  "v2_validation_sha256": "c18b88744f3be56a0b2e16dc2342886f50465a51d5c3aad8820b464317df4912",
+  "development_source_sha256": "15f1af4669acb9823d0e6d96291e799cf33f8a9c1813d4faf51b0b9eb618ad58",
+  "prior_exposure": "Designed after original validation score and same-machine December aggregate label count; v3 validation is exploratory. Other-machine idle-rebound labels remain unopened.",
+  "permitted_next_action": "Input/source integrity and validation anchor support only; no probability/Brier or December/other-machine label computation."
+}

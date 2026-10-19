@@ -1,0 +1,138 @@
+[
+  {
+    "held_model_id": "FacebookAI/roberta-base",
+    "donor_model_ids": [
+      "albert/albert-base-v2",
+      "distilbert/distilbert-base-uncased",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/bert_uncased_L-4_H-512_A-8",
+      "google/electra-small-discriminator"
+    ],
+    "donor_pairs": 1792,
+    "donor_workload_groups": 448,
+    "donor_q90_delta_mib": 0.0,
+    "hgb_artifact": "hgb_excluding_FacebookAI__roberta-base.joblib",
+    "hgb_sha256": "b33c1884b568b4057ff2ea1ff89ea4b686431749a05ac6bb159cbab949032ede"
+  },
+  {
+    "held_model_id": "albert/albert-base-v2",
+    "donor_model_ids": [
+      "FacebookAI/roberta-base",
+      "distilbert/distilbert-base-uncased",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/bert_uncased_L-4_H-512_A-8",
+      "google/electra-small-discriminator"
+    ],
+    "donor_pairs": 1792,
+    "donor_workload_groups": 448,
+    "donor_q90_delta_mib": 0.0,
+    "hgb_artifact": "hgb_excluding_albert__albert-base-v2.joblib",
+    "hgb_sha256": "195a462f99d23dff8052c7a07a7e863eb0d6e122151bea2c1a90df1ac714ae20"
+  },
+  {
+    "held_model_id": "distilbert/distilbert-base-uncased",
+    "donor_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/bert_uncased_L-4_H-512_A-8",
+      "google/electra-small-discriminator"
+    ],
+    "donor_pairs": 1792,
+    "donor_workload_groups": 448,
+    "donor_q90_delta_mib": 0.0,
+    "hgb_artifact": "hgb_excluding_distilbert__distilbert-base-uncased.joblib",
+    "hgb_sha256": "85660268b7a7368b6c152b7287be348a94e7f36a3be9dadc8430eea7c2e3e513"
+  },
+  {
+    "held_model_id": "google-bert/bert-base-uncased",
+    "donor_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "distilbert/distilbert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/bert_uncased_L-4_H-512_A-8",
+      "google/electra-small-discriminator"
+    ],
+    "donor_pairs": 1792,
+    "donor_workload_groups": 448,
+    "donor_q90_delta_mib": 0.0,
+    "hgb_artifact": "hgb_excluding_google-bert__bert-base-uncased.joblib",
+    "hgb_sha256": "74b074e298a16e8f941fd551315c207351e11a34ce115fd4481aca4e21950d70"
+  },
+  {
+    "held_model_id": "google/bert_uncased_L-2_H-128_A-2",
+    "donor_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "distilbert/distilbert-base-uncased",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/bert_uncased_L-4_H-512_A-8",
+      "google/electra-small-discriminator"
+    ],
+    "donor_pairs": 1792,
+    "donor_workload_groups": 448,
+    "donor_q90_delta_mib": 0.0,
+    "hgb_artifact": "hgb_excluding_google__bert_uncased_L-2_H-128_A-2.joblib",
+    "hgb_sha256": "2b6de7c0d6fd855e3dcce4f94d103e3ae15c00dbdcd0b2f2250960b65b37fce3"
+  },
+  {
+    "held_model_id": "google/bert_uncased_L-4_H-256_A-4",
+    "donor_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "distilbert/distilbert-base-uncased",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-512_A-8",
+      "google/electra-small-discriminator"
+    ],
+    "donor_pairs": 1792,
+    "donor_workload_groups": 448,
+    "donor_q90_delta_mib": 0.0,
+    "hgb_artifact": "hgb_excluding_google__bert_uncased_L-4_H-256_A-4.joblib",
+    "hgb_sha256": "f488b06cd32a991bf6c14ff5f8e8bea54424d3836fc5a80137736a9d32a374a1"
+  },
+  {
+    "held_model_id": "google/bert_uncased_L-4_H-512_A-8",
+    "donor_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "distilbert/distilbert-base-uncased",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/electra-small-discriminator"
+    ],
+    "donor_pairs": 1792,
+    "donor_workload_groups": 448,
+    "donor_q90_delta_mib": 0.0,
+    "hgb_artifact": "hgb_excluding_google__bert_uncased_L-4_H-512_A-8.joblib",
+    "hgb_sha256": "a34a64ad237ce7563c6608cb70637f6e23fd0109e9b0d2aff35392d2e5f1168d"
+  },
+  {
+    "held_model_id": "google/electra-small-discriminator",
+    "donor_model_ids": [
+      "FacebookAI/roberta-base",
+      "albert/albert-base-v2",
+      "distilbert/distilbert-base-uncased",
+      "google-bert/bert-base-uncased",
+      "google/bert_uncased_L-2_H-128_A-2",
+      "google/bert_uncased_L-4_H-256_A-4",
+      "google/bert_uncased_L-4_H-512_A-8"
+    ],
+    "donor_pairs": 1792,
+    "donor_workload_groups": 448,
+    "donor_q90_delta_mib": 0.0,
+    "hgb_artifact": "hgb_excluding_google__electra-small-discriminator.joblib",
+    "hgb_sha256": "c3bd6fc3cb39ac2d8337ab62c7aa4dcedcd80719ede85a45d1002c6b2c1e377d"
+  }
+]

@@ -1,0 +1,17 @@
+{
+  "days": 15,
+  "feedback_availability_assumption": "decision_utc_s + 1800 seconds",
+  "holdout_result_sha256": "bd9597b860c7e711699bf5e9cd1c3a84b493dce34167844122f70f9d1b2910b4",
+  "machines": 51,
+  "max_absolute_difference": {
+    "machine_probability": 0.0,
+    "slot_probability": 0.0
+  },
+  "predictions_sha256": "a823adb09685f76a118b74a4a89eb2c1bd104334114607d3bf1971f8c1217762",
+  "row_brier": {
+    "machine": 0.08578645562525393,
+    "machine_slot": 0.08353208427019232
+  },
+  "rows": 812729,
+  "status": "CORE_REPLAY_VERIFIED"
+}

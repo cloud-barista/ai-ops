@@ -1,0 +1,60 @@
+{
+  "kind": "swissai_output_tokens_v1_score_frozen",
+  "quality_counts": {
+    "test": {
+      "arrivals": 736928,
+      "default_and_output_observed": 498008,
+      "eligible_after_finish_and_model_checks": 498008,
+      "eligible_days": 34,
+      "eligible_model_count": 5,
+      "invalid_model": 0,
+      "nonpositive_or_missing_finish": 0,
+      "reported_output_observed": 498008,
+      "reported_output_unavailable": 238920
+    },
+    "train": {
+      "arrivals": 7965677,
+      "default_and_output_observed": 6220129,
+      "eligible_after_finish_and_model_checks": 6220129,
+      "eligible_days": 90,
+      "eligible_model_count": 36,
+      "invalid_model": 38,
+      "nonpositive_or_missing_finish": 157,
+      "reported_output_observed": 6220129,
+      "reported_output_unavailable": 1745548
+    },
+    "validation": {
+      "arrivals": 300467,
+      "default_and_output_observed": 212296,
+      "eligible_after_finish_and_model_checks": 212296,
+      "eligible_days": 28,
+      "eligible_model_count": 82,
+      "invalid_model": 0,
+      "nonpositive_or_missing_finish": 0,
+      "reported_output_observed": 212296,
+      "reported_output_unavailable": 88171
+    }
+  },
+  "sha256": {
+    "compact": "d5c2bf4cc038f936a9713f8fc7c0430703ddd1c03ed0518fb65aaf68e160997b",
+    "core": "eb3c41b9140ee80de15559e33ee884b71b0aa03acd4015f1a15e2f4d2d5ab98b",
+    "evaluator": "22fa5c9552fa3f7e8facd51d4afdd3fc27ba0ed5daaf06dc7044479e1f5dd227",
+    "extracted": "f0654a35763813aaa6acecaac0feb7101f42d3e2bf2756893c67602de6da3d13",
+    "extraction_meta": "2fffb5010404b630c72ba9034a4d4c7f08d2895642483d79a9a32d265d47758b",
+    "extraction_quality": "c67f9693bb0c72a79d883d0c59f257626c7371c760f496be2cf18acae4c2a0bc",
+    "model": "51251d224d9d56e1d91a40fd70d19de3120539460c60c6d6c17df78d5aeaa0d5",
+    "protocol": "8de1b6c67aa392ed038b41be97c25845943606bd7c94561f743fc92307ace512"
+  },
+  "source_raw_sha256": "79c92fd40752e40a6cac1fc897491ea2f54f37939dc4dcc48c96ea06383c81b7",
+  "splits_utc": [
+    "2025-05-16",
+    "2025-08-16",
+    "2025-09-16",
+    "2025-10-24"
+  ],
+  "target": "logged DEFAULT positive-duration observed output tokens",
+  "training_model_count": 34,
+  "training_rows_available": 6220129,
+  "training_rows_sampled": 247802,
+  "training_sklearn_version": "1.5.2"
+}

@@ -1,0 +1,194 @@
+{
+  "selection_manifest_sha256": "4094d30f770c64da20bf38b8bb7560c6912630ba9362f1511c1265216ecf7e72",
+  "script_sha256": "ce9b9b3cf6b0f76655d35a216004acae229c645e3553ad912cc4063f71301d72",
+  "source_hashes": {
+    "pipeline_update_latency_anon.csv": "5510a2e44b0d8e00cf526caf4ed9ec06f23e3e3a9473bfacc1287f01f28503c7",
+    "pod_gpu_duty_cycle_anon.csv": "b3a91d9bd9141156e66da6b8d34520602246ee043ac60b0d2172e689a3919f99",
+    "pod_gpu_memory_used_bytes_anon.csv": "0edc1ad35284b6b7236bdd2e69795052bedc302d7b295a1a32c5bb9ff4579596",
+    "pod_memory_util_anon.csv": "49338fc328804418d9c8fae26e182eef1922b130a1dfcf1d769a2b8b4210b6f1"
+  },
+  "target": "next recorded pipeline update latency, ms, including zero values",
+  "chosen_baseline": "ip_4h_k20",
+  "by_slice": {
+    "all": {
+      "train_fixed": {
+        "n": 2924,
+        "pinball_ms": 2978.051208390332,
+        "coverage": 0.905266757865937,
+        "mean_prediction_ms": 27356.0,
+        "observed_p90_ms": 26348.60000000004
+      },
+      "global_1h": {
+        "n": 2924,
+        "pinball_ms": 2990.9217179662555,
+        "coverage": 0.8939808481532148,
+        "mean_prediction_ms": 25974.988554491574,
+        "observed_p90_ms": 26348.60000000004
+      },
+      "global_4h": {
+        "n": 2924,
+        "pinball_ms": 2981.335775763794,
+        "coverage": 0.8991108071135431,
+        "mean_prediction_ms": 26784.1148255814,
+        "observed_p90_ms": 26348.60000000004
+      },
+      "ip_4h_k20": {
+        "n": 2924,
+        "pinball_ms": 2820.285417757224,
+        "coverage": 0.8970588235294118,
+        "mean_prediction_ms": 25651.689461823218,
+        "observed_p90_ms": 26348.60000000004
+      },
+      "ip_4h_k100": {
+        "n": 2924,
+        "pinball_ms": 2919.4480058983404,
+        "coverage": 0.9011627906976745,
+        "mean_prediction_ms": 26538.916400679132,
+        "observed_p90_ms": 26348.60000000004
+      },
+      "history": {
+        "n": 2924,
+        "pinball_ms": 2634.8227444527993,
+        "coverage": 0.9062927496580028,
+        "mean_prediction_ms": 24406.710621343063,
+        "observed_p90_ms": 26348.60000000004
+      },
+      "state": {
+        "n": 2924,
+        "pinball_ms": 2607.167600306906,
+        "coverage": 0.9124487004103967,
+        "mean_prediction_ms": 25604.53360378684,
+        "observed_p90_ms": 26348.60000000004
+      }
+    },
+    "early": {
+      "train_fixed": {
+        "n": 2210,
+        "pinball_ms": 2869.8366138763195,
+        "coverage": 0.9009049773755656,
+        "mean_prediction_ms": 27356.0,
+        "observed_p90_ms": 26959.450000000008
+      },
+      "global_1h": {
+        "n": 2210,
+        "pinball_ms": 2890.109812971342,
+        "coverage": 0.8941176470588236,
+        "mean_prediction_ms": 26492.741040723988,
+        "observed_p90_ms": 26959.450000000008
+      },
+      "global_4h": {
+        "n": 2210,
+        "pinball_ms": 2883.5143152337855,
+        "coverage": 0.8959276018099548,
+        "mean_prediction_ms": 26691.41095022625,
+        "observed_p90_ms": 26959.450000000008
+      },
+      "ip_4h_k20": {
+        "n": 2210,
+        "pinball_ms": 2778.008616855931,
+        "coverage": 0.8968325791855204,
+        "mean_prediction_ms": 26452.481083900173,
+        "observed_p90_ms": 26959.450000000008
+      },
+      "ip_4h_k100": {
+        "n": 2210,
+        "pinball_ms": 2834.1963315127527,
+        "coverage": 0.8995475113122172,
+        "mean_prediction_ms": 26714.14837098886,
+        "observed_p90_ms": 26959.450000000008
+      },
+      "history": {
+        "n": 2210,
+        "pinball_ms": 2663.104360295719,
+        "coverage": 0.9085972850678733,
+        "mean_prediction_ms": 26948.189875259635,
+        "observed_p90_ms": 26959.450000000008
+      },
+      "state": {
+        "n": 2210,
+        "pinball_ms": 2672.1851090563246,
+        "coverage": 0.9144796380090497,
+        "mean_prediction_ms": 28384.286855485927,
+        "observed_p90_ms": 26959.450000000008
+      }
+    },
+    "late": {
+      "train_fixed": {
+        "n": 714,
+        "pinball_ms": 3313.0011437908493,
+        "coverage": 0.9187675070028011,
+        "mean_prediction_ms": 27356.0,
+        "observed_p90_ms": 22963.650000000012
+      },
+      "global_1h": {
+        "n": 714,
+        "pinball_ms": 3302.9585667600363,
+        "coverage": 0.8935574229691877,
+        "mean_prediction_ms": 24372.42133520075,
+        "observed_p90_ms": 22963.650000000012
+      },
+      "global_4h": {
+        "n": 714,
+        "pinball_ms": 3284.116486928104,
+        "coverage": 0.9089635854341737,
+        "mean_prediction_ms": 27071.055392156868,
+        "observed_p90_ms": 22963.650000000012
+      },
+      "ip_4h_k20": {
+        "n": 714,
+        "pinball_ms": 2951.1421824517024,
+        "coverage": 0.8977591036414566,
+        "mean_prediction_ms": 23173.0487268231,
+        "observed_p90_ms": 22963.650000000012
+      },
+      "ip_4h_k100": {
+        "n": 714,
+        "pinball_ms": 3183.3222361394446,
+        "coverage": 0.9061624649859944,
+        "mean_prediction_ms": 25996.53173067284,
+        "observed_p90_ms": 22963.650000000012
+      },
+      "history": {
+        "n": 714,
+        "pinball_ms": 2547.284409700905,
+        "coverage": 0.8991596638655462,
+        "mean_prediction_ms": 16540.227216363182,
+        "observed_p90_ms": 22963.650000000012
+      },
+      "state": {
+        "n": 714,
+        "pinball_ms": 2405.92293036823,
+        "coverage": 0.9061624649859944,
+        "mean_prediction_ms": 17000.53544376585,
+        "observed_p90_ms": 22963.650000000012
+      }
+    }
+  },
+  "improvements": {
+    "state_vs_selected_baseline_relative_pinball": 0.07556604594289455,
+    "state_vs_history_relative_pinball": 0.010496016934769809
+  },
+  "gates": {
+    "baseline_pinball_5pct": true,
+    "history_pinball_2pct": false,
+    "overall_coverage_88pct": true,
+    "each_half_coverage_85pct": true,
+    "both_halves_pinball_win": true
+  },
+  "adopt_for_research_decision": false,
+  "block_bootstrap_state_minus_baseline": {
+    "point_difference_ms": -213.11781745031772,
+    "interval_95_within_day_ms": [
+      -361.8611468648852,
+      -119.57043428572834
+    ],
+    "block_minutes": 30,
+    "blocks": 21,
+    "repeats": 2000
+  },
+  "limitations": [
+    "One anonymized serving trace day; update command and request start times are absent",
+    "No model/version identity, user SLO, VM action, or causal update benefit",
+    "Online feedback availability is assumed with a fixed five-minute embargo"
+  ]
+}

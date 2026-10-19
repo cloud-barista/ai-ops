@@ -1,0 +1,38 @@
+{
+  "status": "POST_HOC_DESCRIPTIVE_ONLY",
+  "coding_source_sha256": "71de5c55cbc35f8f1ed0b6b7806b4cd1e9764b0058469725a6aac98023a1448f",
+  "conversation_source_sha256": "a0cc9b969a9bbf0fd811802cbf4323edd3a209ace791e3799ad4f9207f213941",
+  "coding_model_sha256": "72c3c812192abcd02cc4095d87f77b75da83935900d5f6a4e51afc37f77582b4",
+  "conversation_score_sha256": "0b541cd43187346c7b554599f68f4b425ff523ad7c01cbac0ef6a4d7c22e7d02",
+  "coding_fit": {
+    "eligible_windows": 852,
+    "observed_ratio_median": 0.983283441604466,
+    "observed_ratio_q90": 1.2305160837492606,
+    "observed_ratio_scale_weighted_q90": 1.20047475425906,
+    "observed_ratio_q99": 1.5295247758644255,
+    "forecast_ratio_median": 1.1298354066927496,
+    "forecast_ratio_mean": 1.1278664606171986,
+    "forecast_coverage": 0.8849765258215962
+  },
+  "coding_retrospective_assessment": {
+    "eligible_windows": 864,
+    "observed_ratio_median": 0.9930337511298646,
+    "observed_ratio_q90": 1.2367081772366317,
+    "observed_ratio_scale_weighted_q90": 1.1828466399844242,
+    "observed_ratio_q99": 1.4667994927283867,
+    "forecast_ratio_median": 1.1415203298869052,
+    "forecast_ratio_mean": 1.1423458001054185,
+    "forecast_coverage": 0.9317129629629629
+  },
+  "conversation_transfer_test": {
+    "eligible_windows": 1440,
+    "observed_ratio_median": 1.0020260836560593,
+    "observed_ratio_q90": 1.1000496789256526,
+    "observed_ratio_scale_weighted_q90": 1.09603049022569,
+    "observed_ratio_q99": 1.1854413468245852,
+    "forecast_ratio_median": 1.1530379902449477,
+    "forecast_ratio_mean": 1.1427238058389109,
+    "forecast_coverage": 0.9784722222222222
+  },
+  "interpretation_limit": "The Conversation test was already scored before this analysis. These summaries cannot validate a method changed in response."
+}

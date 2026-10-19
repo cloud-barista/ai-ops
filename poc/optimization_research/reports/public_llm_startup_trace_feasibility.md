@@ -1,0 +1,7 @@
+# 공개 LLM 시작시간 자료의 배포 연구 적합성
+
+2026-09-29. [원본 저장소의 고정 커밋](https://github.com/mkurup27/cold-start-latency-on-serverless-inference/tree/39e20fbbbc26722650a9115b704fea52d6e32766)은 [MIT 라이선스](https://github.com/mkurup27/cold-start-latency-on-serverless-inference/blob/39e20fbbbc26722650a9115b704fea52d6e32766/LICENSE)와 [200건의 self-hosted 시작 실험](https://github.com/mkurup27/cold-start-latency-on-serverless-inference/blob/39e20fbbbc26722650a9115b704fea52d6e32766/data/final.jsonl)을 제공한다. Qwen3 크기 4종 × 캐시 조건 5종 × 각 10회이며, 단일 H100 80GB·vLLM 0.26.0·하루의 실험이다. 원시 JSONL의 SHA-256은 `e70ff5175249a090ce3c2ece3e17251c27fb9e2429d03526b4d70e854d61c07b`이다. 시작 이후 `/health` 준비 시각과 첫 토큰 시각이 따로 있어 **배포 준비 지연의 계측 예**로는 쓸 수 있다.
+
+하지만 네 모델이 모두 Qwen3 계열이고 호스트·서빙 이미지가 하나다. 캐시 조건 C0/C1/C3 120회와 C2/C4 80회는 두 실행 묶음에 나뉘어 있어 단순 시간순 분할은 캐시 조건까지 바꾼다. 같은 모델·조건 셀의 반복값은 가깝고, 이 자료만으로 새 앱·GPU/VM·클라우드의 시작시간 일반화를 검증할 수 없다. 별도 [serverless 요청 추적](https://github.com/mkurup27/cold-start-latency-on-serverless-inference/tree/39e20fbbbc26722650a9115b704fea52d6e32766/data)은 다른 플랫폼에서 수집됐으므로 두 추적을 같은 조치의 전후 결과로 결합하지 않는다. 오토스케일 명령 ID, 발행 시각, replica 준비 완료와 같은 앱의 전후 요청 결과가 연결되지 않아 `DEPLOY/UPDATE/SCALE_OUT/SCALE_IN` **효과 지도학습에는 사용하지 않는다.**
+
+이 후보는 데이터 적합성만 감사했으며 AI-MCMP 저장소에 원본을 복제하거나 모델을 학습하지 않았다. [Go/INNO/ETRI 사건 데이터 계약](scale_effect_data_contract_v1.md)에 `/health` 같은 기술적 Ready와 실제 첫 사용자 성공·지연을 별도 시각으로 기록하면, 이후 배포 준비시간과 서비스 품질을 구분해 학습할 수 있다.

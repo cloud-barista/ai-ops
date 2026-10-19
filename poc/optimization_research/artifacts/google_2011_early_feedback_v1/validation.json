@@ -1,0 +1,125 @@
+{
+  "calibration_jobs": 19,
+  "coverage90_metrics": {
+    "feedback_hgb": {
+      "composite": 1.6977535513857154,
+      "cpu_pinball": 0.06262992040599366,
+      "joint_coverage": 0.9432870206282679,
+      "memory_pinball": 0.0025463988939059923,
+      "row_composite": 1.7432739305201406,
+      "row_joint_coverage": 0.9517296862429606
+    },
+    "recent_peak_margin": {
+      "composite": 1.6303159669647749,
+      "cpu_pinball": 0.05977767163661056,
+      "joint_coverage": 0.9151600319993402,
+      "memory_pinball": 0.0025051279198848183,
+      "row_composite": 1.3473381738103125,
+      "row_joint_coverage": 0.914722445695897
+    },
+    "request_ratio": {
+      "composite": 1.8491565854033647,
+      "cpu_pinball": 0.07232246643532139,
+      "joint_coverage": 0.6649109896271376,
+      "memory_pinball": 0.002098749247382819,
+      "row_composite": 2.365357019773723,
+      "row_joint_coverage": 0.6790024135156878
+    },
+    "submit_hgb": {
+      "composite": 1.5247750165995975,
+      "cpu_pinball": 0.05623374530467461,
+      "joint_coverage": 0.8642326436095267,
+      "memory_pinball": 0.0022894218003443262,
+      "row_composite": 1.8376830754943545,
+      "row_joint_coverage": 0.8897827835880934
+    }
+  },
+  "coverage90_tasks": 1243,
+  "decision": {
+    "axis_comparisons": {
+      "cpu": "submit_hgb",
+      "memory": "request_ratio"
+    },
+    "checks": {
+      "composite_gain": false,
+      "cpu_noninferior": true,
+      "job_wins": false,
+      "joint_coverage": true,
+      "largest_job_robust": false,
+      "memory_noninferior": false,
+      "support": true
+    },
+    "comparison": "submit_hgb",
+    "job_win_fraction": 0.3958333333333333,
+    "passed": false,
+    "without_largest_composite_difference": 0.01914851711298371
+  },
+  "fit_jobs": 56,
+  "metrics": {
+    "feedback_hgb": {
+      "composite": 1.0961391712031954,
+      "cpu_pinball": 0.034409782941916496,
+      "joint_coverage": 0.9428078237762775,
+      "memory_pinball": 0.00263409681398132,
+      "row_composite": 1.843501738982775,
+      "row_joint_coverage": 0.9423076923076923
+    },
+    "recent_peak_margin": {
+      "composite": 1.1168564686916775,
+      "cpu_pinball": 0.03463367774619427,
+      "joint_coverage": 0.8715564084855713,
+      "memory_pinball": 0.002753938950218499,
+      "row_composite": 1.7774291480155522,
+      "row_joint_coverage": 0.8621794871794872
+    },
+    "request_ratio": {
+      "composite": 1.3168772775426791,
+      "cpu_pinball": 0.048976849247212205,
+      "joint_coverage": 0.7262017284821821,
+      "memory_pinball": 0.001909851663921822,
+      "row_composite": 2.4904699251873024,
+      "row_joint_coverage": 0.4825498575498576
+    },
+    "submit_hgb": {
+      "composite": 1.0804593122210164,
+      "cpu_pinball": 0.03417045116786823,
+      "joint_coverage": 0.897818506473813,
+      "memory_pinball": 0.002554873642696754,
+      "row_composite": 1.9275841459184493,
+      "row_joint_coverage": 0.8643162393162394
+    }
+  },
+  "model_sha256": "ce9b3088e90ac66083e19102d58b857c580dd59cfb3b41653138deb04b17394b",
+  "test_labels_read": false,
+  "train": {
+    "coverage90_jobs": 26,
+    "coverage90_tasks": 354,
+    "decision_candidate_tasks": 3142,
+    "decision_offset_median_s": 324.494194,
+    "eligible_jobs": 75,
+    "eligible_tasks": 3137,
+    "event_candidate_tasks": 3242,
+    "event_rows": 485885,
+    "largest_job_tasks": 1929,
+    "pre_schedule_report_tasks": 4,
+    "shard": 50,
+    "usage_rows": 2628215,
+    "valid_usage_rows": 27014
+  },
+  "validation": {
+    "coverage90_jobs": 29,
+    "coverage90_tasks": 1243,
+    "decision_candidate_tasks": 3057,
+    "decision_offset_median_s": 372.4382455,
+    "eligible_jobs": 48,
+    "eligible_tasks": 2808,
+    "event_candidate_tasks": 3074,
+    "event_rows": 270458,
+    "largest_job_tasks": 704,
+    "pre_schedule_report_tasks": 1,
+    "shard": 200,
+    "usage_rows": 2665063,
+    "valid_usage_rows": 25589
+  },
+  "validation_predictions_sha256": "6d9d36672395538a13aa318949593810c71ca1ae25052b1b8b17d526c0166b49"
+}

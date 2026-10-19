@@ -1,0 +1,545 @@
+{
+  "scope": "exploratory synthetic batch-SLO resource-order audit; not VM prices or user SLOs",
+  "threshold_source": "other eight models only for each outer held-out model",
+  "resource_order": "lexicographic GPU count then CPU cores; no monetary conversion",
+  "selection": "first predicted feasible cell in resource order; abstain if none",
+  "oracle": "first truly feasible cell in resource order; truth used for scoring only",
+  "denominators": {
+    "success_and_cost_match": "oracle_feasible workload-SLO queries",
+    "false_approvals": "all workload-SLO queries; selected subset also reported",
+    "unnecessary_gpu2": "oracle_gpu1_feasible workload-SLO queries",
+    "extra_resource_sums": "successful selections only; report success counts jointly"
+  },
+  "probe_count_per_model_for_each_compared_method": 8,
+  "populations": {
+    "all_workloads": "all held-out workload groups",
+    "unprobed_workloads": "excludes the eight groups whose GPU1/core2 anchor was observed"
+  },
+  "snapshot_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "predictions_sha256": "a1b110a6941b18bd52d0f45a07fcd6b89ea12de066baba47197a938b1ff480fb",
+  "script_sha256": "9a0001d84dd09fb6221fc67b354ca82dce3bdf413160dcf1237edfcf2766c223",
+  "aggregate": [
+    {
+      "population": "all_workloads",
+      "method": "space_cov_transfer",
+      "workload_queries": 14375,
+      "oracle_feasible": 6746,
+      "nontrivial_oracle_feasible": 3794,
+      "oracle_gpu1_feasible": 3915,
+      "selected": 6717,
+      "successful_choices": 6143,
+      "false_approvals": 574,
+      "missed_feasible": 603,
+      "oracle_cost_matches": 5929,
+      "successful_but_extra_gpu": 194,
+      "successful_but_extra_core_same_gpu": 20,
+      "extra_gpu_units_on_success": 194,
+      "extra_cpu_cores_same_gpu_on_success": 98,
+      "avoidable_gpu2_recommendations": 195,
+      "avoidable_gpu2_successes": 194,
+      "nontrivial_successes": 3191,
+      "nontrivial_oracle_cost_matches": 2999
+    },
+    {
+      "population": "all_workloads",
+      "method": "space_global_mean",
+      "workload_queries": 14375,
+      "oracle_feasible": 6746,
+      "nontrivial_oracle_feasible": 3794,
+      "oracle_gpu1_feasible": 3915,
+      "selected": 6605,
+      "successful_choices": 5897,
+      "false_approvals": 708,
+      "missed_feasible": 849,
+      "oracle_cost_matches": 5604,
+      "successful_but_extra_gpu": 277,
+      "successful_but_extra_core_same_gpu": 16,
+      "extra_gpu_units_on_success": 277,
+      "extra_cpu_cores_same_gpu_on_success": 106,
+      "avoidable_gpu2_recommendations": 278,
+      "avoidable_gpu2_successes": 277,
+      "nontrivial_successes": 2961,
+      "nontrivial_oracle_cost_matches": 2744
+    },
+    {
+      "population": "all_workloads",
+      "method": "space_kernel_transfer",
+      "workload_queries": 14375,
+      "oracle_feasible": 6746,
+      "nontrivial_oracle_feasible": 3794,
+      "oracle_gpu1_feasible": 3915,
+      "selected": 6709,
+      "successful_choices": 6074,
+      "false_approvals": 635,
+      "missed_feasible": 672,
+      "oracle_cost_matches": 5841,
+      "successful_but_extra_gpu": 219,
+      "successful_but_extra_core_same_gpu": 14,
+      "extra_gpu_units_on_success": 219,
+      "extra_cpu_cores_same_gpu_on_success": 68,
+      "avoidable_gpu2_recommendations": 220,
+      "avoidable_gpu2_successes": 219,
+      "nontrivial_successes": 3135,
+      "nontrivial_oracle_cost_matches": 2929
+    },
+    {
+      "population": "all_workloads",
+      "method": "space_ridge",
+      "workload_queries": 14375,
+      "oracle_feasible": 6746,
+      "nontrivial_oracle_feasible": 3794,
+      "oracle_gpu1_feasible": 3915,
+      "selected": 6659,
+      "successful_choices": 6069,
+      "false_approvals": 590,
+      "missed_feasible": 677,
+      "oracle_cost_matches": 5768,
+      "successful_but_extra_gpu": 288,
+      "successful_but_extra_core_same_gpu": 13,
+      "extra_gpu_units_on_success": 288,
+      "extra_cpu_cores_same_gpu_on_success": 132,
+      "avoidable_gpu2_recommendations": 289,
+      "avoidable_gpu2_successes": 288,
+      "nontrivial_successes": 3127,
+      "nontrivial_oracle_cost_matches": 2873
+    },
+    {
+      "population": "unprobed_workloads",
+      "method": "space_cov_transfer",
+      "workload_queries": 12575,
+      "oracle_feasible": 5880,
+      "nontrivial_oracle_feasible": 3327,
+      "oracle_gpu1_feasible": 3398,
+      "selected": 5839,
+      "successful_choices": 5308,
+      "false_approvals": 531,
+      "missed_feasible": 572,
+      "oracle_cost_matches": 5099,
+      "successful_but_extra_gpu": 190,
+      "successful_but_extra_core_same_gpu": 19,
+      "extra_gpu_units_on_success": 190,
+      "extra_cpu_cores_same_gpu_on_success": 90,
+      "avoidable_gpu2_recommendations": 191,
+      "avoidable_gpu2_successes": 190,
+      "nontrivial_successes": 2755,
+      "nontrivial_oracle_cost_matches": 2568
+    },
+    {
+      "population": "unprobed_workloads",
+      "method": "space_global_mean",
+      "workload_queries": 12575,
+      "oracle_feasible": 5880,
+      "nontrivial_oracle_feasible": 3327,
+      "oracle_gpu1_feasible": 3398,
+      "selected": 5727,
+      "successful_choices": 5062,
+      "false_approvals": 665,
+      "missed_feasible": 818,
+      "oracle_cost_matches": 4774,
+      "successful_but_extra_gpu": 273,
+      "successful_but_extra_core_same_gpu": 15,
+      "extra_gpu_units_on_success": 273,
+      "extra_cpu_cores_same_gpu_on_success": 98,
+      "avoidable_gpu2_recommendations": 274,
+      "avoidable_gpu2_successes": 273,
+      "nontrivial_successes": 2525,
+      "nontrivial_oracle_cost_matches": 2313
+    },
+    {
+      "population": "unprobed_workloads",
+      "method": "space_kernel_transfer",
+      "workload_queries": 12575,
+      "oracle_feasible": 5880,
+      "nontrivial_oracle_feasible": 3327,
+      "oracle_gpu1_feasible": 3398,
+      "selected": 5831,
+      "successful_choices": 5239,
+      "false_approvals": 592,
+      "missed_feasible": 641,
+      "oracle_cost_matches": 5011,
+      "successful_but_extra_gpu": 215,
+      "successful_but_extra_core_same_gpu": 13,
+      "extra_gpu_units_on_success": 215,
+      "extra_cpu_cores_same_gpu_on_success": 60,
+      "avoidable_gpu2_recommendations": 216,
+      "avoidable_gpu2_successes": 215,
+      "nontrivial_successes": 2699,
+      "nontrivial_oracle_cost_matches": 2498
+    },
+    {
+      "population": "unprobed_workloads",
+      "method": "space_ridge",
+      "workload_queries": 12575,
+      "oracle_feasible": 5880,
+      "nontrivial_oracle_feasible": 3327,
+      "oracle_gpu1_feasible": 3398,
+      "selected": 5781,
+      "successful_choices": 5234,
+      "false_approvals": 547,
+      "missed_feasible": 646,
+      "oracle_cost_matches": 4938,
+      "successful_but_extra_gpu": 284,
+      "successful_but_extra_core_same_gpu": 12,
+      "extra_gpu_units_on_success": 284,
+      "extra_cpu_cores_same_gpu_on_success": 124,
+      "avoidable_gpu2_recommendations": 285,
+      "avoidable_gpu2_successes": 284,
+      "nontrivial_successes": 2691,
+      "nontrivial_oracle_cost_matches": 2442
+    }
+  ],
+  "paired_covariance_minus_baseline": [
+    {
+      "population": "all_workloads",
+      "baseline": "space_kernel_transfer",
+      "metric": "successful_choices",
+      "difference_total": 69,
+      "difference_mean_per_model": 7.666666666666667,
+      "descriptive_model_bootstrap_95_interval": [
+        -0.6666666666666666,
+        19.0
+      ],
+      "per_model_difference": {
+        "FacebookAI/roberta-base": -4,
+        "Qwen/Qwen2.5-0.5B-Instruct": 0,
+        "albert/albert-base-v2": 3,
+        "distilbert/distilbert-base-uncased": 0,
+        "google-bert/bert-base-uncased": 0,
+        "google/bert_uncased_L-2_H-128_A-2": 2,
+        "google/bert_uncased_L-4_H-256_A-4": 46,
+        "google/bert_uncased_L-4_H-512_A-8": -2,
+        "google/electra-small-discriminator": 24
+      }
+    },
+    {
+      "population": "all_workloads",
+      "baseline": "space_kernel_transfer",
+      "metric": "false_approvals",
+      "difference_total": -61,
+      "difference_mean_per_model": -6.777777777777778,
+      "descriptive_model_bootstrap_95_interval": [
+        -12.333333333333334,
+        -2.111111111111111
+      ],
+      "per_model_difference": {
+        "FacebookAI/roberta-base": 2,
+        "Qwen/Qwen2.5-0.5B-Instruct": 0,
+        "albert/albert-base-v2": -10,
+        "distilbert/distilbert-base-uncased": -16,
+        "google-bert/bert-base-uncased": -3,
+        "google/bert_uncased_L-2_H-128_A-2": -2,
+        "google/bert_uncased_L-4_H-256_A-4": -23,
+        "google/bert_uncased_L-4_H-512_A-8": -8,
+        "google/electra-small-discriminator": -1
+      }
+    },
+    {
+      "population": "all_workloads",
+      "baseline": "space_kernel_transfer",
+      "metric": "oracle_cost_matches",
+      "difference_total": 88,
+      "difference_mean_per_model": 9.777777777777779,
+      "descriptive_model_bootstrap_95_interval": [
+        0.0,
+        24.0
+      ],
+      "per_model_difference": {
+        "FacebookAI/roberta-base": -2,
+        "Qwen/Qwen2.5-0.5B-Instruct": 0,
+        "albert/albert-base-v2": -2,
+        "distilbert/distilbert-base-uncased": 0,
+        "google-bert/bert-base-uncased": -2,
+        "google/bert_uncased_L-2_H-128_A-2": 6,
+        "google/bert_uncased_L-4_H-256_A-4": 61,
+        "google/bert_uncased_L-4_H-512_A-8": 4,
+        "google/electra-small-discriminator": 23
+      }
+    },
+    {
+      "population": "all_workloads",
+      "baseline": "space_kernel_transfer",
+      "metric": "avoidable_gpu2_recommendations",
+      "difference_total": -25,
+      "difference_mean_per_model": -2.7777777777777777,
+      "descriptive_model_bootstrap_95_interval": [
+        -6.444444444444445,
+        0.2222222222222222
+      ],
+      "per_model_difference": {
+        "FacebookAI/roberta-base": -2,
+        "Qwen/Qwen2.5-0.5B-Instruct": 0,
+        "albert/albert-base-v2": 4,
+        "distilbert/distilbert-base-uncased": 0,
+        "google-bert/bert-base-uncased": 0,
+        "google/bert_uncased_L-2_H-128_A-2": -4,
+        "google/bert_uncased_L-4_H-256_A-4": -15,
+        "google/bert_uncased_L-4_H-512_A-8": -6,
+        "google/electra-small-discriminator": -2
+      }
+    },
+    {
+      "population": "all_workloads",
+      "baseline": "space_ridge",
+      "metric": "successful_choices",
+      "difference_total": 74,
+      "difference_mean_per_model": 8.222222222222221,
+      "descriptive_model_bootstrap_95_interval": [
+        0.6638888888888914,
+        15.444444444444445
+      ],
+      "per_model_difference": {
+        "FacebookAI/roberta-base": 6,
+        "Qwen/Qwen2.5-0.5B-Instruct": 0,
+        "albert/albert-base-v2": 15,
+        "distilbert/distilbert-base-uncased": 5,
+        "google-bert/bert-base-uncased": 6,
+        "google/bert_uncased_L-2_H-128_A-2": -14,
+        "google/bert_uncased_L-4_H-256_A-4": 28,
+        "google/bert_uncased_L-4_H-512_A-8": 20,
+        "google/electra-small-discriminator": 8
+      }
+    },
+    {
+      "population": "all_workloads",
+      "baseline": "space_ridge",
+      "metric": "false_approvals",
+      "difference_total": -16,
+      "difference_mean_per_model": -1.7777777777777777,
+      "descriptive_model_bootstrap_95_interval": [
+        -19.555555555555557,
+        13.444444444444445
+      ],
+      "per_model_difference": {
+        "FacebookAI/roberta-base": -5,
+        "Qwen/Qwen2.5-0.5B-Instruct": -26,
+        "albert/albert-base-v2": -59,
+        "distilbert/distilbert-base-uncased": 0,
+        "google-bert/bert-base-uncased": -5,
+        "google/bert_uncased_L-2_H-128_A-2": 14,
+        "google/bert_uncased_L-4_H-256_A-4": 26,
+        "google/bert_uncased_L-4_H-512_A-8": 23,
+        "google/electra-small-discriminator": 16
+      }
+    },
+    {
+      "population": "all_workloads",
+      "baseline": "space_ridge",
+      "metric": "oracle_cost_matches",
+      "difference_total": 161,
+      "difference_mean_per_model": 17.88888888888889,
+      "descriptive_model_bootstrap_95_interval": [
+        0.6666666666666666,
+        40.55555555555556
+      ],
+      "per_model_difference": {
+        "FacebookAI/roberta-base": 4,
+        "Qwen/Qwen2.5-0.5B-Instruct": -3,
+        "albert/albert-base-v2": 6,
+        "distilbert/distilbert-base-uncased": 3,
+        "google-bert/bert-base-uncased": 0,
+        "google/bert_uncased_L-2_H-128_A-2": -4,
+        "google/bert_uncased_L-4_H-256_A-4": 95,
+        "google/bert_uncased_L-4_H-512_A-8": 56,
+        "google/electra-small-discriminator": 4
+      }
+    },
+    {
+      "population": "all_workloads",
+      "baseline": "space_ridge",
+      "metric": "avoidable_gpu2_recommendations",
+      "difference_total": -94,
+      "difference_mean_per_model": -10.444444444444445,
+      "descriptive_model_bootstrap_95_interval": [
+        -27.77777777777778,
+        2.6666666666666665
+      ],
+      "per_model_difference": {
+        "FacebookAI/roberta-base": 2,
+        "Qwen/Qwen2.5-0.5B-Instruct": 0,
+        "albert/albert-base-v2": 9,
+        "distilbert/distilbert-base-uncased": 0,
+        "google-bert/bert-base-uncased": 6,
+        "google/bert_uncased_L-2_H-128_A-2": -10,
+        "google/bert_uncased_L-4_H-256_A-4": -67,
+        "google/bert_uncased_L-4_H-512_A-8": -36,
+        "google/electra-small-discriminator": 2
+      }
+    },
+    {
+      "population": "unprobed_workloads",
+      "baseline": "space_kernel_transfer",
+      "metric": "successful_choices",
+      "difference_total": 69,
+      "difference_mean_per_model": 7.666666666666667,
+      "descriptive_model_bootstrap_95_interval": [
+        -0.6666666666666666,
+        18.88888888888889
+      ],
+      "per_model_difference": {
+        "FacebookAI/roberta-base": -4,
+        "Qwen/Qwen2.5-0.5B-Instruct": 0,
+        "albert/albert-base-v2": 3,
+        "distilbert/distilbert-base-uncased": 0,
+        "google-bert/bert-base-uncased": 0,
+        "google/bert_uncased_L-2_H-128_A-2": 2,
+        "google/bert_uncased_L-4_H-256_A-4": 46,
+        "google/bert_uncased_L-4_H-512_A-8": -2,
+        "google/electra-small-discriminator": 24
+      }
+    },
+    {
+      "population": "unprobed_workloads",
+      "baseline": "space_kernel_transfer",
+      "metric": "false_approvals",
+      "difference_total": -61,
+      "difference_mean_per_model": -6.777777777777778,
+      "descriptive_model_bootstrap_95_interval": [
+        -12.222222222222221,
+        -2.0
+      ],
+      "per_model_difference": {
+        "FacebookAI/roberta-base": 2,
+        "Qwen/Qwen2.5-0.5B-Instruct": 0,
+        "albert/albert-base-v2": -10,
+        "distilbert/distilbert-base-uncased": -16,
+        "google-bert/bert-base-uncased": -3,
+        "google/bert_uncased_L-2_H-128_A-2": -2,
+        "google/bert_uncased_L-4_H-256_A-4": -23,
+        "google/bert_uncased_L-4_H-512_A-8": -8,
+        "google/electra-small-discriminator": -1
+      }
+    },
+    {
+      "population": "unprobed_workloads",
+      "baseline": "space_kernel_transfer",
+      "metric": "oracle_cost_matches",
+      "difference_total": 88,
+      "difference_mean_per_model": 9.777777777777779,
+      "descriptive_model_bootstrap_95_interval": [
+        -0.2222222222222222,
+        24.0
+      ],
+      "per_model_difference": {
+        "FacebookAI/roberta-base": -2,
+        "Qwen/Qwen2.5-0.5B-Instruct": 0,
+        "albert/albert-base-v2": -2,
+        "distilbert/distilbert-base-uncased": 0,
+        "google-bert/bert-base-uncased": -2,
+        "google/bert_uncased_L-2_H-128_A-2": 6,
+        "google/bert_uncased_L-4_H-256_A-4": 61,
+        "google/bert_uncased_L-4_H-512_A-8": 4,
+        "google/electra-small-discriminator": 23
+      }
+    },
+    {
+      "population": "unprobed_workloads",
+      "baseline": "space_kernel_transfer",
+      "metric": "avoidable_gpu2_recommendations",
+      "difference_total": -25,
+      "difference_mean_per_model": -2.7777777777777777,
+      "descriptive_model_bootstrap_95_interval": [
+        -6.555555555555555,
+        0.2222222222222222
+      ],
+      "per_model_difference": {
+        "FacebookAI/roberta-base": -2,
+        "Qwen/Qwen2.5-0.5B-Instruct": 0,
+        "albert/albert-base-v2": 4,
+        "distilbert/distilbert-base-uncased": 0,
+        "google-bert/bert-base-uncased": 0,
+        "google/bert_uncased_L-2_H-128_A-2": -4,
+        "google/bert_uncased_L-4_H-256_A-4": -15,
+        "google/bert_uncased_L-4_H-512_A-8": -6,
+        "google/electra-small-discriminator": -2
+      }
+    },
+    {
+      "population": "unprobed_workloads",
+      "baseline": "space_ridge",
+      "metric": "successful_choices",
+      "difference_total": 74,
+      "difference_mean_per_model": 8.222222222222221,
+      "descriptive_model_bootstrap_95_interval": [
+        0.6666666666666666,
+        15.555555555555555
+      ],
+      "per_model_difference": {
+        "FacebookAI/roberta-base": 6,
+        "Qwen/Qwen2.5-0.5B-Instruct": 0,
+        "albert/albert-base-v2": 15,
+        "distilbert/distilbert-base-uncased": 5,
+        "google-bert/bert-base-uncased": 6,
+        "google/bert_uncased_L-2_H-128_A-2": -14,
+        "google/bert_uncased_L-4_H-256_A-4": 28,
+        "google/bert_uncased_L-4_H-512_A-8": 20,
+        "google/electra-small-discriminator": 8
+      }
+    },
+    {
+      "population": "unprobed_workloads",
+      "baseline": "space_ridge",
+      "metric": "false_approvals",
+      "difference_total": -16,
+      "difference_mean_per_model": -1.7777777777777777,
+      "descriptive_model_bootstrap_95_interval": [
+        -19.77777777777778,
+        13.11111111111111
+      ],
+      "per_model_difference": {
+        "FacebookAI/roberta-base": -5,
+        "Qwen/Qwen2.5-0.5B-Instruct": -26,
+        "albert/albert-base-v2": -59,
+        "distilbert/distilbert-base-uncased": 0,
+        "google-bert/bert-base-uncased": -5,
+        "google/bert_uncased_L-2_H-128_A-2": 14,
+        "google/bert_uncased_L-4_H-256_A-4": 26,
+        "google/bert_uncased_L-4_H-512_A-8": 23,
+        "google/electra-small-discriminator": 16
+      }
+    },
+    {
+      "population": "unprobed_workloads",
+      "baseline": "space_ridge",
+      "metric": "oracle_cost_matches",
+      "difference_total": 161,
+      "difference_mean_per_model": 17.88888888888889,
+      "descriptive_model_bootstrap_95_interval": [
+        0.6666666666666666,
+        40.77777777777778
+      ],
+      "per_model_difference": {
+        "FacebookAI/roberta-base": 4,
+        "Qwen/Qwen2.5-0.5B-Instruct": -3,
+        "albert/albert-base-v2": 6,
+        "distilbert/distilbert-base-uncased": 3,
+        "google-bert/bert-base-uncased": 0,
+        "google/bert_uncased_L-2_H-128_A-2": -4,
+        "google/bert_uncased_L-4_H-256_A-4": 95,
+        "google/bert_uncased_L-4_H-512_A-8": 56,
+        "google/electra-small-discriminator": 4
+      }
+    },
+    {
+      "population": "unprobed_workloads",
+      "baseline": "space_ridge",
+      "metric": "avoidable_gpu2_recommendations",
+      "difference_total": -94,
+      "difference_mean_per_model": -10.444444444444445,
+      "descriptive_model_bootstrap_95_interval": [
+        -27.666666666666668,
+        2.5555555555555554
+      ],
+      "per_model_difference": {
+        "FacebookAI/roberta-base": 2,
+        "Qwen/Qwen2.5-0.5B-Instruct": 0,
+        "albert/albert-base-v2": 9,
+        "distilbert/distilbert-base-uncased": 0,
+        "google-bert/bert-base-uncased": 6,
+        "google/bert_uncased_L-2_H-128_A-2": -10,
+        "google/bert_uncased_L-4_H-256_A-4": -67,
+        "google/bert_uncased_L-4_H-512_A-8": -36,
+        "google/electra-small-discriminator": 2
+      }
+    }
+  ]
+}

@@ -1,0 +1,450 @@
+AI-MCMP PPT 담당 범위별 정리
+작성일: 2026-10-06
+담당 범위: ① 현재 세션 연구 ② 전체 아키텍처 ③ 다른 기관 연동
+
+======================================================================
+0. 발표에서 먼저 말할 범위
+======================================================================
+
+이번 발표의 주제는 “AI 응용의 요구·자원 조건을 해석해 형상과 운영 판단에 필요한 연구 신호를 만들고, 이를 INNO·ETRI 실행 구조에 연결하는 방법”이다.
+
+경희대가 담당하는 연구 범위:
+- 응용 조건을 이용한 추상 인프라 형상 추천
+- GPU 위험·수요·계측 신호 예측
+- 배포·스케일 판단에 사용할 보정 및 추론 최적화
+- 연구 결과를 단위·근거·보류 상태와 함께 전달하는 메커니즘
+
+현재 발표에서 운영 완성으로 말하면 안 되는 항목:
+- 실제 VM 생성·삭제 성공
+- 실제 사용자 SLO 개선
+- 학습된 SCALE_OUT/SCALE_IN 정책의 인과 효과
+- 자연어 요청에서 최소 CPU·RAM·GPU·노드 수를 자동으로 정답화
+- 경희대 연구 모듈과 INNO·ETRI가 실제 운영 API로 통합된 상태
+
+권장 결론 문장:
+“현재까지는 정적 형상 추천, 운영 위험·수요 신호, 계측 예측, 판단 함수 계산 효율을 저장 자료로 검증했다. 다음 단계는 이 연구 결과를 실제 앱 요구·자원 후보·배포 action·READY·사용자 결과와 연결해 운영 판단 효과를 검증하는 것이다.”
+
+======================================================================
+1. 현재 세션 연구: 발표 구성
+======================================================================
+
+1-1. 연구 전체 지도
+
+연구 모듈 | 해결하려는 문제 | 출력 | 핵심 검증 결과
+정적 GPU/CPU 형상 추천 | 앱 조건에 맞는 최소 후보를 고르기 어려움 | 후보별 배치 p95·벤치마크 호출률·선택/ABSTAIN | 성공 추천 36→54건; p95 APE 73.71→16.99%
+GPU 위험 확률·슬롯 보정 | 다음 30분 고사용률 위험과 장치별 편향 | 0~1 확률, 기계·슬롯 보정량 | 새37기계 Brier 13.46% 감소; 별도51기계 슬롯 추가 2.63% 감소
+Coding 단기 수요 | 다음 5분 입력량을 자원 판단에 넣기 어려움 | 다음5분 표본 입력 토큰 q90 | pinball 742,048→418,627, 43.6% 감소
+준비 지연 수요 | VM/응용 준비 중 부하를 반영하기 어려움 | 준비5/10/30분 동안 최대5분 토큰량 q90 | Coding 32.92/33.89/61.29%; LMM 5.65/4.19/6.05%
+Copilot 호출 피드백 | 호출 수의 급증·완료 지연·분포 변화를 보정하기 어려움 | 최대5분 호출 수 q90·완료 잔차 보정 | 5/10/30분 13.60/12.11/6.51% 감소(후향 탐색)
+BurstGPT 희소 호출 | 희소·0호출 구간 때문에 상대 수요가 불안정함 | cohort별 호출 수 q90 | 첫12조건 중3조건 통과; 전체 채택 아님
+Alibaba GPU SM | 현재 GPU 사용률만으로 다음 시간을 예측하기 어려움 | 다음시간 SM 사용률(%) | 미래 주집합 MAE 8.97% 감소, 보조집합 12.47% 감소
+판단 추론 최적화 | 같은 예측을 반복해 판단 시간이 늘어남 | 동일 결과의 재사용·묶음 예측 | 동일 SLO 20.13배; v7 벽시계 10.63% 감소
+
+중요: 서로 다른 연구의 개선율은 합산하지 않는다. 각각의 정답 단위·데이터·시험 집합이 다르다.
+
+1-2. 정적 GPU/CPU 형상 추천
+
+발표 메시지
+“앱 조건에서 배치 성능을 예측하고, 지연과 요청률 목표를 동시에 만족하는 최소 후보만 승인한다.”
+
+데이터
+- SQLite 7개: 총 9,591 실행, 유효 후보 9,445 실행, 671 workload 그룹.
+- 주 학습: khu-hf-local-exhaustive 4,856 실행, 575 그룹, 9개 응용 모델.
+- 원본: /path/to/aiops/runs/khu-hf-local-exhaustive/executions.sqlite3
+- 정제 스냅샷: /home/researcher/ai-mcmp/research/data/audit_v1/measurements.parquet
+- 실행 기간: 2026-09-10~11.
+
+입력·정답
+- 입력: model_id/revision, device, batch_size, max_length, request_concurrency, CPU threads/affinity, replica_count, repeats.
+- 정답: batch invocation p95 latency(ms), examples/sec.
+- 요청률 판정: examples/sec ÷ batch_size.
+- 후보: GPU process replica 1/2 × CPU affinity 2/4/8/16 = 8개.
+- 2 replica 지연은 느린 replica p95, 처리량은 합계다.
+
+방법
+- 범주형 3개를 one-hot하고 수치 특징을 함께 Extra Trees에 입력.
+- ExtraTreesRegressor 200 trees, min_samples_leaf=2, max_features=1.0, seed=42, n_jobs=2.
+- 지연·처리량을 로그 변환해 학습하고 예측 뒤 지수 복원.
+- 같은 workload의 후보를 그룹 단위로 train/validation/test 분리.
+- 후보별 예측 p95≤목표 지연, 예측 요청률≥목표 요청률을 동시에 검사.
+- 통과 후보 중 replica 수와 affinity 코어 수가 가장 작은 후보 선택. 지원 범위 밖이면 ABSTAIN.
+
+결과
+- Test 760행: p95 중앙 APE 73.714%→16.992%.
+- Test 760행: examples/sec 중앙 APE 66.008%→10.412%.
+- GPU 90작업: 기준선 승인42/성공36/오승인6.
+- 우리 모델: 승인54/성공54/오승인0/최소 형상 일치50.
+- 실측상 가능한 작업은55개. 35개는 8후보 모두 불가, 32개는 모두 가능, 23개는 일부 가능.
+
+해석 한계
+- 생성기가 만든 목표와 동일 호스트의 정적 배치 측정에 대한 결과다.
+- process replica 1/2는 VM 1/2대가 아니다.
+- CPU affinity는 VM vCPU 수가 아니다.
+- 실제 RAM, GPU 종류, CSP/리전, 가격, 사용자 E2E SLO는 검증하지 않았다.
+
+PPT 근거·코드
+- 근거: /home/researcher/ai-mcmp/research/artifacts/performance_v1/metrics.json
+- 추천 감사: /home/researcher/ai-mcmp/research/artifacts/saved_gpu_shape_decision_audit_v1/metrics.json
+- 학습: /home/researcher/ai-mcmp/research/scripts/train_performance.py
+- 추론·보류: /home/researcher/ai-mcmp/research/scripts/assess_gpu_shape.py
+- 감사: /home/researcher/ai-mcmp/research/scripts/audit_saved_gpu_shape_decisions.py
+
+1-3. GPU 위험 확률과 기계·슬롯 피드백 보정
+
+발표 메시지
+“최근 GPU 사용률로 다음 30분의 고사용률 위험을 계산하고, 전날 완료된 결과로 기계·슬롯 편향을 보정한다.”
+
+데이터·정답
+- Microsoft Research Philly GPU 1분 계측, 원본 44,750,640행·552기계.
+- 과거 5분 평균 창 3개와 현재 상태·추세를 입력.
+- 정답: 뒤 30분의 6개 5분 창 중 하나라도 평균 사용률 80% 이상이면 사건.
+- 주 결과: 새 기계 37대·741,597 판단.
+- 슬롯 결과: 별도 새 기계 51대·812,729 판단.
+
+방법
+- 통합 L2 LogisticRegression으로 기본 위험확률 p0 생성.
+- 학습/검증에서 결측 대체·표준화를 적합하고, C=10을 선택.
+- 전날 기계별 로그오즈 절편 δ를 먼저 보정.
+- 같은 기계 안에서 슬롯 잔차 g를 추가.
+- 보정량은 벌점20, ±0.5로 제한.
+- 판단 당일의 미래 정답은 사용하지 않고 전날 완료·전달된 피드백만 사용.
+
+결과
+- 새37기계: Beta 기준선 Brier 0.089879→통합 로지스틱 0.077783, 상대 13.46% 감소.
+- AP: 0.457322→0.707340.
+- 별도 새51기계: 정확 기계별 보정 Brier 0.085786→기계+슬롯 보정 0.083532, 추가 2.63% 감소.
+- 51기계 중44기계에서 개선.
+
+해석 한계
+- GPU 사용률 사건 확률이며 AI-App 사용자 SLO가 아니다.
+- 실제 VM Scale-out/in 효과를 측정하지 않았다.
+- Philly 공개 자료의 실제 feedback arrival time은 없어, 결과 완료 즉시 전달된다고 가정했다.
+- 37·41·51기계 시험 결과의 개선율을 합산하지 않는다.
+
+근거·코드
+- 근거: /home/researcher/ai-mcmp/research/artifacts/philly_machine_holdout_score_v1/metrics.json
+- 슬롯 결과: /home/researcher/ai-mcmp/research/artifacts/philly_slot_day_holdout_v1/result.json
+- 모델 명세: /home/researcher/ai-mcmp/research/artifacts/philly_machine_holdout_model_v1/model_spec.json
+- 학습·평가: /home/researcher/ai-mcmp/research/scripts/evaluate_philly_gpu_risk.py
+- 보정 코어: /home/researcher/ai-mcmp/research/policies/philly_slot_day.py
+- 검증: /home/researcher/ai-mcmp/research/scripts/verify_philly_slot_day_holdout.py
+
+1-4. 수요·준비 지연 연구
+
+A. Coding 다음5분 입력 토큰 q90
+- 데이터: 16,803,695 요청, 2024-05-10~16, 2,016개 5분 구간.
+- 입력: 직전 1시간 규모로 정규화한 최근 수요·시간 특징.
+- 학습: quantile HGB, q=.9, 150 iter, learning rate=.05, leaf7, min leaf20, L2=1, seed42.
+- 결과: Coding 3일 pinball 742,048→418,627, 43.6% 감소.
+- 피복: 93.75%, 92.01%, 93.75%.
+- 전이 한계: Conversation 348,600 대 최근 기준선335,196으로 악화.
+- 근거: /home/researcher/ai-mcmp/research/artifacts/azure_code_input_demand_v1/results.json
+- 코드: /home/researcher/ai-mcmp/research/scripts/evaluate_azure_code_input_demand.py
+
+B. 준비 지연 대응
+- 정답: 현재 5분부터 준비 완료 직후 5분까지의 최대 5분 토큰량.
+- 준비 지연: 5/10/30분, 대상 창 10/15/35분.
+- Coding 감소: 32.92%, 33.89%, 61.29%.
+- LMM 감소: 5.65%, 4.19%, 6.05%.
+- LMM 10분 4.19%는 5% 개선 기준 미달.
+- 평가행: Coding 863/862/858, LMM 863/862/858.
+- 실제 VM 준비시간·GPU 용량·사용자 SLO는 포함하지 않음.
+- 근거: /home/researcher/ai-mcmp/research/artifacts/delay_capacity_v2/results.json
+- 검증: /home/researcher/ai-mcmp/research/artifacts/delay_capacity_v2/audit.json
+- 코드: /home/researcher/ai-mcmp/research/scripts/train_evaluate_delay_capacity.py, delay_capacity_policy.py, verify_delay_capacity.py
+
+C. Copilot 호출 피드백
+- 부모 q90 모델은 고정하고, 완료된 잔차만 사용해 보정.
+- 보정 기준선 대비 5/10/30분 손실 감소: 13.60%/12.11%/6.51%.
+- 피복: 89.55%/88.81%/89.72%.
+- 상태: EXPLORATORY_PASS, 후향으로 노출된 하루, 운영 채택 아님.
+- 검증: 45 independent replays, 64,800 forecast rows, future mutation checks.
+- 근거: /home/researcher/ai-mcmp/research/artifacts/copilot_call_feedback_v1/results.json, verification.json
+- 코드: /home/researcher/ai-mcmp/research/scripts/copilot_call_extended.py, copilot_call_feedback.py, verify_copilot_call_feedback.py
+
+D. BurstGPT 호출 수요
+- 4 cohort × 3 horizon의 12조건을 분리 평가.
+- 첫 평가에서 12조건 중 3조건만 5% 개선·피복 gate 통과.
+- Conversation은 일관된 개선이 아니며 전체 채택 false.
+- 호출 수는 토큰 수·GPU 수·VM 수가 아니다.
+- 근거: /home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/results.json, verification.json
+- 코드: /home/researcher/ai-mcmp/research/scripts/burstgpt_sparse_calls.py, verify_burstgpt_sparse_calls_precision.py
+
+1-5. Alibaba GPU SM 예측
+
+발표 메시지
+“현재 SM 수준과 최근 추세에서 다음 시간 SM 변화량을 예측해 운영 관측 신호를 보강한다.”
+
+데이터·방법
+- Alibaba cluster-trace-gpu-v2026, 미래 day116~122를 고정 모델로 평가.
+- 입력: 현재·과거 SM, 평균·표준편차·변화량, GPU 유형, priority class, server GPU 수, CPU 요청량.
+- HGB absolute_error, 150 iter, learning rate .05, leaf15, min leaf50, L2=1, seed42.
+- 현재 SM + residual HGB, 0~100% clip.
+
+결과
+- 엄격 주 집합: 12,097행·30 workloads, persistence MAE1.627406→1.481500, 8.97% 감소.
+- 보조 집합: 103,306행·368 workloads, MAE2.073320→1.814805, 12.47% 감소.
+- 두 집합 7/7일 개선.
+- 완전 새 workload 진단층은 19.71% 악화했으므로 전반 일반화로 표현하지 않는다.
+
+한계
+- 같은 공개 클러스터의 미래 기간 평가다.
+- 실제 사용자 SLO, OOM, VM 증설 효과가 없다.
+- priority class는 feature이며 스케줄러 구현이 아니다.
+- 실제 데이터셋은 Alibaba GPU v2026이며 Spot GPU 정책 데이터와 다르다.
+
+근거·코드
+- 결과: /home/researcher/ai-mcmp/research/artifacts/alibaba_gpu_sm_future_confirmation_v1/metrics.json
+- 검증: /home/researcher/ai-mcmp/research/artifacts/alibaba_gpu_sm_future_confirmation_v1/replay_verification.json
+- 학습: /home/researcher/ai-mcmp/research/scripts/train_alibaba_gpu_sm_hour.py
+- 평가: /home/researcher/ai-mcmp/research/scripts/evaluate_alibaba_gpu_sm_future.py
+
+1-6. 판단 추론 최적화
+
+발표 메시지
+“예측과 출력은 유지하면서 중복 예측과 작은 묶음 호출의 계산 비용을 줄였다.”
+
+결과
+- 동일 8후보의 25개 SLO 질의: 487.01ms→24.19ms, 20.13배, 5,625 JSON 쌍 모두 동일.
+- 575 고유 격자 64→256 묶음: 벽시계 747.305→528.949ms, 짝별 시간비 중앙1.518배.
+- 최신 v7 고유 격자: 362.711→324.155ms, 벽시계10.63% 감소.
+- 같은 v7 고유 시험의 누적 CPU: 362.708→430.657ms, 18.73% 증가.
+- peak RSS 증가 .047MiB, 20MiB 한도 안.
+
+근거·코드
+- 결과: /home/researcher/ai-mcmp/research/artifacts/row_partition_forest_confirmation_v1/results.json
+- 보고서: /home/researcher/ai-mcmp/research/reports/decision_inference_row_partition_findings_2026_10_05.md
+- v7: /home/researcher/ai-mcmp/research/scripts/assess_gpu_shape_microbatch_v7.py
+- 행 분할: /home/researcher/ai-mcmp/research/scripts/row_partition_forest_predict.py
+
+======================================================================
+2. 전체 아키텍처: PPT에 넣을 구조
+======================================================================
+
+2-1. 한 장 요약 그림
+
+[사용자 요청 / AI 응용 정보]
+            |
+            v
+[응용 요구사항 구조화]
+  model/revision, 입력, batch, 동시성, SLO
+            |
+            v
+[경희대 연구 판단 계층]
+  ① 지원 조건 확인·ABSTAIN
+  ② 요구 신호 추정
+  ③ 정적 GPU/CPU 형상 추천
+  ④ 수요·준비 지연 예측
+  ⑤ GPU 위험·SM 운영 신호
+  ⑥ DEPLOY/UPDATE/SCALE_OUT/SCALE_IN/KEEP 판단 메커니즘
+            |
+            | Deployment Spec 또는 연구 증거
+            v
+[이노그리드 AI-App 실행 계층]
+  App Registry / 버전 / 명세 변환 / 모니터링 / Adapter / 응용 배포
+            |
+            | VM 생성·삭제 요청
+            v
+[ETRI 인프라 계층]
+  CSP·리전·VM 후보 / 가격·가용량 / 실제 VM 제어
+            |
+            v
+[실행된 VM·AI 응용]
+  상태·로그·자원 사용량·사용자 요청 결과
+            |
+            +-------------------- 피드백 -------------------+
+                                 |
+                                 v
+                [경희대 보정·추론 최적화·후속 판단]
+
+PPT 그림에서 경희대 영역은 파란색, INNO는 초록색, ETRI는 주황색으로 구분한다. 실선은 기존 역할·구조, 점선은 협의가 필요한 제안 연결로 표시한다.
+
+2-2. 모듈별 역할
+
+경희대 핵심 모듈
+- Requirement Analyzer: 구조화된 앱 조건을 읽고 입력 누락·지원 범위를 확인.
+- Shape Predictor/Selector: 성능 모델로 후보를 평가하고 최소 형상 또는 ABSTAIN 반환.
+- Demand Predictor: 서비스·단위·준비 지연에 맞는 토큰/호출 q90 반환.
+- Risk/Telemetry Predictor: GPU 고사용률 확률과 SM 신호 반환.
+- Feedback Calibrator: 완료·가용 시각이 확인된 정답으로 보정.
+- Decision Engine: 연구 결과·앱 목표·운영 상태를 이용해 DEPLOY/UPDATE/SCALE_OUT/SCALE_IN/KEEP 후보를 판단하는 연구 계층. 현재 실제 정책 효과는 미검증.
+- Evidence/Guard: 모델 버전, 입력 출처, 단위, 예측 기간, 지원 여부, ABSTAIN 이유를 보존.
+
+이노그리드 모듈
+- ApplicationProfile과 앱 버전 관리.
+- 사용자 요청·응용 운영 정보·모니터링 결과 수집.
+- 경희대가 반환한 추상 결과를 플랫폼 Deployment Manifest로 변환.
+- 실행·업데이트·상태·로그 관리.
+- 경희대 SCALE_OUT/IN 결과를 바탕으로 ETRI VM 요청 흐름 관리.
+
+ETRI 모듈
+- 실제 자원 목록·상태 제공.
+- 경희대 추상 요구와 INNO 요청을 바탕으로 CSP/리전/VM 세부 선택.
+- 가격·가용률·위치·실제 VM 생성/삭제.
+- 생성된 자원 ID와 상태 반환.
+
+2-3. 현재 PoC와 연구 계층의 차이
+
+현재 연구 출력은 “연구용 추정/보류”다.
+- batch p95는 사용자 E2E p95가 아니다.
+- examples/sec÷batch는 실제 서비스 요청률이 아니다.
+- process replica는 VM 수가 아니다.
+- CPU affinity는 VM vCPU 수가 아니다.
+- 관측 reserved VRAM은 최소 VM 메모리가 아니다.
+- 수요 토큰/호출 수는 GPU 수로 직접 환산하지 않는다.
+
+실제 실행계획에 필요한 추가 자료
+- 사용자 SLO와 비용 한도.
+- ETRI 후보의 CPU/RAM/GPU 종류·수·메모리·노드 수·가격·가용량.
+- 이미지, 노드 라벨, 배치 제약.
+- 모델 dtype·메모리 정의와 실제 앱 처리량.
+- action 접수, VM/앱 READY, 트래픽 전환, 후속 사용자 지표.
+
+======================================================================
+3. 다른 기관 연동: PPT 내용
+======================================================================
+
+3-1. 기관 간 데이터 흐름
+
+1. INNO가 앱 프로필·사용자 목표·모델 실행 조건을 제공.
+2. INNO 또는 ETRI가 자원 후보·상태·가용량·가격·계측을 제공.
+3. 경희대가 입력 지원 여부를 확인하고 연구 모듈을 선택.
+4. 경희대가 추상 Deployment Spec 또는 연구 증거를 반환.
+5. INNO가 실제 플랫폼 명세로 변환하고 실행 요청을 관리.
+6. ETRI가 실제 CSP/리전/VM을 결정하고 자원을 생성·삭제.
+7. INNO가 응용을 배포하고 상태·로그·모니터링을 저장.
+8. 실행 결과·READY·라우팅·사용자 지표를 action_id/decision_id로 연결.
+9. 경희대는 완료되고 available_at이 판단 시점 이전인 결과만 후속 보정에 사용.
+
+3-2. 경희대가 받아야 할 입력
+
+입력 그룹 | 필수 내용 | 제공 기관
+앱 식별 | app_id, app_version, profile_id, workload_id | INNO
+응용 조건 | model_id/revision/dtype, 모델 크기, 입력 크기·토큰, batch, 동시성 | INNO/사용자
+사용자 목표 | p95, 처리량, 비용 한도, 허용 준비시간 | INNO/사용자
+실행 조건 | 이미지, 런타임, 노드 라벨, 배치·anti-affinity 조건 | INNO
+자원 후보 | resource_id, CSP, 리전, CPU/RAM/GPU 종류·수·메모리, 노드 수 | ETRI
+자원 상태 | 총량, 가용량, 건강 상태, observed_at, available_at | ETRI
+가격 | 가격·통화·시간 기준·가격 유효기간 | ETRI
+운영 관측 | GPU/CPU/RAM, 요청량, queue, 오류, 응답 지연, 앱 상태 | INNO/ETRI
+실행 피드백 | action_id, 접수·READY·FAILED·라우팅 시각, 실제 replica/VM 수 | INNO/ETRI
+
+3-3. 경희대가 반환할 출력
+
+출력 | 단위·의미 | 현재 상태
+predicted_batch_latency_p95_ms | 배치 호출 p95, ms | 구현·검증됨
+predicted_benchmark_call_rate | examples/sec÷batch, calls/s | 구현·검증됨; E2E 요청률 아님
+selected_process_shape | GPU process replicas, CPU affinity cores | 구현·검증됨; VM 형상 아님
+next_5min_sample_input_tokens_q90 | 표본 입력 토큰, 5분 q90 | Coding에서 검증됨
+peak_5min_sample_input_tokens_q90 | 준비 지연 창의 최대 5분 토큰량 | Coding/LMM별 탐색 검증
+peak_5min_recorded_calls_q90 | 5분 기록 호출 수 q90 | Copilot/BurstGPT 조건별 검증
+next_30min_gpu_high_util_probability | 30분 내 평균 GPU 사용률≥80% 확률 | Philly에서 검증
+next_hour_sm_percent | 다음 시간 SM 사용률 % | Alibaba 조건별 검증
+support_status/result_status | SUPPORTED/ABSTAIN, RESEARCH_ESTIMATE | 구현 기반; 기관 API 합의 필요
+abstain_reasons | 누락·범위 밖·단위 불일치·피드백 부족 | 구현·계약 기반
+provenance | 모델/코드/데이터 해시, 관측·판단 시각 | 증거 스키마 기반
+
+3-4. 기존 Go 구조와의 연결
+
+기존 formal 경로:
+ApplicationProfile + ResourceRecommendation
+→ 판단·Guard
+→ DeploymentPlan
+→ DesiredDeploymentSpec / Adapter
+
+연결 원칙
+- 연구 결과는 기존 Go의 ResourceRecommendation을 자동으로 대체하지 않는다.
+- 연구 증거는 후보 평가의 근거로 전달할 수 있지만, 가격·가용량·CSP·리전이 없으면 최종 후보를 만들지 않는다.
+- 연구 결과가 SLO를 만족한다고 예측해도 ResourceCandidate.Feasible=true 또는 실행 승인으로 자동 변환하지 않는다.
+- 연구 결과를 DeploymentPlan.Operation으로 바로 변환하지 않는다. 현재 상태·cooldown·READY·정책·Guard가 필요하다.
+- 기존 API·스키마는 기관 협의 전 변경하지 않는다.
+
+주요 필드 대응
+연구 출력 | 기존 Go 필드 | 주의
+application_ref | ApplicationProfile.profile_id/app_id/app_version | INNO 원본과 식별자 일치 확인
+앱 SLO | ApplicationRequirements.SLO | batch 목표와 E2E 목표 구분
+selected_process_shape | ResourceCandidate.resource_hints | CPU affinity/replica를 VM CPU/노드로 자동 대입 금지
+예측 지연·처리량 | ResourceScores/SLO 근거 | 연구 추정치와 Mock 점수 구분
+ETRI 후보 정보 | DesiredInfrastructure/ResourceCandidate | 실제 CSP·리전·가격·가용량 필요
+판단 결과 | DeploymentPlan.Operation | 예측만으로 DEPLOY/SCALE_OUT 발행 금지
+피드백 | metadata/실행 이벤트 | action_id·READY·라우팅·요청 결과 연결 필요
+
+3-5. 회의에서 결정해야 할 연동 항목
+
+1. 경희대 모듈을 INNO가 별도 서비스로 호출할지, INNO 에이전트 내부에 포함할지.
+2. INNO가 제공할 앱 조건·SLO·모니터링 데이터의 정확한 필드와 단위.
+3. ETRI 자원 조회·생성 API의 후보·가용량·가격·상태 스키마.
+4. 경희대가 추상 형상까지만 추천할지, ETRI 후보 점수까지 제공할지.
+5. 연구 결과 봉투를 기존 Go 계약의 별도 evidence 객체로 둘지, 별도 API로 둘지.
+6. available_at을 어디에서 기록하고 어떻게 지연 도착 관측을 구분할지.
+7. 실제 action_id/decision_id/READY/라우팅/request_id의 공통 식별자 규칙.
+8. SCALE_OUT/IN 판단의 연차별 구현 범위와 검증 방법.
+9. 실제 VM·앱 준비 완료와 사용자 SLO 결과를 누가 수집할지.
+10. 공동 개발 항목과 연차보고서 작성 책임.
+
+======================================================================
+4. PPT 권장 장표 구성(담당 범위)
+======================================================================
+
+장표 1. 경희대 담당 범위
+- 화면: 요구·형상·운영 판단·추론 최적화.
+- 핵심 수치보다 기관 경계를 먼저 설명.
+
+장표 2. 현재 세션 연구 지도
+- 화면: 8개 연구 모듈의 문제·출력·대표 결과.
+- 표의 개선율은 서로 합산하지 않음.
+
+장표 3. 데이터·모델·검증 원칙
+- 화면: SQLite/Philly/Azure/GHCP/BurstGPT/Alibaba의 정답 단위와 분할.
+- “응용 모델”과 “경희대가 학습한 예측기”를 구분.
+
+장표 4. 정적 형상 추천 방법·성과
+- 8후보 격자, 공동 목표 검사, 36→54, 73.71→16.99%.
+
+장표 5. 위험·수요·계측 신호 결과
+- 13.46%, 2.63%, 43.6%, Alibaba8.97%/12.47%.
+- 각각 시험 집합과 단위를 표시.
+
+장표 6. 준비 지연·호출 피드백
+- Coding/LMM 표, Copilot 표, BurstGPT 12조건.
+- 후향 탐색·조건부 개선·정책 NO_GO 표시.
+
+장표 7. 전체 아키텍처
+- INNO 앱/운영정보→경희대 연구판단→INNO 명세/실행→ETRI 자원제어→피드백.
+
+장표 8. 기관 연동 입력·출력
+- 제공 기관, 단위, available_at, 결과 status/보류 이유.
+
+장표 9. 기존 Go PoC 연결 경계
+- ApplicationProfile+ResourceRecommendation→Guard→DeploymentPlan.
+- 연구 증거와 최종 실행계획을 구분.
+
+장표 10. 현재 완료·미완료·회의 결정
+- 완료: 연구 신호·정적 추천·증거 기반.
+- 미완료: 실제 VM/사용자 효과·통합 에이전트.
+- 회의: API/식별자/데이터 계약.
+
+======================================================================
+5. PPT에서 피해야 할 표현
+======================================================================
+
+피해야 함 | 권장 표현
+“VM을54번 성공적으로 배포했다” | “GPU 정적 후보 90작업 중54개가 기록된 1회 측정 목표를 만족했다”
+“자동 스케일러를 완성했다” | “스케일 판단에 사용할 수요·위험 입력과 정책 재생 기반을 검증했다”
+“모든 AI 앱에 일반화됐다” | “해당 서비스·클러스터·지원 조건에서 개선을 확인했다”
+“GPU가 몇 개 필요한지 예측한다” | “기록된 후보 격자에서 배치 성능을 예측하고 최소 프로세스 후보를 선택한다”
+“수요 예측으로 VM 수를 계산한다” | “토큰/호출 수요 신호를 제공하며 용량 대응 자료가 추가로 필요하다”
+“새 AI 모델을 발명했다” | “표준 학습기를 연구 데이터에 적합하고 추천·보정·검증 절차를 구성했다”
+“Brier가 낮아져 SLO가 보장된다” | “고사용률 사건 확률 오차가 해당 시험에서 낮아졌다”
+“모든 결과가 검증됐다” | “저장 결과 재생·검산은 확인됐고 운영 일반화는 미검증이다”
+
+======================================================================
+6. 최종 발표 결론
+======================================================================
+
+“경희대 연구는 AI-App의 조건과 운영 관측을 직접 실행 명령으로 바꾸는 플랫폼 개발이 아니라, 요구·형상·수요·위험을 해석하고 판단에 필요한 근거를 만드는 연구 계층이다. 현재 세션에서는 정적 GPU/CPU 후보 선택, GPU 위험 보정, 서비스별 수요·준비 지연 예측, 완료 피드백, Alibaba SM 예측, 판단 계산 최적화를 검증했다. 이 결과를 INNO의 앱·실행 정보와 ETRI의 실제 후보·상태·가격에 연결하려면 공통 식별자, available_at, action/READY/사용자 결과 데이터가 필요하다.”
+
+핵심 근거 문서
+- /home/researcher/ai-mcmp/research/reports/ai_mcmp_research_ppt_detail_2026_10_06.txt
+- /home/researcher/ai-mcmp/research/reports/ai_mcmp_research_integration_design_2026_10_06.txt
+- /home/researcher/ai-mcmp/research/reports/ai_mcmp_rr_status_2026_10_06.txt

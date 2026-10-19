@@ -1,0 +1,131 @@
+{
+  "posthoc": true,
+  "no_models_fitted": true,
+  "test_previously_seen": true,
+  "operational_adoption": false,
+  "delays_minutes": {
+    "5": {
+      "train": {
+        "rows": 851,
+        "relative_peak_quantiles": {
+          "0.5": 1.0096277563334664,
+          "0.9": 1.213710143810001,
+          "0.95": 1.274117868294001,
+          "0.99": 1.3688932568055776
+        },
+        "model_coverage": 0.8965922444183314,
+        "selected_baseline_coverage": 0.7708578143360753,
+        "model_pinball": 42.23574279790998,
+        "underpredicted_origins": 88
+      },
+      "validation": {
+        "rows": 287,
+        "relative_peak_quantiles": {
+          "0.5": 1.0270191324667737,
+          "0.9": 1.196304523394773,
+          "0.95": 1.2359523472002065,
+          "0.99": 1.420996790082786
+        },
+        "model_coverage": 0.6794425087108014,
+        "selected_baseline_coverage": 0.89198606271777,
+        "model_pinball": 43.525689464276155,
+        "underpredicted_origins": 92
+      },
+      "test": {
+        "rows": 287,
+        "relative_peak_quantiles": {
+          "0.5": 1.0336967783314421,
+          "0.9": 1.2249443905712252,
+          "0.95": 1.2831978674160927,
+          "0.99": 1.3410149914223628
+        },
+        "model_coverage": 0.6968641114982579,
+        "selected_baseline_coverage": 0.8222996515679443,
+        "model_pinball": 40.55797914091856,
+        "underpredicted_origins": 87
+      }
+    },
+    "10": {
+      "train": {
+        "rows": 850,
+        "relative_peak_quantiles": {
+          "0.5": 1.0198644545297528,
+          "0.9": 1.2447918230462252,
+          "0.95": 1.315421113609915,
+          "0.99": 1.418832966770095
+        },
+        "model_coverage": 0.9011764705882352,
+        "selected_baseline_coverage": 0.7164705882352941,
+        "model_pinball": 42.799346568074135,
+        "underpredicted_origins": 84
+      },
+      "validation": {
+        "rows": 286,
+        "relative_peak_quantiles": {
+          "0.5": 1.0662472117575148,
+          "0.9": 1.2239595289138552,
+          "0.95": 1.2679658856442937,
+          "0.99": 1.4797253704365096
+        },
+        "model_coverage": 0.6223776223776224,
+        "selected_baseline_coverage": 0.8496503496503497,
+        "model_pinball": 47.637276071050024,
+        "underpredicted_origins": 108
+      },
+      "test": {
+        "rows": 286,
+        "relative_peak_quantiles": {
+          "0.5": 1.068749631652081,
+          "0.9": 1.2617617853994245,
+          "0.95": 1.3121383892668352,
+          "0.99": 1.3496039842713554
+        },
+        "model_coverage": 0.6608391608391608,
+        "selected_baseline_coverage": 0.7517482517482518,
+        "model_pinball": 48.14941308602177,
+        "underpredicted_origins": 97
+      }
+    },
+    "30": {
+      "train": {
+        "rows": 846,
+        "relative_peak_quantiles": {
+          "0.5": 1.0477723988928545,
+          "0.9": 1.3481363502887862,
+          "0.95": 1.4673254991791613,
+          "0.99": 1.6305953085424114
+        },
+        "model_coverage": 0.9078014184397163,
+        "selected_baseline_coverage": 0.851063829787234,
+        "model_pinball": 43.56770659441194,
+        "underpredicted_origins": 78
+      },
+      "validation": {
+        "rows": 282,
+        "relative_peak_quantiles": {
+          "0.5": 1.1078372570263262,
+          "0.9": 1.284269897839789,
+          "0.95": 1.3412559916454665,
+          "0.99": 1.5103343126063862
+        },
+        "model_coverage": 0.5921985815602837,
+        "selected_baseline_coverage": 0.8723404255319149,
+        "model_pinball": 57.12776960332151,
+        "underpredicted_origins": 115
+      },
+      "test": {
+        "rows": 282,
+        "relative_peak_quantiles": {
+          "0.5": 1.150798789499698,
+          "0.9": 1.3251253686596016,
+          "0.95": 1.3500034868592685,
+          "0.99": 1.4241881136038892
+        },
+        "model_coverage": 0.549645390070922,
+        "selected_baseline_coverage": 0.7269503546099291,
+        "model_pinball": 64.45389774174154,
+        "underpredicted_origins": 127
+      }
+    }
+  }
+}

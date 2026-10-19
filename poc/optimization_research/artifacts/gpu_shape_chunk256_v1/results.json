@@ -1,0 +1,267 @@
+{
+  "gates": {
+    "copied_speed_ratio_at_least_0_90": true,
+    "full_json_all_scenarios": true,
+    "peak_rss_increase_at_most_20_mib": true,
+    "shared_speed_ratio_at_least_0_90": true,
+    "unique_prediction_calls_9_to_3": true,
+    "unique_speedup_at_least_1_10": true
+  },
+  "memory": {
+    "copied_slo": {
+      "256": {
+        "batch": 256,
+        "outputs": 1125,
+        "peak_rss_mib": 443.676,
+        "scenario": "copied_slo"
+      },
+      "64": {
+        "batch": 64,
+        "outputs": 1125,
+        "peak_rss_mib": 443.453,
+        "scenario": "copied_slo"
+      }
+    },
+    "shared_slo": {
+      "256": {
+        "batch": 256,
+        "outputs": 1125,
+        "peak_rss_mib": 432.992,
+        "scenario": "shared_slo"
+      },
+      "64": {
+        "batch": 64,
+        "outputs": 1125,
+        "peak_rss_mib": 430.906,
+        "scenario": "shared_slo"
+      }
+    },
+    "unique_grids": {
+      "256": {
+        "batch": 256,
+        "outputs": 575,
+        "peak_rss_mib": 442.055,
+        "scenario": "unique_grids"
+      },
+      "64": {
+        "batch": 64,
+        "outputs": 575,
+        "peak_rss_mib": 441.93,
+        "scenario": "unique_grids"
+      }
+    }
+  },
+  "provenance": {
+    "model_sha256": "7a934da440ea0c7473e4e59eb5fa0c8c57f347389272bd303cb0051ef918b161",
+    "protocol_sha256": "e824868bc7848bdc34de7f66b03766b46686a11a19e9c53c23240b78e7856b41",
+    "script_sha256": "7315bf453efb48d63993387b31e6feddc917aaa2a565a04607e58e5cb3c1e975",
+    "source_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+    "v4_code_sha256": "191bb2b3fd5d4306078bd4e5d2ebd3d1c8f800023e3eccd8963a1af1fc57dbef",
+    "v5_code_sha256": "7dac3164597aaff2bbe8565fd88cfe46fdd9bdcd0cb565a20ba61826f3677de9"
+  },
+  "repetitions": 7,
+  "scenarios": {
+    "copied_slo": {
+      "blocks": 45,
+      "canonical_result_sha256": "87834d2c56f7b1924adecbaaf3bfa40e4a4821cf7e8f0f4a07943abb5fbcc924",
+      "full_json_equal_all_pairs": true,
+      "median_paired_wall_speedup_64_over_256": 0.9534,
+      "median_wall_ms": {
+        "256": 172.9,
+        "64": 161.889
+      },
+      "paired_wall_speedups_64_over_256": [
+        0.9534,
+        1.0568,
+        0.8901,
+        0.8655,
+        1.0583,
+        0.9624,
+        0.9105
+      ],
+      "prediction_calls": {
+        "256": 1,
+        "64": 1
+      },
+      "requests": 1125,
+      "scenario": "copied_slo",
+      "timing_ms": {
+        "256": {
+          "cpu_ms": [
+            154.725,
+            174.515,
+            181.767,
+            158.311,
+            172.891,
+            187.457,
+            153.556
+          ],
+          "wall_ms": [
+            154.742,
+            174.647,
+            181.872,
+            158.437,
+            172.9,
+            187.631,
+            153.548
+          ]
+        },
+        "64": {
+          "cpu_ms": [
+            147.29,
+            184.52,
+            161.681,
+            137.131,
+            182.738,
+            180.577,
+            139.621
+          ],
+          "wall_ms": [
+            147.533,
+            184.566,
+            161.889,
+            137.125,
+            182.988,
+            180.569,
+            139.798
+          ]
+        }
+      }
+    },
+    "shared_slo": {
+      "blocks": 45,
+      "canonical_result_sha256": "87834d2c56f7b1924adecbaaf3bfa40e4a4821cf7e8f0f4a07943abb5fbcc924",
+      "full_json_equal_all_pairs": true,
+      "median_paired_wall_speedup_64_over_256": 0.9953,
+      "median_wall_ms": {
+        "256": 111.346,
+        "64": 116.221
+      },
+      "paired_wall_speedups_64_over_256": [
+        0.9279,
+        0.9471,
+        0.6047,
+        1.0698,
+        0.9953,
+        1.1197,
+        1.616
+      ],
+      "prediction_calls": {
+        "256": 1,
+        "64": 1
+      },
+      "requests": 1125,
+      "scenario": "shared_slo",
+      "timing_ms": {
+        "256": {
+          "cpu_ms": [
+            111.354,
+            109.741,
+            161.755,
+            131.85,
+            155.492,
+            103.804,
+            98.328
+          ],
+          "wall_ms": [
+            111.346,
+            109.749,
+            161.747,
+            131.836,
+            155.485,
+            103.801,
+            98.322
+          ]
+        },
+        "64": {
+          "cpu_ms": [
+            103.321,
+            103.954,
+            97.815,
+            141.009,
+            154.768,
+            116.228,
+            158.895
+          ],
+          "wall_ms": [
+            103.317,
+            103.948,
+            97.814,
+            141.032,
+            154.761,
+            116.221,
+            158.89
+          ]
+        }
+      }
+    },
+    "unique_grids": {
+      "blocks": 575,
+      "canonical_result_sha256": "1054a72560b9c6ba06deece136633e92fb9eeecd3d10a0915edb8812bd141e99",
+      "full_json_equal_all_pairs": true,
+      "median_paired_wall_speedup_64_over_256": 1.5182,
+      "median_wall_ms": {
+        "256": 528.949,
+        "64": 747.305
+      },
+      "paired_wall_speedups_64_over_256": [
+        1.4644,
+        1.5521,
+        1.4667,
+        1.5224,
+        1.5281,
+        1.5182,
+        1.4026
+      ],
+      "prediction_calls": {
+        "256": 3,
+        "64": 9
+      },
+      "requests": 575,
+      "scenario": "unique_grids",
+      "timing_ms": {
+        "256": {
+          "cpu_ms": [
+            541.38,
+            530.668,
+            485.801,
+            449.834,
+            528.844,
+            464.148,
+            532.538
+          ],
+          "wall_ms": [
+            541.369,
+            530.653,
+            485.814,
+            449.822,
+            528.949,
+            464.29,
+            532.792
+          ]
+        },
+        "64": {
+          "cpu_ms": [
+            792.787,
+            823.648,
+            712.393,
+            684.705,
+            807.828,
+            704.898,
+            747.264
+          ],
+          "wall_ms": [
+            792.771,
+            823.64,
+            712.537,
+            684.826,
+            808.302,
+            704.894,
+            747.305
+          ]
+        }
+      }
+    }
+  },
+  "status": "GO_CHUNK256"
+}
