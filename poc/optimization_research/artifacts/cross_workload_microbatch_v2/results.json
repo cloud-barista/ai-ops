@@ -1,0 +1,47 @@
+{
+  "batch_size": 8,
+  "canonical_results_sha256": "87834d2c56f7b1924adecbaaf3bfa40e4a4821cf7e8f0f4a07943abb5fbcc924",
+  "gates": {
+    "exact_full_json": true,
+    "speedup_at_least_1_20x": true
+  },
+  "kind": "cross_workload_one_pass_microbatch_v2_exploratory",
+  "median_ms": {
+    "v1": 505.251,
+    "v2": 303.448
+  },
+  "median_speedup_v1_over_v2": 1.665,
+  "passes_all_gates": true,
+  "provenance": {
+    "assessor_code_sha256": "13a3dee8534feb79cc152d12517110fba0d401d6e789f97b16dd51a9ed187d39",
+    "manifest_sha256": "dcea7d8dc21ab6928da990d0fd3a4cfb6883fe1d01a831462c214d059d8ba679",
+    "model_sha256": "7a934da440ea0c7473e4e59eb5fa0c8c57f347389272bd303cb0051ef918b161",
+    "protocol_sha256": "f1303340af924a5af1737b800b469aae3551491bbd9519d6ea409dcb6eeee5f9",
+    "source_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+    "v1_code_sha256": "b28ec63268099d0b3e7a8fda298b7f05847aa35f0a32c50d90f46d144bcc49a1",
+    "v2_code_sha256": "20e73cdcf39dbe7252399a3bff8eda9387ff592d046ea6483df15b13710e996d"
+  },
+  "repetitions": 5,
+  "status_counts": {
+    "ABSTAIN": 405,
+    "RESEARCH_ESTIMATE": 720
+  },
+  "synthetic_slo_requests": 1125,
+  "timing_ms": {
+    "v1": [
+      646.674,
+      488.871,
+      495.495,
+      521.374,
+      505.251
+    ],
+    "v2": [
+      314.52,
+      302.693,
+      294.269,
+      304.188,
+      303.448
+    ]
+  },
+  "workload_grids": 45
+}

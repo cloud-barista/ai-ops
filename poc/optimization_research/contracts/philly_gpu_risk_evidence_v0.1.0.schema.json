@@ -1,0 +1,117 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "KHU Philly GPU risk research evidence, draft 0.1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "evidence_type", "schema_version", "evidence_id", "request_sha256",
+    "generated_at", "status", "event", "horizon_seconds", "source_domain",
+    "model_name", "baseline_name", "input_observation_verified", "scope",
+    "provenance", "pooled_probability", "selected_beta_probability"
+  ],
+  "properties": {
+    "evidence_type": {"const": "khu.research.philly_gpu_risk_evidence"},
+    "schema_version": {"const": "0.1.0"},
+    "evidence_id": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "request_sha256": {"$ref": "#/definitions/sha256"},
+    "generated_at": {
+      "type": "string", "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+    },
+    "status": {"enum": ["RESEARCH_ESTIMATE", "ABSTAIN"]},
+    "event": {"const": "any_next_six_5min_gpu_slot_mean_windows_at_least_80_percent"},
+    "horizon_seconds": {"const": 1800},
+    "source_domain": {"const": "msr_philly_2017_gpu_trace"},
+    "model_name": {"const": "pooled_quality_logistic"},
+    "baseline_name": {"const": "state_recent_beta"},
+    "input_observation_verified": {"const": false},
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind", "evaluated_population",
+        "future_label_requires_all_six_windows_observed", "deployment_authority"
+      ],
+      "properties": {
+        "kind": {"const": "same_trace_single_gpu_slot_risk_estimate"},
+        "evaluated_population": {"const": "Microsoft Philly 2017 GPU trace, complete/below_80"},
+        "future_label_requires_all_six_windows_observed": {"const": true},
+        "deployment_authority": {"const": false}
+      }
+    },
+    "decision_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decision_utc_s", "machine_hash", "gpu_index", "expected_gpu_slots"],
+      "properties": {
+        "decision_utc_s": {"type": "integer", "minimum": 1},
+        "machine_hash": {"$ref": "#/definitions/sha256"},
+        "gpu_index": {"type": "integer", "minimum": 0, "maximum": 7},
+        "expected_gpu_slots": {"enum": [2, 4, 8]}
+      }
+    },
+    "pooled_probability": {"oneOf": [{"$ref": "#/definitions/probability"}, {"type": "null"}]},
+    "selected_beta_probability": {"oneOf": [{"$ref": "#/definitions/probability"}, {"type": "null"}]},
+    "reasons": {
+      "type": "array", "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_spec_sha256", "normalized_source_sha256", "frozen_code_sha256",
+        "api_code_sha256", "artifact_hashes_verified_at_load",
+        "window_metadata_provenance"
+      ],
+      "properties": {
+        "model_spec_sha256": {"$ref": "#/definitions/sha256"},
+        "normalized_source_sha256": {"$ref": "#/definitions/sha256"},
+        "frozen_code_sha256": {
+          "type": "object", "additionalProperties": false,
+          "required": [
+            "candidate_builder", "holdout_scorer", "original_scorer",
+            "risk_metrics", "risk_models"
+          ],
+          "properties": {
+            "candidate_builder": {"$ref": "#/definitions/sha256"},
+            "holdout_scorer": {"$ref": "#/definitions/sha256"},
+            "original_scorer": {"$ref": "#/definitions/sha256"},
+            "risk_metrics": {"$ref": "#/definitions/sha256"},
+            "risk_models": {"$ref": "#/definitions/sha256"}
+          }
+        },
+        "api_code_sha256": {"$ref": "#/definitions/sha256"},
+        "artifact_hashes_verified_at_load": {"const": true},
+        "window_metadata_provenance": {"const": "caller_declared"}
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "RESEARCH_ESTIMATE"}}},
+      "then": {
+        "required": ["decision_context"],
+        "not": {"required": ["reasons"]},
+        "properties": {
+          "pooled_probability": {"$ref": "#/definitions/probability"},
+          "selected_beta_probability": {"$ref": "#/definitions/probability"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"status": {"const": "ABSTAIN"}}},
+      "then": {
+        "required": ["reasons"],
+        "properties": {
+          "pooled_probability": {"type": "null"},
+          "selected_beta_probability": {"type": "null"}
+        }
+      }
+    }
+  ],
+  "definitions": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "probability": {"type": "number", "minimum": 0, "maximum": 1}
+  }
+}

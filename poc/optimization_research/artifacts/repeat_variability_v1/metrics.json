@@ -1,0 +1,40 @@
+{
+  "scope": "same-version repeated GPU benchmark uncertainty; not online SLO",
+  "collector_version": "khu-hf-direct-collector/v2",
+  "rounds": 47,
+  "resource_cells": 16,
+  "paired_workloads": 6,
+  "later_exact_cells": 16,
+  "snapshot_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "script_sha256": "cc777b640dfc09e999509a414ed8743f5756543ec79e0e78d51b2ca39bcfcaa5",
+  "cell_median_log_sd": {
+    "latency": 0.1683833757926348,
+    "rps": 0.02221730566262617
+  },
+  "cell_p90_log_sd": {
+    "latency": 0.2336500343702138,
+    "rps": 0.0839659552267731
+  },
+  "early_late_median_abs_log_shift": {
+    "latency": 0.018601217126057668,
+    "rps": 0.0050278517815298684
+  },
+  "paired_variance_ratio_median": {
+    "latency": 1.0497521491883544,
+    "rps": 0.9638913420146387
+  },
+  "paired_variance_ratio_range": {
+    "latency": [
+      0.90169172320514,
+      1.3195778208354174
+    ],
+    "rps": [
+      0.9135229738012464,
+      1.1073672030302395
+    ]
+  },
+  "later_campaign_median_abs_log_difference": {
+    "latency": 0.07174512086794965,
+    "rps": 0.0105456124025583
+  }
+}

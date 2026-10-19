@@ -1,0 +1,133 @@
+{
+  "days": {
+    "145": {
+      "events": 1221,
+      "methods": {
+        "normal_beta": {
+          "average_precision": 0.44363997281051937,
+          "id_equal_brier": 0.1048733745078553,
+          "row_brier": 0.02660112408207051,
+          "top5_alerts": 1323,
+          "top5_expected_events": 636.2195843387561
+        },
+        "old_p0": {
+          "average_precision": 0.44363997281051937,
+          "id_equal_brier": 0.09878388336680502,
+          "row_brier": 0.02710948136422031,
+          "top5_alerts": 1323,
+          "top5_expected_events": 636.2195843387561
+        },
+        "pooled": {
+          "average_precision": 0.5548186596815923,
+          "id_equal_brier": 0.08488114650873367,
+          "row_brier": 0.025668065108815072,
+          "top5_alerts": 1323,
+          "top5_expected_events": 711.0
+        },
+        "state_normal": {
+          "average_precision": 0.564986632889577,
+          "id_equal_brier": 0.08480134096105858,
+          "row_brier": 0.025996014251610126,
+          "top5_alerts": 1323,
+          "top5_expected_events": 722.0
+        }
+      },
+      "rows": 26449
+    },
+    "146": {
+      "events": 1066,
+      "methods": {
+        "normal_beta": {
+          "average_precision": 0.46054336693054754,
+          "id_equal_brier": 0.11677010042602651,
+          "row_brier": 0.02075281513000229,
+          "top5_alerts": 1450,
+          "top5_expected_events": 571.2476879632898
+        },
+        "old_p0": {
+          "average_precision": 0.46054336693054754,
+          "id_equal_brier": 0.11033901410104865,
+          "row_brier": 0.020876856177853117,
+          "top5_alerts": 1450,
+          "top5_expected_events": 571.2476879632898
+        },
+        "pooled": {
+          "average_precision": 0.5392033853925552,
+          "id_equal_brier": 0.09873610972158915,
+          "row_brier": 0.0201958010052543,
+          "top5_alerts": 1450,
+          "top5_expected_events": 641.0
+        },
+        "state_normal": {
+          "average_precision": 0.5293338514226753,
+          "id_equal_brier": 0.10136752265946102,
+          "row_brier": 0.020614578877729266,
+          "top5_alerts": 1450,
+          "top5_expected_events": 636.0
+        }
+      },
+      "rows": 28987
+    }
+  },
+  "gate": {
+    "all_passed": false,
+    "checks": {
+      "ap_no_drop_0p005_vs_best_simple": true,
+      "both_days_brier_lower_than_both": true,
+      "both_days_top5_expected_events_no_lower": true,
+      "id_bootstrap_upper_below_zero": true,
+      "id_equal_brier_lower_than_both": true,
+      "overall_brier_5pct_lower_than_both": false
+    }
+  },
+  "id_bootstrap_vs_normal_beta": {
+    "draws": 2000,
+    "ids": 787,
+    "percentile_95": [
+      -0.0011192992293385517,
+      -0.00037655298180865325
+    ],
+    "point": -0.0007364284078523501,
+    "seed": 43
+  },
+  "overall": {
+    "events": 2287,
+    "methods": {
+      "normal_beta": {
+        "average_precision": 0.4511534857664529,
+        "id_equal_brier": 0.1208668394351438,
+        "row_brier": 0.02354309443358214,
+        "top5_alerts": 2772,
+        "top5_expected_events": 1207.867614393603
+      },
+      "old_p0": {
+        "average_precision": 0.4511534857664529,
+        "id_equal_brier": 0.11388389338321349,
+        "row_brier": 0.023850496114973863,
+        "top5_alerts": 2772,
+        "top5_expected_events": 1207.867614393603
+      },
+      "pooled": {
+        "average_precision": 0.5452665108755599,
+        "id_equal_brier": 0.0983900933418993,
+        "row_brier": 0.022806666025729786,
+        "top5_alerts": 2772,
+        "top5_expected_events": 1354.0
+      },
+      "state_normal": {
+        "average_precision": 0.5463413242084763,
+        "id_equal_brier": 0.09928254248073842,
+        "row_brier": 0.023182108717612643,
+        "top5_alerts": 2772,
+        "top5_expected_events": 1367.0
+      }
+    },
+    "rows": 55436
+  },
+  "predictions_sha256": "4c306c84affd796f9d26b7cad041b3cd6c41451e43baa07cc7b3d3d7a2d0b506",
+  "release_manifest_sha256": "ba207c070c2bd9a41b5a87e90f4823df767746a75502673b6fba4df4ca0604c2",
+  "scope": "bucket1 new IDs in same MaaS week; observed 30min GPU threshold only",
+  "scorer_sha256": "d0c3793a49475cfe15203f3e165054d5d0445a8df98aca9a8f361f541f275f42",
+  "status": "NEW_ID_SIGNAL_NO_GO",
+  "support_audit_sha256": "7bc0f6316dc09e78eda7bbd18e6c67e4370d08d6e52b7fc439b9ebe956620c29"
+}

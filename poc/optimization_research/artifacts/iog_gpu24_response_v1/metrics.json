@@ -1,0 +1,278 @@
+{
+  "schema_version": "iog_gpu24_response_score_v1",
+  "interpretation": "retrospective_same_day_online_vllm_tensor_parallelism_not_vm_scale_action",
+  "freeze_manifest_sha256": "700785077989ad75945a6f5fa07ccf5a971ef6915ba1517288294f8c2a989a26",
+  "protocol_sha256": "0f9d4731f0772aafb96e24e7646cc74c6a00db4df4a21e9b65167647cfe7b2d9",
+  "script_sha256": "e92eab44cd3129ea3a8d1b68fa1645d82e95f8386bea830caee9ca1b9134dff3",
+  "source_aggregate_sha256": "92ffc3479de653491c7f252c88adfc3ff9c1e231ad23672978b8d3962d32f215",
+  "source_manifest_sha256": "39931953fd80e625396bdc729a6357f3d3ee20af24caf918ce53c47ffb1c4961",
+  "raw_results_zip_sha256": "447a8deb234ab687a92d7d40fe3d7b99ab564e4e14b4e8f7cd8c868ec65aa8bc",
+  "sklearn_version": "1.6.1",
+  "selected_cell_count": 30,
+  "pair_count": 15,
+  "heldout_models": [
+    "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
+    "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+    "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B"
+  ],
+  "qps_values": [
+    1,
+    4,
+    8,
+    16,
+    32
+  ],
+  "methods": [
+    "anchor_keep",
+    "proportional",
+    "capped_offered_load",
+    "train_mean",
+    "ridge"
+  ],
+  "ridge_alpha": 1.0,
+  "output_token_tolerance": "abs(log(output_tokens4/output_tokens2)) <= log(1.05)",
+  "per_model": [
+    {
+      "heldout_model_id": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
+      "method": "anchor_keep",
+      "qps_count": 5,
+      "rps_male": 0.03667448328110204,
+      "ttft_male": 1.0551729020317988,
+      "matched_qps_count": 5,
+      "matched_rps_male": 0.03667448328110204,
+      "matched_ttft_male": 1.0551729020317988,
+      "output_ratio_min": 1.0,
+      "output_ratio_max": 1.0099475450120505
+    },
+    {
+      "heldout_model_id": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
+      "method": "proportional",
+      "qps_count": 5,
+      "rps_male": 0.6564726972788433,
+      "ttft_male": 1.0551729020317988,
+      "matched_qps_count": 5,
+      "matched_rps_male": 0.6564726972788433,
+      "matched_ttft_male": 1.0551729020317988,
+      "output_ratio_min": 1.0,
+      "output_ratio_max": 1.0099475450120505
+    },
+    {
+      "heldout_model_id": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
+      "method": "capped_offered_load",
+      "qps_count": 5,
+      "rps_male": 0.3346414015174677,
+      "ttft_male": 1.0551729020317988,
+      "matched_qps_count": 5,
+      "matched_rps_male": 0.3346414015174677,
+      "matched_ttft_male": 1.0551729020317988,
+      "output_ratio_min": 1.0,
+      "output_ratio_max": 1.0099475450120505
+    },
+    {
+      "heldout_model_id": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
+      "method": "train_mean",
+      "qps_count": 5,
+      "rps_male": 0.03747639896379701,
+      "ttft_male": 1.323960665099918,
+      "matched_qps_count": 5,
+      "matched_rps_male": 0.03747639896379701,
+      "matched_ttft_male": 1.323960665099918,
+      "output_ratio_min": 1.0,
+      "output_ratio_max": 1.0099475450120505
+    },
+    {
+      "heldout_model_id": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
+      "method": "ridge",
+      "qps_count": 5,
+      "rps_male": 0.03906003673983401,
+      "ttft_male": 1.2979671372634356,
+      "matched_qps_count": 5,
+      "matched_rps_male": 0.03906003673983401,
+      "matched_ttft_male": 1.2979671372634356,
+      "output_ratio_min": 1.0,
+      "output_ratio_max": 1.0099475450120505
+    },
+    {
+      "heldout_model_id": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+      "method": "anchor_keep",
+      "qps_count": 5,
+      "rps_male": 0.04030061250423155,
+      "ttft_male": 0.26482576692969206,
+      "matched_qps_count": 5,
+      "matched_rps_male": 0.04030061250423155,
+      "matched_ttft_male": 0.26482576692969206,
+      "output_ratio_min": 0.9970613894118188,
+      "output_ratio_max": 1.0036391275306908
+    },
+    {
+      "heldout_model_id": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+      "method": "proportional",
+      "qps_count": 5,
+      "rps_male": 0.6528465680557137,
+      "ttft_male": 0.26482576692969206,
+      "matched_qps_count": 5,
+      "matched_rps_male": 0.6528465680557137,
+      "matched_ttft_male": 0.26482576692969206,
+      "output_ratio_min": 0.9970613894118188,
+      "output_ratio_max": 1.0036391275306908
+    },
+    {
+      "heldout_model_id": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+      "method": "capped_offered_load",
+      "qps_count": 5,
+      "rps_male": 0.3116349425520231,
+      "ttft_male": 0.26482576692969206,
+      "matched_qps_count": 5,
+      "matched_rps_male": 0.3116349425520231,
+      "matched_ttft_male": 0.26482576692969206,
+      "output_ratio_min": 0.9970613894118188,
+      "output_ratio_max": 1.0036391275306908
+    },
+    {
+      "heldout_model_id": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+      "method": "train_mean",
+      "qps_count": 5,
+      "rps_male": 0.03971105487156575,
+      "ttft_male": 0.31469276036988497,
+      "matched_qps_count": 5,
+      "matched_rps_male": 0.03971105487156575,
+      "matched_ttft_male": 0.31469276036988497,
+      "output_ratio_min": 0.9970613894118188,
+      "output_ratio_max": 1.0036391275306908
+    },
+    {
+      "heldout_model_id": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+      "method": "ridge",
+      "qps_count": 5,
+      "rps_male": 0.037263554138377716,
+      "ttft_male": 0.6591991271646794,
+      "matched_qps_count": 5,
+      "matched_rps_male": 0.037263554138377716,
+      "matched_ttft_male": 0.6591991271646794,
+      "output_ratio_min": 0.9970613894118188,
+      "output_ratio_max": 1.0036391275306908
+    },
+    {
+      "heldout_model_id": "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
+      "method": "anchor_keep",
+      "qps_count": 5,
+      "rps_male": 0.10800115198556655,
+      "ttft_male": 0.662976521783515,
+      "matched_qps_count": 5,
+      "matched_rps_male": 0.10800115198556655,
+      "matched_ttft_male": 0.662976521783515,
+      "output_ratio_min": 0.9926625743333973,
+      "output_ratio_max": 1.0
+    },
+    {
+      "heldout_model_id": "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
+      "method": "proportional",
+      "qps_count": 5,
+      "rps_male": 0.5851460285743787,
+      "ttft_male": 0.662976521783515,
+      "matched_qps_count": 5,
+      "matched_rps_male": 0.5851460285743787,
+      "matched_ttft_male": 0.662976521783515,
+      "output_ratio_min": 0.9926625743333973,
+      "output_ratio_max": 1.0
+    },
+    {
+      "heldout_model_id": "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
+      "method": "capped_offered_load",
+      "qps_count": 5,
+      "rps_male": 0.36656462380347143,
+      "ttft_male": 0.662976521783515,
+      "matched_qps_count": 5,
+      "matched_rps_male": 0.36656462380347143,
+      "matched_ttft_male": 0.662976521783515,
+      "output_ratio_min": 0.9926625743333973,
+      "output_ratio_max": 1.0
+    },
+    {
+      "heldout_model_id": "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
+      "method": "train_mean",
+      "qps_count": 5,
+      "rps_male": 0.0849506364377687,
+      "ttft_male": 1.0845620837274779,
+      "matched_qps_count": 5,
+      "matched_rps_male": 0.0849506364377687,
+      "matched_ttft_male": 1.0845620837274779,
+      "output_ratio_min": 0.9926625743333973,
+      "output_ratio_max": 1.0
+    },
+    {
+      "heldout_model_id": "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
+      "method": "ridge",
+      "qps_count": 5,
+      "rps_male": 0.07960595429648223,
+      "ttft_male": 1.5073384291734215,
+      "matched_qps_count": 5,
+      "matched_rps_male": 0.07960595429648223,
+      "matched_ttft_male": 1.5073384291734215,
+      "output_ratio_min": 0.9926625743333973,
+      "output_ratio_max": 1.0
+    }
+  ],
+  "macro": [
+    {
+      "method": "anchor_keep",
+      "model_count": 3,
+      "qps_per_model": 5,
+      "rps_male": 0.06165874925696672,
+      "ttft_male": 0.6609917302483352,
+      "matched_model_count": 3,
+      "matched_pair_count": 15,
+      "matched_rps_male": 0.06165874925696672,
+      "matched_ttft_male": 0.6609917302483352
+    },
+    {
+      "method": "proportional",
+      "model_count": 3,
+      "qps_per_model": 5,
+      "rps_male": 0.6314884313029786,
+      "ttft_male": 0.6609917302483352,
+      "matched_model_count": 3,
+      "matched_pair_count": 15,
+      "matched_rps_male": 0.6314884313029786,
+      "matched_ttft_male": 0.6609917302483352
+    },
+    {
+      "method": "capped_offered_load",
+      "model_count": 3,
+      "qps_per_model": 5,
+      "rps_male": 0.3376136559576541,
+      "ttft_male": 0.6609917302483352,
+      "matched_model_count": 3,
+      "matched_pair_count": 15,
+      "matched_rps_male": 0.3376136559576541,
+      "matched_ttft_male": 0.6609917302483352
+    },
+    {
+      "method": "train_mean",
+      "model_count": 3,
+      "qps_per_model": 5,
+      "rps_male": 0.05404603009104383,
+      "ttft_male": 0.9077385030657603,
+      "matched_model_count": 3,
+      "matched_pair_count": 15,
+      "matched_rps_male": 0.05404603009104383,
+      "matched_ttft_male": 0.9077385030657603
+    },
+    {
+      "method": "ridge",
+      "model_count": 3,
+      "qps_per_model": 5,
+      "rps_male": 0.051976515058231317,
+      "ttft_male": 1.1548348978671787,
+      "matched_model_count": 3,
+      "matched_pair_count": 15,
+      "matched_rps_male": 0.051976515058231317,
+      "matched_ttft_male": 1.1548348978671787
+    }
+  ],
+  "output_files_sha256": {
+    "selected_cells.csv": "aefab68b8640a3862a51211c0d8fbf062aa3166464a7c699a07d95958aad8911",
+    "predictions.csv": "56ff68b7e6bf8e5ac163abb42058466fbfd064c9744a3afe63ac8d311897df45",
+    "per_model_metrics.csv": "92e1f6adb123db3d273c45ef841e8600a16bb421c6d7377049c94008ac85bb50"
+  }
+}

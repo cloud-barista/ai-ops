@@ -1,0 +1,26 @@
+{
+  "anchors_complete": 1240,
+  "anchors_cumulative_negative": 1177,
+  "anchors_cumulative_positive": 63,
+  "anchors_selected_from_input_only": 1240,
+  "anchors_unknown": 0,
+  "cohort": "development_validation_only",
+  "development_source_sha256": "15f1af4669acb9823d0e6d96291e799cf33f8a9c1813d4faf51b0b9eb618ad58",
+  "fleet_and_local_support_fraction": 0.4465798718743542,
+  "fleet_and_local_supported_candidates": 2161,
+  "fleet_support_fraction": 0.8078115313081216,
+  "fleet_supported_candidates": 3909,
+  "freeze_manifest_sha256": "d0d0f24915773d0f7536d2737c9fabe65d1d3b18d90999d8e8a2c6c8815a55d4",
+  "kind": "philly_idle_rebound_adaptive_v3_score_free_support",
+  "protocol_sha256": "6717b02433869fbb1f262309a90a154f326209e7f10c01c404601a494153aaa2",
+  "score_free": true,
+  "support_gate": {
+    "all_pass": true,
+    "fleet_and_local_at_least_10pct": true,
+    "fleet_at_least_50pct": true
+  },
+  "v2_eligibility_sha256": "f801c104c9a3df0784617d9820ef5b99b59721abcf898eac7cc4a1dc1609a65f",
+  "v2_validation_sha256": "c18b88744f3be56a0b2e16dc2342886f50465a51d5c3aad8820b464317df4912",
+  "validation_candidate_machines": 13,
+  "validation_input_candidates": 4839
+}

@@ -1,0 +1,222 @@
+{
+  "status": "EXPLORATORY_NO_GO",
+  "models": [
+    "Qwen/Qwen2.5-14B-Instruct-AWQ",
+    "Qwen/Qwen2.5-32B-Instruct-AWQ",
+    "Qwen/Qwen2.5-72B-Instruct-AWQ",
+    "Qwen/Qwen2.5-7B-Instruct-AWQ",
+    "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ",
+    "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ",
+    "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ"
+  ],
+  "prediction_cells": 42,
+  "anchor_concurrencies": [
+    1,
+    4,
+    8
+  ],
+  "target_concurrencies": [
+    16,
+    32,
+    64,
+    128,
+    256,
+    512
+  ],
+  "macro_male": {
+    "keep_8": {
+      "output_tok_s_median": 1.3031813939231216,
+      "ttft_ms_p95": 1.824433870101066
+    },
+    "linear_or_keep": {
+      "output_tok_s_median": 1.122833738036687,
+      "ttft_ms_p95": 1.824433870101066
+    },
+    "donor_median": {
+      "output_tok_s_median": 0.2518773497866459,
+      "ttft_ms_p95": 0.2972262489302868
+    },
+    "low_slope": {
+      "output_tok_s_median": 0.9710021265509966,
+      "ttft_ms_p95": 0.8843056113723027
+    },
+    "ridge": {
+      "output_tok_s_median": 0.13421536719189406,
+      "ttft_ms_p95": 0.2701001376913948
+    }
+  },
+  "per_model_male": {
+    "Qwen/Qwen2.5-14B-Instruct-AWQ": {
+      "keep_8": {
+        "output_tok_s_median": 1.4515220369098334,
+        "ttft_ms_p95": 1.8949505938145403
+      },
+      "linear_or_keep": {
+        "output_tok_s_median": 0.9744930950499752,
+        "ttft_ms_p95": 1.8949505938145403
+      },
+      "donor_median": {
+        "output_tok_s_median": 0.19555763651281277,
+        "ttft_ms_p95": 0.11326402211942871
+      },
+      "low_slope": {
+        "output_tok_s_median": 0.8691784329668698,
+        "ttft_ms_p95": 0.7684300945314987
+      },
+      "ridge": {
+        "output_tok_s_median": 0.1872358227643471,
+        "ttft_ms_p95": 0.2145656978048249
+      }
+    },
+    "Qwen/Qwen2.5-32B-Instruct-AWQ": {
+      "keep_8": {
+        "output_tok_s_median": 1.1691726253763506,
+        "ttft_ms_p95": 1.8772654213639604
+      },
+      "linear_or_keep": {
+        "output_tok_s_median": 1.2568425065834579,
+        "ttft_ms_p95": 1.8772654213639604
+      },
+      "donor_median": {
+        "output_tok_s_median": 0.22617429817725174,
+        "ttft_ms_p95": 0.1691195370153096
+      },
+      "low_slope": {
+        "output_tok_s_median": 1.1353060835972981,
+        "ttft_ms_p95": 0.6633742588649953
+      },
+      "ridge": {
+        "output_tok_s_median": 0.06152351416008056,
+        "ttft_ms_p95": 0.2225425870325839
+      }
+    },
+    "Qwen/Qwen2.5-72B-Instruct-AWQ": {
+      "keep_8": {
+        "output_tok_s_median": 0.9212916226328498,
+        "ttft_ms_p95": 1.9606382151794328
+      },
+      "linear_or_keep": {
+        "output_tok_s_median": 1.5047235093269586,
+        "ttft_ms_p95": 1.9606382151794328
+      },
+      "donor_median": {
+        "output_tok_s_median": 0.4740553009207526,
+        "ttft_ms_p95": 0.250039790337417
+      },
+      "low_slope": {
+        "output_tok_s_median": 1.316740689147786,
+        "ttft_ms_p95": 0.6837893805580596
+      },
+      "ridge": {
+        "output_tok_s_median": 0.15395121081837906,
+        "ttft_ms_p95": 0.22566768182630192
+      }
+    },
+    "Qwen/Qwen2.5-7B-Instruct-AWQ": {
+      "keep_8": {
+        "output_tok_s_median": 1.561229552750703,
+        "ttft_ms_p95": 1.5405622787181572
+      },
+      "linear_or_keep": {
+        "output_tok_s_median": 0.8647855792091056,
+        "ttft_ms_p95": 1.5405622787181572
+      },
+      "donor_median": {
+        "output_tok_s_median": 0.3078104673399982,
+        "ttft_ms_p95": 0.38871649530729674
+      },
+      "low_slope": {
+        "output_tok_s_median": 0.8132981810117476,
+        "ttft_ms_p95": 0.5419201849288233
+      },
+      "ridge": {
+        "output_tok_s_median": 0.1815238492200624,
+        "ttft_ms_p95": 0.16269488300196747
+      }
+    },
+    "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ": {
+      "keep_8": {
+        "output_tok_s_median": 1.3449523329028719,
+        "ttft_ms_p95": 1.935616842699483
+      },
+      "linear_or_keep": {
+        "output_tok_s_median": 1.0810627990569366,
+        "ttft_ms_p95": 1.935616842699483
+      },
+      "donor_median": {
+        "output_tok_s_median": 0.03994641332611785,
+        "ttft_ms_p95": 0.34094846674316664
+      },
+      "low_slope": {
+        "output_tok_s_median": 0.9181305690291851,
+        "ttft_ms_p95": 1.4964338928653866
+      },
+      "ridge": {
+        "output_tok_s_median": 0.10899278448847893,
+        "ttft_ms_p95": 0.33527512733382747
+      }
+    },
+    "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ": {
+      "keep_8": {
+        "output_tok_s_median": 1.1468556459567105,
+        "ttft_ms_p95": 2.002880937097779
+      },
+      "linear_or_keep": {
+        "output_tok_s_median": 1.2791594860030981,
+        "ttft_ms_p95": 2.002880937097779
+      },
+      "donor_median": {
+        "output_tok_s_median": 0.24831579169407758,
+        "ttft_ms_p95": 0.3010094779698253
+      },
+      "low_slope": {
+        "output_tok_s_median": 1.038688982469085,
+        "ttft_ms_p95": 0.9746711934203877
+      },
+      "ridge": {
+        "output_tok_s_median": 0.06994736445562405,
+        "ttft_ms_p95": 0.32878247999203963
+      }
+    },
+    "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ": {
+      "keep_8": {
+        "output_tok_s_median": 1.5272459409325316,
+        "ttft_ms_p95": 1.5591228018341106
+      },
+      "linear_or_keep": {
+        "output_tok_s_median": 0.8987691910272771,
+        "ttft_ms_p95": 1.5591228018341106
+      },
+      "donor_median": {
+        "output_tok_s_median": 0.2712815405355107,
+        "ttft_ms_p95": 0.5174859530195636
+      },
+      "low_slope": {
+        "output_tok_s_median": 0.7056719476350041,
+        "ttft_ms_p95": 1.061520274436967
+      },
+      "ridge": {
+        "output_tok_s_median": 0.17633302443628637,
+        "ttft_ms_p95": 0.40117250684821837
+      }
+    }
+  },
+  "best_single_baseline": {
+    "output_tok_s_median": "donor_median",
+    "ttft_ms_p95": "donor_median"
+  },
+  "ridge_improvement_fraction": {
+    "output_tok_s_median": 0.4671399897387283,
+    "ttft_ms_p95": 0.09126418456148655
+  },
+  "ridge_both_metric_model_wins": 3,
+  "ridge_worst_model_metric_loss_ratio": 2.728474859524298,
+  "gates": {
+    "both_metric_macro_improvement_at_least_5pct": true,
+    "both_metric_model_wins_at_least_5_of_7": false,
+    "worst_model_metric_loss_ratio_at_most_1_2": false
+  },
+  "source_sha256": "d7f677cf0c4ccfd8c702c8458c4e6c3d324e90292bf13e5f09e065431e8d5f9e",
+  "script_sha256": "3500a23e32bb9e116ef22f845ced28a4bd5c4827ec2f7ae4e4a3a8c6a539b9ca",
+  "protocol_sha256": "eaa2cda70b3967d5616055c0326082d8d2c6044fde53d337e2d5d9ac94bb4f9a"
+}

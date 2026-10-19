@@ -1,0 +1,595 @@
+{
+  "by_model_at_least_1000": {
+    "298e8d39a1": {
+      "hgb": {
+        "count": 2008,
+        "coverage": 0.8326693227091634,
+        "mean_pinball_tokens": 68.30048101831477,
+        "mean_predicted_tokens": 996.4327854939892
+      },
+      "recent_global": {
+        "count": 2008,
+        "coverage": 0.7903386454183267,
+        "mean_pinball_tokens": 74.79317729083664,
+        "mean_predicted_tokens": 908.9422310756972
+      },
+      "recent_model": {
+        "count": 2008,
+        "coverage": 0.9800796812749004,
+        "mean_pinball_tokens": 125.65076940559906,
+        "mean_predicted_tokens": 1616.9741202973341
+      },
+      "static_global": {
+        "count": 2008,
+        "coverage": 0.6578685258964143,
+        "mean_pinball_tokens": 105.93600597609561,
+        "mean_predicted_tokens": 728.0
+      },
+      "static_model": {
+        "count": 2008,
+        "coverage": 0.6578685258964143,
+        "mean_pinball_tokens": 105.93600597609561,
+        "mean_predicted_tokens": 728.0
+      }
+    },
+    "327b0115b9": {
+      "hgb": {
+        "count": 19489,
+        "coverage": 0.9984093591256606,
+        "mean_pinball_tokens": 55.80709245033022,
+        "mean_predicted_tokens": 485.464757581379
+      },
+      "recent_global": {
+        "count": 19489,
+        "coverage": 0.9948175894094105,
+        "mean_pinball_tokens": 30.813848837805935,
+        "mean_predicted_tokens": 225.30401765098262
+      },
+      "recent_model": {
+        "count": 19489,
+        "coverage": 0.9947149674175175,
+        "mean_pinball_tokens": 26.90992354661604,
+        "mean_predicted_tokens": 185.66237364667248
+      },
+      "static_global": {
+        "count": 19489,
+        "coverage": 0.9991790240648571,
+        "mean_pinball_tokens": 79.94408640771717,
+        "mean_predicted_tokens": 728.0
+      },
+      "static_model": {
+        "count": 19489,
+        "coverage": 0.9991790240648571,
+        "mean_pinball_tokens": 79.94408640771717,
+        "mean_predicted_tokens": 728.0
+      }
+    },
+    "43ae64c27c": {
+      "hgb": {
+        "count": 1237,
+        "coverage": 0.9854486661277284,
+        "mean_pinball_tokens": 113.38094871622363,
+        "mean_predicted_tokens": 750.242961894554
+      },
+      "recent_global": {
+        "count": 1237,
+        "coverage": 0.9902991107518189,
+        "mean_pinball_tokens": 123.27388843977364,
+        "mean_predicted_tokens": 884.9506871463218
+      },
+      "recent_model": {
+        "count": 1237,
+        "coverage": 0.9870654810024252,
+        "mean_pinball_tokens": 119.8496362166532,
+        "mean_predicted_tokens": 819.0266774454325
+      },
+      "static_global": {
+        "count": 1237,
+        "coverage": 0.98464025869038,
+        "mean_pinball_tokens": 110.05254648342765,
+        "mean_predicted_tokens": 728.0
+      },
+      "static_model": {
+        "count": 1237,
+        "coverage": 0.98464025869038,
+        "mean_pinball_tokens": 110.05254648342765,
+        "mean_predicted_tokens": 728.0
+      }
+    },
+    "45363f1dab": {
+      "hgb": {
+        "count": 82720,
+        "coverage": 0.8448621856866537,
+        "mean_pinball_tokens": 166.41311863258483,
+        "mean_predicted_tokens": 919.0679666405641
+      },
+      "recent_global": {
+        "count": 82720,
+        "coverage": 0.635178916827853,
+        "mean_pinball_tokens": 243.16936291102513,
+        "mean_predicted_tokens": 492.1298839458414
+      },
+      "recent_model": {
+        "count": 82720,
+        "coverage": 0.8272969052224372,
+        "mean_pinball_tokens": 180.03844656673112,
+        "mean_predicted_tokens": 1056.959501934236
+      },
+      "static_global": {
+        "count": 82720,
+        "coverage": 0.8000846228239845,
+        "mean_pinball_tokens": 175.85673718568665,
+        "mean_predicted_tokens": 728.0
+      },
+      "static_model": {
+        "count": 82720,
+        "coverage": 0.8260396518375241,
+        "mean_pinball_tokens": 169.96378076997942,
+        "mean_predicted_tokens": 795.9982600044624
+      }
+    },
+    "50b9ff86e7": {
+      "hgb": {
+        "count": 11091,
+        "coverage": 0.9863853574970697,
+        "mean_pinball_tokens": 54.54800308582508,
+        "mean_predicted_tokens": 348.06579943258396
+      },
+      "recent_global": {
+        "count": 11091,
+        "coverage": 0.998467225678478,
+        "mean_pinball_tokens": 132.00232621044088,
+        "mean_predicted_tokens": 1203.4987827968623
+      },
+      "recent_model": {
+        "count": 11091,
+        "coverage": 0.9887296005770444,
+        "mean_pinball_tokens": 98.94031497009587,
+        "mean_predicted_tokens": 850.7628407417424
+      },
+      "static_global": {
+        "count": 11091,
+        "coverage": 0.9887296005770444,
+        "mean_pinball_tokens": 88.04653322513748,
+        "mean_predicted_tokens": 728.0
+      },
+      "static_model": {
+        "count": 11091,
+        "coverage": 0.9887296005770444,
+        "mean_pinball_tokens": 88.04653322513748,
+        "mean_predicted_tokens": 728.0
+      }
+    },
+    "572db18bd4": {
+      "hgb": {
+        "count": 18790,
+        "coverage": 0.9657796700372538,
+        "mean_pinball_tokens": 49.40486333318536,
+        "mean_predicted_tokens": 328.94814484464507
+      },
+      "recent_global": {
+        "count": 18790,
+        "coverage": 0.9580627993613624,
+        "mean_pinball_tokens": 47.78764236295902,
+        "mean_predicted_tokens": 259.83416711016497
+      },
+      "recent_model": {
+        "count": 18790,
+        "coverage": 0.7603512506652474,
+        "mean_pinball_tokens": 46.2367642362959,
+        "mean_predicted_tokens": 107.26471527408196
+      },
+      "static_global": {
+        "count": 18790,
+        "coverage": 0.9696647152740819,
+        "mean_pinball_tokens": 78.31050558807877,
+        "mean_predicted_tokens": 728.0
+      },
+      "static_model": {
+        "count": 18790,
+        "coverage": 0.9696647152740819,
+        "mean_pinball_tokens": 78.31050558807877,
+        "mean_predicted_tokens": 728.0
+      }
+    },
+    "8d95bdb968": {
+      "hgb": {
+        "count": 20823,
+        "coverage": 0.9867454257311626,
+        "mean_pinball_tokens": 70.85448565652906,
+        "mean_predicted_tokens": 535.4915888724953
+      },
+      "recent_global": {
+        "count": 20823,
+        "coverage": 0.9708975651923354,
+        "mean_pinball_tokens": 46.63237285693704,
+        "mean_predicted_tokens": 241.39614848965087
+      },
+      "recent_model": {
+        "count": 20823,
+        "coverage": 0.943716083177256,
+        "mean_pinball_tokens": 44.90831772559189,
+        "mean_predicted_tokens": 206.66340104691926
+      },
+      "static_global": {
+        "count": 20823,
+        "coverage": 0.9908754742352207,
+        "mean_pinball_tokens": 88.04918119387214,
+        "mean_predicted_tokens": 728.0
+      },
+      "static_model": {
+        "count": 20823,
+        "coverage": 0.9908754742352207,
+        "mean_pinball_tokens": 88.04918119387214,
+        "mean_predicted_tokens": 728.0
+      }
+    },
+    "bbfd97e95d": {
+      "hgb": {
+        "count": 25618,
+        "coverage": 0.9792333515496916,
+        "mean_pinball_tokens": 210.7873163120729,
+        "mean_predicted_tokens": 1349.6594228152626
+      },
+      "recent_global": {
+        "count": 25618,
+        "coverage": 0.9617846826450153,
+        "mean_pinball_tokens": 108.53109142009522,
+        "mean_predicted_tokens": 223.61878366773362
+      },
+      "recent_model": {
+        "count": 25618,
+        "coverage": 0.9585838082598173,
+        "mean_pinball_tokens": 781.7897454914512,
+        "mean_predicted_tokens": 6996.6206573503005
+      },
+      "static_global": {
+        "count": 25618,
+        "coverage": 0.9827855414161918,
+        "mean_pinball_tokens": 147.44680693262552,
+        "mean_predicted_tokens": 728.0
+      },
+      "static_model": {
+        "count": 25618,
+        "coverage": 0.9827855414161918,
+        "mean_pinball_tokens": 147.44680693262552,
+        "mean_predicted_tokens": 728.0
+      }
+    },
+    "c1bcf79065": {
+      "hgb": {
+        "count": 10020,
+        "coverage": 0.9930139720558883,
+        "mean_pinball_tokens": 35.12440921922922,
+        "mean_predicted_tokens": 389.9812514302753
+      },
+      "recent_global": {
+        "count": 10020,
+        "coverage": 0.9967065868263473,
+        "mean_pinball_tokens": 84.12985029940117,
+        "mean_predicted_tokens": 899.9134730538922
+      },
+      "recent_model": {
+        "count": 10020,
+        "coverage": 0.9479041916167664,
+        "mean_pinball_tokens": 26.998253493013966,
+        "mean_predicted_tokens": 280.4977045908184
+      },
+      "static_global": {
+        "count": 10020,
+        "coverage": 0.9967065868263473,
+        "mean_pinball_tokens": 67.48850299401197,
+        "mean_predicted_tokens": 728.0
+      },
+      "static_model": {
+        "count": 10020,
+        "coverage": 0.9967065868263473,
+        "mean_pinball_tokens": 67.48850299401197,
+        "mean_predicted_tokens": 728.0
+      }
+    },
+    "cf8beda854": {
+      "hgb": {
+        "count": 12472,
+        "coverage": 0.9774695317511225,
+        "mean_pinball_tokens": 112.40422010292558,
+        "mean_predicted_tokens": 350.071990341672
+      },
+      "recent_global": {
+        "count": 12472,
+        "coverage": 0.9838838999358563,
+        "mean_pinball_tokens": 171.90492302758176,
+        "mean_predicted_tokens": 1043.019243104554
+      },
+      "recent_model": {
+        "count": 12472,
+        "coverage": 0.9669660038486209,
+        "mean_pinball_tokens": 125.68357921744709,
+        "mean_predicted_tokens": 465.68473380372035
+      },
+      "static_global": {
+        "count": 12472,
+        "coverage": 0.9826010262989096,
+        "mean_pinball_tokens": 147.0449166132136,
+        "mean_predicted_tokens": 728.0
+      },
+      "static_model": {
+        "count": 12472,
+        "coverage": 0.9826010262989096,
+        "mean_pinball_tokens": 147.0449166132136,
+        "mean_predicted_tokens": 728.0
+      }
+    }
+  },
+  "gate": {
+    "conditions": {
+      "at_least_5pct_lower_equal_block_loss": false,
+      "overall_coverage_at_least_85pct": true,
+      "supported_model_majority_loss_not_worse": true,
+      "supported_models_coverage_at_least_85pct": false
+    },
+    "passes": false,
+    "selected_baseline": "recent_model",
+    "supported_model_wins": 6,
+    "supported_models": 10
+  },
+  "manifest_sha256": "7234a93a540b20290388d00a2d9628390adb9cde433597184e95086788e5f342",
+  "rows": 212296,
+  "scores": {
+    "hgb": {
+      "blocks": [
+        {
+          "block": 0,
+          "count": 76762,
+          "coverage": 0.8589145671035148,
+          "days": 7,
+          "mean_pinball_tokens": 123.01703592271711,
+          "mean_predicted_tokens": 870.4284597874918
+        },
+        {
+          "block": 1,
+          "count": 40152,
+          "coverage": 0.969017732616059,
+          "days": 7,
+          "mean_pinball_tokens": 114.68558993601553,
+          "mean_predicted_tokens": 496.8831108407121
+        },
+        {
+          "block": 2,
+          "count": 93852,
+          "coverage": 0.9645505689809487,
+          "days": 7,
+          "mean_pinball_tokens": 131.6894098056984,
+          "mean_predicted_tokens": 748.363385556771
+        },
+        {
+          "block": 3,
+          "count": 1090,
+          "coverage": 0.5284403669724771,
+          "days": 7,
+          "mean_pinball_tokens": 1165.8009819662718,
+          "mean_predicted_tokens": 1176.3134803533992
+        },
+        {
+          "block": 4,
+          "count": 440,
+          "coverage": 0.4954545454545455,
+          "days": 3,
+          "mean_pinball_tokens": 49.00634669526239,
+          "mean_predicted_tokens": 338.3506946394855
+        }
+      ],
+      "complete_7d_block_equal_pinball_tokens": 383.7982544076757,
+      "overall": {
+        "count": 212296,
+        "coverage": 0.9239882051475299,
+        "mean_pinball_tokens": 130.47579733289402,
+        "mean_predicted_tokens": 746.2841342144194
+      }
+    },
+    "recent_global": {
+      "blocks": [
+        {
+          "block": 0,
+          "count": 76762,
+          "coverage": 0.6846095724446992,
+          "days": 7,
+          "mean_pinball_tokens": 152.64689690211304,
+          "mean_predicted_tokens": 510.93194549386413
+        },
+        {
+          "block": 1,
+          "count": 40152,
+          "coverage": 0.9678720860729229,
+          "days": 7,
+          "mean_pinball_tokens": 175.85043086272162,
+          "mean_predicted_tokens": 1064.1554841601912
+        },
+        {
+          "block": 2,
+          "count": 93852,
+          "coverage": 0.912788219750245,
+          "days": 7,
+          "mean_pinball_tokens": 133.30612560201166,
+          "mean_predicted_tokens": 233.22458764863828
+        },
+        {
+          "block": 3,
+          "count": 1090,
+          "coverage": 0.5229357798165137,
+          "days": 7,
+          "mean_pinball_tokens": 1044.5223853211007,
+          "mean_predicted_tokens": 1480.908256880734
+        },
+        {
+          "block": 4,
+          "count": 440,
+          "coverage": 1.0,
+          "days": 3,
+          "mean_pinball_tokens": 525.5213636363635,
+          "mean_predicted_tokens": 5583.0
+        }
+      ],
+      "complete_7d_block_equal_pinball_tokens": 376.58145967198675,
+      "overall": {
+        "count": 212296,
+        "coverage": 0.8388806195123789,
+        "mean_pinball_tokens": 153.8372503485699,
+        "mean_predicted_tokens": 508.2876408410898
+      }
+    },
+    "recent_model": {
+      "blocks": [
+        {
+          "block": 0,
+          "count": 76762,
+          "coverage": 0.8233110132617701,
+          "days": 7,
+          "mean_pinball_tokens": 115.76088660229526,
+          "mean_predicted_tokens": 675.4770255801229
+        },
+        {
+          "block": 1,
+          "count": 40152,
+          "coverage": 0.9604502889021718,
+          "days": 7,
+          "mean_pinball_tokens": 140.02844231854652,
+          "mean_predicted_tokens": 668.7033296403141
+        },
+        {
+          "block": 2,
+          "count": 93852,
+          "coverage": 0.9205238034351958,
+          "days": 7,
+          "mean_pinball_tokens": 290.532527809743,
+          "mean_predicted_tokens": 2398.8418680475643
+        },
+        {
+          "block": 3,
+          "count": 1090,
+          "coverage": 0.5908256880733945,
+          "days": 7,
+          "mean_pinball_tokens": 831.7353696667143,
+          "mean_predicted_tokens": 1917.5206195533306
+        },
+        {
+          "block": 4,
+          "count": 440,
+          "coverage": 0.9727272727272728,
+          "days": 3,
+          "mean_pinball_tokens": 32.2027886977887,
+          "mean_predicted_tokens": 584.8142506142506
+        }
+      ],
+      "complete_7d_block_equal_pinball_tokens": 344.51430659932475,
+      "overall": {
+        "count": 212296,
+        "coverage": 0.8913403926593059,
+        "mean_pinball_tokens": 201.11673688295306,
+        "mean_predicted_tokens": 1442.2516970403713
+      }
+    },
+    "static_global": {
+      "blocks": [
+        {
+          "block": 0,
+          "count": 76762,
+          "coverage": 0.8437898960423126,
+          "days": 7,
+          "mean_pinball_tokens": 111.39872462937389,
+          "mean_predicted_tokens": 728.0
+        },
+        {
+          "block": 1,
+          "count": 40152,
+          "coverage": 0.9547718669057581,
+          "days": 7,
+          "mean_pinball_tokens": 150.66195955369594,
+          "mean_predicted_tokens": 728.0
+        },
+        {
+          "block": 2,
+          "count": 93852,
+          "coverage": 0.9447001662191535,
+          "days": 7,
+          "mean_pinball_tokens": 144.20784533094655,
+          "mean_predicted_tokens": 728.0
+        },
+        {
+          "block": 3,
+          "count": 1090,
+          "coverage": 0.44403669724770645,
+          "days": 7,
+          "mean_pinball_tokens": 1389.3710091743121,
+          "mean_predicted_tokens": 728.0
+        },
+        {
+          "block": 4,
+          "count": 440,
+          "coverage": 0.9954545454545455,
+          "days": 3,
+          "mean_pinball_tokens": 41.484999999999985,
+          "mean_predicted_tokens": 728.0
+        }
+      ],
+      "complete_7d_block_equal_pinball_tokens": 448.9098846720821,
+      "overall": {
+        "count": 212296,
+        "coverage": 0.9076525228925652,
+        "mean_pinball_tokens": 139.74559294569843,
+        "mean_predicted_tokens": 728.0
+      }
+    },
+    "static_model": {
+      "blocks": [
+        {
+          "block": 0,
+          "count": 76762,
+          "coverage": 0.8674083530913733,
+          "days": 7,
+          "mean_pinball_tokens": 108.23339257205699,
+          "mean_predicted_tokens": 793.728469431873
+        },
+        {
+          "block": 1,
+          "count": 40152,
+          "coverage": 0.9560420402470612,
+          "days": 7,
+          "mean_pinball_tokens": 149.78659161006368,
+          "mean_predicted_tokens": 730.4547514360905
+        },
+        {
+          "block": 2,
+          "count": 93852,
+          "coverage": 0.9475557260367387,
+          "days": 7,
+          "mean_pinball_tokens": 141.89092021532088,
+          "mean_predicted_tokens": 731.9175147236514
+        },
+        {
+          "block": 3,
+          "count": 1090,
+          "coverage": 0.44403669724770645,
+          "days": 7,
+          "mean_pinball_tokens": 1388.2481021283668,
+          "mean_predicted_tokens": 729.2476744954947
+        },
+        {
+          "block": 4,
+          "count": 440,
+          "coverage": 0.9954545454545455,
+          "days": 3,
+          "mean_pinball_tokens": 41.484999999999985,
+          "mean_predicted_tokens": 728.0
+        }
+      ],
+      "complete_7d_block_equal_pinball_tokens": 447.0397516314521,
+      "overall": {
+        "count": 212296,
+        "coverage": 0.9176951049478087,
+        "mean_pinball_tokens": 137.40547811692977,
+        "mean_predicted_tokens": 753.9686405171815
+      }
+    }
+  }
+}

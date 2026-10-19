@@ -1,0 +1,355 @@
+{
+  "bucket0_rows_sha256": "51b266f3b58a1a4b24551b139277211533b73ed6b035b8a58e21f053ed280f1d",
+  "bucket1_raw_sha256": "86b9dd55275ffd6819b0f482c8160e116fbe1980bb490ca8c09755107369f00d",
+  "cohorts": {
+    "bucket0": {
+      "by_day": {
+        "145": {
+          "events": 1174,
+          "ids": 494,
+          "methods": {
+            "frozen_beta": {
+              "average_precision": 0.4376724836265254,
+              "brier": 0.026711186730832698,
+              "id_equal_brier": 0.13025386250973714
+            },
+            "global_exact": {
+              "average_precision": 0.5640128568720009,
+              "brier": 0.025076373953120627,
+              "id_equal_brier": 0.08619683496591521
+            },
+            "last_beta": {
+              "average_precision": 0.4376724836265254,
+              "brier": 0.026578583209903892,
+              "id_equal_brier": 0.12442720202325089
+            },
+            "model_last": {
+              "average_precision": 0.563054680426221,
+              "brier": 0.024912660681329094,
+              "id_equal_brier": 0.08574649757747116
+            },
+            "pooled": {
+              "average_precision": 0.5640128568720009,
+              "brier": 0.025179121906603177,
+              "id_equal_brier": 0.09319312595564681
+            },
+            "state_exact": {
+              "average_precision": 0.5633060150762096,
+              "brier": 0.02490376623956755,
+              "id_equal_brier": 0.08665391294172828
+            }
+          },
+          "rows": 25546
+        },
+        "146": {
+          "events": 725,
+          "ids": 414,
+          "methods": {
+            "frozen_beta": {
+              "average_precision": 0.47295348296506473,
+              "brier": 0.014517598578075601,
+              "id_equal_brier": 0.102127557543218
+            },
+            "global_exact": {
+              "average_precision": 0.5441769206674026,
+              "brier": 0.013940195136959363,
+              "id_equal_brier": 0.08666028985283596
+            },
+            "last_beta": {
+              "average_precision": 0.47295348296506473,
+              "brier": 0.013973118071940942,
+              "id_equal_brier": 0.09862100904884123
+            },
+            "model_last": {
+              "average_precision": 0.5440494542455447,
+              "brier": 0.013350460243414308,
+              "id_equal_brier": 0.08098504355242855
+            },
+            "pooled": {
+              "average_precision": 0.5441769206674026,
+              "brier": 0.01390194309872469,
+              "id_equal_brier": 0.08184515755610762
+            },
+            "state_exact": {
+              "average_precision": 0.5440938716553858,
+              "brier": 0.013383315264541078,
+              "id_equal_brier": 0.08122573124284041
+            }
+          },
+          "rows": 27967
+        }
+      },
+      "id_bootstrap": {
+        "global_exact": {
+          "draws": 2000,
+          "ids": 786,
+          "percentile_95": [
+            -0.0006967223973772637,
+            -8.655078736857773e-05
+          ],
+          "point": -0.0003863609778738079,
+          "seed": 43
+        },
+        "last_beta": {
+          "draws": 2000,
+          "ids": 786,
+          "percentile_95": [
+            -0.0015104231400611672,
+            -0.0007989933440533787
+          ],
+          "point": -0.0011206908303660096,
+          "seed": 43
+        },
+        "pooled": {
+          "draws": 2000,
+          "ids": 786,
+          "percentile_95": [
+            -0.0007695831107070909,
+            -9.270544075504168e-05
+          ],
+          "point": -0.0004154194209877442,
+          "seed": 43
+        }
+      },
+      "matured_prior": {
+        "145": {
+          "global_exact_shift": 0.25126744835789183,
+          "previous_day_mature_rows": 20168,
+          "previous_day_rates": {
+            "0": 0.03668253311258278,
+            "1": 0.8590047393364929
+          },
+          "state_exact_shifts": {
+            "0": 0.133591125427907,
+            "1": 0.5
+          }
+        },
+        "146": {
+          "global_exact_shift": -0.18015066226436052,
+          "previous_day_mature_rows": 25029,
+          "previous_day_rates": {
+            "0": 0.023485378192736397,
+            "1": 0.8138888888888889
+          },
+          "state_exact_shifts": {
+            "0": -0.3266136438671711,
+            "1": 0.44660662824831543
+          }
+        }
+      },
+      "overall": {
+        "events": 1899,
+        "ids": 786,
+        "methods": {
+          "frozen_beta": {
+            "average_precision": 0.44950437666964843,
+            "brier": 0.020338565501072495,
+            "id_equal_brier": 0.12839619395703464
+          },
+          "global_exact": {
+            "average_precision": 0.5550428564771334,
+            "brier": 0.019256376701021472,
+            "id_equal_brier": 0.0925174157409758
+          },
+          "last_beta": {
+            "average_precision": 0.45378018225659944,
+            "brier": 0.019990706553513673,
+            "id_equal_brier": 0.12334055661622619
+          },
+          "model_last": {
+            "average_precision": 0.5536100957654608,
+            "brier": 0.018870015723147664,
+            "id_equal_brier": 0.08990142446126634
+          },
+          "pooled": {
+            "average_precision": 0.5517818875090981,
+            "brier": 0.019285435144135405,
+            "id_equal_brier": 0.09455716973604016
+          },
+          "state_exact": {
+            "average_precision": 0.5541627039327364,
+            "brier": 0.018882940413720274,
+            "id_equal_brier": 0.09052672781394507
+          }
+        },
+        "rows": 53513
+      }
+    },
+    "bucket1": {
+      "by_day": {
+        "145": {
+          "events": 1221,
+          "ids": 494,
+          "methods": {
+            "frozen_beta": {
+              "average_precision": 0.44363997281051937,
+              "brier": 0.02660112408207051,
+              "id_equal_brier": 0.1048733745078553
+            },
+            "global_exact": {
+              "average_precision": 0.5548186596815923,
+              "brier": 0.025532210538209407,
+              "id_equal_brier": 0.08060806877660774
+            },
+            "last_beta": {
+              "average_precision": 0.44363997281051937,
+              "brier": 0.02636955531891273,
+              "id_equal_brier": 0.10035846158184117
+            },
+            "model_last": {
+              "average_precision": 0.5544129943592258,
+              "brier": 0.02528610337872981,
+              "id_equal_brier": 0.07963659926342895
+            },
+            "pooled": {
+              "average_precision": 0.5548186596815923,
+              "brier": 0.02566806510881508,
+              "id_equal_brier": 0.08488114650873367
+            },
+            "state_exact": {
+              "average_precision": 0.554438604908204,
+              "brier": 0.025311985325516644,
+              "id_equal_brier": 0.07948844416490292
+            }
+          },
+          "rows": 26449
+        },
+        "146": {
+          "events": 1066,
+          "ids": 421,
+          "methods": {
+            "frozen_beta": {
+              "average_precision": 0.46054336693054754,
+              "brier": 0.020752815130002288,
+              "id_equal_brier": 0.11677010042602651
+            },
+            "global_exact": {
+              "average_precision": 0.5392033853925552,
+              "brier": 0.020377247458899846,
+              "id_equal_brier": 0.10246372499262005
+            },
+            "last_beta": {
+              "average_precision": 0.46054336693054754,
+              "brier": 0.020205057553785124,
+              "id_equal_brier": 0.11331038190448589
+            },
+            "model_last": {
+              "average_precision": 0.5386890809049196,
+              "brier": 0.01955946953544654,
+              "id_equal_brier": 0.09684943608379079
+            },
+            "pooled": {
+              "average_precision": 0.5392033853925552,
+              "brier": 0.0201958010052543,
+              "id_equal_brier": 0.09873610972158915
+            },
+            "state_exact": {
+              "average_precision": 0.53871301108723,
+              "brier": 0.019616151828055133,
+              "id_equal_brier": 0.09713634989635249
+            }
+          },
+          "rows": 28987
+        }
+      },
+      "id_bootstrap": {
+        "global_exact": {
+          "draws": 2000,
+          "ids": 787,
+          "percentile_95": [
+            -0.0008766219143960479,
+            -0.00025217464362272383
+          ],
+          "point": -0.0005450288066999212,
+          "seed": 43
+        },
+        "last_beta": {
+          "draws": 2000,
+          "ids": 787,
+          "percentile_95": [
+            -0.0012037881960308885,
+            -0.0005294067256524244
+          ],
+          "point": -0.0008544967215073021,
+          "seed": 43
+        },
+        "pooled": {
+          "draws": 2000,
+          "ids": 787,
+          "percentile_95": [
+            -0.000853157708695798,
+            -0.00021127067865851816
+          ],
+          "point": -0.0005149694443023079,
+          "seed": 43
+        }
+      },
+      "matured_prior": {
+        "145": {
+          "global_exact_shift": 0.20486798171249593,
+          "previous_day_mature_rows": 20071,
+          "previous_day_rates": {
+            "0": 0.03633818879270126,
+            "1": 0.8163265306122449
+          },
+          "state_exact_shifts": {
+            "0": 0.12876737356253853,
+            "1": 0.5
+          }
+        },
+        "146": {
+          "global_exact_shift": -0.14601019875754218,
+          "previous_day_mature_rows": 25935,
+          "previous_day_rates": {
+            "0": 0.023384151183103066,
+            "1": 0.829560585885486
+          },
+          "state_exact_shifts": {
+            "0": -0.30770268984746457,
+            "1": 0.5
+          }
+        }
+      },
+      "overall": {
+        "events": 2287,
+        "ids": 787,
+        "methods": {
+          "frozen_beta": {
+            "average_precision": 0.4511534857664529,
+            "brier": 0.02354309443358214,
+            "id_equal_brier": 0.1208668394351438
+          },
+          "global_exact": {
+            "average_precision": 0.5405546208147541,
+            "brier": 0.0228367253881274,
+            "id_equal_brier": 0.09768675917490283
+          },
+          "last_beta": {
+            "average_precision": 0.46046444618894933,
+            "brier": 0.023146193302934777,
+            "id_equal_brier": 0.11654564432244803
+          },
+          "model_last": {
+            "average_precision": 0.5416253502471127,
+            "brier": 0.022291696581427475,
+            "id_equal_brier": 0.09467294519219534
+          },
+          "pooled": {
+            "average_precision": 0.5452665108755599,
+            "brier": 0.02280666602572978,
+            "id_equal_brier": 0.0983900933418993
+          },
+          "state_exact": {
+            "average_precision": 0.5407981588947223,
+            "brier": 0.02233368375991096,
+            "id_equal_brier": 0.09467511607495596
+          }
+        },
+        "rows": 55436
+      }
+    }
+  },
+  "model_sha256": "dcdfcf1ae7fb4860f59de881329873e66f36e05223ef6824c14ec3ad312666f6",
+  "script_sha256": "1256ab027a2d013db534d793f5f1673a690fe4dd055501f39d66d62506b7265f",
+  "status": "EXPOSED_COHORT_DEVELOPMENT_ONLY"
+}

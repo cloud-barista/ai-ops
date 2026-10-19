@@ -1,0 +1,97 @@
+{
+  "source_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "original_metrics_sha256": "ad538bcae17cb574590b1a4b9b5966b53bbfa78d3871eb66273829e92337bda9",
+  "original_protocol_sha256": "0b22ba7183f8efcbd2c91b3505de3674b7132ddc78c00d40693f322fefc09861",
+  "original_scoring_script_sha256": "22b265ae654a90ae0986f6aaacc072f1518a1c5cd8ed4848a17a064435dbe653",
+  "correction_script_sha256": "d2e60b58cb6d5ebb596e16052de7e321c23c729660ce3abb10c0dfaeed10fde4",
+  "reason": "Original always_strong_single included set_params(n_jobs=1/2) inside timer",
+  "scope": "Post-score warm CPU microbenchmark; no outcome labels or decision retuning",
+  "single_vs_parallel_prediction_parity": [
+    {
+      "split": "FacebookAI/roberta-base",
+      "candidate_rows": 512,
+      "prediction_max_abs_diff": 1.7763568394002505e-15
+    },
+    {
+      "split": "Qwen/Qwen2.5-0.5B-Instruct",
+      "candidate_rows": 504,
+      "prediction_max_abs_diff": 1.7763568394002505e-15
+    },
+    {
+      "split": "albert/albert-base-v2",
+      "candidate_rows": 512,
+      "prediction_max_abs_diff": 2.6645352591003757e-15
+    },
+    {
+      "split": "distilbert/distilbert-base-uncased",
+      "candidate_rows": 512,
+      "prediction_max_abs_diff": 2.6645352591003757e-15
+    },
+    {
+      "split": "google-bert/bert-base-uncased",
+      "candidate_rows": 512,
+      "prediction_max_abs_diff": 2.6645352591003757e-15
+    },
+    {
+      "split": "google/bert_uncased_L-2_H-128_A-2",
+      "candidate_rows": 512,
+      "prediction_max_abs_diff": 2.6645352591003757e-15
+    },
+    {
+      "split": "google/bert_uncased_L-4_H-256_A-4",
+      "candidate_rows": 512,
+      "prediction_max_abs_diff": 1.7763568394002505e-15
+    },
+    {
+      "split": "google/bert_uncased_L-4_H-512_A-8",
+      "candidate_rows": 512,
+      "prediction_max_abs_diff": 1.7763568394002505e-15
+    },
+    {
+      "split": "google/electra-small-discriminator",
+      "candidate_rows": 512,
+      "prediction_max_abs_diff": 1.7763568394002505e-15
+    },
+    {
+      "split": "bert_family_4",
+      "candidate_rows": 2048,
+      "prediction_max_abs_diff": 0.0
+    }
+  ],
+  "primary_pooled": {
+    "always_strong_1": {
+      "mean_ms": 34.119769186666666,
+      "p50_ms": 30.544425,
+      "p95_ms": 45.8951396,
+      "observations": 1725,
+      "strong_call_rate": 1.0
+    },
+    "always_strong_2": {
+      "mean_ms": 53.62383321797102,
+      "p50_ms": 56.040634,
+      "p95_ms": 59.1503042,
+      "observations": 1725,
+      "strong_call_rate": 1.0
+    },
+    "cascade_1": {
+      "mean_ms": 33.00403755826087,
+      "p50_ms": 30.379462,
+      "p95_ms": 46.711914,
+      "observations": 1725,
+      "strong_call_rate": 0.9426086956521739
+    },
+    "cascade_2": {
+      "mean_ms": 51.357756253333335,
+      "p50_ms": 56.678957,
+      "p95_ms": 60.2031024,
+      "observations": 1725,
+      "strong_call_rate": 0.9426086956521739
+    }
+  },
+  "corrected_comparison": {
+    "cascade_2_not_slower_than_strong_1_mean": false,
+    "cascade_2_not_slower_than_strong_1_p95": false,
+    "cascade_1_not_slower_than_strong_1_mean": true,
+    "cascade_1_not_slower_than_strong_1_p95": false
+  }
+}

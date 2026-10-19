@@ -1,0 +1,45 @@
+{
+  "period_days": [
+    116,
+    117,
+    118,
+    119,
+    120,
+    121,
+    122
+  ],
+  "history_from_existing_day115_hours": [
+    22,
+    23
+  ],
+  "model_source": "/home/researcher/ai-mcmp/research/artifacts/alibaba_gpu_sm_hour_v1",
+  "training_script": "/home/researcher/ai-mcmp/research/scripts/train_alibaba_gpu_sm_hour.py",
+  "training_script_sha256": "3f3d1e9f15296bdfb11e4f73c8bcad34edd93d5a4e659eff256eef489a81dabd",
+  "models": {
+    "one_gpu_pod": "2245eee0c2db77488344ff269aad0fcafca55b041112cc1c89a3a0c738f19e41",
+    "one_gpu_pod_and_server": "15472dcd11a5578a61bd3ea9fbdf1dfa91d4ce50272d043a7cda9cf179d70389"
+  },
+  "selected_route": "residual_hgb_alpha_1",
+  "fixed_best_baseline": "persistence",
+  "confirm_buckets": [
+    85,
+    99
+  ],
+  "primary_strict": true,
+  "minimum_primary_rows": 1000,
+  "minimum_primary_workloads": 20,
+  "minimum_change_events": 30,
+  "minimum_change_workloads": 5,
+  "bootstrap_seed": 42,
+  "bootstrap_repetitions": 2000,
+  "gates": [
+    "row_mae_lower",
+    "macro_workload_mae_lower",
+    "change_mae_not_worse",
+    "p95_error_not_worse",
+    "daily_row_mae_improved_at_least_5_of_7",
+    "workload_cluster_ci_lower_positive"
+  ],
+  "data_selection": "Next consecutive 7 days selected before downloading or reading target data; no period switching based on outcome",
+  "scope": "Same released cluster, new future dates; no new-cluster or scale-action-effect claim"
+}

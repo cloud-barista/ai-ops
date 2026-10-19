@@ -1,0 +1,19 @@
+{
+  "stage": "first run before terminal-empty-row parser correction",
+  "source_sha256": "db15cfa75f05d44020a3f5c4f6f4930cbb1c2518dd3884391917615cea52a23a",
+  "complete_folders": 9,
+  "parsed_folders": 0,
+  "raw_transitions_reported": 0,
+  "interpretation": "No transition count was valid: all complete folders failed parsing at the single terminal blank line in clients.csv. This was a parser error, not an absence of node transitions.",
+  "parse_errors": {
+    "PAX/Aggressive strategies/Aggressive": "PAX/Aggressive strategies/Aggressive/clients.csv:10482: expected datetime,clients",
+    "PAX/Aggressive strategies/Conservative": "PAX/Aggressive strategies/Conservative/clients.csv:35643: expected datetime,clients",
+    "PAX/Aggressive strategies/Normal": "PAX/Aggressive strategies/Normal/clients.csv:35556: expected datetime,clients",
+    "PAX/HintHandoff_sinchronization": "PAX/HintHandoff_sinchronization/clients.csv:9432: expected datetime,clients",
+    "PAX/Validation/Change Architecture Proactive": "PAX/Validation/Change Architecture Proactive/clients.csv:8748: expected datetime,clients",
+    "PAX/Validation/Doble syn Proactive": "PAX/Validation/Doble syn Proactive/clients.csv:32406: expected datetime,clients",
+    "PAX/Validation/Step Proactive": "PAX/Validation/Step Proactive/clients.csv:25162: expected datetime,clients",
+    "PAX/Validation/Syn Proactive": "PAX/Validation/Syn Proactive/clients.csv:10412: expected datetime,clients",
+    "PAX/Validation/Syn Reactive": "PAX/Validation/Syn Reactive/clients.csv:10462: expected datetime,clients"
+  }
+}

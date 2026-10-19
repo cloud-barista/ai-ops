@@ -1,0 +1,285 @@
+{
+  "alert": "score[t] >= higher-q90 of prior max 576 scores; test starts t=864",
+  "cells": {
+    "a": {
+      "calibration_offsets": [
+        300,
+        863
+      ],
+      "calibration_positive_bins": 0,
+      "evaluation_offsets": [
+        864,
+        8914
+      ],
+      "full_bins": 8926,
+      "metrics": {
+        "daily_future_hour": {
+          "alert_bins": 1240,
+          "alert_rate": 0.15401813439324308,
+          "average_precision": 0.6476403387024172,
+          "positive_bins": 1850,
+          "precision": 0.43548387096774194,
+          "recall": 0.2918918918918919,
+          "test_bins": 8051,
+          "true_positive_bins": 540
+        },
+        "hgb": {
+          "alert_bins": 1061,
+          "alert_rate": 0.13178487144454104,
+          "average_precision": 0.7443572466582475,
+          "positive_bins": 1850,
+          "precision": 0.292177191328935,
+          "recall": 0.16756756756756758,
+          "test_bins": 8051,
+          "true_positive_bins": 310
+        },
+        "max12": {
+          "alert_bins": 1275,
+          "alert_rate": 0.15836542044466526,
+          "average_precision": 0.9490474352407159,
+          "positive_bins": 1850,
+          "precision": 0.4188235294117647,
+          "recall": 0.28864864864864864,
+          "test_bins": 8051,
+          "true_positive_bins": 534
+        },
+        "mean12": {
+          "alert_bins": 1303,
+          "alert_rate": 0.16184324928580301,
+          "average_precision": 0.9723987282876022,
+          "positive_bins": 1850,
+          "precision": 0.4336147352264006,
+          "recall": 0.3054054054054054,
+          "test_bins": 8051,
+          "true_positive_bins": 565
+        }
+      },
+      "threshold_jobs_per_5min_as_future_hour_mean": 727.5,
+      "train_cells": [
+        "b",
+        "g",
+        "e"
+      ],
+      "training_label_count": 25845
+    },
+    "b": {
+      "calibration_offsets": [
+        300,
+        863
+      ],
+      "calibration_positive_bins": 38,
+      "evaluation_offsets": [
+        864,
+        8914
+      ],
+      "full_bins": 8926,
+      "metrics": {
+        "daily_future_hour": {
+          "alert_bins": 930,
+          "alert_rate": 0.11551360079493231,
+          "average_precision": 0.03367709770532,
+          "positive_bins": 204,
+          "precision": 0.04086021505376344,
+          "recall": 0.18627450980392157,
+          "test_bins": 8051,
+          "true_positive_bins": 38
+        },
+        "hgb": {
+          "alert_bins": 876,
+          "alert_rate": 0.10880635945845236,
+          "average_precision": 0.06619976724033919,
+          "positive_bins": 204,
+          "precision": 0.07990867579908675,
+          "recall": 0.3431372549019608,
+          "test_bins": 8051,
+          "true_positive_bins": 70
+        },
+        "max12": {
+          "alert_bins": 956,
+          "alert_rate": 0.1187430132902745,
+          "average_precision": 0.09429803030042198,
+          "positive_bins": 204,
+          "precision": 0.05230125523012552,
+          "recall": 0.24509803921568626,
+          "test_bins": 8051,
+          "true_positive_bins": 50
+        },
+        "mean12": {
+          "alert_bins": 904,
+          "alert_rate": 0.11228418829959011,
+          "average_precision": 0.06330418700040666,
+          "positive_bins": 204,
+          "precision": 0.08185840707964602,
+          "recall": 0.3627450980392157,
+          "test_bins": 8051,
+          "true_positive_bins": 74
+        }
+      },
+      "threshold_jobs_per_5min_as_future_hour_mean": 214.5,
+      "train_cells": [
+        "a",
+        "g",
+        "e"
+      ],
+      "training_label_count": 25845
+    },
+    "e": {
+      "calibration_offsets": [
+        300,
+        863
+      ],
+      "calibration_positive_bins": 38,
+      "evaluation_offsets": [
+        864,
+        8914
+      ],
+      "full_bins": 8926,
+      "metrics": {
+        "daily_future_hour": {
+          "alert_bins": 845,
+          "alert_rate": 0.1049559060986213,
+          "average_precision": 0.021907993214392546,
+          "positive_bins": 116,
+          "precision": 0.027218934911242602,
+          "recall": 0.19827586206896552,
+          "test_bins": 8051,
+          "true_positive_bins": 23
+        },
+        "hgb": {
+          "alert_bins": 834,
+          "alert_rate": 0.10358961619674574,
+          "average_precision": 0.21727235034311032,
+          "positive_bins": 116,
+          "precision": 0.07553956834532374,
+          "recall": 0.5431034482758621,
+          "test_bins": 8051,
+          "true_positive_bins": 63
+        },
+        "max12": {
+          "alert_bins": 783,
+          "alert_rate": 0.09725499937895914,
+          "average_precision": 0.2731930450488257,
+          "positive_bins": 116,
+          "precision": 0.07535121328224777,
+          "recall": 0.5086206896551724,
+          "test_bins": 8051,
+          "true_positive_bins": 59
+        },
+        "mean12": {
+          "alert_bins": 811,
+          "alert_rate": 0.10073282822009688,
+          "average_precision": 0.3517670570795976,
+          "positive_bins": 116,
+          "precision": 0.08384710234278668,
+          "recall": 0.5862068965517241,
+          "test_bins": 8051,
+          "true_positive_bins": 68
+        }
+      },
+      "threshold_jobs_per_5min_as_future_hour_mean": 157.66666666666666,
+      "train_cells": [
+        "a",
+        "b",
+        "g"
+      ],
+      "training_label_count": 25845
+    },
+    "g": {
+      "calibration_offsets": [
+        300,
+        863
+      ],
+      "calibration_positive_bins": 8,
+      "evaluation_offsets": [
+        864,
+        8914
+      ],
+      "full_bins": 8926,
+      "metrics": {
+        "daily_future_hour": {
+          "alert_bins": 1165,
+          "alert_rate": 0.14470252142590984,
+          "average_precision": 0.20033449206933307,
+          "positive_bins": 750,
+          "precision": 0.1871244635193133,
+          "recall": 0.2906666666666667,
+          "test_bins": 8051,
+          "true_positive_bins": 218
+        },
+        "hgb": {
+          "alert_bins": 964,
+          "alert_rate": 0.11973667867345672,
+          "average_precision": 0.2663396273373112,
+          "positive_bins": 750,
+          "precision": 0.241701244813278,
+          "recall": 0.31066666666666665,
+          "test_bins": 8051,
+          "true_positive_bins": 233
+        },
+        "max12": {
+          "alert_bins": 1136,
+          "alert_rate": 0.1411004844118743,
+          "average_precision": 0.2380434758543979,
+          "positive_bins": 750,
+          "precision": 0.16901408450704225,
+          "recall": 0.256,
+          "test_bins": 8051,
+          "true_positive_bins": 192
+        },
+        "mean12": {
+          "alert_bins": 1165,
+          "alert_rate": 0.14470252142590984,
+          "average_precision": 0.2642871965044953,
+          "positive_bins": 750,
+          "precision": 0.17854077253218884,
+          "recall": 0.2773333333333333,
+          "test_bins": 8051,
+          "true_positive_bins": 208
+        }
+      },
+      "threshold_jobs_per_5min_as_future_hour_mean": 126.74999999999999,
+      "train_cells": [
+        "a",
+        "b",
+        "e"
+      ],
+      "training_label_count": 25845
+    }
+  },
+  "feature_names": [
+    "lag1_over_threshold",
+    "lag2_over_threshold",
+    "mean3_over_threshold",
+    "mean12_over_threshold",
+    "std12_over_threshold",
+    "max12_over_threshold",
+    "mean288_over_threshold",
+    "std288_over_threshold",
+    "lag288_over_threshold",
+    "y_lag1_minus_lag289_over_threshold",
+    "time_of_day_sine",
+    "time_of_day_cosine"
+  ],
+  "label": "mean(y[t:t+12]) >= q90_higher(first 300 bins' 289 closed 12-bin means)",
+  "label_maturity": "At decision t only y[:t] is available; the label is complete at the start of bin t+12",
+  "model": {
+    "name": "HistGradientBoostingClassifier",
+    "params": {
+      "l2_regularization": 1,
+      "learning_rate": 0.05,
+      "max_depth": 3,
+      "max_iter": 100,
+      "max_leaf_nodes": 15,
+      "min_samples_leaf": 50,
+      "random_state": 42
+    },
+    "sklearn_version": "1.5.2"
+  },
+  "source_series_sha256": {
+    "a": "7678e205e07891ab7698ff7315c29eda7d9eb2c99fc52e84af54d87acccb9f12",
+    "b": "8dcdf90d5487e1eafd1ea4f5f0b6d1ca2002d83da069ce6553e98dbd07a9c439",
+    "e": "63b7636f9b27a9217aee54ab173ca68c8fb2986ec966277d65e80bd7f3092e97",
+    "g": "b3b10498a1a0d96b7012ce2e7414a048943d55f78706b312aecf543e140e7d18"
+  },
+  "status": "exposed-development-only; not independent validation or an AI-App action outcome"
+}

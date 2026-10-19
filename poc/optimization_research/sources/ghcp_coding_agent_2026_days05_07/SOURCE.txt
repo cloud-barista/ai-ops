@@ -1,0 +1,36 @@
+GitHub Copilot Coding Agent Traces 2026 — selected session partitions
+
+Official description:
+https://github.com/Azure/AzurePublicDataset/blob/master/GitHubCopilotCodingAgentDataset2026.md
+Release:
+https://github.com/Azure/AzurePublicDataset/releases/tag/ghcp-coding-agent-2026
+Schema:
+https://github.com/Azure/AzurePublicDataset/blob/master/analysis/GitHubCopilotCodingAgents/schema.json
+License: CC-BY Attribution License as declared by the official dataset description.
+License reference: https://github.com/Azure/AzurePublicDataset/blob/master/LICENSE
+
+Required paper attribution:
+Liu, Banruo; Qiu, Haoran; Goiri, Inigo; Fonseca, Rodrigo; Bianchini, Ricardo;
+Choukse, Esha (2026). Agentic Coding in the Wild: Characterizing GitHub Copilot
+Traces at Production Scale. arXiv:2608.00101.
+https://arxiv.org/abs/2608.00101
+
+The official data describes uniformly sampled non-enterprise agentic coding
+sessions and contains timing/token/model/tool metadata rather than text.
+This local copy deliberately includes ONLY June 5, 6, and 7 daily session
+partitions, totaling 811,885,715 compressed bytes. No full-week download.
+Source size and SHA256 are preserved from the provider's release API metadata
+in release_metadata.json and PRE_DOWNLOAD_FREEZE.json. The archive digests
+must match before any aggregation or scoring.
+
+This is a selected session sample. Calls from sessions assigned to excluded
+partition dates may be absent even if their timestamps fall on our dates.
+Calls in selected sessions that fall outside June5..7 are counted in the audit
+and excluded from the 864 five-minute totals. These counts are not full
+Copilot service arrivals, request rates, GPU demand, or user SLO labels.
+Prompt tokens include cached tokens. Call timestamp is interpreted as origin;
+prompt counts and bin feedback are assumed available without delivery delay.
+No source-code, user-text or real model-name data is required for this study.
+
+Raw archives remain compressed. Nested JSONL.gz files are read by streaming;
+no full uncompressed dataset is stored. Original source models are preserved.

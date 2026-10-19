@@ -1,0 +1,28 @@
+{
+  "candidates": [
+    "static_global",
+    "static_cohort",
+    "rolling_cohort",
+    "rolling_bin",
+    "hgb_base",
+    "hgb_adaptive"
+  ],
+  "criterion": "minimum mean of daily p90 pinball, then row mean, then candidate order",
+  "feedback_rule": "at day d start, output logs from request days d-8 through d-2 assumed delivered",
+  "model_sha256": "67deb956e74e68f7721a9d1d8dbe6e9482f30566b78012557199511dc08246cf",
+  "protocol_sha256": "e8e2c1d6e9bd1070998c5f7ddfe163da9012167638b6bf150d7dbb8d09ea14e6",
+  "script_sha256": "5475c633b277a750df5149750e2431dd4c1cf13731f9ee25b92e94a845536482",
+  "selected_method": "hgb_base",
+  "selection_days": [
+    303,
+    314
+  ],
+  "source_sha256": "2299986a07388aa303ec2c41d1131e756db650a39ed6ef9dfe7cc3d7f9a43b8f",
+  "status": "selection_frozen_before_test",
+  "test_days": [
+    315,
+    334
+  ],
+  "validation_metrics_sha256": "efab0bb5a90351032dc7a2cb26661ca2a2f8068d454912e439cbbefd653bf0bd",
+  "validation_predictions_sha256": "3652f757761d41303b260b8df9dbfbaff0cdced48df43e87d16976137a446040"
+}

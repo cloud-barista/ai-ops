@@ -1,0 +1,7 @@
+AI-MCMP 담당 항목 진행 보강 | 2026-10-06
+기존 ai_mcmp_rr_status_2026_10_06.txt를 변경하지 않고 추가 연구 상태를 기록한다.
+Copilot 고정 모델의BurstGPT전이는12조건 모두지원 기준 미달로외부 성능 채점을 보류했다. 판정·원시 집계를독립 검증했다.
+이어BurstGPT60일에서20일학습·10일검증·30일시험으로간헐 호출 모델24개를학습했다. 사전 고정된 주방법은12조건 중3조건 통과,전체 통과=False.
+이 추가 연구는수요 입력 신호와완료 피드백 보정에해당한다. 요구분석전체·VM형상전체·실제DEPLOY/UPDATE/SCALE_OUT/SCALE_IN/KEEP효과·기관연동완료는아니다.
+이전 정적추천·Philly위험보정·Copilot피드백·추론최적화의범위는그대로 유지한다.
+상세결과:reports/burstgpt_call_transfer_findings_2026_10_06.txt,reports/burstgpt_sparse_calls_findings_2026_10_06.txt

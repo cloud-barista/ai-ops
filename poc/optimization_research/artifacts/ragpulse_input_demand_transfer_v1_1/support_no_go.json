@@ -1,0 +1,44 @@
+{
+  "status": "SUPPORT_NO_GO_NO_SCORE",
+  "release_sha256": "4411ee1f6be9a012c1309d2393899bcc09010251009d8bae28b6f9587493778a",
+  "source_sha256": "017b54972ba3c6c4d52c6cc6967f4168630c381ac58a3b5625a45e795ffa13fa",
+  "request_rows": 34987,
+  "support": {
+    "per_day": {
+      "27": {
+        "eligible": 234,
+        "ineligible": 54
+      },
+      "28": {
+        "eligible": 231,
+        "ineligible": 57
+      },
+      "29": {
+        "eligible": 225,
+        "ineligible": 63
+      },
+      "30": {
+        "eligible": 245,
+        "ineligible": 43
+      },
+      "31": {
+        "eligible": 250,
+        "ineligible": 38
+      },
+      "32": {
+        "eligible": 241,
+        "ineligible": 47
+      },
+      "33": {
+        "eligible": 250,
+        "ineligible": 38
+      },
+      "34": {
+        "eligible": 244,
+        "ineligible": 44
+      }
+    },
+    "threshold_per_day": 274,
+    "all_passed": false
+  }
+}

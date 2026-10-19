@@ -1,0 +1,30 @@
+{
+  "code_sha256": "80035b611869b3da92b0e6b9555761f31aacaa1534746cb656abdc56c38b3d7a",
+  "expected_test_sha256": {
+    "task_events/part-00475-of-00500.csv.gz": "631502c946b16e015315fdd16199363fe2eb87218063ffb3ef4942897ea3a1ef",
+    "task_usage/part-00475-of-00500.csv.gz": "b3e3ac9029efd46b5a5add8c23a331eb9e8cc45e3e5a817f5b41a0d09ad3ed8c"
+  },
+  "joblib": "1.5.1",
+  "methods": [
+    "request_ratio",
+    "recent_peak_margin",
+    "submit_hgb",
+    "feedback_hgb"
+  ],
+  "numpy": "2.0.2",
+  "pandas": "2.3.0+4.g1dfc98e16a",
+  "protocol_sha256": "075a4cb8f8257ceb8188cd1f07dff97b4132bd9a78c7ba80c034589f4191bf5d",
+  "python": "3.9.25",
+  "sklearn": "1.6.1",
+  "source_sha256": {
+    "task_events/part-00050-of-00500.csv.gz": "9e2e370e893a559c87e97b8ce92e6e1d688a1501ae762923650318dcf8ea828e",
+    "task_events/part-00200-of-00500.csv.gz": "df8befaa4899af4ee555384c590a5e5da8160ea63500ee599a3c3f0a6bc8cefc",
+    "task_usage/part-00050-of-00500.csv.gz": "3a9f92fefed2c263a38b3881d9d4570bfd16d27b55ce7feafd35e22d0aa3bf1e",
+    "task_usage/part-00200-of-00500.csv.gz": "e18bfe62a1d738336757ae02d97ca418784f51ea4e75a877a206fed2e8fd1295"
+  },
+  "test": 475,
+  "test_unopened": true,
+  "tests_sha256": "f1306729c4887b224b42b8d4ce0db25614bafe1525673bb07d1d1c6f313fae53",
+  "train": 50,
+  "validation": 200
+}

@@ -1,0 +1,26 @@
+{
+  "frozen_at_utc": "2026-09-28 21:31:02 UTC",
+  "kind": "khu.burstgpt_input_demand_v2.freeze",
+  "permitted_next_action": "Independent review, then score only train/calibration and validation before day 285.",
+  "prior_exposure": "v1 validation metrics known; two incidental day-334 source rows exposed; v2 validation is exploratory.",
+  "protocol_sha256": "d84319c71799a47ab05dbbb977a373421767b7ce3cf3916d16e584a3695f43d5",
+  "reviewed_digest_required_on_cli": true,
+  "script_sha256": "25ab26d408f795f1f825e2b95ad9e668c4579f1ac5bc1f1c302df4df4021c320",
+  "source_audit_sha256": "9aeb9a06f4d2ab56cc677ce3c618834fc70dab22126888de7123cc2ca1f58965",
+  "source_bytes": 231682327,
+  "source_sha256": "2299986a07388aa303ec2c41d1131e756db650a39ed6ef9dfe7cc3d7f9a43b8f",
+  "status": "train_validation_only_no_test_targets",
+  "test_sha256": "05c46ae752068b1f0a5d3ca09e5337090973ba4f79d01b96382c2532af35bb05",
+  "v1_freeze_sha256": "0f4c6ba50ecf1de7b3117330bc6da57b90c8c203ec2f17021ad967a4c9e6ce38",
+  "v1_metrics_sha256": "74ab536413e920df44d27d3d67f2d2b2f6e732fd647a8e64aa83fd9e60d42931",
+  "v1_models_sha256": "4716e0c7acef3302a9259a7236dd5a64f94864fa95e67195a80e915b35a08093",
+  "v1_predictions_sha256": "b856d3dcc5e6a407a92caf054e282fba5d6b7416fb3b4609e427b2440f02a8b2",
+  "v1_script_sha256": "dc7e2b2d1fb7b94209bf7417b037a60ed31a28cd15d2f2acec43750fd4b63670",
+  "v1_support_sha256": "39df68c44b50eb5090679fee192622a48d9736797315f4366a700b01c12e7af5",
+  "versions": {
+    "joblib": "1.2.0",
+    "numpy": "2.2.6",
+    "python": "3.10.12",
+    "sklearn": "1.5.2"
+  }
+}

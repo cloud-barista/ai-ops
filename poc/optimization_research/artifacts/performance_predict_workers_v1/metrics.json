@@ -1,0 +1,47 @@
+{
+  "scope": "warm local CPU model.predict only; excludes joblib load, input parsing and JSON",
+  "saved_fit_workers": 2,
+  "optimized_predict_workers": 1,
+  "model_sha256": "7a934da440ea0c7473e4e59eb5fa0c8c57f347389272bd303cb0051ef918b161",
+  "source_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "example_sha256": "c80168f2a25ed60759ad9c2f010c67df282b0c19c07e903af23bd261f910b13f",
+  "benchmark_script_sha256": "f40bf40997c1448ff34998147409c3a0e21394e71a02e6ebeafb3a67da8c1ca0",
+  "prediction_script_sha256": "c5ab4979f018428e501fb5d65efcd3f33e4c422b1ced3eb9cb301702faed5f11",
+  "parity_primary_candidate_rows": 4856,
+  "prediction_max_abs_diff": 0.0,
+  "prediction_parity_atol": 1e-12,
+  "actual_api_example_status": "PREDICTED",
+  "actual_api_example_prediction_parity": true,
+  "repetitions_per_method_input": 60,
+  "versions": {
+    "python": "3.9.25",
+    "sklearn": "1.6.1",
+    "numpy": "2.0.2"
+  },
+  "timings": {
+    "one_candidate": {
+      "one_worker": {
+        "mean_ms": 39.95125836666667,
+        "median_ms": 46.463351,
+        "p95_ms": 49.910973
+      },
+      "two_workers": {
+        "mean_ms": 57.20067453333334,
+        "median_ms": 59.353233,
+        "p95_ms": 64.8004789
+      }
+    },
+    "eight_candidate_batch": {
+      "one_worker": {
+        "mean_ms": 43.36869506666667,
+        "median_ms": 48.337517000000005,
+        "p95_ms": 50.18964055
+      },
+      "two_workers": {
+        "mean_ms": 57.8661727,
+        "median_ms": 60.10968200000001,
+        "p95_ms": 65.47818079999998
+      }
+    }
+  }
+}

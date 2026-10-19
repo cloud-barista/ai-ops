@@ -1,0 +1,43 @@
+{
+  "status": "FROZEN_BEFORE_RG66_TO_RG76_ROW_VALUES",
+  "revision": "85722e694bf7bb8a5a5ccdf70424fa5998372467",
+  "source_sha256": "ca99b91b33d04bf56f3d0b26241c4a083a7e1579f0f571887eee4ee1004c90dd",
+  "source_size": 2046207562,
+  "row_groups": [
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    76
+  ],
+  "source_exposed_development_row_group": 65,
+  "source_exposed_development_sample_sha256": "92fe8c48ab1aadfe33d214570a167cebb4bf01e0fdb7eda296304cc91c0eac71",
+  "train_decision_window": [
+    "1970-12-27T23:15:00",
+    "1970-12-28T10:15:00"
+  ],
+  "validation_decision_window": [
+    "1970-12-28T11:25:00",
+    "1970-12-28T16:00:00"
+  ],
+  "test_decision_window": [
+    "1970-12-28T17:05:00",
+    "1970-12-28T23:30:00"
+  ],
+  "protocol_sha256": "3656f1219a7bc97801be4a7902c357322285bdf941b46b858d2d20b73fec2051",
+  "script_sha256": "880776ecfa2dd2b8515aaa7b8027c7f71772af743f391a47d57e2029a66db177",
+  "test_sha256": "89a6a0683150a3d4c3cceade6c02115058b51531325453013e44f15443006747",
+  "environment": {
+    "python": "3.9.25",
+    "pandas": "2.3.0+4.g1dfc98e16a",
+    "pyarrow": "21.0.0",
+    "scikit_learn": "1.6.1"
+  }
+}

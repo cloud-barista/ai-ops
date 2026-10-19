@@ -1,0 +1,465 @@
+{
+  "source_repo": "https://github.com/asm582/token-aware-autoscaling",
+  "commit": "7e70bf5f69c773eb6f51f870c5d23cf41f0efb04",
+  "license": "Apache-2.0",
+  "downloaded_utc": "2026-09-29T01:04:08.010690+00:00",
+  "files": [
+    {
+      "path": "LICENSE",
+      "size": 11357,
+      "git_blob_sha1": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/LICENSE"
+    },
+    {
+      "path": "benchmark/run-benchmark.sh",
+      "size": 25038,
+      "git_blob_sha1": "8626ce81f5475fd0e2f4d619b3a8d2550210a02b",
+      "sha256": "5b7a11e8e7fee103b3f8a0091e08985d219235d754c158abf2d28a205a881b3b",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/benchmark/run-benchmark.sh"
+    },
+    {
+      "path": "experiments/2026-08-20-decode-heavy/EXPERIMENT-REPORT.md",
+      "size": 9851,
+      "git_blob_sha1": "e96d71d519395cde0f38f8e059815da24d1c516c",
+      "sha256": "6e05fb26c3886b0694c329a533c8d68811b3d5b1e5dd1fdef3d0194149aeba00",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-decode-heavy/EXPERIMENT-REPORT.md"
+    },
+    {
+      "path": "experiments/2026-08-20-decode-heavy/autoscaling-timeline.csv",
+      "size": 7202,
+      "git_blob_sha1": "025884bb612bd7a93924b7c76fb81ba9e5178c3d",
+      "sha256": "357643847e1c85fefed9a6f21a66c8d6e09ea0e0366227b467c679392c5acb96",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-decode-heavy/autoscaling-timeline.csv"
+    },
+    {
+      "path": "experiments/2026-08-20-decode-heavy/stage_0_lifecycle_metrics.json",
+      "size": 6899,
+      "git_blob_sha1": "b563551d1050d098a54a8a1282c90f77941f5102",
+      "sha256": "0330d529bb4b3682163b5ac517f8541f41d8c2aa4c2f3b7b9526588d59fcc614",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-decode-heavy/stage_0_lifecycle_metrics.json"
+    },
+    {
+      "path": "experiments/2026-08-20-decode-heavy/stage_1_lifecycle_metrics.json",
+      "size": 6943,
+      "git_blob_sha1": "b71396d40507bbe2910e1cf71849c235bd026d3f",
+      "sha256": "93c46805fab9b306700c9a44954be17a747b3f50a8b146a031d62e2b7b13df77",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-decode-heavy/stage_1_lifecycle_metrics.json"
+    },
+    {
+      "path": "experiments/2026-08-20-decode-heavy/stage_2_lifecycle_metrics.json",
+      "size": 7764,
+      "git_blob_sha1": "8469add16419c7075ac4f8a9264f84fb65d545d0",
+      "sha256": "0f0a60ae5d85766bceb133f96ed28906b80ac47f343a729534b0450e51c29413",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-decode-heavy/stage_2_lifecycle_metrics.json"
+    },
+    {
+      "path": "experiments/2026-08-20-decode-heavy/stage_3_lifecycle_metrics.json",
+      "size": 6937,
+      "git_blob_sha1": "dcb24817b69052763dd945a02c12f65d6f5b139f",
+      "sha256": "764c3091f0e340f78745f2a1302628487e363728fed1ca02052920df27cc8a7b",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-decode-heavy/stage_3_lifecycle_metrics.json"
+    },
+    {
+      "path": "experiments/2026-08-20-decode-heavy/stage_4_lifecycle_metrics.json",
+      "size": 7780,
+      "git_blob_sha1": "83932919ffbd1c131f2df65a4c459f40ef2c80d5",
+      "sha256": "1cfa6ec5b41cf261eb7c5a44bbaea70297d0b5b84b990f410d2ff582b982e0b4",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-decode-heavy/stage_4_lifecycle_metrics.json"
+    },
+    {
+      "path": "experiments/2026-08-20-decode-heavy/stage_5_lifecycle_metrics.json",
+      "size": 7892,
+      "git_blob_sha1": "3b43395c306cc435f7d7e4ea92f1898b164fb853",
+      "sha256": "3deade1f17d1ca0ca4e7c75d0f47f3eae4d39f750c2503de0234fbef5f164d9d",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-decode-heavy/stage_5_lifecycle_metrics.json"
+    },
+    {
+      "path": "experiments/2026-08-20-decode-heavy/stage_6_lifecycle_metrics.json",
+      "size": 7909,
+      "git_blob_sha1": "1fe9e510f42ad66826802629d0a7a55953774f04",
+      "sha256": "01d891a64a809c3fdb5b524a9bbd633fba7afb86ceb8240b63d121e4186c86b2",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-decode-heavy/stage_6_lifecycle_metrics.json"
+    },
+    {
+      "path": "experiments/2026-08-20-decode-heavy/summary_lifecycle_metrics.json",
+      "size": 7915,
+      "git_blob_sha1": "9c035a011732da12bcc38cc6ccc22d433f1ba47f",
+      "sha256": "da493cd557a3699c8189acddce7efcccdf65390e75505f86cdcb785ef980ecec",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-decode-heavy/summary_lifecycle_metrics.json"
+    },
+    {
+      "path": "experiments/2026-08-20-decode-heavy/workload-used.yaml",
+      "size": 2542,
+      "git_blob_sha1": "5016c675c478480318a75052747412f166e9204e",
+      "sha256": "6d10fd893af8623b44eac1f03a5a374b7f39f614ff1907c6ffddd83d4a7095f6",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-decode-heavy/workload-used.yaml"
+    },
+    {
+      "path": "experiments/2026-08-20-prefill-heavy/EXPERIMENT-REPORT.md",
+      "size": 7538,
+      "git_blob_sha1": "ae61bd0035d57c06b1790c7b9d739b60500ab93e",
+      "sha256": "e0007cb5219c010636000c2d0edc023c3c8e5c690ce5a1b451f682b803e4866a",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-prefill-heavy/EXPERIMENT-REPORT.md"
+    },
+    {
+      "path": "experiments/2026-08-20-prefill-heavy/autoscaling-timeline.csv",
+      "size": 6315,
+      "git_blob_sha1": "b553c0a4e18c995df332f4385985f69522e15897",
+      "sha256": "6f2b6bff8e8fd135ca1e3c36a43c1db82681b480d629e9ffb53527795f94034f",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-prefill-heavy/autoscaling-timeline.csv"
+    },
+    {
+      "path": "experiments/2026-08-20-prefill-heavy/stage_0_lifecycle_metrics.json",
+      "size": 6864,
+      "git_blob_sha1": "c5181a806db66cc5d3c07d09789a1dc137dc7839",
+      "sha256": "bacda4c2301d8850d0a19e83b1ce293699ecf839b53aded5137a71f5628f733a",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-prefill-heavy/stage_0_lifecycle_metrics.json"
+    },
+    {
+      "path": "experiments/2026-08-20-prefill-heavy/stage_1_lifecycle_metrics.json",
+      "size": 6938,
+      "git_blob_sha1": "0d8a84e6ea137a086269add1bbfcef20b806bd7e",
+      "sha256": "1fa8ea79a5e1ad4787fb50f682cb7f48e85701a52115d3636703dd867044d164",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-prefill-heavy/stage_1_lifecycle_metrics.json"
+    },
+    {
+      "path": "experiments/2026-08-20-prefill-heavy/stage_2_lifecycle_metrics.json",
+      "size": 6880,
+      "git_blob_sha1": "1765852fb6ea4c711dea89ca0e6ccf3dc39f6ebf",
+      "sha256": "5ae2283331d173d3fe14981bfc05d479a772f2dcc8f9c17626045e287adb9551",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-prefill-heavy/stage_2_lifecycle_metrics.json"
+    },
+    {
+      "path": "experiments/2026-08-20-prefill-heavy/stage_3_lifecycle_metrics.json",
+      "size": 6861,
+      "git_blob_sha1": "28624fb7806873fd2540e45a37df2a1ed0d516d1",
+      "sha256": "45730a62d2079d410044548dcf3b6b9683c5b084f3a302c23fe7edfaaad3599a",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-prefill-heavy/stage_3_lifecycle_metrics.json"
+    },
+    {
+      "path": "experiments/2026-08-20-prefill-heavy/stage_4_lifecycle_metrics.json",
+      "size": 6854,
+      "git_blob_sha1": "fefbc724c824f43c9aae66a491bc3189d355b74c",
+      "sha256": "d65b5de6ad2905fda560ef57f409d0afa1fb36495c0898d62ed72978b30e47bb",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-prefill-heavy/stage_4_lifecycle_metrics.json"
+    },
+    {
+      "path": "experiments/2026-08-20-prefill-heavy/stage_5_lifecycle_metrics.json",
+      "size": 6866,
+      "git_blob_sha1": "3d9d2e75df846c00e5ee7390b0bc50925833a76d",
+      "sha256": "9e779da86df65e33ba0f06d5975eca87a77daa4b423bf28d7d54c381d599e93b",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-prefill-heavy/stage_5_lifecycle_metrics.json"
+    },
+    {
+      "path": "experiments/2026-08-20-prefill-heavy/stage_6_lifecycle_metrics.json",
+      "size": 7839,
+      "git_blob_sha1": "55185c35326fe70a7c1d9ca2c2e8032703f84bed",
+      "sha256": "b6e206b2e89fd62119b97903ab4bb1a3f418d4d24a178d8e3a84d422b913e903",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-prefill-heavy/stage_6_lifecycle_metrics.json"
+    },
+    {
+      "path": "experiments/2026-08-20-prefill-heavy/summary_lifecycle_metrics.json",
+      "size": 7728,
+      "git_blob_sha1": "1b642bec05b418e86b1059cff852497bde927421",
+      "sha256": "f294d8584f2b162ecd086b52815767610a0e7511850699e65e1c0ee349ac4a91",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-prefill-heavy/summary_lifecycle_metrics.json"
+    },
+    {
+      "path": "experiments/2026-08-20-prefill-heavy/workload-used.yaml",
+      "size": 2291,
+      "git_blob_sha1": "19090dc06e61819079cc1deea177f4f0a37edc5c",
+      "sha256": "af40a4b961cc02e651ffb06df5eb692f0678c9c7eacdadf4b471034aa3783086",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-prefill-heavy/workload-used.yaml"
+    },
+    {
+      "path": "experiments/2026-08-20-staged-ramp/EXPERIMENT-REPORT.md",
+      "size": 6393,
+      "git_blob_sha1": "d993eeeb021f0a8d196768f06067a5d8aef81a2c",
+      "sha256": "f2dd1687d6e00c384cab011dc1eb4419daa1476473218638f716839cb7c61321",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-staged-ramp/EXPERIMENT-REPORT.md"
+    },
+    {
+      "path": "experiments/2026-08-20-staged-ramp/autoscaling-timeline.csv",
+      "size": 5484,
+      "git_blob_sha1": "25b4effffc5c7f4be6574ab91f5dc26d4a90f1fe",
+      "sha256": "cd3b028711a2af52827bd964ff31c1cb4829dbf77c9ba8178cf749e87bc170b1",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-staged-ramp/autoscaling-timeline.csv"
+    },
+    {
+      "path": "experiments/2026-08-20-staged-ramp/stage_0_lifecycle_metrics.json",
+      "size": 6907,
+      "git_blob_sha1": "67e741e88b6bc749c52004fd8d5f1dd96bd8ce04",
+      "sha256": "c63ddde0dcdd0adf9b8f94d538da3165ce0cda5a7c1d10032cac27808579affc",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-staged-ramp/stage_0_lifecycle_metrics.json"
+    },
+    {
+      "path": "experiments/2026-08-20-staged-ramp/stage_1_lifecycle_metrics.json",
+      "size": 6958,
+      "git_blob_sha1": "08a24510b3a1ac3f6e54c0dfdb73cdeeff61679e",
+      "sha256": "61bfcddcdef867cbab9cbdf37fbfe68a0129003490d86f885296c5fdcba00689",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-staged-ramp/stage_1_lifecycle_metrics.json"
+    },
+    {
+      "path": "experiments/2026-08-20-staged-ramp/stage_2_lifecycle_metrics.json",
+      "size": 6924,
+      "git_blob_sha1": "c06790f00001bfbd1170a6f80f2e4a0f471fdb3b",
+      "sha256": "447105f3cd51c69b44d8b6b7406c650e265b222c26f588f7d2d1801289fece42",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-staged-ramp/stage_2_lifecycle_metrics.json"
+    },
+    {
+      "path": "experiments/2026-08-20-staged-ramp/stage_3_lifecycle_metrics.json",
+      "size": 6903,
+      "git_blob_sha1": "3de33109101c094b0e03a0af1ab6e7ead32cec3e",
+      "sha256": "9409c02f31ef17b4c8c17a5a72ec91bba97f69d0c30fabe3174ba4d7f706828f",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-staged-ramp/stage_3_lifecycle_metrics.json"
+    },
+    {
+      "path": "experiments/2026-08-20-staged-ramp/stage_4_lifecycle_metrics.json",
+      "size": 6921,
+      "git_blob_sha1": "a4c2414940d9677cb754a502bda251a368b6745d",
+      "sha256": "bc55c66af8a94a22497d6aa540a4d1f17b32459f6fefc907bd859dd079730226",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-staged-ramp/stage_4_lifecycle_metrics.json"
+    },
+    {
+      "path": "experiments/2026-08-20-staged-ramp/stage_5_lifecycle_metrics.json",
+      "size": 7948,
+      "git_blob_sha1": "e025511b3968ae794a143c63314b298e67d82a51",
+      "sha256": "7e8a87e0509272134727826e69633e5b3eb54c0991aeb4380999d1b45310d7df",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-staged-ramp/stage_5_lifecycle_metrics.json"
+    },
+    {
+      "path": "experiments/2026-08-20-staged-ramp/stage_6_lifecycle_metrics.json",
+      "size": 7843,
+      "git_blob_sha1": "03f3d0de76ad547f01106091d9963d941ed94581",
+      "sha256": "cf607660f3dda88f7cc9859e5376809aa6b27ff8f8b1c7cf8ac7f947c0f700b7",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-staged-ramp/stage_6_lifecycle_metrics.json"
+    },
+    {
+      "path": "experiments/2026-08-20-staged-ramp/summary_lifecycle_metrics.json",
+      "size": 8042,
+      "git_blob_sha1": "b849cd7212de39d5b507c726e2b4af9b7f52fa15",
+      "sha256": "6a65abaff48da33c9a63162f74f2ab2d2e9db4c01aaff6442112fdd7d79289ba",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-staged-ramp/summary_lifecycle_metrics.json"
+    },
+    {
+      "path": "experiments/2026-08-20-staged-ramp/workload-used.yaml",
+      "size": 1590,
+      "git_blob_sha1": "ce58d0a611209aea211bc1b56f37182e51f3c637",
+      "sha256": "42c66180dd6fe216d4099e8f2f9f6f60f9dd27d5dc0bb9d1c296b41bb70c26bc",
+      "source_url": "https://raw.githubusercontent.com/asm582/token-aware-autoscaling/7e70bf5f69c773eb6f51f870c5d23cf41f0efb04/experiments/2026-08-20-staged-ramp/workload-used.yaml"
+    }
+  ],
+  "experiment_tree_blobs": [
+    {
+      "path": "experiments/2026-08-20-decode-heavy/EXPERIMENT-REPORT.md",
+      "size": 9851,
+      "git_blob_sha1": "e96d71d519395cde0f38f8e059815da24d1c516c"
+    },
+    {
+      "path": "experiments/2026-08-20-decode-heavy/autoscaling-timeline.csv",
+      "size": 7202,
+      "git_blob_sha1": "025884bb612bd7a93924b7c76fb81ba9e5178c3d"
+    },
+    {
+      "path": "experiments/2026-08-20-decode-heavy/latency_vs_qps.png",
+      "size": 122672,
+      "git_blob_sha1": "0b50a7b1a2fefe1d8a9ca007438312a4daf0f7f7"
+    },
+    {
+      "path": "experiments/2026-08-20-decode-heavy/stage_0_lifecycle_metrics.json",
+      "size": 6899,
+      "git_blob_sha1": "b563551d1050d098a54a8a1282c90f77941f5102"
+    },
+    {
+      "path": "experiments/2026-08-20-decode-heavy/stage_1_lifecycle_metrics.json",
+      "size": 6943,
+      "git_blob_sha1": "b71396d40507bbe2910e1cf71849c235bd026d3f"
+    },
+    {
+      "path": "experiments/2026-08-20-decode-heavy/stage_2_lifecycle_metrics.json",
+      "size": 7764,
+      "git_blob_sha1": "8469add16419c7075ac4f8a9264f84fb65d545d0"
+    },
+    {
+      "path": "experiments/2026-08-20-decode-heavy/stage_3_lifecycle_metrics.json",
+      "size": 6937,
+      "git_blob_sha1": "dcb24817b69052763dd945a02c12f65d6f5b139f"
+    },
+    {
+      "path": "experiments/2026-08-20-decode-heavy/stage_4_lifecycle_metrics.json",
+      "size": 7780,
+      "git_blob_sha1": "83932919ffbd1c131f2df65a4c459f40ef2c80d5"
+    },
+    {
+      "path": "experiments/2026-08-20-decode-heavy/stage_5_lifecycle_metrics.json",
+      "size": 7892,
+      "git_blob_sha1": "3b43395c306cc435f7d7e4ea92f1898b164fb853"
+    },
+    {
+      "path": "experiments/2026-08-20-decode-heavy/stage_6_lifecycle_metrics.json",
+      "size": 7909,
+      "git_blob_sha1": "1fe9e510f42ad66826802629d0a7a55953774f04"
+    },
+    {
+      "path": "experiments/2026-08-20-decode-heavy/summary_lifecycle_metrics.json",
+      "size": 7915,
+      "git_blob_sha1": "9c035a011732da12bcc38cc6ccc22d433f1ba47f"
+    },
+    {
+      "path": "experiments/2026-08-20-decode-heavy/throughput_vs_latency.png",
+      "size": 137312,
+      "git_blob_sha1": "744eaba2e8097670535a4073199cef6f5296b6fd"
+    },
+    {
+      "path": "experiments/2026-08-20-decode-heavy/throughput_vs_qps.png",
+      "size": 102644,
+      "git_blob_sha1": "16bad83e635c209d55c3f1564b72e6835ae6334c"
+    },
+    {
+      "path": "experiments/2026-08-20-decode-heavy/workload-used.yaml",
+      "size": 2542,
+      "git_blob_sha1": "5016c675c478480318a75052747412f166e9204e"
+    },
+    {
+      "path": "experiments/2026-08-20-prefill-heavy/EXPERIMENT-REPORT.md",
+      "size": 7538,
+      "git_blob_sha1": "ae61bd0035d57c06b1790c7b9d739b60500ab93e"
+    },
+    {
+      "path": "experiments/2026-08-20-prefill-heavy/autoscaling-timeline.csv",
+      "size": 6315,
+      "git_blob_sha1": "b553c0a4e18c995df332f4385985f69522e15897"
+    },
+    {
+      "path": "experiments/2026-08-20-prefill-heavy/latency_vs_qps.png",
+      "size": 114062,
+      "git_blob_sha1": "910ccd7318e997810e5ea816ec40645df08d4039"
+    },
+    {
+      "path": "experiments/2026-08-20-prefill-heavy/stage_0_lifecycle_metrics.json",
+      "size": 6864,
+      "git_blob_sha1": "c5181a806db66cc5d3c07d09789a1dc137dc7839"
+    },
+    {
+      "path": "experiments/2026-08-20-prefill-heavy/stage_1_lifecycle_metrics.json",
+      "size": 6938,
+      "git_blob_sha1": "0d8a84e6ea137a086269add1bbfcef20b806bd7e"
+    },
+    {
+      "path": "experiments/2026-08-20-prefill-heavy/stage_2_lifecycle_metrics.json",
+      "size": 6880,
+      "git_blob_sha1": "1765852fb6ea4c711dea89ca0e6ccf3dc39f6ebf"
+    },
+    {
+      "path": "experiments/2026-08-20-prefill-heavy/stage_3_lifecycle_metrics.json",
+      "size": 6861,
+      "git_blob_sha1": "28624fb7806873fd2540e45a37df2a1ed0d516d1"
+    },
+    {
+      "path": "experiments/2026-08-20-prefill-heavy/stage_4_lifecycle_metrics.json",
+      "size": 6854,
+      "git_blob_sha1": "fefbc724c824f43c9aae66a491bc3189d355b74c"
+    },
+    {
+      "path": "experiments/2026-08-20-prefill-heavy/stage_5_lifecycle_metrics.json",
+      "size": 6866,
+      "git_blob_sha1": "3d9d2e75df846c00e5ee7390b0bc50925833a76d"
+    },
+    {
+      "path": "experiments/2026-08-20-prefill-heavy/stage_6_lifecycle_metrics.json",
+      "size": 7839,
+      "git_blob_sha1": "55185c35326fe70a7c1d9ca2c2e8032703f84bed"
+    },
+    {
+      "path": "experiments/2026-08-20-prefill-heavy/summary_lifecycle_metrics.json",
+      "size": 7728,
+      "git_blob_sha1": "1b642bec05b418e86b1059cff852497bde927421"
+    },
+    {
+      "path": "experiments/2026-08-20-prefill-heavy/throughput_vs_latency.png",
+      "size": 124774,
+      "git_blob_sha1": "c8a35ca17f64105771c7ca490df23c4281cd0a96"
+    },
+    {
+      "path": "experiments/2026-08-20-prefill-heavy/throughput_vs_qps.png",
+      "size": 101260,
+      "git_blob_sha1": "a7169e4d6582e3f9c96268f8d0bbf7ffeb7a5a56"
+    },
+    {
+      "path": "experiments/2026-08-20-prefill-heavy/workload-used.yaml",
+      "size": 2291,
+      "git_blob_sha1": "19090dc06e61819079cc1deea177f4f0a37edc5c"
+    },
+    {
+      "path": "experiments/2026-08-20-staged-ramp/EXPERIMENT-REPORT.md",
+      "size": 6393,
+      "git_blob_sha1": "d993eeeb021f0a8d196768f06067a5d8aef81a2c"
+    },
+    {
+      "path": "experiments/2026-08-20-staged-ramp/autoscaling-timeline.csv",
+      "size": 5484,
+      "git_blob_sha1": "25b4effffc5c7f4be6574ab91f5dc26d4a90f1fe"
+    },
+    {
+      "path": "experiments/2026-08-20-staged-ramp/latency_vs_qps.png",
+      "size": 112154,
+      "git_blob_sha1": "07def05a5d3406f4913c9a2e0c4bab406e1d9055"
+    },
+    {
+      "path": "experiments/2026-08-20-staged-ramp/stage_0_lifecycle_metrics.json",
+      "size": 6907,
+      "git_blob_sha1": "67e741e88b6bc749c52004fd8d5f1dd96bd8ce04"
+    },
+    {
+      "path": "experiments/2026-08-20-staged-ramp/stage_1_lifecycle_metrics.json",
+      "size": 6958,
+      "git_blob_sha1": "08a24510b3a1ac3f6e54c0dfdb73cdeeff61679e"
+    },
+    {
+      "path": "experiments/2026-08-20-staged-ramp/stage_2_lifecycle_metrics.json",
+      "size": 6924,
+      "git_blob_sha1": "c06790f00001bfbd1170a6f80f2e4a0f471fdb3b"
+    },
+    {
+      "path": "experiments/2026-08-20-staged-ramp/stage_3_lifecycle_metrics.json",
+      "size": 6903,
+      "git_blob_sha1": "3de33109101c094b0e03a0af1ab6e7ead32cec3e"
+    },
+    {
+      "path": "experiments/2026-08-20-staged-ramp/stage_4_lifecycle_metrics.json",
+      "size": 6921,
+      "git_blob_sha1": "a4c2414940d9677cb754a502bda251a368b6745d"
+    },
+    {
+      "path": "experiments/2026-08-20-staged-ramp/stage_5_lifecycle_metrics.json",
+      "size": 7948,
+      "git_blob_sha1": "e025511b3968ae794a143c63314b298e67d82a51"
+    },
+    {
+      "path": "experiments/2026-08-20-staged-ramp/stage_6_lifecycle_metrics.json",
+      "size": 7843,
+      "git_blob_sha1": "03f3d0de76ad547f01106091d9963d941ed94581"
+    },
+    {
+      "path": "experiments/2026-08-20-staged-ramp/summary_lifecycle_metrics.json",
+      "size": 8042,
+      "git_blob_sha1": "b849cd7212de39d5b507c726e2b4af9b7f52fa15"
+    },
+    {
+      "path": "experiments/2026-08-20-staged-ramp/throughput_vs_latency.png",
+      "size": 120563,
+      "git_blob_sha1": "ef49220ff4b4cb92ae4ecd553bfbe6b9deab998f"
+    },
+    {
+      "path": "experiments/2026-08-20-staged-ramp/throughput_vs_qps.png",
+      "size": 94774,
+      "git_blob_sha1": "9c4740494d9dcab834fd08e9a0d9510318f17ae4"
+    },
+    {
+      "path": "experiments/2026-08-20-staged-ramp/workload-used.yaml",
+      "size": 1590,
+      "git_blob_sha1": "ce58d0a611209aea211bc1b56f37182e51f3c637"
+    }
+  ]
+}

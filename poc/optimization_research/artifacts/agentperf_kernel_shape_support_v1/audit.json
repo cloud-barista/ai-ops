@@ -1,0 +1,286 @@
+{
+  "source": {
+    "dataset": "agent-perf-bench/AgentPerfBench",
+    "revision": "722f2b9d8a6acd222811f4e210a96865f774f6ee",
+    "file_bytes": 657407,
+    "sha256": {
+      "README.md": "49ff2f0aad7a8baf39b63458c0a4433a141646d019915c000fc766b992b5cf5e",
+      "kernel_profiles/kernels_labeled.parquet": "f9822c8c872bbfc00bc69d335ebef23bb8603f9a9e624267c56905f1e8cf8aa8"
+    }
+  },
+  "rows": 148077,
+  "columns": [
+    "source",
+    "gpu",
+    "model",
+    "kernel_family",
+    "kernel_name",
+    "dtype",
+    "held_out",
+    "M",
+    "N",
+    "K",
+    "bs",
+    "seq",
+    "n_heads",
+    "head_dim",
+    "kv_heads",
+    "numel",
+    "op_type",
+    "gpu_time_duration_ms",
+    "launch_block_size",
+    "launch_grid_size",
+    "dram_bytes_sum",
+    "launch_registers_per_thread"
+  ],
+  "gpu_types": [
+    "A100",
+    "H100",
+    "RTX2080Ti",
+    "RTX3090"
+  ],
+  "positive_duration_rows": 148077,
+  "exact_duplicate_rows": 85542,
+  "real_prefill": {
+    "rows": 135341,
+    "models": 10,
+    "sources": 10,
+    "exact_duplicate_rows": 83845,
+    "support_logical_key": {
+      "logical_groups": 1025,
+      "gpu_condition_cells": 1913,
+      "groups_with_2plus_gpus": 660,
+      "groups_with_3plus_gpus": 206,
+      "groups_with_4_gpus": 22,
+      "gpu_pairs": {
+        "A100|H100": 69,
+        "A100|RTX2080Ti": 162,
+        "A100|RTX3090": 650,
+        "H100|RTX2080Ti": 22,
+        "H100|RTX3090": 70,
+        "RTX2080Ti|RTX3090": 165
+      },
+      "matched_by_source": {
+        "Llama-3.1-70B-Instruct_prefill": 33,
+        "Llama-3.1-8B-Instruct_prefill": 35,
+        "Mixtral-8x7B-Instruct_prefill": 216,
+        "Qwen2.5-72B-Instruct_prefill": 32,
+        "Qwen3.5-27B_prefill": 150,
+        "Qwen3.5-9B_prefill": 148,
+        "gpt-oss-20b_prefill": 46
+      }
+    },
+    "support_same_kernel_name_sensitivity": {
+      "logical_groups": 1608,
+      "gpu_condition_cells": 2508,
+      "groups_with_2plus_gpus": 702,
+      "groups_with_3plus_gpus": 198,
+      "groups_with_4_gpus": 0,
+      "gpu_pairs": {
+        "A100|H100": 0,
+        "A100|RTX2080Ti": 198,
+        "A100|RTX3090": 697,
+        "H100|RTX2080Ti": 0,
+        "H100|RTX3090": 0,
+        "RTX2080Ti|RTX3090": 203
+      },
+      "matched_by_source": {
+        "Llama-3.1-70B-Instruct_prefill": 28,
+        "Llama-3.1-8B-Instruct_prefill": 28,
+        "Mixtral-8x7B-Instruct_prefill": 178,
+        "Qwen2.5-72B-Instruct_prefill": 27,
+        "Qwen3.5-27B_prefill": 200,
+        "Qwen3.5-9B_prefill": 193,
+        "gpt-oss-20b_prefill": 48
+      }
+    },
+    "source_gpu_rows": {
+      "Llama-3.1-70B-Instruct_prefill": {
+        "A100": 3381,
+        "RTX3090": 3381
+      },
+      "Llama-3.1-8B-Instruct_prefill": {
+        "A100": 1461,
+        "H100": 212,
+        "RTX2080Ti": 2037,
+        "RTX3090": 1365
+      },
+      "Llama-3.3-70B-Instruct_prefill": {
+        "A100": 3381
+      },
+      "Mixtral-8x7B-Instruct_prefill": {
+        "A100": 4665,
+        "RTX3090": 4376
+      },
+      "Qwen2.5-72B-Instruct_prefill": {
+        "A100": 3381,
+        "RTX3090": 3221
+      },
+      "Qwen3.5-27B_prefill": {
+        "A100": 25917,
+        "RTX3090": 25917
+      },
+      "Qwen3.5-9B_prefill": {
+        "A100": 13061,
+        "RTX2080Ti": 13061,
+        "RTX3090": 12973
+      },
+      "gemma-2-9b-it_prefill": {
+        "H100": 4999
+      },
+      "gpt-oss-20b_prefill": {
+        "A100": 1723,
+        "H100": 1560,
+        "RTX3090": 1723
+      },
+      "granite-3.0-8b-instruct_prefill": {
+        "H100": 3546
+      }
+    },
+    "original_held_out_sources": [
+      "Llama-3.1-70B-Instruct_prefill",
+      "Llama-3.3-70B-Instruct_prefill",
+      "Qwen2.5-72B-Instruct_prefill"
+    ],
+    "matched_groups_with_mnk_or_numel": 648,
+    "matched_groups_missing_mnk_and_numel": 12,
+    "gpu_condition_cells_with_multiple_calls": 1737,
+    "gpu_condition_cells_with_multiple_kernel_names": 421,
+    "gpu_condition_cells_with_multiple_durations": 1712,
+    "model_profile_bs_seq_values": {
+      "Llama-3.1-70B-Instruct_prefill": {
+        "bs": [
+          1
+        ],
+        "seq": [
+          128
+        ]
+      },
+      "Llama-3.1-8B-Instruct_prefill": {
+        "bs": [
+          1
+        ],
+        "seq": [
+          128
+        ]
+      },
+      "Llama-3.3-70B-Instruct_prefill": {
+        "bs": [
+          1
+        ],
+        "seq": [
+          128
+        ]
+      },
+      "Mixtral-8x7B-Instruct_prefill": {
+        "bs": [
+          1
+        ],
+        "seq": [
+          128
+        ]
+      },
+      "Qwen2.5-72B-Instruct_prefill": {
+        "bs": [
+          1
+        ],
+        "seq": [
+          128
+        ]
+      },
+      "Qwen3.5-27B_prefill": {
+        "bs": [
+          1
+        ],
+        "seq": [
+          128
+        ]
+      },
+      "Qwen3.5-9B_prefill": {
+        "bs": [
+          1
+        ],
+        "seq": [
+          128
+        ]
+      },
+      "gemma-2-9b-it_prefill": {
+        "bs": [
+          1
+        ],
+        "seq": [
+          128
+        ]
+      },
+      "gpt-oss-20b_prefill": {
+        "bs": [
+          1
+        ],
+        "seq": [
+          128
+        ]
+      },
+      "granite-3.0-8b-instruct_prefill": {
+        "bs": [
+          1
+        ],
+        "seq": [
+          128
+        ]
+      }
+    }
+  },
+  "synthetic_sweeps": {
+    "rows": 12736,
+    "source_names": [
+      "flash_sweep",
+      "misc_sweep",
+      "roofline_sweep"
+    ],
+    "support_logical_key": {
+      "logical_groups": 1195,
+      "gpu_condition_cells": 2383,
+      "groups_with_2plus_gpus": 831,
+      "groups_with_3plus_gpus": 357,
+      "groups_with_4_gpus": 0,
+      "gpu_pairs": {
+        "A100|H100": 357,
+        "A100|RTX2080Ti": 0,
+        "A100|RTX3090": 831,
+        "H100|RTX2080Ti": 0,
+        "H100|RTX3090": 357,
+        "RTX2080Ti|RTX3090": 0
+      },
+      "matched_by_source": {
+        "flash_sweep": 110,
+        "misc_sweep": 364,
+        "roofline_sweep": 357
+      }
+    }
+  },
+  "logical_key": [
+    "source",
+    "model",
+    "kernel_family",
+    "dtype",
+    "op_type",
+    "M",
+    "N",
+    "K",
+    "bs",
+    "seq",
+    "n_heads",
+    "head_dim",
+    "kv_heads",
+    "numel"
+  ],
+  "excluded_pre_decision_features": [
+    "kernel_name",
+    "launch_block_size",
+    "launch_grid_size",
+    "dram_bytes_sum",
+    "launch_registers_per_thread",
+    "held_out",
+    "gpu_time_duration_ms"
+  ]
+}

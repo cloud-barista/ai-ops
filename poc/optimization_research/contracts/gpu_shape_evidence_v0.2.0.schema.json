@@ -1,0 +1,530 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "KHU offline GPU shape research evidence, draft 0.2.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "evidence_type",
+    "schema_version",
+    "evidence_id",
+    "request_sha256",
+    "generated_at",
+    "status",
+    "scope",
+    "provenance"
+  ],
+  "properties": {
+    "evidence_type": {
+      "const": "khu.research.gpu_shape_evidence"
+    },
+    "schema_version": {
+      "const": "0.2.0"
+    },
+    "evidence_id": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "request_sha256": {
+      "$ref": "#/definitions/sha256"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "enum": [
+        "RESEARCH_ESTIMATE",
+        "ABSTAIN"
+      ]
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "calibration",
+        "deployment_authority"
+      ],
+      "properties": {
+        "kind": {
+          "const": "same_host_batch_benchmark_prediction"
+        },
+        "calibration": {
+          "const": "uncalibrated_point_estimate"
+        },
+        "deployment_authority": {
+          "const": false
+        }
+      }
+    },
+    "reasons": {
+      "$ref": "#/definitions/reasons"
+    },
+    "workload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "application_id",
+        "workload_id",
+        "model_id",
+        "model_revision",
+        "device",
+        "host",
+        "device_name",
+        "batch_size",
+        "max_length",
+        "request_concurrency",
+        "repeats"
+      ],
+      "properties": {
+        "application_id": {
+          "$ref": "#/definitions/nonempty_string"
+        },
+        "workload_id": {
+          "$ref": "#/definitions/nonempty_string"
+        },
+        "model_id": {
+          "$ref": "#/definitions/nonempty_string"
+        },
+        "model_revision": {
+          "$ref": "#/definitions/nonempty_string"
+        },
+        "device": {
+          "const": "cuda"
+        },
+        "host": {
+          "$ref": "#/definitions/nonempty_string"
+        },
+        "device_name": {
+          "$ref": "#/definitions/nonempty_string"
+        },
+        "batch_size": {
+          "$ref": "#/definitions/positive_integer"
+        },
+        "max_length": {
+          "$ref": "#/definitions/positive_integer"
+        },
+        "request_concurrency": {
+          "$ref": "#/definitions/positive_integer"
+        },
+        "repeats": {
+          "$ref": "#/definitions/positive_integer"
+        }
+      }
+    },
+    "benchmark_objective": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "batch_latency_p95_limit_ms",
+        "min_requests_per_second"
+      ],
+      "properties": {
+        "batch_latency_p95_limit_ms": {
+          "$ref": "#/definitions/positive_number"
+        },
+        "min_requests_per_second": {
+          "$ref": "#/definitions/positive_number"
+        },
+        "source": {
+          "$ref": "#/definitions/objective_source"
+        }
+      }
+    },
+    "objective_source": {
+      "$ref": "#/definitions/objective_source"
+    },
+    "selection_rule": {
+      "const": "min_gpu_replicas_then_cpu_affinity_cores"
+    },
+    "selected_shape": {
+      "$ref": "#/definitions/shape"
+    },
+    "candidates": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {
+        "$ref": "#/definitions/candidate"
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_artifact_sha256",
+        "training_extract_parquet_sha256",
+        "artifact_hash_check",
+        "training_sklearn_version",
+        "runtime_sklearn_version",
+        "split_manifest_sha256",
+        "support_index_check"
+      ],
+      "properties": {
+        "model_artifact_sha256": {
+          "$ref": "#/definitions/sha256"
+        },
+        "training_extract_parquet_sha256": {
+          "$ref": "#/definitions/sha256"
+        },
+        "artifact_hash_check": {
+          "enum": [
+            "assessor_reported_verified_at_load",
+            "not_verified"
+          ]
+        },
+        "training_sklearn_version": {
+          "$ref": "#/definitions/nonempty_string"
+        },
+        "runtime_sklearn_version": {
+          "$ref": "#/definitions/nonempty_string"
+        },
+        "split_manifest_sha256": {
+          "$ref": "#/definitions/sha256"
+        },
+        "support_index_check": {
+          "enum": [
+            "verified_snapshot_and_manifest",
+            "not_checked"
+          ]
+        }
+      }
+    },
+    "support_relation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "partition",
+        "feature_tuple_sha256",
+        "basis",
+        "independent_performance_proof"
+      ],
+      "properties": {
+        "partition": {
+          "enum": [
+            "train",
+            "validation",
+            "test",
+            "novel_matrix",
+            "space_filling",
+            "unknown"
+          ]
+        },
+        "feature_tuple_sha256": {
+          "$ref": "#/definitions/sha256"
+        },
+        "basis": {
+          "const": "exact_workload_input_tuple_in_verified_tracked_campaigns"
+        },
+        "independent_performance_proof": {
+          "const": false
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "RESEARCH_ESTIMATE"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "workload",
+          "benchmark_objective",
+          "selection_rule",
+          "selected_shape",
+          "candidates"
+        ],
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "reasons"
+              ]
+            },
+            {
+              "required": [
+                "objective_source"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "ABSTAIN"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "reasons"
+        ],
+        "not": {
+          "required": [
+            "selected_shape"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "required": [
+          "candidates"
+        ]
+      },
+      "then": {
+        "required": [
+          "workload",
+          "benchmark_objective",
+          "selection_rule",
+          "support_relation"
+        ],
+        "not": {
+          "required": [
+            "objective_source"
+          ]
+        },
+        "properties": {
+          "provenance": {
+            "properties": {
+              "artifact_hash_check": {
+                "const": "assessor_reported_verified_at_load"
+              },
+              "support_index_check": {
+                "const": "verified_snapshot_and_manifest"
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "workload"
+              ]
+            },
+            {
+              "required": [
+                "benchmark_objective"
+              ]
+            },
+            {
+              "required": [
+                "selection_rule"
+              ]
+            },
+            {
+              "required": [
+                "selected_shape"
+              ]
+            },
+            {
+              "required": [
+                "support_relation"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "definitions": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "nonempty_string": {
+      "type": "string",
+      "minLength": 1
+    },
+    "positive_integer": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "positive_number": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "reasons": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/nonempty_string"
+      }
+    },
+    "objective_source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "reference"
+      ],
+      "properties": {
+        "kind": {
+          "$ref": "#/definitions/nonempty_string"
+        },
+        "reference": {
+          "$ref": "#/definitions/nonempty_string"
+        }
+      }
+    },
+    "shape": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "gpu_replicas",
+        "cpu_affinity_cores",
+        "gpu_indices"
+      ],
+      "properties": {
+        "gpu_replicas": {
+          "enum": [
+            1,
+            2
+          ]
+        },
+        "cpu_affinity_cores": {
+          "enum": [
+            2,
+            4,
+            8,
+            16
+          ]
+        },
+        "gpu_indices": {
+          "$ref": "#/definitions/gpu_indices"
+        }
+      }
+    },
+    "candidate": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "gpu_replicas",
+            "cpu_affinity_cores",
+            "cpu_threads",
+            "status",
+            "predicted_batch_latency_p95_ms",
+            "predicted_requests_per_second",
+            "batch_latency_margin_ms",
+            "requests_per_second_margin",
+            "meets_estimated_benchmark_objective",
+            "gpu_indices"
+          ],
+          "properties": {
+            "gpu_replicas": {
+              "enum": [
+                1,
+                2
+              ]
+            },
+            "cpu_affinity_cores": {
+              "enum": [
+                2,
+                4,
+                8,
+                16
+              ]
+            },
+            "cpu_threads": {
+              "enum": [
+                2,
+                4,
+                8,
+                16
+              ]
+            },
+            "status": {
+              "const": "PREDICTED"
+            },
+            "predicted_batch_latency_p95_ms": {
+              "$ref": "#/definitions/positive_number"
+            },
+            "predicted_requests_per_second": {
+              "$ref": "#/definitions/positive_number"
+            },
+            "batch_latency_margin_ms": {
+              "type": "number"
+            },
+            "requests_per_second_margin": {
+              "type": "number"
+            },
+            "meets_estimated_benchmark_objective": {
+              "type": "boolean"
+            },
+            "gpu_indices": {
+              "$ref": "#/definitions/gpu_indices"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "gpu_replicas",
+            "cpu_affinity_cores",
+            "cpu_threads",
+            "status",
+            "reasons",
+            "gpu_indices"
+          ],
+          "properties": {
+            "gpu_replicas": {
+              "enum": [
+                1,
+                2
+              ]
+            },
+            "cpu_affinity_cores": {
+              "enum": [
+                2,
+                4,
+                8,
+                16
+              ]
+            },
+            "cpu_threads": {
+              "enum": [
+                2,
+                4,
+                8,
+                16
+              ]
+            },
+            "status": {
+              "const": "ABSTAIN"
+            },
+            "reasons": {
+              "$ref": "#/definitions/reasons"
+            },
+            "gpu_indices": {
+              "$ref": "#/definitions/gpu_indices"
+            }
+          }
+        }
+      ]
+    },
+    "gpu_indices": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "type": "integer",
+        "minimum": 0
+      }
+    }
+  }
+}

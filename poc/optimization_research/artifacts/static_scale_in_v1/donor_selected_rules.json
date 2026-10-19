@@ -1,0 +1,442 @@
+{
+  "LOSO:FacebookAI/roberta-base": {
+    "ratio": {
+      "latency_ratio": 1.0,
+      "rps_divisor": 2.0,
+      "margin": 0.2,
+      "eligible": 328,
+      "possible_safe": 232,
+      "approved": 220,
+      "safe_approved": 211,
+      "false_approved": 9,
+      "false_fraction": 0.04090909090909091
+    },
+    "donor_median": {
+      "margin": 0.05,
+      "eligible": 328,
+      "possible_safe": 232,
+      "approved": 220,
+      "safe_approved": 211,
+      "false_approved": 9,
+      "false_fraction": 0.04090909090909091
+    },
+    "learned_static": {
+      "margin": 0.0,
+      "eligible": 328,
+      "possible_safe": 232,
+      "approved": 233,
+      "safe_approved": 224,
+      "false_approved": 9,
+      "false_fraction": 0.03862660944206009
+    },
+    "learned_telemetry": {
+      "margin": 0.0,
+      "eligible": 328,
+      "possible_safe": 232,
+      "approved": 232,
+      "safe_approved": 223,
+      "false_approved": 9,
+      "false_fraction": 0.03879310344827586
+    }
+  },
+  "LOSO:Qwen/Qwen2.5-0.5B-Instruct": {
+    "ratio": {
+      "latency_ratio": 1.0,
+      "rps_divisor": 2.0,
+      "margin": 0.15,
+      "eligible": 309,
+      "possible_safe": 216,
+      "approved": 220,
+      "safe_approved": 209,
+      "false_approved": 11,
+      "false_fraction": 0.05
+    },
+    "donor_median": {
+      "margin": 0.05,
+      "eligible": 309,
+      "possible_safe": 216,
+      "approved": 214,
+      "safe_approved": 205,
+      "false_approved": 9,
+      "false_fraction": 0.04205607476635514
+    },
+    "learned_static": {
+      "margin": 0.0,
+      "eligible": 309,
+      "possible_safe": 216,
+      "approved": 210,
+      "safe_approved": 207,
+      "false_approved": 3,
+      "false_fraction": 0.014285714285714285
+    },
+    "learned_telemetry": {
+      "margin": 0.0,
+      "eligible": 309,
+      "possible_safe": 216,
+      "approved": 210,
+      "safe_approved": 207,
+      "false_approved": 3,
+      "false_fraction": 0.014285714285714285
+    }
+  },
+  "LOSO:albert/albert-base-v2": {
+    "ratio": {
+      "latency_ratio": 1.0,
+      "rps_divisor": 2.0,
+      "margin": 0.2,
+      "eligible": 328,
+      "possible_safe": 233,
+      "approved": 223,
+      "safe_approved": 213,
+      "false_approved": 10,
+      "false_fraction": 0.04484304932735426
+    },
+    "donor_median": {
+      "margin": 0.05,
+      "eligible": 328,
+      "possible_safe": 233,
+      "approved": 222,
+      "safe_approved": 213,
+      "false_approved": 9,
+      "false_fraction": 0.04054054054054054
+    },
+    "learned_static": {
+      "margin": 0.0,
+      "eligible": 328,
+      "possible_safe": 233,
+      "approved": 234,
+      "safe_approved": 226,
+      "false_approved": 8,
+      "false_fraction": 0.03418803418803419
+    },
+    "learned_telemetry": {
+      "margin": 0.0,
+      "eligible": 328,
+      "possible_safe": 233,
+      "approved": 233,
+      "safe_approved": 225,
+      "false_approved": 8,
+      "false_fraction": 0.034334763948497854
+    }
+  },
+  "LOSO:distilbert/distilbert-base-uncased": {
+    "ratio": {
+      "latency_ratio": 1.0,
+      "rps_divisor": 2.0,
+      "margin": 0.2,
+      "eligible": 320,
+      "possible_safe": 223,
+      "approved": 212,
+      "safe_approved": 203,
+      "false_approved": 9,
+      "false_fraction": 0.04245283018867924
+    },
+    "donor_median": {
+      "margin": 0.05,
+      "eligible": 320,
+      "possible_safe": 223,
+      "approved": 211,
+      "safe_approved": 203,
+      "false_approved": 8,
+      "false_fraction": 0.037914691943127965
+    },
+    "learned_static": {
+      "margin": 0.0,
+      "eligible": 320,
+      "possible_safe": 223,
+      "approved": 222,
+      "safe_approved": 215,
+      "false_approved": 7,
+      "false_fraction": 0.03153153153153153
+    },
+    "learned_telemetry": {
+      "margin": 0.0,
+      "eligible": 320,
+      "possible_safe": 223,
+      "approved": 221,
+      "safe_approved": 214,
+      "false_approved": 7,
+      "false_fraction": 0.03167420814479638
+    }
+  },
+  "LOSO:google-bert/bert-base-uncased": {
+    "ratio": {
+      "latency_ratio": 1.0,
+      "rps_divisor": 2.0,
+      "margin": 0.2,
+      "eligible": 328,
+      "possible_safe": 231,
+      "approved": 220,
+      "safe_approved": 210,
+      "false_approved": 10,
+      "false_fraction": 0.045454545454545456
+    },
+    "donor_median": {
+      "margin": 0.05,
+      "eligible": 328,
+      "possible_safe": 231,
+      "approved": 219,
+      "safe_approved": 210,
+      "false_approved": 9,
+      "false_fraction": 0.0410958904109589
+    },
+    "learned_static": {
+      "margin": 0.0,
+      "eligible": 328,
+      "possible_safe": 231,
+      "approved": 232,
+      "safe_approved": 223,
+      "false_approved": 9,
+      "false_fraction": 0.03879310344827586
+    },
+    "learned_telemetry": {
+      "margin": 0.0,
+      "eligible": 328,
+      "possible_safe": 231,
+      "approved": 231,
+      "safe_approved": 222,
+      "false_approved": 9,
+      "false_fraction": 0.03896103896103896
+    }
+  },
+  "LOSO:google/bert_uncased_L-2_H-128_A-2": {
+    "ratio": {
+      "latency_ratio": 1.0,
+      "rps_divisor": 2.0,
+      "margin": 0.25,
+      "eligible": 302,
+      "possible_safe": 205,
+      "approved": 178,
+      "safe_approved": 171,
+      "false_approved": 7,
+      "false_fraction": 0.03932584269662921
+    },
+    "donor_median": {
+      "margin": 0.1,
+      "eligible": 302,
+      "possible_safe": 205,
+      "approved": 187,
+      "safe_approved": 178,
+      "false_approved": 9,
+      "false_fraction": 0.0481283422459893
+    },
+    "learned_static": {
+      "margin": 0.0,
+      "eligible": 302,
+      "possible_safe": 205,
+      "approved": 205,
+      "safe_approved": 197,
+      "false_approved": 8,
+      "false_fraction": 0.03902439024390244
+    },
+    "learned_telemetry": {
+      "margin": 0.0,
+      "eligible": 302,
+      "possible_safe": 205,
+      "approved": 202,
+      "safe_approved": 195,
+      "false_approved": 7,
+      "false_fraction": 0.034653465346534656
+    }
+  },
+  "LOSO:google/bert_uncased_L-4_H-256_A-4": {
+    "ratio": {
+      "latency_ratio": 1.0,
+      "rps_divisor": 2.0,
+      "margin": 0.2,
+      "eligible": 308,
+      "possible_safe": 210,
+      "approved": 200,
+      "safe_approved": 190,
+      "false_approved": 10,
+      "false_fraction": 0.05
+    },
+    "donor_median": {
+      "margin": 0.1,
+      "eligible": 308,
+      "possible_safe": 210,
+      "approved": 191,
+      "safe_approved": 183,
+      "false_approved": 8,
+      "false_fraction": 0.041884816753926704
+    },
+    "learned_static": {
+      "margin": 0.0,
+      "eligible": 308,
+      "possible_safe": 210,
+      "approved": 211,
+      "safe_approved": 203,
+      "false_approved": 8,
+      "false_fraction": 0.037914691943127965
+    },
+    "learned_telemetry": {
+      "margin": 0.0,
+      "eligible": 308,
+      "possible_safe": 210,
+      "approved": 212,
+      "safe_approved": 203,
+      "false_approved": 9,
+      "false_fraction": 0.04245283018867924
+    }
+  },
+  "LOSO:google/bert_uncased_L-4_H-512_A-8": {
+    "ratio": {
+      "latency_ratio": 1.0,
+      "rps_divisor": 2.0,
+      "margin": 0.2,
+      "eligible": 310,
+      "possible_safe": 211,
+      "approved": 202,
+      "safe_approved": 193,
+      "false_approved": 9,
+      "false_fraction": 0.04455445544554455
+    },
+    "donor_median": {
+      "margin": 0.05,
+      "eligible": 310,
+      "possible_safe": 211,
+      "approved": 204,
+      "safe_approved": 194,
+      "false_approved": 10,
+      "false_fraction": 0.049019607843137254
+    },
+    "learned_static": {
+      "margin": 0.0,
+      "eligible": 310,
+      "possible_safe": 211,
+      "approved": 211,
+      "safe_approved": 204,
+      "false_approved": 7,
+      "false_fraction": 0.03317535545023697
+    },
+    "learned_telemetry": {
+      "margin": 0.0,
+      "eligible": 310,
+      "possible_safe": 211,
+      "approved": 210,
+      "safe_approved": 203,
+      "false_approved": 7,
+      "false_fraction": 0.03333333333333333
+    }
+  },
+  "LOSO:google/electra-small-discriminator": {
+    "ratio": {
+      "latency_ratio": 1.0,
+      "rps_divisor": 2.0,
+      "margin": 0.2,
+      "eligible": 323,
+      "possible_safe": 231,
+      "approved": 220,
+      "safe_approved": 209,
+      "false_approved": 11,
+      "false_fraction": 0.05
+    },
+    "donor_median": {
+      "margin": 0.1,
+      "eligible": 323,
+      "possible_safe": 231,
+      "approved": 219,
+      "safe_approved": 209,
+      "false_approved": 10,
+      "false_fraction": 0.045662100456621
+    },
+    "learned_static": {
+      "margin": 0.0,
+      "eligible": 323,
+      "possible_safe": 231,
+      "approved": 232,
+      "safe_approved": 224,
+      "false_approved": 8,
+      "false_fraction": 0.034482758620689655
+    },
+    "learned_telemetry": {
+      "margin": 0.0,
+      "eligible": 323,
+      "possible_safe": 231,
+      "approved": 233,
+      "safe_approved": 223,
+      "false_approved": 10,
+      "false_fraction": 0.04291845493562232
+    }
+  },
+  "BERT4": {
+    "ratio": {
+      "latency_ratio": 1.0,
+      "rps_divisor": 2.0,
+      "margin": 0.25,
+      "eligible": 177,
+      "possible_safe": 110,
+      "approved": 90,
+      "safe_approved": 86,
+      "false_approved": 4,
+      "false_fraction": 0.044444444444444446
+    },
+    "donor_median": {
+      "margin": 0.15,
+      "eligible": 177,
+      "possible_safe": 110,
+      "approved": 86,
+      "safe_approved": 84,
+      "false_approved": 2,
+      "false_fraction": 0.023255813953488372
+    },
+    "learned_static": {
+      "margin": 0.15,
+      "eligible": 177,
+      "possible_safe": 110,
+      "approved": 88,
+      "safe_approved": 86,
+      "false_approved": 2,
+      "false_fraction": 0.022727272727272728
+    },
+    "learned_telemetry": {
+      "margin": 0.1,
+      "eligible": 177,
+      "possible_safe": 110,
+      "approved": 98,
+      "safe_approved": 95,
+      "false_approved": 3,
+      "false_fraction": 0.030612244897959183
+    }
+  },
+  "REMOTE": {
+    "ratio": {
+      "latency_ratio": 1.0,
+      "rps_divisor": 2.0,
+      "margin": 0.2,
+      "eligible": 357,
+      "possible_safe": 249,
+      "approved": 238,
+      "safe_approved": 227,
+      "false_approved": 11,
+      "false_fraction": 0.046218487394957986
+    },
+    "donor_median": {
+      "margin": 0.05,
+      "eligible": 357,
+      "possible_safe": 249,
+      "approved": 243,
+      "safe_approved": 231,
+      "false_approved": 12,
+      "false_fraction": 0.04938271604938271
+    },
+    "learned_static": {
+      "margin": 0.0,
+      "eligible": 357,
+      "possible_safe": 249,
+      "approved": 248,
+      "safe_approved": 240,
+      "false_approved": 8,
+      "false_fraction": 0.03225806451612903
+    },
+    "learned_telemetry": {
+      "margin": 0.0,
+      "eligible": 357,
+      "possible_safe": 249,
+      "approved": 247,
+      "safe_approved": 239,
+      "false_approved": 8,
+      "false_fraction": 0.032388663967611336
+    }
+  }
+}

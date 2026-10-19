@@ -1,0 +1,135 @@
+AI-MCMP: 간헐적인 기록 호출 수요를 위한 서비스별 학습
+2026-10-06 | 시간순 후향 연구; 실제 VM·배포 효과 검증 아님
+
+1. 문제와 경희대 담당 항목
+기존 Copilot 외부 전이는 BurstGPT 12조건 모두 지원 기준에 미달했다. 이전1시간 평균<1호출이면 보류하는 설계가 저수요 기록에서 적용되지 않았다.
+기존 전이 판정과 지원 기준은 유지했다. 이 연구에서는 별도 호출 수요 문제를 정의하고 BurstGPT에서 서비스별 모델을 새로 학습했다.
+출력은 배포·스케일 판단에 공급할 수요 입력 신호다. 실제 GPU/VM 수나 조치 자체를 학습하지 않았다.
+
+2. 자료와 분할
+기존 원본 BurstGPT_3.csv의 상대일225~284, 3,452,522개 요청 기록을4코호트로 집계했다.
+ChatGPT/GPT-4와 API/Conversation 로그를 구분했다. 원본 Timestamp는 상대 초이므로 절대 UTC날짜·요일을 부여하지 않았다.
+선택한60일을5분17,280구간으로 집계했다. 범위 첫 부분 구간은NaN으로 처리하고, 최초 완전한1시간 이력 뒤부터 학습한다.
+빈 구간의0은0개 기록이라는 의미다. 원본 heartbeat가 없어 실제 무수요나 모니터링 연속성의 증거로 부르지 않는다.
+학습225~244(20일), 검증245~254(10일), 시험255~284(30일). 학습·검증 목표가 다음 분할 경계를 넘지 않게 제외했다.
+기존 원본은 출력토큰·지연 등 다른 연구에서 이미 열람했다. 새 독립 블라인드 시험이 아닌 시간순 후향 실험이다.
+원본 추가 다운로드·삭제·변경 없이 기존 자료에서 기간을 골랐다.
+
+3. 우리의 연구 구성과 모델
+주 방법은 s_t=max(직전완료12구간의 기록 호출 평균,1)로 안정화한 상대 최대 수요q90이다.
+u_t=max(y_t,...,y_(t+h)), h=1/2/6. 준비시간5/10/30분에 타깃 관측창은10/15/35분이다.
+u_t/s_t를HGB 분위수 회귀로 학습하고 예측 후s_t를 곱한다. 표본 가중치s_t/학습평균(s)는 절대 호출pinball과 상대 손실을 대응시킨다.
+0·저수요 기록에도s>=1을 정의하지만, 미관측 입력의NaN을0으로 대체하지 않는다.
+특징10개: 직전1/2/3/12구간 비율, 과거1시간 최대/q90비율, 최근30분/안정화 이전30분 비율, log1p(1시간 평균),1시간0기록 비율, 마지막 양수 기록 이후 구간 수(최대288).
+시각·요일 특징은 쓰지 않는다. 마지막 양수 기록 이력은 시점 전에 관측한 값만 사용한다.
+HGB설정:loss=quantile,q=.9,max_iter150,lr=.05,max_leaf_nodes7,min_samples_leaf20,L2=1,earlystop=False,seed42.
+4코호트×3준비시간마다 상대 모델과 동일 특징의 절대 호출HGB를 각각 학습해 총24개 모델을 저장했다.
+절대HGB는 학습 비교기다. 추가 단순 비교기는 학습 가중 상대q90, 과거1시간 최대/q90/평균이다.
+각 방법 모두 같은 양수 잔차q90 피드백을 적용한다. 최근288원점 중96개 이상, 최초 비학습 원점부터 완료된 정답만 사용한다.
+정답은i+h+1에서 완료되며 즉시 전달된다고 가정했다. 실제available_at 계측은 없다.
+주 방법은 안정화 상대HGB로 사전 고정했다. 비교기는 검증의 보정pinball이 최저인 방법을 선택하고 모델 해시·선택을 저장한 뒤 시험 점수를 계산했다.
+새 학습기 아키텍처를 발명했다는 주장은 없다. 저수요를 지원하는 문제·정규화·과거 이력과 완료 피드백을 연결한 연구 구성이다.
+
+4. 모든12조건의 시험 결과
+채택 기준: 선택된 동일 보정 비교기 대비pinball5% 이상 감소와피복85~95%를 동시에 요구한다.
+호출 수가 이산값이고0의 질량이 크면85~95% 기준을 만족하기 어려울 수 있다. 점수를 본 뒤 기준을 바꾸지 않았다.
+코호트 | 준비분 | 우리손실 | 비교기 | 비교손실 | 감소율 | 우리피복 | 판정
+ChatGPT|API log | 5 | 14.755956 | past_hour_max | 12.612651 | -16.99% | 92.56% | NO_GO
+ChatGPT|API log | 10 | 15.909329 | past_hour_max | 14.803365 | -7.47% | 92.82% | NO_GO
+ChatGPT|API log | 30 | 30.029891 | absolute | 32.517389 | 7.65% | 92.08% | RETROSPECTIVE_SPARSE_PASS
+ChatGPT|Conversation log | 5 | 0.567420 | absolute | 0.567190 | -0.04% | 89.79% | NO_GO
+ChatGPT|Conversation log | 10 | 0.597404 | absolute | 0.594883 | -0.42% | 90.07% | NO_GO
+ChatGPT|Conversation log | 30 | 0.692837 | absolute | 0.695307 | 0.36% | 90.99% | NO_GO
+GPT-4|API log | 5 | 6.323163 | absolute | 7.474071 | 15.40% | 92.06% | RETROSPECTIVE_SPARSE_PASS
+GPT-4|API log | 10 | 8.544927 | absolute | 9.421696 | 9.31% | 92.28% | RETROSPECTIVE_SPARSE_PASS
+GPT-4|API log | 30 | 18.414665 | absolute | 18.901275 | 2.57% | 91.21% | NO_GO
+GPT-4|Conversation log | 5 | 0.422399 | absolute | 0.428326 | 1.38% | 90.15% | NO_GO
+GPT-4|Conversation log | 10 | 0.462444 | absolute | 0.463195 | 0.16% | 89.70% | NO_GO
+GPT-4|Conversation log | 30 | 0.553596 | absolute | 0.541744 | -2.19% | 89.07% | NO_GO
+
+전체12조건 중 3조건이 사전 기준을 통과했다. 전체 통과 판정은 False.
+서로 다른 코호트의 개선율을 더하지 않는다. 유리한 조건으로 실패한 주 조건을 대체하지 않는다.
+통과 조건도 매일 또는 모든 집단에서 우세한 것은 아니다. 다음 사후 진단으로 검증 선택을 바꾸지 않는다.
+ChatGPT|API log:6: 시험 사후 최선 비교기=absolute, 대비감소=7.65%; 선택 비교기보다 손실이 높은 날=5/30.
+GPT-4|API log:1: 시험 사후 최선 비교기=past_hour_max, 대비감소=12.74%; 선택 비교기보다 손실이 높은 날=6/30.
+주의: GPT-4|API log:1의저수요 집단은 우리손실1.840529>비교손실1.776782. 전체 개선을저수요 개선으로 바꾸어 주장하지 않는다.
+GPT-4|API log:2: 시험 사후 최선 비교기=absolute, 대비감소=9.31%; 선택 비교기보다 손실이 높은 날=5/30.
+
+5. 저수요·무기록·재도착 진단
+코호트 | 준비분 | 집단 | 행 | 우리손실 | 비교손실 | 우리피복
+ChatGPT|API log | 5 | low_history | 4130 | 2.474731 | 2.448544 | 94.60%
+ChatGPT|API log | 5 | zero_history | 3583 | 2.092058 | 2.043268 | 96.87%
+ChatGPT|API log | 5 | zero_history_with_arrival | 118 | 61.328178 | 61.988115 | 5.08%
+ChatGPT|API log | 5 | active_history | 4509 | 26.004893 | 21.922423 | 90.69%
+ChatGPT|API log | 10 | low_history | 4130 | 3.983816 | 3.921795 | 94.33%
+ChatGPT|API log | 10 | zero_history | 3583 | 3.434101 | 3.346455 | 96.57%
+ChatGPT|API log | 10 | zero_history_with_arrival | 175 | 66.981755 | 68.181917 | 29.71%
+ChatGPT|API log | 10 | active_history | 4508 | 26.834877 | 24.772505 | 91.44%
+ChatGPT|API log | 30 | low_history | 4130 | 8.987807 | 9.536342 | 91.72%
+ChatGPT|API log | 30 | zero_history | 3583 | 7.818091 | 8.536720 | 94.14%
+ChatGPT|API log | 30 | zero_history_with_arrival | 388 | 68.394821 | 67.248482 | 45.88%
+ChatGPT|API log | 30 | active_history | 4504 | 49.324698 | 53.590152 | 92.41%
+ChatGPT|Conversation log | 5 | low_history | 2622 | 0.263798 | 0.267511 | 91.27%
+ChatGPT|Conversation log | 5 | zero_history | 839 | 0.144539 | 0.142342 | 94.16%
+ChatGPT|Conversation log | 5 | zero_history_with_arrival | 93 | 0.422285 | 0.424362 | 47.31%
+ChatGPT|Conversation log | 5 | active_history | 6017 | 0.699728 | 0.697780 | 89.15%
+ChatGPT|Conversation log | 10 | low_history | 2622 | 0.316901 | 0.315753 | 90.50%
+ChatGPT|Conversation log | 10 | zero_history | 839 | 0.187418 | 0.182570 | 93.92%
+ChatGPT|Conversation log | 10 | zero_history_with_arrival | 137 | 0.400247 | 0.429446 | 62.77%
+ChatGPT|Conversation log | 10 | active_history | 6016 | 0.719657 | 0.716538 | 89.88%
+ChatGPT|Conversation log | 30 | low_history | 2622 | 0.457876 | 0.460777 | 90.43%
+ChatGPT|Conversation log | 30 | zero_history | 839 | 0.267050 | 0.268897 | 94.99%
+ChatGPT|Conversation log | 30 | zero_history_with_arrival | 281 | 0.326187 | 0.384804 | 85.05%
+ChatGPT|Conversation log | 30 | active_history | 6012 | 0.795310 | 0.797593 | 91.23%
+GPT-4|API log | 5 | low_history | 5475 | 1.840529 | 1.776782 | 94.41%
+GPT-4|API log | 5 | zero_history | 4595 | 0.572266 | 0.529919 | 96.65%
+GPT-4|API log | 5 | zero_history_with_arrival | 158 | 13.949211 | 14.728402 | 2.53%
+GPT-4|API log | 5 | active_history | 3164 | 14.079933 | 17.332686 | 87.99%
+GPT-4|API log | 10 | low_history | 5474 | 3.107198 | 3.123301 | 94.15%
+GPT-4|API log | 10 | zero_history | 4594 | 1.242172 | 1.285647 | 96.71%
+GPT-4|API log | 10 | zero_history_with_arrival | 233 | 22.213703 | 23.136931 | 35.19%
+GPT-4|API log | 10 | active_history | 3164 | 17.952680 | 20.318478 | 89.03%
+GPT-4|API log | 30 | low_history | 5470 | 8.417556 | 8.625505 | 91.02%
+GPT-4|API log | 30 | zero_history | 4590 | 4.403986 | 4.761050 | 93.81%
+GPT-4|API log | 30 | zero_history_with_arrival | 508 | 37.046446 | 37.608581 | 44.09%
+GPT-4|API log | 30 | active_history | 3164 | 35.697909 | 36.666275 | 91.53%
+GPT-4|Conversation log | 5 | low_history | 3589 | 0.265225 | 0.268393 | 91.33%
+GPT-4|Conversation log | 5 | zero_history | 936 | 0.143133 | 0.147877 | 96.69%
+GPT-4|Conversation log | 5 | zero_history_with_arrival | 102 | 0.387824 | 0.382393 | 69.61%
+GPT-4|Conversation log | 5 | active_history | 5050 | 0.534102 | 0.541989 | 89.31%
+GPT-4|Conversation log | 10 | low_history | 3589 | 0.297257 | 0.299699 | 90.39%
+GPT-4|Conversation log | 10 | zero_history | 936 | 0.165410 | 0.167546 | 94.98%
+GPT-4|Conversation log | 10 | zero_history_with_arrival | 146 | 0.389414 | 0.386133 | 67.81%
+GPT-4|Conversation log | 10 | active_history | 5049 | 0.579865 | 0.579413 | 89.21%
+GPT-4|Conversation log | 30 | low_history | 3589 | 0.388946 | 0.383045 | 88.77%
+GPT-4|Conversation log | 30 | zero_history | 936 | 0.285282 | 0.278411 | 94.12%
+GPT-4|Conversation log | 30 | zero_history_with_arrival | 291 | 0.304196 | 0.328758 | 81.10%
+GPT-4|Conversation log | 30 | active_history | 5045 | 0.670727 | 0.654642 | 89.28%
+low_history는 판단 전1시간 평균<1,zero_history는그 평균=0,active_history는평균>=1이다.
+zero_history_with_arrival은평균=0인데 미래 목표>0인 집단이다. 미래 결과를 보고 만든 사후 진단 집단이며 온라인 정책 선택에 사용할 수 없다.
+모든 방법의 원시·보정 점수, 매일 점수와 각 집단의 점수는results.json 및daily_method_metrics.csv/stratum_method_metrics.csv에 보존했다.
+
+6. 검증
+독립 Decimal 집계 3,452,522기록, 수동 과거 특징·목표·경계,24모델 재적합을 확인했다.
+독립 정렬 창으로 완료 잔차를 다시 계산해 1,244,160행,12조건의 선택·판정,2,160일별 방법 지표를 검산했다.
+12미래 변이 검사에서 시험 이후 수요를 바꿔도 첫 시험 판단까지의 특징·보정이 유지됐다.
+테스트6개와 별도 정렬 창/배열 참조의3준비시간 결측 검사가 통과했다. 원본·helper 해시는 변경되지 않았다.
+첫 재적합 검사는수동math.log1p와원래numpy.log1p의최대약1.8e-15차이로 일부트리분할이달라 실패했다. 최초검증기·실패로그·규약은그대로 보존했다.
+수정 검증기는완전한과거이력의수동특징과원래특징을1e-13정밀도로비교하고,재적합에는고정된원래특징계산을사용해저장모델과정확히동일한예측을요구한다.
+따라서모델재적합은정확한원래입력에서의재현성확인이다.다른수치구현에서도모든트리분기가같다는주장은하지않는다.
+원시집계·목표·피드백·지표의독립계산은유지했다.모델·점수·선택·문턱은변경하지않았다.변경근거는VERIFIER_REFINEMENT.json에기록했다.
+재현 검사는 구현·자료의 계산 일치를 확인하며, 공개 trace의 완전성이나 실제 운영 효과를 증명하지 않는다.
+
+7. 한계와 다음 단계
+이 연구는 같은 공개 서비스의 시간순 기록 예측이다. 서비스 간 전이, 실제 요청처리 용량·GPU 종류·VM 수,사용자SLO·비용은 정답에 없다.
+준비5/10/30분은 실측VM준비시간이 아니라 연구 가정이다. 모델의 수요 손실 개선만으로 증설 정책이 좋아졌다고 말하지 않는다.
+피드백은 계측 즉시 전달을 가정하고 실제 지연을 검증하지 않았다. 인접 목표가 겹쳐 원점을 독립 시행으로 셀 수 없다.
+추가 개선은 다른 미사용 서비스/기간,0의 이산 질량을 고려한 확률적 목표,실제 계측 가용 시각과앱 처리 용량의 연결이 필요하다.
+실제 배포·스케일 효과에는 별도action→READY→트래픽전환→사용자결과 기록이 필요하다. 운영 채택은false다.
+
+8. 위치
+원본:/home/researcher/ai-mcmp/research/data/external/burstgpt_v2/BurstGPT_3.csv
+학습·평가:/home/researcher/ai-mcmp/research/scripts/burstgpt_sparse_calls.py
+검증:/home/researcher/ai-mcmp/research/scripts/verify_burstgpt_sparse_calls_precision.py
+모델·재생·점수·검증:/home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/
+공식:https://github.com/HPMLL/BurstGPT/releases/tag/v2.0; Wang etal.,KDD2025,DOI10.1145/3711896.3737413,CC BY4.0

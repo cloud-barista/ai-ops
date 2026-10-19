@@ -1,0 +1,73 @@
+{
+  "status": "FROZEN_BEFORE_CONVERSATION_ACCESS",
+  "conversation_asset": {
+    "url": "https://github.com/Azure/AzurePublicDataset/releases/download/dataset-llm-2024/AzureLLMInferenceTrace_conv_1week.csv",
+    "bytes": 1135195393,
+    "sha256": "a0cc9b969a9bbf0fd811802cbf4323edd3a209ace791e3799ad4f9207f213941",
+    "utc_start": "2024-05-12T00:00:00+00:00",
+    "utc_end_exclusive": "2024-05-19T00:00:00+00:00"
+  },
+  "test_days": [
+    "2024-05-14",
+    "2024-05-15",
+    "2024-05-16",
+    "2024-05-17",
+    "2024-05-18"
+  ],
+  "methods": [
+    "relative_q90_hgb",
+    "train_weighted_ratio_q90",
+    "past_hour_empirical_q90",
+    "previous_day_ratio",
+    "previous_day_ratio_plus_train_residual_q90"
+  ],
+  "known_exposure": "first and last 4 KiB of Conversation were inspected in an earlier feasibility audit; no full-period aggregates or scores",
+  "artifacts": {
+    "coding_source": {
+      "path": "data/external/azure_llm_2024/AzureLLMInferenceTrace_code_1week.csv",
+      "sha256": "71de5c55cbc35f8f1ed0b6b7806b4cd1e9764b0058469725a6aac98023a1448f"
+    },
+    "coding_protocol": {
+      "path": "reports/azure_code_input_demand_protocol.md",
+      "sha256": "748513fd859357bf1aed639b010c3dac79e534617d0d6ca8052103cc903fe35f"
+    },
+    "coding_code": {
+      "path": "scripts/evaluate_azure_code_input_demand.py",
+      "sha256": "c4e923bf3980923b6188ea939e2aebe1511034ed8f9356bb55dd883c1109251b"
+    },
+    "coding_tests": {
+      "path": "tests/test_azure_code_input_demand.py",
+      "sha256": "f6c6c7f93f61bc3d2458aa9540f2e96de0092c15bf2d47e4bc015be2aa558dcf"
+    },
+    "coding_freeze": {
+      "path": "artifacts/azure_code_input_demand_v1/freeze.json",
+      "sha256": "45773ffa5937e7e881e6b1c47c3fb5823e8034df66a0162f8169696b5f3cc2ce"
+    },
+    "coding_model": {
+      "path": "artifacts/azure_code_input_demand_v1/relative_q90_model.joblib",
+      "sha256": "72c3c812192abcd02cc4095d87f77b75da83935900d5f6a4e51afc37f77582b4"
+    },
+    "coding_result": {
+      "path": "artifacts/azure_code_input_demand_v1/results.json",
+      "sha256": "a6d962475e83b357958e612dd3a557c30cf4e66de5beb67e680a8256b27eeedf"
+    },
+    "coding_manifest": {
+      "path": "artifacts/azure_code_input_demand_v1/manifest.json",
+      "sha256": "d4c7f43c65caf89fd5ad60db3d1cee7301b70ff7e17b5e01c182535c28ae2f38"
+    },
+    "cross_protocol": {
+      "path": "reports/azure_input_demand_cross_service_protocol.md",
+      "sha256": "3f27a9b13a13d0b43f6eb18404af9e6f8fcb9021d1a0451788e35a615871758d"
+    },
+    "cross_code": {
+      "path": "scripts/evaluate_azure_input_demand_cross_service.py",
+      "sha256": "40fe94fae0c0e0b58c87e7216ff71ad781c18154368b2ad1dd190df344a2d10f"
+    },
+    "cross_tests": {
+      "path": "tests/test_azure_input_demand_cross_service.py",
+      "sha256": "b87f64f3bd37dfdd0ed64e9058862022daaf1d3ad973a9460b81f18654077edb"
+    }
+  },
+  "coding_retrospective_gate_pass": true,
+  "coding_result_status": "RETROSPECTIVE_EXPLORATORY_GO"
+}

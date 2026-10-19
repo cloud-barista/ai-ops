@@ -1,0 +1,131 @@
+{
+  "code_sha256": {
+    "candidate_builder": "e89fd8a48c8491d02194540fc362a1d50f264f589a60e52e6c3dfd3fdc25d795",
+    "holdout_scorer": "c394d8aecdaea796809633b6e8b50d8bd5e79d2f2d18ace9c09aeb6737cd92a4",
+    "original_scorer": "0fad08527467fab39f03acae914c1c009a6c6a80852ab7701f06e068ea4f1c4f",
+    "risk_metrics": "bc9bf2dfbd78e9e88405fe531d9163402c19309d2eaa05f0e994e1aaba81de72",
+    "risk_models": "27eee299b7b4a30844712200e85696719aea116699711e4620a12672dfed5606"
+  },
+  "created_utc": "2026-09-28T13:47:53.056797+00:00",
+  "kind": "philly_original_machines_only_frozen_holdout_model_spec",
+  "original_complete_train_rows": 832172,
+  "original_dry_run_sha256": "bccc573ea0f4f8fca9357d72bdc56f60788c85c31c2065d75f639322412bbf0f",
+  "original_normalized_source_sha256": "15f1af4669acb9823d0e6d96291e799cf33f8a9c1813d4faf51b0b9eb618ad58",
+  "original_primary_validation_rows": 207347,
+  "original_replay": {
+    "candidate_rows": 1419566,
+    "observed_labeled_rows": 1418428,
+    "replayed_bucket_count": 18
+  },
+  "original_score_sha256": "cb3080d46c39c748a894065ab59c93df167fcb182c2bddb75e2205a816ddc4d2",
+  "original_test_predictions_sha256": "04ce609b36c468cfbec021c3a4900a3a08cc818b9f6c3cf95a0efc8f58bd5d4f",
+  "original_test_replay": {
+    "max_abs_pooled_quality_error": 1.1102230246251565e-16,
+    "max_abs_selected_beta_error": 0.0,
+    "rows": 217750
+  },
+  "original_train_rows": 832496,
+  "original_validation_rows": 292580,
+  "pooled_quality": {
+    "coefficient": [
+      0.27492277512433655,
+      0.15912994678197967,
+      0.25857208782293367,
+      0.23962811893321945,
+      1.3945555843123394,
+      -0.03291196639706182,
+      0.482792526163161,
+      0.7079862754270956,
+      0.00771949398860083,
+      -0.00012715795281335995,
+      0.00012715795280205926
+    ],
+    "feature_columns": [
+      "older_util_filled",
+      "middle_util_filled",
+      "current_util",
+      "history_mean",
+      "history_max",
+      "current_minus_oldest",
+      "current_high",
+      "any_recent_high",
+      "older_valid",
+      "middle_valid",
+      "past_gap_s"
+    ],
+    "intercept": -1.0759330290790368,
+    "middle_median": 49.8733333334,
+    "older_median": 49.8783333333,
+    "scaler_mean": [
+      46.60646512415725,
+      46.604636438694364,
+      46.60317499423479,
+      46.604758852362856,
+      53.777278461399256,
+      -0.00329012992253583,
+      0.2533753915934731,
+      0.3424280717264708,
+      0.9996108089408238,
+      0.9998054044704119,
+      300.1167573177529
+    ],
+    "scaler_scale": [
+      36.85248131159419,
+      36.85647749205759,
+      36.86027820393122,
+      35.51001574280815,
+      37.812009224972606,
+      18.247081691520254,
+      0.43494402229164886,
+      0.47452195673436814,
+      0.019724086531497976,
+      0.013948392816653483,
+      8.369035689911488
+    ],
+    "scaler_variance": [
+      1358.1053788213992,
+      1358.3999331225482,
+      1358.6801092712074,
+      1260.9612180544827,
+      1429.7480416294136,
+      332.9559902570137,
+      0.18917630252723835,
+      0.22517108742301353,
+      0.0003890395895020199,
+      0.0001945576621676705,
+      70.04075837901225
+    ],
+    "selected_c": 10.0,
+    "validation_brier": 0.028146293922744803
+  },
+  "selected_beta": {
+    "keys": [
+      "current_high",
+      "any_recent_high"
+    ],
+    "name": "state_recent",
+    "probabilities": [
+      {
+        "key": [
+          false,
+          false
+        ],
+        "probability": 0.10547795985656269
+      },
+      {
+        "key": [
+          false,
+          true
+        ],
+        "probability": 0.841413078666235
+      },
+      {
+        "key": [
+          true,
+          true
+        ],
+        "probability": 0.9619305465994007
+      }
+    ]
+  }
+}

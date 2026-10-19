@@ -1,0 +1,1115 @@
+AI-MCMP 경희대학교 연구 성과: PPT 상세 원고와 기술 자료
+작성 기준: 2026-10-06 | 대상: ETRI·이노그리드·과제 회의
+
+문서 사용법
+이 문서는 저장된 코드·평가 산출물을 설명하기 위한 원고다. 이번 문서 작성 과정에서 학습, 다운로드, 성능 실험, 실제 배포 또는 통합 구현을 실행하지 않았다. 기존 자료와 결과는 보존한다. A절은 연구별 상세 설명, B절은 본문 16장 원고, C절은 기술 부록이다. 각 장의 화면용 문장은 짧게 사용하고, 평가 조건과 한계는 발표자 설명과 각주에 남긴다.
+
+경로 표기
+R = /home/researcher/ai-mcmp/research
+G = /home/researcher/ai-mcmp/deployment_agent
+아래 R/ 및 G/는 이 두 절대 경로로 확장한다. 모델 파일과 그래프는 각각 명시된 산출물 폴더에 있다. 파일의 존재, 코드의 역할과 저장 결과를 대조했으며, 모델을 새로 적합하거나 런타임 전체를 실행해 확인한 문서는 아니다.
+
+핵심 결론
+경희대 담당 범위 안에서 정적 형상 선택, GPU 위험·수요·계측 예측 신호, 완료 피드백 보정, 판단 함수 계산 효율의 제한된 개선을 확인했다. 전체 요구 분석, 실제 VM 형상 추천, 배포·스케일 조치 효과, 통합 에이전트의 운영 성능은 아직 검증하지 않았다. 서로 다른 데이터는 관측 대상과 정답이 달라 각각 학습·평가했다.
+
+성과 지도
+연구 | 검증된 개선 | 평가 범위
+정적 형상 | 성공 추천 36→54건; p95 중앙 APE 73.71→16.99% | 같은 호스트·알려진 앱 모델·생성 목표·90작업
+Philly 위험 | 기본 Brier 13.46% 감소; 슬롯 추가 2.63% 감소 | 서로 다른 새 37기계와 51기계
+Coding 단기 수요 | 토큰 pinball 43.6% 감소 | 공개 표본·후향 3일; Conversation 전이 개선 없음
+준비 지연 수요 | Coding 32.92/33.89/61.29%; LMM 5.65/4.19/6.05% | 서비스별 학습·5/10/30분 준비·후향 평가
+Copilot 피드백 | 보정된 기준선 대비 13.60/12.11/6.51% | 호출 수·노출된 하루·후향 탐색
+BurstGPT 희소 호출 | 첫 평가 12조건 중 3조건 통과 | 서비스/호출 종류/준비 지연별 조건부 개선
+Alibaba 계측 | 미래 기간 SM MAE 주 집합 8.97%, 보조 12.47% 감소 | 같은 공개 클러스터·고정 모델·새 7일
+추론 최적화 | 재사용 20.13배; 256묶음 1.518배; v7 벽시계 10.63% 감소 | 각각 별도 오프라인 계산 시험; v7 CPU 18.73% 증가
+
+용어와 수치 해석
+1. 응용 모델: BERT·RoBERTa·Qwen 등 실제 성능 측정 대상인 기존 AI 모델. 이 연구에서 새로 학습한 LLM이 아니다.
+2. 예측기: 경희대 자료로 적합한 scikit-learn Extra Trees, 로지스틱 회귀, HGB. 기존 알고리즘 구현을 사용하되 학습된 트리/계수는 연구 자료로 새로 얻었다.
+3. 우리 방법: 문제·정답·시간 경계·지원 조건·추천/보정 절차·검증을 구성한 연구 방법. 표준 학습기 자체의 최초 발명을 주장하지 않는다.
+4. SLO: 사용자 서비스 목표라는 일반 개념. 정적 연구의 목표는 수집기가 생성한 배치 목표이며 실제 사용자 종단간 SLO와 구분한다.
+5. q90: 조건부 90 분위 추정. 관측 피복률이 약 90%라는 평가와 운영 안전 보장은 서로 다르다.
+6. 손실 감소율 = 100×(기준선 손실−우리 손실)/기준선 손실. 음수는 악화다. 다른 기간·집합의 개선율을 더하지 않는다.
+
+======================================================================
+A. 연구별 상세 설명
+======================================================================
+
+A1. 정적 GPU/CPU 형상 추천
+
+[1] 담당 항목과 문제
+응용 조건을 이해한 인프라 형상 추천의 부분 문제다. 모델·입력·동시성이 주어졌을 때 후보별 배치 지연과 처리량을 미리 추정하고, 두 목표를 함께 만족하는 최소 프로세스 형상을 고른다. CPU affinity를 제어하는 스케줄러나 실제 VM 상품 추천을 구현한 연구는 아니다.
+
+[2] 데이터 출처·사용량·기간·정제·위치
+경희대 기존 SQLite 7 개, 2026-09-10~11 실행 기록을 진단했다. 전체 9,591실행, 유효 학습 후보 9,445실행, 671 workload 그룹이다. 136중단·10실패는 성공 성능 정답과 분리했다. 실패 원인을 자원 불가능 정답으로 재명명하지 않았다.
+주 학습 자료는 local-exhaustive 4,856실행·575그룹·9응용 모델이며 CUDA 4,600 건, CPU 256 건이다. 같은 host=icns에서 후보 형상을 비교할 수 있어 선택했다. live 2,640 행은 10 작업 그룹에 집중돼 주 학습 자료를 대체하지 않는다. 다른 호스트와 별도 입력 캠페인은 주 학습에 합치지 않았다.
+원본: /path/to/aiops/runs/khu-hf-local-exhaustive/executions.sqlite3
+정제 스냅샷: R/data/audit_v1/measurements.parquet
+진단: R/data/audit_v1/data_audit.md 및 audit.json
+응용 모델 9개: google/bert_uncased_L-2_H-128_A-2, google/bert_uncased_L-4_H-256_A-4, google/electra-small-discriminator, albert/albert-base-v2, google/bert_uncased_L-4_H-512_A-8, distilbert/distilbert-base-uncased, google-bert/bert-base-uncased, FacebookAI/roberta-base, Qwen/Qwen2.5-0.5B-Instruct.
+
+[3] 입력 특징·정답·단위·시점
+입력: model_id, model_revision, device, batch_size, max_length, request_concurrency, cpu_threads, cpu_core_limit, replica_count, repeats. 실행 후 telemetry·지연·처리량을 특징에 넣지 않는다.
+정답: 배치 호출 latency_p95_ms와 examples_per_second. 2replica의 p95는 더 느린 replica, 처리량은 합계다. 후보 판정의 요청/초는 examples/sec÷batch_size이며 실제 온라인 요청 E2E 처리량이라는 의미가 아니다. 형상 선택 전에 모델과 입력 조건을 알아야 한다.
+
+[4] 모델 선정·구성·전처리·설정
+범주형 model_id/revision/device를 one-hot, 나머지를 수치로 넣는 scikit-learn Pipeline이다. ExtraTreesRegressor 하나가 두 출력의 로그값을 함께 학습하고 exp로 복원한다. 200trees, min_samples_leaf=2, max_features=1.0, random_state=42, n_jobs=2. 그룹마다 총 학습 가중치가 같다.
+비선형 표형 상호작용을 처리하기 위해 RF·Extra Trees를 후보로 두었다. 검증 점수는 두 출력의 그룹 동일가중 평균 절대 로그오차를 평균한 값이다. 중앙값 0.978937, RF 0.192705, Extra Trees 0.192454로 Extra Trees를 선택했다. RF와의 차이는 약 0.000252로 작아 일반적 우월성을 주장하지 않는다. 새 딥러닝 구조·LLM 사전학습 모델을 불러온 연구가 아니다.
+
+[5] 분할·누출 방지
+같은 workload의 모든 CPU/GPU 자원 대안을 한 그룹으로 묶었다. 모델별 그룹 분할 결과 train 396그룹/3,348행, validation 89/748, test 90/760이다. 반복과 후보가 학습·시험 양쪽에 흩어지지 않는다. 알려진 모델/revision·호스트·장치·수치 범위 밖은 ABSTAIN하며 모델×장치 세부 지원 범위도 확인한다. 같은 기존 모델 안의 새로운 입력 조건 평가이며 모델 계열 전체 제외 시험은 아니다.
+
+[6] 기준선·우리 방법·수식·흐름
+기준선은 학습 분할의 모델ID×장치별 로그 성능 중앙값이다.
+우리 흐름: 구조화 앱 조건 → 8후보 생성 → 각 후보 두 성능 예측 → 공동 목표 검사 → 최소 후보 또는 보류.
+8후보 = GPU 프로세스 replica {1,2} × affinity cores {2,4,8,16}.
+후보 c의 통과 조건: exp(f_latency(x,c))≤L, exp(f_throughput(x,c))/batch_size≥T.
+통과 집합에서 (replica_count, cpu_core_limit)의 사전식 최소값을 선택한다. 지원 밖/입력 불일치/모든 후보 실패이면 ABSTAIN한다. 가장 큰 형상을 무조건 추천하지 않는다.
+
+[7] 기존 알고리즘과 경희대 구성
+나무 학습과 one-hot은 표준 라이브러리다. 경희대 구성은 두 양의 성능 정답, 그룹 분할·가중치, 공동 목표 선택, 지원 범위·보류, 증거·출처 검증, 고정 기준선 비교다. 실행 성능을 데이터로 학습해 추천 근거로 만든 것이 연구 내용이다.
+
+[8] 지표·수치·사례
+전체 test 760행 중앙 APE: p95 73.7144→16.9917%, samples/sec 66.0078→10.4123%. 행별 예측 오차와 작업별 추천 성공은 별도 지표다.
+GPU test 90 작업:
+방법 | 승인 | 성공 | 오승인 | 실측 최소 형상 일치
+중앙값 기준선 | 42 | 36 | 6 | 36
+우리 예측+공동 목표 | 54 | 54 | 0 | 50
+실측상 가능한 작업은 55다. 성공 추천 +18 건, 기준선 대비 50% 증가지만 이는 전체 배포 성공률 개선을 뜻하지 않는다. 35 작업은 후보 전부 불가, 32 작업은 전부 가능, 23 작업만 일부 가능했다. 부분 가능 23 개에서 22 개 선택·1 개 보류했다.
+원 목표를 요청률 1.25배로 사후 강화하면 승인 50개 중 4개가 위반한다. 원 목표에서 0건의 오승인을 운영 위험 0%로 표현하지 않는다. 별도 캠페인의 역사적 저장 예측은 novel 9/9, space-filling 25/25 성공이나 이후 지원 제한을 그대로 반영한 현재 승인 수는 아니다.
+
+[9] 적용 범위·한계
+한 호스트·기존 모델·8 개 정적 프로세스 후보·생성 목표·각 1 회 배치 측정에 한정한다. CPU 256원행과 test 40 행으로 CPU 전반까지 동일 수준 검증됐다고 말하지 않는다. RAM, 다른 GPU 종류, VM 노드 수, CSP, 가격, 실제 배포 READY·E2E 지연의 정답이 부족하다. 저장 추천 감사는 후향 분석이다.
+
+[10] 코드·모델·결과·그림
+학습 R/scripts/train_performance.py
+성능 추론 R/scripts/predict_performance.py
+판단·보류 R/scripts/assess_gpu_shape.py
+최신 계산 경로 R/scripts/assess_gpu_shape_microbatch_v7.py 및 assess_gpu_shape_row_partition.py
+평가 R/scripts/audit_saved_gpu_shape_decisions.py
+모델 R/artifacts/performance_v1/performance_model.joblib
+학습 지표 R/artifacts/performance_v1/metrics.json; 모델 검증 verification.json
+판단 감사 R/artifacts/saved_gpu_shape_decision_audit_v1/metrics.json 및 decision_rows.csv
+그림 R/reports/performance_v1.png
+설명 R/reports/diagnosis_and_first_experiment.md, saved_gpu_shape_decision_audit_findings.md, saved_model_condition_support_fix.md
+
+[11] 통합 입력·출력
+입력은 batch_latency_p95_limit_ms, min_requests_per_second, 완전한 candidates 8개이며 후보마다 앱/workload/호스트/장치 식별자와 10특징을 보낸다. 공통 앱 조건이 같고 알려진 지원 범위여야 한다. load_verified_bundle(model_path,source_path) 후 최신 assess_gpu_shape_microbatch_v7(bundle,requests,max_grids=256)를 호출하는 연구 경로가 있다.
+출력은 RESEARCH_ESTIMATE 또는 ABSTAIN, 후보별 예측·목표 여유·통과 여부, selected, reason, scope/provenance다. VM CPU·노드 수로 자동 변환하지 않는다. 자세한 매핑과 추가 입력은 별도 통합 설계서에 있다.
+
+A2. GPU 고사용률 위험 확률과 전날 기계·슬롯 보정
+
+[1] 담당 항목과 문제
+배포·스케일 판단의 운영 위험 입력 및 운영 피드백 활용 연구다. 최근 사용률로 다음 30 분 고사용률 사건을 예측하고 기계·슬롯별 확률 편향을 줄인다. 사건 확률을 실제 SCALE_OUT 명령의 효과로 해석하지 않는다.
+
+[2] 데이터 출처·사용량·기간·정제·위치
+Microsoft Research Philly DNN 훈련 클러스터의 GPU 1 분 계측이다. 원본 44,750,640 행·552 기계를 스트림 검산했다. 전체 원본 압축 아카이브는 보존 파일이 아니며 선택한 기계 자료와 정규화 parquet가 로컬에 있다.
+기반 모델은 해시 표본 21 기계·1,704,704원행으로 구성했다. 신규 37 기계 주 결과는 741,597판단, 슬롯 후속 신규 51 기계는 812,729판단이다. 각 실험의 원행 수와 유효 판단 수를 혼용하지 않는다. 슬롯 자료 선택 원행은 5,522,288 행·62 기계이고 최종 평가층은 51 기계다.
+로컬 R/data/external/msr_philly_2017/gpu_util_normalized_first_width.parquet
+신규 기계 R/data/external/msr_philly_2017_holdout/
+슬롯 R/data/external/msr_philly_2017_slot_holdout/gpu_util_normalized_first_width.parquet
+공식 https://github.com/msr-fiddle/philly-traces
+슬롯 폭·GPU 분값·결측을 감사한다. 불완전 미래 관측을 정상 사건으로 라벨링하지 않는다.
+
+[3] 입력 특징·정답·단위·시점
+5 분 평균 사용률 창 중 판단 전 완료된 세 창을 사용한다. 11 특징은 older_util_filled, middle_util_filled, current_util, history_mean, history_max, current_minus_oldest, current_high, any_recent_high, older_valid, middle_valid, past_gap_s다.
+정답 y=1은 판단 뒤 30 분의 여섯 5 분 창 중 하나라도 해당 GPU 슬롯 평균≥80%인 경우다. 주 집합은 과거 완전 관측·현재<80%다. 확률 p는 0~1, 사용률은 %다. 미래 30 분 정답이 끝난 뒤에만 보정 피드백으로 사용할 수 있다.
+
+[4] 모델 선정·구성·설정
+학습 중앙값으로 결측 대체, 학습 모수로 표준화, L2 LogisticRegression의 통합 확률 p0를 사용한다. C=.1/1/10 중 validation Brier로 선택한 C=10이다. 저장 model_spec.json의 계수·절편·전처리 모수로 재생하는 구조다. 사전학습된 외부 모델을 가져온 것이 아니다.
+상태 분리·관측 품질 특징의 독립 이득이 확인되지 않아 후속 보정에는 통합 모델을 고정했다. 간단한 확률 학습기와 강한 확률표 기준선을 비교해 피드백 추가 기여를 분리했다.
+
+[5] 분할·누출 방지
+기반 시간 분할은 2017-10-04~11-15 train, 11-16~11-30 validation, 12-01~12-15 test UTC다. 저장 기본 모델의 train은832,496판단(완전 과거832,172), validation은292,580판단(주 평가층207,347)이다. 첫 학습/검증/후속 시험의 기계 해시 집합을 분리한다. 신규 37기계와 후속 51기계는 서로 다른 시험이다.
+보정은 전날 완료됐고 당일 00:00 UTC까지 전달된 정답만 사용한다. 기계×GPU 슬롯×시간당 첫 적격 판단만 남겨 과밀 중복을 줄인다. 공개 자료에 실제 전달 시각이 없어 완료 즉시 전달을 가정했다.
+
+[6] 기준선·수식·흐름
+기본 기준선은 현재 고사용률 상태와 최근 초과 여부에 대한 Beta(1,1) 평활 확률표다.
+보정 흐름: 최근 GPU 계측 → p0 → 전날 기계 절편 δm → 슬롯 잔차 gm,s → p_final.
+z=logit(clip(p0,1e-9,1−1e-9)).
+δm은 Σ전날[y−sigmoid(z+δm)]−20δm=0을 풀고 ±0.5로 제한한다.
+p_machine=sigmoid(z+δm).
+gm,s=clip(Σ슬롯[y−p_machine]/(Σ슬롯[p_machine(1−p_machine)]+20),−0.5,0.5).
+p_final=sigmoid(z+δm+gm,s).
+기계 또는 슬롯 피드백이 없으면 해당 보정은 0이다. 슬롯 추가 비교 기준선은 p0가 아니라 벌점이 있는 정확한 기계별 절편이다.
+
+[7] 기존 알고리즘과 경희대 구성
+로지스틱·로그오즈·벌점 절편·잔차 수축은 표준 원리다. 경희대는 미래 사건 정의, 완전 관측층, 새 기계 시험, 전날 완료·전달 경계, 기계→슬롯 순차 보정과 무피드백 처리, 플랫폼 중립 코어를 구성했다.
+
+[8] 지표·수치·사례
+Brier=mean((p−y)^2). 사건 확률의 오차이며 낮을수록 좋다.
+신규 37기계/741,597판단: Beta Brier 0.089879→통합 모델 0.077783, 13.46% 감소; AP .457322→.707340; 상위5% recall .253886→.296129. 32/37기계 개선. 기계 재표집 2,000회 차이 CI(model−base) [−.017790,−.007629].
+별도 신규 51기계/812,729판단: 기계별 보정 .085786→기계+슬롯 .083532, 2.63% 추가 감소; 기계 동일가중 .081152→.078693; AP .870159→.873825. 44/51기계 개선, CI [−.003105,−.001443]. 원 p0 .092431은 슬롯 고유 기여의 비교 기준이 아니다.
+중간 별도 41 기계 시험의 기계 보정 .086988→.082766은 4.85% 감소지만 세 집합 개선율은 합산하지 않는다.
+
+[9] 적용 범위·한계
+같은 2017 훈련 클러스터의 새로운 기계에 대한 운영 확률 개선이다. 새 클러스터·AI 추론 서비스·실제 사용자 SLO 위반·VM 증설 효과 검증이 아니다. 인접 창은 시간 상관이 있다. 전달 지연 가정은 실제 연동 시 available_at으로 대체해야 한다.
+
+[10] 코드·모델·결과·그림
+기본 학습/평가 R/scripts/evaluate_philly_gpu_risk.py, philly_risk_models.py
+신규 기계 R/scripts/evaluate_philly_machine_holdout.py
+슬롯 평가/검증 R/scripts/evaluate_philly_slot_day_holdout.py, verify_philly_slot_day_holdout.py
+계산 코어 R/policies/philly_slot_day.py; 코어 검증 R/scripts/verify_philly_slot_day_core.py
+모델 계수 R/artifacts/philly_machine_holdout_model_v1/model_spec.json
+기본 결과 R/artifacts/philly_machine_holdout_score_v1/metrics.json
+슬롯 결과 R/artifacts/philly_slot_day_holdout_v1/result.json; test_predictions.parquet; independent_verification.json
+보고서 R/reports/philly_machine_holdout_findings.md, philly_slot_day_calibration_holdout_findings.md, philly_slot_day_core_replay.md
+본문 그림은 표·보정 흐름도로 구성한다. 존재를 확인하지 않은 별도 그래프 경로를 새로 만들었다고 표현하지 않는다.
+
+[11] 통합 입력·출력
+calibrate_day(targets,previous_day_feedback,day_start_utc_s=...)가 구현돼 있다. targets는 machine_hash,gpu_index,decision_utc_s,p0이며 피드백은 이 필드와 y,label_available_at_utc_s다. 대상일 미래 y를 입력하지 않는다. 출력은 순서를 보존한 기계/슬롯 보정 확률·보정량·표본 수다.
+기본 p0 계산에는 학습과 같은 5분 특징이 필요하다. 앱과 GPU 슬롯 대응은 이노그리드/ETRI에서 별도 제공해야 한다. 실행 명령·VM ID·Manifest는 출력하지 않는다.
+
+A3. Azure Coding 다음 5 분 입력 토큰 수요
+
+[1] 담당 항목과 문제
+지능적 배포·스케일 판단에 공급할 단기 입력 수요 신호다. 최근 요청으로 다음 5 분 토큰 예산을 예측한다. SQLite에는 장기 도착 수요가, Philly에는 요청 토큰이 없어 별도 자료를 사용했다.
+
+[2] 데이터 출처·사용량·기간·정제·위치
+Azure LLM 2024 Coding 공개 표본, 2024-05-10~16 UTC, 유효 양수 ContextTokens와 TIMESTAMP 16,803,695 요청을 5 분 2,016 구간으로 합산했다. 전체 생산 트래픽을 복원한 자료가 아니다.
+R/data/external/azure_llm_2024/AzureLLMInferenceTrace_code_1week.csv
+공식 https://github.com/Azure/AzurePublicDataset/releases/tag/dataset-llm-2024
+GeneratedTokens는 이 실험의 정답·특징에 쓰지 않았다.
+
+[3] 입력 특징·정답·단위·시점
+y_t는 결정 시점부터 다음 5분의 표본 입력 토큰 합계다. m_t는 직전 완료 12구간의 평균이며 r_t=y_t/m_t다. 직전 구간 1/2/3/12 정규화 수요, 전날 같은 구간 비율, 1시간 최대/q90, 최근30분/이전30분 비율, UTC 시각 sin/cos, 주말 등 11특징이다. 최소 m=1,000토큰보다 작으면 보류한다.
+
+[4] 모델 선정·구성·설정
+HistGradientBoostingRegressor(loss=quantile,quantile=.9,max_iter=150,learning_rate=.05,max_leaf_nodes=7,min_samples_leaf=20,l2_regularization=1,early_stopping=False,random_state=42). 작은 잎 수로 제한된 시간 집계 자료의 비선형 관계를 학습한다. 결측 전날 특징 처리가 가능하다. 한 고정 ML 후보를 학습했으며 다른 ML 모델 전체와 경쟁해 선정한 것은 아니다.
+표본 가중치 m_t/mean_train(m)는 상대 예측의 손실을 절대 토큰 손실에 맞춘다. 예측은 m_t×max(0,qhat_0.9(r|X))다.
+
+[5] 분할·누출 방지
+05-10~12 train 852 구간(초기 1 시간 제외), 05-13 validation288, 05-14~16 evaluation864. 과거 완료 구간만 특징에 넣는다. 평가 기간 통계를 다른 실험에서 이미 열람했으므로 후향 시간순 평가이며 완전 블라인드 독립 시험이 아니다. 실제 계측 전달 시각은 알 수 없다.
+
+[6] 기준선·수식·흐름
+ρτ(y−q)=(y−q)×(τ−1[y<q]), τ=.9. 과소 예측 벌점이 크다.
+ρτ(y,mq)=mρτ(y/m,q), m>0이므로 m 가중치를 적용했다.
+기준선 4 개: 학습 상대량 가중 전역 q90, 최근 1 시간 경험q90, 전날 동시간 비율, 전날 비율+학습잔차q90. 정규화 과거 특징→상대q90→최근 규모 복원의 방법을 같은 토큰 손실로 평가한다.
+
+[7] 기존 알고리즘과 경희대 구성
+HGB 분위수 학습기는 표준 구현이다. 경희대는 표본 수요 정답, 최근 규모 정규화, 절대 손실 대응 가중치, 시간순 분할·기준선·피복 평가를 구성했다. 입력 토큰을 GPU 용량으로 바꾸는 새 모델을 학습한 것은 아니다.
+
+[8] 지표·수치·사례
+3 일 일별 동일가중 pinball: HGB 418,627, 가장 강한 단순 기준선 742,048, 감소 43.6%. 다른 기준선은 가중전역 855,670, 최근 1 시간 798,835, 전날 비율 1,009,301이다.
+모델 날짜별 pinball 414,611/420,361/420,910, 피복률93.75/92.01/93.75%. 사전 허용 피복85~95%에 들어갔다. 같은 864구간이라도 독립864사례로 일반화 신뢰도를 주장하지 않는다.
+
+[9] 적용 범위·한계
+Coding 표본 한 주·후향 3 일에 한정한다. Conversation 전이에서는 모델 348,600 대 최근기준 335,196으로 나빴다. 입력 토큰 합계에는 출력 토큰·요청 복잡도·큐·실제 GPU 용량이 없으며 처리량·VM 수 환산은 미검증이다. q90은 모든 순간을 덮는 안전 상한이 아니다.
+
+[10] 코드·모델·결과·그림
+학습/평가 R/scripts/evaluate_azure_code_input_demand.py
+저장 모델 R/artifacts/azure_code_input_demand_v1/relative_q90_model.joblib
+결과 R/artifacts/azure_code_input_demand_v1/results.json
+설명 R/reports/azure_code_input_demand_findings.md
+전이 R/reports/azure_input_demand_cross_service_findings_v1_1.md
+발표 그림은 두 손실 막대와 날짜별 피복 표로 구성한다. 그림 수치를 결과 JSON과 맞춘다.
+
+[11] 통합 입력·출력
+design_from_aggregates와 predict_from_bundle(fitted,frame)는 연구 전처리/추론 함수다. 서비스별 과거5분 집계와 UTC 시간 특징, 유효한 최근 규모를 받는다. 출력 단위는 next_5min_sample_input_tokens_q90이다. 운영용 스트림 저장·API·가용 시각 관리 Adapter는 추가 설계가 필요하다. 모델 파일을 다른 서비스에 자동 재사용하지 않는다.
+
+A4. 준비 지연에 대응하는 최대 입력 수요
+
+[1] 담당 항목과 문제
+새 자원이 준비되는 동안과 준비 직후의 부하까지 판단 입력에 반영한다. 다음 5 분만 맞히는 예측을 30 분 준비 조치에 그대로 사용하는 시간 불일치를 줄이는 연구다. 실제 준비 시간의 원인을 학습한 것은 아니다.
+
+[2] 데이터 출처·사용량·기간·정제·위치
+Coding은 A3의 16,803,695요청/2,016구간이다. LMM은 멀티모달 공개 자료 중 로컬 CSV.gz의 1,000,000요청 표본/2,016구간이다. 전체 수백GB 원본을 이 모델 학습에 사용했다고 말하지 않는다.
+LMM 집계 시작은 2024-10-15 12:00 UTC다. Azure LMM 2025는 공개 묶음 이름이며 데이터 날짜와 동일 의미가 아니다. 이 실험에서는 입력 토큰 합계만 쓰며 이미지 수 특징의 개선을 주장하지 않는다.
+LMM 원본 R/data/external/azure_lmm_2025/AzureLMMInferenceTrace_multimodal.csv.gz
+검증된 기존 집계 R/artifacts/demand_capacity_v1/coding_aggregate_and_forecasts.parquet 및 lmm_aggregate_and_forecasts.parquet
+원본 범위/출처 R/artifacts/demand_capacity_v1/freeze.json
+
+[3] 입력 특징·정답·단위·시점
+5 분 y_t 토큰량, 직전 1 시간 규모 m_t, A3와 같은 11과거 특징을 사용한다.
+준비 지연 d={5,10,30}분, h=d/5={1,2,6}.
+u_t=max(y_t,y_t+1,...,y_t+h). 현재 구간과 READY 직후 첫5분 구간을 포함한다. 대상 창 길이는 10/15/35분이며 예측값은 이 창 내 최대 '5분 토큰량'이다. 10/15/35분의 총 토큰 합계가 아니다. 최종 정답은 t+h+1 경계가 지난 뒤 완료된다.
+
+[4] 모델 선정·구성·설정
+Coding/LMM×h1/2/6에 각 HGBq90를 따로 학습해 총6개다. A3와 같은150회/lr.05/leaf7/minleaf20/L2=1/seed42다. u/m을 학습하고 m 가중치를 둔다. 서비스별 모델이므로 Coding모델→LMM 외부 전이 성과로 설명하지 않는다.
+완료된 양의 정규화 잔차 q90를 최근 288 origin 중 최소 96 건에서 구해 예산에 더한다. 첫 피드백 origin은 validation 시작 864다. 동일 보정을 기준선에도 적용해 공정 비교한다.
+
+[5] 분할·누출 방지
+서비스별 첫3일 train, 다음1일 validation, 마지막3일 evaluation. h별 train851/850/846, validation의 정답도 경계 전에 완료돼야 한다. 평가의 완전한 정답863/862/858개다. 정책 재생864구간과 예측 지표 행 수는 구분한다. 완료 조건 i+h+1≤t를 만족하는 이전 정답만 보정에 사용한다. 전체 주는 앞선 연구에 노출돼 후향 평가다.
+
+[6] 기준선·흐름
+과거1시간 최대/q90/평균과 학습 상대 peak 가중q90 등을 비교한다. 검증 손실로 지연별 기준선을 고정하고 시험에서는 바꾸지 않는다.
+과거 집계→u/m q90→m 복원→완료 잔차 보정→지연별 최대 5분 토큰 신호.
+직전 5 분 모델+보정, peak원시, peak보정, baseline보정을 따로 저장해 정답 변경과 보정 효과를 혼동하지 않는다. 전체 비교는 부록 JSON 추출표에 있다.
+
+[7] 기존 알고리즘과 경희대 구성
+표준 HGB를 쓴다. 기여는 준비 완료 직후를 포함하는 최대값 정답, 서비스·지연별 학습, 완료 경계, 동일 기준선 보정과 정책 효과를 별도로 검증한 절차다. 예측이 좋아져도 행동 정책이 좋아졌다고 결론내리지 않는다.
+
+[8] 지표·수치·사례
+서비스/준비 분 | 보정 기준선 pinball | peak+보정 pinball | 감소 | 피복 | 평가 행
+Coding/5 | 728,092.851 | 488,407.978 | 32.92% | 94.55% | 863
+Coding/10 | 827,632.792 | 547,125.423 | 33.89% | 93.97% | 862
+Coding/30 | 1,625,347.938 | 629,186.253 | 61.29% | 91.96% | 858
+LMM/5 | 131,845.021 | 124,395.407 | 5.65% | 90.03% | 863
+LMM/10 | 145,412.513 | 139,324.498 | 4.19% | 90.26% | 862
+LMM/30 | 191,584.369 | 179,998.098 | 6.05% | 89.98% | 858
+LMM10분의4.19%는 손실5%개선 기준 아래다. 전체 조건이 채택 기준을 통과했다고 표현하지 않는다. Coding5/10의 보정은 점수를 바꾸지 않았고 Coding30에는 소폭 손실 증가를 동반했다. 목표 정답과 평가 집합이 다르므로 A3의43.6%와 직접 우열 비교하지 않는다.
+
+[9] 적용 범위·한계
+가정한 준비 지연별 수요 예산 연구다. 실제 VM READY 분포·토큰 처리 용량·가격이 없다. 가상 정책180비교에서 Coding/LMM 주 조건은 모두 NO_GO였다. 수요 예측 개선과 실제 스케일 성과를 분리한다.
+
+[10] 코드·모델·결과·그림
+학습 R/scripts/train_evaluate_delay_capacity.py
+정답/보정/가상정책 R/scripts/delay_capacity_policy.py
+검증 R/scripts/verify_delay_capacity.py
+요약 R/scripts/summarize_delay_capacity.py
+모델 R/artifacts/delay_capacity_v2/의 coding_delay1/2/6_peak_q90.joblib 및 lmm_delay1/2/6_peak_q90.joblib (숫자별 실제6파일)
+결과 results.json, 검증 audit.json, 고정 설정 SELECTION_FREEZE.json 및 CODE_FREEZE.json
+예측 각 coding_delay1/2/6_forecasts.parquet, lmm_delay1/2/6_forecasts.parquet
+정책 scenario_summary.csv, decision_replay.csv.gz
+그림 delay_capacity_tradeoff.png 및 .pdf: 가상 정책 지표 그림이며 실제 비용 그래프가 아니다.
+보고서 R/reports/delay_capacity_findings_2026_10_06.txt 및 delay_capacity_reproduction_v2.txt
+
+[11] 통합 입력·출력
+입력 서비스명·토큰 집계·준비 지연·전달 시각을 요구한다. 해당 모델과 지연 정답 의미를 명시해 peak_5min_input_tokens_q90, target_window_minutes, ready_delay_minutes를 반환하도록 설계한다. 7 분 지연을 임의로 10 분 모델에 라운딩하는 규칙은 아직 검증되지 않았다. 미지원 지연은 보류하거나 별도 모델 검증이 필요하다.
+
+A5. Copilot·BurstGPT 호출 수요와 완료 피드백
+
+[1] 담당 항목과 문제
+토큰이 없는 기록으로 가능한 호출 수요를 연구하고, 서비스별 분포 이동과 희소 호출의 정규화 문제에 대응한다. Copilot과 BurstGPT는 서로 다른 자료·모델이다. 이 절에서 한 범주로 소개하되 점수를 합치지 않는다.
+
+[2] 데이터 출처·사용량·기간·정제·위치
+Copilot: Azure GHCP coding agent 2026의 선택된 6월 3~7 일 압축 파티션 5 개,185,011 세션·5,734,290 호출; 해당 시간창 내 5,727,290 호출, 창 밖 7,000. 압축 원본 합계 2,003,061,268바이트를 보존했다. 1,440 개 5 분 구간이다. 세션 시작 파티션 이후 날짜로 이어진 호출도 합산하고 중복 session_id는 거절했다. 제외한 6월 1~2 일 세션의 후속 호출은 누락 가능하다.
+R/data/external/ghcp_coding_agent_2026_days03_04/ 및 ghcp_coding_agent_2026_days05_07/
+공식 https://github.com/Azure/AzurePublicDataset/releases/tag/ghcp-coding-agent-2026
+BurstGPT: R/data/external/burstgpt_v2/BurstGPT_3.csv,전체5,344,021행. 첫 모델의 상대일225~284 60일은3,452,522행·17,280구간. 후속285~314평가까지90일은4,485,656행. 절대 UTC가 아닌 상대초 Timestamp다. ChatGPT/GPT4×API/Conversation4집합. 첫 부분 구간은 결측, 범위 안 미기록 구간은 기록 호출0이며 실제 서비스 무호출을 보장하는 heartbeat는 없다. 원출처는 같은 폴더 SOURCE.md에 보존돼 있다.
+
+[3] 입력 특징·정답·단위·시점
+정답 u_t=max(y_t,...,y_t+h), y=5분 기록 호출 수, h1/2/6. 기간은10/15/35분, 값은 그 기간의 최대 5분 호출 수다.
+Copilot은11시간/과거 특징과 m=직전1시간 평균을 쓴다. 원시 모델의 정규화 잔차 e_i=(u_i−raw_i)/m_i를 완료 후 보정에 쓴다.
+BurstGPT는 s=max(직전1시간 평균,1)로 작은 분모를 안정화한다. 10특징: lag1/2/3/12 비율, hourmax/q90비율, 최근6평균/max(그전6평균,1), log1p평균, 시간창0비율, 마지막양수부터bin거리(상한288). 상대 시각에 절대 요일 특징을 붙이지 않는다.
+
+[4] 모델 선정·구성·설정
+Copilot parent는 지연별 HGBq90 3개이며 표준150/lr.05/leaf7/minleaf20/L2=1/seed42다. 새 피드백 연구에서 모델을 다시 학습하지 않고 parent3개를 고정했다.
+BurstGPT는4집합×3지연×(상대/절대 HGB) 총24모델이다. 같은 고정 HGB설정, 주 방법은 u/s를 학습하고 s/mean_train(s) 가중치로 절대 호출 pinball에 맞춘다. 절대 HGB는 비교용이다. 희소성 특징의 개별 기여를 독립적으로 입증한 것은 아니다.
+
+[5] 분할·누출 방지
+Copilot6월3~5 train851/850/846행,6일validation,7일test287/286/282행. 7일은 이전실험에 노출돼 후향 탐색이다.
+BurstGPT225~244 train20일,245~254 validation10일,255~284 test30일. 후속285~314의 추가30일은 원24모델을 고정해 평가했다. 정답 끝나는 i+h+1이 분할 경계 전에 있는 origin만 학습/검증한다.
+피드백은 i+h+1+전달 지연≤현재t인 이전 origin만 쓴다. 미래 target배열이 저장돼 있는 재생 함수에서도 이 조건 이후를 접근하지 않도록 검사했다. 실제 운영에서는 전체 미래배열을 넘기는 재생 API를 이력 저장 Adapter로 바꿔야 한다.
+
+[6] 기준선·수식·흐름
+최근 288적격 origin 중 최소 96 개 잔차를 모은다. delta=max(0,q90(e_i)), corrected_t=raw_t+scale_t×delta. 보정된 예측의 잔차를 다시 쌓는 재귀 방식이 아니라 원시 예측의 잔차다.
+Copilot은 첫 validationorigin864, BurstGPT는train끝5760부터 완료 잔차를 사용한다. 기준선도 같은 보정을 받으며 validation에서 선택한다. Copilot 기준선은 학습 가중peakq90·최근1시간max/q90/mean. BurstGPT는 여기에 절대HGB 등을 비교한다.
+Copilot 전달 지연0/5/30분의9조건을 평가했다. BurstGPT는 서비스×유형×지연12조건을 모두 보고한다.
+
+[7] 기존 알고리즘과 경희대 구성
+HGB·분위수 잔차는 표준 알고리즘이다. 경희대는 완료 정답만 사용하는 보정, 지연 정렬, 원시 잔차 유지, 기준선에도 동일 보정, 희소분모 1·과거 0비율·마지막호출거리, 조건별 공개 평가를 구성했다. 희소서비스 전반에 이긴 새로운 보편 알고리즘이라는 결론은 없다.
+
+[8] 지표·수치·사례
+Copilot(피드백지연 0 주 결과):
+준비 분 | parent원시 pinball | 보정된 기준선 | parent+보정 | 기준선 대비 감소 | 피복
+5 | 40.557979 | 33.419626 | 28.874088 | 13.60% | 89.55%
+10 | 48.149413 | 32.767976 | 28.799836 | 12.11% | 88.81%
+30 | 64.453898 | 31.404556 | 29.360972 | 6.51% | 89.72%
+원시 피복69.69/66.08/54.96%였고 parent 학습 확대 단독은 NO_GO였다. 보정까지 넣은9조건은 EXPLORATORY_PASS지만 운영 채택false다. 새 예측모델 학습0개,45방법 조합·64,800재생행과 핵심7검사를 검증했다.
+BurstGPT 첫30일: ChatGPTAPI30분7.65%, GPT4API5분15.40%, GPT4API10분9.31% 개선이5%손실감소+피복85~95%를 통과했다. 전체12조건 중3만 통과다. ChatGPTAPI5/10분은16.99/7.47% 악화, Conversation은 미미하거나 악화했다. 전체 조건 채택false다.
+후속30일 고정 모델: GPT4API5/10/30분 감소6.55/14.06/7.22%, ChatGPTAPI5/10/30분6.50/4.22/3.58%. 첫 기간ChatGPTAPI30분의5%기준은 후속에서 재현되지 않았다. 모든 Conversation은 악화다. 기간별 개선율을 더하지 않는다.
+
+[9] 적용 범위·한계
+호출 수는 토큰 처리량·GPU 소요·사용자 지연이 아니다. Copilot토큰 정보 부족을 호출 예측으로 해결했다고 말하지 않는다. 노출된 하루나 사후 서비스 조건 선택은 독립 일반화가 아니다. BurstGPT GPT4API5 분의 과거 호출이 적은 집합에서 1.840529대 1.776782로 나빠 희소구간 전부 개선 주장도 없다.
+정밀도 검산에서 log1p 구현의1.8e-15 차이가 트리 경계를 바꿀 수 있었다. 최초 검증 실패를 보존하고, 실제 학습 코드의 특징으로 다시 적합하되 독립 특징을1e-13 허용 오차로 대조하는 정정 검증을 했다. 서로 다른 부동소수점 구현까지 완전히 같다고 주장하지 않는다.
+호출 예측을 가상 정책에 넣은 후속 주12조건은 모두 NO_GO다. 같은 예측으로 제어기만 비교한36조건도0통과다. 예측 개선을 정책 효과로 채택하지 않는다.
+
+[10] 코드·모델·결과·그림
+Copilot parent 학습 R/scripts/copilot_call_extended.py
+보정 R/scripts/copilot_call_feedback.py
+평가/검증 R/scripts/evaluate_copilot_call_feedback.py, verify_copilot_call_feedback.py
+parent 모델 R/artifacts/copilot_call_demand_v2/copilot_delay1_extended_q90.joblib (delay2,delay6도 별도 파일)
+보정 결과 R/artifacts/copilot_call_feedback_v1/results.json, verification.json, replay.parquet, comparison.png/.pdf
+BurstGPT 학습/평가 R/scripts/burstgpt_sparse_calls.py
+정정 검증 R/scripts/verify_burstgpt_sparse_calls_precision.py
+모델24개/결과 R/artifacts/burstgpt_sparse_calls_v1/ (results.json,verification.json,FREEZE.json,SELECTION.json,counts.parquet,replay.parquet,daily_method_metrics.csv,stratum_method_metrics.csv,comparison.png/.pdf)
+후속 평가 R/scripts/evaluate_burstgpt_call_policy.py, call_capacity_control.py, diagnose_call_capacity_ceiling.py
+결과 R/artifacts/burstgpt_call_policy_v1/results.json 및 capacity_ceiling_diagnosis.json
+보고서 R/reports/copilot_call_feedback_findings_2026_10_06.txt, burstgpt_sparse_calls_findings_2026_10_06.txt, burstgpt_call_policy_findings_2026_10_06.txt
+
+[11] 통합 입력·출력
+서비스·호출 집합·최근1시간 이상의5분 호출 이력·준비 지연과 완료 target/raw prediction의 연결 이력이 필요하다. correct_completed(target,prediction,scale,horizon,first_origin=864,window=288,minimum=96,delivery_lag=0)는 Copilot의 재생 함수이며 corrected/n/delta/last_available을 반환한다.
+반환 의미는 peak_5min_recorded_calls_q90이며 토큰 단위와 분리한다. 피드백 표본이 부족하면 원시 모델 사용 여부와 보정 상태를 명시한다. 미지원 서비스·지연에 자동 전이하지 않는다. 호출 수와 처리 용량의 대응, 실제 action 효과는 별도 수집해야 한다.
+
+A6. Alibaba GPU SM 계측의 다음 시간 예측
+
+[1] 담당 항목과 문제
+운영 관측을 활용하는 판단 입력 연구다. 현재 SM 사용률을 다음 시간에도 그대로 사용하는 persistence를 보완한다. GPU 우선순위 스케줄러, 빈패킹, K8s 개발을 수행한 연구는 아니다.
+
+[2] 데이터 출처·사용량·기간·정제·위치
+사용 자료는 Alibaba cluster-trace-gpu-v2026의 시간별 pod 계측이다. Spot GPU 2026 자료와 구분한다.
+공식 설명: https://github.com/alibaba/clusterdata/blob/master/cluster-trace-gpu-v2026/docs/schema.md
+기존 상대 day109~115: R/data/external/alibaba_gpu_2026_days109_115/
+미래 상대 day116~122: R/data/external/alibaba_gpu_2026_days116_122/
+미래 원본은 parquet168개, 256,279,382행, 13,595,282,885바이트다. 모델 평가는 이 원본 중 정제 조건을 만족한 하위 집합으로 수행했다. 모호한 pod×시간 중복과 불안정한 workload를 제외했다. GPU 요청이1개이며 과거3시간과 다음 정답 시간의 server가 같은 기록을 구성했다. 주 집합은 네 시간 모두 server의 전체 GPU 수가1개인 엄격한 조건이다. 각 집합의 학습·검증·시험 행 수는 C9 표를 따른다.
+
+[3] 입력 특징·정답·단위·시점
+범주형2개: gpu_spec_public, priority_class.
+수치11개: sm_current, sm_lag1, sm_lag2, sm_mean3, sm_std3, sm_delta1, sm_delta2, hour_sin, hour_cos, server_gpu_count, cpu_request_cores.
+정답은 다음 시간의 SM 계측(%), 잔차 정답은 nextSM−currentSM(percentage point)이다. 현재 시간의 계측이 완료된 뒤 판단한다. 다음 시간의 계측이 끝나야 정답이 완료된다. 원본에는 실제 전달 시각이 없어 완료 즉시 가용하다고 가정한다. priority_class는 입력 범주이며 정책 개선의 정답이 아니다.
+
+[4] 모델 선정·구성·설정
+OneHotEncoder(handle_unknown='ignore', dense 출력)와 HGB 회귀를 연결한다. 설정은 loss='absolute_error', max_iter=150, learning_rate=.05, max_leaf_nodes=15, min_samples_leaf=50, l2_regularization=1, early_stopping=False, random_state=42다.
+직접 SM 예측과 변화 잔차 예측을 비교했다. 잔차 방법은 clip(sm_current+alpha×HGB(X),0,100)이다. validation에서 alpha={0,.25,.5,1} 중1을 고정했다. 미래 기간의 정답을 읽기 전에 v1의 두 집합별 모델과 persistence 기준선을 고정했다. 후속 v2/v3 모델을 이 확인 시험에 섞지 않는다.
+
+[5] 분할·누출 방지
+학습은 workload 해시<70과 day109~112, validation은 해시70~84와 day113, 기존 test는 해시85~99와 day114~115다. 과거·정답이 분할 경계를 넘어가지 않게 구성하고 workload당 총 학습 가중치를 같게 했다.
+미래 확인은 사전 고정한 해시85~99의 day116~122다. 첫 시간의 과거 특징에는 기존 day115의22/23시를 사용했다. 학습 workload를 제외한 집합의 새로운7일 결과다. 이 집합에는 이전 validation/test 또는 가공 자료에 등장한 workload가 있을 수 있으므로 '이전에 전혀 관측되지 않은 모든 응용'에 대한 검증과 구분한다. 완전히 새 workload에 대한 진단은 별도 층으로 보고했다.
+
+[6] 기준선·방법·흐름
+기준선: nextSM=currentSM.
+우리 방법: 과거 계측의 수준·추세·자원 범주에서 다음 시간에 바뀔 잔차를 학습해 현재 SM에 더한다. alpha=0이면 persistence다.
+시간별 pod 계측 → 중복·이동·연속성 검사 → 과거3시간 특징 → HGB 잔차 → 현재값에 더하기 → 0~100으로 제한.
+실제 추론에서는 미래 server 이동을 미리 알 수 없다. 미래 server 일치 조건은 저장 자료의 평가층 구성 조건이며, 현장 추론 지원 검사로 미래 정보를 읽어서는 안 된다. 자세한 운영 연결은 통합 설계서5-7절에 있다.
+
+[7] 기존 알고리즘과 경희대 구성
+HGB와 잔차 회귀는 기존 원리다. 경희대는 단일 GPU 조건, workload·시간 분할, 연속 계측과 server 일치, 고정 모델의 미래 기간 확인, 지원 검사와 집합별 평가를 구성했다. 새 GPU 구조나 스케줄러를 발명했다고 주장하지 않는다.
+
+[8] 지표·수치·사례
+미래 주 집합: 12,097행·30workloads.
+- MAE: persistence1.627406 → 잔차1.481500, 8.97% 감소.
+- workload 동일가중 MAE: .938041 → .719198.
+- p95 절대오차: 4.373794 → 4.121206.
+보조1GPU pod 집합: 103,306행·368workloads.
+- MAE: 2.073320 → 1.814805, 12.47% 감소.
+- workload 동일가중 MAE: 2.064950 → 1.704942.
+- p95 절대오차: 9.954691 → 8.216691.
+두 집합 모두7/7일 개선됐다. workload단위2,000회 재표집한 CI(base−residual)는 주 [.039924,.472442], 보조 [.283788,.437440]이다.
+완전히 새 workload의 엄격 집합4,431행·40workloads에서는 .231400 → .277001로19.71% 악화했다. 변화 사건이11건/2workloads로 지원 기준에도 미달했다. 이 결과도 함께 보고한다.
+
+[9] 적용 범위·한계
+같은 공개 클러스터의 미래 시간 SM 예측 개선이다. 새 클러스터·GPU 세대·새 응용 전반의 일반화는 입증하지 않았다. 보조 집합은 다중 GPU server를 포함해 물리 슬롯의 SM 해석이 엄격 집합과 다를 수 있다. 실제 사용자 지연, OOM, 요청 부하, 증설 조치 효과는 정답이 아니다.
+
+[10] 코드·모델·결과·그림
+학습 R/scripts/train_alibaba_gpu_sm_hour.py
+고정 추론·미래 평가 R/scripts/evaluate_alibaba_gpu_sm_future.py
+고정 조건 R/reports/alibaba_gpu_sm_future_freeze_v1.json
+모델 R/artifacts/alibaba_gpu_sm_hour_v1/one_gpu_pod/model_bundle.joblib
+모델 R/artifacts/alibaba_gpu_sm_hour_v1/one_gpu_pod_and_server/model_bundle.joblib
+전체 결과 R/artifacts/alibaba_gpu_sm_future_confirmation_v1/metrics.json
+집합별 결과는 위 확인 폴더의 one_gpu_pod/metrics.json, one_gpu_pod_and_server/metrics.json과 각 predictions.parquet다.
+검증 replay_verification.json, completion_audit.json, PROTOCOL.md, ARTIFACT_MANIFEST.json.
+그림 comparison.png/.pdf, 표 comparison.csv.
+이번 문서화에서는 이 저장 자료를 읽었으며 새로운 모델 평가를 실행하지 않았다.
+
+[11] 통합 입력·출력
+GPU 유형·priority·workload/pod/server 식별자·연속 시간별 SM·단일 GPU 지원 조건이 필요하다. 저장 bundle의 전처리와 고정 잔차 alpha1을 사용해 next_hour_sm_percent를 반환한다. 기존 fixed_predictions(frame,bundle) 평가 함수는 있으나 운영용 추론 Adapter는 추가 구현이 필요하다. 시간별 SM을 Philly의5분 창 위험 확률과 같은 지표로 합산하지 않는다.
+
+A7. 판단 추론 계산 최적화
+
+[1] 담당 항목과 문제
+배포·제어 판단을 위한 추론 비용 최적화다. 같은 후보의 여러 SLO와 여러 작업의8후보를 반복 예측하면서 생기는 중복 계산·함수 호출 비용을 줄인다.
+
+[2] 데이터 출처·사용량·기간·정제·위치
+A1의 저장 Extra Trees와 local-exhaustive 후보를 재사용했다. 새로운 성능 정답이나 학습 자료는 없다.
+동일 후보: 9응용 모델에서5작업씩45격자 ×25합성 SLO=1,125질의, 5반복=5,625응답 쌍.
+서로 다른 후보: 575고유 격자 ×8행. 최신 v7 확인에서는9짝 반복으로 shared_slo/copied_slo/unique_grids를 비교했다. 온라인 사용자 질의 빈도나 서비스 trace 부하가 아니다.
+
+[3] 입력·출력·단위·시점
+A1과 같은 request/response를 사용하고, 예측값·선택·보류를 바꾸지 않는 것이 조건이다. 지표는 준비된 모델의 함수 벽시계(ms), 누적 CPU(ms), peak RSS(MiB), 정규화 JSON 동등성이다. 모델 적재·네트워크·배포·사용자 p95는 포함하지 않는다.
+
+[4] 모델·계산 구성·설정
+모델은 A1의200tree Extra Trees이며 새 학습은 없다. 같은 격자의 성능은 한 호출 안에서 재사용하고, 서로 다른 격자는 max_grids=256으로 묶는다.
+v7은 지원행1,024개 이상에서 행을 두 연속 chunk로 나누고 workers=2로 계산한다. 각 chunk에서200개 tree의 순서와 float64 누적 순서를 보존한다. 모델의 n_jobs와 caller 설정을 바꾸지 않고 pool은 호출 후 닫는다. 작은 입력은 직렬이며 큰 묶음이 실패하면 원래 격자별 추론으로 재시도한다.
+저장 모델 로드는 scikit-learn1.6.1 등 환경과 해시를 확인한다. private forest 검증 API를 쓰므로 다른 버전에 무조건 호환된다고 말하지 않는다.
+
+[5] 분할·동등성 검증
+모델 정확도 시험과 다른 문제다. 동일 입력의 기존·새 경로를 짝지어 비교하며 최신9짝은 v6와 row2다. 입력 순서, 동일/복사 리스트, 보류, SLO 경계와 재시도를 검사했다. np.nextafter 목표 경계1,080사례와 관련48테스트의 저장 결과를 확인했다. tree 완료 순서가 바뀌어 생기는 부동소수점 차이를 피하기 위해 행을 분할했다.
+
+[6] 기준선·방법·흐름
+단건 반복 → 동일 격자 예측 재사용 → 256격자 묶음 → v7 행 분할.
+각 벤치마크의 시점과 비교 경로가 다르므로 속도비를 곱하지 않는다. 원시 지연·처리량 예측은 SLO와 독립이므로 이 예측만 재사용하고 각 SLO 검증·판정은 다시 수행한다. 호출 사이의 영구 캐시는 아니다. 복사한 후보 리스트도 내용·순서·자료형이 안전하게 같은지 확인한 뒤 재사용한다.
+
+[7] 기존 알고리즘과 경희대 구성
+새 학습기 없이 재사용 키, 묶음 매핑, 행 분할, 동일 누적 순서, 지원 검사와 실패 재시도를 구현했다. 반환 결과 전체의 동등성을 계산 최적화 채택 조건으로 두었다.
+
+[8] 지표·수치·사례
+실험 | 기준 벽시계 | 개선 벽시계 | 비교 해석
+동일8후보25SLO | 487.01ms | 24.19ms | 20.13배, 호출25→1, JSON5,625쌍 일치
+575격자64→256묶음 | 747.305ms | 528.949ms | 짝별 시간비 중앙1.518배, 호출9→3
+v6→v7 고유575격자 | 362.711ms | 324.155ms | 시간 중앙10.63% 감소, 짝별 중앙1.136배
+v6→v7 shared | 79.232ms | 71.958ms | 짝별 중앙1.099배
+v6→v7 copied | 108.601ms | 100.014ms | 짝별 중앙1.086배
+v7 고유 격자의 누적 CPU는362.708→430.657ms로18.73% 늘었다. peak RSS는441.969→442.016MiB로.047MiB 증가해20MiB 한도 안이었다. 9짝 중7짝에서 빨랐고 시간비 범위는.956~1.420이다. 모든 호출이 항상 빨라졌다는 결과가 아니다.
+
+[9] 적용 범위·한계
+저장 모델이 준비된 상태의 CPU 오프라인 판단 비용이다. 온라인 동시 요청에서는2worker의 CPU 증가가 자원 경합을 만들 수 있어 별도 평가가 필요하다. 출력이 같다는 사실은 예측 정확도나 실제 서비스 SLO의 추가 개선을 뜻하지 않는다.
+
+[10] 코드·모델·결과·그림
+재사용 R/scripts/assess_gpu_shape.py의 assess_gpu_shape_many
+묶음 R/scripts/assess_gpu_shape_microbatch_v6.py
+최신 R/scripts/assess_gpu_shape_microbatch_v7.py
+행 분할 R/scripts/assess_gpu_shape_row_partition.py, row_partition_forest_predict.py, ordered_forest_predict.py
+성능 확인 R/scripts/benchmark_row_partition_forest.py, confirm_row_partition_forest.py
+모델은 A1의 performance_model.joblib를 그대로 사용한다.
+최신 결과 R/artifacts/row_partition_forest_confirmation_v1/results.json, ADOPTION.json, all_experiments_timings.csv, comparison.png/.pdf
+보고서 R/reports/slo_reuse_many_findings.md, decision_inference_chunk256_findings.md, decision_inference_row_partition_findings_2026_10_05.md
+
+[11] 통합 입력·출력
+검증된 bundle과 형상 요청 목록을 받아 원래 순서의 동일 JSON 목록을 반환한다. 모델 로드와 기관 데이터 변환은 외부 Adapter가 맡는다. v7이 새로운 VM 추천 필드를 만드는 것은 아니다. max_grids256/worker2는 연구 설정이며, 온라인 CPU 예산·동시성을 측정하기 전에 플랫폼 기본값으로 확정하지 않는다.
+
+======================================================================
+B. PPT 본문 16장: 화면 구성·발표자 설명·근거
+======================================================================
+
+슬라이드 01. 경희대 연구 범위와 기관 역할
+화면용 핵심 문장
+- 경희대: 응용 요구 해석, 추상 형상 추천, 배포·스케일 판단 메커니즘.
+- 이노그리드: AI-App 프레임워크, 모니터링 관리, 명세 변환과 응용 실행.
+- ETRI: 실제 CSP·리전·VM 선택과 인프라 생성·삭제.
+- 현재 성과는 연구 모듈이며 실제 행동 효과는 다음 검증 과제다.
+표·도식: 세 기관을 가로로 놓고 '연구 형상/판단 → 명세·실행 요청 → 실제 인프라'와 결과 반환 화살표를 그린다. 경희대 상자 안에 이번 일곱 연구를 넣는다.
+상세 발표자 설명
+계획서의 담당 항목을 유지하면서 전체 플랫폼을 중복 개발하지 않는 방향이다. 기존 CPU/GPU VM PoC는 알고리즘 검증을 위한 최소 산출물이다. 앱 등록·버전·라이프사이클·운영 모니터링 플랫폼을 새 연구 성과로 추가하지 않는다. 동일 VM 다중 응용 빈패킹·GPU 공유·로컬 프로세스 스케줄러·K8s도 현재 필수 범위가 아니다. 정적 자료의 CPU affinity는 측정 조건이며 이 제외 범위를 변경한 것이 아니다. 실제 PoC 전체 동작을 이번에 재검증하지 않았다.
+근거: R/reports/ai_mcmp_rr_status_2026_10_06.txt; G/AGENTS.md; 통합 설계서 1·2·8절.
+
+슬라이드 02. 풀려는 문제와 현재 해결 수준
+화면용 핵심 문장
+- 같은 앱도 입력·동시성·자원 조건에 따라 성능이 달라진다.
+- 운영 위험과 미래 요청량을 판단 전에 알아야 한다.
+- 준비 지연·관측 전달 지연을 고려해야 한다.
+- 예측 근거를 실제 실행 판단으로 연결할 데이터가 더 필요하다.
+표·도식: 문제 / 연구 출력 / 현재 검증 수준 세 열. 형상 성능, 고사용률 확률, 미래 토큰·호출량, 판단 계산 시간 네 줄.
+상세 발표자 설명
+연구 출력이 모두 같은 의사결정 정답은 아니다. 형상은 배치 성능을, 위험은 GPU 사건 확률을, 수요는 표본 입력량을 예측한다. 현재 데이터에는 실제 action 접수·VM/앱 READY·트래픽 전환·후속 사용자 결과가 연속해서 연결되지 않는다. 따라서 개별 예측 향상을 SCALE_OUT 효과 향상으로 읽을 수 없다. 이 장에서 범위를 먼저 설명하면 이후 많은 성과 수치를 실제 서비스 보장으로 오해하지 않는다.
+근거: A1~A7; R/reports/research_to_deployment_spec_boundary.md; R/reports/scale_action_events_v0_2_0.md.
+
+슬라이드 03. 데이터와 모델 지도
+화면용 핵심 문장
+- SQLite → 배치 성능 Extra Trees → 정적 형상 후보 선택.
+- Philly → 로지스틱 확률 + 전날 기계·슬롯 보정.
+- Coding/LMM/Copilot/BurstGPT → 단위·서비스별 q90 HGB.
+- Alibaba hourly 계측 → 현재 SM + 잔차 HGB.
+표·도식: 데이터 / 실제 학습 단위 / 정답 / 학습기 / 시험 범위를 한 표로 만든다. 요청 원행 수와 집계 학습 행 수를 서로 다른 칸에 표시한다.
+상세 발표자 설명
+SQLite 9,591 행을 모두 같은 모델에 넣지 않았다. 주 성능 모델은 4,856실행·575그룹이다. Coding 1,680만 요청도 q90 학습 행은 852 개의 5 분 구간이다. LMM은 전체 400GB가 아니라 사용 표본 100만 요청이다. Copilot 수백만 호출도 5 일·1,440 구간이다. Alibaba 미래 2억 5천만 원행도 주 평가층은 12,097 행이다. 데이터의 양과 독립 사례 다양성은 다르다. 기존 AI 응용 모델 9 개와 우리가 적합한 표형 예측기를 구분해서 설명한다.
+근거: A1~A6의[2]~[5]; C1 데이터 목록; 각 source_audit/manifest/metrics.
+
+슬라이드 04. 전체 연구 구조: 예측·보정·판단을 분리
+화면용 핵심 문장
+- 지원되는 입력만 연구 모듈에 전달한다.
+- 예측에는 단위·기간·출처·보류 상태를 붙인다.
+- 완료·전달된 정답만 피드백으로 쓴다.
+- 실행 판단에는 추가 자원·사용자·운영 정보가 필요하다.
+표·도식
+응용/사용자 조건 + 운영 이력
+ → 식별자·단위·지원·available_at 확인
+ → [형상] [토큰·호출 수요] [GPU 위험] [SM 계측]
+ → 연구 증거 결과
+ → 판단 계층·기존 Guard → INNO Adapter → ETRI
+운영 결과는 '완료 및 전달 확인' 상자를 거쳐 연구 모듈로 돌아간다. 현재 구현된 개별 함수와 제안 중인 통합 연결선은 선 모양을 다르게 표시한다.
+상세 발표자 설명
+이 구조는 통합 설계 초안이며 단일 통합 에이전트의 완료 구현을 그린 것이 아니다. 네 종류의 값은 임의로 한 점수에 합산하지 않는다. 특히 토큰/호출량을 GPU 수로 환산하려면 같은 앱·실행 설정에서 실측한 처리 용량이 필요하다. 현재 없는 값을 0이나 높은 추천 점수로 채우지 않는다.
+근거: 별도 통합 설계서 3~7절; 기존 함수·계약 대응표.
+
+슬라이드 05. 정적 형상 추천의 방법
+화면용 핵심 문장
+- 입력: 모델·batch·입력 길이·동시성·프로세스 자원 조건.
+- Extra Trees로 후보별 배치 p95와 examples/sec를 함께 예측.
+- 지연·요청률 두 목표를 함께 검사해 최소 후보 선택.
+- 지원 범위 밖 또는 만족 후보 없음은 ABSTAIN.
+표·도식: 1/2replica×2/4/8/16affinity의8칸 격자. 각 칸에 두 예측값·통과 표시. 통과 후보 중 (replica,affinity) 최소에 색을 준다. 요청률=examples/sec÷batch를 각주로 넣는다.
+상세 발표자 설명
+예측기 하나의 두 출력은 로그 변환된 양의 성능이다. 그룹 가중치와 그룹 분할로 같은 workload의 후보가 학습·시험에 섞이지 않게 했다. RF와 Extra Trees 중 검증 점수가 소폭 더 낮은 Extra Trees를 선택했다. 우리의 방법은 학습 예측을 공동 목표 검사와 최소 형상 선택·보류에 연결한 절차다. replica와 affinity는 프로세스 실험 값이므로 VM 노드 수와 CPU 사양으로 자동 변환하지 않는다.
+근거: A1; R/scripts/train_performance.py; R/scripts/assess_gpu_shape.py.
+
+슬라이드 06. 정적 형상 추천의 성과
+화면용 핵심 문장
+- p95 중앙 APE: 73.71% → 16.99%.
+- 처리량 중앙 APE: 66.01% → 10.41%.
+- GPU90 작업 성공 추천: 36 → 54 건; 관측 오승인 6 → 0 건.
+- 생성 목표·같은 호스트·1 회 배치 실측 기준.
+표·도식: 위쪽 예측 오차 막대 두 쌍, 아래쪽 승인/성공/실패/최소 형상 표. 가능한55작업을 분모로 함께 적는다.
+상세 발표자 설명
+행 단위760개 예측 오차와 GPU90개 작업 추천은 다른 평가다. 90작업 중35개는 모두 불가,32개는 모두 가능,23개만 일부 가능이었다. 따라서54/54를 실제 배포 안전률이라고 표현하지 않는다. 목표 요청률을1.25배 강화하면50승인 중4위반이 생겼다. 이 결과는 알려진 모델과 지원된 호스트에서 성능 예측을 후보 선택에 연결할 가치가 있다는 근거다.
+근거: A1[8]~[9]; R/artifacts/performance_v1/metrics.json; R/artifacts/saved_gpu_shape_decision_audit_v1/metrics.json.
+
+슬라이드 07. GPU 위험 확률과 전날 보정 방법
+화면용 핵심 문장
+- 과거 완료된 5 분 창 3 개로 다음 30 분의 80% 이상 사건 예측.
+- 로지스틱 p0의 기계별 편향을 전날 정답으로 보정.
+- 기계 보정 후 GPU 슬롯 잔차를 추가 보정.
+- 전날 피드백 없으면 해당 보정량 0.
+표·도식: 과거15분 / 판단 시점 / 미래30분의 시간축. 아래 p0→δmachine→gslot→p_final. '정답 완료+전달 ≤ 당일00:00UTC'를 피드백 선 위에 표시한다.
+상세 발표자 설명
+현재<80%이고 과거창이 완전한 집합이 주 평가층이다. 기준선은 단순한 확률표이며 보정 추가 비교에는 강한 정확 기계 절편 기준선을 쓴다. 벌점 20과 보정상한±.5로 적은 피드백에 과도하게 반응하지 않도록 했다. 원본에는 실제 전달 시각이 없어 완료 즉시 전달 가정이고, 통합 때는 실측 가용 시각으로 대체해야 한다.
+근거: A2; R/policies/philly_slot_day.py; R/artifacts/philly_machine_holdout_model_v1/model_spec.json.
+
+슬라이드 08. GPU 위험 성과: 서로 다른 시험을 분리
+화면용 핵심 문장
+- 새 37 기계: Beta 대비 기본 모델 Brier13.46% 감소.
+- 별도 새 51 기계: 강한 기계 보정 대비 슬롯 추가 2.63% 감소.
+- 확률오차 개선이며 실제 증설 효과는 미검증.
+표·도식: 좌측37기계741,597판단의.089879→.077783, 우측51기계812,729판단의.085786→.083532. 각 패널에 개선 기계32/37,44/51 및CI를 넣는다. 두 패널 사이 '+' 기호를 쓰지 않는다.
+상세 발표자 설명
+같은 클러스터에서도 기계별 확률 오차가 달라 전날 피드백이 도움이 됐다. 슬롯 추가 기여는 p0=.092431이 아니라 기계 보정=.085786과 비교한다. 서로 다른37/41/51기계의 감소율을 합산하지 않는다. VM 추가가 사용자 SLO를 개선한다는 조치 검증은 없으며 훈련 클러스터와 AI-App 추론 서비스의 차이도 남아 있다.
+근거: A2[8]; philly_machine_holdout_score_v1/metrics.json; philly_slot_day_holdout_v1/result.json.
+
+슬라이드 09. Coding 다음 5 분 입력 수요
+화면용 핵심 문장
+- 최근 1 시간 규모로 정규화한 상대 수요q90를 학습.
+- Coding 후향 3 일 pinball742,048 → 418,627:43.6% 감소.
+- 날짜별 피복 92.01~93.75%.
+- Conversation 전이에서는 개선되지 않음.
+표·도식: y/m→HGBq90→m복원 수식과 두 손실 막대. 적용 범위 칸에 '표본 토큰·Coding·한 주'를 넣는다.
+상세 발표자 설명
+평균 대신 90 분위 입력 예산을 예측해 과소 예측에 더 큰 벌점을 둔다. m 가중치로 상대량 모델을 절대 토큰 손실과 맞췄다. 이미 완료된 과거 구간만 입력이지만 평가 날짜 통계가 앞선 실험에 노출돼 완전 블라인드 시험은 아니다. Conversation에서 348,600대 335,196으로 악화했으므로 서비스 간 일반화는 남은 문제다. GPU 대수로 환산한 성과도 아니다.
+근거: A3; R/reports/azure_code_input_demand_findings.md; azure_input_demand_cross_service_findings_v1_1.md.
+
+슬라이드 10. 준비 지연에 맞춘 최대 수요
+화면용 핵심 문장
+- u=max(현재 5 분량,…, READY직후 5 분량).
+- 준비5/10/30분에 대해10/15/35분 창의 최대 5분량 예측.
+- Coding 감소32.92/33.89/61.29%; LMM5.65/4.19/6.05%.
+- 서비스별 모델 6 개; 실제 행동 정책은 별도 NO_GO.
+표·도식: 30 분 준비 시간축에서 현재bin부터READY직후bin까지 7 개 막대와 최대를 표시. 아래 6 행 결과표, LMM10 분은 '5%개선 기준 미달' 표시.
+상세 발표자 설명
+최대 5분량과 전체 창의 합계를 구분한다. 서비스·지연별로 따로 학습했고 LMM은 사용100만요청 표본이다. Coding5/10분의 보정은 점수를 바꾸지 않았고 LMM은 보정으로 피복이 개선됐다. 토큰 예측의 손실 감소와 가상 정책 비용/부족/진동의 동시 개선은 다른 문제다. 주 정책 조건 모두NO_GO이므로 이 장 제목을 '스케일링 성공'으로 바꾸지 않는다.
+근거: A4; R/artifacts/delay_capacity_v2/results.json 및 audit.json.
+
+슬라이드 11. 호출 수요: 완료 피드백과 희소성
+화면용 핵심 문장
+- Copilot: 원시 모델 실패 → 완료 잔차 보정 후 조건부 개선.
+- 보정 기준선 대비5/10/30분 손실13.60/12.11/6.51% 감소.
+- BurstGPT: 첫 12 조건 중 3 조건 통과; 후속 기간 결과도 서비스별 차이.
+- 호출 수 개선을 토큰·GPU·VM 효과로 해석하지 않음.
+표·도식: 왼쪽 Copilot raw/baseline+feedback/model+feedback3열 표. 오른쪽 BurstGPT4집합×3지연12칸 표에서3개 첫 기간 통과칸만 색칠. 하단 '후향·시간범위 제한·정책 미채택'.
+상세 발표자 설명
+Copilot은 모델3개를 고정한 뒤 완료된 정답의 잔차만 보정에 넣었고 기준선에도 같은 보정을 적용했다. 9조건의 EXPLORATORY_PASS는 이미 노출된 하루 결과다. BurstGPT는 s=max(최근 평균,1)과 희소 특징을 썼지만 ChatGPT API5/10분과 Conversation에는 이득이 없었다. GPT4 API는 다음30일에도 개선됐지만 첫 기간 ChatGPT API30분의 통과는 후속에 반복되지 않았다. 좋은 조건만 골라 보편 성과로 말하지 않는다.
+근거: A5; C3 전체 조건표; Copilot/BurstGPT 보고서와results.json.
+
+슬라이드 12. Alibaba GPU 계측의 미래 기간 확인
+화면용 핵심 문장
+- 현재 SM + HGB잔차 → 다음 시간SM.
+- 사전 고정 모델을 새day116~122에 적용.
+- 주 1GPU엄격 집합 MAE1.627406→1.481500:8.97% 감소.
+- 보조층 12.47% 감소; 완전히 새로운  workload층은 개선 미확인.
+표·도식: 시간 분할과 workload 해시 분할을 두 축으로 표시한다. 주12,097행/30workloads와 보조103,306행/368workloads를 두 패널로 나누고 지원 조건과 신뢰구간을 넣는다.
+상세 발표자 설명
+전체 원행은2억5천만여개지만 주 집합은1GPU와 연속 동일 server 조건을 통과한12,097행이다. 모델과 persistence를 새로운 기간 전에 고정했고7/7일 개선했다. 이는 이미 노출된 후향 기간을 반복한 수요 실험과 구분할 수 있다. 그러나 완전히 새 workload 집합은19.71% 악화와 희소 변화 사건으로 지원 기준에 미달했다. 새 클러스터·응용 전반의 일반화나 사용자 SLO 효과는 주장하지 않는다. 사용 trace는 GPUv2026이며 Spot 정책 자료가 아니다.
+근거: A6; R/artifacts/alibaba_gpu_sm_future_confirmation_v1/metrics.json 및comparison.png.
+
+슬라이드 13. 판단 추론 최적화의 성과와 비용
+화면용 핵심 문장
+- 같은 8후보의 25SLO:예측 재사용으로 20.13배.
+- 575 격자 64→256묶음:별도시험짝별중앙 1.518배.
+- 최신 v7: 벽시계 10.63%감소, 누적 CPU18.73%증가.
+- 출력 JSON 동일; 온라인 서비스 시간은 미측정.
+표·도식: 세 벤치마크를 각각 다른 행에 놓고 v7 CPU/RSS 표를 추가한다. 짝별 시간비와 벽시계 중앙값을 구분하며 속도비를 곱하는 화살표를 넣지 않는다.
+상세 발표자 설명
+모델 예측·추천 규칙을 유지하면서 계산 중복과 호출 비용을 줄였다. v7은 tree 순서를 유지하는 행 분할로 부동소수점 결과까지 보존한다. 큰 묶음에2workers를 써 누적 CPU는 늘었다. 온라인 동시성에서 이 증가가 자원 경합을 만들 수 있어 별도 평가가 필요하다. 서로 다른 시점의 비율을 곱한 전체 속도는 보고하지 않는다.
+근거: A7; R/artifacts/row_partition_forest_confirmation_v1/results.json 및comparison.png.
+
+슬라이드 14. 연구 모듈과 기존 PoC의 연결점
+화면용 핵심 문장
+- 연구 결과는 단위·지원 조건을 보존한 증거로 전달한다.
+- 기존ApplicationProfile+ResourceRecommendation→판단·Guard→DeploymentPlan경로유지.
+- 실제형상·가격·가용량·앱조건을추가 검증한뒤실행 계획으로연결.
+- 기관 Adapter 인터페이스는 협의 전 초안.
+표·도식: 연구 증거를 기존 formal 입력 옆에 별도 상자로 놓는다. 추가 매핑·검증 상자를 거쳐 판단으로 연결하고 INNO/ETRI 선의 입력·출력·담당을 표시한다.
+상세 발표자 설명
+현재 Go 계약을 수정하거나 legacy 자체 추천기를 정식 서버에 재연결하지 않았다. 프로세스 affinity를 VM의 CPUCoresPerNode로, replica를 NodeCount로 대입할 근거가 없다. GPU 예약 피크도 최소 VM 메모리와 다르다. 설계서는 이미 구현된 함수와 추가 개발할 연결을 구분한다. 위험·수요 신호는 완전한 ResourceRecommendation이나 실행 승인 결과가 아니다.
+근거: 통합설계서5~8절; G/go/service-control-api/internal/agentcontrol/models.go; R/reports/research_to_deployment_spec_boundary.md.
+
+슬라이드 15. 현재 상태: 검증·기반·미완료
+화면용 핵심 문장
+- 제한 조건의 개선: 정적 추천, 위험·수요·SM 예측, 오프라인 계산.
+- 구현 기반: 요구 신호·형상 증거 스키마·검증기·사건 계약.
+- 미완료: 자연어 요구→최소 자원, 실제 행동 효과, 통합 에이전트·기관 연동.
+- 미채택: 가상 스케일 정책과 MLPerf 새 예측법.
+표·도식: 제한 조건의 개선, 구현 기반, 미완료, 미채택 네 열로 분류한다. 서비스·시험 조건을 각 항목에 붙인다. 코드 존재를 성능 검증으로 표시하지 않는다.
+상세 발표자 설명
+요구 신호 추정기는 관측 예약 VRAM과 로컬 캐시 적재시간을 보여주지만 최소 자원의 지도 정답은 없다. 증거 스키마는 재현성과 연동 기반이며 요구 분석 정확도 성과가 아니다. scale_action_events v0.2.0은1회+1replica SCALE_OUT 수집 초안이고 예시는 합성이다. 이번에 PoC 런타임 전체도 재실행하지 않았다. MLPerf 방법은 검산했지만 강한 기준선에 못 미쳐 부록으로 둔다.
+근거: C4~C6; R/reports/ai_mcmp_rr_status_2026_10_06.txt 및 추가 보고서.
+
+슬라이드 16. 기관 협의 사항과 이후 개발 순서
+화면용 핵심 문장
+- 앱·후보·계측·action·READY·요청결과의공통 식별자와 시각 합의.
+- 경희대형상 추천범위와증거 전달 위치 합의.
+- 서비스별 용량 측정과새 호스트·새 앱미사용 시험 확보.
+- 모듈Adapter→오프라인/Shadow 검증→제한 실측순으로 진행.
+표·도식: 데이터 계약→모듈 연결→모의 판단→Shadow→제한 실측의5단계로 표시한다. 각 단계의 완료 조건과 담당 기관을 붙인다.
+상세 발표자 설명
+경희대에 구조화 사용자 요구와 원본 관측이 어떤 규격으로 도착하는지부터 합의해야 한다. observed_at과 판단기가 사용할 수 있는 available_at을 분리한다. ETRI의 최종 CSP/VM 선택과 경희대 추상 형상을 구분하고 가격·가용량을 실제 원본으로 받는다. 행동 효과 학습은 action/READY/라우팅/사용자 결과와 비교 조건이 연결된 다음 진행한다. 이번에는 현재 자료까지 정리했으며 실험을 재개하지 않았다.
+근거: 통합설계서9~12절; R/reports/scale_effect_data_contract_v1.md; next_research_priority_2026_09_28.md.
+
+======================================================================
+C. 기술 부록: 데이터·코드·결과·재현·미채택 연구
+======================================================================
+
+C1. 데이터 경로와 실제 사용량
+SQLite 원본 7 개(실제 파일명은 모두executions.sqlite3):
+/path/to/aiops/runs/khu-hf-cpu-scaling-local/executions.sqlite3 [240/240유효]
+/path/to/aiops/runs/khu-hf-diverse-cpu-matrix/executions.sqlite3 [210/192]
+/path/to/aiops/runs/khu-hf-live/executions.sqlite3 [2,640/2,640]
+/path/to/aiops/runs/khu-hf-local-exhaustive/executions.sqlite3 [4,856/4,856; 주학습]
+/path/to/aiops/runs/khu-hf-local-novel-matrix/executions.sqlite3 [176/176; 역사적점검]
+/path/to/aiops/runs/khu-hf-local-space-filling/executions.sqlite3 [384/384; 역사적점검]
+/path/to/aiops/runs/khu-hf-remote-216/executions.sqlite3 [1,085/957; 주학습제외]
+
+정제표 R/data/audit_v1/measurements.parquet에는7DB 자료가 있다. train_performance는 local-exhaustive만 선택한다. 7DB 전체 행 수와 주 학습 행 수는 다르다.
+Philly 원천/선택파일: R/data/external/msr_philly_2017/SOURCE.md, gpu_util_machine_hash5pct.parquet, gpu_util_normalized_first_width.parquet; 후속은msr_philly_2017_holdout 및msr_philly_2017_slot_holdout폴더.
+Azure Coding: R/data/external/azure_llm_2024/AzureLLMInferenceTrace_code_1week.csv
+Azure LMM: R/data/external/azure_lmm_2025/AzureLMMInferenceTrace_multimodal.csv.gz
+Copilot 압축파일:
+R/data/external/ghcp_coding_agent_2026_days03_04/date.2026-06-03.tar.gz
+R/data/external/ghcp_coding_agent_2026_days03_04/date.2026-06-04.tar.gz
+R/data/external/ghcp_coding_agent_2026_days05_07/ (6월5~7일 원본; 정확 목록은SOURCE.txt/release_metadata.json)
+BurstGPT: R/data/external/burstgpt_v2/BurstGPT_3.csv 및SOURCE.md
+Alibaba 기존/미래: R/data/external/alibaba_gpu_2026_days109_115/MANIFEST.json, R/data/external/alibaba_gpu_2026_days116_122/MANIFEST.json. 각폴더의asi_opensource_pod_hourly/day=.../hour=.../part-000.parquet가실제 계측파일이다.
+MLPerf 참고원본 R/data/external/mlperf_inference_v6_1/summary.csv; 미채택분석산출물은C6의/tmp경로.
+
+C2. 모델·수식·평가 규칙 요약
+성능 Extra Trees: 로그 변환한 두 출력, tree200, minleaf2, seed42, n_jobs2. one-hot3범주형과7수치 특징.
+Philly: 학습 중앙값 대체·표준화→L2 로지스틱 C10→전날 기계δ/슬롯g. 기계·슬롯 벌점20, 보정 각각±.5.
+토큰/호출 q90 HGB: iter150, lr.05, leaf7, minleaf20, L2=1, early_stopping=False, seed42. 서비스·지연별로 분리한다.
+SM 잔차 HGB: absolute_error, iter150, lr.05, leaf15, minleaf50, L2=1, seed42. 현재값+잔차를0~100으로 제한한다.
+
+APE=100×abs(yhat−y)/abs(y), 이번표는행별APE의중앙값이다.
+Brier=mean((p−y)^2). 사건 확률의 오차이며 낮을수록 좋다.
+Pinball=mean((y−q)×(.9−1[y<q])). 토큰 또는 호출 수 원단위의 분위수 손실이다.
+피복률=mean(y≤q). 표본의 경험적 피복률이며 신뢰구간이나 SLO 보장과 다르다.
+SM MAE=mean(abs(nextSM−predSM)), 단위는 percentage point다. macro는 workload별 MAE의 동일가중 평균이다.
+짝별 속도비 중앙=median(time_base_i/time_new_i). median(base)/median(new)와 다를 수 있다.
+
+준비 지연 정답 경계 예시
+결정 t=12:00, 준비 10 분(h=2), y_t=[12:00,12:05), y_t+1=[12:05,12:10), y_t+2=[12:10,12:15).
+예측값은 세 구간의 최대5분량이다. 정답은12:15에 끝나고12:17에 전달됐다면12:16의 피드백으로 사용할 수 없다. 가용 시각이 없는 공개 자료는 즉시 가용을 가정하며 이를 근거에 남긴다.
+
+C3. 전체 결과표 읽는 법
+다음 표는 저장 JSON의 수치를 추출했다. 표시 자릿수만 반올림했으며 새로운 평가를 실행하지 않았다. 모든 비교 방법과 조건을 함께 보여준다. 방대한 원행·시나리오별 자료는 명시된 CSV/JSON을 따른다.
+
+C4. 구현 기반: 요구 신호·증거 계약·검증기
+요구 신호의 두 출력은관측PyTorch예약VRAM피크GiB와로컬캐시모델 적재seconds다. 실제최소VRAM·VMRAM·배포READY시간이아니다.
+추론 R/scripts/assess_requirement_signals.py의load_verified_bundles/assess_requirement_signals
+모델 R/artifacts/vram_conditional_v1/research_estimator.joblib
+모델 R/artifacts/load_support_v1/support_aware_size_tree_all_main.joblib
+계약 R/contracts/requirement_signal_evidence_v0.1.0.schema.json
+형상계약 R/contracts/gpu_shape_evidence_v0.2.0.schema.json
+생성/검증 R/scripts/generate_requirement_signal_evidence.py,validate_requirement_signal_evidence.py,generate_gpu_shape_evidence_v0_2.py,validate_gpu_shape_evidence_v0_2.py
+보고서 R/reports/requirement_signal_evidence_v0.1.0.md,gpu_shape_evidence_v0.2.0_findings.md
+해시는 출처와 내용의 연결 근거이며 사람 승인 요구 라벨이나 전자서명과 같지 않다. 일부 요구 신호의 보류를 다른 신호의0값으로 바꾸지 않는다. metadata 검증 여부를 따로 표시한다.
+
+C5. 미채택 연구: 예측을 넣은 가상 스케일 정책
+지연대응180정책비교: 서비스2×용량3×지연3×방법5×유지 조건2. 비용 대리값은billed slot-minutes이며실제원화/GPU/VM비용이아니다.
+Coding주조건: 비용 29,955→30,100, 부족 23.787→23.729%, 방향 전환 5→5. 부족이 조금 낮아도 비용이 늘어NO_GO.
+LMM주조건: 비용 18,200→18,895, 부족 1.205→1.113%, 전환 21→33. 비용·진동이늘어NO_GO.
+BurstGPT후속정책 36 조건은민감도 1 조건만통과, 주 12 조건모두NO_GO. 같은 예측으로제어기만비교한 36 조건은 0통과다. 최대 8가상slot의GPT4API용량factor1은부족 하한 71.3%로용량 상한자체가병목인조건이었다.
+현재단순 가정: 부하가행동과독립, 균일고정처리 용량, 고정 준비 지연, 즉시축소, 유체대기열. 실제action·READY·요청SLO를관측한결과가아니다.
+코드 R/scripts/delay_capacity_policy.py,call_capacity_control.py,evaluate_burstgpt_call_policy.py,diagnose_call_capacity_ceiling.py
+근거 R/artifacts/delay_capacity_v2/scenario_summary.csv, R/artifacts/burstgpt_call_policy_v1/results.json,capacity_ceiling_diagnosis.json
+정책 미채택은 수요 예측의 개선 수치를 무효화하지 않는다. 그러나 예측 성능만으로 정책을 채택할 수 없다는 결과다.
+
+C6. 미채택 연구: MLPerf Server capacity 예측
+원본 v6.1 summary와 Server 로그를 검산한 고정 연구다. 현재 산출물은 research에 출판되지 않고 /tmp에 보존돼 있다. 장기 보존 등록까지 완료됐다는 뜻은 아니다.
+실제보고서 /tmp/mlperf_capacity_v1/publication/reports/mlperf_server_capacity_findings_2026_10_06.txt
+실제산출물 /tmp/mlperf_capacity_v1/publication/artifacts/mlperf_capacity_v1/
+원본로그 /tmp/mlperf_capacity_v1/raw/
+고정commit4bb63cd28eb136be221bc801a9e38c66c8a7553f,4벤치마크·12GPU·27조직.
+유효139LLM행·74구성,원시Server로그155개,소스 파일158개/794,802바이트. 엄격한동일구성GPU 수대조집합은없었다.
+전체configuration단위제외평가에서지원된99행·51구성,미지원40행보류. 정답은completed requests/sec÷GPUcount이며공식tokens/sec나scheduled rate와다르다.
+학습기는ExtraTrees200/minleaf3/seed42/n_jobs1,직접정규화와crossfit잔차를비교했다.
+방법 | 벤치마크별 구성 동일가중 절대 로그오차의 평균(MALE, 낮을수록 좋음)
+benchmark_median | .336083589
+GPU pair median | .041481038
+precision median | .041676325
+direct_normalized_trees | .170785087
+crossfit_residual_trees | .060235965
+잔차 모델은 강한 GPU pair 기준선보다45.21% 나빠 미채택했다. 조직별로 튜닝한 벤치마크 결과를 모든 앱의 최소 VM 사양으로 사용하지 않는다. 검산을 통과했어도 채택 gate는 false다. 이번에 학습을 재개하거나 이 자료를 이동하지 않았다.
+
+C7. 재현 안내: 이번 문서 작성에서는 실행하지 않음
+기존 모델/결과를덮어쓰지않는새stage/output에서만안내명령을사용한다. 현재실험 중지요청은유지된다. 아래 명령은후속재개시참고이며실행 기록이아니다.
+재현환경: 원산출물의Python3.9.25,NumPy2.0.2,scikit-learn1.6.1,joblib1.5.1. pandas저장버전은2.3.0+4.g1dfc98e16a이며모델검증경로는실제manifest요구를따른다. R/requirements.txt와각freeze/verification의환경을맞춘다. 다른환경으로모델 동등성을자동가정하지않는다.
+
+정적성능 재학습(명령안내):
+cd /home/researcher/ai-mcmp/research
+PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 /usr/bin/python scripts/train_performance.py --snapshot data/audit_v1/measurements.parquet --output /tmp/ai_mcmp_static_reproduction_new --seed 42
+출력이 새로운 폴더인지 확인한다. 모델 해시가 다르면 현재 검증 bundle과 같은 버전이라고 표시하지 않는다.
+
+지연대응 재학습·검증(명령안내):
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=scripts OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /usr/bin/python scripts/train_evaluate_delay_capacity.py --research-root /home/researcher/ai-mcmp/research --output /tmp/ai_mcmp_delay_reproduction_new
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=scripts OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /usr/bin/python scripts/verify_delay_capacity.py --research-root /home/researcher/ai-mcmp/research --output /tmp/ai_mcmp_delay_reproduction_new
+기존 집계를 읽는 경로다. 결과를 재현해도 새 독립 시험을 추가한 것은 아니다.
+
+Alibaba 고정 모델의미래평가(명령안내):
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=scripts OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 /usr/bin/python scripts/evaluate_alibaba_gpu_sm_future.py --freeze reports/alibaba_gpu_sm_future_freeze_v1.json --data-root data/external/alibaba_gpu_2026_days116_122 --history-root data/external/alibaba_gpu_2026_days109_115 --output /tmp/ai_mcmp_sm_reproduction_new
+이 명령은 원래 모델을 다시 fit하지 않지만 원본 해시 검산과 평가가 필요하다. 이번 문서 작성에서는 실행하지 않았다.
+
+Copilot parent와 feedback은 stage 구조를 요구한다. scripts/tests/reports와 선택 원본을 원재현 안내처럼 새 stage에 준비한다. stage는 단순한 출력 폴더 인자가 아니다.
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/tmp/ai_mcmp_copilot_reproduction_new/scripts:/home/researcher/ai-mcmp/research/scripts OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 /usr/bin/python /tmp/ai_mcmp_copilot_reproduction_new/scripts/copilot_call_extended.py prepare --stage /tmp/ai_mcmp_copilot_reproduction_new
+같은 명령의 mode를 train, verify로 바꿔 순서대로 사용한다. feedback은 evaluate_copilot_call_feedback.py의 prepare→run, verify_copilot_call_feedback.py를 따른다. 부모 모델 출처가 고정됐는지 먼저 확인한다.
+
+기존 bundle를이용하는v7 함수 호출(개발안내용, 실행하지않음):
+from assess_gpu_shape import load_verified_bundle
+from assess_gpu_shape_microbatch_v7 import assess_gpu_shape_microbatch_v7
+bundle = load_verified_bundle(model_path, source_path)
+outputs = assess_gpu_shape_microbatch_v7(bundle, requests, max_grids=256)
+model_path는A1 모델,source_path는그모델이검증하는A1스냅샷이며requests는A1지원형식이다.
+
+Philly·Coding·BurstGPT 원학습은각scripts와FREEZE/SELECTION/프로토콜의환경·분할로재현한다. 라이브원본다운로드스크립트는포함하지않는다. 인터페이스가stage를요구하는연구를R/artifacts기존폴더에그대로실행하지않는다. 현재저장평가를열람하는것과재현학습은구분한다.
+
+C8. 예상 질의응답
+Q. 모델은 직접 만들었나?
+A. 예측기는 연구 자료로 직접 학습했다. 구조는 scikit-learn 구현이다. 기존 앱 모델과 그 성능을 예측하는 모델을 구분한다.
+Q. 우리의핵심 방법은무엇인가?
+A. 성능 예측을 공동 목표·최소 후보·보류에 연결한 선택, 완료된 전날 기계/슬롯 피드백 보정, 규모·준비 지연에 맞춘 수요 정답과 학습, 지원 조건을 고정한 미래 계측 확인, 동일 출력의 계산 최적화다.
+Q. 지금오토스케일링이완료됐나?
+A. 실제 행동 효과와 통합 정책은 아직 검증하지 않았다. 개별 신호와 가상 정책 연구가 있다.
+Q. 왜여러데이터를따로쓰나?
+A. 관측하는 정답이 다르기 때문이다. 토큰·호출 수요, GPU 위험, SM, 배치 성능은 같은 라벨이 아니다. 앱 용량과 실제 행동 결과의 연결 없이 하나의 배포 정책을 학습했다고 말할 수 없다.
+Q. 다음에가장필요한것은?
+A. 앱 요구·후보·available_at·action 접수·READY·라우팅·사용자 결과의 연결 기록과 새 앱/호스트의 미사용 시험이 필요하다.
+
+C9. 저장 JSON에서 추출한 전체 비교표
+이 표는 파일을 읽어 정리한 결과이며 학습·추론·실험을 실행하지 않았다. 소수점 표시만 반올림했다.
+
+[지연 대응: 6 조건 × 5방법 전부]
+근거 R/artifacts/delay_capacity_v2/results.json
+조건 | 방법 | 완전 정답 수 | pinball(token) | 피복률%
+coding_delay1 | v1_model_feedback | 863 | 441861.814809 | 85.7474
+coding_delay1 | v1_selected_baseline_feedback | 863 | 781429.548649 | 84.3569
+coding_delay1 | peak_model_raw | 863 | 488407.977571 | 94.5539
+coding_delay1 | peak_model_feedback | 863 | 488407.977571 | 94.5539
+coding_delay1 | peak_baseline_feedback | 863 | 728092.851196 | 89.5713
+coding_delay2 | v1_model_feedback | 862 | 541882.587305 | 78.4223
+coding_delay2 | v1_selected_baseline_feedback | 862 | 914256.020714 | 80.3944
+coding_delay2 | peak_model_raw | 862 | 547125.423425 | 93.9675
+coding_delay2 | peak_model_feedback | 862 | 547125.423425 | 93.9675
+coding_delay2 | peak_baseline_feedback | 862 | 827632.791581 | 89.9072
+coding_delay6 | v1_model_feedback | 858 | 1186863.496532 | 62.3543
+coding_delay6 | v1_selected_baseline_feedback | 858 | 1572654.661965 | 70.6294
+coding_delay6 | peak_model_raw | 858 | 626471.048671 | 91.9580
+coding_delay6 | peak_model_feedback | 858 | 629186.252749 | 91.9580
+coding_delay6 | peak_baseline_feedback | 858 | 1625347.938091 | 89.5105
+lmm_delay1 | v1_model_feedback | 863 | 113905.371215 | 83.3140
+lmm_delay1 | v1_selected_baseline_feedback | 863 | 127482.638558 | 82.7346
+lmm_delay1 | peak_model_raw | 863 | 120614.659394 | 80.8806
+lmm_delay1 | peak_model_feedback | 863 | 124395.407345 | 90.0348
+lmm_delay1 | peak_baseline_feedback | 863 | 131845.021385 | 90.0348
+lmm_delay2 | v1_model_feedback | 862 | 130988.108767 | 77.3782
+lmm_delay2 | v1_selected_baseline_feedback | 862 | 144347.971949 | 77.6102
+lmm_delay2 | peak_model_raw | 862 | 135563.751221 | 79.0023
+lmm_delay2 | peak_model_feedback | 862 | 139324.497590 | 90.2552
+lmm_delay2 | peak_baseline_feedback | 862 | 145412.513085 | 89.7912
+lmm_delay6 | v1_model_feedback | 858 | 217609.797047 | 59.0909
+lmm_delay6 | v1_selected_baseline_feedback | 858 | 221013.170453 | 61.3054
+lmm_delay6 | peak_model_raw | 858 | 176183.418251 | 76.1072
+lmm_delay6 | peak_model_feedback | 858 | 179998.098280 | 89.9767
+lmm_delay6 | peak_baseline_feedback | 858 | 191584.369456 | 90.5594
+
+[Copilot: 준비 지연 × 전달 지연 9 조건]
+근거 R/artifacts/copilot_call_feedback_v1/results.json
+준비 분 | 전달 분 | 선택된 기준선 | 기준선 손실 | HGB보정 손실 | 감소% | 피복% | 상태
+5 | 0 | past_hour_max | 33.419626 | 28.874088 | 13.6014 | 89.5470 | EXPLORATORY_PASS
+5 | 5 | past_hour_max | 33.396819 | 28.840293 | 13.6436 | 89.5470 | EXPLORATORY_PASS
+5 | 30 | past_hour_max | 33.322635 | 28.922720 | 13.2040 | 89.5470 | EXPLORATORY_PASS
+10 | 0 | past_hour_max | 32.767976 | 28.799836 | 12.1098 | 88.8112 | EXPLORATORY_PASS
+10 | 5 | past_hour_max | 32.769813 | 28.769536 | 12.2072 | 89.1608 | EXPLORATORY_PASS
+10 | 30 | past_hour_max | 32.725692 | 28.786013 | 12.0385 | 88.8112 | EXPLORATORY_PASS
+30 | 0 | train_weighted_peak_q90 | 31.404556 | 29.360972 | 6.5073 | 89.7163 | EXPLORATORY_PASS
+30 | 5 | train_weighted_peak_q90 | 31.376085 | 29.413550 | 6.2549 | 89.7163 | EXPLORATORY_PASS
+30 | 30 | train_weighted_peak_q90 | 31.349744 | 29.513316 | 5.8579 | 89.3617 | EXPLORATORY_PASS
+
+[Copilot: 9 조건의 모든 보정 방법]
+조건(h:전달bin) | 방법 | 행 수 | pinball(calls) | 피복%
+1:0 | hgb | 287 | 28.874088 | 89.5470
+1:0 | train_weighted_peak_q90 | 287 | 30.921752 | 88.5017
+1:0 | past_hour_max | 287 | 33.419626 | 86.7596
+1:0 | past_hour_q90 | 287 | 31.322697 | 86.0627
+1:0 | past_hour_mean | 287 | 30.921752 | 88.5017
+1:1 | hgb | 287 | 28.840293 | 89.5470
+1:1 | train_weighted_peak_q90 | 287 | 30.938960 | 88.5017
+1:1 | past_hour_max | 287 | 33.396819 | 86.7596
+1:1 | past_hour_q90 | 287 | 31.309120 | 85.7143
+1:1 | past_hour_mean | 287 | 30.938960 | 88.5017
+1:6 | hgb | 287 | 28.922720 | 89.5470
+1:6 | train_weighted_peak_q90 | 287 | 30.961740 | 88.5017
+1:6 | past_hour_max | 287 | 33.322635 | 87.4564
+1:6 | past_hour_q90 | 287 | 31.234414 | 85.7143
+1:6 | past_hour_mean | 287 | 30.961740 | 88.5017
+2:0 | hgb | 286 | 28.799836 | 88.8112
+2:0 | train_weighted_peak_q90 | 286 | 31.263443 | 87.4126
+2:0 | past_hour_max | 286 | 32.767976 | 85.3147
+2:0 | past_hour_q90 | 286 | 31.791292 | 87.4126
+2:0 | past_hour_mean | 286 | 31.263443 | 87.4126
+2:1 | hgb | 286 | 28.769536 | 89.1608
+2:1 | train_weighted_peak_q90 | 286 | 31.242049 | 87.4126
+2:1 | past_hour_max | 286 | 32.769813 | 85.3147
+2:1 | past_hour_q90 | 286 | 31.747638 | 87.7622
+2:1 | past_hour_mean | 286 | 31.242049 | 87.4126
+2:6 | hgb | 286 | 28.786013 | 88.8112
+2:6 | train_weighted_peak_q90 | 286 | 31.241957 | 87.4126
+2:6 | past_hour_max | 286 | 32.725692 | 86.0140
+2:6 | past_hour_q90 | 286 | 31.467605 | 87.4126
+2:6 | past_hour_mean | 286 | 31.241957 | 87.4126
+6:0 | hgb | 282 | 29.360972 | 89.7163
+6:0 | train_weighted_peak_q90 | 282 | 31.404556 | 85.4610
+6:0 | past_hour_max | 282 | 33.996850 | 87.2340
+6:0 | past_hour_q90 | 282 | 32.005864 | 85.8156
+6:0 | past_hour_mean | 282 | 31.404556 | 85.4610
+6:1 | hgb | 282 | 29.413550 | 89.7163
+6:1 | train_weighted_peak_q90 | 282 | 31.376085 | 85.4610
+6:1 | past_hour_max | 282 | 34.001031 | 87.2340
+6:1 | past_hour_q90 | 282 | 32.048923 | 85.8156
+6:1 | past_hour_mean | 282 | 31.376085 | 85.4610
+6:6 | hgb | 282 | 29.513316 | 89.3617
+6:6 | train_weighted_peak_q90 | 282 | 31.349744 | 85.4610
+6:6 | past_hour_max | 282 | 33.961558 | 87.2340
+6:6 | past_hour_q90 | 282 | 32.077977 | 85.8156
+6:6 | past_hour_mean | 282 | 31.349744 | 85.4610
+
+[BurstGPT 첫 30 일: 전체 12 조건]
+근거 R/artifacts/burstgpt_sparse_calls_v1/results.json
+조건(집합:h) | train행 | validation행 | test행 | 기준선 | 기준선 손실 | 상대HGB 손실 | 감소% | 피복% | 상태
+ChatGPT|API log:1 | 5746 | 2879 | 8639 | past_hour_max | 12.612651 | 14.755956 | -16.9933 | 92.5570 | NO_GO
+ChatGPT|API log:2 | 5745 | 2878 | 8638 | past_hour_max | 14.803365 | 15.909329 | -7.4710 | 92.8224 | NO_GO
+ChatGPT|API log:6 | 5741 | 2874 | 8634 | absolute | 32.517389 | 30.029891 | 7.6497 | 92.0778 | RETROSPECTIVE_SPARSE_PASS
+ChatGPT|Conversation log:1 | 5746 | 2879 | 8639 | absolute | 0.567190 | 0.567420 | -0.0406 | 89.7905 | NO_GO
+ChatGPT|Conversation log:2 | 5745 | 2878 | 8638 | absolute | 0.594883 | 0.597404 | -0.4237 | 90.0671 | NO_GO
+ChatGPT|Conversation log:6 | 5741 | 2874 | 8634 | absolute | 0.695307 | 0.692837 | 0.3553 | 90.9891 | NO_GO
+GPT-4|API log:1 | 5746 | 2879 | 8639 | absolute | 7.474071 | 6.323163 | 15.3987 | 92.0593 | RETROSPECTIVE_SPARSE_PASS
+GPT-4|API log:2 | 5745 | 2878 | 8638 | absolute | 9.421696 | 8.544927 | 9.3059 | 92.2783 | RETROSPECTIVE_SPARSE_PASS
+GPT-4|API log:6 | 5741 | 2874 | 8634 | absolute | 18.901275 | 18.414665 | 2.5745 | 91.2092 | NO_GO
+GPT-4|Conversation log:1 | 5746 | 2879 | 8639 | absolute | 0.428326 | 0.422399 | 1.3837 | 90.1493 | NO_GO
+GPT-4|Conversation log:2 | 5745 | 2878 | 8638 | absolute | 0.463195 | 0.462444 | 0.1620 | 89.6967 | NO_GO
+GPT-4|Conversation log:6 | 5741 | 2874 | 8634 | absolute | 0.541744 | 0.553596 | -2.1877 | 89.0665 | NO_GO
+
+[BurstGPT 첫 30 일: 각 조건의 전체 방법]
+조건 | 방법 | pinball(calls) | 피복%
+ChatGPT|API log:1 | stabilized | 14.755956 | 92.5570
+ChatGPT|API log:1 | absolute | 18.232400 | 93.7261
+ChatGPT|API log:1 | train_weighted_q90 | 21.558198 | 93.0316
+ChatGPT|API log:1 | past_hour_max | 12.612651 | 92.0593
+ChatGPT|API log:1 | past_hour_q90 | 14.446758 | 91.0291
+ChatGPT|API log:1 | past_hour_mean | 20.865508 | 90.5197
+ChatGPT|API log:2 | stabilized | 15.909329 | 92.8224
+ChatGPT|API log:2 | absolute | 21.639803 | 93.2392
+ChatGPT|API log:2 | train_weighted_q90 | 27.237572 | 92.3478
+ChatGPT|API log:2 | past_hour_max | 14.803365 | 91.3174
+ChatGPT|API log:2 | past_hour_q90 | 18.971033 | 90.2639
+ChatGPT|API log:2 | past_hour_mean | 26.699030 | 90.0903
+ChatGPT|API log:6 | stabilized | 30.029891 | 92.0778
+ChatGPT|API log:6 | absolute | 32.517389 | 93.2360
+ChatGPT|API log:6 | train_weighted_q90 | 70.137741 | 90.6880
+ChatGPT|API log:6 | past_hour_max | 45.240003 | 89.8309
+ChatGPT|API log:6 | past_hour_q90 | 56.591037 | 89.0781
+ChatGPT|API log:6 | past_hour_mean | 69.670918 | 88.6843
+ChatGPT|Conversation log:1 | stabilized | 0.567420 | 89.7905
+ChatGPT|Conversation log:1 | absolute | 0.567190 | 90.2419
+ChatGPT|Conversation log:1 | train_weighted_q90 | 0.755599 | 90.0683
+ChatGPT|Conversation log:1 | past_hour_max | 0.686633 | 89.8368
+ChatGPT|Conversation log:1 | past_hour_q90 | 0.711594 | 90.0799
+ChatGPT|Conversation log:1 | past_hour_mean | 0.767923 | 89.8136
+ChatGPT|Conversation log:2 | stabilized | 0.597404 | 90.0671
+ChatGPT|Conversation log:2 | absolute | 0.594883 | 90.6460
+ChatGPT|Conversation log:2 | train_weighted_q90 | 0.838069 | 90.0787
+ChatGPT|Conversation log:2 | past_hour_max | 0.761301 | 90.1366
+ChatGPT|Conversation log:2 | past_hour_q90 | 0.785886 | 89.8356
+ChatGPT|Conversation log:2 | past_hour_mean | 0.853817 | 89.5925
+ChatGPT|Conversation log:6 | stabilized | 0.692837 | 90.9891
+ChatGPT|Conversation log:6 | absolute | 0.695307 | 90.8270
+ChatGPT|Conversation log:6 | train_weighted_q90 | 1.151996 | 89.5877
+ChatGPT|Conversation log:6 | past_hour_max | 1.021802 | 89.9004
+ChatGPT|Conversation log:6 | past_hour_q90 | 1.096164 | 89.5529
+ChatGPT|Conversation log:6 | past_hour_mean | 1.175823 | 89.1360
+GPT-4|API log:1 | stabilized | 6.323163 | 92.0593
+GPT-4|API log:1 | absolute | 7.474071 | 92.9274
+GPT-4|API log:1 | train_weighted_q90 | 10.208944 | 92.5223
+GPT-4|API log:1 | past_hour_max | 7.246164 | 92.4413
+GPT-4|API log:1 | past_hour_q90 | 8.561255 | 90.8786
+GPT-4|API log:1 | past_hour_mean | 10.265902 | 90.8207
+GPT-4|API log:2 | stabilized | 8.544927 | 92.2783
+GPT-4|API log:2 | absolute | 9.421696 | 92.0699
+GPT-4|API log:2 | train_weighted_q90 | 12.642611 | 91.6995
+GPT-4|API log:2 | past_hour_max | 9.433917 | 91.4679
+GPT-4|API log:2 | past_hour_q90 | 11.081547 | 90.7618
+GPT-4|API log:2 | past_hour_mean | 12.784225 | 90.3797
+GPT-4|API log:6 | stabilized | 18.414665 | 91.2092
+GPT-4|API log:6 | absolute | 18.901275 | 91.7535
+GPT-4|API log:6 | train_weighted_q90 | 24.708886 | 91.0470
+GPT-4|API log:6 | past_hour_max | 20.481943 | 90.1668
+GPT-4|API log:6 | past_hour_q90 | 23.019610 | 90.1320
+GPT-4|API log:6 | past_hour_mean | 25.053959 | 90.3289
+GPT-4|Conversation log:1 | stabilized | 0.422399 | 90.1493
+GPT-4|Conversation log:1 | absolute | 0.428326 | 90.1725
+GPT-4|Conversation log:1 | train_weighted_q90 | 0.500738 | 90.1840
+GPT-4|Conversation log:1 | past_hour_max | 0.499344 | 90.2998
+GPT-4|Conversation log:1 | past_hour_q90 | 0.478240 | 90.4850
+GPT-4|Conversation log:1 | past_hour_mean | 0.498639 | 89.6169
+GPT-4|Conversation log:2 | stabilized | 0.462444 | 89.6967
+GPT-4|Conversation log:2 | absolute | 0.463195 | 89.9166
+GPT-4|Conversation log:2 | train_weighted_q90 | 0.543500 | 90.5071
+GPT-4|Conversation log:2 | past_hour_max | 0.531229 | 90.9122
+GPT-4|Conversation log:2 | past_hour_q90 | 0.540601 | 89.8935
+GPT-4|Conversation log:2 | past_hour_mean | 0.549620 | 89.6735
+GPT-4|Conversation log:6 | stabilized | 0.553596 | 89.0665
+GPT-4|Conversation log:6 | absolute | 0.541744 | 89.0896
+GPT-4|Conversation log:6 | train_weighted_q90 | 0.694774 | 90.2131
+GPT-4|Conversation log:6 | past_hour_max | 0.677262 | 89.8888
+GPT-4|Conversation log:6 | past_hour_q90 | 0.671827 | 90.0162
+GPT-4|Conversation log:6 | past_hour_mean | 0.700199 | 89.5877
+
+[BurstGPT 후속 30 일: 고정 모델·기존 선택 기준선]
+근거 R/artifacts/burstgpt_call_policy_v1/results.json (forecast_test_metrics)
+조건 | 기준선 | test행 | 기준선 손실 | 상대HGB 손실 | 감소% | 피복%
+ChatGPT|API log:1 | past_hour_max | 8639 | 8.423606 | 7.875917 | 6.5018 | 93.5988
+ChatGPT|API log:2 | past_hour_max | 8638 | 12.088447 | 11.578196 | 4.2210 | 93.2855
+ChatGPT|API log:6 | absolute | 8634 | 45.140402 | 43.524702 | 3.5793 | 92.3558
+ChatGPT|Conversation log:1 | absolute | 8639 | 0.807086 | 0.808683 | -0.1979 | 89.8484
+ChatGPT|Conversation log:2 | absolute | 8638 | 0.868306 | 0.888851 | -2.3661 | 89.6504
+ChatGPT|Conversation log:6 | absolute | 8634 | 1.065691 | 1.101599 | -3.3695 | 89.5761
+GPT-4|API log:1 | absolute | 8639 | 6.704924 | 6.265543 | 6.5531 | 91.9204
+GPT-4|API log:2 | absolute | 8638 | 9.180277 | 7.889984 | 14.0551 | 92.3015
+GPT-4|API log:6 | absolute | 8634 | 28.533873 | 26.473802 | 7.2197 | 91.2092
+GPT-4|Conversation log:1 | absolute | 8639 | 0.555958 | 0.567111 | -2.0061 | 89.7558
+GPT-4|Conversation log:2 | absolute | 8638 | 0.593799 | 0.623847 | -5.0603 | 89.5230
+GPT-4|Conversation log:6 | absolute | 8634 | 0.730459 | 0.753902 | -3.2094 | 89.5182
+
+[Alibaba: 고정 미래 주 집합/보조 집합의 모든 방법]
+근거 R/artifacts/alibaba_gpu_sm_future_confirmation_v1/metrics.json
+집합 | 행 수 | workloads | 방법 | 행 MAE | macro MAE | p95 절대오차
+one_gpu_pod | 103306 | 368 | persistence | 2.073320 | 2.064950 | 9.954691
+one_gpu_pod | 103306 | 368 | past_three_mean | 3.161605 | 3.076061 | 17.444619
+one_gpu_pod | 103306 | 368 | train_gpu_median | 13.010321 | 13.164599 | 39.320912
+one_gpu_pod | 103306 | 368 | direct_hgb | 2.186820 | 2.149508 | 10.337147
+one_gpu_pod | 103306 | 368 | residual_hgb_alpha_1 | 1.814805 | 1.704942 | 8.216691
+one_gpu_pod_and_server | 12097 | 30 | persistence | 1.627406 | 0.938041 | 4.373794
+one_gpu_pod_and_server | 12097 | 30 | past_three_mean | 2.580230 | 1.584549 | 13.748355
+one_gpu_pod_and_server | 12097 | 30 | train_gpu_median | 4.027604 | 4.406627 | 17.681745
+one_gpu_pod_and_server | 12097 | 30 | direct_hgb | 1.532174 | 0.775577 | 4.534092
+one_gpu_pod_and_server | 12097 | 30 | residual_hgb_alpha_1 | 1.481500 | 0.719198 | 4.121206
+
+[Alibaba: 학습·검증·기존 시험 집합의 실제 유효 규모]
+근거 R/artifacts/alibaba_gpu_sm_hour_v1/의 집합별metrics.json
+집합 | split | 행 수 | pods | workloads
+one_gpu_pod | train | 260613 | 3886 | 1575
+one_gpu_pod | validation | 18073 | 894 | 285
+one_gpu_pod | test | 32172 | 708 | 279
+one_gpu_pod_and_server | train | 48798 | 631 | 151
+one_gpu_pod_and_server | validation | 1503 | 67 | 27
+one_gpu_pod_and_server | test | 3461 | 74 | 25
+
+[Philly/정적 추천/최적화의 전체 상세 지표]
+핵심 비교표는 A1/A2/A7에 있다. 세부 층·날짜·후보별 자료는 다음 원본을 따른다.
+R/artifacts/performance_v1/metrics.json
+R/artifacts/saved_gpu_shape_decision_audit_v1/decision_rows.csv
+R/artifacts/philly_machine_holdout_score_v1/metrics.json
+R/artifacts/philly_slot_day_holdout_v1/result.json
+R/artifacts/row_partition_forest_confirmation_v1/all_experiments_timings.csv
+
+C10. 모델 파일의 정확한 목록
+모두 존재를 확인한 파일이다. 디렉터리마다 모델 의미는 A절을 따른다. 저장파일 수를 새로운 아키텍처 수로 해석하지 않는다.
+/home/researcher/ai-mcmp/research/artifacts/performance_v1/performance_model.joblib
+/home/researcher/ai-mcmp/research/artifacts/philly_machine_holdout_model_v1/model_spec.json
+/home/researcher/ai-mcmp/research/artifacts/azure_code_input_demand_v1/relative_q90_model.joblib
+/home/researcher/ai-mcmp/research/artifacts/delay_capacity_v2/coding_delay1_peak_q90.joblib
+/home/researcher/ai-mcmp/research/artifacts/delay_capacity_v2/coding_delay2_peak_q90.joblib
+/home/researcher/ai-mcmp/research/artifacts/delay_capacity_v2/coding_delay6_peak_q90.joblib
+/home/researcher/ai-mcmp/research/artifacts/delay_capacity_v2/lmm_delay1_peak_q90.joblib
+/home/researcher/ai-mcmp/research/artifacts/delay_capacity_v2/lmm_delay2_peak_q90.joblib
+/home/researcher/ai-mcmp/research/artifacts/delay_capacity_v2/lmm_delay6_peak_q90.joblib
+/home/researcher/ai-mcmp/research/artifacts/copilot_call_demand_v2/copilot_delay1_extended_q90.joblib
+/home/researcher/ai-mcmp/research/artifacts/copilot_call_demand_v2/copilot_delay2_extended_q90.joblib
+/home/researcher/ai-mcmp/research/artifacts/copilot_call_demand_v2/copilot_delay6_extended_q90.joblib
+/home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/ChatGPT_API_log_h1_absolute.joblib
+/home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/ChatGPT_API_log_h1_stabilized.joblib
+/home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/ChatGPT_API_log_h2_absolute.joblib
+/home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/ChatGPT_API_log_h2_stabilized.joblib
+/home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/ChatGPT_API_log_h6_absolute.joblib
+/home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/ChatGPT_API_log_h6_stabilized.joblib
+/home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/ChatGPT_Conversation_log_h1_absolute.joblib
+/home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/ChatGPT_Conversation_log_h1_stabilized.joblib
+/home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/ChatGPT_Conversation_log_h2_absolute.joblib
+/home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/ChatGPT_Conversation_log_h2_stabilized.joblib
+/home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/ChatGPT_Conversation_log_h6_absolute.joblib
+/home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/ChatGPT_Conversation_log_h6_stabilized.joblib
+/home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/GPT-4_API_log_h1_absolute.joblib
+/home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/GPT-4_API_log_h1_stabilized.joblib
+/home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/GPT-4_API_log_h2_absolute.joblib
+/home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/GPT-4_API_log_h2_stabilized.joblib
+/home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/GPT-4_API_log_h6_absolute.joblib
+/home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/GPT-4_API_log_h6_stabilized.joblib
+/home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/GPT-4_Conversation_log_h1_absolute.joblib
+/home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/GPT-4_Conversation_log_h1_stabilized.joblib
+/home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/GPT-4_Conversation_log_h2_absolute.joblib
+/home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/GPT-4_Conversation_log_h2_stabilized.joblib
+/home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/GPT-4_Conversation_log_h6_absolute.joblib
+/home/researcher/ai-mcmp/research/artifacts/burstgpt_sparse_calls_v1/GPT-4_Conversation_log_h6_stabilized.joblib
+/home/researcher/ai-mcmp/research/artifacts/alibaba_gpu_sm_hour_v1/one_gpu_pod/model_bundle.joblib
+/home/researcher/ai-mcmp/research/artifacts/alibaba_gpu_sm_hour_v1/one_gpu_pod_and_server/model_bundle.joblib
+/home/researcher/ai-mcmp/research/artifacts/vram_conditional_v1/research_estimator.joblib
+/home/researcher/ai-mcmp/research/artifacts/load_support_v1/support_aware_size_tree_all_main.joblib
+
+문서 검수 요약
+본 원고의 수치는 저장 보고서와 JSON에서 대조했다. 사용량과 평가 행, 단위와 기간, 후향 결과와 미래 확인, 표준 학습기와 연구 절차를 구분했다. 실제 통합 실행·학습·다운로드를 새로 진행하지 않았다. 기존 보고서와 산출물을 보존하고 두 문서만 새로 작성한다.
+
+C11. 학습·추론·평가·검증 코드의 정확한 위치
+역할은 A절과 통합 설계서5절을 따른다. 아래는 본문에서 언급한 Python 파일의 실제 위치다.
+/home/researcher/ai-mcmp/research/scripts/assess_gpu_shape.py
+/home/researcher/ai-mcmp/research/scripts/assess_gpu_shape_microbatch_v6.py
+/home/researcher/ai-mcmp/research/scripts/assess_gpu_shape_microbatch_v7.py
+/home/researcher/ai-mcmp/research/scripts/assess_gpu_shape_row_partition.py
+/home/researcher/ai-mcmp/research/scripts/audit_saved_gpu_shape_decisions.py
+/home/researcher/ai-mcmp/research/scripts/benchmark_row_partition_forest.py
+/home/researcher/ai-mcmp/research/scripts/burstgpt_sparse_calls.py
+/home/researcher/ai-mcmp/research/scripts/call_capacity_control.py
+/home/researcher/ai-mcmp/research/scripts/confirm_row_partition_forest.py
+/home/researcher/ai-mcmp/research/scripts/copilot_call_extended.py
+/home/researcher/ai-mcmp/research/scripts/copilot_call_feedback.py
+/home/researcher/ai-mcmp/research/scripts/delay_capacity_policy.py
+/home/researcher/ai-mcmp/research/scripts/diagnose_call_capacity_ceiling.py
+/home/researcher/ai-mcmp/research/scripts/evaluate_alibaba_gpu_sm_future.py
+/home/researcher/ai-mcmp/research/scripts/evaluate_azure_code_input_demand.py
+/home/researcher/ai-mcmp/research/scripts/evaluate_burstgpt_call_policy.py
+/home/researcher/ai-mcmp/research/scripts/evaluate_copilot_call_feedback.py
+/home/researcher/ai-mcmp/research/scripts/evaluate_philly_gpu_risk.py
+/home/researcher/ai-mcmp/research/scripts/evaluate_philly_machine_holdout.py
+/home/researcher/ai-mcmp/research/scripts/evaluate_philly_slot_day_holdout.py
+/home/researcher/ai-mcmp/research/scripts/generate_gpu_shape_evidence_v0_2.py
+/home/researcher/ai-mcmp/research/scripts/generate_requirement_signal_evidence.py
+/home/researcher/ai-mcmp/research/scripts/ordered_forest_predict.py
+/home/researcher/ai-mcmp/research/scripts/philly_risk_models.py
+/home/researcher/ai-mcmp/research/policies/philly_slot_day.py
+/home/researcher/ai-mcmp/research/scripts/predict_performance.py
+/home/researcher/ai-mcmp/research/scripts/row_partition_forest_predict.py
+/home/researcher/ai-mcmp/research/scripts/summarize_delay_capacity.py
+/home/researcher/ai-mcmp/research/scripts/train_alibaba_gpu_sm_hour.py
+/home/researcher/ai-mcmp/research/scripts/train_evaluate_delay_capacity.py
+/home/researcher/ai-mcmp/research/scripts/train_performance.py
+/home/researcher/ai-mcmp/research/scripts/validate_gpu_shape_evidence_v0_2.py
+/home/researcher/ai-mcmp/research/scripts/validate_requirement_signal_evidence.py
+/home/researcher/ai-mcmp/research/scripts/verify_burstgpt_sparse_calls_precision.py
+/home/researcher/ai-mcmp/research/scripts/verify_copilot_call_feedback.py
+/home/researcher/ai-mcmp/research/scripts/verify_delay_capacity.py
+/home/researcher/ai-mcmp/research/scripts/verify_philly_slot_day_core.py
+/home/researcher/ai-mcmp/research/scripts/verify_philly_slot_day_holdout.py
+
+C12. 추가 재현 안내와 미채택 연구의 코드
+아래는 후속 재개 때 사용할 CLI 형식이다. 이번 문서 작성에서는 실행하지 않았다. 기존 산출물을 덮어쓰지 않는 새로운 stage에 코드·tests·프로토콜을 같은 디렉터리 구조로 준비한다. source 자료는 보존된 원본을 읽도록 연결하며 다운로드하지 않는다.
+
+Coding의 현재 CLI는 별도의 --output을 받지 않고 코드 위치의 ROOT 아래에 출력한다. 새 stage에 원본 CSV의 읽기 경로와 scripts/evaluate_azure_code_input_demand.py, tests/test_azure_code_input_demand.py, reports/azure_code_input_demand_protocol.md를 준비한 다음 아래 순서를 따른다.
+PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 /usr/bin/python /tmp/ai_mcmp_coding_reproduction_new/scripts/evaluate_azure_code_input_demand.py freeze
+PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 /usr/bin/python /tmp/ai_mcmp_coding_reproduction_new/scripts/evaluate_azure_code_input_demand.py evaluate_once
+새 stage의 재현 freeze는 새로운 파일이다. 현재 저장된 원래 freeze를 수정하지 않는다.
+
+Philly 기본 학습은 고정 프로토콜과 준비 자료, dry-run 해시가 필요하다. 다음은 자리표시자를 실제 고정값으로 채워야 하는 명령 템플릿이다.
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/home/researcher/ai-mcmp/research/scripts OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 /usr/bin/python /home/researcher/ai-mcmp/research/scripts/evaluate_philly_gpu_risk.py --expected-dry-run-sha256 <고정 dry-run SHA256> --output /tmp/ai_mcmp_philly_reproduction_new
+해시 확인 없이 임의 값을 넣거나 freeze를 변경하지 않는다. 실제 필수 입력과 프로토콜은 원코드의 --frozen-protocol/--draft-protocol/--prepared/--source/--normalization-audit/--source-audit 경로를 따른다.
+슬롯 보정은 저장 p0와 전날 피드백을 읽어 policies/philly_slot_day.py의 calibrate_day()를 재생한다. CLI의 collect는 다운로드 단계이므로 이 안내에는 포함하지 않는다. 현재 score_once를 원래 결과 폴더에 재실행하지 않는다.
+
+BurstGPT는 새로운 stage에 scripts/burstgpt_sparse_calls.py, 원검증기 verify_burstgpt_sparse_calls.py, 정정검증기 verify_burstgpt_sparse_calls_precision.py, tests/test_burstgpt_sparse_calls.py, reports/burstgpt_sparse_calls_protocol_v1.json을 준비한다.
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/tmp/ai_mcmp_burst_reproduction_new/scripts:/home/researcher/ai-mcmp/research/scripts OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 /usr/bin/python /tmp/ai_mcmp_burst_reproduction_new/scripts/burstgpt_sparse_calls.py prepare --stage /tmp/ai_mcmp_burst_reproduction_new
+같은 명령의 mode를 train, evaluate로 바꿔 순서대로 실행한다. 마지막에 정정검증기를 사용한다.
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/tmp/ai_mcmp_burst_reproduction_new/scripts:/home/researcher/ai-mcmp/research/scripts OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 /usr/bin/python /tmp/ai_mcmp_burst_reproduction_new/scripts/verify_burstgpt_sparse_calls_precision.py --stage /tmp/ai_mcmp_burst_reproduction_new
+새로운 독립 데이터 검증이 아니라 기존 결과의 재현이다. 원검증기의 최초 정밀도 실패도 역사적 근거로 보존한다.
+
+Copilot 보정의 기존 CLI 형식(새 stage 준비 후):
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/tmp/ai_mcmp_copilot_feedback_reproduction_new/scripts:/home/researcher/ai-mcmp/research/scripts OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 /usr/bin/python /tmp/ai_mcmp_copilot_feedback_reproduction_new/scripts/evaluate_copilot_call_feedback.py prepare --stage /tmp/ai_mcmp_copilot_feedback_reproduction_new
+같은 명령의 mode를 run으로 바꾸고, verify_copilot_call_feedback.py --stage <같은 stage>로 검산한다. 부모 모델과 그 입력 manifest는 기존 검증 자료를 읽는 경로다.
+
+미채택 MLPerf 연구의 실제 학습/평가 코드:
+/tmp/mlperf_capacity_v1/publication/scripts/train_mlperf_server_capacity.py
+검산 결과:
+/tmp/mlperf_capacity_v1/publication/artifacts/mlperf_capacity_v1/verification.json
+이 경로는 임시 보존 위치다. 미채택 연구를 실행하거나 장기 보존 위치로 이동하지 않았다.

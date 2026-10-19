@@ -1,0 +1,983 @@
+{
+  "adoption_gates": {
+    "all_pass": false,
+    "both_cohorts_coverage_at_least_85pct": false,
+    "both_cohorts_lower_pinball": true,
+    "relative_pinball_improvement_at_least_5pct": true,
+    "wins_at_least_12_of_20_days": true
+  },
+  "by_cohort": {
+    "ChatGPT": {
+      "last_available_residual_p90": {
+        "coverage": 0.8645833333333334,
+        "mean_prediction": 17796.225,
+        "pinball": 1793.21875
+      },
+      "quantile_hgb": {
+        "coverage": 0.8208333333333333,
+        "mean_prediction": 12429.067833532912,
+        "pinball": 1137.590096586104
+      },
+      "same_hour_yesterday_residual_p90": {
+        "coverage": 0.8833333333333333,
+        "mean_prediction": 15635.210416666667,
+        "pinball": 1331.5464583333332
+      },
+      "trailing_24h_p90": {
+        "coverage": 0.86875,
+        "mean_prediction": 19272.033333333333,
+        "pinball": 1730.1995833333333
+      },
+      "train_fixed_p90": {
+        "coverage": 0.8520833333333333,
+        "mean_prediction": 17870.0,
+        "pinball": 1936.1754166666665
+      }
+    },
+    "GPT-4": {
+      "last_available_residual_p90": {
+        "coverage": 0.8770833333333333,
+        "mean_prediction": 20249.064583333333,
+        "pinball": 1901.7804166666667
+      },
+      "quantile_hgb": {
+        "coverage": 0.825,
+        "mean_prediction": 15141.60688514399,
+        "pinball": 1431.9376256494443
+      },
+      "same_hour_yesterday_residual_p90": {
+        "coverage": 0.8625,
+        "mean_prediction": 18326.56875,
+        "pinball": 1639.0349999999999
+      },
+      "trailing_24h_p90": {
+        "coverage": 0.85,
+        "mean_prediction": 21888.145833333332,
+        "pinball": 2065.6697916666667
+      },
+      "train_fixed_p90": {
+        "coverage": 0.8416666666666667,
+        "mean_prediction": 19205.0,
+        "pinball": 2190.305208333333
+      }
+    }
+  },
+  "daily_metrics": {
+    "ChatGPT": {
+      "265": {
+        "last_available_residual_p90": {
+          "coverage": 0.875,
+          "pinball": 1829.720833333333
+        },
+        "quantile_hgb": {
+          "coverage": 0.9583333333333334,
+          "pinball": 839.9892075596954
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.9583333333333334,
+          "pinball": 1003.2541666666665
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.7916666666666666,
+          "pinball": 1520.658333333333
+        },
+        "train_fixed_p90": {
+          "coverage": 0.875,
+          "pinball": 1503.4875
+        }
+      },
+      "266": {
+        "last_available_residual_p90": {
+          "coverage": 0.875,
+          "pinball": 2897.408333333333
+        },
+        "quantile_hgb": {
+          "coverage": 0.6666666666666666,
+          "pinball": 2037.3167289284838
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.75,
+          "pinball": 2274.729166666667
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.7916666666666666,
+          "pinball": 2440.625
+        },
+        "train_fixed_p90": {
+          "coverage": 0.6666666666666666,
+          "pinball": 3499.6416666666664
+        }
+      },
+      "267": {
+        "last_available_residual_p90": {
+          "coverage": 0.8333333333333334,
+          "pinball": 1583.5041666666664
+        },
+        "quantile_hgb": {
+          "coverage": 0.8333333333333334,
+          "pinball": 781.3477976074951
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 1.0,
+          "pinball": 1083.3291666666664
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.9583333333333334,
+          "pinball": 1816.608333333333
+        },
+        "train_fixed_p90": {
+          "coverage": 0.875,
+          "pinball": 1755.3541666666667
+        }
+      },
+      "268": {
+        "last_available_residual_p90": {
+          "coverage": 0.875,
+          "pinball": 1934.2124999999996
+        },
+        "quantile_hgb": {
+          "coverage": 0.9166666666666666,
+          "pinball": 960.0479220112514
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.9583333333333334,
+          "pinball": 1267.7291666666663
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.9583333333333334,
+          "pinball": 1521.7874999999997
+        },
+        "train_fixed_p90": {
+          "coverage": 0.9166666666666666,
+          "pinball": 1629.3
+        }
+      },
+      "269": {
+        "last_available_residual_p90": {
+          "coverage": 0.9166666666666666,
+          "pinball": 1456.9791666666663
+        },
+        "quantile_hgb": {
+          "coverage": 0.9166666666666666,
+          "pinball": 996.630066484133
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.9166666666666666,
+          "pinball": 974.3124999999997
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.875,
+          "pinball": 1624.0583333333332
+        },
+        "train_fixed_p90": {
+          "coverage": 0.9583333333333334,
+          "pinball": 1529.8708333333332
+        }
+      },
+      "270": {
+        "last_available_residual_p90": {
+          "coverage": 0.8333333333333334,
+          "pinball": 1410.4291666666668
+        },
+        "quantile_hgb": {
+          "coverage": 0.8333333333333334,
+          "pinball": 737.3773170267153
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.9166666666666666,
+          "pinball": 911.1166666666664
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.8333333333333334,
+          "pinball": 1312.8125
+        },
+        "train_fixed_p90": {
+          "coverage": 0.9583333333333334,
+          "pinball": 1336.9958333333332
+        }
+      },
+      "271": {
+        "last_available_residual_p90": {
+          "coverage": 0.7916666666666666,
+          "pinball": 3128.254166666667
+        },
+        "quantile_hgb": {
+          "coverage": 0.6666666666666666,
+          "pinball": 2258.3011758276016
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.625,
+          "pinball": 3144.5291666666667
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.7916666666666666,
+          "pinball": 3552.758333333333
+        },
+        "train_fixed_p90": {
+          "coverage": 0.75,
+          "pinball": 3944.0750000000003
+        }
+      },
+      "272": {
+        "last_available_residual_p90": {
+          "coverage": 0.875,
+          "pinball": 1893.8625
+        },
+        "quantile_hgb": {
+          "coverage": 0.5833333333333334,
+          "pinball": 1929.8875511807244
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.8333333333333334,
+          "pinball": 1301.3833333333334
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.875,
+          "pinball": 1961.1374999999996
+        },
+        "train_fixed_p90": {
+          "coverage": 0.625,
+          "pinball": 3602.9666666666667
+        }
+      },
+      "273": {
+        "last_available_residual_p90": {
+          "coverage": 0.75,
+          "pinball": 2501.6124999999997
+        },
+        "quantile_hgb": {
+          "coverage": 0.75,
+          "pinball": 1253.0124950241072
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.9583333333333334,
+          "pinball": 1118.4541666666664
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.9166666666666666,
+          "pinball": 1737.0499999999995
+        },
+        "train_fixed_p90": {
+          "coverage": 0.7916666666666666,
+          "pinball": 1965.2624999999998
+        }
+      },
+      "274": {
+        "last_available_residual_p90": {
+          "coverage": 0.8333333333333334,
+          "pinball": 1528.8874999999998
+        },
+        "quantile_hgb": {
+          "coverage": 0.625,
+          "pinball": 1383.1452032294885
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.7916666666666666,
+          "pinball": 1180.9624999999999
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.8333333333333334,
+          "pinball": 1574.545833333333
+        },
+        "train_fixed_p90": {
+          "coverage": 0.7083333333333334,
+          "pinball": 1879.4416666666666
+        }
+      },
+      "275": {
+        "last_available_residual_p90": {
+          "coverage": 0.9166666666666666,
+          "pinball": 1364.1291666666666
+        },
+        "quantile_hgb": {
+          "coverage": 1.0,
+          "pinball": 768.8597357864769
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 1.0,
+          "pinball": 1339.0916666666662
+        },
+        "trailing_24h_p90": {
+          "coverage": 1.0,
+          "pinball": 1523.8999999999996
+        },
+        "train_fixed_p90": {
+          "coverage": 0.9166666666666666,
+          "pinball": 1306.4166666666663
+        }
+      },
+      "276": {
+        "last_available_residual_p90": {
+          "coverage": 1.0,
+          "pinball": 958.1999999999998
+        },
+        "quantile_hgb": {
+          "coverage": 0.9583333333333334,
+          "pinball": 727.6109725270871
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 1.0,
+          "pinball": 976.9999999999997
+        },
+        "trailing_24h_p90": {
+          "coverage": 1.0,
+          "pinball": 864.6166666666664
+        },
+        "train_fixed_p90": {
+          "coverage": 1.0,
+          "pinball": 1439.7999999999995
+        }
+      },
+      "277": {
+        "last_available_residual_p90": {
+          "coverage": 1.0,
+          "pinball": 918.6624999999998
+        },
+        "quantile_hgb": {
+          "coverage": 0.9583333333333334,
+          "pinball": 536.7313597607099
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 1.0,
+          "pinball": 741.5291666666666
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.875,
+          "pinball": 481.2041666666666
+        },
+        "train_fixed_p90": {
+          "coverage": 1.0,
+          "pinball": 1459.1291666666664
+        }
+      },
+      "278": {
+        "last_available_residual_p90": {
+          "coverage": 0.7916666666666666,
+          "pinball": 1659.9541666666664
+        },
+        "quantile_hgb": {
+          "coverage": 0.7083333333333334,
+          "pinball": 1228.3906815279804
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.625,
+          "pinball": 2088.2124999999996
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.625,
+          "pinball": 2760.183333333334
+        },
+        "train_fixed_p90": {
+          "coverage": 0.875,
+          "pinball": 1721.7666666666667
+        }
+      },
+      "279": {
+        "last_available_residual_p90": {
+          "coverage": 0.75,
+          "pinball": 2695.191666666666
+        },
+        "quantile_hgb": {
+          "coverage": 0.8333333333333334,
+          "pinball": 978.503580802458
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.875,
+          "pinball": 1499.0291666666665
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.875,
+          "pinball": 1740.7458333333332
+        },
+        "train_fixed_p90": {
+          "coverage": 0.7916666666666666,
+          "pinball": 2114.5541666666663
+        }
+      },
+      "280": {
+        "last_available_residual_p90": {
+          "coverage": 0.8333333333333334,
+          "pinball": 2185.4874999999997
+        },
+        "quantile_hgb": {
+          "coverage": 0.7916666666666666,
+          "pinball": 1337.5606595121596
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.8333333333333334,
+          "pinball": 1270.0666666666666
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.875,
+          "pinball": 1698.3
+        },
+        "train_fixed_p90": {
+          "coverage": 0.75,
+          "pinball": 2038.6708333333333
+        }
+      },
+      "281": {
+        "last_available_residual_p90": {
+          "coverage": 0.875,
+          "pinball": 1534.3791666666664
+        },
+        "quantile_hgb": {
+          "coverage": 0.8333333333333334,
+          "pinball": 1030.051036352687
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.8333333333333334,
+          "pinball": 1094.395833333333
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.875,
+          "pinball": 1870.6875
+        },
+        "train_fixed_p90": {
+          "coverage": 0.8333333333333334,
+          "pinball": 1628.1166666666668
+        }
+      },
+      "282": {
+        "last_available_residual_p90": {
+          "coverage": 0.7916666666666666,
+          "pinball": 2190.4083333333333
+        },
+        "quantile_hgb": {
+          "coverage": 0.875,
+          "pinball": 841.1486464711852
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.9583333333333334,
+          "pinball": 883.0208333333331
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.9583333333333334,
+          "pinball": 1582.0666666666664
+        },
+        "train_fixed_p90": {
+          "coverage": 0.8333333333333334,
+          "pinball": 1730.4374999999998
+        }
+      },
+      "283": {
+        "last_available_residual_p90": {
+          "coverage": 0.9583333333333334,
+          "pinball": 929.7583333333332
+        },
+        "quantile_hgb": {
+          "coverage": 0.9166666666666666,
+          "pinball": 1025.303591713456
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.9583333333333334,
+          "pinball": 1286.4958333333332
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.9583333333333334,
+          "pinball": 1598.3749999999998
+        },
+        "train_fixed_p90": {
+          "coverage": 1.0,
+          "pinball": 1348.8166666666662
+        }
+      },
+      "284": {
+        "last_available_residual_p90": {
+          "coverage": 0.9166666666666666,
+          "pinball": 1263.3333333333333
+        },
+        "quantile_hgb": {
+          "coverage": 0.7916666666666666,
+          "pinball": 1100.5862023881848
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.875,
+          "pinball": 1192.2875
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.7083333333333334,
+          "pinball": 1421.8708333333334
+        },
+        "train_fixed_p90": {
+          "coverage": 0.9166666666666666,
+          "pinball": 1289.4041666666665
+        }
+      }
+    },
+    "GPT-4": {
+      "265": {
+        "last_available_residual_p90": {
+          "coverage": 0.8333333333333334,
+          "pinball": 1736.7916666666663
+        },
+        "quantile_hgb": {
+          "coverage": 0.875,
+          "pinball": 870.7172008677356
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.9166666666666666,
+          "pinball": 824.5249999999997
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.7916666666666666,
+          "pinball": 1860.5291666666665
+        },
+        "train_fixed_p90": {
+          "coverage": 0.875,
+          "pinball": 1661.3875
+        }
+      },
+      "266": {
+        "last_available_residual_p90": {
+          "coverage": 0.7916666666666666,
+          "pinball": 2616.9291666666663
+        },
+        "quantile_hgb": {
+          "coverage": 0.8333333333333334,
+          "pinball": 1091.0937469766254
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.9166666666666666,
+          "pinball": 1069.1208333333332
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.7916666666666666,
+          "pinball": 2500.795833333333
+        },
+        "train_fixed_p90": {
+          "coverage": 0.7916666666666666,
+          "pinball": 2527.7833333333333
+        }
+      },
+      "267": {
+        "last_available_residual_p90": {
+          "coverage": 0.7916666666666666,
+          "pinball": 1508.0666666666664
+        },
+        "quantile_hgb": {
+          "coverage": 0.9166666666666666,
+          "pinball": 662.6359007232236
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.875,
+          "pinball": 1093.345833333333
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.9583333333333334,
+          "pinball": 1799.795833333333
+        },
+        "train_fixed_p90": {
+          "coverage": 0.8333333333333334,
+          "pinball": 1704.1125
+        }
+      },
+      "268": {
+        "last_available_residual_p90": {
+          "coverage": 0.875,
+          "pinball": 1576.1666666666667
+        },
+        "quantile_hgb": {
+          "coverage": 0.8333333333333334,
+          "pinball": 1113.039016865803
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.9583333333333334,
+          "pinball": 1055.2249999999997
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.875,
+          "pinball": 2022.9499999999998
+        },
+        "train_fixed_p90": {
+          "coverage": 0.8333333333333334,
+          "pinball": 1865.5708333333332
+        }
+      },
+      "269": {
+        "last_available_residual_p90": {
+          "coverage": 1.0,
+          "pinball": 1068.7916666666663
+        },
+        "quantile_hgb": {
+          "coverage": 0.9583333333333334,
+          "pinball": 900.1649563758716
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 1.0,
+          "pinball": 1195.6999999999998
+        },
+        "trailing_24h_p90": {
+          "coverage": 1.0,
+          "pinball": 1481.6666666666663
+        },
+        "train_fixed_p90": {
+          "coverage": 1.0,
+          "pinball": 1434.2124999999996
+        }
+      },
+      "270": {
+        "last_available_residual_p90": {
+          "coverage": 0.9166666666666666,
+          "pinball": 947.0541666666664
+        },
+        "quantile_hgb": {
+          "coverage": 0.875,
+          "pinball": 1128.1280104196821
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.9166666666666666,
+          "pinball": 1243.2375
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.75,
+          "pinball": 1234.2416666666666
+        },
+        "train_fixed_p90": {
+          "coverage": 1.0,
+          "pinball": 1377.7249999999997
+        }
+      },
+      "271": {
+        "last_available_residual_p90": {
+          "coverage": 0.8333333333333334,
+          "pinball": 2025.1916666666664
+        },
+        "quantile_hgb": {
+          "coverage": 0.75,
+          "pinball": 1581.140382018589
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.625,
+          "pinball": 2878.941666666667
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.7083333333333334,
+          "pinball": 2422.4791666666665
+        },
+        "train_fixed_p90": {
+          "coverage": 0.875,
+          "pinball": 2067.858333333333
+        }
+      },
+      "272": {
+        "last_available_residual_p90": {
+          "coverage": 0.9166666666666666,
+          "pinball": 1577.6958333333332
+        },
+        "quantile_hgb": {
+          "coverage": 0.9166666666666666,
+          "pinball": 960.5859619885665
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.9583333333333334,
+          "pinball": 987.5874999999997
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.9166666666666666,
+          "pinball": 1660.170833333333
+        },
+        "train_fixed_p90": {
+          "coverage": 0.9166666666666666,
+          "pinball": 1601.9708333333335
+        }
+      },
+      "273": {
+        "last_available_residual_p90": {
+          "coverage": 0.8333333333333334,
+          "pinball": 2336.7916666666665
+        },
+        "quantile_hgb": {
+          "coverage": 0.75,
+          "pinball": 1508.3910930678549
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.7916666666666666,
+          "pinball": 1715.6291666666666
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.7916666666666666,
+          "pinball": 2289.2666666666664
+        },
+        "train_fixed_p90": {
+          "coverage": 0.75,
+          "pinball": 2570.6249999999995
+        }
+      },
+      "274": {
+        "last_available_residual_p90": {
+          "coverage": 0.75,
+          "pinball": 2848.2333333333336
+        },
+        "quantile_hgb": {
+          "coverage": 0.6666666666666666,
+          "pinball": 2097.4391657933215
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.75,
+          "pinball": 2013.3625
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.8333333333333334,
+          "pinball": 2348.6041666666665
+        },
+        "train_fixed_p90": {
+          "coverage": 0.7083333333333334,
+          "pinball": 3604.2624999999994
+        }
+      },
+      "275": {
+        "last_available_residual_p90": {
+          "coverage": 0.875,
+          "pinball": 1687.2541666666664
+        },
+        "quantile_hgb": {
+          "coverage": 0.9166666666666666,
+          "pinball": 1104.208855585096
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.9166666666666666,
+          "pinball": 1436.8416666666665
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.9583333333333334,
+          "pinball": 2016.9416666666664
+        },
+        "train_fixed_p90": {
+          "coverage": 0.875,
+          "pinball": 1433.4624999999999
+        }
+      },
+      "276": {
+        "last_available_residual_p90": {
+          "coverage": 0.9583333333333334,
+          "pinball": 1098.3124999999998
+        },
+        "quantile_hgb": {
+          "coverage": 1.0,
+          "pinball": 1039.7157164687487
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 1.0,
+          "pinball": 1572.445833333333
+        },
+        "trailing_24h_p90": {
+          "coverage": 1.0,
+          "pinball": 1454.491666666666
+        },
+        "train_fixed_p90": {
+          "coverage": 1.0,
+          "pinball": 1546.6833333333332
+        }
+      },
+      "277": {
+        "last_available_residual_p90": {
+          "coverage": 0.9583333333333334,
+          "pinball": 941.8208333333332
+        },
+        "quantile_hgb": {
+          "coverage": 0.9166666666666666,
+          "pinball": 853.8468857282925
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.9166666666666666,
+          "pinball": 822.3416666666666
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.7083333333333334,
+          "pinball": 1262.7083333333333
+        },
+        "train_fixed_p90": {
+          "coverage": 1.0,
+          "pinball": 1403.8833333333332
+        }
+      },
+      "278": {
+        "last_available_residual_p90": {
+          "coverage": 0.9166666666666666,
+          "pinball": 1406.8499999999997
+        },
+        "quantile_hgb": {
+          "coverage": 0.5416666666666666,
+          "pinball": 2636.211863597004
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.5833333333333334,
+          "pinball": 3693.816666666667
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.7083333333333334,
+          "pinball": 3133.15
+        },
+        "train_fixed_p90": {
+          "coverage": 0.6666666666666666,
+          "pinball": 2952.433333333333
+        }
+      },
+      "279": {
+        "last_available_residual_p90": {
+          "coverage": 0.8333333333333334,
+          "pinball": 2811.875
+        },
+        "quantile_hgb": {
+          "coverage": 0.6666666666666666,
+          "pinball": 2440.8592909748904
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.7916666666666666,
+          "pinball": 2510.670833333333
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.9166666666666666,
+          "pinball": 2492.5958333333333
+        },
+        "train_fixed_p90": {
+          "coverage": 0.6666666666666666,
+          "pinball": 3072.045833333333
+        }
+      },
+      "280": {
+        "last_available_residual_p90": {
+          "coverage": 0.75,
+          "pinball": 4926.041666666667
+        },
+        "quantile_hgb": {
+          "coverage": 0.6666666666666666,
+          "pinball": 3178.177906802606
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.7916666666666666,
+          "pinball": 2053.3624999999997
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.7916666666666666,
+          "pinball": 2969.1666666666665
+        },
+        "train_fixed_p90": {
+          "coverage": 0.625,
+          "pinball": 5271.391666666667
+        }
+      },
+      "281": {
+        "last_available_residual_p90": {
+          "coverage": 0.9166666666666666,
+          "pinball": 1804.8666666666666
+        },
+        "quantile_hgb": {
+          "coverage": 0.8333333333333334,
+          "pinball": 1110.2975108650546
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.875,
+          "pinball": 1946.1958333333332
+        },
+        "trailing_24h_p90": {
+          "coverage": 1.0,
+          "pinball": 2481.5124999999994
+        },
+        "train_fixed_p90": {
+          "coverage": 0.75,
+          "pinball": 2223.9041666666667
+        }
+      },
+      "282": {
+        "last_available_residual_p90": {
+          "coverage": 0.875,
+          "pinball": 2995.9541666666664
+        },
+        "quantile_hgb": {
+          "coverage": 0.875,
+          "pinball": 1736.929973136256
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.8333333333333334,
+          "pinball": 2334.441666666666
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.9166666666666666,
+          "pinball": 1999.9291666666666
+        },
+        "train_fixed_p90": {
+          "coverage": 0.8333333333333334,
+          "pinball": 2260.9125
+        }
+      },
+      "283": {
+        "last_available_residual_p90": {
+          "coverage": 1.0,
+          "pinball": 992.5958333333332
+        },
+        "quantile_hgb": {
+          "coverage": 0.875,
+          "pinball": 1146.3738132678152
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.9583333333333334,
+          "pinball": 1240.2791666666665
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.75,
+          "pinball": 1795.6874999999998
+        },
+        "train_fixed_p90": {
+          "coverage": 0.9166666666666666,
+          "pinball": 1345.0499999999997
+        }
+      },
+      "284": {
+        "last_available_residual_p90": {
+          "coverage": 0.9166666666666666,
+          "pinball": 1128.3249999999998
+        },
+        "quantile_hgb": {
+          "coverage": 0.8333333333333334,
+          "pinball": 1478.795261465854
+        },
+        "same_hour_yesterday_residual_p90": {
+          "coverage": 0.875,
+          "pinball": 1093.6291666666666
+        },
+        "trailing_24h_p90": {
+          "coverage": 0.8333333333333334,
+          "pinball": 2086.7125
+        },
+        "train_fixed_p90": {
+          "coverage": 0.9166666666666666,
+          "pinball": 1880.8291666666664
+        }
+      }
+    }
+  },
+  "daily_wins_against_selected_baseline": 16,
+  "freeze_manifest_sha256": "619c799a2d10db31281fb71637ee0e0590de6af06b7a7139bdc08aa3bfdf654a",
+  "kind": "burstgpt_output_demand_v1_train_validation_only",
+  "models_sha256": "11938324e16ebeb87710746c0fff8078a3a1b81d47b81c7d02f6f430c4fc716a",
+  "overall_equal_cohort_pinball": {
+    "last_available_residual_p90": 1847.4995833333332,
+    "quantile_hgb": 1284.763861117774,
+    "same_hour_yesterday_residual_p90": 1485.2907291666666,
+    "trailing_24h_p90": 1897.9346875,
+    "train_fixed_p90": 2063.2403125
+  },
+  "protocol_sha256": "58ac2b0abb59c8a86fdcc5db3ff6b1ade45de5b48c3e48bbca5de5243f92c478",
+  "script_sha256": "e9482a33c58bb06d326244be3ae0eafad24a21e95d2a8fec3466c1512d3af5a0",
+  "selected_baseline": "same_hour_yesterday_residual_p90",
+  "source_sha256": "2299986a07388aa303ec2c41d1131e756db650a39ed6ef9dfe7cc3d7f9a43b8f",
+  "support_sha256": "07c693cd78d16ac96e74f96cace0615bfe1279a5cb88e0651bc1a5c8f1a7db9e",
+  "test_target_read": false,
+  "train_fit_hours_per_cohort": 934,
+  "train_last_target_hour": 6358,
+  "validation_first_decision_hour": 6360,
+  "validation_hours_per_cohort": 480,
+  "validation_predictions_sha256": "edd2a6780d2e649e58c3a598893fbc7e2dce0f5c91691019b852a77b3f352f23",
+  "zero_output_token_requests": {
+    "ChatGPT": {
+      "train": 472,
+      "validation": 85
+    },
+    "GPT-4": {
+      "train": 329,
+      "validation": 140
+    }
+  }
+}

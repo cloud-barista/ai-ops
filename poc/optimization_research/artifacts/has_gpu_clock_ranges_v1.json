@@ -1,0 +1,1040 @@
+{
+  "record_url": "https://zenodo.org/records/15596511",
+  "record_api": "https://zenodo.org/api/records/15596511",
+  "zip_size": 62262205,
+  "zip_published_md5_unverified": "md5:b8da5cea33e59b9b21dab8163633118a",
+  "license_api_id": "cc-by-4.0",
+  "source_member": "HAS-GPU/validation/client/test_batch.py",
+  "source_sha256": "a248319027076acf744a650a07bf4270b29f3ea41093789dbd7c716e057d08df",
+  "readme_member": "HAS-GPU/README.md",
+  "readme_sha256": "296b4d2947b000cbc682ff15fb1e5c45e7679b38eee30279a066dcfda53b6a4d",
+  "zip_readme_mentions_apache_2_0": true,
+  "zip_member_count": 563,
+  "selected_runs": 18,
+  "selected_request_rows": 61021,
+  "selected_gpu_rows": 2633,
+  "selected_request_completions_in_gpu_span_as_utc": 60791,
+  "request_duration_seconds_min": 0.03796744346618652,
+  "request_duration_seconds_max": 6.997229814529419,
+  "request_duration_negative_or_zero_rows": 0,
+  "request_completion_row_order_regressions": 0,
+  "gpu_row_order_regressions": 0,
+  "http_range_requests": 155,
+  "http_range_bytes_received": 1005185,
+  "runs": [
+    {
+      "run": "1-bert-stress",
+      "model_family": "bert",
+      "request_member": "HAS-GPU/validation/result/HAS/1-bert-stress/has-120-50-50-15-bert-stress.csv",
+      "request_sha256": "577939fefd0a3936ce020b1f083c7786ef808a0f02ea621c5c8d1f968f2f787b",
+      "request_rows": 4858,
+      "request_duration_seconds_min": 0.058397769927978516,
+      "request_duration_seconds_max": 6.997229814529419,
+      "request_duration_negative_or_zero_rows": 0,
+      "request_completion_row_order_regressions": 0,
+      "request_first_completion_as_utc": "2025-03-17T19:39:42.049437+00:00",
+      "request_last_completion_as_utc": "2025-03-17T19:44:59.904769+00:00",
+      "request_starts_in_gpu_span_as_utc": 4843,
+      "request_completions_in_gpu_span_as_utc": 4842,
+      "gpu_member": "HAS-GPU/validation/result/HAS/1-bert-stress/has-usage-120-50-50-15-bert-stress.csv",
+      "gpu_sha256": "74a2fef8ff1686a0c4010b024741b50d51600d2e75c3b9fcf9dd0cfc82714e48",
+      "gpu_rows": 172,
+      "gpu_first_utc": "2025-03-17T19:39:17+00:00",
+      "gpu_last_utc": "2025-03-17T19:44:59+00:00",
+      "gpu_row_order_regressions": 0,
+      "gpu_columns": [
+        "timestamp",
+        "node_name",
+        "gpu_id",
+        "sm_usage",
+        "quota_usage",
+        "pod_count"
+      ],
+      "gpu_numeric_values": {
+        "sm_usage": [
+          50.0
+        ],
+        "quota_usage": [
+          30.0,
+          40.0,
+          50.0,
+          70.0,
+          100.0
+        ],
+        "pod_count": [
+          1.0
+        ]
+      },
+      "future_start_counts": {
+        "10": {
+          "candidate_anchors": 167,
+          "anchors_with_at_least_20_starts": 156,
+          "nonoverlapping_windows": 34,
+          "nonoverlapping_windows_with_at_least_20_starts": 32
+        },
+        "30": {
+          "candidate_anchors": 157,
+          "anchors_with_at_least_20_starts": 157,
+          "nonoverlapping_windows": 11,
+          "nonoverlapping_windows_with_at_least_20_starts": 11
+        }
+      }
+    },
+    {
+      "run": "1-bert",
+      "model_family": "bert",
+      "request_member": "HAS-GPU/validation/result/HAS/1-bert/has-120-50-50-15.csv",
+      "request_sha256": "12813f87ad76f7d1d4f2948245565d2d4cbe69895c8659b1378c36493ed1dacd",
+      "request_rows": 2591,
+      "request_duration_seconds_min": 0.08148884773254395,
+      "request_duration_seconds_max": 4.408165693283081,
+      "request_duration_negative_or_zero_rows": 0,
+      "request_completion_row_order_regressions": 0,
+      "request_first_completion_as_utc": "2025-03-17T09:55:43.388511+00:00",
+      "request_last_completion_as_utc": "2025-03-17T10:01:45.352440+00:00",
+      "request_starts_in_gpu_span_as_utc": 2589,
+      "request_completions_in_gpu_span_as_utc": 2588,
+      "gpu_member": "HAS-GPU/validation/result/HAS/1-bert/has-usage-120-50-50-15.csv",
+      "gpu_sha256": "89dc20203c6d7c4fc908677d32a3dc90c1359be568a1dd89c387a572819d3909",
+      "gpu_rows": 194,
+      "gpu_first_utc": "2025-03-17T09:55:19+00:00",
+      "gpu_last_utc": "2025-03-17T10:01:45+00:00",
+      "gpu_row_order_regressions": 0,
+      "gpu_columns": [
+        "timestamp",
+        "node_name",
+        "gpu_id",
+        "sm_usage",
+        "quota_usage",
+        "pod_count"
+      ],
+      "gpu_numeric_values": {
+        "sm_usage": [
+          30.0
+        ],
+        "quota_usage": [
+          30.0
+        ],
+        "pod_count": [
+          1.0
+        ]
+      },
+      "future_start_counts": {
+        "10": {
+          "candidate_anchors": 189,
+          "anchors_with_at_least_20_starts": 180,
+          "nonoverlapping_windows": 38,
+          "nonoverlapping_windows_with_at_least_20_starts": 36
+        },
+        "30": {
+          "candidate_anchors": 179,
+          "anchors_with_at_least_20_starts": 179,
+          "nonoverlapping_windows": 12,
+          "nonoverlapping_windows_with_at_least_20_starts": 12
+        }
+      }
+    },
+    {
+      "run": "1-convnext",
+      "model_family": "convnext",
+      "request_member": "HAS-GPU/validation/result/HAS/1-convnext/has-120-50-50-15.csv",
+      "request_sha256": "86e2450c98797a688946d2ebe2db875c8cc86cc1724df34357dbc61db7b21fdd",
+      "request_rows": 2690,
+      "request_duration_seconds_min": 0.03993487358093262,
+      "request_duration_seconds_max": 1.0429646968841553,
+      "request_duration_negative_or_zero_rows": 0,
+      "request_completion_row_order_regressions": 0,
+      "request_first_completion_as_utc": "2025-03-17T01:55:32.480648+00:00",
+      "request_last_completion_as_utc": "2025-03-17T01:59:43.532478+00:00",
+      "request_starts_in_gpu_span_as_utc": 2681,
+      "request_completions_in_gpu_span_as_utc": 2680,
+      "gpu_member": "HAS-GPU/validation/result/HAS/1-convnext/has-usage-120-50-50-15.csv",
+      "gpu_sha256": "ab0f633a4e828d824d29972aba75fcd1214bb9be3bc87718ab54dad63ef9aa0a",
+      "gpu_rows": 133,
+      "gpu_first_utc": "2025-03-17T01:55:18+00:00",
+      "gpu_last_utc": "2025-03-17T01:59:42+00:00",
+      "gpu_row_order_regressions": 0,
+      "gpu_columns": [
+        "timestamp",
+        "node_name",
+        "gpu_id",
+        "sm_usage",
+        "quota_usage",
+        "pod_count"
+      ],
+      "gpu_numeric_values": {
+        "sm_usage": [
+          30.0
+        ],
+        "quota_usage": [
+          30.0,
+          100.0
+        ],
+        "pod_count": [
+          1.0
+        ]
+      },
+      "future_start_counts": {
+        "10": {
+          "candidate_anchors": 128,
+          "anchors_with_at_least_20_starts": 124,
+          "nonoverlapping_windows": 26,
+          "nonoverlapping_windows_with_at_least_20_starts": 25
+        },
+        "30": {
+          "candidate_anchors": 118,
+          "anchors_with_at_least_20_starts": 118,
+          "nonoverlapping_windows": 8,
+          "nonoverlapping_windows_with_at_least_20_starts": 8
+        }
+      }
+    },
+    {
+      "run": "1-mobilenet-stress",
+      "model_family": "mobilenet",
+      "request_member": "HAS-GPU/validation/result/HAS/1-mobilenet-stress/has-120-50-50-15-mobile-stress.csv",
+      "request_sha256": "eed2a84f1163faf790fec46e1d92c7b80c23eebe87621dc2fee55f08550e524f",
+      "request_rows": 4890,
+      "request_duration_seconds_min": 0.04140925407409668,
+      "request_duration_seconds_max": 0.2412717342376709,
+      "request_duration_negative_or_zero_rows": 0,
+      "request_completion_row_order_regressions": 0,
+      "request_first_completion_as_utc": "2025-03-17T18:37:59.973073+00:00",
+      "request_last_completion_as_utc": "2025-03-17T18:42:12.740794+00:00",
+      "request_starts_in_gpu_span_as_utc": 4878,
+      "request_completions_in_gpu_span_as_utc": 4877,
+      "gpu_member": "HAS-GPU/validation/result/HAS/1-mobilenet-stress/has-usage-120-50-50-15-mobile-stress.csv",
+      "gpu_sha256": "8cdc146f91afddc01d2e2c8f0d8f43ce391d82e2153a881f23c4f42da010d9ea",
+      "gpu_rows": 134,
+      "gpu_first_utc": "2025-03-17T18:37:46+00:00",
+      "gpu_last_utc": "2025-03-17T18:42:12+00:00",
+      "gpu_row_order_regressions": 0,
+      "gpu_columns": [
+        "timestamp",
+        "node_name",
+        "gpu_id",
+        "sm_usage",
+        "quota_usage",
+        "pod_count"
+      ],
+      "gpu_numeric_values": {
+        "sm_usage": [
+          30.0
+        ],
+        "quota_usage": [
+          30.0,
+          100.0
+        ],
+        "pod_count": [
+          1.0
+        ]
+      },
+      "future_start_counts": {
+        "10": {
+          "candidate_anchors": 129,
+          "anchors_with_at_least_20_starts": 125,
+          "nonoverlapping_windows": 26,
+          "nonoverlapping_windows_with_at_least_20_starts": 24
+        },
+        "30": {
+          "candidate_anchors": 119,
+          "anchors_with_at_least_20_starts": 119,
+          "nonoverlapping_windows": 8,
+          "nonoverlapping_windows_with_at_least_20_starts": 8
+        }
+      }
+    },
+    {
+      "run": "1-mobilenet",
+      "model_family": "mobilenet",
+      "request_member": "HAS-GPU/validation/result/HAS/1-mobilenet/has-120-50-50-15.csv",
+      "request_sha256": "d31d84683aa45e1c3a684b99957bf97247fb158d2653aa0b37016f07ddcac6b2",
+      "request_rows": 2690,
+      "request_duration_seconds_min": 0.042606353759765625,
+      "request_duration_seconds_max": 0.13297057151794434,
+      "request_duration_negative_or_zero_rows": 0,
+      "request_completion_row_order_regressions": 0,
+      "request_first_completion_as_utc": "2025-03-17T01:11:08.031699+00:00",
+      "request_last_completion_as_utc": "2025-03-17T01:15:19.048300+00:00",
+      "request_starts_in_gpu_span_as_utc": 2684,
+      "request_completions_in_gpu_span_as_utc": 2683,
+      "gpu_member": "HAS-GPU/validation/result/HAS/1-mobilenet/has-usage-120-50-50-15.csv",
+      "gpu_sha256": "5eeb9a03d39edf2d6b6ff66b1af604bad18a7b0351605d6ded52540475143c66",
+      "gpu_rows": 133,
+      "gpu_first_utc": "2025-03-17T01:10:54+00:00",
+      "gpu_last_utc": "2025-03-17T01:15:18+00:00",
+      "gpu_row_order_regressions": 0,
+      "gpu_columns": [
+        "timestamp",
+        "node_name",
+        "gpu_id",
+        "sm_usage",
+        "quota_usage",
+        "pod_count"
+      ],
+      "gpu_numeric_values": {
+        "sm_usage": [
+          30.0
+        ],
+        "quota_usage": [
+          30.0,
+          100.0
+        ],
+        "pod_count": [
+          1.0
+        ]
+      },
+      "future_start_counts": {
+        "10": {
+          "candidate_anchors": 128,
+          "anchors_with_at_least_20_starts": 124,
+          "nonoverlapping_windows": 26,
+          "nonoverlapping_windows_with_at_least_20_starts": 25
+        },
+        "30": {
+          "candidate_anchors": 118,
+          "anchors_with_at_least_20_starts": 118,
+          "nonoverlapping_windows": 8,
+          "nonoverlapping_windows_with_at_least_20_starts": 8
+        }
+      }
+    },
+    {
+      "run": "2-bert-stress",
+      "model_family": "bert",
+      "request_member": "HAS-GPU/validation/result/HAS/2-bert-stress/has-120-50-50-15-bert-stress.csv",
+      "request_sha256": "762d695b59aa74368a5f8696bef328da5334ee0c011fd1206ada494431c21353",
+      "request_rows": 4890,
+      "request_duration_seconds_min": 0.055196523666381836,
+      "request_duration_seconds_max": 2.091766834259033,
+      "request_duration_negative_or_zero_rows": 0,
+      "request_completion_row_order_regressions": 0,
+      "request_first_completion_as_utc": "2025-03-17T21:07:36.247855+00:00",
+      "request_last_completion_as_utc": "2025-03-17T21:12:42.866059+00:00",
+      "request_starts_in_gpu_span_as_utc": 4876,
+      "request_completions_in_gpu_span_as_utc": 4875,
+      "gpu_member": "HAS-GPU/validation/result/HAS/2-bert-stress/has-usage-120-50-50-15-bert-stress.csv",
+      "gpu_sha256": "329ef0f50934da4659ada92cce0a2c912c19f8c9a19c0a52c4d725e50372c8d0",
+      "gpu_rows": 166,
+      "gpu_first_utc": "2025-03-17T21:07:12+00:00",
+      "gpu_last_utc": "2025-03-17T21:12:42+00:00",
+      "gpu_row_order_regressions": 0,
+      "gpu_columns": [
+        "timestamp",
+        "node_name",
+        "gpu_id",
+        "sm_usage",
+        "quota_usage",
+        "pod_count"
+      ],
+      "gpu_numeric_values": {
+        "sm_usage": [
+          50.0
+        ],
+        "quota_usage": [
+          90.0,
+          100.0
+        ],
+        "pod_count": [
+          1.0
+        ]
+      },
+      "future_start_counts": {
+        "10": {
+          "candidate_anchors": 161,
+          "anchors_with_at_least_20_starts": 151,
+          "nonoverlapping_windows": 33,
+          "nonoverlapping_windows_with_at_least_20_starts": 31
+        },
+        "30": {
+          "candidate_anchors": 151,
+          "anchors_with_at_least_20_starts": 151,
+          "nonoverlapping_windows": 11,
+          "nonoverlapping_windows_with_at_least_20_starts": 11
+        }
+      }
+    },
+    {
+      "run": "2-bert",
+      "model_family": "bert",
+      "request_member": "HAS-GPU/validation/result/HAS/2-bert/has-120-50-50-15-bert.csv",
+      "request_sha256": "b2da2716fc94fdc95c5a9b9e5d3b0e6a9069612529f266bfc40132a57150e248",
+      "request_rows": 2651,
+      "request_duration_seconds_min": 0.07781505584716797,
+      "request_duration_seconds_max": 4.4797444343566895,
+      "request_duration_negative_or_zero_rows": 0,
+      "request_completion_row_order_regressions": 0,
+      "request_first_completion_as_utc": "2025-03-17T14:37:27.282363+00:00",
+      "request_last_completion_as_utc": "2025-03-17T14:42:01.352624+00:00",
+      "request_starts_in_gpu_span_as_utc": 2649,
+      "request_completions_in_gpu_span_as_utc": 2648,
+      "gpu_member": "HAS-GPU/validation/result/HAS/2-bert/has-usage-120-50-50-15-bert.csv",
+      "gpu_sha256": "2edf5a01783be50d58adf869e9f58b696da1b307bc3c0ae2da26ef2ffda81f1a",
+      "gpu_rows": 150,
+      "gpu_first_utc": "2025-03-17T14:37:02+00:00",
+      "gpu_last_utc": "2025-03-17T14:42:01+00:00",
+      "gpu_row_order_regressions": 0,
+      "gpu_columns": [
+        "timestamp",
+        "node_name",
+        "gpu_id",
+        "sm_usage",
+        "quota_usage",
+        "pod_count"
+      ],
+      "gpu_numeric_values": {
+        "sm_usage": [
+          30.0
+        ],
+        "quota_usage": [
+          30.0,
+          40.0,
+          50.0,
+          100.0
+        ],
+        "pod_count": [
+          1.0
+        ]
+      },
+      "future_start_counts": {
+        "10": {
+          "candidate_anchors": 145,
+          "anchors_with_at_least_20_starts": 136,
+          "nonoverlapping_windows": 29,
+          "nonoverlapping_windows_with_at_least_20_starts": 27
+        },
+        "30": {
+          "candidate_anchors": 135,
+          "anchors_with_at_least_20_starts": 135,
+          "nonoverlapping_windows": 9,
+          "nonoverlapping_windows_with_at_least_20_starts": 9
+        }
+      }
+    },
+    {
+      "run": "2-convnext-stress",
+      "model_family": "convnext",
+      "request_member": "HAS-GPU/validation/result/HAS/2-convnext-stress/has-120-50-50-15-convnext-stress.csv",
+      "request_sha256": "a938a639b6b1ec030302a51e0c13658ef910cba544f8de4391349a7c92783ca2",
+      "request_rows": 4890,
+      "request_duration_seconds_min": 0.04424858093261719,
+      "request_duration_seconds_max": 0.2098231315612793,
+      "request_duration_negative_or_zero_rows": 0,
+      "request_completion_row_order_regressions": 0,
+      "request_first_completion_as_utc": "2025-03-17T16:48:31.876184+00:00",
+      "request_last_completion_as_utc": "2025-03-17T16:52:44.582758+00:00",
+      "request_starts_in_gpu_span_as_utc": 4864,
+      "request_completions_in_gpu_span_as_utc": 4863,
+      "gpu_member": "HAS-GPU/validation/result/HAS/2-convnext-stress/has-usage-120-50-50-15-convnext-stress.csv",
+      "gpu_sha256": "e79d5b82fc45ff307366c8c12863c0f4f96b5f3e94b7d3ff0af03f5c47a8522c",
+      "gpu_rows": 134,
+      "gpu_first_utc": "2025-03-17T16:48:18+00:00",
+      "gpu_last_utc": "2025-03-17T16:52:43+00:00",
+      "gpu_row_order_regressions": 0,
+      "gpu_columns": [
+        "timestamp",
+        "node_name",
+        "gpu_id",
+        "sm_usage",
+        "quota_usage",
+        "pod_count"
+      ],
+      "gpu_numeric_values": {
+        "sm_usage": [
+          30.0
+        ],
+        "quota_usage": [
+          30.0,
+          100.0
+        ],
+        "pod_count": [
+          1.0
+        ]
+      },
+      "future_start_counts": {
+        "10": {
+          "candidate_anchors": 129,
+          "anchors_with_at_least_20_starts": 125,
+          "nonoverlapping_windows": 26,
+          "nonoverlapping_windows_with_at_least_20_starts": 24
+        },
+        "30": {
+          "candidate_anchors": 119,
+          "anchors_with_at_least_20_starts": 119,
+          "nonoverlapping_windows": 8,
+          "nonoverlapping_windows_with_at_least_20_starts": 8
+        }
+      }
+    },
+    {
+      "run": "2-convnext",
+      "model_family": "convnext",
+      "request_member": "HAS-GPU/validation/result/HAS/2-convnext/has-120-50-50-15.csv",
+      "request_sha256": "48a69642cb2ba3d0fcf8a3675b7e2c056aeb24174d2c2d246158dbd2b76a3d94",
+      "request_rows": 2690,
+      "request_duration_seconds_min": 0.04908442497253418,
+      "request_duration_seconds_max": 1.0195753574371338,
+      "request_duration_negative_or_zero_rows": 0,
+      "request_completion_row_order_regressions": 0,
+      "request_first_completion_as_utc": "2025-03-17T02:04:51.755368+00:00",
+      "request_last_completion_as_utc": "2025-03-17T02:09:02.800858+00:00",
+      "request_starts_in_gpu_span_as_utc": 2679,
+      "request_completions_in_gpu_span_as_utc": 2679,
+      "gpu_member": "HAS-GPU/validation/result/HAS/2-convnext/has-usage-120-50-50-15.csv",
+      "gpu_sha256": "8f7961c1f541b94ab879007566718008b614f4e78f3fea2a14a8ed72ea4f3d63",
+      "gpu_rows": 133,
+      "gpu_first_utc": "2025-03-17T02:04:38+00:00",
+      "gpu_last_utc": "2025-03-17T02:09:01+00:00",
+      "gpu_row_order_regressions": 0,
+      "gpu_columns": [
+        "timestamp",
+        "node_name",
+        "gpu_id",
+        "sm_usage",
+        "quota_usage",
+        "pod_count"
+      ],
+      "gpu_numeric_values": {
+        "sm_usage": [
+          30.0
+        ],
+        "quota_usage": [
+          30.0,
+          100.0
+        ],
+        "pod_count": [
+          1.0
+        ]
+      },
+      "future_start_counts": {
+        "10": {
+          "candidate_anchors": 127,
+          "anchors_with_at_least_20_starts": 123,
+          "nonoverlapping_windows": 26,
+          "nonoverlapping_windows_with_at_least_20_starts": 25
+        },
+        "30": {
+          "candidate_anchors": 118,
+          "anchors_with_at_least_20_starts": 118,
+          "nonoverlapping_windows": 8,
+          "nonoverlapping_windows_with_at_least_20_starts": 8
+        }
+      }
+    },
+    {
+      "run": "2-mobilenet",
+      "model_family": "mobilenet",
+      "request_member": "HAS-GPU/validation/result/HAS/2-mobilenet/has-120-50-50-15.csv",
+      "request_sha256": "d69b648f25de4fb5dc16059164542dc45d19290ec3dd42c333655a56270d0fdf",
+      "request_rows": 2690,
+      "request_duration_seconds_min": 0.049635887145996094,
+      "request_duration_seconds_max": 0.142747163772583,
+      "request_duration_negative_or_zero_rows": 0,
+      "request_completion_row_order_regressions": 0,
+      "request_first_completion_as_utc": "2025-03-17T01:41:43.738175+00:00",
+      "request_last_completion_as_utc": "2025-03-17T01:45:54.812959+00:00",
+      "request_starts_in_gpu_span_as_utc": 2679,
+      "request_completions_in_gpu_span_as_utc": 2679,
+      "gpu_member": "HAS-GPU/validation/result/HAS/2-mobilenet/has-usage-120-50-50-15.csv",
+      "gpu_sha256": "eb53dfd7d7a32446cc45605538db50e1d02f716958be894659539db26bc189d7",
+      "gpu_rows": 133,
+      "gpu_first_utc": "2025-03-17T01:41:29+00:00",
+      "gpu_last_utc": "2025-03-17T01:45:53+00:00",
+      "gpu_row_order_regressions": 0,
+      "gpu_columns": [
+        "timestamp",
+        "node_name",
+        "gpu_id",
+        "sm_usage",
+        "quota_usage",
+        "pod_count"
+      ],
+      "gpu_numeric_values": {
+        "sm_usage": [
+          30.0
+        ],
+        "quota_usage": [
+          30.0,
+          100.0
+        ],
+        "pod_count": [
+          1.0
+        ]
+      },
+      "future_start_counts": {
+        "10": {
+          "candidate_anchors": 128,
+          "anchors_with_at_least_20_starts": 124,
+          "nonoverlapping_windows": 26,
+          "nonoverlapping_windows_with_at_least_20_starts": 25
+        },
+        "30": {
+          "candidate_anchors": 118,
+          "anchors_with_at_least_20_starts": 118,
+          "nonoverlapping_windows": 8,
+          "nonoverlapping_windows_with_at_least_20_starts": 8
+        }
+      }
+    },
+    {
+      "run": "2-resnet",
+      "model_family": "resnet",
+      "request_member": "HAS-GPU/validation/result/HAS/2-resnet/has-120-50-50-15.csv",
+      "request_sha256": "77206f65643053ba84cd8b4e1c8569b57011dfff43bf1c0e3205afd6fa32ffad",
+      "request_rows": 2690,
+      "request_duration_seconds_min": 0.03796744346618652,
+      "request_duration_seconds_max": 0.9078714847564697,
+      "request_duration_negative_or_zero_rows": 0,
+      "request_completion_row_order_regressions": 0,
+      "request_first_completion_as_utc": "2025-03-16T15:19:25.004434+00:00",
+      "request_last_completion_as_utc": "2025-03-16T15:23:36.024745+00:00",
+      "request_starts_in_gpu_span_as_utc": 2684,
+      "request_completions_in_gpu_span_as_utc": 2683,
+      "gpu_member": "HAS-GPU/validation/result/HAS/2-resnet/has-usage-120-50-50-15.csv",
+      "gpu_sha256": "78eb60d9e6338ee45aa512f37470fc747632e931c8b2d0a12fef327577236d02",
+      "gpu_rows": 133,
+      "gpu_first_utc": "2025-03-16T15:19:11+00:00",
+      "gpu_last_utc": "2025-03-16T15:23:35+00:00",
+      "gpu_row_order_regressions": 0,
+      "gpu_columns": [
+        "timestamp",
+        "node_name",
+        "gpu_id",
+        "pod_name",
+        "function_name",
+        "sm_partition",
+        "quota"
+      ],
+      "gpu_numeric_values": {
+        "sm_partition": [
+          30.0
+        ],
+        "quota": [
+          10.0,
+          30.0,
+          50.0,
+          70.0,
+          90.0
+        ]
+      },
+      "future_start_counts": {
+        "10": {
+          "candidate_anchors": 128,
+          "anchors_with_at_least_20_starts": 124,
+          "nonoverlapping_windows": 26,
+          "nonoverlapping_windows_with_at_least_20_starts": 25
+        },
+        "30": {
+          "candidate_anchors": 118,
+          "anchors_with_at_least_20_starts": 118,
+          "nonoverlapping_windows": 8,
+          "nonoverlapping_windows_with_at_least_20_starts": 8
+        }
+      }
+    },
+    {
+      "run": "3-bert-stress",
+      "model_family": "bert",
+      "request_member": "HAS-GPU/validation/result/HAS/3-bert-stress/has-120-50-50-15-bert-stress.csv",
+      "request_sha256": "7195d8c5a1622610cf0c9eaddf1f807bb398ed81c4adaf9e349dcd102a93288c",
+      "request_rows": 4705,
+      "request_duration_seconds_min": 0.056014299392700195,
+      "request_duration_seconds_max": 2.1434473991394043,
+      "request_duration_negative_or_zero_rows": 0,
+      "request_completion_row_order_regressions": 0,
+      "request_first_completion_as_utc": "2025-03-17T21:14:42.418846+00:00",
+      "request_last_completion_as_utc": "2025-03-17T21:19:48.652011+00:00",
+      "request_starts_in_gpu_span_as_utc": 4705,
+      "request_completions_in_gpu_span_as_utc": 4690,
+      "gpu_member": "HAS-GPU/validation/result/HAS/3-bert-stress/has-usage-120-50-50-15-bert-stress.csv",
+      "gpu_sha256": "7ce210d1fc33576e38f08dbf2f6e082a708b1f04bb22980aaa53a0ebcbfd86ee",
+      "gpu_rows": 166,
+      "gpu_first_utc": "2025-03-17T21:14:18+00:00",
+      "gpu_last_utc": "2025-03-17T21:19:48+00:00",
+      "gpu_row_order_regressions": 0,
+      "gpu_columns": [
+        "timestamp",
+        "node_name",
+        "gpu_id",
+        "sm_usage",
+        "quota_usage",
+        "pod_count"
+      ],
+      "gpu_numeric_values": {
+        "sm_usage": [
+          50.0
+        ],
+        "quota_usage": [
+          90.0,
+          100.0
+        ],
+        "pod_count": [
+          1.0
+        ]
+      },
+      "future_start_counts": {
+        "10": {
+          "candidate_anchors": 161,
+          "anchors_with_at_least_20_starts": 150,
+          "nonoverlapping_windows": 33,
+          "nonoverlapping_windows_with_at_least_20_starts": 31
+        },
+        "30": {
+          "candidate_anchors": 151,
+          "anchors_with_at_least_20_starts": 151,
+          "nonoverlapping_windows": 11,
+          "nonoverlapping_windows_with_at_least_20_starts": 11
+        }
+      }
+    },
+    {
+      "run": "3-bert",
+      "model_family": "bert",
+      "request_member": "HAS-GPU/validation/result/HAS/3-bert/has-120-50-50-15-bert.csv",
+      "request_sha256": "2e8df55d76985ba84caae47330e02e1a9a736d150e16f8a5f08ba53d43447233",
+      "request_rows": 2681,
+      "request_duration_seconds_min": 0.05557823181152344,
+      "request_duration_seconds_max": 4.319460153579712,
+      "request_duration_negative_or_zero_rows": 0,
+      "request_completion_row_order_regressions": 0,
+      "request_first_completion_as_utc": "2025-03-17T15:17:05.065356+00:00",
+      "request_last_completion_as_utc": "2025-03-17T15:21:25.521543+00:00",
+      "request_starts_in_gpu_span_as_utc": 2672,
+      "request_completions_in_gpu_span_as_utc": 2671,
+      "gpu_member": "HAS-GPU/validation/result/HAS/3-bert/has-usage-120-50-50-15-bert.csv",
+      "gpu_sha256": "7b04896268127f8f19da2b6748f12299d14ec411006195c245444ba48a5c7c10",
+      "gpu_rows": 143,
+      "gpu_first_utc": "2025-03-17T15:16:40+00:00",
+      "gpu_last_utc": "2025-03-17T15:21:24+00:00",
+      "gpu_row_order_regressions": 0,
+      "gpu_columns": [
+        "timestamp",
+        "node_name",
+        "gpu_id",
+        "sm_usage",
+        "quota_usage",
+        "pod_count"
+      ],
+      "gpu_numeric_values": {
+        "sm_usage": [
+          50.0
+        ],
+        "quota_usage": [
+          30.0,
+          40.0,
+          50.0,
+          100.0
+        ],
+        "pod_count": [
+          1.0
+        ]
+      },
+      "future_start_counts": {
+        "10": {
+          "candidate_anchors": 138,
+          "anchors_with_at_least_20_starts": 129,
+          "nonoverlapping_windows": 28,
+          "nonoverlapping_windows_with_at_least_20_starts": 26
+        },
+        "30": {
+          "candidate_anchors": 128,
+          "anchors_with_at_least_20_starts": 128,
+          "nonoverlapping_windows": 9,
+          "nonoverlapping_windows_with_at_least_20_starts": 9
+        }
+      }
+    },
+    {
+      "run": "3-resnet",
+      "model_family": "resnet",
+      "request_member": "HAS-GPU/validation/result/HAS/3-resnet/has-120-50-50-15.csv",
+      "request_sha256": "4423edda6fc25bdfc5112da7eb224b6fa5c14537f321dfa0b37a05e85bda0e4e",
+      "request_rows": 2690,
+      "request_duration_seconds_min": 0.04744124412536621,
+      "request_duration_seconds_max": 1.1537606716156006,
+      "request_duration_negative_or_zero_rows": 0,
+      "request_completion_row_order_regressions": 0,
+      "request_first_completion_as_utc": "2025-03-16T23:26:59.481926+00:00",
+      "request_last_completion_as_utc": "2025-03-16T23:31:10.566933+00:00",
+      "request_starts_in_gpu_span_as_utc": 2681,
+      "request_completions_in_gpu_span_as_utc": 2680,
+      "gpu_member": "HAS-GPU/validation/result/HAS/3-resnet/has-usage-120-50-50-15.csv",
+      "gpu_sha256": "a0f0adf5f514720bdc08c07231f655ebddd2e9f8dbd3966126f0e6fe0c6b366e",
+      "gpu_rows": 133,
+      "gpu_first_utc": "2025-03-16T23:26:45+00:00",
+      "gpu_last_utc": "2025-03-16T23:31:09+00:00",
+      "gpu_row_order_regressions": 0,
+      "gpu_columns": [
+        "timestamp",
+        "node_name",
+        "gpu_id",
+        "sm_usage",
+        "quota_usage",
+        "pod_count"
+      ],
+      "gpu_numeric_values": {
+        "sm_usage": [
+          30.0
+        ],
+        "quota_usage": [
+          10.0,
+          20.0,
+          30.0,
+          40.0,
+          50.0,
+          70.0,
+          90.0,
+          100.0
+        ],
+        "pod_count": [
+          1.0
+        ]
+      },
+      "future_start_counts": {
+        "10": {
+          "candidate_anchors": 128,
+          "anchors_with_at_least_20_starts": 124,
+          "nonoverlapping_windows": 26,
+          "nonoverlapping_windows_with_at_least_20_starts": 25
+        },
+        "30": {
+          "candidate_anchors": 118,
+          "anchors_with_at_least_20_starts": 118,
+          "nonoverlapping_windows": 8,
+          "nonoverlapping_windows_with_at_least_20_starts": 8
+        }
+      }
+    },
+    {
+      "run": "4-bert-stress",
+      "model_family": "bert",
+      "request_member": "HAS-GPU/validation/result/HAS/4-bert-stress/has-120-50-50-15-bert-stress.csv",
+      "request_sha256": "94a9ccdc122547851b5e721a264116cae7877b5b915452636910866ddef4d71e",
+      "request_rows": 4655,
+      "request_duration_seconds_min": 0.055085182189941406,
+      "request_duration_seconds_max": 2.0130999088287354,
+      "request_duration_negative_or_zero_rows": 0,
+      "request_completion_row_order_regressions": 0,
+      "request_first_completion_as_utc": "2025-03-17T21:41:35.937726+00:00",
+      "request_last_completion_as_utc": "2025-03-17T21:46:40.365714+00:00",
+      "request_starts_in_gpu_span_as_utc": 4621,
+      "request_completions_in_gpu_span_as_utc": 4608,
+      "gpu_member": "HAS-GPU/validation/result/HAS/4-bert-stress/has-usage-120-50-50-15-bert-stress.csv",
+      "gpu_sha256": "d41eb142460ac25b0101496c795a828e611ec0ef2efec52d35e0c38705a49d0f",
+      "gpu_rows": 170,
+      "gpu_first_utc": "2025-03-17T21:41:00+00:00",
+      "gpu_last_utc": "2025-03-17T21:46:38+00:00",
+      "gpu_row_order_regressions": 0,
+      "gpu_columns": [
+        "timestamp",
+        "node_name",
+        "gpu_id",
+        "sm_usage",
+        "quota_usage",
+        "pod_count"
+      ],
+      "gpu_numeric_values": {
+        "sm_usage": [
+          50.0
+        ],
+        "quota_usage": [
+          80.0,
+          90.0,
+          100.0
+        ],
+        "pod_count": [
+          1.0
+        ]
+      },
+      "future_start_counts": {
+        "10": {
+          "candidate_anchors": 165,
+          "anchors_with_at_least_20_starts": 148,
+          "nonoverlapping_windows": 33,
+          "nonoverlapping_windows_with_at_least_20_starts": 30
+        },
+        "30": {
+          "candidate_anchors": 155,
+          "anchors_with_at_least_20_starts": 150,
+          "nonoverlapping_windows": 11,
+          "nonoverlapping_windows_with_at_least_20_starts": 10
+        }
+      }
+    },
+    {
+      "run": "4-bert",
+      "model_family": "bert",
+      "request_member": "HAS-GPU/validation/result/HAS/4-bert/has-120-50-50-15-bert.csv",
+      "request_sha256": "941c2758aa9e2569c57548f17e24b4bbded319dfa5594e18a6ebce45efd206a9",
+      "request_rows": 2690,
+      "request_duration_seconds_min": 0.05460381507873535,
+      "request_duration_seconds_max": 2.1370677947998047,
+      "request_duration_negative_or_zero_rows": 0,
+      "request_completion_row_order_regressions": 0,
+      "request_first_completion_as_utc": "2025-03-17T15:25:07.813645+00:00",
+      "request_last_completion_as_utc": "2025-03-17T15:29:20.322241+00:00",
+      "request_starts_in_gpu_span_as_utc": 2682,
+      "request_completions_in_gpu_span_as_utc": 2682,
+      "gpu_member": "HAS-GPU/validation/result/HAS/4-bert/has-usage-120-50-50-15-bert.csv",
+      "gpu_sha256": "1f004897b6772d1ec8f038094bab18df6f108e33ece6de6c930e06285e07f544",
+      "gpu_rows": 139,
+      "gpu_first_utc": "2025-03-17T15:24:43+00:00",
+      "gpu_last_utc": "2025-03-17T15:29:19+00:00",
+      "gpu_row_order_regressions": 0,
+      "gpu_columns": [
+        "timestamp",
+        "node_name",
+        "gpu_id",
+        "sm_usage",
+        "quota_usage",
+        "pod_count"
+      ],
+      "gpu_numeric_values": {
+        "sm_usage": [
+          50.0
+        ],
+        "quota_usage": [
+          30.0,
+          40.0,
+          50.0,
+          70.0,
+          100.0
+        ],
+        "pod_count": [
+          1.0
+        ]
+      },
+      "future_start_counts": {
+        "10": {
+          "candidate_anchors": 134,
+          "anchors_with_at_least_20_starts": 125,
+          "nonoverlapping_windows": 27,
+          "nonoverlapping_windows_with_at_least_20_starts": 25
+        },
+        "30": {
+          "candidate_anchors": 124,
+          "anchors_with_at_least_20_starts": 124,
+          "nonoverlapping_windows": 9,
+          "nonoverlapping_windows_with_at_least_20_starts": 9
+        }
+      }
+    },
+    {
+      "run": "4-resnet",
+      "model_family": "resnet",
+      "request_member": "HAS-GPU/validation/result/HAS/4-resnet/has-120-50-50-15.csv",
+      "request_sha256": "2a17e5ddd7034535ff53d9c4c80c3b94e6ee1f8398c0f20fa8ad35f74f10ed56",
+      "request_rows": 2690,
+      "request_duration_seconds_min": 0.05289101600646973,
+      "request_duration_seconds_max": 1.3677961826324463,
+      "request_duration_negative_or_zero_rows": 0,
+      "request_completion_row_order_regressions": 0,
+      "request_first_completion_as_utc": "2025-03-16T23:47:47.607512+00:00",
+      "request_last_completion_as_utc": "2025-03-16T23:51:58.888873+00:00",
+      "request_starts_in_gpu_span_as_utc": 2679,
+      "request_completions_in_gpu_span_as_utc": 2678,
+      "gpu_member": "HAS-GPU/validation/result/HAS/4-resnet/has-usage-120-50-50-15.csv",
+      "gpu_sha256": "4d3572185691b907f9c2033dc0c0c426be55d2a61cd931011c133245d110c783",
+      "gpu_rows": 133,
+      "gpu_first_utc": "2025-03-16T23:47:33+00:00",
+      "gpu_last_utc": "2025-03-16T23:51:57+00:00",
+      "gpu_row_order_regressions": 0,
+      "gpu_columns": [
+        "timestamp",
+        "node_name",
+        "gpu_id",
+        "sm_usage",
+        "quota_usage",
+        "pod_count"
+      ],
+      "gpu_numeric_values": {
+        "sm_usage": [
+          30.0
+        ],
+        "quota_usage": [
+          10.0,
+          20.0,
+          30.0,
+          40.0,
+          50.0,
+          70.0
+        ],
+        "pod_count": [
+          1.0
+        ]
+      },
+      "future_start_counts": {
+        "10": {
+          "candidate_anchors": 128,
+          "anchors_with_at_least_20_starts": 124,
+          "nonoverlapping_windows": 26,
+          "nonoverlapping_windows_with_at_least_20_starts": 25
+        },
+        "30": {
+          "candidate_anchors": 118,
+          "anchors_with_at_least_20_starts": 118,
+          "nonoverlapping_windows": 8,
+          "nonoverlapping_windows_with_at_least_20_starts": 8
+        }
+      }
+    },
+    {
+      "run": "5-resnet",
+      "model_family": "resnet",
+      "request_member": "HAS-GPU/validation/result/HAS/5-resnet/has-120-50-50-15.csv",
+      "request_sha256": "d69ec2efedaf180fbed8cbb84efc79cd8e2c0fed88580ef04eb064f5268290a6",
+      "request_rows": 2690,
+      "request_duration_seconds_min": 0.05035543441772461,
+      "request_duration_seconds_max": 0.922858476638794,
+      "request_duration_negative_or_zero_rows": 0,
+      "request_completion_row_order_regressions": 0,
+      "request_first_completion_as_utc": "2025-03-17T00:16:04.253056+00:00",
+      "request_last_completion_as_utc": "2025-03-17T00:20:15.803611+00:00",
+      "request_starts_in_gpu_span_as_utc": 2685,
+      "request_completions_in_gpu_span_as_utc": 2685,
+      "gpu_member": "HAS-GPU/validation/result/HAS/5-resnet/has-usage-120-50-50-15.csv",
+      "gpu_sha256": "d3b7c51edd54923389b701f54ab0b8dca246b53db99ffeedd5432304c8e45dd9",
+      "gpu_rows": 134,
+      "gpu_first_utc": "2025-03-17T00:15:50+00:00",
+      "gpu_last_utc": "2025-03-17T00:20:15+00:00",
+      "gpu_row_order_regressions": 0,
+      "gpu_columns": [
+        "timestamp",
+        "node_name",
+        "gpu_id",
+        "sm_usage",
+        "quota_usage",
+        "pod_count"
+      ],
+      "gpu_numeric_values": {
+        "sm_usage": [
+          30.0
+        ],
+        "quota_usage": [
+          10.0,
+          20.0,
+          30.0,
+          40.0
+        ],
+        "pod_count": [
+          1.0
+        ]
+      },
+      "future_start_counts": {
+        "10": {
+          "candidate_anchors": 129,
+          "anchors_with_at_least_20_starts": 125,
+          "nonoverlapping_windows": 26,
+          "nonoverlapping_windows_with_at_least_20_starts": 25
+        },
+        "30": {
+          "candidate_anchors": 119,
+          "anchors_with_at_least_20_starts": 119,
+          "nonoverlapping_windows": 8,
+          "nonoverlapping_windows_with_at_least_20_starts": 8
+        }
+      }
+    }
+  ],
+  "interpretation": "The join assumes naive client-local request times can be interpreted as UTC; overlap alone does not prove clock synchronization."
+}

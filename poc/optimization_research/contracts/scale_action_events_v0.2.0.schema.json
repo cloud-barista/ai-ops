@@ -1,0 +1,126 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "KHU research scale-out action-event stream, draft 0.2.0",
+  "description": "One source-declared research event per JSONL line. This is not a deployment command or causal-effect proof.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "event_id", "event_type", "logical_service_id", "app_id", "app_version", "observed_at", "available_at", "time_provenance", "source_system", "data"],
+  "properties": {
+    "schema_version": {"const": "0.2.0"},
+    "event_id": {"$ref": "#/definitions/id"},
+    "event_type": {"enum": ["DECISION", "ACTION_ISSUED", "ACTION_STATUS", "ACTION_RESULT", "TRAFFIC_HANDOFF", "REQUEST_RESULT"]},
+    "correlation_id": {"$ref": "#/definitions/id"},
+    "logical_service_id": {"$ref": "#/definitions/id"},
+    "app_id": {"$ref": "#/definitions/id"},
+    "app_version": {"$ref": "#/definitions/id"},
+    "observed_at": {"$ref": "#/definitions/timestamp"},
+    "available_at": {"$ref": "#/definitions/timestamp"},
+    "time_provenance": {"enum": ["SOURCE_EVENT", "LOCAL_OBSERVATION", "SYNTHETIC"]},
+    "source_system": {"$ref": "#/definitions/id"},
+    "correction_of": {"$ref": "#/definitions/id"},
+    "correction_version": {"type": "integer", "minimum": 1},
+    "data": {"type": "object"}
+  },
+  "oneOf": [
+    {"required": ["correlation_id"], "properties": {"event_type": {"const": "DECISION"}, "data": {"$ref": "#/definitions/decision"}}},
+    {"required": ["correlation_id"], "properties": {"event_type": {"const": "ACTION_ISSUED"}, "data": {"$ref": "#/definitions/action_issued"}}},
+    {"required": ["correlation_id"], "properties": {"event_type": {"const": "ACTION_STATUS"}, "data": {"$ref": "#/definitions/action_status"}}},
+    {"required": ["correlation_id"], "properties": {"event_type": {"const": "ACTION_RESULT"}, "data": {"$ref": "#/definitions/action_result"}}},
+    {"required": ["correlation_id"], "properties": {"event_type": {"const": "TRAFFIC_HANDOFF"}, "data": {"$ref": "#/definitions/traffic_handoff"}}},
+    {"properties": {"event_type": {"const": "REQUEST_RESULT"}, "data": {"$ref": "#/definitions/request_result"}}}
+  ],
+  "dependencies": {"correction_of": ["correction_version"], "correction_version": ["correction_of"]},
+  "definitions": {
+    "id": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "timestamp": {"type": "string", "format": "date-time"},
+    "deployment_ids": {"type": "array", "items": {"$ref": "#/definitions/id"}, "minItems": 1, "uniqueItems": true},
+    "decision": {
+      "type": "object", "additionalProperties": false,
+      "required": ["decision_id", "profile_id", "policy_version", "action", "current_replicas", "desired_replicas", "active_deployment_ids_before", "routing_version_before", "inputs_max_available_at", "pre_window_seconds", "post_window_seconds"],
+      "properties": {
+        "decision_id": {"$ref": "#/definitions/id"},
+        "profile_id": {"$ref": "#/definitions/id"},
+        "policy_version": {"$ref": "#/definitions/id"},
+        "action": {"const": "SCALE_OUT"},
+        "current_replicas": {"type": "integer", "minimum": 1},
+        "desired_replicas": {"type": "integer", "minimum": 2},
+        "active_deployment_ids_before": {"$ref": "#/definitions/deployment_ids"},
+        "routing_version_before": {"$ref": "#/definitions/id"},
+        "inputs_max_available_at": {"$ref": "#/definitions/timestamp"},
+        "pre_window_seconds": {"type": "integer", "minimum": 1, "maximum": 2592000},
+        "post_window_seconds": {"type": "integer", "minimum": 1, "maximum": 2592000}
+      }
+    },
+    "action_issued": {
+      "type": "object", "additionalProperties": false,
+      "required": ["action_id", "decision_id", "revision", "revision_request_id", "attempt_no", "action", "desired_replicas", "dispatch_state", "active_deployment_ids_before", "routing_version_before"],
+      "properties": {
+        "action_id": {"$ref": "#/definitions/id"},
+        "decision_id": {"$ref": "#/definitions/id"},
+        "revision": {"type": "integer", "minimum": 1},
+        "revision_request_id": {"$ref": "#/definitions/id"},
+        "attempt_no": {"type": "integer", "minimum": 1},
+        "retry_of_action_id": {"$ref": "#/definitions/id"},
+        "action": {"const": "SCALE_OUT"},
+        "desired_replicas": {"type": "integer", "minimum": 2},
+        "dispatch_state": {"enum": ["ACCEPTED", "REJECTED", "UNKNOWN"]},
+        "active_deployment_ids_before": {"$ref": "#/definitions/deployment_ids"},
+        "routing_version_before": {"$ref": "#/definitions/id"},
+        "target_deployment_id": {"$ref": "#/definitions/id"}
+      }
+    },
+    "action_status": {
+      "type": "object", "additionalProperties": false,
+      "required": ["action_id", "status"],
+      "properties": {
+        "action_id": {"$ref": "#/definitions/id"},
+        "status": {"enum": ["REQUESTED", "PROVISIONING", "DEPLOYING", "RUNNING", "UNKNOWN"]},
+        "target_deployment_id": {"$ref": "#/definitions/id"}
+      }
+    },
+    "action_result": {
+      "type": "object", "additionalProperties": false,
+      "required": ["action_id", "state"],
+      "properties": {
+        "action_id": {"$ref": "#/definitions/id"},
+        "state": {"enum": ["READY", "FAILED"]},
+        "target_deployment_id": {"$ref": "#/definitions/id"},
+        "target_ready_replicas": {"type": "integer", "minimum": 0},
+        "ready_service_replicas": {"type": "integer", "minimum": 0},
+        "service_health": {"enum": ["HEALTHY", "UNHEALTHY", "UNKNOWN"]},
+        "readiness_signal": {"enum": ["SERVICE_HEALTH_AND_REPLICA_COUNT", "STATUS_ONLY"]},
+        "reason": {"$ref": "#/definitions/id"}
+      },
+      "oneOf": [
+        {"properties": {"state": {"const": "READY"}}, "required": ["target_deployment_id", "target_ready_replicas", "ready_service_replicas", "service_health", "readiness_signal"], "not": {"required": ["reason"]}},
+        {"properties": {"state": {"const": "FAILED"}}, "required": ["reason"], "not": {"anyOf": [{"required": ["target_ready_replicas"]}, {"required": ["ready_service_replicas"]}, {"required": ["service_health"]}, {"required": ["readiness_signal"]}]}}
+      ]
+    },
+    "traffic_handoff": {
+      "type": "object", "additionalProperties": false,
+      "required": ["action_id", "target_deployment_id", "from_routing_version", "to_routing_version", "active_deployment_ids_before", "active_deployment_ids_after"],
+      "properties": {
+        "action_id": {"$ref": "#/definitions/id"},
+        "target_deployment_id": {"$ref": "#/definitions/id"},
+        "from_routing_version": {"$ref": "#/definitions/id"},
+        "to_routing_version": {"$ref": "#/definitions/id"},
+        "active_deployment_ids_before": {"$ref": "#/definitions/deployment_ids"},
+        "active_deployment_ids_after": {"$ref": "#/definitions/deployment_ids"}
+      }
+    },
+    "request_result": {
+      "type": "object", "additionalProperties": false,
+      "required": ["request_id", "served_deployment_id", "routing_version", "created_at", "completed_at", "success", "latency_ms", "workload_class"],
+      "properties": {
+        "request_id": {"$ref": "#/definitions/id"},
+        "served_deployment_id": {"$ref": "#/definitions/id"},
+        "routing_version": {"$ref": "#/definitions/id"},
+        "created_at": {"$ref": "#/definitions/timestamp"},
+        "completed_at": {"$ref": "#/definitions/timestamp"},
+        "success": {"type": "boolean"},
+        "latency_ms": {"type": "number", "minimum": 0},
+        "workload_class": {"$ref": "#/definitions/id"}
+      }
+    }
+  }
+}

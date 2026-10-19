@@ -1,0 +1,75 @@
+{
+  "source_snapshot_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "script_sha256": "b116996d07c8b582e8daee865db61888ed0057c09976bfff3f36b1eb305616ea",
+  "split": "outer leave-one-model-out; donor training only on local-exhaustive",
+  "heldout_observation": "GPU1/CPU2 outcome and node summary for the same workload",
+  "target": "GPU2/CPU2 latency and requests per second",
+  "model": "ExtraTrees 100 trees, min leaf 2, seed 42 for all methods",
+  "telemetry_variants": {
+    "telemetry": [
+      "anchor_log1p_gpu_utilization_percent_mean",
+      "anchor_log1p_gpu_utilization_percent_max",
+      "anchor_log1p_gpu_memory_used_mib_max",
+      "anchor_log1p_cpu_percent_mean",
+      "anchor_log1p_running_sample_count"
+    ],
+    "gpu_telemetry": [
+      "anchor_log1p_gpu_utilization_percent_mean",
+      "anchor_log1p_gpu_utilization_percent_max",
+      "anchor_log1p_gpu_memory_used_mib_max"
+    ],
+    "no_count": [
+      "anchor_log1p_gpu_utilization_percent_mean",
+      "anchor_log1p_gpu_utilization_percent_max",
+      "anchor_log1p_gpu_memory_used_mib_max",
+      "anchor_log1p_cpu_percent_mean"
+    ],
+    "count_only": [
+      "anchor_log1p_running_sample_count"
+    ]
+  },
+  "by_campaign": {
+    "khu-hf-local-exhaustive": {
+      "models": 9,
+      "workload_groups": 575,
+      "baseline_latency_male": 0.24361294516541904,
+      "baseline_rps_male": 0.11199578097272256,
+      "telemetry_latency_male": 0.24848667523996884,
+      "telemetry_rps_male": 0.09756392714099481,
+      "gpu_telemetry_latency_male": 0.24759106535784875,
+      "gpu_telemetry_rps_male": 0.09632392013829169,
+      "no_count_latency_male": 0.24752872493323774,
+      "no_count_rps_male": 0.0960565277832372,
+      "count_only_latency_male": 0.2462899159368651,
+      "count_only_rps_male": 0.1110367605459863
+    },
+    "khu-hf-local-novel-matrix": {
+      "models": 9,
+      "workload_groups": 18,
+      "baseline_latency_male": 0.2697256872015646,
+      "baseline_rps_male": 0.11926275293346089,
+      "telemetry_latency_male": 0.27615616519971176,
+      "telemetry_rps_male": 0.11131879499718164,
+      "gpu_telemetry_latency_male": 0.25814154976016623,
+      "gpu_telemetry_rps_male": 0.11607951237901422,
+      "no_count_latency_male": 0.26044250052349294,
+      "no_count_rps_male": 0.11516030673120424,
+      "count_only_latency_male": 0.2780606494600886,
+      "count_only_rps_male": 0.11781997526844173
+    },
+    "khu-hf-local-space-filling": {
+      "models": 9,
+      "workload_groups": 44,
+      "baseline_latency_male": 0.2975224793208849,
+      "baseline_rps_male": 0.17074654810146178,
+      "telemetry_latency_male": 0.2800336824956753,
+      "telemetry_rps_male": 0.12289293790393778,
+      "gpu_telemetry_latency_male": 0.2900410398734923,
+      "gpu_telemetry_rps_male": 0.1263541218440315,
+      "no_count_latency_male": 0.2874434233688006,
+      "no_count_rps_male": 0.12512216350369507,
+      "count_only_latency_male": 0.29252218848107936,
+      "count_only_rps_male": 0.16617525062687308
+    }
+  }
+}

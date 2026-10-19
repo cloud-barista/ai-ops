@@ -1,0 +1,51 @@
+AI-MCMP 경희대학교 담당 항목별 연구 진행 상태
+2026-10-06 | 현재 저장 보고서·코드에 따른 상태 점검
+
+1. 적용 범위
+경희대의 응용 요구 분석, 추상 인프라 형상 추천, 배포·업데이트·스케일 판단, 운영 피드백 및 판단 추론 최적화를 대상으로 한다. 전체 AI-App 운영 플랫폼은 이노그리드, 실제 인프라 선택·생성·삭제는 ETRI와의 경계다. 완성형 스케줄러, 동일 VM 다중 앱 빈패킹·CPU affinity 제어·GPU 공유·프로세스 스케줄러·K8s 개발을 다음 필수 연구 항목으로 추가하지 않는다. 기존 연구의 CPU affinity 값은 정적 벤치마크 조건이며 프로세스 스케줄러 구현 성과가 아니다.
+
+2. 요구사항 분석
+구조화된 모델·revision·batch·입력 길이·동시성 등을 처리하고, 관측 GPU 예약 피크와 로컬 캐시 모델 적재시간의 연구 추정 모듈을 구현했다. 요청과 결과를 연결하는 버전형 증거·스키마·검증기를 갖췄다.
+부족한 증거: 자연어 요청과 사람 승인 요구사항의 짝, 실제 최소 CPU/RAM/GPU 종류·수·노드 수의 정답, 새 앱 독립 시험. 관측 예약 피크를 최소 VM 메모리 정답으로 바꾸지 않는다.
+근거: reports/requirement_signal_evidence_v0.1.0.md, reports/requirement_signal_api_feasibility.md, reports/sqlite_seven_requirement_supervision_audit.md.
+
+3. 인프라 형상 추천과 후보 평가
+SQLite local-exhaustive 4,856실행·575작업 그룹으로 Extra Trees를 학습했다. 지연·처리량 예측과 두 목표 공동 검사로 최소 GPU replica/CPU affinity 후보를 선택하고 지원 밖이면 ABSTAIN한다. 같은 호스트의 주 GPU 시험 90작업에서 성공 추천은 기준선 36건에서 54건으로 늘었다. 목표는 수집기 생성값이고 각 후보의 기록된 1회 실측과 비교했다.
+버전형 형상 증거는 물리 GPU 인덱스와 학습/검증/시험/별도 캠페인의 정확 입력 출처를 기록한다. 연구 추정을 실제 실행 승인으로 자동 변환하지 않는다.
+부족한 증거: 실제 VM CPU/RAM, GPU 종류, 노드 수, 이미지·라벨·배치 제약, 가격·가용량을 포함한 추천과 다른 호스트·새 앱 독립 평가. 같은 호스트 프로세스 replica 1/2를 VM 1/2대로 해석하지 않는다.
+근거: reports/saved_gpu_shape_decision_audit_findings.md, reports/gpu_shape_evidence_v0.2.0_findings.md, scripts/train_performance.py, scripts/assess_gpu_shape.py.
+
+4. 운영 위험과 수요 신호
+Philly 통합 로지스틱은 새 기계 37대에서 Beta 기준선 대비 Brier를 13.46% 줄였다. 별도 51대에서는 전날 기계·슬롯 잔차 보정이 강한 기계별 보정 대비 2.63% 줄였다. 위험은 다음 30분 GPU 고사용률 사건이며 앱 SLO 위반이나 실제 증설 효과가 아니다.
+Azure Coding 다음 5분 입력 수요 q90은 후향 3일에서 강한 단순 기준선 대비 pinball을 43.6% 줄였다. Conversation 전이는 개선하지 못했다.
+준비 지연에 맞춘 최대 입력 토큰 수요 모델 6개를 추가 학습했다. Coding 5/10/30분 준비 조건의 손실 감소는 32.92/33.89/61.29%, LMM은 5.65/4.19/6.05%다. 이미 노출된 한 주의 후향 평가이며 서비스별로 따로 학습했다.
+Copilot 호출 수 모델의 학습 기간 확대 결과는 copilot_call_extended_findings_2026_10_06.txt와 verification.json을 확인한다. 토큰 품질 실패를 호출 수 예측으로 해결했다고 주장하지 않는다.
+근거: reports/philly_machine_holdout_findings.md, reports/philly_slot_day_calibration_holdout_findings.md, reports/azure_code_input_demand_findings.md, reports/delay_capacity_findings_2026_10_06.txt.
+
+5. 배포·업데이트·Scale-out/in 판단
+기존 Go PoC에는 ApplicationProfile+ResourceRecommendation 입력, 판단·Guard·계획 생성 경로가 있다. 이 코드의 존재를 학습된 판단의 성능 증거로 삼지 않는다. 자체 요구 분석·추천의 legacy 경로를 정식 서버에 다시 연결하는 것은 현재 브랜치 지침과 맞지 않는다.
+연구에서는 예측 수요를 가상 slot의 유체 대기열 정책에 연결하고 준비 5/10/30분, 최대 용량, 유지시간·연속 확인·축소 여유를 비교했다. 지연 대응 실험의 180정책 비교에서 Coding/LMM 주 조건은 모두 NO_GO다. 비용·부족·대기·방향 전환을 함께 개선했다는 채택 증거가 없다.
+부족한 증거: 실제 action 접수, 앱/VM READY, 트래픽 전환, 사용자 종단간 결과와 비용의 연결. DEPLOY/UPDATE/SCALE_OUT/SCALE_IN/KEEP를 모두 학습·검증한 통합 정책은 완료되지 않았다.
+근거: reports/demand_capacity_findings_2026_10_06.txt, reports/delay_capacity_findings_2026_10_06.txt, reports/scale_decision_feasibility.md.
+
+6. 피드백과 판단 추론 최적화
+전날 기계·슬롯 완료 피드백을 이용한 확률 보정은 제한된 공개 클러스터 시험에서 개선됐다. 수요 예측에도 종료된 정답만 이용한 잔차 보정을 실험했다. 실제 계측 전달 시각은 공개 원본에서 알 수 없어 완료 즉시 가용을 가정했다.
+동일 형상 25개 SLO의 원시 예측 재사용은 487.01→24.19ms, 출력 JSON 5,625쌍 일치였다. 고유 575격자의 64→256 묶음은 747.305→528.949ms였다. 최신 v7의 고유 격자 벽시계 중앙값은 362.711→324.155ms지만 누적 CPU는 18.73% 늘었다. 별도 실험의 속도비를 곱하지 않는다.
+부족한 증거: 온라인 API 동시 요청·왕복시간과 실제 배포·사용자 지연 개선.
+근거: reports/slo_reuse_many_findings.md, reports/decision_inference_chunk256_findings.md, reports/decision_inference_row_partition_findings_2026_10_05.md.
+
+7. 인터페이스·에이전트·설계 산출물
+요구 신호·GPU 형상·Philly 위험의 계산 모듈 및 연구 요청/결과 계약을 마련했다. Scale-out 사건 계약 v0.2.0은 decision→실행 측 action 접수→READY/FAILED→트래픽 전환→사용자 요청 결과를 연결한다. 현재 예시는 합성이며 실제 연동이나 인과 효과를 증명하지 않는다. v0.2.0은 1회 replica 1개 증가에 한정하고 Scale-in/Update/Keep를 포괄하지 않는다.
+부족한 증거: INNO·ETRI가 합의한 전체 입력/출력 규격, 연구 추정과 실행 판단의 변환 경계, 실제 Adapter 연동 및 통합 에이전트 검증. 개별 연구 계약은 전체 Deployment Spec이나 통합 실행 API 완료의 대체물이 아니다.
+기존 CPU/GPU PoC가 1차년도 산출물로 유효하다는 기관 답변과 현 환경의 실제 동작 검증은 별개의 증거다. 이번 상태 점검에서는 전체 PoC를 다시 실행하지 않았으므로 현재 런타임의 완주를 확인했다고 말하지 않는다.
+근거: reports/scale_action_events_v0_2_0.md, contracts/, deployment_agent/AGENTS.md, reports/research_to_deployment_spec_boundary.md.
+
+8. 다음 연구 우선순위
+(1) INNO·ETRI와 실제 입력·결과 사건 계약을 합의하고 action/READY/사용자 지표를 연결한다.
+(2) 앱 요구·자원 후보·실제 사용자 SLO를 포함한 새 호스트·새 앱 측정과 미사용 시험을 확보한다.
+(3) 요구 분석은 구조화 필드와 사람 검토 라벨부터 수집한다.
+(4) 간단한 정책 기준선과 예측 기반 정책을 같은 비용·부족·진동 조건으로 비교한다. 검증 실패를 성공 성과로 바꾸지 않는다.
+(5) 서비스 전이와 피드백 지연을 새 기간에서 확인한다. 기존 노출 시험의 반복 최적화를 독립 일반화로 부르지 않는다.
+
+결론
+개선이 확인된 것은 제한된 정적 추천, 운영 위험·수요 신호, 오프라인 판단 계산 효율이다. 요구 분석 전체, 실제 행동 효과 정책, 통합 에이전트 및 기관 연동은 추가 연구·실측이 필요하다. 데이터 수집·계약과 계산 모듈 개발은 진행 성과이며 실제 배포 효과의 완료 증거와 구분한다.

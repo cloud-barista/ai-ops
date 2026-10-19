@@ -1,0 +1,34 @@
+{
+  "label": "posthoc_uncalibrated_diagnostic_not_gate",
+  "metrics": {
+    "feedback_hgb": {
+      "job_equal_composite": 1.1735289684378176,
+      "job_equal_cpu_pinball": 0.03537458414558132,
+      "job_equal_joint_coverage": 0.5640995094098868,
+      "job_equal_memory_pinball": 0.003060669611111875
+    },
+    "recent_peak_margin": {
+      "job_equal_composite": 1.1295230836149361,
+      "job_equal_cpu_pinball": 0.03494742822670655,
+      "job_equal_joint_coverage": 0.8299408187186254,
+      "job_equal_memory_pinball": 0.0027981567591106303
+    },
+    "request_ratio": {
+      "job_equal_composite": 1.3168772775426791,
+      "job_equal_cpu_pinball": 0.048976849247212205,
+      "job_equal_joint_coverage": 0.7262017284821821,
+      "job_equal_memory_pinball": 0.001909851663921822
+    },
+    "submit_hgb": {
+      "job_equal_composite": 1.4879834295702736,
+      "job_equal_cpu_pinball": 0.04994302782170167,
+      "job_equal_joint_coverage": 0.4226148763243616,
+      "job_equal_memory_pinball": 0.003044693833764555
+    }
+  },
+  "model_sha256": "ce9b3088e90ac66083e19102d58b857c580dd59cfb3b41653138deb04b17394b",
+  "script_sha256": "9c7eaea3bdc8c122ad8105815cb6a640e59be29776f01b1f282fd7cf5cb89b2e",
+  "validation_jobs": 48,
+  "validation_sha256": "7d15dbbff2289c90305210260da7991b3ba962a65e958470acb1b69e5ea8fab1",
+  "validation_tasks": 2808
+}

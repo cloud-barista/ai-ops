@@ -1,0 +1,133 @@
+{
+  "status": "dry_run",
+  "hashes": {
+    "raw_sha256": "79c92fd40752e40a6cac1fc897491ea2f54f37939dc4dcc48c96ea06383c81b7",
+    "compact_sha256": "d5c2bf4cc038f936a9713f8fc7c0430703ddd1c03ed0518fb65aaf68e160997b",
+    "audit_sha256": "c03b7c7c0f517eea8301113feed83fda94a8701d8c68a592da0c3de0cd6f8aab",
+    "protocol_sha256": "a50ded6b5d29ec83dc84efbd7635dd63a0f05d832175e362d174ad71495fed8d"
+  },
+  "script_sha256": "955033b50da0a5bd53b07bc17d39441219813152f8db652f92deaafbe6359b09",
+  "dataset_sha256": "d8443b67a500ca443e8d556152e5da299d63ebb1f81f05f4e5661c17af418c89",
+  "dataset_rows": 18893,
+  "selected_aliases": [
+    "45363f1dab",
+    "99668f5da8"
+  ],
+  "ingest": {
+    "source_rows_before_2025_08_16": 15291842,
+    "global_arrivals_in_grid": 14628010,
+    "selected_arrivals_in_grid": {
+      "45363f1dab": 4794135,
+      "99668f5da8": 7721938
+    },
+    "known_6h_gap_ends_before_holdout": 249,
+    "feedback_events_before_holdout": {
+      "45363f1dab": 4793994,
+      "99668f5da8": 7701237
+    }
+  },
+  "decision_audit": {
+    "by_split": {
+      "fit": {
+        "grid_decisions": 43463,
+        "causal_global_eligible": 12411,
+        "no_global_arrival_previous_10m": 29801,
+        "within_120m_after_known_6h_gap": 2616,
+        "raw_arrivals": 7195026
+      },
+      "validation": {
+        "grid_decisions": 8639,
+        "causal_global_eligible": 3160,
+        "no_global_arrival_previous_10m": 5306,
+        "within_120m_after_known_6h_gap": 552,
+        "raw_arrivals": 1521213
+      },
+      "test": {
+        "grid_decisions": 8927,
+        "causal_global_eligible": 3529,
+        "no_global_arrival_previous_10m": 5247,
+        "within_120m_after_known_6h_gap": 480,
+        "raw_arrivals": 5911771
+      }
+    },
+    "by_model_split": {
+      "45363f1dab:fit": {
+        "active_decisions": 1104,
+        "eligible_decisions": 718,
+        "positive_targets": 299,
+        "zero_targets": 419,
+        "model_arrivals": 5841
+      },
+      "99668f5da8:fit": {
+        "active_decisions": 18345,
+        "eligible_decisions": 11708,
+        "positive_targets": 9681,
+        "zero_targets": 2027,
+        "model_arrivals": 5474489
+      },
+      "45363f1dab:validation": {
+        "active_decisions": 2099,
+        "eligible_decisions": 1526,
+        "positive_targets": 1203,
+        "zero_targets": 323,
+        "model_arrivals": 1316939
+      },
+      "99668f5da8:validation": {
+        "active_decisions": 2329,
+        "eligible_decisions": 1513,
+        "positive_targets": 743,
+        "zero_targets": 770,
+        "model_arrivals": 36761
+      },
+      "45363f1dab:test": {
+        "active_decisions": 2492,
+        "eligible_decisions": 1747,
+        "positive_targets": 1037,
+        "zero_targets": 710,
+        "model_arrivals": 3471355
+      },
+      "99668f5da8:test": {
+        "active_decisions": 2620,
+        "eligible_decisions": 1681,
+        "positive_targets": 880,
+        "zero_targets": 801,
+        "model_arrivals": 2210688
+      }
+    }
+  },
+  "quality_gate": {
+    "passes": true,
+    "reasons": []
+  },
+  "dataset_columns": [
+    "t_us",
+    "model_alias",
+    "model_code",
+    "split",
+    "y",
+    "m5",
+    "g5",
+    "m10",
+    "g10",
+    "m30",
+    "g30",
+    "m60",
+    "g60",
+    "m120",
+    "g120",
+    "sin_day",
+    "cos_day",
+    "sin_week",
+    "cos_week",
+    "c30",
+    "c120",
+    "duration_p90_logsec",
+    "error_rate120",
+    "completion_empty120",
+    "persistence",
+    "recent_p90",
+    "fixed_p90"
+  ],
+  "max_decision_t_us": 1755290400000000,
+  "reserved_holdout_begins_utc": "2025-08-16"
+}

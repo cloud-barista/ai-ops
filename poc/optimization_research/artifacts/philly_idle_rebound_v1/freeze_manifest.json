@@ -1,0 +1,16 @@
+{
+  "kind": "khu.philly_idle_rebound.score_freeze_v1",
+  "frozen_at_utc": "2026-09-28 20:37:58 UTC",
+  "status": "protocol_and_eligibility_only_no_model_scores",
+  "protocol_sha256": "828e906af43963a9bfefdb564812edce0f7b4711ee5cc67da2ddd7ad45f96fb2",
+  "audit_script_sha256": "a2597040751c9723632a0cabc9e494c53697b07ba066215be321e61e846bb599",
+  "test_script_sha256": "028ee66ca48ad6226b250f0cf498bb07cdf4dbcfb4c7a046981cf1a137cc71ce",
+  "source_sha256": {
+    "development": "15f1af4669acb9823d0e6d96291e799cf33f8a9c1813d4faf51b0b9eb618ad58",
+    "machine_holdout": "146fe4318d6634120bdc10b2af9522be6c0a113c3213fb386a007b4d21edbdf8"
+  },
+  "prior_data_exposure": "The development machines' label counts under this new target were inspected before protocol freeze. No predictive scores were computed. The separate machine holdout's new-target labels remain unopened pending model and baseline selection freeze.",
+  "review_amendment": "After the first score-free development dry run, corrected right-censored machine tails, added machine-day and history-missingness gates, and required actual model/code/validation files for holdout unlock. Previous freeze and dry run are retained as pre-review artifacts. No model or predictive score was computed before this amendment.",
+  "previous_freeze_sha256": "a302083506933c47af64483c4100a1913c676853504c7480c215dfe0ecae02b4",
+  "previous_development_eligibility_sha256": "d1403ac1508667464910f43d42e6181681030405e336dde3fb33d7f33646a4f2"
+}

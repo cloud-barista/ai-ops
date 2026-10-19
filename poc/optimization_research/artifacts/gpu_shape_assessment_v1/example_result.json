@@ -1,0 +1,116 @@
+{
+  "status": "RESEARCH_ESTIMATE",
+  "selected": {
+    "gpu_replicas": 2,
+    "cpu_affinity_cores": 2,
+    "status": "PREDICTED",
+    "predicted_batch_latency_p95_ms": 2.029383056002796,
+    "predicted_requests_per_second": 1022.3130050640893,
+    "batch_latency_margin_ms": 0.9706169439972041,
+    "requests_per_second_margin": 422.31300506408934,
+    "meets_estimated_slo": true
+  },
+  "application_id": "research-demo-bert-l2",
+  "workload_id": "783f9cfdcd98f2b1017e1329e7130ca0a35064f0f9fbcd583364ccf624e31d55",
+  "model_id": "google/bert_uncased_L-2_H-128_A-2",
+  "model_revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+  "device": "cuda",
+  "host": "icns",
+  "device_name": "NVIDIA RTX PRO 5000 Blackwell",
+  "batch_size": 1,
+  "max_length": 32,
+  "request_concurrency": 1,
+  "repeats": 8,
+  "batch_latency_p95_limit_ms": 3.0,
+  "min_requests_per_second": 600.0,
+  "candidate_assessments": [
+    {
+      "gpu_replicas": 1,
+      "cpu_affinity_cores": 2,
+      "status": "PREDICTED",
+      "predicted_batch_latency_p95_ms": 1.923522978551211,
+      "predicted_requests_per_second": 538.2368390898409,
+      "batch_latency_margin_ms": 1.076477021448789,
+      "requests_per_second_margin": -61.76316091015906,
+      "meets_estimated_slo": false
+    },
+    {
+      "gpu_replicas": 1,
+      "cpu_affinity_cores": 4,
+      "status": "PREDICTED",
+      "predicted_batch_latency_p95_ms": 1.923522978551211,
+      "predicted_requests_per_second": 538.2368390898409,
+      "batch_latency_margin_ms": 1.076477021448789,
+      "requests_per_second_margin": -61.76316091015906,
+      "meets_estimated_slo": false
+    },
+    {
+      "gpu_replicas": 1,
+      "cpu_affinity_cores": 8,
+      "status": "PREDICTED",
+      "predicted_batch_latency_p95_ms": 1.908361176522516,
+      "predicted_requests_per_second": 540.297019016447,
+      "batch_latency_margin_ms": 1.091638823477484,
+      "requests_per_second_margin": -59.70298098355295,
+      "meets_estimated_slo": false
+    },
+    {
+      "gpu_replicas": 1,
+      "cpu_affinity_cores": 16,
+      "status": "PREDICTED",
+      "predicted_batch_latency_p95_ms": 1.908361176522516,
+      "predicted_requests_per_second": 540.297019016447,
+      "batch_latency_margin_ms": 1.091638823477484,
+      "requests_per_second_margin": -59.70298098355295,
+      "meets_estimated_slo": false
+    },
+    {
+      "gpu_replicas": 2,
+      "cpu_affinity_cores": 2,
+      "status": "PREDICTED",
+      "predicted_batch_latency_p95_ms": 2.029383056002796,
+      "predicted_requests_per_second": 1022.3130050640893,
+      "batch_latency_margin_ms": 0.9706169439972041,
+      "requests_per_second_margin": 422.31300506408934,
+      "meets_estimated_slo": true
+    },
+    {
+      "gpu_replicas": 2,
+      "cpu_affinity_cores": 4,
+      "status": "PREDICTED",
+      "predicted_batch_latency_p95_ms": 2.029383056002796,
+      "predicted_requests_per_second": 1022.3130050640893,
+      "batch_latency_margin_ms": 0.9706169439972041,
+      "requests_per_second_margin": 422.31300506408934,
+      "meets_estimated_slo": true
+    },
+    {
+      "gpu_replicas": 2,
+      "cpu_affinity_cores": 8,
+      "status": "PREDICTED",
+      "predicted_batch_latency_p95_ms": 2.02376091865608,
+      "predicted_requests_per_second": 1031.8500901376858,
+      "batch_latency_margin_ms": 0.9762390813439201,
+      "requests_per_second_margin": 431.8500901376858,
+      "meets_estimated_slo": true
+    },
+    {
+      "gpu_replicas": 2,
+      "cpu_affinity_cores": 16,
+      "status": "PREDICTED",
+      "predicted_batch_latency_p95_ms": 2.02376091865608,
+      "predicted_requests_per_second": 1031.8500901376858,
+      "batch_latency_margin_ms": 0.9762390813439201,
+      "requests_per_second_margin": 431.8500901376858,
+      "meets_estimated_slo": true
+    }
+  ],
+  "scope": "Uncalibrated same-host, known-model batch benchmark estimate. CPU values are affinity cores; GPU values are benchmark replicas, not VM resources. No deployment or scaling action is authorized.",
+  "provenance": {
+    "model_sha256": "7a934da440ea0c7473e4e59eb5fa0c8c57f347389272bd303cb0051ef918b161",
+    "source_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+    "hashes_verified": true,
+    "training_sklearn_version": "1.6.1",
+    "runtime_sklearn_version": "1.6.1"
+  }
+}

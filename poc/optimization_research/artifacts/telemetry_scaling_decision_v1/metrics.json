@@ -1,0 +1,207 @@
+{
+  "prediction_sha256": "95790ede420476c3d21879cd14233bc9185da8727df5aa4eb7f33c6fb500cd93",
+  "script_sha256": "a2c8a3e1a2acab253f0d16fb5a91c3258b48ac6f2d2003ced9a2c4dc35717f7b",
+  "target_definition": "5 by 5 donor-only GPU2 log latency/RPS quantiles, 20%-80%",
+  "scope": "encoder models only; 25 correlated hypothetical constraints per workload",
+  "action": "if measured GPU1 is infeasible, approve GPU2 when predicted feasible",
+  "by_campaign": [
+    {
+      "campaign": "khu-hf-local-exhaustive",
+      "method": "baseline",
+      "queries": 12800,
+      "at_risk": 11131,
+      "beneficial_scale": 2441,
+      "scale_approved": 2308,
+      "successful_scale": 1959,
+      "false_scale_approval": 349,
+      "missed_beneficial_scale": 482
+    },
+    {
+      "campaign": "khu-hf-local-exhaustive",
+      "method": "count_only",
+      "queries": 12800,
+      "at_risk": 11131,
+      "beneficial_scale": 2441,
+      "scale_approved": 2334,
+      "successful_scale": 1973,
+      "false_scale_approval": 361,
+      "missed_beneficial_scale": 468
+    },
+    {
+      "campaign": "khu-hf-local-exhaustive",
+      "method": "gpu_telemetry",
+      "queries": 12800,
+      "at_risk": 11131,
+      "beneficial_scale": 2441,
+      "scale_approved": 2290,
+      "successful_scale": 1962,
+      "false_scale_approval": 328,
+      "missed_beneficial_scale": 479
+    },
+    {
+      "campaign": "khu-hf-local-exhaustive",
+      "method": "hybrid_no_count",
+      "queries": 12800,
+      "at_risk": 11131,
+      "beneficial_scale": 2441,
+      "scale_approved": 2290,
+      "successful_scale": 1945,
+      "false_scale_approval": 345,
+      "missed_beneficial_scale": 496
+    },
+    {
+      "campaign": "khu-hf-local-exhaustive",
+      "method": "no_count",
+      "queries": 12800,
+      "at_risk": 11131,
+      "beneficial_scale": 2441,
+      "scale_approved": 2278,
+      "successful_scale": 1948,
+      "false_scale_approval": 330,
+      "missed_beneficial_scale": 493
+    },
+    {
+      "campaign": "khu-hf-local-exhaustive",
+      "method": "telemetry",
+      "queries": 12800,
+      "at_risk": 11131,
+      "beneficial_scale": 2441,
+      "scale_approved": 2279,
+      "successful_scale": 1953,
+      "false_scale_approval": 326,
+      "missed_beneficial_scale": 488
+    },
+    {
+      "campaign": "khu-hf-local-novel-matrix",
+      "method": "baseline",
+      "queries": 400,
+      "at_risk": 339,
+      "beneficial_scale": 99,
+      "scale_approved": 74,
+      "successful_scale": 69,
+      "false_scale_approval": 5,
+      "missed_beneficial_scale": 30
+    },
+    {
+      "campaign": "khu-hf-local-novel-matrix",
+      "method": "count_only",
+      "queries": 400,
+      "at_risk": 339,
+      "beneficial_scale": 99,
+      "scale_approved": 80,
+      "successful_scale": 74,
+      "false_scale_approval": 6,
+      "missed_beneficial_scale": 25
+    },
+    {
+      "campaign": "khu-hf-local-novel-matrix",
+      "method": "gpu_telemetry",
+      "queries": 400,
+      "at_risk": 339,
+      "beneficial_scale": 99,
+      "scale_approved": 80,
+      "successful_scale": 74,
+      "false_scale_approval": 6,
+      "missed_beneficial_scale": 25
+    },
+    {
+      "campaign": "khu-hf-local-novel-matrix",
+      "method": "hybrid_no_count",
+      "queries": 400,
+      "at_risk": 339,
+      "beneficial_scale": 99,
+      "scale_approved": 74,
+      "successful_scale": 69,
+      "false_scale_approval": 5,
+      "missed_beneficial_scale": 30
+    },
+    {
+      "campaign": "khu-hf-local-novel-matrix",
+      "method": "no_count",
+      "queries": 400,
+      "at_risk": 339,
+      "beneficial_scale": 99,
+      "scale_approved": 80,
+      "successful_scale": 74,
+      "false_scale_approval": 6,
+      "missed_beneficial_scale": 25
+    },
+    {
+      "campaign": "khu-hf-local-novel-matrix",
+      "method": "telemetry",
+      "queries": 400,
+      "at_risk": 339,
+      "beneficial_scale": 99,
+      "scale_approved": 76,
+      "successful_scale": 71,
+      "false_scale_approval": 5,
+      "missed_beneficial_scale": 28
+    },
+    {
+      "campaign": "khu-hf-local-space-filling",
+      "method": "baseline",
+      "queries": 1000,
+      "at_risk": 914,
+      "beneficial_scale": 193,
+      "scale_approved": 170,
+      "successful_scale": 148,
+      "false_scale_approval": 22,
+      "missed_beneficial_scale": 45
+    },
+    {
+      "campaign": "khu-hf-local-space-filling",
+      "method": "count_only",
+      "queries": 1000,
+      "at_risk": 914,
+      "beneficial_scale": 193,
+      "scale_approved": 175,
+      "successful_scale": 147,
+      "false_scale_approval": 28,
+      "missed_beneficial_scale": 46
+    },
+    {
+      "campaign": "khu-hf-local-space-filling",
+      "method": "gpu_telemetry",
+      "queries": 1000,
+      "at_risk": 914,
+      "beneficial_scale": 193,
+      "scale_approved": 179,
+      "successful_scale": 152,
+      "false_scale_approval": 27,
+      "missed_beneficial_scale": 41
+    },
+    {
+      "campaign": "khu-hf-local-space-filling",
+      "method": "hybrid_no_count",
+      "queries": 1000,
+      "at_risk": 914,
+      "beneficial_scale": 193,
+      "scale_approved": 170,
+      "successful_scale": 148,
+      "false_scale_approval": 22,
+      "missed_beneficial_scale": 45
+    },
+    {
+      "campaign": "khu-hf-local-space-filling",
+      "method": "no_count",
+      "queries": 1000,
+      "at_risk": 914,
+      "beneficial_scale": 193,
+      "scale_approved": 179,
+      "successful_scale": 152,
+      "false_scale_approval": 27,
+      "missed_beneficial_scale": 41
+    },
+    {
+      "campaign": "khu-hf-local-space-filling",
+      "method": "telemetry",
+      "queries": 1000,
+      "at_risk": 914,
+      "beneficial_scale": 193,
+      "scale_approved": 179,
+      "successful_scale": 152,
+      "false_scale_approval": 27,
+      "missed_beneficial_scale": 41
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "artifacts": {
+    "bucket0_selfcheck": {
+      "path": "artifacts/maas_existing_model_new_id_v1/bucket0_selfcheck.json",
+      "sha256": "a8967d07e1c0cc35c961142f372915b0756058af371214ac9efb93b7fc42c2b2"
+    },
+    "extractor": {
+      "path": "scripts/fetch_maas_instance_bucket1.py",
+      "sha256": "89cb264e47bfe4fe028ac8f7a6ba1c2a870d2b937083187b607925411a74ce30"
+    },
+    "normal_model": {
+      "path": "artifacts/maas_state_followup_v1/new_state_full_normal.joblib",
+      "sha256": "5e5fd0f4a09ce8acc61c4659e099acc0cd631eb435a9b815c70078018a2568e0"
+    },
+    "original_metrics": {
+      "path": "artifacts/maas_instance_risk_v1/metrics.json",
+      "sha256": "6c190721d2e627d5c872cff9da01566600f2ebd47ae52569a485b4fed9bdff64"
+    },
+    "original_script": {
+      "path": "scripts/evaluate_maas_instance_risk.py",
+      "sha256": "563e39b5df07b04f465674f616e02a74b09228cc2c9259ce125f3c30d22b9d84"
+    },
+    "pooled_model": {
+      "path": "artifacts/maas_state_followup_v1/new_pooled.joblib",
+      "sha256": "dcdfcf1ae7fb4860f59de881329873e66f36e05223ef6824c14ec3ad312666f6"
+    },
+    "protocol": {
+      "path": "reports/maas_existing_model_new_id_protocol.md",
+      "sha256": "f2158e6608596df7bdad27e925e0d66b9c5fc48bc47d93b4bff052917dd40bd8"
+    },
+    "scorer": {
+      "path": "scripts/evaluate_maas_existing_model_new_id.py",
+      "sha256": "d0c3793a49475cfe15203f3e165054d5d0445a8df98aca9a8f361f541f275f42"
+    },
+    "scorer_tests": {
+      "path": "tests/test_evaluate_maas_existing_model_new_id.py",
+      "sha256": "4e46199da1aaab75f77aeef234d4907c752bf6c124845c040d5408f24691d4e5"
+    },
+    "source_audit": {
+      "path": "data/external/alibaba_maas_2026/instance_week_5min_audit.json",
+      "sha256": "3a24d64122dcf8e1fd9f68627acbd70dd878924483b29c334ae74a612e75cb88"
+    },
+    "source_fetcher": {
+      "path": "scripts/fetch_maas_instance_sample.py",
+      "sha256": "0d47609d092be7e215facfaf01b9dc66cd21e4c4f6fc5849c2ecb82dcf90d353"
+    },
+    "state_cohort_rows": {
+      "path": "artifacts/maas_state_followup_v1/cohort_rows.parquet",
+      "sha256": "51b266f3b58a1a4b24551b139277211533b73ed6b035b8a58e21f053ed280f1d"
+    },
+    "state_metrics": {
+      "path": "artifacts/maas_state_followup_v1/metrics.json",
+      "sha256": "a8e09c03bcedf78a1dc8011072cda7262b86f8c5102ffdbad72b8bde0664d5b3"
+    },
+    "state_predictions": {
+      "path": "artifacts/maas_state_followup_v1/test_predictions.parquet",
+      "sha256": "0c9c208e8ad122b09a6cfb4cb9fc294c265ef01c87a4abd56c6e25746cc680e8"
+    },
+    "state_script": {
+      "path": "scripts/evaluate_maas_state_followup.py",
+      "sha256": "3f371d44ffb5a680514598cf69a3c98bd2673a7418d378602b3d8c43a8a54e11"
+    }
+  },
+  "bucket0_scores_exposed_before_design": true,
+  "bucket_modulus": 100,
+  "id_bucket": 1,
+  "purpose": "maas_existing_state_model_new_id",
+  "source_etag": "434E78D81E2A9F9F1FDEF3163DD0FCEC",
+  "source_members": 21,
+  "source_rows": 140906827,
+  "source_size": 4812189789,
+  "source_url": "https://tre-clusterdata.oss-cn-hangzhou.aliyuncs.com/cluster-trace-v2026-maas/data/instance_week_5min.zip",
+  "status": "FROZEN_BEFORE_BUCKET1_ACCESS"
+}

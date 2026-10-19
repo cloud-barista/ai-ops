@@ -1,0 +1,48 @@
+{
+  "source_sha256": "d5c2bf4cc038f936a9713f8fc7c0430703ddd1c03ed0518fb65aaf68e160997b",
+  "protocol_sha256": "3a9383d7bdc3e18db6df09ef797fa09fc3d39456d7c1ca462532527071b757be",
+  "script_sha256": "d875ffef9a24bd1205717c0f340e1434daf6e0b0fa9c8543c18829b63989034f",
+  "model_sha256": "6f62cede995eadc98d2b00f064a2f33bb9fbb98c865a805052af3fa441c76f6d",
+  "validation_metrics_sha256": "3391849ef2e94f90bb1f301962b44f45123bfaa0bf6e50366d519f930fff2b86",
+  "selected_baseline": "rolling_global",
+  "feature_names": [
+    "hour_sin",
+    "hour_cos",
+    "weekday_sin",
+    "weekday_cos",
+    "log_global_done_1h",
+    "global_error_rate_1h",
+    "log_global_done_24h",
+    "global_error_rate_24h",
+    "log_model_done_1h",
+    "model_error_rate_1h",
+    "log_model_done_24h",
+    "model_error_rate_24h",
+    "log_global_done_all",
+    "global_error_rate_all",
+    "log_model_done_all",
+    "model_error_rate_all",
+    "log_global_arrivals_1h",
+    "log_model_arrivals_1h"
+  ],
+  "hgb_params": {
+    "max_iter": 100,
+    "max_leaf_nodes": 15,
+    "max_depth": 4,
+    "learning_rate": 0.05,
+    "min_samples_leaf": 200,
+    "l2_regularization": 10.0,
+    "early_stopping": false,
+    "random_state": 42
+  },
+  "train_static_available_rows": 7965655,
+  "train_static_available_errors": 1718335,
+  "time_contract": {
+    "history_start": "2025-05-15",
+    "train_start": "2025-05-16",
+    "validation_start": "2025-08-16",
+    "test_start": "2025-09-16",
+    "test_end": "2025-10-24",
+    "feedback_lag_us": 3600000000
+  }
+}

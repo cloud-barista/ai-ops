@@ -1,0 +1,517 @@
+{
+  "delays": {
+    "0": {
+      "additional_feedback_delay_s": 0,
+      "completed_previous_day_hourly_labels_by_day": [
+        {
+          "completed_previous_day_hourly_labels": 0,
+          "utc_day": 17501
+        },
+        {
+          "completed_previous_day_hourly_labels": 5859,
+          "utc_day": 17502
+        },
+        {
+          "completed_previous_day_hourly_labels": 5819,
+          "utc_day": 17503
+        },
+        {
+          "completed_previous_day_hourly_labels": 5839,
+          "utc_day": 17504
+        },
+        {
+          "completed_previous_day_hourly_labels": 5800,
+          "utc_day": 17505
+        },
+        {
+          "completed_previous_day_hourly_labels": 5974,
+          "utc_day": 17506
+        },
+        {
+          "completed_previous_day_hourly_labels": 6052,
+          "utc_day": 17507
+        },
+        {
+          "completed_previous_day_hourly_labels": 6133,
+          "utc_day": 17508
+        },
+        {
+          "completed_previous_day_hourly_labels": 6174,
+          "utc_day": 17509
+        },
+        {
+          "completed_previous_day_hourly_labels": 6140,
+          "utc_day": 17510
+        },
+        {
+          "completed_previous_day_hourly_labels": 6210,
+          "utc_day": 17511
+        },
+        {
+          "completed_previous_day_hourly_labels": 6248,
+          "utc_day": 17512
+        },
+        {
+          "completed_previous_day_hourly_labels": 6322,
+          "utc_day": 17513
+        },
+        {
+          "completed_previous_day_hourly_labels": 6304,
+          "utc_day": 17514
+        },
+        {
+          "completed_previous_day_hourly_labels": 6238,
+          "utc_day": 17515
+        }
+      ],
+      "completed_previous_day_hourly_labels_total": 85112,
+      "exact_machine": {
+        "average_precision": 0.870158641053413,
+        "first_seven_days_brier": 0.07167869292832928,
+        "last_eight_days_brier": 0.09629194446407527,
+        "machine_equal_brier": 0.08115188527695055,
+        "row_brier": 0.08578645562525393
+      },
+      "exact_prediction_float64_sha256": "3effd4923d4ded15d0daaee0f1f3ee488bb0a0519822ad8f657c96b6a13b5829",
+      "machine_plus_slot": {
+        "average_precision": 0.8738251989649173,
+        "first_seven_days_brier": 0.06959976268956906,
+        "last_eight_days_brier": 0.09390692909913281,
+        "machine_equal_brier": 0.07869322250682365,
+        "row_brier": 0.08353208427019232
+      },
+      "machines_slot_better_than_exact": 44,
+      "slot_prediction_float64_sha256": "fb95b5d123b0d37e925f6d167d9cbb9b65334625906840462a8ecab236b66bee",
+      "slot_relative_brier_improvement_vs_exact": 0.02627887279676777
+    },
+    "21600": {
+      "additional_feedback_delay_s": 21600,
+      "completed_previous_day_hourly_labels_by_day": [
+        {
+          "completed_previous_day_hourly_labels": 0,
+          "utc_day": 17501
+        },
+        {
+          "completed_previous_day_hourly_labels": 4387,
+          "utc_day": 17502
+        },
+        {
+          "completed_previous_day_hourly_labels": 4372,
+          "utc_day": 17503
+        },
+        {
+          "completed_previous_day_hourly_labels": 4342,
+          "utc_day": 17504
+        },
+        {
+          "completed_previous_day_hourly_labels": 4365,
+          "utc_day": 17505
+        },
+        {
+          "completed_previous_day_hourly_labels": 4470,
+          "utc_day": 17506
+        },
+        {
+          "completed_previous_day_hourly_labels": 4533,
+          "utc_day": 17507
+        },
+        {
+          "completed_previous_day_hourly_labels": 4603,
+          "utc_day": 17508
+        },
+        {
+          "completed_previous_day_hourly_labels": 4621,
+          "utc_day": 17509
+        },
+        {
+          "completed_previous_day_hourly_labels": 4597,
+          "utc_day": 17510
+        },
+        {
+          "completed_previous_day_hourly_labels": 4660,
+          "utc_day": 17511
+        },
+        {
+          "completed_previous_day_hourly_labels": 4658,
+          "utc_day": 17512
+        },
+        {
+          "completed_previous_day_hourly_labels": 4740,
+          "utc_day": 17513
+        },
+        {
+          "completed_previous_day_hourly_labels": 4747,
+          "utc_day": 17514
+        },
+        {
+          "completed_previous_day_hourly_labels": 4670,
+          "utc_day": 17515
+        }
+      ],
+      "completed_previous_day_hourly_labels_total": 63765,
+      "exact_machine": {
+        "average_precision": 0.8695591433667605,
+        "first_seven_days_brier": 0.07197067994775519,
+        "last_eight_days_brier": 0.09668049730119153,
+        "machine_equal_brier": 0.0816708970028167,
+        "row_brier": 0.0861337920014534
+      },
+      "exact_prediction_float64_sha256": "f795b90e23a4b314e328aaaf63c691d5cccaefe43f58c5c8e349f3063d0ea67f",
+      "machine_plus_slot": {
+        "average_precision": 0.8724774912192743,
+        "first_seven_days_brier": 0.0702842198749199,
+        "last_eight_days_brier": 0.09476879608270562,
+        "machine_equal_brier": 0.07965633170518323,
+        "row_brier": 0.08431822876531567
+      },
+      "machines_slot_better_than_exact": 44,
+      "slot_prediction_float64_sha256": "05df9f65e514870782aa4fc06c50d7ddddbfdf81432362d9a920d3cd7f23f398",
+      "slot_relative_brier_improvement_vs_exact": 0.0210784082988833
+    },
+    "300": {
+      "additional_feedback_delay_s": 300,
+      "completed_previous_day_hourly_labels_by_day": [
+        {
+          "completed_previous_day_hourly_labels": 0,
+          "utc_day": 17501
+        },
+        {
+          "completed_previous_day_hourly_labels": 5858,
+          "utc_day": 17502
+        },
+        {
+          "completed_previous_day_hourly_labels": 5814,
+          "utc_day": 17503
+        },
+        {
+          "completed_previous_day_hourly_labels": 5839,
+          "utc_day": 17504
+        },
+        {
+          "completed_previous_day_hourly_labels": 5794,
+          "utc_day": 17505
+        },
+        {
+          "completed_previous_day_hourly_labels": 5974,
+          "utc_day": 17506
+        },
+        {
+          "completed_previous_day_hourly_labels": 6051,
+          "utc_day": 17507
+        },
+        {
+          "completed_previous_day_hourly_labels": 6133,
+          "utc_day": 17508
+        },
+        {
+          "completed_previous_day_hourly_labels": 6174,
+          "utc_day": 17509
+        },
+        {
+          "completed_previous_day_hourly_labels": 6136,
+          "utc_day": 17510
+        },
+        {
+          "completed_previous_day_hourly_labels": 6209,
+          "utc_day": 17511
+        },
+        {
+          "completed_previous_day_hourly_labels": 6247,
+          "utc_day": 17512
+        },
+        {
+          "completed_previous_day_hourly_labels": 6313,
+          "utc_day": 17513
+        },
+        {
+          "completed_previous_day_hourly_labels": 6303,
+          "utc_day": 17514
+        },
+        {
+          "completed_previous_day_hourly_labels": 6236,
+          "utc_day": 17515
+        }
+      ],
+      "completed_previous_day_hourly_labels_total": 85081,
+      "exact_machine": {
+        "average_precision": 0.8701585199598981,
+        "first_seven_days_brier": 0.07167886121065911,
+        "last_eight_days_brier": 0.09629270736449587,
+        "machine_equal_brier": 0.0811517690811408,
+        "row_brier": 0.08578696472931172
+      },
+      "exact_prediction_float64_sha256": "3118ffc46ab5e83a327596a036bea2eafa72f8d059872ce3251032725145fcc2",
+      "machine_plus_slot": {
+        "average_precision": 0.8738250832617234,
+        "first_seven_days_brier": 0.06959918328197574,
+        "last_eight_days_brier": 0.09390807094696628,
+        "machine_equal_brier": 0.07869307946965075,
+        "row_brier": 0.08353249144753137
+      },
+      "machines_slot_better_than_exact": 44,
+      "slot_prediction_float64_sha256": "1f783fa6cd330a5dca30286438b09faf110910c4a10cf3e4998beea8dc38fbfe",
+      "slot_relative_brier_improvement_vs_exact": 0.02627990498199817
+    },
+    "3600": {
+      "additional_feedback_delay_s": 3600,
+      "completed_previous_day_hourly_labels_by_day": [
+        {
+          "completed_previous_day_hourly_labels": 0,
+          "utc_day": 17501
+        },
+        {
+          "completed_previous_day_hourly_labels": 5628,
+          "utc_day": 17502
+        },
+        {
+          "completed_previous_day_hourly_labels": 5565,
+          "utc_day": 17503
+        },
+        {
+          "completed_previous_day_hourly_labels": 5551,
+          "utc_day": 17504
+        },
+        {
+          "completed_previous_day_hourly_labels": 5548,
+          "utc_day": 17505
+        },
+        {
+          "completed_previous_day_hourly_labels": 5710,
+          "utc_day": 17506
+        },
+        {
+          "completed_previous_day_hourly_labels": 5802,
+          "utc_day": 17507
+        },
+        {
+          "completed_previous_day_hourly_labels": 5873,
+          "utc_day": 17508
+        },
+        {
+          "completed_previous_day_hourly_labels": 5924,
+          "utc_day": 17509
+        },
+        {
+          "completed_previous_day_hourly_labels": 5875,
+          "utc_day": 17510
+        },
+        {
+          "completed_previous_day_hourly_labels": 5942,
+          "utc_day": 17511
+        },
+        {
+          "completed_previous_day_hourly_labels": 5979,
+          "utc_day": 17512
+        },
+        {
+          "completed_previous_day_hourly_labels": 6058,
+          "utc_day": 17513
+        },
+        {
+          "completed_previous_day_hourly_labels": 6040,
+          "utc_day": 17514
+        },
+        {
+          "completed_previous_day_hourly_labels": 5972,
+          "utc_day": 17515
+        }
+      ],
+      "completed_previous_day_hourly_labels_total": 81467,
+      "exact_machine": {
+        "average_precision": 0.8702384482863129,
+        "first_seven_days_brier": 0.07167039545313388,
+        "last_eight_days_brier": 0.09635649117804218,
+        "machine_equal_brier": 0.0812031375773961,
+        "row_brier": 0.08581991080240754
+      },
+      "exact_prediction_float64_sha256": "4fc32c2356eb029c6fe35781490289a1f3ee129583e2f0c3cc82ccc643c14b9d",
+      "machine_plus_slot": {
+        "average_precision": 0.8737755504555751,
+        "first_seven_days_brier": 0.06964515807789803,
+        "last_eight_days_brier": 0.09404074561305276,
+        "machine_equal_brier": 0.07880168811696076,
+        "row_brier": 0.08362816066080259
+      },
+      "machines_slot_better_than_exact": 43,
+      "slot_prediction_float64_sha256": "e226edced55c62fd6556ccb6e4c54e326bac5af3ab8a58d96fc477d4b923bbd2",
+      "slot_relative_brier_improvement_vs_exact": 0.02553894686107583
+    },
+    "43200": {
+      "additional_feedback_delay_s": 43200,
+      "completed_previous_day_hourly_labels_by_day": [
+        {
+          "completed_previous_day_hourly_labels": 0,
+          "utc_day": 17501
+        },
+        {
+          "completed_previous_day_hourly_labels": 2923,
+          "utc_day": 17502
+        },
+        {
+          "completed_previous_day_hourly_labels": 2894,
+          "utc_day": 17503
+        },
+        {
+          "completed_previous_day_hourly_labels": 2917,
+          "utc_day": 17504
+        },
+        {
+          "completed_previous_day_hourly_labels": 2894,
+          "utc_day": 17505
+        },
+        {
+          "completed_previous_day_hourly_labels": 2958,
+          "utc_day": 17506
+        },
+        {
+          "completed_previous_day_hourly_labels": 3033,
+          "utc_day": 17507
+        },
+        {
+          "completed_previous_day_hourly_labels": 3076,
+          "utc_day": 17508
+        },
+        {
+          "completed_previous_day_hourly_labels": 3093,
+          "utc_day": 17509
+        },
+        {
+          "completed_previous_day_hourly_labels": 3070,
+          "utc_day": 17510
+        },
+        {
+          "completed_previous_day_hourly_labels": 3096,
+          "utc_day": 17511
+        },
+        {
+          "completed_previous_day_hourly_labels": 3091,
+          "utc_day": 17512
+        },
+        {
+          "completed_previous_day_hourly_labels": 3171,
+          "utc_day": 17513
+        },
+        {
+          "completed_previous_day_hourly_labels": 3182,
+          "utc_day": 17514
+        },
+        {
+          "completed_previous_day_hourly_labels": 3119,
+          "utc_day": 17515
+        }
+      ],
+      "completed_previous_day_hourly_labels_total": 42517,
+      "exact_machine": {
+        "average_precision": 0.8678512668778993,
+        "first_seven_days_brier": 0.07278315063406916,
+        "last_eight_days_brier": 0.09746460034716554,
+        "machine_equal_brier": 0.0825885544329297,
+        "row_brier": 0.08693000299377257
+      },
+      "exact_prediction_float64_sha256": "eec716eb10e60cbb43c067ce917de6b934c77f0785d3403a02fabe8277e91910",
+      "machine_plus_slot": {
+        "average_precision": 0.8699600925035134,
+        "first_seven_days_brier": 0.07155515426847868,
+        "last_eight_days_brier": 0.09612762370221638,
+        "machine_equal_brier": 0.08112935723160793,
+        "row_brier": 0.0856395415809451
+      },
+      "machines_slot_better_than_exact": 45,
+      "slot_prediction_float64_sha256": "1ff46ae70ffa49a3927535ba7c10c4584b085378c014c54d5987c91deb947932",
+      "slot_relative_brier_improvement_vs_exact": 0.014844833410622593
+    },
+    "86400": {
+      "additional_feedback_delay_s": 86400,
+      "completed_previous_day_hourly_labels_by_day": [
+        {
+          "completed_previous_day_hourly_labels": 0,
+          "utc_day": 17501
+        },
+        {
+          "completed_previous_day_hourly_labels": 0,
+          "utc_day": 17502
+        },
+        {
+          "completed_previous_day_hourly_labels": 0,
+          "utc_day": 17503
+        },
+        {
+          "completed_previous_day_hourly_labels": 0,
+          "utc_day": 17504
+        },
+        {
+          "completed_previous_day_hourly_labels": 0,
+          "utc_day": 17505
+        },
+        {
+          "completed_previous_day_hourly_labels": 0,
+          "utc_day": 17506
+        },
+        {
+          "completed_previous_day_hourly_labels": 0,
+          "utc_day": 17507
+        },
+        {
+          "completed_previous_day_hourly_labels": 0,
+          "utc_day": 17508
+        },
+        {
+          "completed_previous_day_hourly_labels": 0,
+          "utc_day": 17509
+        },
+        {
+          "completed_previous_day_hourly_labels": 0,
+          "utc_day": 17510
+        },
+        {
+          "completed_previous_day_hourly_labels": 0,
+          "utc_day": 17511
+        },
+        {
+          "completed_previous_day_hourly_labels": 0,
+          "utc_day": 17512
+        },
+        {
+          "completed_previous_day_hourly_labels": 0,
+          "utc_day": 17513
+        },
+        {
+          "completed_previous_day_hourly_labels": 0,
+          "utc_day": 17514
+        },
+        {
+          "completed_previous_day_hourly_labels": 0,
+          "utc_day": 17515
+        }
+      ],
+      "completed_previous_day_hourly_labels_total": 0,
+      "exact_machine": {
+        "average_precision": 0.8532534668219028,
+        "first_seven_days_brier": 0.07879405881952158,
+        "last_eight_days_brier": 0.10258514529395729,
+        "machine_equal_brier": 0.08764416610639933,
+        "row_brier": 0.09243057497814043
+      },
+      "exact_prediction_float64_sha256": "e9b6b289458fbccc5c70b00de7f506ff1deee2d063f6ae0d33fa3b8695dad6a3",
+      "machine_plus_slot": {
+        "average_precision": 0.8532534668219028,
+        "first_seven_days_brier": 0.07879405881952158,
+        "last_eight_days_brier": 0.10258514529395729,
+        "machine_equal_brier": 0.08764416610639933,
+        "row_brier": 0.09243057497814043
+      },
+      "machines_slot_better_than_exact": 0,
+      "slot_prediction_float64_sha256": "e9b6b289458fbccc5c70b00de7f506ff1deee2d063f6ae0d33fa3b8695dad6a3",
+      "slot_relative_brier_improvement_vs_exact": 0.0
+    }
+  },
+  "descriptive_5min_relative_improvement_at_least_1pct": true,
+  "machines": 51,
+  "protocol_sha256": "bcbe3f877998b7281fc5a01207a1149039b0aa9d8fde11c4c45d1c38f83525f1",
+  "rows": 812729,
+  "scope": "same already scored Philly machine cohort, assumed feedback arrival times",
+  "script_sha256": "3e7bad3771f6254603cc0c45f6e0688a09c0b36e8d046863cef3d49e9791b880",
+  "source_predictions_sha256": "a823adb09685f76a118b74a4a89eb2c1bd104334114607d3bf1971f8c1217762",
+  "source_result_sha256": "bd9597b860c7e711699bf5e9cd1c3a84b493dce34167844122f70f9d1b2910b4",
+  "status": "POST_HOC_DELAY_SENSITIVITY"
+}

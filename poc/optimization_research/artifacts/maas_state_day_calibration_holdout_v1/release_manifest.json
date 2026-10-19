@@ -1,0 +1,98 @@
+{
+  "artifacts": {
+    "bucket1_audit": {
+      "path": "data/external/alibaba_maas_2026_bucket1/instance_week_5min_bucket1_audit.json",
+      "sha256": "7863f416762b041c7a13b738759ce468e95e408f2745036fd2ed2aba1008f477"
+    },
+    "bucket1_predictions": {
+      "path": "artifacts/maas_existing_model_new_id_v1/test_predictions.parquet",
+      "sha256": "4c306c84affd796f9d26b7cad041b3cd6c41451e43baa07cc7b3d3d7a2d0b506"
+    },
+    "bucket1_raw": {
+      "path": "data/external/alibaba_maas_2026_bucket1/instance_week_5min_bucket1.parquet",
+      "sha256": "86b9dd55275ffd6819b0f482c8160e116fbe1980bb490ca8c09755107369f00d"
+    },
+    "bucket1_result": {
+      "path": "artifacts/maas_existing_model_new_id_v1/results.json",
+      "sha256": "b74c84a899624f77cb45bc3760e1b407765e2d1e9e15d0959b2520a0decb5427"
+    },
+    "development_report": {
+      "path": "reports/maas_state_day_calibration_development.md",
+      "sha256": "01560d8c6fb1c1318e9c35eb2c5a9d2b83ce84fbfee4fbdd819a14ec0a34c09f"
+    },
+    "development_result": {
+      "path": "artifacts/maas_state_day_calibration_dev_v1/results.json",
+      "sha256": "2f29675ee37e41adab910129294505d0ea59748c91dcf032cb330417ce358c43"
+    },
+    "development_script": {
+      "path": "scripts/explore_maas_state_day_calibration.py",
+      "sha256": "1256ab027a2d013db534d793f5f1673a690fe4dd055501f39d66d62506b7265f"
+    },
+    "extractor": {
+      "path": "scripts/fetch_maas_instance_bucket2.py",
+      "sha256": "5152fd5372ad4f6f265fd30cf73986044719ffbf1619b9e8338b966a9a5bbe53"
+    },
+    "extractor_tests": {
+      "path": "tests/test_fetch_maas_instance_bucket2.py",
+      "sha256": "19d42b51a3e254f66dcb9b34138255c4ef2b5dd998b5aeff6719a9c55b65288a"
+    },
+    "original_script": {
+      "path": "scripts/evaluate_maas_instance_risk.py",
+      "sha256": "563e39b5df07b04f465674f616e02a74b09228cc2c9259ce125f3c30d22b9d84"
+    },
+    "pooled_model": {
+      "path": "artifacts/maas_state_followup_v1/new_pooled.joblib",
+      "sha256": "dcdfcf1ae7fb4860f59de881329873e66f36e05223ef6824c14ec3ad312666f6"
+    },
+    "preflight": {
+      "path": "artifacts/maas_state_day_calibration_holdout_v1/preflight.json",
+      "sha256": "b16448a2fce2a28a03d727306a954df3f4ceeec9914b00177b9d582c39b54347"
+    },
+    "protocol": {
+      "path": "reports/maas_state_day_calibration_new_id_protocol.md",
+      "sha256": "9f591bf8843ab4b5a911ae1891b75456dd019c94ae3f0294106efd783c292eae"
+    },
+    "scorer": {
+      "path": "scripts/evaluate_maas_state_day_calibration_holdout.py",
+      "sha256": "175479016bca4b56819e746c518a635f4ae667d3ed082edea33aec2555c6def3"
+    },
+    "scorer_tests": {
+      "path": "tests/test_evaluate_maas_state_day_calibration_holdout.py",
+      "sha256": "36837f3ad4334e73711a38d948f3411cc505e72547b7e73f4c34dab69944810a"
+    },
+    "source_audit": {
+      "path": "data/external/alibaba_maas_2026/instance_week_5min_audit.json",
+      "sha256": "3a24d64122dcf8e1fd9f68627acbd70dd878924483b29c334ae74a612e75cb88"
+    },
+    "source_fetcher": {
+      "path": "scripts/fetch_maas_instance_sample.py",
+      "sha256": "0d47609d092be7e215facfaf01b9dc66cd21e4c4f6fc5849c2ecb82dcf90d353"
+    },
+    "state_metrics": {
+      "path": "artifacts/maas_state_followup_v1/metrics.json",
+      "sha256": "a8e09c03bcedf78a1dc8011072cda7262b86f8c5102ffdbad72b8bde0664d5b3"
+    },
+    "state_predictions": {
+      "path": "artifacts/maas_state_followup_v1/test_predictions.parquet",
+      "sha256": "0c9c208e8ad122b09a6cfb4cb9fc294c265ef01c87a4abd56c6e25746cc680e8"
+    },
+    "state_rows": {
+      "path": "artifacts/maas_state_followup_v1/cohort_rows.parquet",
+      "sha256": "51b266f3b58a1a4b24551b139277211533b73ed6b035b8a58e21f053ed280f1d"
+    },
+    "state_script": {
+      "path": "scripts/evaluate_maas_state_followup.py",
+      "sha256": "3f371d44ffb5a680514598cf69a3c98bd2673a7418d378602b3d8c43a8a54e11"
+    }
+  },
+  "bucket": 2,
+  "bucket0_and_bucket1_scores_exposed_before_design": true,
+  "bucket_modulus": 100,
+  "purpose": "maas_state_day_calibration_new_id",
+  "source_etag": "434E78D81E2A9F9F1FDEF3163DD0FCEC",
+  "source_members": 21,
+  "source_rows": 140906827,
+  "source_size": 4812189789,
+  "source_url": "https://tre-clusterdata.oss-cn-hangzhou.aliyuncs.com/cluster-trace-v2026-maas/data/instance_week_5min.zip",
+  "status": "FROZEN_BEFORE_BUCKET2_ACCESS"
+}

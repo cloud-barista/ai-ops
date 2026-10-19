@@ -1,0 +1,192 @@
+{
+  "snapshot_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "script_sha256": "f0201685938c1fc44fe2b078a4a939e3e44b5db0ba214ba8882e10a893232f94",
+  "collector_version": "khu-hf-direct-collector/v2",
+  "training": "other-model exhaustive campaign only",
+  "heldout_observations": "8 main-campaign GPU1/CPU2 anchors; no live outcomes",
+  "repeat_rounds_per_cell": 47,
+  "scoring_unit": "median per distinct live resource cell",
+  "decision_scope": "GPU1 versus GPU2 at CPU2 for six measured pairs; recorded generated SLO",
+  "prior_modes": {
+    "FacebookAI/roberta-base": {
+      "mode": "interpolated_donor_covariance_plus_kernel",
+      "aligned_donor_models": [
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "shared_main_grid_conditions": 64,
+      "interpolation_ridge": 0.1
+    },
+    "Qwen/Qwen2.5-0.5B-Instruct": {
+      "mode": "kernel_fallback_no_same_task_donors",
+      "aligned_donor_models": []
+    },
+    "albert/albert-base-v2": {
+      "mode": "interpolated_donor_covariance_plus_kernel",
+      "aligned_donor_models": [
+        "FacebookAI/roberta-base",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "shared_main_grid_conditions": 64,
+      "interpolation_ridge": 0.1
+    },
+    "distilbert/distilbert-base-uncased": {
+      "mode": "interpolated_donor_covariance_plus_kernel",
+      "aligned_donor_models": [
+        "FacebookAI/roberta-base",
+        "albert/albert-base-v2",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "shared_main_grid_conditions": 64,
+      "interpolation_ridge": 0.1
+    },
+    "google-bert/bert-base-uncased": {
+      "mode": "interpolated_donor_covariance_plus_kernel",
+      "aligned_donor_models": [
+        "FacebookAI/roberta-base",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "shared_main_grid_conditions": 64,
+      "interpolation_ridge": 0.1
+    },
+    "google/bert_uncased_L-2_H-128_A-2": {
+      "mode": "interpolated_donor_covariance_plus_kernel",
+      "aligned_donor_models": [
+        "FacebookAI/roberta-base",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "shared_main_grid_conditions": 64,
+      "interpolation_ridge": 0.1
+    },
+    "google/bert_uncased_L-4_H-256_A-4": {
+      "mode": "interpolated_donor_covariance_plus_kernel",
+      "aligned_donor_models": [
+        "FacebookAI/roberta-base",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "shared_main_grid_conditions": 64,
+      "interpolation_ridge": 0.1
+    },
+    "google/electra-small-discriminator": {
+      "mode": "interpolated_donor_covariance_plus_kernel",
+      "aligned_donor_models": [
+        "FacebookAI/roberta-base",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8"
+      ],
+      "shared_main_grid_conditions": 64,
+      "interpolation_ridge": 0.1
+    }
+  },
+  "method_summary": [
+    {
+      "method": "cov_transfer",
+      "resource_cells": 16,
+      "model_count": 8,
+      "workload_count": 10,
+      "micro_latency_male": 0.2274715504070515,
+      "micro_rps_male": 0.2683367540300709,
+      "gpu1_latency_male": 0.21585605148646586,
+      "gpu1_rps_male": 0.2876071687101832,
+      "gpu2_latency_male": 0.24683071527469425,
+      "gpu2_rps_male": 0.23621939622988375,
+      "paired_workloads": 6,
+      "feasible_pairs": 4,
+      "chosen_pairs": 4,
+      "successful_choices": 3,
+      "false_approvals": 1,
+      "missed_feasible": 1,
+      "exact_min_gpu_choices": 3
+    },
+    {
+      "method": "kernel_transfer",
+      "resource_cells": 16,
+      "model_count": 8,
+      "workload_count": 10,
+      "micro_latency_male": 0.22923891830400564,
+      "micro_rps_male": 0.268053527813815,
+      "gpu1_latency_male": 0.22139939928112376,
+      "gpu1_rps_male": 0.28015924701207573,
+      "gpu2_latency_male": 0.24230478334214212,
+      "gpu2_rps_male": 0.24787732915004712,
+      "paired_workloads": 6,
+      "feasible_pairs": 4,
+      "chosen_pairs": 4,
+      "successful_choices": 3,
+      "false_approvals": 1,
+      "missed_feasible": 1,
+      "exact_min_gpu_choices": 3
+    },
+    {
+      "method": "space_ridge",
+      "resource_cells": 16,
+      "model_count": 8,
+      "workload_count": 10,
+      "micro_latency_male": 0.2627919306614632,
+      "micro_rps_male": 0.24250236732261787,
+      "gpu1_latency_male": 0.23747894797139493,
+      "gpu1_rps_male": 0.25074037664045257,
+      "gpu2_latency_male": 0.3049802351449103,
+      "gpu2_rps_male": 0.22877235179289337,
+      "paired_workloads": 6,
+      "feasible_pairs": 4,
+      "chosen_pairs": 4,
+      "successful_choices": 3,
+      "false_approvals": 1,
+      "missed_feasible": 1,
+      "exact_min_gpu_choices": 3
+    },
+    {
+      "method": "zero_shot",
+      "resource_cells": 16,
+      "model_count": 8,
+      "workload_count": 10,
+      "micro_latency_male": 0.6652001188248319,
+      "micro_rps_male": 0.583448099507697,
+      "gpu1_latency_male": 0.7233446528772066,
+      "gpu1_rps_male": 0.7018879675262705,
+      "gpu2_latency_male": 0.5682925620708741,
+      "gpu2_rps_male": 0.3860483194767414,
+      "paired_workloads": 6,
+      "feasible_pairs": 4,
+      "chosen_pairs": 4,
+      "successful_choices": 4,
+      "false_approvals": 0,
+      "missed_feasible": 0,
+      "exact_min_gpu_choices": 4
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "ambiguous_duplicate_keys": 57,
+  "ambiguous_rows_excluded": 114,
+  "audit_script_sha256": "07779d2ed7eec8645ccae1f98d574d00561480e8bdef3d812045223cbb9d38ce",
+  "cross_hardware_groups": 175,
+  "cross_hardware_rows": 1579,
+  "eligible_csv_sha256": "3e80ee27b1f44fa40b4cd5712c0b25f6b3c7a233a2eb0a8207bf30b63ca6fcdd",
+  "frameworks": 6,
+  "license_sha256": "885d0459f105e9e5362ebf6da918eb8d0866948c559e03e6bfcebcffe4cc5c96",
+  "models": 15,
+  "no_failure_or_oom_label": true,
+  "no_publication_timestamp_per_row": true,
+  "physical_shapes": 23,
+  "primary_groups": 169,
+  "primary_groups_per_model": {
+    "Deci/DeciLM-7B": 20,
+    "Qwen/Qwen2-72B": 9,
+    "Qwen/Qwen2-7B": 20,
+    "meta-llama/Llama-2-70b-hf": 20,
+    "meta-llama/Llama-2-7b-hf": 20,
+    "meta-llama/Meta-Llama-3-70B": 20,
+    "meta-llama/Meta-Llama-3-8B": 20,
+    "mistralai/Mistral-7B-v0.1": 20,
+    "mistralai/Mixtral-8x7B-v0.1": 20
+  },
+  "primary_models": [
+    "Deci/DeciLM-7B",
+    "Qwen/Qwen2-72B",
+    "Qwen/Qwen2-7B",
+    "meta-llama/Llama-2-70b-hf",
+    "meta-llama/Llama-2-7b-hf",
+    "meta-llama/Meta-Llama-3-70B",
+    "meta-llama/Meta-Llama-3-8B",
+    "mistralai/Mistral-7B-v0.1",
+    "mistralai/Mixtral-8x7B-v0.1"
+  ],
+  "primary_rows": 1567,
+  "source_rows": 4772,
+  "source_sha256": "631a12e08c786ce2d4bdfdc0f67b93234360682cb4b36c93806270ddcfd58412",
+  "throughput_formula_by_framework": {
+    "Deepspeed": {
+      "matches_paper_formula_rtol_1e_4": 326,
+      "max_relative_deviation": 4.440892098500626e-16,
+      "rows": 326
+    },
+    "Deepspeed-MII": {
+      "matches_paper_formula_rtol_1e_4": 173,
+      "max_relative_deviation": 4.440892098500626e-16,
+      "rows": 173
+    },
+    "TensorRT-LLM": {
+      "matches_paper_formula_rtol_1e_4": 595,
+      "max_relative_deviation": 1.4432899320127035e-15,
+      "rows": 595
+    },
+    "llama.cpp": {
+      "matches_paper_formula_rtol_1e_4": 409,
+      "max_relative_deviation": 0.9843750053604384,
+      "rows": 1570
+    },
+    "sambaflow": {
+      "matches_paper_formula_rtol_1e_4": 41,
+      "max_relative_deviation": 2.220446049250313e-16,
+      "rows": 41
+    },
+    "vLLM": {
+      "matches_paper_formula_rtol_1e_4": 2067,
+      "max_relative_deviation": 1.4432899320127035e-15,
+      "rows": 2067
+    }
+  },
+  "vllm_clean_rows": 1704,
+  "vllm_paper_grid_rows": 1818
+}

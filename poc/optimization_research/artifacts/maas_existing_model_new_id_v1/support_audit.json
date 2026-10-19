@@ -1,0 +1,47 @@
+{
+  "bucket1_audit_sha256": "7863f416762b041c7a13b738759ce468e95e408f2745036fd2ed2aba1008f477",
+  "bucket1_compact_sha256": "86b9dd55275ffd6819b0f482c8160e116fbe1980bb490ca8c09755107369f00d",
+  "checks": {
+    "both_days_have_20000_rows_300_events": true,
+    "events_at_least_1000": true,
+    "ids_at_least_500": true,
+    "label_observation_at_least_75pct": true,
+    "positive_ids_at_least_50": true,
+    "rows_at_least_50000": true
+  },
+  "current_normal_candidate_profile": {
+    "candidates": 66636,
+    "current_high": 0,
+    "future_duplicate": 5226,
+    "future_invalid": 422,
+    "future_missing": 6265,
+    "label_observation_rate": 0.8319226844,
+    "labeled": 55436,
+    "middle_duplicate": 0,
+    "middle_invalid": 0,
+    "middle_missing": 0,
+    "old_duplicate": 0,
+    "old_invalid": 0,
+    "old_missing": 0
+  },
+  "days": {
+    "145": {
+      "events": 1221,
+      "positive_ids": 135,
+      "rows": 26449
+    },
+    "146": {
+      "events": 1066,
+      "positive_ids": 130,
+      "rows": 28987
+    }
+  },
+  "events": 2287,
+  "ids": 787,
+  "maximum_positive_id_share": 0.03541757761259292,
+  "positive_ids": 230,
+  "release_manifest_sha256": "ba207c070c2bd9a41b5a87e90f4823df767746a75502673b6fba4df4ca0604c2",
+  "rows": 55436,
+  "scorer_sha256": "d0c3793a49475cfe15203f3e165054d5d0445a8df98aca9a8f361f541f275f42",
+  "status": "SUPPORT_PASS"
+}

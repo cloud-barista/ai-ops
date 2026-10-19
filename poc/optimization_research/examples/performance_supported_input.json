@@ -1,0 +1,16 @@
+[
+  {
+    "model_id": "google/bert_uncased_L-2_H-128_A-2",
+    "model_revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+    "device": "cuda",
+    "host": "icns",
+    "device_name": "NVIDIA RTX PRO 5000 Blackwell",
+    "batch_size": 1,
+    "max_length": 32,
+    "request_concurrency": 1,
+    "cpu_threads": 2,
+    "cpu_core_limit": 2,
+    "replica_count": 1,
+    "repeats": 8
+  }
+]

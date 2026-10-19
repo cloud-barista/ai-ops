@@ -1,0 +1,162 @@
+{
+  "batch_latency_p95_limit_ms": 3.0,
+  "min_requests_per_second": 600.0,
+  "candidates": [
+    {
+      "application_id": "research-demo-bert-l2",
+      "workload_id": "783f9cfdcd98f2b1017e1329e7130ca0a35064f0f9fbcd583364ccf624e31d55",
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "model_revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+      "device": "cuda",
+      "host": "icns",
+      "device_name": "NVIDIA RTX PRO 5000 Blackwell",
+      "batch_size": 1,
+      "max_length": 32,
+      "request_concurrency": 1,
+      "cpu_threads": 2,
+      "cpu_core_limit": 2,
+      "replica_count": 1,
+      "repeats": 8,
+      "gpu_indices": [
+        0
+      ]
+    },
+    {
+      "application_id": "research-demo-bert-l2",
+      "workload_id": "783f9cfdcd98f2b1017e1329e7130ca0a35064f0f9fbcd583364ccf624e31d55",
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "model_revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+      "device": "cuda",
+      "host": "icns",
+      "device_name": "NVIDIA RTX PRO 5000 Blackwell",
+      "batch_size": 1,
+      "max_length": 32,
+      "request_concurrency": 1,
+      "cpu_threads": 4,
+      "cpu_core_limit": 4,
+      "replica_count": 1,
+      "repeats": 8,
+      "gpu_indices": [
+        0
+      ]
+    },
+    {
+      "application_id": "research-demo-bert-l2",
+      "workload_id": "783f9cfdcd98f2b1017e1329e7130ca0a35064f0f9fbcd583364ccf624e31d55",
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "model_revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+      "device": "cuda",
+      "host": "icns",
+      "device_name": "NVIDIA RTX PRO 5000 Blackwell",
+      "batch_size": 1,
+      "max_length": 32,
+      "request_concurrency": 1,
+      "cpu_threads": 8,
+      "cpu_core_limit": 8,
+      "replica_count": 1,
+      "repeats": 8,
+      "gpu_indices": [
+        0
+      ]
+    },
+    {
+      "application_id": "research-demo-bert-l2",
+      "workload_id": "783f9cfdcd98f2b1017e1329e7130ca0a35064f0f9fbcd583364ccf624e31d55",
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "model_revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+      "device": "cuda",
+      "host": "icns",
+      "device_name": "NVIDIA RTX PRO 5000 Blackwell",
+      "batch_size": 1,
+      "max_length": 32,
+      "request_concurrency": 1,
+      "cpu_threads": 16,
+      "cpu_core_limit": 16,
+      "replica_count": 1,
+      "repeats": 8,
+      "gpu_indices": [
+        0
+      ]
+    },
+    {
+      "application_id": "research-demo-bert-l2",
+      "workload_id": "783f9cfdcd98f2b1017e1329e7130ca0a35064f0f9fbcd583364ccf624e31d55",
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "model_revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+      "device": "cuda",
+      "host": "icns",
+      "device_name": "NVIDIA RTX PRO 5000 Blackwell",
+      "batch_size": 1,
+      "max_length": 32,
+      "request_concurrency": 1,
+      "cpu_threads": 2,
+      "cpu_core_limit": 2,
+      "replica_count": 2,
+      "repeats": 8,
+      "gpu_indices": [
+        0,
+        1
+      ]
+    },
+    {
+      "application_id": "research-demo-bert-l2",
+      "workload_id": "783f9cfdcd98f2b1017e1329e7130ca0a35064f0f9fbcd583364ccf624e31d55",
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "model_revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+      "device": "cuda",
+      "host": "icns",
+      "device_name": "NVIDIA RTX PRO 5000 Blackwell",
+      "batch_size": 1,
+      "max_length": 32,
+      "request_concurrency": 1,
+      "cpu_threads": 4,
+      "cpu_core_limit": 4,
+      "replica_count": 2,
+      "repeats": 8,
+      "gpu_indices": [
+        0,
+        1
+      ]
+    },
+    {
+      "application_id": "research-demo-bert-l2",
+      "workload_id": "783f9cfdcd98f2b1017e1329e7130ca0a35064f0f9fbcd583364ccf624e31d55",
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "model_revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+      "device": "cuda",
+      "host": "icns",
+      "device_name": "NVIDIA RTX PRO 5000 Blackwell",
+      "batch_size": 1,
+      "max_length": 32,
+      "request_concurrency": 1,
+      "cpu_threads": 8,
+      "cpu_core_limit": 8,
+      "replica_count": 2,
+      "repeats": 8,
+      "gpu_indices": [
+        0,
+        1
+      ]
+    },
+    {
+      "application_id": "research-demo-bert-l2",
+      "workload_id": "783f9cfdcd98f2b1017e1329e7130ca0a35064f0f9fbcd583364ccf624e31d55",
+      "model_id": "google/bert_uncased_L-2_H-128_A-2",
+      "model_revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+      "device": "cuda",
+      "host": "icns",
+      "device_name": "NVIDIA RTX PRO 5000 Blackwell",
+      "batch_size": 1,
+      "max_length": 32,
+      "request_concurrency": 1,
+      "cpu_threads": 16,
+      "cpu_core_limit": 16,
+      "replica_count": 2,
+      "repeats": 8,
+      "gpu_indices": [
+        0,
+        1
+      ]
+    }
+  ]
+}

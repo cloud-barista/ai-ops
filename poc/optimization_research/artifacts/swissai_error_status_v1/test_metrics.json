@@ -1,0 +1,926 @@
+{
+  "source_sha256": "d5c2bf4cc038f936a9713f8fc7c0430703ddd1c03ed0518fb65aaf68e160997b",
+  "manifest_sha256": "1042139491a4b24f944b95cd3705c0c0bd128fd9d39062d83e1e2e4e3e02c3cb",
+  "source_contract": {
+    "train": {
+      "rows": 7965677,
+      "missing_finish": 22,
+      "naive_finish": 4251363
+    },
+    "validation": {
+      "rows": 300467,
+      "missing_finish": 0,
+      "naive_finish": 0
+    },
+    "test": {
+      "rows": 736928,
+      "missing_finish": 0,
+      "naive_finish": 0
+    }
+  },
+  "selected_baseline": "rolling_global",
+  "scores": {
+    "static_global": {
+      "n": 736928,
+      "errors": 238845,
+      "error_rate": 0.3241090038646923,
+      "mean_probability": 0.21571805062658345,
+      "brier": 0.2308109562223952,
+      "log_loss": 0.6613454135482714,
+      "average_precision": 0.3241090038646923
+    },
+    "static_model": {
+      "n": 736928,
+      "errors": 238845,
+      "error_rate": 0.3241090038646923,
+      "mean_probability": 0.2159413617588096,
+      "brier": 0.23063424127630308,
+      "log_loss": 0.6610646345041143,
+      "average_precision": 0.3243411965813325
+    },
+    "rolling_global": {
+      "n": 736928,
+      "errors": 238845,
+      "error_rate": 0.3241090038646923,
+      "mean_probability": 0.23545880529296026,
+      "brier": 0.22810656449217706,
+      "log_loss": 0.6853099681168414,
+      "average_precision": 0.47603235010661293
+    },
+    "rolling_model": {
+      "n": 736928,
+      "errors": 238845,
+      "error_rate": 0.3241090038646923,
+      "mean_probability": 0.21154474418801522,
+      "brier": 0.20763675743527138,
+      "log_loss": 1.0658315981441517,
+      "average_precision": 0.5287122749464671
+    },
+    "hgb": {
+      "n": 736928,
+      "errors": 238845,
+      "error_rate": 0.3241090038646923,
+      "mean_probability": 0.2282649043893075,
+      "brier": 0.1377783104671142,
+      "log_loss": 0.4417164650848267,
+      "average_precision": 0.8143871014788027
+    },
+    "support_hybrid": {
+      "n": 736928,
+      "errors": 238845,
+      "error_rate": 0.3241090038646923,
+      "mean_probability": 0.23503479428538507,
+      "brier": 0.14608068014202008,
+      "log_loss": 0.4686545505344693,
+      "average_precision": 0.7793341864540781
+    }
+  },
+  "full_seven_day_blocks": [
+    {
+      "index": 0,
+      "n": 89802,
+      "scores": {
+        "static_global": {
+          "n": 89802,
+          "errors": 6084,
+          "error_rate": 0.06774904790539187,
+          "mean_probability": 0.21571805062658364,
+          "brier": 0.0850539401796088,
+          "log_loss": 0.3304369178111992,
+          "average_precision": 0.06774904790539187
+        },
+        "static_model": {
+          "n": 89802,
+          "errors": 6084,
+          "error_rate": 0.06774904790539187,
+          "mean_probability": 0.21571805062658364,
+          "brier": 0.0850539401796088,
+          "log_loss": 0.3304369178111992,
+          "average_precision": 0.06774904790539187
+        },
+        "rolling_global": {
+          "n": 89802,
+          "errors": 6084,
+          "error_rate": 0.06774904790539187,
+          "mean_probability": 0.07774621981413164,
+          "brier": 0.06542246273117598,
+          "log_loss": 0.26172741944430933,
+          "average_precision": 0.07383885276900468
+        },
+        "rolling_model": {
+          "n": 89802,
+          "errors": 6084,
+          "error_rate": 0.06774904790539187,
+          "mean_probability": 0.06568967115550184,
+          "brier": 0.06539137097255114,
+          "log_loss": 0.27527136699003396,
+          "average_precision": 0.07606191476409704
+        },
+        "hgb": {
+          "n": 89802,
+          "errors": 6084,
+          "error_rate": 0.06774904790539187,
+          "mean_probability": 0.09012701397510602,
+          "brier": 0.06859267651556351,
+          "log_loss": 0.2715783800487241,
+          "average_precision": 0.07701724498880712
+        },
+        "support_hybrid": {
+          "n": 89802,
+          "errors": 6084,
+          "error_rate": 0.06774904790539187,
+          "mean_probability": 0.08687022858134386,
+          "brier": 0.06626800096712908,
+          "log_loss": 0.2663898410812104,
+          "average_precision": 0.0877243184813793
+        }
+      }
+    },
+    {
+      "index": 1,
+      "n": 2090,
+      "scores": {
+        "static_global": {
+          "n": 2090,
+          "errors": 1006,
+          "error_rate": 0.4813397129186603,
+          "mean_probability": 0.2157180506265836,
+          "brier": 0.32020666116484797,
+          "log_loss": 0.8642982390862106,
+          "average_precision": 0.4813397129186603
+        },
+        "static_model": {
+          "n": 2090,
+          "errors": 1006,
+          "error_rate": 0.4813397129186603,
+          "mean_probability": 0.20376236905852688,
+          "brier": 0.3396419689461628,
+          "log_loss": 0.9286675540223895,
+          "average_precision": 0.403697586944936
+        },
+        "rolling_global": {
+          "n": 2090,
+          "errors": 1006,
+          "error_rate": 0.4813397129186603,
+          "mean_probability": 0.15373098813829084,
+          "brier": 0.38590508793435235,
+          "log_loss": 1.1071087764097225,
+          "average_precision": 0.48108430685265896
+        },
+        "rolling_model": {
+          "n": 2090,
+          "errors": 1006,
+          "error_rate": 0.4813397129186603,
+          "mean_probability": 0.07631743274762433,
+          "brier": 0.4255263518343019,
+          "log_loss": 1.5674599008680101,
+          "average_precision": 0.5350939443305548
+        },
+        "hgb": {
+          "n": 2090,
+          "errors": 1006,
+          "error_rate": 0.4813397129186603,
+          "mean_probability": 0.1391922082582596,
+          "brier": 0.37454448973958987,
+          "log_loss": 1.1849487408208812,
+          "average_precision": 0.6733513162625985
+        },
+        "support_hybrid": {
+          "n": 2090,
+          "errors": 1006,
+          "error_rate": 0.4813397129186603,
+          "mean_probability": 0.12342932191585343,
+          "brier": 0.4245039073639936,
+          "log_loss": 1.3625295153477512,
+          "average_precision": 0.41063382914204155
+        }
+      }
+    },
+    {
+      "index": 2,
+      "n": 2083,
+      "scores": {
+        "static_global": {
+          "n": 2083,
+          "errors": 633,
+          "error_rate": 0.3038886221795487,
+          "mean_probability": 0.21571805062658364,
+          "brier": 0.21931437717734073,
+          "log_loss": 0.6352450186499252,
+          "average_precision": 0.3038886221795487
+        },
+        "static_model": {
+          "n": 2083,
+          "errors": 633,
+          "error_rate": 0.3038886221795487,
+          "mean_probability": 0.2848648234203009,
+          "brier": 0.1548080508770251,
+          "log_loss": 0.49680937063589065,
+          "average_precision": 0.570361175073586
+        },
+        "rolling_global": {
+          "n": 2083,
+          "errors": 633,
+          "error_rate": 0.3038886221795487,
+          "mean_probability": 0.2514686716703553,
+          "brier": 0.2148459081173331,
+          "log_loss": 0.6259589683035174,
+          "average_precision": 0.5051843964506735
+        },
+        "rolling_model": {
+          "n": 2083,
+          "errors": 633,
+          "error_rate": 0.3038886221795487,
+          "mean_probability": 0.2379509093527922,
+          "brier": 0.21685550285327743,
+          "log_loss": 0.6004822356816972,
+          "average_precision": 0.394604772530936
+        },
+        "hgb": {
+          "n": 2083,
+          "errors": 633,
+          "error_rate": 0.3038886221795487,
+          "mean_probability": 0.29114099535960947,
+          "brier": 0.26846283536966453,
+          "log_loss": 0.7291372793158307,
+          "average_precision": 0.3468579519901145
+        },
+        "support_hybrid": {
+          "n": 2083,
+          "errors": 633,
+          "error_rate": 0.3038886221795487,
+          "mean_probability": 0.21854773359390828,
+          "brier": 0.20671445258597088,
+          "log_loss": 0.5883381674368228,
+          "average_precision": 0.5203341986711969
+        }
+      }
+    },
+    {
+      "index": 3,
+      "n": 55159,
+      "scores": {
+        "static_global": {
+          "n": 55159,
+          "errors": 13061,
+          "error_rate": 0.2367881941296978,
+          "mean_probability": 0.2157180506265836,
+          "brier": 0.1811634961977361,
+          "log_loss": 0.5486320309615714,
+          "average_precision": 0.2367881941296978
+        },
+        "static_model": {
+          "n": 55159,
+          "errors": 13061,
+          "error_rate": 0.2367881941296978,
+          "mean_probability": 0.21636189633867567,
+          "brier": 0.18065138566688207,
+          "log_loss": 0.5477762644825797,
+          "average_precision": 0.2388966985513925
+        },
+        "rolling_global": {
+          "n": 55159,
+          "errors": 13061,
+          "error_rate": 0.2367881941296978,
+          "mean_probability": 0.18980303824757674,
+          "brier": 0.239777487392385,
+          "log_loss": 0.7750747926612876,
+          "average_precision": 0.19156847650984388
+        },
+        "rolling_model": {
+          "n": 55159,
+          "errors": 13061,
+          "error_rate": 0.2367881941296978,
+          "mean_probability": 0.1716424647350175,
+          "brier": 0.26105371543665895,
+          "log_loss": 1.2990586563574738,
+          "average_precision": 0.20043098405709
+        },
+        "hgb": {
+          "n": 55159,
+          "errors": 13061,
+          "error_rate": 0.2367881941296978,
+          "mean_probability": 0.17841131974523486,
+          "brier": 0.1902239257221769,
+          "log_loss": 0.6058510761721586,
+          "average_precision": 0.3878084089221403
+        },
+        "support_hybrid": {
+          "n": 55159,
+          "errors": 13061,
+          "error_rate": 0.2367881941296978,
+          "mean_probability": 0.16260798902815082,
+          "brier": 0.2259832575866576,
+          "log_loss": 0.7040543355673882,
+          "average_precision": 0.2161407146504797
+        }
+      }
+    },
+    {
+      "index": 4,
+      "n": 480976,
+      "scores": {
+        "static_global": {
+          "n": 480976,
+          "errors": 208533,
+          "error_rate": 0.43356217358038657,
+          "mean_probability": 0.21571805062658334,
+          "brier": 0.29304207712614894,
+          "log_loss": 0.8026271656407276,
+          "average_precision": 0.43356217358038657
+        },
+        "static_model": {
+          "n": 480976,
+          "errors": 208533,
+          "error_rate": 0.43356217358038657,
+          "mean_probability": 0.21571192993472468,
+          "brier": 0.2930567210323644,
+          "log_loss": 0.8026828155750759,
+          "average_precision": 0.43344071636139303
+        },
+        "rolling_global": {
+          "n": 480976,
+          "errors": 208533,
+          "error_rate": 0.43356217358038657,
+          "mean_probability": 0.30064086033701554,
+          "brier": 0.28654656182506133,
+          "log_loss": 0.8204942421800724,
+          "average_precision": 0.528776221720794
+        },
+        "rolling_model": {
+          "n": 480976,
+          "errors": 208533,
+          "error_rate": 0.43356217358038657,
+          "mean_probability": 0.2762405287530331,
+          "brier": 0.2515849823674362,
+          "log_loss": 1.3167548806402596,
+          "average_precision": 0.6049079470856402
+        },
+        "hgb": {
+          "n": 480976,
+          "errors": 208533,
+          "error_rate": 0.43356217358038657,
+          "mean_probability": 0.29406682598622425,
+          "brier": 0.15658402499918922,
+          "log_loss": 0.48323464758318885,
+          "average_precision": 0.8851350441587154
+        },
+        "support_hybrid": {
+          "n": 480976,
+          "errors": 208533,
+          "error_rate": 0.43356217358038657,
+          "mean_probability": 0.30838068897868526,
+          "brier": 0.16346009457360677,
+          "log_loss": 0.5003616205495277,
+          "average_precision": 0.8592232278851614
+        }
+      }
+    }
+  ],
+  "model_support_strata": {
+    "seen_in_train": {
+      "static_global": {
+        "n": 1344,
+        "errors": 1344,
+        "error_rate": 1.0,
+        "mean_probability": 0.2157180506265836,
+        "brier": 0.615098176112966,
+        "log_loss": 1.5337830451449685,
+        "average_precision": 1.0
+      },
+      "static_model": {
+        "n": 1344,
+        "errors": 1344,
+        "error_rate": 1.0,
+        "mean_probability": 0.33816167119886215,
+        "brier": 0.518203688171195,
+        "log_loss": 1.3798292211476177,
+        "average_precision": 1.0
+      },
+      "rolling_global": {
+        "n": 1344,
+        "errors": 1344,
+        "error_rate": 1.0,
+        "mean_probability": 0.21318234917828,
+        "brier": 0.6313666509012206,
+        "log_loss": 1.6809759856513218,
+        "average_precision": 0.9999999999999999
+      },
+      "rolling_model": {
+        "n": 1344,
+        "errors": 1344,
+        "error_rate": 1.0,
+        "mean_probability": 0.24437762015986267,
+        "brier": 0.5916680137618324,
+        "log_loss": 1.581499992616067,
+        "average_precision": 0.9999999999999999
+      },
+      "hgb": {
+        "n": 1344,
+        "errors": 1344,
+        "error_rate": 1.0,
+        "mean_probability": 0.28803136047312927,
+        "brier": 0.5261654593496811,
+        "log_loss": 1.3737606370570206,
+        "average_precision": 0.9999999999999999
+      },
+      "support_hybrid": {
+        "n": 1344,
+        "errors": 1344,
+        "error_rate": 1.0,
+        "mean_probability": 0.21415956235377528,
+        "brier": 0.6296300317898138,
+        "log_loss": 1.6713788252192752,
+        "average_precision": 1.0
+      }
+    },
+    "new_to_train": {
+      "static_global": {
+        "n": 735584,
+        "errors": 237501,
+        "error_rate": 0.3228740701265933,
+        "mean_probability": 0.21571805062658342,
+        "brier": 0.23010881748156756,
+        "log_loss": 0.6597513655852026,
+        "average_precision": 0.3228740701265933
+      },
+      "static_model": {
+        "n": 735584,
+        "errors": 237501,
+        "error_rate": 0.3228740701265933,
+        "mean_probability": 0.21571805062658342,
+        "brier": 0.23010881748156756,
+        "log_loss": 0.6597513655852026,
+        "average_precision": 0.3228740701265933
+      },
+      "rolling_global": {
+        "n": 735584,
+        "errors": 237501,
+        "error_rate": 0.3228740701265933,
+        "mean_probability": 0.23549950704424652,
+        "brier": 0.22736976005361695,
+        "log_loss": 0.6834907671451425,
+        "average_precision": 0.4751464461528134
+      },
+      "rolling_model": {
+        "n": 735584,
+        "errors": 237501,
+        "error_rate": 0.3228740701265933,
+        "mean_probability": 0.2114847545942965,
+        "brier": 0.20693508637050817,
+        "log_loss": 1.0648894102741455,
+        "average_precision": 0.527436123803756
+      },
+      "hgb": {
+        "n": 735584,
+        "errors": 237501,
+        "error_rate": 0.3228740701265933,
+        "mean_probability": 0.22815570392141166,
+        "brier": 0.13706868066535383,
+        "log_loss": 0.4400135088389994,
+        "average_precision": 0.814024016877111
+      },
+      "support_hybrid": {
+        "n": 735584,
+        "errors": 237501,
+        "error_rate": 0.3228740701265933,
+        "mean_probability": 0.23507293583239536,
+        "brier": 0.1451971776071436,
+        "log_loss": 0.4664570293469824,
+        "average_precision": 0.7794196211049139
+      }
+    }
+  },
+  "support_gate": {
+    "accepted": 689351,
+    "acceptance_rate": 0.9354387402839898,
+    "accepted_scores": {
+      "static_global": {
+        "n": 689351,
+        "errors": 227556,
+        "error_rate": 0.3301017913950948,
+        "mean_probability": 0.21571805062658336,
+        "brier": 0.2342182388650422,
+        "log_loss": 0.6690808818258219,
+        "average_precision": 0.3301017913950948
+      },
+      "static_model": {
+        "n": 689351,
+        "errors": 227556,
+        "error_rate": 0.3301017913950948,
+        "mean_probability": 0.21571705753945922,
+        "brier": 0.23421985324008238,
+        "log_loss": 0.6690862286006996,
+        "average_precision": 0.3300901304349807
+      },
+      "rolling_global": {
+        "n": 689351,
+        "errors": 227556,
+        "error_rate": 0.3301017913950948,
+        "mean_probability": 0.23154910789588962,
+        "brier": 0.22578754827430036,
+        "log_loss": 0.6763759514718504,
+        "average_precision": 0.500862865492128
+      },
+      "rolling_model": {
+        "n": 689351,
+        "errors": 227556,
+        "error_rate": 0.3301017913950948,
+        "mean_probability": 0.20684603215501182,
+        "brier": 0.2040263948840191,
+        "log_loss": 1.0828225234253805,
+        "average_precision": 0.5593080878667926
+      },
+      "hgb": {
+        "n": 689351,
+        "errors": 227556,
+        "error_rate": 0.3301017913950948,
+        "mean_probability": 0.23109583288244906,
+        "brier": 0.1381004760826412,
+        "log_loss": 0.4447676074379076,
+        "average_precision": 0.8181232046390655
+      },
+      "support_hybrid": {
+        "n": 689351,
+        "errors": 227556,
+        "error_rate": 0.3301017913950948,
+        "mean_probability": 0.23109583288244906,
+        "brier": 0.1381004760826412,
+        "log_loss": 0.4447676074379076,
+        "average_precision": 0.8181232046390655
+      }
+    },
+    "accepted_gain_vs_baseline": 0.38836097411860643,
+    "hybrid_gain_vs_ungated_hgb": -0.06025890175861568,
+    "hybrid_gain_vs_baseline": 0.3595945804223888,
+    "gates": {
+      "at_least_20pct_and_10000_accepted": true,
+      "accepted_gain_at_least_5pct": true,
+      "hybrid_gain_vs_ungated_at_least_2pct": false,
+      "hybrid_gain_vs_baseline_at_least_2pct": true
+    },
+    "exploratory_success": false
+  },
+  "frequencies": {
+    "by_date": {
+      "2025-09-16": {
+        "n": 14,
+        "errors": 0
+      },
+      "2025-09-17": {
+        "n": 26,
+        "errors": 0
+      },
+      "2025-09-18": {
+        "n": 16822,
+        "errors": 1036
+      },
+      "2025-09-19": {
+        "n": 17766,
+        "errors": 502
+      },
+      "2025-09-20": {
+        "n": 18174,
+        "errors": 728
+      },
+      "2025-09-21": {
+        "n": 19750,
+        "errors": 2956
+      },
+      "2025-09-22": {
+        "n": 17250,
+        "errors": 862
+      },
+      "2025-09-23": {
+        "n": 204,
+        "errors": 144
+      },
+      "2025-09-24": {
+        "n": 124,
+        "errors": 12
+      },
+      "2025-09-25": {
+        "n": 156,
+        "errors": 0
+      },
+      "2025-09-26": {
+        "n": 1598,
+        "errors": 850
+      },
+      "2025-09-27": {
+        "n": 8,
+        "errors": 0
+      },
+      "2025-09-30": {
+        "n": 330,
+        "errors": 330
+      },
+      "2025-10-01": {
+        "n": 74,
+        "errors": 66
+      },
+      "2025-10-02": {
+        "n": 60,
+        "errors": 0
+      },
+      "2025-10-03": {
+        "n": 144,
+        "errors": 141
+      },
+      "2025-10-04": {
+        "n": 1367,
+        "errors": 0
+      },
+      "2025-10-05": {
+        "n": 93,
+        "errors": 81
+      },
+      "2025-10-06": {
+        "n": 15,
+        "errors": 15
+      },
+      "2025-10-07": {
+        "n": 62,
+        "errors": 57
+      },
+      "2025-10-08": {
+        "n": 1270,
+        "errors": 144
+      },
+      "2025-10-09": {
+        "n": 1689,
+        "errors": 627
+      },
+      "2025-10-10": {
+        "n": 8519,
+        "errors": 2991
+      },
+      "2025-10-11": {
+        "n": 15784,
+        "errors": 929
+      },
+      "2025-10-12": {
+        "n": 25275,
+        "errors": 7695
+      },
+      "2025-10-13": {
+        "n": 2560,
+        "errors": 618
+      },
+      "2025-10-14": {
+        "n": 6043,
+        "errors": 312
+      },
+      "2025-10-15": {
+        "n": 58925,
+        "errors": 46572
+      },
+      "2025-10-16": {
+        "n": 55497,
+        "errors": 9688
+      },
+      "2025-10-17": {
+        "n": 179305,
+        "errors": 144551
+      },
+      "2025-10-18": {
+        "n": 48513,
+        "errors": 641
+      },
+      "2025-10-19": {
+        "n": 78234,
+        "errors": 2331
+      },
+      "2025-10-20": {
+        "n": 54459,
+        "errors": 4438
+      },
+      "2025-10-21": {
+        "n": 36890,
+        "errors": 5784
+      },
+      "2025-10-22": {
+        "n": 29977,
+        "errors": 506
+      },
+      "2025-10-23": {
+        "n": 39951,
+        "errors": 3238
+      }
+    },
+    "by_anonymous_model_code": [
+      {
+        "anonymous_model_code": 0,
+        "seen_in_train": true,
+        "n": 75,
+        "errors": 75
+      },
+      {
+        "anonymous_model_code": 1,
+        "seen_in_train": true,
+        "n": 348,
+        "errors": 348
+      },
+      {
+        "anonymous_model_code": 11,
+        "seen_in_train": true,
+        "n": 36,
+        "errors": 36
+      },
+      {
+        "anonymous_model_code": 26,
+        "seen_in_train": true,
+        "n": 6,
+        "errors": 6
+      },
+      {
+        "anonymous_model_code": 31,
+        "seen_in_train": true,
+        "n": 879,
+        "errors": 879
+      },
+      {
+        "anonymous_model_code": 90,
+        "seen_in_train": false,
+        "n": 96059,
+        "errors": 63639
+      },
+      {
+        "anonymous_model_code": 164,
+        "seen_in_train": false,
+        "n": 75211,
+        "errors": 7089
+      },
+      {
+        "anonymous_model_code": 165,
+        "seen_in_train": false,
+        "n": 168548,
+        "errors": 9894
+      },
+      {
+        "anonymous_model_code": 170,
+        "seen_in_train": false,
+        "n": 72,
+        "errors": 72
+      },
+      {
+        "anonymous_model_code": 171,
+        "seen_in_train": false,
+        "n": 9,
+        "errors": 9
+      },
+      {
+        "anonymous_model_code": 172,
+        "seen_in_train": false,
+        "n": 36,
+        "errors": 36
+      },
+      {
+        "anonymous_model_code": 173,
+        "seen_in_train": false,
+        "n": 43907,
+        "errors": 1786
+      },
+      {
+        "anonymous_model_code": 174,
+        "seen_in_train": false,
+        "n": 48,
+        "errors": 48
+      },
+      {
+        "anonymous_model_code": 175,
+        "seen_in_train": false,
+        "n": 399,
+        "errors": 399
+      },
+      {
+        "anonymous_model_code": 176,
+        "seen_in_train": false,
+        "n": 297,
+        "errors": 297
+      },
+      {
+        "anonymous_model_code": 177,
+        "seen_in_train": false,
+        "n": 18,
+        "errors": 18
+      },
+      {
+        "anonymous_model_code": 178,
+        "seen_in_train": false,
+        "n": 45,
+        "errors": 45
+      },
+      {
+        "anonymous_model_code": 179,
+        "seen_in_train": false,
+        "n": 344809,
+        "errors": 148043
+      },
+      {
+        "anonymous_model_code": 180,
+        "seen_in_train": false,
+        "n": 3066,
+        "errors": 3066
+      },
+      {
+        "anonymous_model_code": 181,
+        "seen_in_train": false,
+        "n": 9,
+        "errors": 9
+      },
+      {
+        "anonymous_model_code": 182,
+        "seen_in_train": false,
+        "n": 3012,
+        "errors": 3012
+      },
+      {
+        "anonymous_model_code": 183,
+        "seen_in_train": false,
+        "n": 18,
+        "errors": 18
+      },
+      {
+        "anonymous_model_code": 184,
+        "seen_in_train": false,
+        "n": 15,
+        "errors": 15
+      },
+      {
+        "anonymous_model_code": 185,
+        "seen_in_train": false,
+        "n": 6,
+        "errors": 6
+      }
+    ]
+  },
+  "naive_finish_excluded_history_sensitivity": {
+    "static_global": {
+      "n": 736928,
+      "errors": 238845,
+      "error_rate": 0.3241090038646923,
+      "mean_probability": 0.09166021860412775,
+      "brier": 0.273094795247641,
+      "log_loss": 0.8394905026585653,
+      "average_precision": 0.3241090038646923
+    },
+    "static_model": {
+      "n": 736928,
+      "errors": 238845,
+      "error_rate": 0.3241090038646923,
+      "mean_probability": 0.09215114862166035,
+      "brier": 0.27240071321561365,
+      "log_loss": 0.8374277845729856,
+      "average_precision": 0.32691053660003927
+    },
+    "rolling_global": {
+      "n": 736928,
+      "errors": 238845,
+      "error_rate": 0.3241090038646923,
+      "mean_probability": 0.22989048406919124,
+      "brier": 0.22948050938274817,
+      "log_loss": 0.7005780799093168,
+      "average_precision": 0.47571822810901043
+    },
+    "rolling_model": {
+      "n": 736928,
+      "errors": 238845,
+      "error_rate": 0.3241090038646923,
+      "mean_probability": 0.21063203001174122,
+      "brier": 0.2079204580776242,
+      "log_loss": 1.0806021337152798,
+      "average_precision": 0.5281279638482689
+    },
+    "hgb": {
+      "n": 736928,
+      "errors": 238845,
+      "error_rate": 0.3241090038646923,
+      "mean_probability": 0.25441673744511495,
+      "brier": 0.13661183426819015,
+      "log_loss": 0.43465760497601635,
+      "average_precision": 0.7980690546231153
+    },
+    "support_hybrid": {
+      "n": 736928,
+      "errors": 238845,
+      "error_rate": 0.3241090038646923,
+      "mean_probability": 0.256748601177262,
+      "brier": 0.14555333369992193,
+      "log_loss": 0.4642031310660415,
+      "average_precision": 0.7696319009790402
+    }
+  },
+  "naive_finish_excluded_gate_accepted": 689351,
+  "naive_finish_history_events": 4254095,
+  "relative_brier_gain": 0.39599147103090354,
+  "full_week_wins": 3,
+  "gates": {
+    "quality": true,
+    "relative_gain_at_least_5pct": true,
+    "at_least_4_of_5_full_week_wins": false,
+    "seen_new_strata_no_harm": true
+  },
+  "exploratory_success": false,
+  "test_predictions_sha256": "00a89abdd10cfe5fe569fd57ced155b4377a07fb4851b9c1f3892c36dd5a0857"
+}

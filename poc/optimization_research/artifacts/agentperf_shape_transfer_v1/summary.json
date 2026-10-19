@@ -1,0 +1,2278 @@
+{
+  "source": {
+    "path": "/home/researcher/ai-mcmp/research/data/external/agentperfbench/trace_replay/summary.parquet",
+    "revision": "722f2b9d8a6acd222811f4e210a96865f774f6ee",
+    "sha256": "568efbdae473a830ba792317fb09cfba0ea4f667db67b93d28e72637a5c71d1e"
+  },
+  "cleaning": {
+    "source_rows": 2932,
+    "excluded_nonpositive_or_nonfinite": 36,
+    "excluded_not_all_requests_successful_after_positive": 724,
+    "all_success_positive_rows": 2172
+  },
+  "populations": {
+    "primary": {
+      "population": "primary",
+      "selection": {
+        "all_success_groups": 989,
+        "groups_with_two_or_more_shapes": 551,
+        "groups_excluded_for_token_mismatch": 66,
+        "selected_groups": 485,
+        "selected_rows": 1526,
+        "selected_models": 9,
+        "input_ratio_limit": 1.00001,
+        "output_ratio_limit": 1.05
+      },
+      "pairs": 1041,
+      "model_fold_manifest": [
+        {
+          "fold": "Llama-3.1-70B",
+          "train_rows": 944,
+          "test_rows": 97,
+          "train_models": [
+            "Llama-3.1-8B",
+            "Llama-3.3-70B",
+            "Mixtral-8x7B",
+            "Qwen2.5-72B",
+            "Qwen3.5-27B",
+            "Qwen3.5-9B",
+            "gpt-oss-120b",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "Llama-3.1-70B"
+          ]
+        },
+        {
+          "fold": "Llama-3.1-8B",
+          "train_rows": 679,
+          "test_rows": 362,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.3-70B",
+            "Mixtral-8x7B",
+            "Qwen2.5-72B",
+            "Qwen3.5-27B",
+            "Qwen3.5-9B",
+            "gpt-oss-120b",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "Llama-3.1-8B"
+          ]
+        },
+        {
+          "fold": "Llama-3.3-70B",
+          "train_rows": 996,
+          "test_rows": 45,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.1-8B",
+            "Mixtral-8x7B",
+            "Qwen2.5-72B",
+            "Qwen3.5-27B",
+            "Qwen3.5-9B",
+            "gpt-oss-120b",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "Llama-3.3-70B"
+          ]
+        },
+        {
+          "fold": "Mixtral-8x7B",
+          "train_rows": 991,
+          "test_rows": 50,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.1-8B",
+            "Llama-3.3-70B",
+            "Qwen2.5-72B",
+            "Qwen3.5-27B",
+            "Qwen3.5-9B",
+            "gpt-oss-120b",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "Mixtral-8x7B"
+          ]
+        },
+        {
+          "fold": "Qwen2.5-72B",
+          "train_rows": 996,
+          "test_rows": 45,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.1-8B",
+            "Llama-3.3-70B",
+            "Mixtral-8x7B",
+            "Qwen3.5-27B",
+            "Qwen3.5-9B",
+            "gpt-oss-120b",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "Qwen2.5-72B"
+          ]
+        },
+        {
+          "fold": "Qwen3.5-27B",
+          "train_rows": 1017,
+          "test_rows": 24,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.1-8B",
+            "Llama-3.3-70B",
+            "Mixtral-8x7B",
+            "Qwen2.5-72B",
+            "Qwen3.5-9B",
+            "gpt-oss-120b",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "Qwen3.5-27B"
+          ]
+        },
+        {
+          "fold": "Qwen3.5-9B",
+          "train_rows": 731,
+          "test_rows": 310,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.1-8B",
+            "Llama-3.3-70B",
+            "Mixtral-8x7B",
+            "Qwen2.5-72B",
+            "Qwen3.5-27B",
+            "gpt-oss-120b",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "Qwen3.5-9B"
+          ]
+        },
+        {
+          "fold": "gpt-oss-120b",
+          "train_rows": 1035,
+          "test_rows": 6,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.1-8B",
+            "Llama-3.3-70B",
+            "Mixtral-8x7B",
+            "Qwen2.5-72B",
+            "Qwen3.5-27B",
+            "Qwen3.5-9B",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "gpt-oss-120b"
+          ]
+        },
+        {
+          "fold": "gpt-oss-20b",
+          "train_rows": 939,
+          "test_rows": 102,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.1-8B",
+            "Llama-3.3-70B",
+            "Mixtral-8x7B",
+            "Qwen2.5-72B",
+            "Qwen3.5-27B",
+            "Qwen3.5-9B",
+            "gpt-oss-120b"
+          ],
+          "test_models": [
+            "gpt-oss-20b"
+          ]
+        }
+      ],
+      "model_holdout": {
+        "e2el": {
+          "anchor_copy": {
+            "equal_fold_male": 0.7798076871709567,
+            "row_weighted_male": 0.7610397410430204,
+            "direction_hit_rate": 0.0,
+            "per_fold": {
+              "Llama-3.1-70B": {
+                "rows": 97,
+                "male": 1.0143631298036793,
+                "direction_hit_rate": 0.0
+              },
+              "Llama-3.1-8B": {
+                "rows": 362,
+                "male": 0.8982614555952421,
+                "direction_hit_rate": 0.0
+              },
+              "Llama-3.3-70B": {
+                "rows": 45,
+                "male": 0.5723349062156744,
+                "direction_hit_rate": 0.0
+              },
+              "Mixtral-8x7B": {
+                "rows": 50,
+                "male": 0.3118222276011643,
+                "direction_hit_rate": 0.0
+              },
+              "Qwen2.5-72B": {
+                "rows": 45,
+                "male": 0.5311845189437964,
+                "direction_hit_rate": 0.0
+              },
+              "Qwen3.5-27B": {
+                "rows": 24,
+                "male": 0.6319136537882721,
+                "direction_hit_rate": 0.0
+              },
+              "Qwen3.5-9B": {
+                "rows": 310,
+                "male": 0.6004270872588099,
+                "direction_hit_rate": 0.0
+              },
+              "gpt-oss-120b": {
+                "rows": 6,
+                "male": 1.5477234925822447,
+                "direction_hit_rate": 0.0
+              },
+              "gpt-oss-20b": {
+                "rows": 102,
+                "male": 0.9102387127497275,
+                "direction_hit_rate": 0.0
+              }
+            }
+          },
+          "donor_median": {
+            "equal_fold_male": 0.6917524290177783,
+            "row_weighted_male": 0.6319873260944967,
+            "direction_hit_rate": 0.6983669548511047,
+            "per_fold": {
+              "Llama-3.1-70B": {
+                "rows": 97,
+                "male": 0.9024284261223295,
+                "direction_hit_rate": 0.5979381443298969
+              },
+              "Llama-3.1-8B": {
+                "rows": 362,
+                "male": 0.7446296873906585,
+                "direction_hit_rate": 0.7044198895027625
+              },
+              "Llama-3.3-70B": {
+                "rows": 45,
+                "male": 0.09851720001290051,
+                "direction_hit_rate": 1.0
+              },
+              "Mixtral-8x7B": {
+                "rows": 50,
+                "male": 0.8362356263843084,
+                "direction_hit_rate": 0.5
+              },
+              "Qwen2.5-72B": {
+                "rows": 45,
+                "male": 0.09247643846022544,
+                "direction_hit_rate": 1.0
+              },
+              "Qwen3.5-27B": {
+                "rows": 24,
+                "male": 0.6881969412461683,
+                "direction_hit_rate": 0.5
+              },
+              "Qwen3.5-9B": {
+                "rows": 310,
+                "male": 0.5371936768951943,
+                "direction_hit_rate": 0.6290322580645161
+              },
+              "gpt-oss-120b": {
+                "rows": 6,
+                "male": 1.7698701393432934,
+                "direction_hit_rate": 0.0
+              },
+              "gpt-oss-20b": {
+                "rows": 102,
+                "male": 0.5562237253049276,
+                "direction_hit_rate": 0.9019607843137255
+              }
+            }
+          },
+          "direct_et": {
+            "equal_fold_male": 0.4522903050447463,
+            "row_weighted_male": 0.5000503055208165,
+            "direction_hit_rate": 0.8165225744476465,
+            "per_fold": {
+              "Llama-3.1-70B": {
+                "rows": 97,
+                "male": 0.37844926716890787,
+                "direction_hit_rate": 1.0
+              },
+              "Llama-3.1-8B": {
+                "rows": 362,
+                "male": 0.7207193382153413,
+                "direction_hit_rate": 0.6215469613259669
+              },
+              "Llama-3.3-70B": {
+                "rows": 45,
+                "male": 0.07597215625746673,
+                "direction_hit_rate": 1.0
+              },
+              "Mixtral-8x7B": {
+                "rows": 50,
+                "male": 0.5150145756467296,
+                "direction_hit_rate": 0.68
+              },
+              "Qwen2.5-72B": {
+                "rows": 45,
+                "male": 0.16381220183717551,
+                "direction_hit_rate": 0.9333333333333333
+              },
+              "Qwen3.5-27B": {
+                "rows": 24,
+                "male": 0.5119087897941627,
+                "direction_hit_rate": 0.9166666666666666
+              },
+              "Qwen3.5-9B": {
+                "rows": 310,
+                "male": 0.37026481117447774,
+                "direction_hit_rate": 0.9258064516129032
+              },
+              "gpt-oss-120b": {
+                "rows": 6,
+                "male": 0.7998191912434729,
+                "direction_hit_rate": 1.0
+              },
+              "gpt-oss-20b": {
+                "rows": 102,
+                "male": 0.5346524140649824,
+                "direction_hit_rate": 0.9019607843137255
+              }
+            }
+          },
+          "ratio_et": {
+            "equal_fold_male": 0.6603874883364993,
+            "row_weighted_male": 0.7737560586142717,
+            "direction_hit_rate": 0.6868395773294909,
+            "per_fold": {
+              "Llama-3.1-70B": {
+                "rows": 97,
+                "male": 0.4526443238041711,
+                "direction_hit_rate": 0.979381443298969
+              },
+              "Llama-3.1-8B": {
+                "rows": 362,
+                "male": 1.3110419238276203,
+                "direction_hit_rate": 0.494475138121547
+              },
+              "Llama-3.3-70B": {
+                "rows": 45,
+                "male": 0.0703402637817259,
+                "direction_hit_rate": 1.0
+              },
+              "Mixtral-8x7B": {
+                "rows": 50,
+                "male": 0.923049132787002,
+                "direction_hit_rate": 0.5
+              },
+              "Qwen2.5-72B": {
+                "rows": 45,
+                "male": 0.40931866599990574,
+                "direction_hit_rate": 0.6666666666666666
+              },
+              "Qwen3.5-27B": {
+                "rows": 24,
+                "male": 0.3586857338155056,
+                "direction_hit_rate": 0.5
+              },
+              "Qwen3.5-9B": {
+                "rows": 310,
+                "male": 0.5410867806815068,
+                "direction_hit_rate": 0.7225806451612903
+              },
+              "gpt-oss-120b": {
+                "rows": 6,
+                "male": 1.5478415113883006,
+                "direction_hit_rate": 0.5
+              },
+              "gpt-oss-20b": {
+                "rows": 102,
+                "male": 0.3294790589427558,
+                "direction_hit_rate": 1.0
+              }
+            }
+          }
+        },
+        "rps": {
+          "anchor_copy": {
+            "equal_fold_male": 0.7055007987701408,
+            "row_weighted_male": 0.6903624832434532,
+            "direction_hit_rate": 0.0,
+            "per_fold": {
+              "Llama-3.1-70B": {
+                "rows": 97,
+                "male": 0.8878311867201258,
+                "direction_hit_rate": 0.0
+              },
+              "Llama-3.1-8B": {
+                "rows": 362,
+                "male": 0.8497075842177927,
+                "direction_hit_rate": 0.0
+              },
+              "Llama-3.3-70B": {
+                "rows": 45,
+                "male": 0.5335117000452146,
+                "direction_hit_rate": 0.0
+              },
+              "Mixtral-8x7B": {
+                "rows": 50,
+                "male": 0.2879964533591739,
+                "direction_hit_rate": 0.0
+              },
+              "Qwen2.5-72B": {
+                "rows": 45,
+                "male": 0.4822133377714045,
+                "direction_hit_rate": 0.0
+              },
+              "Qwen3.5-27B": {
+                "rows": 24,
+                "male": 0.5621081905414359,
+                "direction_hit_rate": 0.0
+              },
+              "Qwen3.5-9B": {
+                "rows": 310,
+                "male": 0.522350979282821,
+                "direction_hit_rate": 0.0
+              },
+              "gpt-oss-120b": {
+                "rows": 6,
+                "male": 1.43124610704115,
+                "direction_hit_rate": 0.0
+              },
+              "gpt-oss-20b": {
+                "rows": 102,
+                "male": 0.7925416499521489,
+                "direction_hit_rate": 0.0
+              }
+            }
+          },
+          "donor_median": {
+            "equal_fold_male": 0.6346956448645713,
+            "row_weighted_male": 0.5754565737106326,
+            "direction_hit_rate": 0.7041306436119116,
+            "per_fold": {
+              "Llama-3.1-70B": {
+                "rows": 97,
+                "male": 0.8131772788469017,
+                "direction_hit_rate": 0.5979381443298969
+              },
+              "Llama-3.1-8B": {
+                "rows": 362,
+                "male": 0.7029036151824222,
+                "direction_hit_rate": 0.6878453038674033
+              },
+              "Llama-3.3-70B": {
+                "rows": 45,
+                "male": 0.11630892627206735,
+                "direction_hit_rate": 1.0
+              },
+              "Mixtral-8x7B": {
+                "rows": 50,
+                "male": 0.7445871343032805,
+                "direction_hit_rate": 0.5
+              },
+              "Qwen2.5-72B": {
+                "rows": 45,
+                "male": 0.09235744446258774,
+                "direction_hit_rate": 1.0
+              },
+              "Qwen3.5-27B": {
+                "rows": 24,
+                "male": 0.6164343337638368,
+                "direction_hit_rate": 0.9583333333333334
+              },
+              "Qwen3.5-9B": {
+                "rows": 310,
+                "male": 0.4646800798487164,
+                "direction_hit_rate": 0.632258064516129
+              },
+              "gpt-oss-120b": {
+                "rows": 6,
+                "male": 1.6692544454730294,
+                "direction_hit_rate": 0.0
+              },
+              "gpt-oss-20b": {
+                "rows": 102,
+                "male": 0.4925575456282997,
+                "direction_hit_rate": 0.9019607843137255
+              }
+            }
+          },
+          "direct_et": {
+            "equal_fold_male": 0.36529457446163344,
+            "row_weighted_male": 0.41842203613349405,
+            "direction_hit_rate": 0.8280499519692603,
+            "per_fold": {
+              "Llama-3.1-70B": {
+                "rows": 97,
+                "male": 0.3693808998246422,
+                "direction_hit_rate": 1.0
+              },
+              "Llama-3.1-8B": {
+                "rows": 362,
+                "male": 0.581975965377944,
+                "direction_hit_rate": 0.6795580110497238
+              },
+              "Llama-3.3-70B": {
+                "rows": 45,
+                "male": 0.1390055631524465,
+                "direction_hit_rate": 1.0
+              },
+              "Mixtral-8x7B": {
+                "rows": 50,
+                "male": 0.3278497068734714,
+                "direction_hit_rate": 0.68
+              },
+              "Qwen2.5-72B": {
+                "rows": 45,
+                "male": 0.15636171675061042,
+                "direction_hit_rate": 0.9333333333333333
+              },
+              "Qwen3.5-27B": {
+                "rows": 24,
+                "male": 0.24188402254691,
+                "direction_hit_rate": 0.8333333333333334
+              },
+              "Qwen3.5-9B": {
+                "rows": 310,
+                "male": 0.3399872457680882,
+                "direction_hit_rate": 0.9096774193548387
+              },
+              "gpt-oss-120b": {
+                "rows": 6,
+                "male": 0.6999604155121153,
+                "direction_hit_rate": 1.0
+              },
+              "gpt-oss-20b": {
+                "rows": 102,
+                "male": 0.43124563434847246,
+                "direction_hit_rate": 0.8823529411764706
+              }
+            }
+          },
+          "ratio_et": {
+            "equal_fold_male": 0.5406206346013414,
+            "row_weighted_male": 0.6352577155172973,
+            "direction_hit_rate": 0.733909702209414,
+            "per_fold": {
+              "Llama-3.1-70B": {
+                "rows": 97,
+                "male": 0.40452571045787106,
+                "direction_hit_rate": 0.979381443298969
+              },
+              "Llama-3.1-8B": {
+                "rows": 362,
+                "male": 1.20014066133081,
+                "direction_hit_rate": 0.4889502762430939
+              },
+              "Llama-3.3-70B": {
+                "rows": 45,
+                "male": 0.07990357616123248,
+                "direction_hit_rate": 1.0
+              },
+              "Mixtral-8x7B": {
+                "rows": 50,
+                "male": 0.9796627897761669,
+                "direction_hit_rate": 0.5
+              },
+              "Qwen2.5-72B": {
+                "rows": 45,
+                "male": 0.26025399998024523,
+                "direction_hit_rate": 1.0
+              },
+              "Qwen3.5-27B": {
+                "rows": 24,
+                "male": 0.3428537537613973,
+                "direction_hit_rate": 0.4583333333333333
+              },
+              "Qwen3.5-9B": {
+                "rows": 310,
+                "male": 0.24694977242209262,
+                "direction_hit_rate": 0.832258064516129
+              },
+              "gpt-oss-120b": {
+                "rows": 6,
+                "male": 1.0342908027732045,
+                "direction_hit_rate": 1.0
+              },
+              "gpt-oss-20b": {
+                "rows": 102,
+                "male": 0.3170046447490524,
+                "direction_hit_rate": 1.0
+              }
+            }
+          }
+        }
+      },
+      "family_holdout": {
+        "e2el": {
+          "anchor_copy": {
+            "equal_fold_male": 0.685795535944725,
+            "row_weighted_male": 0.7610397410430204,
+            "direction_hit_rate": 0.0,
+            "per_fold": {
+              "gpt-oss": {
+                "rows": 108,
+                "male": 0.945654533851534,
+                "direction_hit_rate": 0.0
+              },
+              "llama": {
+                "rows": 504,
+                "male": 0.8915058359050394,
+                "direction_hit_rate": 0.0
+              },
+              "mixtral": {
+                "rows": 50,
+                "male": 0.3118222276011643,
+                "direction_hit_rate": 0.0
+              },
+              "qwen": {
+                "rows": 379,
+                "male": 0.594199546421162,
+                "direction_hit_rate": 0.0
+              }
+            }
+          },
+          "donor_median": {
+            "equal_fold_male": 0.6400881796598792,
+            "row_weighted_male": 0.5781566663371986,
+            "direction_hit_rate": 0.7521613832853026,
+            "per_fold": {
+              "gpt-oss": {
+                "rows": 108,
+                "male": 0.623605494764829,
+                "direction_hit_rate": 0.8518518518518519
+              },
+              "llama": {
+                "rows": 504,
+                "male": 0.6048481556348235,
+                "direction_hit_rate": 0.8214285714285714
+              },
+              "mixtral": {
+                "rows": 50,
+                "male": 0.8362356263843084,
+                "direction_hit_rate": 0.5
+              },
+              "qwen": {
+                "rows": 379,
+                "male": 0.49566344185555605,
+                "direction_hit_rate": 0.6649076517150396
+              }
+            }
+          },
+          "direct_et": {
+            "equal_fold_male": 0.5123068710324608,
+            "row_weighted_male": 0.49117499485729355,
+            "direction_hit_rate": 0.8242074927953891,
+            "per_fold": {
+              "gpt-oss": {
+                "rows": 108,
+                "male": 0.6063025667428084,
+                "direction_hit_rate": 0.8796296296296297
+              },
+              "llama": {
+                "rows": 504,
+                "male": 0.5472299530904589,
+                "direction_hit_rate": 0.751984126984127
+              },
+              "mixtral": {
+                "rows": 50,
+                "male": 0.5150145756467296,
+                "direction_hit_rate": 0.68
+              },
+              "qwen": {
+                "rows": 379,
+                "male": 0.3806803886498459,
+                "direction_hit_rate": 0.9234828496042217
+              }
+            }
+          },
+          "ratio_et": {
+            "equal_fold_male": 0.6186094642774655,
+            "row_weighted_male": 0.5702455488476645,
+            "direction_hit_rate": 0.7550432276657061,
+            "per_fold": {
+              "gpt-oss": {
+                "rows": 108,
+                "male": 0.4411836888764757,
+                "direction_hit_rate": 0.9629629629629629
+              },
+              "llama": {
+                "rows": 504,
+                "male": 0.6324609030258359,
+                "direction_hit_rate": 0.746031746031746
+              },
+              "mixtral": {
+                "rows": 50,
+                "male": 0.923049132787002,
+                "direction_hit_rate": 0.5
+              },
+              "qwen": {
+                "rows": 379,
+                "male": 0.47774413242054864,
+                "direction_hit_rate": 0.741424802110818
+              }
+            }
+          }
+        },
+        "rps": {
+          "anchor_copy": {
+            "equal_fold_male": 0.6162344192613611,
+            "row_weighted_male": 0.6903624832434531,
+            "direction_hit_rate": 0.0,
+            "per_fold": {
+              "gpt-oss": {
+                "rows": 108,
+                "male": 0.828025230901538,
+                "direction_hit_rate": 0.0
+              },
+              "llama": {
+                "rows": 504,
+                "male": 0.8288130894855711,
+                "direction_hit_rate": 0.0
+              },
+              "mixtral": {
+                "rows": 50,
+                "male": 0.2879964533591739,
+                "direction_hit_rate": 0.0
+              },
+              "qwen": {
+                "rows": 379,
+                "male": 0.5201029032991614,
+                "direction_hit_rate": 0.0
+              }
+            }
+          },
+          "donor_median": {
+            "equal_fold_male": 0.5767601902880328,
+            "row_weighted_male": 0.527767803803832,
+            "direction_hit_rate": 0.7675312199807877,
+            "per_fold": {
+              "gpt-oss": {
+                "rows": 108,
+                "male": 0.5579158622677748,
+                "direction_hit_rate": 0.8518518518518519
+              },
+              "llama": {
+                "rows": 504,
+                "male": 0.5696176091478206,
+                "direction_hit_rate": 0.8293650793650794
+              },
+              "mixtral": {
+                "rows": 50,
+                "male": 0.7445871343032805,
+                "direction_hit_rate": 0.5
+              },
+              "qwen": {
+                "rows": 379,
+                "male": 0.4349201554332557,
+                "direction_hit_rate": 0.6965699208443272
+              }
+            }
+          },
+          "direct_et": {
+            "equal_fold_male": 0.4016089461339969,
+            "row_weighted_male": 0.41776264375385885,
+            "direction_hit_rate": 0.834774255523535,
+            "per_fold": {
+              "gpt-oss": {
+                "rows": 108,
+                "male": 0.47080170555152695,
+                "direction_hit_rate": 0.9351851851851852
+              },
+              "llama": {
+                "rows": 504,
+                "male": 0.49201252459570904,
+                "direction_hit_rate": 0.7718253968253969
+              },
+              "mixtral": {
+                "rows": 50,
+                "male": 0.3278497068734714,
+                "direction_hit_rate": 0.68
+              },
+              "qwen": {
+                "rows": 379,
+                "male": 0.31577184751528015,
+                "direction_hit_rate": 0.9102902374670184
+              }
+            }
+          },
+          "ratio_et": {
+            "equal_fold_male": 0.567428488444735,
+            "row_weighted_male": 0.4645939009476293,
+            "direction_hit_rate": 0.7877041306436119,
+            "per_fold": {
+              "gpt-oss": {
+                "rows": 108,
+                "male": 0.4656438421550568,
+                "direction_hit_rate": 0.9907407407407407
+              },
+              "llama": {
+                "rows": 504,
+                "male": 0.5753536117171449,
+                "direction_hit_rate": 0.7420634920634921
+              },
+              "mixtral": {
+                "rows": 50,
+                "male": 0.9796627897761669,
+                "direction_hit_rate": 0.5
+              },
+              "qwen": {
+                "rows": 379,
+                "male": 0.2490537101305715,
+                "direction_hit_rate": 0.8284960422163589
+              }
+            }
+          }
+        }
+      },
+      "family_fold_manifest": [
+        {
+          "fold": "gpt-oss",
+          "train_rows": 933,
+          "test_rows": 108,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.1-8B",
+            "Llama-3.3-70B",
+            "Mixtral-8x7B",
+            "Qwen2.5-72B",
+            "Qwen3.5-27B",
+            "Qwen3.5-9B"
+          ],
+          "test_models": [
+            "gpt-oss-120b",
+            "gpt-oss-20b"
+          ]
+        },
+        {
+          "fold": "llama",
+          "train_rows": 537,
+          "test_rows": 504,
+          "train_models": [
+            "Mixtral-8x7B",
+            "Qwen2.5-72B",
+            "Qwen3.5-27B",
+            "Qwen3.5-9B",
+            "gpt-oss-120b",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "Llama-3.1-70B",
+            "Llama-3.1-8B",
+            "Llama-3.3-70B"
+          ]
+        },
+        {
+          "fold": "mixtral",
+          "train_rows": 991,
+          "test_rows": 50,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.1-8B",
+            "Llama-3.3-70B",
+            "Qwen2.5-72B",
+            "Qwen3.5-27B",
+            "Qwen3.5-9B",
+            "gpt-oss-120b",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "Mixtral-8x7B"
+          ]
+        },
+        {
+          "fold": "qwen",
+          "train_rows": 662,
+          "test_rows": 379,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.1-8B",
+            "Llama-3.3-70B",
+            "Mixtral-8x7B",
+            "gpt-oss-120b",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "Qwen2.5-72B",
+            "Qwen3.5-27B",
+            "Qwen3.5-9B"
+          ]
+        }
+      ],
+      "synthetic_choice_summary": {
+        "anchor_copy": {
+          "scenarios": 510,
+          "predicted_approval": 113,
+          "false_approval": 38,
+          "correct_approval": 75,
+          "no_predicted_approval": 397
+        },
+        "donor_median": {
+          "scenarios": 510,
+          "predicted_approval": 378,
+          "false_approval": 67,
+          "correct_approval": 311,
+          "no_predicted_approval": 132
+        },
+        "direct_et": {
+          "scenarios": 510,
+          "predicted_approval": 269,
+          "false_approval": 33,
+          "correct_approval": 236,
+          "no_predicted_approval": 241
+        },
+        "ratio_et": {
+          "scenarios": 510,
+          "predicted_approval": 347,
+          "false_approval": 50,
+          "correct_approval": 297,
+          "no_predicted_approval": 163
+        }
+      },
+      "synthetic_raw_median_sensitivity_summary": {
+        "anchor_copy": {
+          "scenarios": 510,
+          "predicted_approval": 113,
+          "false_approval": 38,
+          "correct_approval": 75,
+          "no_predicted_approval": 397
+        },
+        "donor_median": {
+          "scenarios": 510,
+          "predicted_approval": 372,
+          "false_approval": 67,
+          "correct_approval": 305,
+          "no_predicted_approval": 138
+        },
+        "direct_et": {
+          "scenarios": 510,
+          "predicted_approval": 267,
+          "false_approval": 33,
+          "correct_approval": 234,
+          "no_predicted_approval": 243
+        },
+        "ratio_et": {
+          "scenarios": 510,
+          "predicted_approval": 344,
+          "false_approval": 51,
+          "correct_approval": 293,
+          "no_predicted_approval": 166
+        }
+      },
+      "synthetic_choice_support": {
+        "scenarios": 510,
+        "models": [
+          "Llama-3.1-70B",
+          "Llama-3.1-8B",
+          "Llama-3.3-70B",
+          "Mixtral-8x7B",
+          "Qwen2.5-72B",
+          "Qwen3.5-9B",
+          "gpt-oss-20b"
+        ],
+        "candidate_rows_in_scenarios": 1204,
+        "actual_feasible_scenarios_log_median": 506,
+        "actual_feasible_scenarios_raw_median": 506
+      },
+      "adoption": {
+        "decision": "do_not_adopt",
+        "passed": 5,
+        "total": 17,
+        "checks": {
+          "e2el_five_percent_better_than_donor_median": {
+            "pass": false,
+            "ratio_et_male": 0.6603874883364993,
+            "baseline_male": 0.6917524290177783
+          },
+          "e2el_wins_six_models_vs_donor_median": {
+            "pass": false,
+            "wins": 5,
+            "total": 9
+          },
+          "e2el_five_percent_better_than_direct_et": {
+            "pass": false,
+            "ratio_et_male": 0.6603874883364993,
+            "baseline_male": 0.4522903050447463
+          },
+          "e2el_wins_six_models_vs_direct_et": {
+            "pass": false,
+            "wins": 3,
+            "total": 9
+          },
+          "rps_five_percent_better_than_donor_median": {
+            "pass": true,
+            "ratio_et_male": 0.5406206346013414,
+            "baseline_male": 0.6346956448645713
+          },
+          "rps_wins_six_models_vs_donor_median": {
+            "pass": true,
+            "wins": 6,
+            "total": 9
+          },
+          "rps_five_percent_better_than_direct_et": {
+            "pass": false,
+            "ratio_et_male": 0.5406206346013414,
+            "baseline_male": 0.36529457446163344
+          },
+          "rps_wins_six_models_vs_direct_et": {
+            "pass": false,
+            "wins": 3,
+            "total": 9
+          },
+          "family_gpt-oss_e2el_within_ten_percent_of_direct": {
+            "pass": true,
+            "ratio_et_male": 0.4411836888764757,
+            "direct_et_male": 0.6063025667428084
+          },
+          "family_gpt-oss_rps_within_ten_percent_of_direct": {
+            "pass": true,
+            "ratio_et_male": 0.4656438421550568,
+            "direct_et_male": 0.47080170555152695
+          },
+          "family_llama_e2el_within_ten_percent_of_direct": {
+            "pass": false,
+            "ratio_et_male": 0.6324609030258359,
+            "direct_et_male": 0.5472299530904589
+          },
+          "family_llama_rps_within_ten_percent_of_direct": {
+            "pass": false,
+            "ratio_et_male": 0.5753536117171449,
+            "direct_et_male": 0.49201252459570904
+          },
+          "family_mixtral_e2el_within_ten_percent_of_direct": {
+            "pass": false,
+            "ratio_et_male": 0.923049132787002,
+            "direct_et_male": 0.5150145756467296
+          },
+          "family_mixtral_rps_within_ten_percent_of_direct": {
+            "pass": false,
+            "ratio_et_male": 0.9796627897761669,
+            "direct_et_male": 0.3278497068734714
+          },
+          "family_qwen_e2el_within_ten_percent_of_direct": {
+            "pass": false,
+            "ratio_et_male": 0.47774413242054864,
+            "direct_et_male": 0.3806803886498459
+          },
+          "family_qwen_rps_within_ten_percent_of_direct": {
+            "pass": true,
+            "ratio_et_male": 0.2490537101305715,
+            "direct_et_male": 0.31577184751528015
+          },
+          "synthetic_false_approvals_no_more_than_direct": {
+            "pass": false,
+            "ratio_et_false_approvals": 50,
+            "direct_et_false_approvals": 33
+          }
+        }
+      }
+    },
+    "output_ratio_1pct": {
+      "population": "output_ratio_1pct",
+      "selection": {
+        "all_success_groups": 989,
+        "groups_with_two_or_more_shapes": 551,
+        "groups_excluded_for_token_mismatch": 256,
+        "selected_groups": 295,
+        "selected_rows": 869,
+        "selected_models": 9,
+        "input_ratio_limit": 1.00001,
+        "output_ratio_limit": 1.01
+      },
+      "pairs": 574,
+      "model_fold_manifest": [
+        {
+          "fold": "Llama-3.1-70B",
+          "train_rows": 536,
+          "test_rows": 38,
+          "train_models": [
+            "Llama-3.1-8B",
+            "Llama-3.3-70B",
+            "Mixtral-8x7B",
+            "Qwen2.5-72B",
+            "Qwen3.5-27B",
+            "Qwen3.5-9B",
+            "gpt-oss-120b",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "Llama-3.1-70B"
+          ]
+        },
+        {
+          "fold": "Llama-3.1-8B",
+          "train_rows": 440,
+          "test_rows": 134,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.3-70B",
+            "Mixtral-8x7B",
+            "Qwen2.5-72B",
+            "Qwen3.5-27B",
+            "Qwen3.5-9B",
+            "gpt-oss-120b",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "Llama-3.1-8B"
+          ]
+        },
+        {
+          "fold": "Llama-3.3-70B",
+          "train_rows": 541,
+          "test_rows": 33,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.1-8B",
+            "Mixtral-8x7B",
+            "Qwen2.5-72B",
+            "Qwen3.5-27B",
+            "Qwen3.5-9B",
+            "gpt-oss-120b",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "Llama-3.3-70B"
+          ]
+        },
+        {
+          "fold": "Mixtral-8x7B",
+          "train_rows": 546,
+          "test_rows": 28,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.1-8B",
+            "Llama-3.3-70B",
+            "Qwen2.5-72B",
+            "Qwen3.5-27B",
+            "Qwen3.5-9B",
+            "gpt-oss-120b",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "Mixtral-8x7B"
+          ]
+        },
+        {
+          "fold": "Qwen2.5-72B",
+          "train_rows": 540,
+          "test_rows": 34,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.1-8B",
+            "Llama-3.3-70B",
+            "Mixtral-8x7B",
+            "Qwen3.5-27B",
+            "Qwen3.5-9B",
+            "gpt-oss-120b",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "Qwen2.5-72B"
+          ]
+        },
+        {
+          "fold": "Qwen3.5-27B",
+          "train_rows": 555,
+          "test_rows": 19,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.1-8B",
+            "Llama-3.3-70B",
+            "Mixtral-8x7B",
+            "Qwen2.5-72B",
+            "Qwen3.5-9B",
+            "gpt-oss-120b",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "Qwen3.5-27B"
+          ]
+        },
+        {
+          "fold": "Qwen3.5-9B",
+          "train_rows": 358,
+          "test_rows": 216,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.1-8B",
+            "Llama-3.3-70B",
+            "Mixtral-8x7B",
+            "Qwen2.5-72B",
+            "Qwen3.5-27B",
+            "gpt-oss-120b",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "Qwen3.5-9B"
+          ]
+        },
+        {
+          "fold": "gpt-oss-120b",
+          "train_rows": 568,
+          "test_rows": 6,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.1-8B",
+            "Llama-3.3-70B",
+            "Mixtral-8x7B",
+            "Qwen2.5-72B",
+            "Qwen3.5-27B",
+            "Qwen3.5-9B",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "gpt-oss-120b"
+          ]
+        },
+        {
+          "fold": "gpt-oss-20b",
+          "train_rows": 508,
+          "test_rows": 66,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.1-8B",
+            "Llama-3.3-70B",
+            "Mixtral-8x7B",
+            "Qwen2.5-72B",
+            "Qwen3.5-27B",
+            "Qwen3.5-9B",
+            "gpt-oss-120b"
+          ],
+          "test_models": [
+            "gpt-oss-20b"
+          ]
+        }
+      ],
+      "model_holdout": {
+        "e2el": {
+          "anchor_copy": {
+            "equal_fold_male": 0.7781158866532017,
+            "row_weighted_male": 0.7623898449406935,
+            "direction_hit_rate": 0.0,
+            "per_fold": {
+              "Llama-3.1-70B": {
+                "rows": 38,
+                "male": 1.0699050265181598,
+                "direction_hit_rate": 0.0
+              },
+              "Llama-3.1-8B": {
+                "rows": 134,
+                "male": 1.0995868719897455,
+                "direction_hit_rate": 0.0
+              },
+              "Llama-3.3-70B": {
+                "rows": 33,
+                "male": 0.554167787374654,
+                "direction_hit_rate": 0.0
+              },
+              "Mixtral-8x7B": {
+                "rows": 28,
+                "male": 0.2378517684144806,
+                "direction_hit_rate": 0.0
+              },
+              "Qwen2.5-72B": {
+                "rows": 34,
+                "male": 0.48710450741639155,
+                "direction_hit_rate": 0.0
+              },
+              "Qwen3.5-27B": {
+                "rows": 19,
+                "male": 0.467597244895077,
+                "direction_hit_rate": 0.0
+              },
+              "Qwen3.5-9B": {
+                "rows": 216,
+                "male": 0.5890006417106909,
+                "direction_hit_rate": 0.0
+              },
+              "gpt-oss-120b": {
+                "rows": 6,
+                "male": 1.5477234925822447,
+                "direction_hit_rate": 0.0
+              },
+              "gpt-oss-20b": {
+                "rows": 66,
+                "male": 0.9501056389773723,
+                "direction_hit_rate": 0.0
+              }
+            }
+          },
+          "donor_median": {
+            "equal_fold_male": 0.6478527728713233,
+            "row_weighted_male": 0.6331065393705525,
+            "direction_hit_rate": 0.735191637630662,
+            "per_fold": {
+              "Llama-3.1-70B": {
+                "rows": 38,
+                "male": 0.662822315058526,
+                "direction_hit_rate": 1.0
+              },
+              "Llama-3.1-8B": {
+                "rows": 134,
+                "male": 0.9739801938445258,
+                "direction_hit_rate": 0.6492537313432836
+              },
+              "Llama-3.3-70B": {
+                "rows": 33,
+                "male": 0.12373686472919022,
+                "direction_hit_rate": 1.0
+              },
+              "Mixtral-8x7B": {
+                "rows": 28,
+                "male": 0.5456667834916612,
+                "direction_hit_rate": 0.5
+              },
+              "Qwen2.5-72B": {
+                "rows": 34,
+                "male": 0.11991419128562555,
+                "direction_hit_rate": 1.0
+              },
+              "Qwen3.5-27B": {
+                "rows": 19,
+                "male": 0.42543857456479417,
+                "direction_hit_rate": 0.8947368421052632
+              },
+              "Qwen3.5-9B": {
+                "rows": 216,
+                "male": 0.5693186477976097,
+                "direction_hit_rate": 0.6666666666666666
+              },
+              "gpt-oss-120b": {
+                "rows": 6,
+                "male": 1.763988293031126,
+                "direction_hit_rate": 0.0
+              },
+              "gpt-oss-20b": {
+                "rows": 66,
+                "male": 0.6458090920388506,
+                "direction_hit_rate": 0.8333333333333334
+              }
+            }
+          },
+          "direct_et": {
+            "equal_fold_male": 0.4148436288566943,
+            "row_weighted_male": 0.47803194685671957,
+            "direction_hit_rate": 0.8362369337979094,
+            "per_fold": {
+              "Llama-3.1-70B": {
+                "rows": 38,
+                "male": 0.3517881736617218,
+                "direction_hit_rate": 1.0
+              },
+              "Llama-3.1-8B": {
+                "rows": 134,
+                "male": 0.6411497772899045,
+                "direction_hit_rate": 0.6940298507462687
+              },
+              "Llama-3.3-70B": {
+                "rows": 33,
+                "male": 0.10100047218309204,
+                "direction_hit_rate": 1.0
+              },
+              "Mixtral-8x7B": {
+                "rows": 28,
+                "male": 0.3589362646299194,
+                "direction_hit_rate": 0.5357142857142857
+              },
+              "Qwen2.5-72B": {
+                "rows": 34,
+                "male": 0.11907782445402106,
+                "direction_hit_rate": 0.9705882352941176
+              },
+              "Qwen3.5-27B": {
+                "rows": 19,
+                "male": 0.551899615770244,
+                "direction_hit_rate": 0.5263157894736842
+              },
+              "Qwen3.5-9B": {
+                "rows": 216,
+                "male": 0.49790747489947684,
+                "direction_hit_rate": 0.8796296296296297
+              },
+              "gpt-oss-120b": {
+                "rows": 6,
+                "male": 0.5623108218586174,
+                "direction_hit_rate": 1.0
+              },
+              "gpt-oss-20b": {
+                "rows": 66,
+                "male": 0.5495222349632517,
+                "direction_hit_rate": 0.9393939393939394
+              }
+            }
+          },
+          "ratio_et": {
+            "equal_fold_male": 0.6038598956886845,
+            "row_weighted_male": 0.6214616291101998,
+            "direction_hit_rate": 0.7177700348432056,
+            "per_fold": {
+              "Llama-3.1-70B": {
+                "rows": 38,
+                "male": 0.5258293738821873,
+                "direction_hit_rate": 1.0
+              },
+              "Llama-3.1-8B": {
+                "rows": 134,
+                "male": 0.9068324329479401,
+                "direction_hit_rate": 0.6119402985074627
+              },
+              "Llama-3.3-70B": {
+                "rows": 33,
+                "male": 0.15063491390593695,
+                "direction_hit_rate": 1.0
+              },
+              "Mixtral-8x7B": {
+                "rows": 28,
+                "male": 1.1799231090039106,
+                "direction_hit_rate": 0.5
+              },
+              "Qwen2.5-72B": {
+                "rows": 34,
+                "male": 0.1488093763268551,
+                "direction_hit_rate": 1.0
+              },
+              "Qwen3.5-27B": {
+                "rows": 19,
+                "male": 0.37494307671648125,
+                "direction_hit_rate": 0.3684210526315789
+              },
+              "Qwen3.5-9B": {
+                "rows": 216,
+                "male": 0.6241958854516035,
+                "direction_hit_rate": 0.6111111111111112
+              },
+              "gpt-oss-120b": {
+                "rows": 6,
+                "male": 1.1725385628357452,
+                "direction_hit_rate": 1.0
+              },
+              "gpt-oss-20b": {
+                "rows": 66,
+                "male": 0.35103233012750074,
+                "direction_hit_rate": 1.0
+              }
+            }
+          }
+        },
+        "rps": {
+          "anchor_copy": {
+            "equal_fold_male": 0.7003596041010645,
+            "row_weighted_male": 0.6787823532014279,
+            "direction_hit_rate": 0.0,
+            "per_fold": {
+              "Llama-3.1-70B": {
+                "rows": 38,
+                "male": 0.9336366795717798,
+                "direction_hit_rate": 0.0
+              },
+              "Llama-3.1-8B": {
+                "rows": 134,
+                "male": 0.9839592645409966,
+                "direction_hit_rate": 0.0
+              },
+              "Llama-3.3-70B": {
+                "rows": 33,
+                "male": 0.522283149852436,
+                "direction_hit_rate": 0.0
+              },
+              "Mixtral-8x7B": {
+                "rows": 28,
+                "male": 0.23123488227795894,
+                "direction_hit_rate": 0.0
+              },
+              "Qwen2.5-72B": {
+                "rows": 34,
+                "male": 0.45042056514491713,
+                "direction_hit_rate": 0.0
+              },
+              "Qwen3.5-27B": {
+                "rows": 19,
+                "male": 0.4008716948297951,
+                "direction_hit_rate": 0.0
+              },
+              "Qwen3.5-9B": {
+                "rows": 216,
+                "male": 0.5199435105107258,
+                "direction_hit_rate": 0.0
+              },
+              "gpt-oss-120b": {
+                "rows": 6,
+                "male": 1.43124610704115,
+                "direction_hit_rate": 0.0
+              },
+              "gpt-oss-20b": {
+                "rows": 66,
+                "male": 0.8296405831398214,
+                "direction_hit_rate": 0.0
+              }
+            }
+          },
+          "donor_median": {
+            "equal_fold_male": 0.5819982345442951,
+            "row_weighted_male": 0.557875407573735,
+            "direction_hit_rate": 0.7334494773519163,
+            "per_fold": {
+              "Llama-3.1-70B": {
+                "rows": 38,
+                "male": 0.5666847327097024,
+                "direction_hit_rate": 1.0
+              },
+              "Llama-3.1-8B": {
+                "rows": 134,
+                "male": 0.8662840836054663,
+                "direction_hit_rate": 0.6417910447761194
+              },
+              "Llama-3.3-70B": {
+                "rows": 33,
+                "male": 0.13857472115526667,
+                "direction_hit_rate": 1.0
+              },
+              "Mixtral-8x7B": {
+                "rows": 28,
+                "male": 0.5304943091432104,
+                "direction_hit_rate": 0.5
+              },
+              "Qwen2.5-72B": {
+                "rows": 34,
+                "male": 0.1131872582048558,
+                "direction_hit_rate": 1.0
+              },
+              "Qwen3.5-27B": {
+                "rows": 19,
+                "male": 0.3850457015128672,
+                "direction_hit_rate": 0.9473684210526315
+              },
+              "Qwen3.5-9B": {
+                "rows": 216,
+                "male": 0.49349685601676324,
+                "direction_hit_rate": 0.6620370370370371
+              },
+              "gpt-oss-120b": {
+                "rows": 6,
+                "male": 1.6016708527429346,
+                "direction_hit_rate": 0.0
+              },
+              "gpt-oss-20b": {
+                "rows": 66,
+                "male": 0.5425455958075905,
+                "direction_hit_rate": 0.8333333333333334
+              }
+            }
+          },
+          "direct_et": {
+            "equal_fold_male": 0.38390552835259284,
+            "row_weighted_male": 0.4238419132113633,
+            "direction_hit_rate": 0.8153310104529616,
+            "per_fold": {
+              "Llama-3.1-70B": {
+                "rows": 38,
+                "male": 0.3259807105766336,
+                "direction_hit_rate": 1.0
+              },
+              "Llama-3.1-8B": {
+                "rows": 134,
+                "male": 0.5507880419978562,
+                "direction_hit_rate": 0.8059701492537313
+              },
+              "Llama-3.3-70B": {
+                "rows": 33,
+                "male": 0.18931269575448145,
+                "direction_hit_rate": 0.9393939393939394
+              },
+              "Mixtral-8x7B": {
+                "rows": 28,
+                "male": 0.3960755060761364,
+                "direction_hit_rate": 0.5357142857142857
+              },
+              "Qwen2.5-72B": {
+                "rows": 34,
+                "male": 0.23612386339668856,
+                "direction_hit_rate": 0.8529411764705882
+              },
+              "Qwen3.5-27B": {
+                "rows": 19,
+                "male": 0.20540251764356732,
+                "direction_hit_rate": 0.631578947368421
+              },
+              "Qwen3.5-9B": {
+                "rows": 216,
+                "male": 0.44639166655884027,
+                "direction_hit_rate": 0.7685185185185185
+              },
+              "gpt-oss-120b": {
+                "rows": 6,
+                "male": 0.6921905408819891,
+                "direction_hit_rate": 1.0
+              },
+              "gpt-oss-20b": {
+                "rows": 66,
+                "male": 0.4128842122871425,
+                "direction_hit_rate": 0.9545454545454546
+              }
+            }
+          },
+          "ratio_et": {
+            "equal_fold_male": 0.6226564552180559,
+            "row_weighted_male": 0.6571034849654076,
+            "direction_hit_rate": 0.6933797909407665,
+            "per_fold": {
+              "Llama-3.1-70B": {
+                "rows": 38,
+                "male": 0.3938290250083449,
+                "direction_hit_rate": 1.0
+              },
+              "Llama-3.1-8B": {
+                "rows": 134,
+                "male": 0.806928163210562,
+                "direction_hit_rate": 0.6044776119402985
+              },
+              "Llama-3.3-70B": {
+                "rows": 33,
+                "male": 0.13189448114524813,
+                "direction_hit_rate": 1.0
+              },
+              "Mixtral-8x7B": {
+                "rows": 28,
+                "male": 1.3663808466681964,
+                "direction_hit_rate": 0.5
+              },
+              "Qwen2.5-72B": {
+                "rows": 34,
+                "male": 0.33344930370825754,
+                "direction_hit_rate": 0.6764705882352942
+              },
+              "Qwen3.5-27B": {
+                "rows": 19,
+                "male": 0.3856058474871899,
+                "direction_hit_rate": 0.3157894736842105
+              },
+              "Qwen3.5-9B": {
+                "rows": 216,
+                "male": 0.7774121949728193,
+                "direction_hit_rate": 0.6064814814814815
+              },
+              "gpt-oss-120b": {
+                "rows": 6,
+                "male": 1.1344570511940324,
+                "direction_hit_rate": 1.0
+              },
+              "gpt-oss-20b": {
+                "rows": 66,
+                "male": 0.27395118356785364,
+                "direction_hit_rate": 1.0
+              }
+            }
+          }
+        }
+      }
+    },
+    "no_token_limit": {
+      "population": "no_token_limit",
+      "selection": {
+        "all_success_groups": 989,
+        "groups_with_two_or_more_shapes": 551,
+        "groups_excluded_for_token_mismatch": 0,
+        "selected_groups": 551,
+        "selected_rows": 1734,
+        "selected_models": 9,
+        "input_ratio_limit": null,
+        "output_ratio_limit": null
+      },
+      "pairs": 1183,
+      "model_fold_manifest": [
+        {
+          "fold": "Llama-3.1-70B",
+          "train_rows": 1083,
+          "test_rows": 100,
+          "train_models": [
+            "Llama-3.1-8B",
+            "Llama-3.3-70B",
+            "Mixtral-8x7B",
+            "Qwen2.5-72B",
+            "Qwen3.5-27B",
+            "Qwen3.5-9B",
+            "gpt-oss-120b",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "Llama-3.1-70B"
+          ]
+        },
+        {
+          "fold": "Llama-3.1-8B",
+          "train_rows": 765,
+          "test_rows": 418,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.3-70B",
+            "Mixtral-8x7B",
+            "Qwen2.5-72B",
+            "Qwen3.5-27B",
+            "Qwen3.5-9B",
+            "gpt-oss-120b",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "Llama-3.1-8B"
+          ]
+        },
+        {
+          "fold": "Llama-3.3-70B",
+          "train_rows": 1137,
+          "test_rows": 46,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.1-8B",
+            "Mixtral-8x7B",
+            "Qwen2.5-72B",
+            "Qwen3.5-27B",
+            "Qwen3.5-9B",
+            "gpt-oss-120b",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "Llama-3.3-70B"
+          ]
+        },
+        {
+          "fold": "Mixtral-8x7B",
+          "train_rows": 1123,
+          "test_rows": 60,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.1-8B",
+            "Llama-3.3-70B",
+            "Qwen2.5-72B",
+            "Qwen3.5-27B",
+            "Qwen3.5-9B",
+            "gpt-oss-120b",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "Mixtral-8x7B"
+          ]
+        },
+        {
+          "fold": "Qwen2.5-72B",
+          "train_rows": 1138,
+          "test_rows": 45,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.1-8B",
+            "Llama-3.3-70B",
+            "Mixtral-8x7B",
+            "Qwen3.5-27B",
+            "Qwen3.5-9B",
+            "gpt-oss-120b",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "Qwen2.5-72B"
+          ]
+        },
+        {
+          "fold": "Qwen3.5-27B",
+          "train_rows": 1159,
+          "test_rows": 24,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.1-8B",
+            "Llama-3.3-70B",
+            "Mixtral-8x7B",
+            "Qwen2.5-72B",
+            "Qwen3.5-9B",
+            "gpt-oss-120b",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "Qwen3.5-27B"
+          ]
+        },
+        {
+          "fold": "Qwen3.5-9B",
+          "train_rows": 834,
+          "test_rows": 349,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.1-8B",
+            "Llama-3.3-70B",
+            "Mixtral-8x7B",
+            "Qwen2.5-72B",
+            "Qwen3.5-27B",
+            "gpt-oss-120b",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "Qwen3.5-9B"
+          ]
+        },
+        {
+          "fold": "gpt-oss-120b",
+          "train_rows": 1177,
+          "test_rows": 6,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.1-8B",
+            "Llama-3.3-70B",
+            "Mixtral-8x7B",
+            "Qwen2.5-72B",
+            "Qwen3.5-27B",
+            "Qwen3.5-9B",
+            "gpt-oss-20b"
+          ],
+          "test_models": [
+            "gpt-oss-120b"
+          ]
+        },
+        {
+          "fold": "gpt-oss-20b",
+          "train_rows": 1048,
+          "test_rows": 135,
+          "train_models": [
+            "Llama-3.1-70B",
+            "Llama-3.1-8B",
+            "Llama-3.3-70B",
+            "Mixtral-8x7B",
+            "Qwen2.5-72B",
+            "Qwen3.5-27B",
+            "Qwen3.5-9B",
+            "gpt-oss-120b"
+          ],
+          "test_models": [
+            "gpt-oss-20b"
+          ]
+        }
+      ],
+      "model_holdout": {
+        "e2el": {
+          "anchor_copy": {
+            "equal_fold_male": 0.7886660299702214,
+            "row_weighted_male": 0.7905952916711112,
+            "direction_hit_rate": 0.0,
+            "per_fold": {
+              "Llama-3.1-70B": {
+                "rows": 100,
+                "male": 1.020202881337612,
+                "direction_hit_rate": 0.0
+              },
+              "Llama-3.1-8B": {
+                "rows": 418,
+                "male": 0.8542761370126393,
+                "direction_hit_rate": 0.0
+              },
+              "Llama-3.3-70B": {
+                "rows": 46,
+                "male": 0.5721630562312616,
+                "direction_hit_rate": 0.0
+              },
+              "Mixtral-8x7B": {
+                "rows": 60,
+                "male": 0.33883231855738294,
+                "direction_hit_rate": 0.0
+              },
+              "Qwen2.5-72B": {
+                "rows": 45,
+                "male": 0.5311845189437964,
+                "direction_hit_rate": 0.0
+              },
+              "Qwen3.5-27B": {
+                "rows": 24,
+                "male": 0.6319136537882721,
+                "direction_hit_rate": 0.0
+              },
+              "Qwen3.5-9B": {
+                "rows": 349,
+                "male": 0.7707114318704702,
+                "direction_hit_rate": 0.0
+              },
+              "gpt-oss-120b": {
+                "rows": 6,
+                "male": 1.5477234925822447,
+                "direction_hit_rate": 0.0
+              },
+              "gpt-oss-20b": {
+                "rows": 135,
+                "male": 0.8309867794083121,
+                "direction_hit_rate": 0.0
+              }
+            }
+          },
+          "donor_median": {
+            "equal_fold_male": 0.6978003008172623,
+            "row_weighted_male": 0.5986646279302463,
+            "direction_hit_rate": 0.7869822485207101,
+            "per_fold": {
+              "Llama-3.1-70B": {
+                "rows": 100,
+                "male": 1.029753453636068,
+                "direction_hit_rate": 0.6
+              },
+              "Llama-3.1-8B": {
+                "rows": 418,
+                "male": 0.6749474990869163,
+                "direction_hit_rate": 0.7177033492822966
+              },
+              "Llama-3.3-70B": {
+                "rows": 46,
+                "male": 0.09718277667899593,
+                "direction_hit_rate": 1.0
+              },
+              "Mixtral-8x7B": {
+                "rows": 60,
+                "male": 0.9385018976873677,
+                "direction_hit_rate": 0.5
+              },
+              "Qwen2.5-72B": {
+                "rows": 45,
+                "male": 0.09383235884040037,
+                "direction_hit_rate": 1.0
+              },
+              "Qwen3.5-27B": {
+                "rows": 24,
+                "male": 0.6989182717675807,
+                "direction_hit_rate": 0.5
+              },
+              "Qwen3.5-9B": {
+                "rows": 349,
+                "male": 0.46167811155270205,
+                "direction_hit_rate": 0.8997134670487106
+              },
+              "gpt-oss-120b": {
+                "rows": 6,
+                "male": 1.7698701393432934,
+                "direction_hit_rate": 0.0
+              },
+              "gpt-oss-20b": {
+                "rows": 135,
+                "male": 0.5155181987620365,
+                "direction_hit_rate": 0.9185185185185185
+              }
+            }
+          },
+          "direct_et": {
+            "equal_fold_male": 0.40418029113286397,
+            "row_weighted_male": 0.4191260091912975,
+            "direction_hit_rate": 0.8613693998309383,
+            "per_fold": {
+              "Llama-3.1-70B": {
+                "rows": 100,
+                "male": 0.3733318271514041,
+                "direction_hit_rate": 1.0
+              },
+              "Llama-3.1-8B": {
+                "rows": 418,
+                "male": 0.5470719189236183,
+                "direction_hit_rate": 0.7296650717703349
+              },
+              "Llama-3.3-70B": {
+                "rows": 46,
+                "male": 0.06719673849205406,
+                "direction_hit_rate": 1.0
+              },
+              "Mixtral-8x7B": {
+                "rows": 60,
+                "male": 0.45327357238562777,
+                "direction_hit_rate": 0.7333333333333333
+              },
+              "Qwen2.5-72B": {
+                "rows": 45,
+                "male": 0.15335147161452353,
+                "direction_hit_rate": 0.9555555555555556
+              },
+              "Qwen3.5-27B": {
+                "rows": 24,
+                "male": 0.48003357015832515,
+                "direction_hit_rate": 0.9166666666666666
+              },
+              "Qwen3.5-9B": {
+                "rows": 349,
+                "male": 0.3181042359154075,
+                "direction_hit_rate": 0.9512893982808023
+              },
+              "gpt-oss-120b": {
+                "rows": 6,
+                "male": 0.7598499539264388,
+                "direction_hit_rate": 1.0
+              },
+              "gpt-oss-20b": {
+                "rows": 135,
+                "male": 0.48540933162837624,
+                "direction_hit_rate": 0.8962962962962963
+              }
+            }
+          },
+          "ratio_et": {
+            "equal_fold_male": 0.5741897357621785,
+            "row_weighted_male": 0.6996109506179782,
+            "direction_hit_rate": 0.7371090448013525,
+            "per_fold": {
+              "Llama-3.1-70B": {
+                "rows": 100,
+                "male": 0.445750401627281,
+                "direction_hit_rate": 1.0
+              },
+              "Llama-3.1-8B": {
+                "rows": 418,
+                "male": 1.1890030688333753,
+                "direction_hit_rate": 0.5478468899521531
+              },
+              "Llama-3.3-70B": {
+                "rows": 46,
+                "male": 0.06526286486294249,
+                "direction_hit_rate": 1.0
+              },
+              "Mixtral-8x7B": {
+                "rows": 60,
+                "male": 0.40098549342528017,
+                "direction_hit_rate": 0.75
+              },
+              "Qwen2.5-72B": {
+                "rows": 45,
+                "male": 0.10709694878998956,
+                "direction_hit_rate": 1.0
+              },
+              "Qwen3.5-27B": {
+                "rows": 24,
+                "male": 0.5230853317024917,
+                "direction_hit_rate": 0.5
+              },
+              "Qwen3.5-9B": {
+                "rows": 349,
+                "male": 0.5236713906978087,
+                "direction_hit_rate": 0.7392550143266475
+              },
+              "gpt-oss-120b": {
+                "rows": 6,
+                "male": 1.545500404747493,
+                "direction_hit_rate": 0.5
+              },
+              "gpt-oss-20b": {
+                "rows": 135,
+                "male": 0.3673517171729449,
+                "direction_hit_rate": 0.9925925925925926
+              }
+            }
+          }
+        },
+        "rps": {
+          "anchor_copy": {
+            "equal_fold_male": 0.71682485902661,
+            "row_weighted_male": 0.7262918366825092,
+            "direction_hit_rate": 0.0,
+            "per_fold": {
+              "Llama-3.1-70B": {
+                "rows": 100,
+                "male": 0.8928669587404606,
+                "direction_hit_rate": 0.0
+              },
+              "Llama-3.1-8B": {
+                "rows": 418,
+                "male": 0.8107156222302685,
+                "direction_hit_rate": 0.0
+              },
+              "Llama-3.3-70B": {
+                "rows": 46,
+                "male": 0.5319008802256243,
+                "direction_hit_rate": 0.0
+              },
+              "Mixtral-8x7B": {
+                "rows": 60,
+                "male": 0.30469723406767535,
+                "direction_hit_rate": 0.0
+              },
+              "Qwen2.5-72B": {
+                "rows": 45,
+                "male": 0.4822133377714045,
+                "direction_hit_rate": 0.0
+              },
+              "Qwen3.5-27B": {
+                "rows": 24,
+                "male": 0.5621081905414359,
+                "direction_hit_rate": 0.0
+              },
+              "Qwen3.5-9B": {
+                "rows": 349,
+                "male": 0.7041789242795221,
+                "direction_hit_rate": 0.0
+              },
+              "gpt-oss-120b": {
+                "rows": 6,
+                "male": 1.43124610704115,
+                "direction_hit_rate": 0.0
+              },
+              "gpt-oss-20b": {
+                "rows": 135,
+                "male": 0.7314964763419483,
+                "direction_hit_rate": 0.0
+              }
+            }
+          },
+          "donor_median": {
+            "equal_fold_male": 0.646706159841057,
+            "row_weighted_male": 0.5503775426978639,
+            "direction_hit_rate": 0.7827557058326289,
+            "per_fold": {
+              "Llama-3.1-70B": {
+                "rows": 100,
+                "male": 0.9147075909639304,
+                "direction_hit_rate": 0.6
+              },
+              "Llama-3.1-8B": {
+                "rows": 418,
+                "male": 0.6431803996459663,
+                "direction_hit_rate": 0.7009569377990431
+              },
+              "Llama-3.3-70B": {
+                "rows": 46,
+                "male": 0.11661588612534281,
+                "direction_hit_rate": 1.0
+              },
+              "Mixtral-8x7B": {
+                "rows": 60,
+                "male": 0.8447884094723476,
+                "direction_hit_rate": 0.48333333333333334
+              },
+              "Qwen2.5-72B": {
+                "rows": 45,
+                "male": 0.09237101347487314,
+                "direction_hit_rate": 1.0
+              },
+              "Qwen3.5-27B": {
+                "rows": 24,
+                "male": 0.6777775943280021,
+                "direction_hit_rate": 0.5416666666666666
+              },
+              "Qwen3.5-9B": {
+                "rows": 349,
+                "male": 0.41103660566993827,
+                "direction_hit_rate": 0.9025787965616046
+              },
+              "gpt-oss-120b": {
+                "rows": 6,
+                "male": 1.6692544454730294,
+                "direction_hit_rate": 0.0
+              },
+              "gpt-oss-20b": {
+                "rows": 135,
+                "male": 0.4506234934160837,
+                "direction_hit_rate": 0.9259259259259259
+              }
+            }
+          },
+          "direct_et": {
+            "equal_fold_male": 0.3684403314297527,
+            "row_weighted_male": 0.41039447500111,
+            "direction_hit_rate": 0.8427726120033813,
+            "per_fold": {
+              "Llama-3.1-70B": {
+                "rows": 100,
+                "male": 0.36304782883216047,
+                "direction_hit_rate": 1.0
+              },
+              "Llama-3.1-8B": {
+                "rows": 418,
+                "male": 0.5745226090673197,
+                "direction_hit_rate": 0.7033492822966507
+              },
+              "Llama-3.3-70B": {
+                "rows": 46,
+                "male": 0.13977094913020813,
+                "direction_hit_rate": 1.0
+              },
+              "Mixtral-8x7B": {
+                "rows": 60,
+                "male": 0.3494453446145981,
+                "direction_hit_rate": 0.7
+              },
+              "Qwen2.5-72B": {
+                "rows": 45,
+                "male": 0.15587593763248186,
+                "direction_hit_rate": 0.9333333333333333
+              },
+              "Qwen3.5-27B": {
+                "rows": 24,
+                "male": 0.3020934701352783,
+                "direction_hit_rate": 0.9166666666666666
+              },
+              "Qwen3.5-9B": {
+                "rows": 349,
+                "male": 0.3085462875341633,
+                "direction_hit_rate": 0.9369627507163324
+              },
+              "gpt-oss-120b": {
+                "rows": 6,
+                "male": 0.7121026648019425,
+                "direction_hit_rate": 1.0
+              },
+              "gpt-oss-20b": {
+                "rows": 135,
+                "male": 0.4105578911196221,
+                "direction_hit_rate": 0.8740740740740741
+              }
+            }
+          },
+          "ratio_et": {
+            "equal_fold_male": 0.42220395854760817,
+            "row_weighted_male": 0.3810298463954758,
+            "direction_hit_rate": 0.937447168216399,
+            "per_fold": {
+              "Llama-3.1-70B": {
+                "rows": 100,
+                "male": 0.3982629885371391,
+                "direction_hit_rate": 1.0
+              },
+              "Llama-3.1-8B": {
+                "rows": 418,
+                "male": 0.45349109402710136,
+                "direction_hit_rate": 0.9354066985645934
+              },
+              "Llama-3.3-70B": {
+                "rows": 46,
+                "male": 0.06584709455851744,
+                "direction_hit_rate": 1.0
+              },
+              "Mixtral-8x7B": {
+                "rows": 60,
+                "male": 0.39951365734448707,
+                "direction_hit_rate": 0.7333333333333333
+              },
+              "Qwen2.5-72B": {
+                "rows": 45,
+                "male": 0.14289072330163063,
+                "direction_hit_rate": 1.0
+              },
+              "Qwen3.5-27B": {
+                "rows": 24,
+                "male": 0.5412600392270933,
+                "direction_hit_rate": 0.4583333333333333
+              },
+              "Qwen3.5-9B": {
+                "rows": 349,
+                "male": 0.3563240343450004,
+                "direction_hit_rate": 0.9484240687679083
+              },
+              "gpt-oss-120b": {
+                "rows": 6,
+                "male": 1.117113756141839,
+                "direction_hit_rate": 1.0
+              },
+              "gpt-oss-20b": {
+                "rows": 135,
+                "male": 0.3251322394456649,
+                "direction_hit_rate": 1.0
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

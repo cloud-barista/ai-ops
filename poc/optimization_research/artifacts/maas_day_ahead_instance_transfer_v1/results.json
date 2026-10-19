@@ -1,0 +1,104 @@
+{
+  "by_day": {
+    "145": {
+      "p0": {
+        "average_precision": 0.4376724836265254,
+        "instance_equal_brier": 0.12493167993124696,
+        "row_brier": 0.027337738777426738
+      },
+      "previous_day_global_exact": {
+        "average_precision": 0.4376724836265254,
+        "instance_equal_brier": 0.12357475435909598,
+        "row_brier": 0.027547732625176798
+      },
+      "previous_day_global_instance": {
+        "average_precision": 0.5025688881079118,
+        "instance_equal_brier": 0.12355564782645034,
+        "row_brier": 0.027500729975215205
+      }
+    },
+    "146": {
+      "p0": {
+        "average_precision": 0.47295348296506473,
+        "instance_equal_brier": 0.09439469664306835,
+        "row_brier": 0.014640855290303866
+      },
+      "previous_day_global_exact": {
+        "average_precision": 0.47295348296506473,
+        "instance_equal_brier": 0.09500297354891818,
+        "row_brier": 0.014468776647341596
+      },
+      "previous_day_global_instance": {
+        "average_precision": 0.5482850026568509,
+        "instance_equal_brier": 0.09499639184109879,
+        "row_brier": 0.01444075760223919
+      }
+    }
+  },
+  "candidate_better_instances": 123,
+  "gate": {
+    "all_passed": false,
+    "checks": {
+      "ap_drop_less_than_0p005_vs_both": true,
+      "both_days_better_than_both": false,
+      "instance_equal_brier_not_worse_than_both": true,
+      "overall_5pct_better_than_both": false,
+      "six_anchor_5pct_better_than_global": false
+    }
+  },
+  "original_test_was_exposed_before_method_design": true,
+  "predictions_sha256": "6dfc637dfbb7298c530c42f640d6807965c58727dbd48cbf0a9d12df6d505a77",
+  "prior_anchor_counts": [
+    {
+      "day": 145,
+      "previous_day_hourly_normal_anchors": 2557
+    },
+    {
+      "day": 146,
+      "previous_day_hourly_normal_anchors": 2933
+    }
+  ],
+  "protocol_sha256": "696dbcd4169818609d74586f03783632c70bae418094153b1792119ba55daf48",
+  "scope": "mixed MaaS instances; observed 30min SM or GPU memory threshold event",
+  "scores": {
+    "p0": {
+      "average_precision": 0.44950437666964843,
+      "instance_equal_brier": 0.1215529467855504,
+      "row_brier": 0.020702085002000853
+    },
+    "previous_day_global_exact": {
+      "average_precision": 0.45378018225659944,
+      "instance_equal_brier": 0.12101115747015205,
+      "row_brier": 0.02071239986805017
+    },
+    "previous_day_global_instance": {
+      "average_precision": 0.5046880015028968,
+      "instance_equal_brier": 0.12100003689105535,
+      "row_brier": 0.020675318442409718
+    }
+  },
+  "script_sha256": "cb3a2c07f083b9b1f4e3812565af5040395cb7c12205f1e2728dc55ef0c338f2",
+  "six_anchor_scores": {
+    "p0": {
+      "average_precision": 0.20037096782609776,
+      "instance_equal_brier": 0.04362320905068318,
+      "row_brier": 0.02061906274985717
+    },
+    "previous_day_global_exact": {
+      "average_precision": 0.2086111660401156,
+      "instance_equal_brier": 0.0434234399104825,
+      "row_brier": 0.0206224588906156
+    },
+    "previous_day_global_instance": {
+      "average_precision": 0.29282962616874386,
+      "instance_equal_brier": 0.04330055059800513,
+      "row_brier": 0.02054847781897204
+    }
+  },
+  "source_compact_sha256": "6f52288916f7a8be8bacb2d911bc20294ab7f6685eda2b1f0f63cfc77af77e82",
+  "status": "EXPLORATORY_NO_GO",
+  "support_audit_sha256": "ed054204b74f9bd8e206f5599b7eb0021e8420b3581e81dcf2a978d1e5db1748",
+  "supported_rows": 24922,
+  "test_instances": 786,
+  "test_rows": 53513
+}

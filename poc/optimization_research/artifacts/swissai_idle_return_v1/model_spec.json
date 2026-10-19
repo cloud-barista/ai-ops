@@ -1,0 +1,82 @@
+{
+  "code_sha256": "51707577c35ea9f4c1a810fb5dc5fe43313cb9ee634fe08f4e8bb7fe2a395966",
+  "dry_run_sha256": "7444ee2a2e745fe64264d1c7ba2187a25e606e0062854e55e536682d70733143",
+  "features": [
+    "own10_log",
+    "own30_log",
+    "own120_log",
+    "global10_log",
+    "global30_log",
+    "global120_log",
+    "gap20_mean_log",
+    "gap20_p90_log",
+    "gap20_count",
+    "age_min_log",
+    "sin_day",
+    "cos_day",
+    "sin_week",
+    "cos_week"
+  ],
+  "fit_positive": 846,
+  "fit_rows": 2237,
+  "fit_validation_candidate_sha256": "d44050178e8c0b524db6ad82e555236c0c3d881ae25ddff6a38c7c10a4aadf45",
+  "fit_validation_labeled_sha256": "d44876dc7cfc131c80b0b9b022f78d49ec3d874b4cc31e85f82e8a2c4bd522ba",
+  "global_prior": 0.3782394995531725,
+  "hyperparameters": {
+    "boosted": {
+      "early_stopping": false,
+      "l2_regularization": 1,
+      "learning_rate": 0.05,
+      "max_iter": 100,
+      "max_leaf_nodes": 7,
+      "min_samples_leaf": 20,
+      "random_state": 42
+    },
+    "logistic": {
+      "C": 1,
+      "class_weight": null,
+      "max_iter": 2000,
+      "solver": "lbfgs"
+    }
+  },
+  "library_versions": {
+    "numpy": "2.2.6",
+    "pandas": "2.2.3",
+    "scikit_learn": "1.5.2"
+  },
+  "mode": "fit_validation_only",
+  "model_sha256": "385201d2ba936f259847de7a52d8cdc57ec6a9109bed952bbf0151b9d46d59ae",
+  "selected_model": "logistic",
+  "selected_poisson_width_minutes": 120,
+  "selected_shrinkage_k": 100,
+  "source_hashes": {
+    "audit_sha256": "c03b7c7c0f517eea8301113feed83fda94a8701d8c68a592da0c3de0cd6f8aab",
+    "compact_sha256": "d5c2bf4cc038f936a9713f8fc7c0430703ddd1c03ed0518fb65aaf68e160997b",
+    "raw_sha256": "79c92fd40752e40a6cac1fc897491ea2f54f37939dc4dcc48c96ea06383c81b7"
+  },
+  "validation_empirical_brier_by_k": {
+    "100": 0.24026169687505777,
+    "20": 0.2404988399817014,
+    "5": 0.24093898881865622
+  },
+  "validation_model_metrics": {
+    "boosted": {
+      "brier": 0.2606742960111534,
+      "log_loss": 0.7229915976841655,
+      "observed_rate": 0.42948717948717946,
+      "predicted_mean": 0.31231502358431373
+    },
+    "logistic": {
+      "brier": 0.23884086345203318,
+      "log_loss": 0.6695190232442694,
+      "observed_rate": 0.42948717948717946,
+      "predicted_mean": 0.39608387496325415
+    }
+  },
+  "validation_poisson_brier_by_width": {
+    "120": 0.37896640410659715,
+    "30": 0.40202581534856674
+  },
+  "validation_positive": 335,
+  "validation_rows": 780
+}

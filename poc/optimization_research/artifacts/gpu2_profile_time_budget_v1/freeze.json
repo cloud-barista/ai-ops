@@ -1,0 +1,53 @@
+{
+  "cutoff_utc": "2026-09-11T13:00:00+00:00",
+  "experiment": "gpu2_profile_time_budget_v1",
+  "features": [
+    "log1p_e1",
+    "log1p_wall1",
+    "log1p_load1",
+    "log1p_compute1",
+    "log1p_parameter_mib",
+    "log_batch",
+    "log_length",
+    "log1p_concurrency",
+    "log_repeats",
+    "log_cores"
+  ],
+  "inputs": {
+    "protocol": {
+      "path": "/home/researcher/ai-mcmp/research/reports/gpu2_profile_time_budget_protocol_v1.md",
+      "sha256": "bbb246c9de37232aceae7450c456654c6ace9525f8d731bfc3c603ae8a97d307"
+    },
+    "raw_sqlite": {
+      "path": "/home/researcher/aiops/runs/khu-hf-local-exhaustive/executions.sqlite3",
+      "sha256": "9ba1900183d122c3034ea4702e5f3cb1f29e604511c5fde05e176460ce3fa6f7"
+    },
+    "script": {
+      "path": "/home/researcher/ai-mcmp/research/scripts/evaluate_gpu2_profile_time_budget.py",
+      "sha256": "a11f12ba4ae5ed4416f2e0efc0bb197708e0272302d221a36275b7421474eb5c"
+    },
+    "snapshot": {
+      "path": "/home/researcher/ai-mcmp/research/data/audit_v1/measurements.parquet",
+      "sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906"
+    }
+  },
+  "methods": [
+    "donor_median_delta",
+    "donor_p90_delta",
+    "donor_p90_ratio",
+    "ridge_p90_residual",
+    "hgb_p90_delta"
+  ],
+  "model": {
+    "early_stopping": false,
+    "l2_regularization": 10.0,
+    "learning_rate": 0.05,
+    "loss": "quantile",
+    "max_iter": 100,
+    "max_leaf_nodes": 8,
+    "min_samples_leaf": 40,
+    "quantile": 0.9,
+    "random_state": 42
+  },
+  "raw_execution_rows": 4856
+}

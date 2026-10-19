@@ -1,0 +1,50 @@
+{
+  "status": "SCHEMA_FIX_BEFORE_ANY_FORECAST_SCORE",
+  "source": "AzurePublicDataset official GHCP Coding Agent June2026 release",
+  "selected_date_partitions": [
+    "2026-06-05",
+    "2026-06-06",
+    "2026-06-07"
+  ],
+  "download_budget_bytes": 900000000,
+  "model_policy": "all six v2 Coding/LMM peak HGB models fixed; no retraining or source selection using evaluation",
+  "target": "5minute prompt-token totals from chosen session partitions; peak from current bin through ready bin",
+  "aggregation": "all recorded nonnegative integer prompt counts at recorded LLM-call timestamps, including cancelled/failed outcomes if prompt is known; no tool/completion/cached features",
+  "calibration_day": "2026-06-05",
+  "evaluation_days": [
+    "2026-06-06",
+    "2026-06-07"
+  ],
+  "feature_schema": "v2 eleven past token features, with actual UTC clock/weekend",
+  "feedback": "v2 same positive normalized residual q90 rule, only fully matured previous origins, first_origin12, window288, minimum96, both model and baseline",
+  "baseline_candidates": [
+    "past_hour_max",
+    "past_hour_q90",
+    "past_hour_mean",
+    "coding_source_peak_q90",
+    "lmm_source_peak_q90"
+  ],
+  "baseline_selection": "minimum raw peak pinball on June5 complete targets only; same baseline for two source models at each horizon",
+  "quality_gate": "exact repeated canonical call records zero; invalid prompt records<=1% of all LLM calls; at least274 of288 supported bins/day before forecast scoring",
+  "support": "prior hour mean>=1000tokens",
+  "gate": "mean pinball reduction>=5%; both days lower pinball; each day model coverage85..95%",
+  "incomplete_targets": "final delay bins excluded from forecast evaluation",
+  "assumptions": [
+    "recorded call timestamp is origin",
+    "naive timestamps interpreted as UTC",
+    "prompt count available at call origin",
+    "feedback delivered immediately after bin close"
+  ],
+  "scope_limits": [
+    "chosen partition session sample rather than full population",
+    "other-date session calls may be missing",
+    "cached prompts counted in input demand",
+    "two adjacent evaluation days only",
+    "six reported comparisons, no multiplicity-adjusted significance claim",
+    "no app requirement or actual VM/SLO/action labels"
+  ],
+  "operational_adoption": false,
+  "original_freeze": "/tmp/ai_mcmp_copilot_transfer_v1/artifacts/copilot_transfer_v1/PRE_DOWNLOAD_FREEZE.json",
+  "schema_fix": "Message IDs are observed turn/group identifiers, reused by different timestamped calls. Count all recorded call occurrences like official trace_loader; do not collapse by message_id. Audit exact canonical payload repeats separately, with zero gate. Date/method/feedback/metrics/performance gates unchanged.",
+  "prior_exposure": "Original ID-based audit and five sample session structures inspected. No model forecast or evaluation score has been computed."
+}

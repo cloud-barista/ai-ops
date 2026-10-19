@@ -1,0 +1,89 @@
+{
+  "status": "dry_run",
+  "hashes": {
+    "raw_sha256": "79c92fd40752e40a6cac1fc897491ea2f54f37939dc4dcc48c96ea06383c81b7",
+    "compact_sha256": "d5c2bf4cc038f936a9713f8fc7c0430703ddd1c03ed0518fb65aaf68e160997b",
+    "audit_sha256": "c03b7c7c0f517eea8301113feed83fda94a8701d8c68a592da0c3de0cd6f8aab",
+    "protocol_sha256": "a50ded6b5d29ec83dc84efbd7635dd63a0f05d832175e362d174ad71495fed8d",
+    "followup_protocol_sha256": "ee2064ed62a86a9eae0ff03c57ffb92fdea0fbf70d840a364db0a6a4e6aa3c59",
+    "development_sha256": "d8443b67a500ca443e8d556152e5da299d63ebb1f81f05f4e5661c17af418c89"
+  },
+  "script_sha256": "5d87a9573b14f65f31975e09986116cd7c97342f58e1e4d8053eee81081e6bce",
+  "holdout_rows_sha256": "a3ca020063dee46b9363966ebbe91010f10e4d7b989f6ddd8598aef31c0833b7",
+  "holdout_rows": 1066,
+  "development": {
+    "rows": 18893,
+    "by_split": {
+      "fit": 12426,
+      "validation": 3039,
+      "test": 3428
+    },
+    "by_model": {
+      "45363f1dab": 3991,
+      "99668f5da8": 14902
+    }
+  },
+  "ingest": {
+    "rows_read_before_2025_10_16": 15806411,
+    "total_grid_arrivals": 15142579,
+    "selected_grid_arrivals": {
+      "45363f1dab": 4949821,
+      "99668f5da8": 7722334
+    },
+    "known_6h_gap_ends": 293
+  },
+  "holdout_audit": {
+    "grid_decisions": 17567,
+    "causal_global_eligible": 4715,
+    "no_global_arrival_previous_10m": 12510,
+    "within_120m_after_known_6h_gap": 1056,
+    "raw_arrivals": 514569,
+    "by_model": {
+      "45363f1dab": {
+        "active_decisions": 1727,
+        "eligible_decisions": 932,
+        "positive_targets": 528,
+        "zero_targets": 404,
+        "model_arrivals": 155686
+      },
+      "99668f5da8": {
+        "active_decisions": 252,
+        "eligible_decisions": 134,
+        "positive_targets": 18,
+        "zero_targets": 116,
+        "model_arrivals": 396
+      }
+    }
+  },
+  "quality_gate": {
+    "passes": false,
+    "reasons": [
+      "99668f5da8: fewer than 500 eligible decisions",
+      "99668f5da8: fewer than 100 positive or zero targets"
+    ]
+  },
+  "holdout_columns": [
+    "t_us",
+    "model_alias",
+    "model_code",
+    "y",
+    "m5",
+    "g5",
+    "m10",
+    "g10",
+    "m30",
+    "g30",
+    "m60",
+    "g60",
+    "m120",
+    "g120",
+    "sin_day",
+    "cos_day",
+    "sin_week",
+    "cos_week",
+    "persistence",
+    "recent_p90"
+  ],
+  "max_decision_t_us": 1757196900000000,
+  "sealed_from_utc": "2025-10-16"
+}

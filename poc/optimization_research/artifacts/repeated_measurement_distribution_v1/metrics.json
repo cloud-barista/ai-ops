@@ -1,0 +1,59 @@
+{
+  "scope": "single future batch benchmark run at a fixed GPU resource cell",
+  "snapshot_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "script_sha256": "f4cef29100f23cac534b2f3449b6799f5e5952bea5fe588bc1c5551001aca6b5",
+  "versions": [
+    {
+      "collector_version": "khu-hf-direct-collector/v1",
+      "rounds": 63,
+      "train_rounds": 43,
+      "future_rounds": 20,
+      "first_run_id": "khu-hf-diverse-placement-round-100",
+      "last_training_run_id": "khu-hf-diverse-placement-round-042",
+      "first_future_run_id": "khu-hf-diverse-placement-round-043",
+      "last_run_id": "khu-hf-diverse-placement-round-062"
+    },
+    {
+      "collector_version": "khu-hf-direct-collector/v2",
+      "rounds": 47,
+      "train_rounds": 27,
+      "future_rounds": 20,
+      "first_run_id": "khu-hf-diverse-placement-round-063",
+      "last_training_run_id": "khu-hf-diverse-placement-round-089",
+      "first_future_run_id": "khu-hf-diverse-placement-round-090",
+      "last_run_id": "khu-hf-diverse-placement-round-110"
+    }
+  ],
+  "models_per_version": 8,
+  "resource_cells_per_version": 16,
+  "scenarios": [
+    "immediate_first_k",
+    "cutoff_last_k"
+  ],
+  "k_values": [
+    2,
+    3,
+    5,
+    10
+  ],
+  "methods": [
+    "donor_global",
+    "donor_gpu",
+    "target_local_normal",
+    "shrink_global_5",
+    "shrink_gpu_5",
+    "target_local_t"
+  ],
+  "forecast_rows": 3072,
+  "future_scored_rows": 61440,
+  "scoring_unit": "future rounds averaged per cell, cells averaged per model, models averaged equally",
+  "primary_score": "CRPS of log outcome; lower is better",
+  "target_cost": "sum of replica_count * wall_seconds for k selected target probes",
+  "donor_cost": "same-version earlier donor benchmark runs; shared historical cost, not free if newly collected",
+  "cautions": [
+    "Exploratory protocol chosen after inspecting the same SQLite.",
+    "Only one host and 16 fixed GPU cells per version.",
+    "Earlier target outcomes are masked in the cutoff scenario but existed in the source data.",
+    "No real user SLO, VM creation, or scale action outcome is tested."
+  ]
+}

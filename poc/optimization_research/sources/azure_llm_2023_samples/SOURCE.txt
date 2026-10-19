@@ -1,0 +1,6 @@
+Azure LLM inference trace 2023 public CSV samples
+Official description: https://github.com/Azure/AzurePublicDataset/blob/master/AzureLLMInferenceDataset2023.md
+License: CC-BY Attribution; https://github.com/Azure/AzurePublicDataset/blob/master/LICENSE
+Attribution: Patel, Pratyush; Choukse, Esha; Zhang, Chaojie; Shah, Aashaka; Goiri, Inigo; Maleki, Saeed; Bianchini, Ricardo. Splitwise: Efficient generative LLM inference using phase splitting. ISCA 2024.
+
+Exact Git blob IDs and byte lengths are retained in FREEZE.json and official_directory_metadata.json. The downloaded public files contain approximately one hour on recorded 2023-11-16, unlike the day described on the dataset page. Timestamp timezone is not specified. Missing hours must not be treated as observed zero demand. External performance scoring stopped at support gates; this source does not prove model transfer or scaling effect.

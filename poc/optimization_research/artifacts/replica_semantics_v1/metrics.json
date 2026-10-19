@@ -1,0 +1,14 @@
+{
+  "snapshot_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "collector_sha256": "b1bf7ece6259c83195afdf3f83fa0ff341cb4d32d4cc57f695be87d1f5128ccb",
+  "script_sha256": "bec19065a47a28296c6da7d957b2ad081e1460dd448542e46a03f50d7ee810b2",
+  "campaign": "khu-hf-local-exhaustive",
+  "paired_configurations": 2300,
+  "gpu2_examples_exactly_twice_gpu1": 2300,
+  "gpu2_aggregate_rps_higher": 2300,
+  "gpu2_wall_faster": 0,
+  "gpu2_load_faster": 0,
+  "gpu2_rps_over_2x_gpu1": 1750,
+  "replica_json_aggregation_checked": 2300,
+  "interpretation": "two independent full-profile replicas; sum rates, maximum latency and times"
+}

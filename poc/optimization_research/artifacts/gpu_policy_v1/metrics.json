@@ -1,0 +1,541 @@
+{
+  "experiment": "group-simultaneous SLO calibration for GPU configurations",
+  "seed": 42,
+  "nominal_alpha": 0.1,
+  "source_snapshot_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "script_sha256": "2557002a7facaa98a9a3c87cc2f4240c6c6c92c62d1359a14061262f3320354d",
+  "model_sha256": "0ca0a91e5d02be0823718d9161f060a6ae816b7ee5225b263d7bc8a04f561a86",
+  "python_version": "3.9.25",
+  "sklearn_version": "1.6.1",
+  "fit_kind": "extra_trees_preselected_from_prior_experiment",
+  "split": {
+    "train": {
+      "rows": 2376,
+      "groups": 297
+    },
+    "calibration": {
+      "rows": 792,
+      "groups": 99
+    },
+    "validation": {
+      "rows": 712,
+      "groups": 89
+    },
+    "test": {
+      "rows": 720,
+      "groups": 90
+    }
+  },
+  "calibration": {
+    "group_count": 99,
+    "row_count": 792,
+    "thresholds": {
+      "point": 0.0,
+      "row_conformal_90": 0.41344108930155615,
+      "group_conformal_80": 0.5557449051952043,
+      "group_conformal_90": 0.7113706870606359,
+      "adaptive_group_90": 2.502101132104702
+    },
+    "adaptive_scale": "0.10 + per-tree prediction standard deviation in log space"
+  },
+  "test_simultaneous_coverage_90": {
+    "groups": 90,
+    "simultaneous_coverage": 1.0,
+    "covered_groups": 90,
+    "95_percent_ci": [
+      0.9598410803842253,
+      1.0
+    ]
+  },
+  "test_adaptive_simultaneous_coverage_90": {
+    "groups": 90,
+    "covered_groups": 87,
+    "rate": 0.9666666666666667
+  },
+  "test_policies": {
+    "adaptive_group_90": {
+      "groups": 90,
+      "selected": 36,
+      "selection_rate": 0.4,
+      "violations": 0,
+      "joint_selection_and_violation_rate": 0.0,
+      "selected_violation_rate": 0.0,
+      "selected_violation_95_percent_ci": [
+        0.0,
+        0.09739375591449193
+      ],
+      "oracle_feasible_groups": 55,
+      "feasible_and_successfully_selected": 36,
+      "feasible_group_success_rate": 0.6545454545454545,
+      "mean_gpu_count_selected": 1.5277777777777777,
+      "mean_cpu_affinity_cores_selected": 2.0,
+      "mean_gpu_excess_vs_oracle_on_successful_choices": 0.4722222222222222,
+      "mean_core_excess_vs_oracle_on_successful_same_gpu_choices": 0.0
+    },
+    "cheapest": {
+      "groups": 90,
+      "selected": 90,
+      "selection_rate": 1.0,
+      "violations": 52,
+      "joint_selection_and_violation_rate": 0.5777777777777777,
+      "selected_violation_rate": 0.5777777777777777,
+      "selected_violation_95_percent_ci": [
+        0.46906622597658365,
+        0.6812244179559579
+      ],
+      "oracle_feasible_groups": 55,
+      "feasible_and_successfully_selected": 38,
+      "feasible_group_success_rate": 0.6909090909090909,
+      "mean_gpu_count_selected": 1.0,
+      "mean_cpu_affinity_cores_selected": 2.0,
+      "mean_gpu_excess_vs_oracle_on_successful_choices": 0.0,
+      "mean_core_excess_vs_oracle_on_successful_same_gpu_choices": 0.0
+    },
+    "group_conformal_80": {
+      "groups": 90,
+      "selected": 41,
+      "selection_rate": 0.45555555555555555,
+      "violations": 0,
+      "joint_selection_and_violation_rate": 0.0,
+      "selected_violation_rate": 0.0,
+      "selected_violation_95_percent_ci": [
+        0.0,
+        0.08604383629402841
+      ],
+      "oracle_feasible_groups": 55,
+      "feasible_and_successfully_selected": 41,
+      "feasible_group_success_rate": 0.7454545454545455,
+      "mean_gpu_count_selected": 1.4390243902439024,
+      "mean_cpu_affinity_cores_selected": 2.0,
+      "mean_gpu_excess_vs_oracle_on_successful_choices": 0.36585365853658536,
+      "mean_core_excess_vs_oracle_on_successful_same_gpu_choices": 0.0
+    },
+    "group_conformal_90": {
+      "groups": 90,
+      "selected": 37,
+      "selection_rate": 0.4111111111111111,
+      "violations": 0,
+      "joint_selection_and_violation_rate": 0.0,
+      "selected_violation_rate": 0.0,
+      "selected_violation_95_percent_ci": [
+        0.0,
+        0.09489058741498986
+      ],
+      "oracle_feasible_groups": 55,
+      "feasible_and_successfully_selected": 37,
+      "feasible_group_success_rate": 0.6727272727272727,
+      "mean_gpu_count_selected": 1.3783783783783783,
+      "mean_cpu_affinity_cores_selected": 2.0,
+      "mean_gpu_excess_vs_oracle_on_successful_choices": 0.32432432432432434,
+      "mean_core_excess_vs_oracle_on_successful_same_gpu_choices": 0.0
+    },
+    "oracle": {
+      "groups": 90,
+      "selected": 55,
+      "selection_rate": 0.6111111111111112,
+      "violations": 0,
+      "joint_selection_and_violation_rate": 0.0,
+      "selected_violation_rate": 0.0,
+      "selected_violation_95_percent_ci": [
+        0.0,
+        0.06487076082542459
+      ],
+      "oracle_feasible_groups": 55,
+      "feasible_and_successfully_selected": 55,
+      "feasible_group_success_rate": 1.0,
+      "mean_gpu_count_selected": 1.309090909090909,
+      "mean_cpu_affinity_cores_selected": 2.0,
+      "mean_gpu_excess_vs_oracle_on_successful_choices": 0.0,
+      "mean_core_excess_vs_oracle_on_successful_same_gpu_choices": 0.0
+    },
+    "point": {
+      "groups": 90,
+      "selected": 54,
+      "selection_rate": 0.6,
+      "violations": 0,
+      "joint_selection_and_violation_rate": 0.0,
+      "selected_violation_rate": 0.0,
+      "selected_violation_95_percent_ci": [
+        0.0,
+        0.06603151424442182
+      ],
+      "oracle_feasible_groups": 55,
+      "feasible_and_successfully_selected": 54,
+      "feasible_group_success_rate": 0.9818181818181818,
+      "mean_gpu_count_selected": 1.4074074074074074,
+      "mean_cpu_affinity_cores_selected": 2.0,
+      "mean_gpu_excess_vs_oracle_on_successful_choices": 0.1111111111111111,
+      "mean_core_excess_vs_oracle_on_successful_same_gpu_choices": 0.0
+    },
+    "row_conformal_90": {
+      "groups": 90,
+      "selected": 43,
+      "selection_rate": 0.4777777777777778,
+      "violations": 0,
+      "joint_selection_and_violation_rate": 0.0,
+      "selected_violation_rate": 0.0,
+      "selected_violation_95_percent_ci": [
+        0.0,
+        0.08221112115413848
+      ],
+      "oracle_feasible_groups": 55,
+      "feasible_and_successfully_selected": 43,
+      "feasible_group_success_rate": 0.7818181818181819,
+      "mean_gpu_count_selected": 1.3953488372093024,
+      "mean_cpu_affinity_cores_selected": 2.0,
+      "mean_gpu_excess_vs_oracle_on_successful_choices": 0.27906976744186046,
+      "mean_core_excess_vs_oracle_on_successful_same_gpu_choices": 0.0
+    }
+  },
+  "paired_bootstrap": {
+    "point_minus_group_conformal_90_violation_rate": {
+      "estimate": 0.0,
+      "bootstrap_95_percent_ci": [
+        0.0,
+        0.0
+      ]
+    },
+    "point_minus_group_conformal_90_selected_rate": {
+      "estimate": 0.18888888888888888,
+      "bootstrap_95_percent_ci": [
+        0.1111111111111111,
+        0.2777777777777778
+      ]
+    }
+  },
+  "external_stress_tests": {
+    "khu-hf-local-novel-matrix": {
+      "total_groups": 18,
+      "supported_independent_groups": 10,
+      "simultaneous_coverage_90": {
+        "groups": 10,
+        "simultaneous_coverage": 1.0,
+        "covered_groups": 10,
+        "95_percent_ci": [
+          0.6915028921812392,
+          1.0
+        ]
+      },
+      "adaptive_simultaneous_coverage_90": 0.9,
+      "policies": {
+        "adaptive_group_90": {
+          "groups": 10,
+          "selected": 7,
+          "selection_rate": 0.7,
+          "violations": 0,
+          "joint_selection_and_violation_rate": 0.0,
+          "selected_violation_rate": 0.0,
+          "selected_violation_95_percent_ci": [
+            0.0,
+            0.4096163972250034
+          ],
+          "oracle_feasible_groups": 9,
+          "feasible_and_successfully_selected": 7,
+          "feasible_group_success_rate": 0.7777777777777778,
+          "mean_gpu_count_selected": 1.4285714285714286,
+          "mean_cpu_affinity_cores_selected": 2.857142857142857,
+          "mean_gpu_excess_vs_oracle_on_successful_choices": 0.42857142857142855,
+          "mean_core_excess_vs_oracle_on_successful_same_gpu_choices": 1.5
+        },
+        "cheapest": {
+          "groups": 10,
+          "selected": 10,
+          "selection_rate": 1.0,
+          "violations": 1,
+          "joint_selection_and_violation_rate": 0.1,
+          "selected_violation_rate": 0.1,
+          "selected_violation_95_percent_ci": [
+            0.0025285785444617848,
+            0.4450161170281954
+          ],
+          "oracle_feasible_groups": 9,
+          "feasible_and_successfully_selected": 9,
+          "feasible_group_success_rate": 1.0,
+          "mean_gpu_count_selected": 1.0,
+          "mean_cpu_affinity_cores_selected": 2.0,
+          "mean_gpu_excess_vs_oracle_on_successful_choices": 0.0,
+          "mean_core_excess_vs_oracle_on_successful_same_gpu_choices": 0.0
+        },
+        "group_conformal_80": {
+          "groups": 10,
+          "selected": 8,
+          "selection_rate": 0.8,
+          "violations": 0,
+          "joint_selection_and_violation_rate": 0.0,
+          "selected_violation_rate": 0.0,
+          "selected_violation_95_percent_ci": [
+            0.0,
+            0.3694166475528192
+          ],
+          "oracle_feasible_groups": 9,
+          "feasible_and_successfully_selected": 8,
+          "feasible_group_success_rate": 0.8888888888888888,
+          "mean_gpu_count_selected": 1.125,
+          "mean_cpu_affinity_cores_selected": 2.0,
+          "mean_gpu_excess_vs_oracle_on_successful_choices": 0.125,
+          "mean_core_excess_vs_oracle_on_successful_same_gpu_choices": 0.0
+        },
+        "group_conformal_90": {
+          "groups": 10,
+          "selected": 8,
+          "selection_rate": 0.8,
+          "violations": 0,
+          "joint_selection_and_violation_rate": 0.0,
+          "selected_violation_rate": 0.0,
+          "selected_violation_95_percent_ci": [
+            0.0,
+            0.3694166475528192
+          ],
+          "oracle_feasible_groups": 9,
+          "feasible_and_successfully_selected": 8,
+          "feasible_group_success_rate": 0.8888888888888888,
+          "mean_gpu_count_selected": 1.125,
+          "mean_cpu_affinity_cores_selected": 2.0,
+          "mean_gpu_excess_vs_oracle_on_successful_choices": 0.125,
+          "mean_core_excess_vs_oracle_on_successful_same_gpu_choices": 0.0
+        },
+        "oracle": {
+          "groups": 10,
+          "selected": 9,
+          "selection_rate": 0.9,
+          "violations": 0,
+          "joint_selection_and_violation_rate": 0.0,
+          "selected_violation_rate": 0.0,
+          "selected_violation_95_percent_ci": [
+            0.0,
+            0.3362671168799428
+          ],
+          "oracle_feasible_groups": 9,
+          "feasible_and_successfully_selected": 9,
+          "feasible_group_success_rate": 1.0,
+          "mean_gpu_count_selected": 1.0,
+          "mean_cpu_affinity_cores_selected": 2.0,
+          "mean_gpu_excess_vs_oracle_on_successful_choices": 0.0,
+          "mean_core_excess_vs_oracle_on_successful_same_gpu_choices": 0.0
+        },
+        "point": {
+          "groups": 10,
+          "selected": 9,
+          "selection_rate": 0.9,
+          "violations": 0,
+          "joint_selection_and_violation_rate": 0.0,
+          "selected_violation_rate": 0.0,
+          "selected_violation_95_percent_ci": [
+            0.0,
+            0.3362671168799428
+          ],
+          "oracle_feasible_groups": 9,
+          "feasible_and_successfully_selected": 9,
+          "feasible_group_success_rate": 1.0,
+          "mean_gpu_count_selected": 1.1111111111111112,
+          "mean_cpu_affinity_cores_selected": 2.0,
+          "mean_gpu_excess_vs_oracle_on_successful_choices": 0.1111111111111111,
+          "mean_core_excess_vs_oracle_on_successful_same_gpu_choices": 0.0
+        },
+        "row_conformal_90": {
+          "groups": 10,
+          "selected": 9,
+          "selection_rate": 0.9,
+          "violations": 0,
+          "joint_selection_and_violation_rate": 0.0,
+          "selected_violation_rate": 0.0,
+          "selected_violation_95_percent_ci": [
+            0.0,
+            0.3362671168799428
+          ],
+          "oracle_feasible_groups": 9,
+          "feasible_and_successfully_selected": 9,
+          "feasible_group_success_rate": 1.0,
+          "mean_gpu_count_selected": 1.2222222222222223,
+          "mean_cpu_affinity_cores_selected": 2.0,
+          "mean_gpu_excess_vs_oracle_on_successful_choices": 0.2222222222222222,
+          "mean_core_excess_vs_oracle_on_successful_same_gpu_choices": 0.0
+        }
+      },
+      "paired_bootstrap": {
+        "point_minus_group_conformal_90_violation_rate": {
+          "estimate": 0.0,
+          "bootstrap_95_percent_ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "point_minus_group_conformal_90_selected_rate": {
+          "estimate": 0.1,
+          "bootstrap_95_percent_ci": [
+            0.0,
+            0.3
+          ]
+        }
+      }
+    },
+    "khu-hf-local-space-filling": {
+      "total_groups": 44,
+      "supported_independent_groups": 33,
+      "simultaneous_coverage_90": {
+        "groups": 33,
+        "simultaneous_coverage": 1.0,
+        "covered_groups": 33,
+        "95_percent_ci": [
+          0.8942371899254207,
+          1.0
+        ]
+      },
+      "adaptive_simultaneous_coverage_90": 1.0,
+      "policies": {
+        "adaptive_group_90": {
+          "groups": 33,
+          "selected": 14,
+          "selection_rate": 0.42424242424242425,
+          "violations": 0,
+          "joint_selection_and_violation_rate": 0.0,
+          "selected_violation_rate": 0.0,
+          "selected_violation_95_percent_ci": [
+            0.0,
+            0.23163576165011648
+          ],
+          "oracle_feasible_groups": 26,
+          "feasible_and_successfully_selected": 14,
+          "feasible_group_success_rate": 0.5384615384615384,
+          "mean_gpu_count_selected": 1.7142857142857142,
+          "mean_cpu_affinity_cores_selected": 2.0,
+          "mean_gpu_excess_vs_oracle_on_successful_choices": 0.7142857142857143,
+          "mean_core_excess_vs_oracle_on_successful_same_gpu_choices": 0.0
+        },
+        "cheapest": {
+          "groups": 33,
+          "selected": 33,
+          "selection_rate": 1.0,
+          "violations": 13,
+          "joint_selection_and_violation_rate": 0.3939393939393939,
+          "selected_violation_rate": 0.3939393939393939,
+          "selected_violation_95_percent_ci": [
+            0.22906623836420076,
+            0.5786062786117496
+          ],
+          "oracle_feasible_groups": 26,
+          "feasible_and_successfully_selected": 20,
+          "feasible_group_success_rate": 0.7692307692307693,
+          "mean_gpu_count_selected": 1.0,
+          "mean_cpu_affinity_cores_selected": 2.0,
+          "mean_gpu_excess_vs_oracle_on_successful_choices": 0.0,
+          "mean_core_excess_vs_oracle_on_successful_same_gpu_choices": 0.0
+        },
+        "group_conformal_80": {
+          "groups": 33,
+          "selected": 20,
+          "selection_rate": 0.6060606060606061,
+          "violations": 0,
+          "joint_selection_and_violation_rate": 0.0,
+          "selected_violation_rate": 0.0,
+          "selected_violation_95_percent_ci": [
+            0.0,
+            0.1684334709830853
+          ],
+          "oracle_feasible_groups": 26,
+          "feasible_and_successfully_selected": 20,
+          "feasible_group_success_rate": 0.7692307692307693,
+          "mean_gpu_count_selected": 1.4,
+          "mean_cpu_affinity_cores_selected": 2.0,
+          "mean_gpu_excess_vs_oracle_on_successful_choices": 0.4,
+          "mean_core_excess_vs_oracle_on_successful_same_gpu_choices": 0.0
+        },
+        "group_conformal_90": {
+          "groups": 33,
+          "selected": 19,
+          "selection_rate": 0.5757575757575758,
+          "violations": 0,
+          "joint_selection_and_violation_rate": 0.0,
+          "selected_violation_rate": 0.0,
+          "selected_violation_95_percent_ci": [
+            0.0,
+            0.17646691180696533
+          ],
+          "oracle_feasible_groups": 26,
+          "feasible_and_successfully_selected": 19,
+          "feasible_group_success_rate": 0.7307692307692307,
+          "mean_gpu_count_selected": 1.4210526315789473,
+          "mean_cpu_affinity_cores_selected": 2.1052631578947367,
+          "mean_gpu_excess_vs_oracle_on_successful_choices": 0.42105263157894735,
+          "mean_core_excess_vs_oracle_on_successful_same_gpu_choices": 0.0
+        },
+        "oracle": {
+          "groups": 33,
+          "selected": 26,
+          "selection_rate": 0.7878787878787878,
+          "violations": 0,
+          "joint_selection_and_violation_rate": 0.0,
+          "selected_violation_rate": 0.0,
+          "selected_violation_95_percent_ci": [
+            0.0,
+            0.1322746044977541
+          ],
+          "oracle_feasible_groups": 26,
+          "feasible_and_successfully_selected": 26,
+          "feasible_group_success_rate": 1.0,
+          "mean_gpu_count_selected": 1.2307692307692308,
+          "mean_cpu_affinity_cores_selected": 2.0,
+          "mean_gpu_excess_vs_oracle_on_successful_choices": 0.0,
+          "mean_core_excess_vs_oracle_on_successful_same_gpu_choices": 0.0
+        },
+        "point": {
+          "groups": 33,
+          "selected": 24,
+          "selection_rate": 0.7272727272727273,
+          "violations": 0,
+          "joint_selection_and_violation_rate": 0.0,
+          "selected_violation_rate": 0.0,
+          "selected_violation_95_percent_ci": [
+            0.0,
+            0.14247359772252563
+          ],
+          "oracle_feasible_groups": 26,
+          "feasible_and_successfully_selected": 24,
+          "feasible_group_success_rate": 0.9230769230769231,
+          "mean_gpu_count_selected": 1.2916666666666667,
+          "mean_cpu_affinity_cores_selected": 2.0,
+          "mean_gpu_excess_vs_oracle_on_successful_choices": 0.125,
+          "mean_core_excess_vs_oracle_on_successful_same_gpu_choices": 0.0
+        },
+        "row_conformal_90": {
+          "groups": 33,
+          "selected": 23,
+          "selection_rate": 0.696969696969697,
+          "violations": 0,
+          "joint_selection_and_violation_rate": 0.0,
+          "selected_violation_rate": 0.0,
+          "selected_violation_95_percent_ci": [
+            0.0,
+            0.14818512891522437
+          ],
+          "oracle_feasible_groups": 26,
+          "feasible_and_successfully_selected": 23,
+          "feasible_group_success_rate": 0.8846153846153846,
+          "mean_gpu_count_selected": 1.4782608695652173,
+          "mean_cpu_affinity_cores_selected": 2.0,
+          "mean_gpu_excess_vs_oracle_on_successful_choices": 0.34782608695652173,
+          "mean_core_excess_vs_oracle_on_successful_same_gpu_choices": 0.0
+        }
+      },
+      "paired_bootstrap": {
+        "point_minus_group_conformal_90_violation_rate": {
+          "estimate": 0.0,
+          "bootstrap_95_percent_ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "point_minus_group_conformal_90_selected_rate": {
+          "estimate": 0.15151515151515152,
+          "bootstrap_95_percent_ci": [
+            0.030303030303030304,
+            0.2727272727272727
+          ]
+        }
+      }
+    }
+  },
+  "slo_units": "target_throughput_rps in requests/s; observed examples_per_second divided by batch_size",
+  "resource_order": "minimize GPU count first, then CPU affinity cores; no price data",
+  "scope": "single host, synthetic benchmark SLOs, 8 completely observed GPU configs, one execution per config"
+}

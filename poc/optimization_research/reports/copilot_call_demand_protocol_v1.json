@@ -1,0 +1,17 @@
+{
+  "status": "EXPLORATORY_NEW_TASK_BEFORE_FIT",
+  "motivation": "prompt labels missing; timestamps permit call-arrival labels without assigning missing prompt as zero",
+  "source": "independently verified complete call counts from fixed Copilot June5-7 session partitions",
+  "target": "maximum recorded calls per5min from origin through ready bin; prepare5/10/30min",
+  "split": "trainJune5 complete targets; validationJune6 complete targets; testJune7 complete targets",
+  "models": "three HGBq90, same fixed v2 hyperparameters, no hyperparameter search",
+  "features": "eleven prior call-count/time features normalized by preceding hour mean, minimum mean1call",
+  "weight": "prior_hour_mean / train_mean(prior_hour_mean)",
+  "baselines": ["train_weighted_relative_peak_q90", "past_hour_max", "past_hour_q90", "past_hour_mean"],
+  "selection": "lowest validation pinball baseline before computing test scores; all baseline test losses preserved",
+  "feedback": "none; no later-day refit or residual correction",
+  "gate": "test pinball reduction>=5% versus validation-selected baseline; empirical coverage85..95%",
+  "limits": ["one training day", "one validation day", "one test day", "Friday to weekend shift", "prior raw structure/token audit viewed", "selected session sample", "call counts include recorded unsuccessful attempts", "available_at immediate assumption", "not an independent multi-service or long-duration confirmation", "calls do not encode token complexity or GPU cost"],
+  "token_transfer_no_go": "unchanged; this is a different label and new service-specific models",
+  "operational_adoption": false
+}

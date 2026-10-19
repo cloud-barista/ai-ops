@@ -1,0 +1,366 @@
+{
+  "baseline": {
+    "class_priority_shrinkage_job_equivalent": 20.0,
+    "global_job_macro_rate": 0.0961364730036045,
+    "observed_training_cells": 26
+  },
+  "comparison": {
+    "gates": {
+      "job_macro_brier_relative_improvement_at_least_5pct": false,
+      "job_macro_log_loss_no_worse": false,
+      "paired_job_bootstrap_upper_difference_below_zero": false
+    },
+    "paired_job_bootstrap": {
+      "draws": 2000,
+      "mean_difference": 0.006144188777692668,
+      "percentile_95_interval": [
+        0.0030964270829650256,
+        0.00919145404419637
+      ],
+      "seed": 42
+    },
+    "relative_job_macro_brier_improvement": -0.10731485788508109
+  },
+  "decision": "NO_GO_VALIDATION",
+  "denominators": {
+    "training": {
+      "first_eligible_attempts": 31708,
+      "first_event_counts": {
+        "EVICT": 3145,
+        "FAIL": 1700,
+        "FINISH": 14900,
+        "KILL": 5047,
+        "UPDATE_RUNNING": 1,
+        "no_recorded_event_in_window": 6915
+      },
+      "raw_first_event_ties": {
+        "attempts_with_first_event_in_window": 24793,
+        "duplicate_identical_event_code_timestamps": 0,
+        "event_code_combinations": {},
+        "multi_row_first_event_timestamps": 0
+      },
+      "source_shard": 50
+    },
+    "training_primary_event_counts": {
+      "EVICT": 3145,
+      "FAIL": 1700,
+      "FINISH": 14900,
+      "KILL": 5047,
+      "UPDATE_RUNNING": 1,
+      "no_recorded_event_in_window": 6915
+    },
+    "training_primary_rows": 31708,
+    "training_v1_to_v2_label_change": {
+      "attempts_compared": 31708,
+      "changed_binary_labels": 0,
+      "changed_event_pairs": {},
+      "changed_first_events": 0,
+      "v2_ambiguous_first_events": {}
+    },
+    "validation_before_job_disjoint": {
+      "first_eligible_attempts": 44001,
+      "first_event_counts": {
+        "EVICT": 2418,
+        "FAIL": 1898,
+        "FINISH": 11942,
+        "KILL": 2767,
+        "UPDATE_RUNNING": 1746,
+        "no_recorded_event_in_window": 23230
+      },
+      "raw_first_event_ties": {
+        "attempts_with_first_event_in_window": 20771,
+        "duplicate_identical_event_code_timestamps": 0,
+        "event_code_combinations": {},
+        "multi_row_first_event_timestamps": 0
+      },
+      "source_shard": 200
+    },
+    "validation_new_job_first_attempts": 43108,
+    "validation_new_job_first_event_counts": {
+      "EVICT": 2379,
+      "FAIL": 1889,
+      "FINISH": 11942,
+      "KILL": 2672,
+      "UPDATE_RUNNING": 1746,
+      "no_recorded_event_in_window": 22480
+    },
+    "validation_primary_rows": 43108,
+    "validation_primary_support": {
+      "largest_positive_job_rows": 2055,
+      "positive_jobs": 111,
+      "positive_row_effective_jobs": 2.5086996915878146,
+      "positive_rows": 4268,
+      "top_five_positive_job_rows": 3965,
+      "top_five_positive_row_fraction": 0.9290065604498594
+    },
+    "validation_removed_shared_job_rows": 893,
+    "validation_shared_jobs": 103,
+    "validation_v1_to_v2_label_change": {
+      "attempts_compared": 44001,
+      "changed_binary_labels": 0,
+      "changed_event_pairs": {},
+      "changed_first_events": 0,
+      "v2_ambiguous_first_events": {}
+    }
+  },
+  "freeze_manifest_sha256": "7ab1c7d0ed22597e9b4e5d2ec7ef606c94cf29766dfbe9f55de7fc6ee1a1bca9",
+  "holdout_shard_00350_read": false,
+  "interpretation": "generic Borg task observational risk, not AI-App deployment/scale action effect",
+  "model_sha256": "29b38e98ca0da70bd4e989c96aefdd56c99593a50dad64723f6e6b3d249210aa",
+  "python_numpy_sklearn": {
+    "numpy": "2.2.6",
+    "sklearn": "1.5.2"
+  },
+  "sensitivity": {
+    "competing_KILL_UPDATE_LOST_conditionally_excluded_rows": 4418,
+    "competing_events_excluded_not_online_target": {
+      "class_priority_shrunk": 0.071198136571155,
+      "global": 0.07369105993706472,
+      "hgb": 0.078945334694859
+    },
+    "exclude_largest_positive_job": {
+      "class_priority_shrunk": 0.05720337144026902,
+      "global": 0.05652403794726373,
+      "hgb": 0.06336657581193812
+    },
+    "exclude_largest_positive_job_removed_positive_rows": 2055,
+    "row_micro_brier": {
+      "class_priority_shrunk": 0.10261967124266284,
+      "global": 0.08921297087186954,
+      "hgb": 0.1116126495911433
+    }
+  },
+  "target": "first_recorded_EVICT_or_FAIL_within_30min_after_SCHEDULE",
+  "training_in_sample_diagnostic": {
+    "job_macro_observed_rate": 0.0961364730036045,
+    "jobs": 1193,
+    "methods": {
+      "class_priority_shrunk": {
+        "calibration_bins": [
+          {
+            "job_equivalent_weight": 671.9999999999999,
+            "observed": 0.01803793635196213,
+            "predicted": 0.036056256102912465,
+            "probability_bin": 0,
+            "rows": 18719
+          },
+          {
+            "job_equivalent_weight": 341.0,
+            "observed": 0.16152904277689192,
+            "predicted": 0.1450956457162648,
+            "probability_bin": 1,
+            "rows": 2985
+          },
+          {
+            "job_equivalent_weight": 179.99999999999997,
+            "observed": 0.2638217526547862,
+            "predicted": 0.22255764401202446,
+            "probability_bin": 2,
+            "rows": 10004
+          }
+        ],
+        "job_macro_absolute_calibration_gap": 0.0007736941162886512,
+        "job_macro_brier": 0.07742082511181268,
+        "job_macro_log_loss": 0.2583892214096152,
+        "job_macro_mean_probability": 0.09536277888731588,
+        "max_occupied_bin_calibration_gap": 0.041264108642761727,
+        "row_micro_brier": 0.11714721250762447
+      },
+      "global": {
+        "calibration_bins": [
+          {
+            "job_equivalent_weight": 1193.0,
+            "observed": 0.0961364730036045,
+            "predicted": 0.0961364730036045,
+            "probability_bin": 0,
+            "rows": 31708
+          }
+        ],
+        "job_macro_absolute_calibration_gap": 2.2334746513833827e-17,
+        "job_macro_brier": 0.08689425156203175,
+        "job_macro_log_loss": 0.31651004168680374,
+        "job_macro_mean_probability": 0.0961364730036045,
+        "max_occupied_bin_calibration_gap": 0.0,
+        "row_micro_brier": 0.13266336363266248
+      },
+      "hgb": {
+        "calibration_bins": [
+          {
+            "job_equivalent_weight": 830.0,
+            "observed": 0.014601345568903567,
+            "predicted": 0.03207065822887405,
+            "probability_bin": 0,
+            "rows": 19841
+          },
+          {
+            "job_equivalent_weight": 188.0,
+            "observed": 0.15339861551623513,
+            "predicted": 0.15465326371421215,
+            "probability_bin": 1,
+            "rows": 5253
+          },
+          {
+            "job_equivalent_weight": 90.99999999999999,
+            "observed": 0.25930012822194104,
+            "predicted": 0.24496157255191559,
+            "probability_bin": 2,
+            "rows": 2343
+          },
+          {
+            "job_equivalent_weight": 28.3,
+            "observed": 0.49690169349740143,
+            "predicted": 0.34162623386405133,
+            "probability_bin": 3,
+            "rows": 832
+          },
+          {
+            "job_equivalent_weight": 31.699999999999992,
+            "observed": 0.5772034387621388,
+            "predicted": 0.43625806950129,
+            "probability_bin": 4,
+            "rows": 1465
+          },
+          {
+            "job_equivalent_weight": 22.0,
+            "observed": 0.7171262341420519,
+            "predicted": 0.548126904859941,
+            "probability_bin": 5,
+            "rows": 1972
+          },
+          {
+            "job_equivalent_weight": 2.0,
+            "observed": 1.0,
+            "predicted": 0.6426540360316593,
+            "probability_bin": 6,
+            "rows": 2
+          }
+        ],
+        "job_macro_absolute_calibration_gap": 0.00011370822941074542,
+        "job_macro_brier": 0.062595867754726,
+        "job_macro_log_loss": 0.20950147646691514,
+        "job_macro_mean_probability": 0.09625018123301526,
+        "max_occupied_bin_calibration_gap": 0.35734596396834073,
+        "row_micro_brier": 0.09159607944931866
+      }
+    },
+    "positive_jobs": 178,
+    "positives": 4845,
+    "rows": 31708
+  },
+  "validation_new_jobs": {
+    "job_macro_observed_rate": 0.0585843446873465,
+    "jobs": 1002,
+    "methods": {
+      "class_priority_shrunk": {
+        "calibration_bins": [
+          {
+            "job_equivalent_weight": 635.0,
+            "observed": 0.05130345192658405,
+            "predicted": 0.04469836646528976,
+            "probability_bin": 0,
+            "rows": 15730
+          },
+          {
+            "job_equivalent_weight": 227.00000000000003,
+            "observed": 0.07050362388875196,
+            "predicted": 0.14821524736961486,
+            "probability_bin": 1,
+            "rows": 2162
+          },
+          {
+            "job_equivalent_weight": 139.99999999999997,
+            "observed": 0.07228213414709721,
+            "predicted": 0.2221587034902363,
+            "probability_bin": 2,
+            "rows": 25216
+          }
+        ],
+        "job_macro_absolute_calibration_gap": 0.03436030835356634,
+        "job_macro_brier": 0.05725385001461977,
+        "job_macro_log_loss": 0.21942286548959075,
+        "job_macro_mean_probability": 0.09294465304091283,
+        "max_occupied_bin_calibration_gap": 0.1498765693431391,
+        "row_micro_brier": 0.10261967124266284
+      },
+      "global": {
+        "calibration_bins": [
+          {
+            "job_equivalent_weight": 1001.9999999999999,
+            "observed": 0.0585843446873465,
+            "predicted": 0.09613647300360453,
+            "probability_bin": 0,
+            "rows": 43108
+          }
+        ],
+        "job_macro_absolute_calibration_gap": 0.037552128316258024,
+        "job_macro_brier": 0.05656238158598139,
+        "job_macro_log_loss": 0.23235911655946925,
+        "job_macro_mean_probability": 0.09613647300360453,
+        "max_occupied_bin_calibration_gap": 0.03755212831625803,
+        "row_micro_brier": 0.08921297087186954
+      },
+      "hgb": {
+        "calibration_bins": [
+          {
+            "job_equivalent_weight": 696.4999999999999,
+            "observed": 0.05074649476962671,
+            "predicted": 0.02682444158179295,
+            "probability_bin": 0,
+            "rows": 37681
+          },
+          {
+            "job_equivalent_weight": 179.5,
+            "observed": 0.0563557073826564,
+            "predicted": 0.16015405336940564,
+            "probability_bin": 1,
+            "rows": 707
+          },
+          {
+            "job_equivalent_weight": 80.0,
+            "observed": 0.07280595530595531,
+            "predicted": 0.2511083668128379,
+            "probability_bin": 2,
+            "rows": 1574
+          },
+          {
+            "job_equivalent_weight": 19.0,
+            "observed": 0.1754385964912281,
+            "predicted": 0.33592622436608527,
+            "probability_bin": 3,
+            "rows": 23
+          },
+          {
+            "job_equivalent_weight": 19.999999999999993,
+            "observed": 0.10272272727272728,
+            "predicted": 0.43521743891051423,
+            "probability_bin": 4,
+            "rows": 1045
+          },
+          {
+            "job_equivalent_weight": 5.0,
+            "observed": 0.388043252235392,
+            "predicted": 0.5245574270009481,
+            "probability_bin": 5,
+            "rows": 951
+          },
+          {
+            "job_equivalent_weight": 2.0,
+            "observed": 0.04412486502405026,
+            "predicted": 0.6100129454305729,
+            "probability_bin": 6,
+            "rows": 1127
+          }
+        ],
+        "job_macro_absolute_calibration_gap": 0.02769240736214046,
+        "job_macro_brier": 0.06339803879231244,
+        "job_macro_log_loss": 0.2650557358967789,
+        "job_macro_mean_probability": 0.08627675204948695,
+        "max_occupied_bin_calibration_gap": 0.5658880804065227,
+        "row_micro_brier": 0.1116126495911433
+      }
+    },
+    "positive_jobs": 111,
+    "positives": 4268,
+    "rows": 43108
+  }
+}

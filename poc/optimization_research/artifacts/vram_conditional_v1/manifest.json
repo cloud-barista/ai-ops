@@ -1,0 +1,35 @@
+{
+  "scope": "Exploratory observed PyTorch CUDA reserved peak; not minimum VRAM or OOM safety",
+  "nominal_quantile": 0.9,
+  "exploratory_after_inspecting_prior_vram_upper_pilot": true,
+  "bandwidth_candidates": [
+    "h0.5",
+    "h1",
+    "h2",
+    "task_only"
+  ],
+  "bandwidth_selection": "Inner leave-one-donor-model-out mean 90%-pinball on main campaign only",
+  "selected_full_main_bandwidth_diagnostic": "h2",
+  "exported_fixed_bandwidth": "h1",
+  "exported_candidate_selection": "Exploratory fixed h=1 candidate chosen after inspecting the same data; not independently validated",
+  "support_gate": "at least two same-task donor models",
+  "donor_campaign": "khu-hf-local-exhaustive",
+  "evaluation_campaigns": [
+    "khu-hf-local-exhaustive",
+    "khu-hf-local-novel-matrix",
+    "khu-hf-local-space-filling"
+  ],
+  "selected_rows": {
+    "khu-hf-local-exhaustive": 575,
+    "khu-hf-local-novel-matrix": 18,
+    "khu-hf-local-space-filling": 44
+  },
+  "source_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "script_sha256": "515a0abb91f269b0948b292fd9745396ede00b813b75d8d4f93cb58110739fe8",
+  "research_estimator_sha256": "21387fd6ba6b6185737ed9e10ba0930b9c2696e033ac532287bd84e8f6501e01",
+  "static_metadata_assumption": "model_parameter_bytes is known at registration; source records it after execution",
+  "no_outer_target_outcomes_in_training_or_selection": true,
+  "numpy_version": "2.0.2",
+  "pandas_version": "2.3.0+4.g1dfc98e16a",
+  "sklearn_version": "1.6.1"
+}

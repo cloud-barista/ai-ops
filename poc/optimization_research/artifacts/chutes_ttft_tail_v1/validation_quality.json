@@ -1,0 +1,894 @@
+{
+  "status": "descriptive_after_validation_no_test_opened",
+  "source_revision": "85722e694bf7bb8a5a5ccdf70424fa5998372467",
+  "validation_sha256": "56232691e33abcf39fe346ca0f9f85719ec3b06d70ad9e401002ff3c3bf898c8",
+  "source_groups": [
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73
+  ],
+  "splits": {
+    "train": {
+      "total_registered_stream_starts": 2623340,
+      "counts": {
+        "missing_or_nonfinite_ttft": 470691,
+        "nonpositive_ttft": 0,
+        "missing_or_nonpositive_completion": 0,
+        "ttft_exceeds_request_duration": 31263,
+        "completion_after_60min_feedback_limit": 0,
+        "valid_label": 2121386
+      },
+      "valid_fraction": 0.8086584278057743,
+      "per_model": {
+        "01a79f40-e508-504e-89a8-5679b81b5ab1": {
+          "total": 6395,
+          "counts": {
+            "missing_or_nonfinite_ttft": 8,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 56,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 6331
+          },
+          "valid_fraction": 0.9899921813917123
+        },
+        "06970f63-7a78-5bfb-9622-7473a053ee6c": {
+          "total": 4849,
+          "counts": {
+            "missing_or_nonfinite_ttft": 5,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 96,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 4748
+          },
+          "valid_fraction": 0.9791709630851722
+        },
+        "08a7a60f-6956-5a9e-9983-5603c3ac5a38": {
+          "total": 58132,
+          "counts": {
+            "missing_or_nonfinite_ttft": 2557,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 46,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 55529
+          },
+          "valid_fraction": 0.9552225968485516
+        },
+        "0b0943ed-b386-532f-8f35-34b8d0f3a4a1": {
+          "total": 4468,
+          "counts": {
+            "missing_or_nonfinite_ttft": 16,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 140,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 4312
+          },
+          "valid_fraction": 0.9650850492390332
+        },
+        "0df3133d-c477-56d2-b4db-f2093bb150a1": {
+          "total": 107293,
+          "counts": {
+            "missing_or_nonfinite_ttft": 52105,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 190,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 54998
+          },
+          "valid_fraction": 0.5125963483172248
+        },
+        "18aab253-1f97-5279-bef7-499f1f837653": {
+          "total": 39647,
+          "counts": {
+            "missing_or_nonfinite_ttft": 6131,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 195,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 33321
+          },
+          "valid_fraction": 0.8404418997654299
+        },
+        "19bcd896-3475-5329-a0fb-1cc753756d0a": {
+          "total": 6280,
+          "counts": {
+            "missing_or_nonfinite_ttft": 17,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 96,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 6167
+          },
+          "valid_fraction": 0.9820063694267516
+        },
+        "21f51eba-a4a6-5e54-8406-0ea1d01cc5e0": {
+          "total": 6596,
+          "counts": {
+            "missing_or_nonfinite_ttft": 19,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 65,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 6512
+          },
+          "valid_fraction": 0.9872650090964221
+        },
+        "2b724174-4afe-59bd-b174-e72395354acd": {
+          "total": 72982,
+          "counts": {
+            "missing_or_nonfinite_ttft": 2059,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 1327,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 69596
+          },
+          "valid_fraction": 0.953604998492779
+        },
+        "2ff25e81-4586-5ec8-b892-3a6f342693d7": {
+          "total": 133020,
+          "counts": {
+            "missing_or_nonfinite_ttft": 8086,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 1496,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 123438
+          },
+          "valid_fraction": 0.9279657194406856
+        },
+        "322a71ff-aa47-5e97-8df1-9864161d680e": {
+          "total": 5365,
+          "counts": {
+            "missing_or_nonfinite_ttft": 1,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 74,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 5290
+          },
+          "valid_fraction": 0.9860205032618826
+        },
+        "398651e1-5f85-5e50-a513-7c5324e8e839": {
+          "total": 545585,
+          "counts": {
+            "missing_or_nonfinite_ttft": 338146,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 3595,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 203844
+          },
+          "valid_fraction": 0.3736246414399223
+        },
+        "40442582-9432-5dfd-8c72-559e62de4071": {
+          "total": 3926,
+          "counts": {
+            "missing_or_nonfinite_ttft": 11,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 161,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 3754
+          },
+          "valid_fraction": 0.95618950585838
+        },
+        "5a4bf048-eff2-58ee-ae95-d4f10497f390": {
+          "total": 8298,
+          "counts": {
+            "missing_or_nonfinite_ttft": 0,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 95,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 8203
+          },
+          "valid_fraction": 0.9885514581826946
+        },
+        "5c2280d6-d7f2-5ebd-a91e-a580d685e59c": {
+          "total": 7601,
+          "counts": {
+            "missing_or_nonfinite_ttft": 5,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 97,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 7499
+          },
+          "valid_fraction": 0.9865807130640705
+        },
+        "5f38e34b-9fff-5e52-a5dd-69fe85108831": {
+          "total": 3470,
+          "counts": {
+            "missing_or_nonfinite_ttft": 35,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 83,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 3352
+          },
+          "valid_fraction": 0.9659942363112392
+        },
+        "6320ab82-9e94-5d63-8e38-d136f61dc157": {
+          "total": 22839,
+          "counts": {
+            "missing_or_nonfinite_ttft": 2619,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 49,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 20171
+          },
+          "valid_fraction": 0.8831822759315207
+        },
+        "6e8aea46-8bf5-52e8-b644-bb9155064268": {
+          "total": 4052,
+          "counts": {
+            "missing_or_nonfinite_ttft": 15,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 74,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 3963
+          },
+          "valid_fraction": 0.978035538005923
+        },
+        "6ff97a2a-ab6d-5a36-91e0-156339182e5f": {
+          "total": 63032,
+          "counts": {
+            "missing_or_nonfinite_ttft": 10150,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 32,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 52850
+          },
+          "valid_fraction": 0.8384630029191522
+        },
+        "7858c162-4f52-5a11-868e-ddef2c04f4d8": {
+          "total": 18453,
+          "counts": {
+            "missing_or_nonfinite_ttft": 412,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 12,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 18029
+          },
+          "valid_fraction": 0.9770227063350133
+        },
+        "7c012636-e4fe-5f28-89de-407c21c9378e": {
+          "total": 63987,
+          "counts": {
+            "missing_or_nonfinite_ttft": 14123,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 15,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 49849
+          },
+          "valid_fraction": 0.7790488693015769
+        },
+        "8f3bb827-b9e6-5487-88bc-ee8f0c6f5810": {
+          "total": 109815,
+          "counts": {
+            "missing_or_nonfinite_ttft": 1978,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 7,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 107830
+          },
+          "valid_fraction": 0.9819241451532122
+        },
+        "915191b9-0d39-5f87-b130-38e5d248d44b": {
+          "total": 11110,
+          "counts": {
+            "missing_or_nonfinite_ttft": 5,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 95,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 11010
+          },
+          "valid_fraction": 0.990999099909991
+        },
+        "93d7025c-1684-5ad4-8020-b539ef54a0ac": {
+          "total": 5056,
+          "counts": {
+            "missing_or_nonfinite_ttft": 4,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 57,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 4995
+          },
+          "valid_fraction": 0.9879351265822784
+        },
+        "a55876b1-9061-576e-8462-1f74c37d3c86": {
+          "total": 4925,
+          "counts": {
+            "missing_or_nonfinite_ttft": 21,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 82,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 4822
+          },
+          "valid_fraction": 0.9790862944162436
+        },
+        "a59e1368-049e-5ae8-bd9a-2b4fe942754e": {
+          "total": 122299,
+          "counts": {
+            "missing_or_nonfinite_ttft": 16477,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 1079,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 104743
+          },
+          "valid_fraction": 0.8564501753898233
+        },
+        "ac059e33-eb27-541c-b9a9-24b214036475": {
+          "total": 619506,
+          "counts": {
+            "missing_or_nonfinite_ttft": 3322,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 15519,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 600665
+          },
+          "valid_fraction": 0.9695870580753052
+        },
+        "bc6c133b-83ce-5a21-a12f-4accae48cacb": {
+          "total": 9364,
+          "counts": {
+            "missing_or_nonfinite_ttft": 6,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 57,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 9301
+          },
+          "valid_fraction": 0.9932721059376335
+        },
+        "c31d3648-3355-5d7a-984f-253a0da3a89d": {
+          "total": 5224,
+          "counts": {
+            "missing_or_nonfinite_ttft": 18,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 75,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 5131
+          },
+          "valid_fraction": 0.982197549770291
+        },
+        "c8fd098a-6d29-5a9c-b25a-ea5764b89441": {
+          "total": 190430,
+          "counts": {
+            "missing_or_nonfinite_ttft": 34,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 5634,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 184762
+          },
+          "valid_fraction": 0.970235782177178
+        },
+        "ce6a92e4-5c2f-5681-9742-c80a4447bbdf": {
+          "total": 275623,
+          "counts": {
+            "missing_or_nonfinite_ttft": 6184,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 418,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 269021
+          },
+          "valid_fraction": 0.976046991724203
+        },
+        "cfb1f029-3b66-5c15-81e1-d873ced9b91e": {
+          "total": 6413,
+          "counts": {
+            "missing_or_nonfinite_ttft": 9,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 80,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 6324
+          },
+          "valid_fraction": 0.9861219398097614
+        },
+        "d08a740e-f71c-51f8-a87a-040c7ff39b4a": {
+          "total": 32627,
+          "counts": {
+            "missing_or_nonfinite_ttft": 88,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 144,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 32395
+          },
+          "valid_fraction": 0.9928893247923499
+        },
+        "d899b064-d9ae-5612-99e6-413e9136671b": {
+          "total": 15566,
+          "counts": {
+            "missing_or_nonfinite_ttft": 6,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 8,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 15552
+          },
+          "valid_fraction": 0.9991006038802518
+        },
+        "e51e818e-fa63-570d-9f68-49d7d1b4d12f": {
+          "total": 29112,
+          "counts": {
+            "missing_or_nonfinite_ttft": 6019,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 14,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 23079
+          },
+          "valid_fraction": 0.7927658697444353
+        }
+      }
+    },
+    "val": {
+      "total_registered_stream_starts": 1164833,
+      "counts": {
+        "missing_or_nonfinite_ttft": 448064,
+        "nonpositive_ttft": 0,
+        "missing_or_nonpositive_completion": 0,
+        "ttft_exceeds_request_duration": 10370,
+        "completion_after_60min_feedback_limit": 0,
+        "valid_label": 706399
+      },
+      "valid_fraction": 0.6064380044178007,
+      "per_model": {
+        "01a79f40-e508-504e-89a8-5679b81b5ab1": {
+          "total": 2020,
+          "counts": {
+            "missing_or_nonfinite_ttft": 6,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 35,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 1979
+          },
+          "valid_fraction": 0.9797029702970297
+        },
+        "06970f63-7a78-5bfb-9622-7473a053ee6c": {
+          "total": 529,
+          "counts": {
+            "missing_or_nonfinite_ttft": 1,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 37,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 491
+          },
+          "valid_fraction": 0.9281663516068053
+        },
+        "08a7a60f-6956-5a9e-9983-5603c3ac5a38": {
+          "total": 23830,
+          "counts": {
+            "missing_or_nonfinite_ttft": 2,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 26,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 23802
+          },
+          "valid_fraction": 0.9988250104909777
+        },
+        "0b0943ed-b386-532f-8f35-34b8d0f3a4a1": {
+          "total": 2862,
+          "counts": {
+            "missing_or_nonfinite_ttft": 1,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 60,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 2801
+          },
+          "valid_fraction": 0.9786862334032146
+        },
+        "0df3133d-c477-56d2-b4db-f2093bb150a1": {
+          "total": 89189,
+          "counts": {
+            "missing_or_nonfinite_ttft": 64618,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 111,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 24460
+          },
+          "valid_fraction": 0.2742490665889291
+        },
+        "18aab253-1f97-5279-bef7-499f1f837653": {
+          "total": 27391,
+          "counts": {
+            "missing_or_nonfinite_ttft": 4302,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 298,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 22791
+          },
+          "valid_fraction": 0.8320616260815596
+        },
+        "19bcd896-3475-5329-a0fb-1cc753756d0a": {
+          "total": 2292,
+          "counts": {
+            "missing_or_nonfinite_ttft": 0,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 106,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 2186
+          },
+          "valid_fraction": 0.9537521815008726
+        },
+        "21f51eba-a4a6-5e54-8406-0ea1d01cc5e0": {
+          "total": 1410,
+          "counts": {
+            "missing_or_nonfinite_ttft": 0,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 40,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 1370
+          },
+          "valid_fraction": 0.9716312056737588
+        },
+        "2b724174-4afe-59bd-b174-e72395354acd": {
+          "total": 48448,
+          "counts": {
+            "missing_or_nonfinite_ttft": 4609,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 1703,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 42136
+          },
+          "valid_fraction": 0.8697159841479525
+        },
+        "2ff25e81-4586-5ec8-b892-3a6f342693d7": {
+          "total": 41189,
+          "counts": {
+            "missing_or_nonfinite_ttft": 6120,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 293,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 34776
+          },
+          "valid_fraction": 0.8443030906309937
+        },
+        "322a71ff-aa47-5e97-8df1-9864161d680e": {
+          "total": 872,
+          "counts": {
+            "missing_or_nonfinite_ttft": 5,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 24,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 843
+          },
+          "valid_fraction": 0.966743119266055
+        },
+        "398651e1-5f85-5e50-a513-7c5324e8e839": {
+          "total": 349303,
+          "counts": {
+            "missing_or_nonfinite_ttft": 270601,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 1690,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 77012
+          },
+          "valid_fraction": 0.22047334262803353
+        },
+        "40442582-9432-5dfd-8c72-559e62de4071": {
+          "total": 1118,
+          "counts": {
+            "missing_or_nonfinite_ttft": 0,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 33,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 1085
+          },
+          "valid_fraction": 0.9704830053667263
+        },
+        "5a4bf048-eff2-58ee-ae95-d4f10497f390": {
+          "total": 928,
+          "counts": {
+            "missing_or_nonfinite_ttft": 2,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 30,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 896
+          },
+          "valid_fraction": 0.9655172413793104
+        },
+        "5c2280d6-d7f2-5ebd-a91e-a580d685e59c": {
+          "total": 1365,
+          "counts": {
+            "missing_or_nonfinite_ttft": 2,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 28,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 1335
+          },
+          "valid_fraction": 0.978021978021978
+        },
+        "5f38e34b-9fff-5e52-a5dd-69fe85108831": {
+          "total": 3325,
+          "counts": {
+            "missing_or_nonfinite_ttft": 1,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 61,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 3263
+          },
+          "valid_fraction": 0.9813533834586466
+        },
+        "6320ab82-9e94-5d63-8e38-d136f61dc157": {
+          "total": 1945,
+          "counts": {
+            "missing_or_nonfinite_ttft": 25,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 11,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 1909
+          },
+          "valid_fraction": 0.9814910025706941
+        },
+        "6e8aea46-8bf5-52e8-b644-bb9155064268": {
+          "total": 4158,
+          "counts": {
+            "missing_or_nonfinite_ttft": 6,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 27,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 4125
+          },
+          "valid_fraction": 0.9920634920634921
+        },
+        "6ff97a2a-ab6d-5a36-91e0-156339182e5f": {
+          "total": 42399,
+          "counts": {
+            "missing_or_nonfinite_ttft": 19531,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 16,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 22852
+          },
+          "valid_fraction": 0.5389749758249015
+        },
+        "7858c162-4f52-5a11-868e-ddef2c04f4d8": {
+          "total": 19818,
+          "counts": {
+            "missing_or_nonfinite_ttft": 268,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 2,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 19548
+          },
+          "valid_fraction": 0.9863760217983651
+        },
+        "7c012636-e4fe-5f28-89de-407c21c9378e": {
+          "total": 53602,
+          "counts": {
+            "missing_or_nonfinite_ttft": 35390,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 8,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 18204
+          },
+          "valid_fraction": 0.3396141935002425
+        },
+        "8f3bb827-b9e6-5487-88bc-ee8f0c6f5810": {
+          "total": 36704,
+          "counts": {
+            "missing_or_nonfinite_ttft": 4316,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 0,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 32388
+          },
+          "valid_fraction": 0.8824106364428945
+        },
+        "915191b9-0d39-5f87-b130-38e5d248d44b": {
+          "total": 624,
+          "counts": {
+            "missing_or_nonfinite_ttft": 9,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 10,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 605
+          },
+          "valid_fraction": 0.969551282051282
+        },
+        "93d7025c-1684-5ad4-8020-b539ef54a0ac": {
+          "total": 760,
+          "counts": {
+            "missing_or_nonfinite_ttft": 5,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 18,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 737
+          },
+          "valid_fraction": 0.9697368421052631
+        },
+        "a55876b1-9061-576e-8462-1f74c37d3c86": {
+          "total": 800,
+          "counts": {
+            "missing_or_nonfinite_ttft": 1,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 14,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 785
+          },
+          "valid_fraction": 0.98125
+        },
+        "a59e1368-049e-5ae8-bd9a-2b4fe942754e": {
+          "total": 63833,
+          "counts": {
+            "missing_or_nonfinite_ttft": 24428,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 863,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 38542
+          },
+          "valid_fraction": 0.6037942756881237
+        },
+        "ac059e33-eb27-541c-b9a9-24b214036475": {
+          "total": 95246,
+          "counts": {
+            "missing_or_nonfinite_ttft": 9035,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 2239,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 83972
+          },
+          "valid_fraction": 0.8816328244755686
+        },
+        "bc6c133b-83ce-5a21-a12f-4accae48cacb": {
+          "total": 2624,
+          "counts": {
+            "missing_or_nonfinite_ttft": 3,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 15,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 2606
+          },
+          "valid_fraction": 0.993140243902439
+        },
+        "c31d3648-3355-5d7a-984f-253a0da3a89d": {
+          "total": 1138,
+          "counts": {
+            "missing_or_nonfinite_ttft": 0,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 62,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 1076
+          },
+          "valid_fraction": 0.945518453427065
+        },
+        "c8fd098a-6d29-5a9c-b25a-ea5764b89441": {
+          "total": 94224,
+          "counts": {
+            "missing_or_nonfinite_ttft": 399,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 2007,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 91818
+          },
+          "valid_fraction": 0.9744651044319919
+        },
+        "ce6a92e4-5c2f-5681-9742-c80a4447bbdf": {
+          "total": 110441,
+          "counts": {
+            "missing_or_nonfinite_ttft": 1842,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 359,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 108240
+          },
+          "valid_fraction": 0.9800708070372416
+        },
+        "cfb1f029-3b66-5c15-81e1-d873ced9b91e": {
+          "total": 660,
+          "counts": {
+            "missing_or_nonfinite_ttft": 3,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 37,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 620
+          },
+          "valid_fraction": 0.9393939393939394
+        },
+        "d08a740e-f71c-51f8-a87a-040c7ff39b4a": {
+          "total": 21033,
+          "counts": {
+            "missing_or_nonfinite_ttft": 890,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 95,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 20048
+          },
+          "valid_fraction": 0.9531688299339134
+        },
+        "d899b064-d9ae-5612-99e6-413e9136671b": {
+          "total": 6036,
+          "counts": {
+            "missing_or_nonfinite_ttft": 31,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 0,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 6005
+          },
+          "valid_fraction": 0.9948641484426772
+        },
+        "e51e818e-fa63-570d-9f68-49d7d1b4d12f": {
+          "total": 12717,
+          "counts": {
+            "missing_or_nonfinite_ttft": 1612,
+            "nonpositive_ttft": 0,
+            "missing_or_nonpositive_completion": 0,
+            "ttft_exceeds_request_duration": 12,
+            "completion_after_60min_feedback_limit": 0,
+            "valid_label": 11093
+          },
+          "valid_fraction": 0.8722969253754816
+        }
+      }
+    }
+  },
+  "validation_primary_feature_support": {
+    "rows": 908,
+    "observed_instances30_eq1": 250,
+    "observed_instances30_le2": 374,
+    "median_observed_instances30": 3.0,
+    "median_cache_token_fraction30": 0.23484869984133977,
+    "models_with_constant_observed_instances30": 7
+  }
+}

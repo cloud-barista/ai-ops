@@ -1,0 +1,24 @@
+{
+  "frozen_before_timing": true,
+  "protocol_sha256": "21e978ddebde09e7a187a7de90cbf585cc1643f28774868d01f83a7fdd29841a",
+  "assessor_code_sha256": "e904a76d9e7940630e8a53f3f0e5d952bb98760fa74697bd7c42bfadb6a1e30e",
+  "predictor_code_sha256": "46c85961fb4d9388c99bc073522f8cf9c839065a1f4fe67a1b92aa33f3123075",
+  "v2_code_sha256": "20e73cdcf39dbe7252399a3bff8eda9387ff592d046ea6483df15b13710e996d",
+  "v3_code_sha256": "644326f77be68fdd8b4a4050ab3bc0ee031ad8264519ecc54de0b051409e6299",
+  "v4_code_sha256": "191bb2b3fd5d4306078bd4e5d2ebd3d1c8f800023e3eccd8963a1af1fc57dbef",
+  "benchmark_code_sha256": "ab804657c945b6ca1a54f1b065b552a3e78b43bd71cee2bcc6a583742aee9f97",
+  "manifest_sha256": "dcea7d8dc21ab6928da990d0fd3a4cfb6883fe1d01a831462c214d059d8ba679",
+  "model_sha256": "7a934da440ea0c7473e4e59eb5fa0c8c57f347389272bd303cb0051ef918b161",
+  "source_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "timing_repetitions": 7,
+  "paired_median_speedup_gates": {
+    "copied_v2_over_v4_min": 1.20,
+    "copied_v3_over_v4_min": 1.15,
+    "shared_v3_over_v4_min": 0.9090909090909091,
+    "unique_v2_over_v4_min": 0.9090909090909091,
+    "unique_v3_over_v4_min": 0.9090909090909091
+  },
+  "peak_rss_increase_max_mib": 20,
+  "full_json_and_prediction_call_parity_required": true,
+  "pre_timing_unit_tests": "18 passed in test_assess_gpu_shape_microbatch*.py"
+}

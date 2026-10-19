@@ -1,0 +1,201 @@
+{
+  "protocol_sha256": "8663b50f846517916985063ae7a88fe787364e6ac6d9bdcb600e1f6026bdf436",
+  "parser_dependency_sha256": "d5a958d4bb687da8e1c73779eb883179de74e2c4918e4dcfeddc48ced1c5f562",
+  "source": {
+    "path": "/home/researcher/ai-mcmp/research/data/external/pax_autoscale_feasibility/PAX.zip",
+    "sha256": "db15cfa75f05d44020a3f5c4f6f4930cbb1c2518dd3884391917615cea52a23a",
+    "md5": "56cf6c11f79e0cffadeb2414784a789b",
+    "bytes": 1307826,
+    "zip_crc_ok": true
+  },
+  "script_sha256": "d2b08e22841c2edd3f50d9372bf9e29c09f01f387ba36aa45ca273c0a36c502d",
+  "created_utc": "2026-09-28T21:11:43.692075+00:00",
+  "results_outcome_columns_parsed_or_used": false,
+  "experiment_folders_with_running_vms": 9,
+  "complete_folders": 9,
+  "parsed_folders": 9,
+  "parse_errors": {},
+  "folders": [
+    {
+      "folder": "PAX/Aggressive strategies/Aggressive",
+      "node_samples": 128,
+      "client_samples": 10480,
+      "result_timestamps": 1048,
+      "time_start": "2017-10-06T12:27:35",
+      "time_end": "2017-10-06T15:22:14",
+      "raw_transitions": 2,
+      "eligible_transitions": 0,
+      "raw_by_direction": {
+        "out": 1,
+        "in": 1
+      },
+      "eligible_by_direction": {}
+    },
+    {
+      "folder": "PAX/Aggressive strategies/Conservative",
+      "node_samples": 412,
+      "client_samples": 35641,
+      "result_timestamps": 3564,
+      "time_start": "2017-10-04T11:12:29",
+      "time_end": "2017-10-04T22:06:44.456684",
+      "raw_transitions": 14,
+      "eligible_transitions": 1,
+      "raw_by_direction": {
+        "out": 9,
+        "in": 5
+      },
+      "eligible_by_direction": {
+        "out": 1
+      }
+    },
+    {
+      "folder": "PAX/Aggressive strategies/Normal",
+      "node_samples": 424,
+      "client_samples": 35554,
+      "result_timestamps": 3555,
+      "time_start": "2017-10-02T13:16:12",
+      "time_end": "2017-10-03T00:06:45.732146",
+      "raw_transitions": 17,
+      "eligible_transitions": 4,
+      "raw_by_direction": {
+        "out": 7,
+        "in": 10
+      },
+      "eligible_by_direction": {
+        "in": 4
+      }
+    },
+    {
+      "folder": "PAX/HintHandoff_sinchronization",
+      "node_samples": 97,
+      "client_samples": 9430,
+      "result_timestamps": 943,
+      "time_start": "2017-08-26T12:30:12",
+      "time_end": "2017-08-26T15:07:21",
+      "raw_transitions": 3,
+      "eligible_transitions": 0,
+      "raw_by_direction": {
+        "out": 2,
+        "in": 1
+      },
+      "eligible_by_direction": {}
+    },
+    {
+      "folder": "PAX/Validation/Change Architecture Proactive",
+      "node_samples": 107,
+      "client_samples": 8746,
+      "result_timestamps": 875,
+      "time_start": "2017-08-28T19:07:17",
+      "time_end": "2017-08-28T21:33:02",
+      "raw_transitions": 2,
+      "eligible_transitions": 1,
+      "raw_by_direction": {
+        "out": 1,
+        "in": 1
+      },
+      "eligible_by_direction": {
+        "in": 1
+      }
+    },
+    {
+      "folder": "PAX/Validation/Doble syn Proactive",
+      "node_samples": 678,
+      "client_samples": 32404,
+      "result_timestamps": 3240,
+      "time_start": "2017-08-23T23:03:17",
+      "time_end": "2017-08-24T23:05:01.871852",
+      "raw_transitions": 8,
+      "eligible_transitions": 0,
+      "raw_by_direction": {
+        "out": 4,
+        "in": 4
+      },
+      "eligible_by_direction": {}
+    },
+    {
+      "folder": "PAX/Validation/Step Proactive",
+      "node_samples": 260,
+      "client_samples": 25160,
+      "result_timestamps": 2516,
+      "time_start": "2017-08-21T09:17:21",
+      "time_end": "2017-08-21T16:16:40",
+      "raw_transitions": 8,
+      "eligible_transitions": 0,
+      "raw_by_direction": {
+        "out": 4,
+        "in": 4
+      },
+      "eligible_by_direction": {}
+    },
+    {
+      "folder": "PAX/Validation/Syn Proactive",
+      "node_samples": 113,
+      "client_samples": 10410,
+      "result_timestamps": 1041,
+      "time_start": "2017-08-30T17:11:43",
+      "time_end": "2017-08-30T20:05:12",
+      "raw_transitions": 2,
+      "eligible_transitions": 0,
+      "raw_by_direction": {
+        "out": 1,
+        "in": 1
+      },
+      "eligible_by_direction": {}
+    },
+    {
+      "folder": "PAX/Validation/Syn Reactive",
+      "node_samples": 123,
+      "client_samples": 10460,
+      "result_timestamps": 1045,
+      "time_start": "2017-08-30T10:39:20",
+      "time_end": "2017-08-30T13:33:39",
+      "raw_transitions": 2,
+      "eligible_transitions": 0,
+      "raw_by_direction": {
+        "out": 1,
+        "in": 1
+      },
+      "eligible_by_direction": {}
+    }
+  ],
+  "raw_transitions": 58,
+  "eligible_transitions": 6,
+  "raw_by_direction": {
+    "out": 30,
+    "in": 28
+  },
+  "eligible_by_direction": {
+    "out": 1,
+    "in": 5
+  },
+  "failure_reason_counts_nonexclusive": {
+    "client_count_not_stable": 50,
+    "node_state_side_support": 23
+  },
+  "sequential_stage_counts": {
+    "raw": 58,
+    "node_state_sides": 35,
+    "no_interfering_transition": 35,
+    "result_timestamp_coverage": 35,
+    "client_timestamp_coverage": 35,
+    "client_stability": 6,
+    "paired_windows_nonoverlap": 6
+  },
+  "unknown_transition_gap_seconds": {
+    "min": 185.001478,
+    "median": 186.71317349999998,
+    "max": 311.812484
+  },
+  "overlapping_time_range_pairs": [],
+  "best_nonoverlapping_folder_subset": {
+    "folders": [
+      "PAX/Aggressive strategies/Conservative",
+      "PAX/Aggressive strategies/Normal",
+      "PAX/Validation/Change Architecture Proactive"
+    ],
+    "transitions": 6,
+    "out": 1,
+    "in": 5
+  },
+  "limited_paired_observation_go": false
+}

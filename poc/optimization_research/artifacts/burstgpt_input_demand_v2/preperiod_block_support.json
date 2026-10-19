@@ -1,0 +1,58 @@
+{
+  "all_pass": true,
+  "cohorts": {
+    "ChatGPT": {
+      "calibration": {
+        "days_with_logged_requests": 10,
+        "hours": 240,
+        "hours_with_logged_requests": 210,
+        "hours_with_logged_requests_fraction": 0.875,
+        "pass": true,
+        "relative_days": [
+          255,
+          264
+        ]
+      },
+      "fit": {
+        "days_with_logged_requests": 30,
+        "hours": 720,
+        "hours_with_logged_requests": 626,
+        "hours_with_logged_requests_fraction": 0.8694444444444445,
+        "pass": true,
+        "relative_days": [
+          225,
+          254
+        ]
+      }
+    },
+    "GPT-4": {
+      "calibration": {
+        "days_with_logged_requests": 10,
+        "hours": 240,
+        "hours_with_logged_requests": 207,
+        "hours_with_logged_requests_fraction": 0.8625,
+        "pass": true,
+        "relative_days": [
+          255,
+          264
+        ]
+      },
+      "fit": {
+        "days_with_logged_requests": 30,
+        "hours": 720,
+        "hours_with_logged_requests": 641,
+        "hours_with_logged_requests_fraction": 0.8902777777777777,
+        "pass": true,
+        "relative_days": [
+          225,
+          254
+        ]
+      }
+    }
+  },
+  "freeze_manifest_sha256": "055b8c1c1cfba05bbb8d6de69e3a18193c16e7955e0184c8953d6502c120f5b4",
+  "kind": "burstgpt_input_demand_v2_preperiod_block_support",
+  "preperiod_source_rows": 3452522,
+  "source_sha256": "2299986a07388aa303ec2c41d1131e756db650a39ed6ef9dfe7cc3d7f9a43b8f",
+  "stopped_before_test_target": true
+}

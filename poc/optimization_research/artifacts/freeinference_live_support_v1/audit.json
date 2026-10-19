@@ -1,0 +1,194 @@
+{
+  "source": "https://data.freeinference.org/ (public /api/dashboard and /api/history)",
+  "snapshot_sha256": {
+    "dashboard.json": "72bf30e02401bcac6fb63ac3e34758198e36c8e34d1cf35dc3ceddadcd6adb50",
+    "history_2h.json": "94dbd79d239719426003ca83cae0c793a7e76562fbf9c985eb3e2a4555f366b6",
+    "history_24h.json": "775029f29708032bf3bdd9890384079ebd9993222e3bb03b9edc7d6c1499723e",
+    "history_168h.json": "9019eb970675031ad0c1fb41dd0607d188893cbd08d82b410ce571bff8616ac4"
+  },
+  "dashboard": {
+    "generated_at_utc": "2026-09-29T08:58:58.581000+00:00",
+    "demo": false,
+    "nodes": 4,
+    "gpus": 11,
+    "servers": 6,
+    "recent_requests": 120,
+    "request_server_ids": 3,
+    "requests_with_ttft": 97
+  },
+  "history": {
+    "history_2h.json": {
+      "grain_minutes": 1.0,
+      "generated_at_utc": "2026-09-29T09:01:16.301000+00:00",
+      "sglang": {
+        "rows": 725,
+        "identities": 6,
+        "timestamps": 725,
+        "min_at_utc": "2026-09-29T07:01:42.366000+00:00",
+        "max_at_utc": "2026-09-29T09:01:12.544000+00:00",
+        "queued": {
+          "observed": 725,
+          "positive": 44
+        },
+        "running": {
+          "observed": 725,
+          "positive": 290
+        },
+        "req_per_min": {
+          "observed": 725,
+          "positive": 399
+        },
+        "ttft_avg_s": {
+          "observed": 674,
+          "positive": 674
+        },
+        "tpot_avg_s": {
+          "observed": 535,
+          "positive": 535
+        },
+        "e2e_latency_avg_s": {
+          "observed": 657,
+          "positive": 656
+        },
+        "cache_hit_rate": {
+          "observed": 564,
+          "positive": 505
+        },
+        "http_error_per_min": {
+          "observed": 725,
+          "positive": 0
+        }
+      },
+      "gpu": {
+        "rows": 1331,
+        "identities": 11,
+        "timestamps": 484,
+        "min_at_utc": "2026-09-29T07:01:47.458000+00:00",
+        "max_at_utc": "2026-09-29T09:01:12.462000+00:00"
+      },
+      "cpu": {
+        "rows": 484,
+        "identities": 4,
+        "timestamps": 484,
+        "min_at_utc": "2026-09-29T07:01:47.458000+00:00",
+        "max_at_utc": "2026-09-29T09:01:12.462000+00:00"
+      }
+    },
+    "history_24h.json": {
+      "grain_minutes": 20.0,
+      "generated_at_utc": "2026-09-29T09:01:48.901000+00:00",
+      "sglang": {
+        "rows": 430,
+        "identities": 6,
+        "timestamps": 72,
+        "min_at_utc": "2026-09-28T09:20:00+00:00",
+        "max_at_utc": "2026-09-29T09:00:00+00:00",
+        "queued": {
+          "observed": 430,
+          "positive": 21
+        },
+        "running": {
+          "observed": 430,
+          "positive": 151
+        },
+        "req_per_min": {
+          "observed": 430,
+          "positive": 199
+        },
+        "ttft_avg_s": {
+          "observed": 407,
+          "positive": 407
+        },
+        "tpot_avg_s": {
+          "observed": 328,
+          "positive": 328
+        },
+        "e2e_latency_avg_s": {
+          "observed": 400,
+          "positive": 400
+        },
+        "cache_hit_rate": {
+          "observed": 307,
+          "positive": 267
+        },
+        "http_error_per_min": {
+          "observed": 430,
+          "positive": 0
+        }
+      },
+      "gpu": {
+        "rows": 792,
+        "identities": 11,
+        "timestamps": 72,
+        "min_at_utc": "2026-09-28T09:20:00+00:00",
+        "max_at_utc": "2026-09-29T09:00:00+00:00"
+      },
+      "cpu": {
+        "rows": 288,
+        "identities": 4,
+        "timestamps": 72,
+        "min_at_utc": "2026-09-28T09:20:00+00:00",
+        "max_at_utc": "2026-09-29T09:00:00+00:00"
+      }
+    },
+    "history_168h.json": {
+      "grain_minutes": 60.0,
+      "generated_at_utc": "2026-09-29T09:01:47.365000+00:00",
+      "sglang": {
+        "rows": 965,
+        "identities": 6,
+        "timestamps": 168,
+        "min_at_utc": "2026-09-22T10:00:00+00:00",
+        "max_at_utc": "2026-09-29T09:00:00+00:00",
+        "queued": {
+          "observed": 965,
+          "positive": 49
+        },
+        "running": {
+          "observed": 965,
+          "positive": 273
+        },
+        "req_per_min": {
+          "observed": 847,
+          "positive": 330
+        },
+        "ttft_avg_s": {
+          "observed": 830,
+          "positive": 830
+        },
+        "tpot_avg_s": {
+          "observed": 658,
+          "positive": 658
+        },
+        "e2e_latency_avg_s": {
+          "observed": 828,
+          "positive": 828
+        },
+        "cache_hit_rate": {
+          "observed": 559,
+          "positive": 514
+        },
+        "http_error_per_min": {
+          "observed": 698,
+          "positive": 4
+        }
+      },
+      "gpu": {
+        "rows": 1708,
+        "identities": 11,
+        "timestamps": 168,
+        "min_at_utc": "2026-09-22T10:00:00+00:00",
+        "max_at_utc": "2026-09-29T09:00:00+00:00"
+      },
+      "cpu": {
+        "rows": 637,
+        "identities": 4,
+        "timestamps": 168,
+        "min_at_utc": "2026-09-22T10:00:00+00:00",
+        "max_at_utc": "2026-09-29T09:00:00+00:00"
+      }
+    }
+  },
+  "action_fields_present": false,
+  "decision": "no_go_scale_action_or_user_slo_policy_training"
+}

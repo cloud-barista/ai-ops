@@ -1,0 +1,140 @@
+{
+  "audit_sha256": "7043dceb49c94a58839f66279ee92a896a892af945a7e819458f108c2514f3a5",
+  "github_commit": "31f8ea29ca184193dbc7523736d77c817ddce980",
+  "protocol_sha256": "48e38514fa01e4a5341cd8b830c57d2a5c3cb0bf93d2bdfee8728b287a3cc319",
+  "protocol_version": "has_gpu_request_p95_30s_v1",
+  "script_sha256": "18027621a83a958f63a1fdfafd502a4038fb5213273183a22b8deada6636e74c",
+  "source_record": "https://zenodo.org/records/15596511",
+  "source_record_api": "https://zenodo.org/api/records/15596511",
+  "source_zip_published_md5_unverified": "md5:b8da5cea33e59b9b21dab8163633118a",
+  "source_zip_size": 62262205,
+  "sources": [
+    {
+      "model_family": "bert",
+      "request_member": "HAS-GPU/validation/result/HAS/1-bert/has-120-50-50-15.csv",
+      "request_rows": 2591,
+      "request_sha256": "12813f87ad76f7d1d4f2948245565d2d4cbe69895c8659b1378c36493ed1dacd",
+      "run": "1-bert"
+    },
+    {
+      "model_family": "bert",
+      "request_member": "HAS-GPU/validation/result/HAS/1-bert-stress/has-120-50-50-15-bert-stress.csv",
+      "request_rows": 4858,
+      "request_sha256": "577939fefd0a3936ce020b1f083c7786ef808a0f02ea621c5c8d1f968f2f787b",
+      "run": "1-bert-stress"
+    },
+    {
+      "model_family": "convnext",
+      "request_member": "HAS-GPU/validation/result/HAS/1-convnext/has-120-50-50-15.csv",
+      "request_rows": 2690,
+      "request_sha256": "86e2450c98797a688946d2ebe2db875c8cc86cc1724df34357dbc61db7b21fdd",
+      "run": "1-convnext"
+    },
+    {
+      "model_family": "mobilenet",
+      "request_member": "HAS-GPU/validation/result/HAS/1-mobilenet/has-120-50-50-15.csv",
+      "request_rows": 2690,
+      "request_sha256": "d31d84683aa45e1c3a684b99957bf97247fb158d2653aa0b37016f07ddcac6b2",
+      "run": "1-mobilenet"
+    },
+    {
+      "model_family": "mobilenet",
+      "request_member": "HAS-GPU/validation/result/HAS/1-mobilenet-stress/has-120-50-50-15-mobile-stress.csv",
+      "request_rows": 4890,
+      "request_sha256": "eed2a84f1163faf790fec46e1d92c7b80c23eebe87621dc2fee55f08550e524f",
+      "run": "1-mobilenet-stress"
+    },
+    {
+      "model_family": "bert",
+      "request_member": "HAS-GPU/validation/result/HAS/2-bert/has-120-50-50-15-bert.csv",
+      "request_rows": 2651,
+      "request_sha256": "b2da2716fc94fdc95c5a9b9e5d3b0e6a9069612529f266bfc40132a57150e248",
+      "run": "2-bert"
+    },
+    {
+      "model_family": "bert",
+      "request_member": "HAS-GPU/validation/result/HAS/2-bert-stress/has-120-50-50-15-bert-stress.csv",
+      "request_rows": 4890,
+      "request_sha256": "762d695b59aa74368a5f8696bef328da5334ee0c011fd1206ada494431c21353",
+      "run": "2-bert-stress"
+    },
+    {
+      "model_family": "convnext",
+      "request_member": "HAS-GPU/validation/result/HAS/2-convnext/has-120-50-50-15.csv",
+      "request_rows": 2690,
+      "request_sha256": "48a69642cb2ba3d0fcf8a3675b7e2c056aeb24174d2c2d246158dbd2b76a3d94",
+      "run": "2-convnext"
+    },
+    {
+      "model_family": "convnext",
+      "request_member": "HAS-GPU/validation/result/HAS/2-convnext-stress/has-120-50-50-15-convnext-stress.csv",
+      "request_rows": 4890,
+      "request_sha256": "a938a639b6b1ec030302a51e0c13658ef910cba544f8de4391349a7c92783ca2",
+      "run": "2-convnext-stress"
+    },
+    {
+      "model_family": "mobilenet",
+      "request_member": "HAS-GPU/validation/result/HAS/2-mobilenet/has-120-50-50-15.csv",
+      "request_rows": 2690,
+      "request_sha256": "d69b648f25de4fb5dc16059164542dc45d19290ec3dd42c333655a56270d0fdf",
+      "run": "2-mobilenet"
+    },
+    {
+      "model_family": "resnet",
+      "request_member": "HAS-GPU/validation/result/HAS/2-resnet/has-120-50-50-15.csv",
+      "request_rows": 2690,
+      "request_sha256": "77206f65643053ba84cd8b4e1c8569b57011dfff43bf1c0e3205afd6fa32ffad",
+      "run": "2-resnet"
+    },
+    {
+      "model_family": "bert",
+      "request_member": "HAS-GPU/validation/result/HAS/3-bert/has-120-50-50-15-bert.csv",
+      "request_rows": 2681,
+      "request_sha256": "2e8df55d76985ba84caae47330e02e1a9a736d150e16f8a5f08ba53d43447233",
+      "run": "3-bert"
+    },
+    {
+      "model_family": "bert",
+      "request_member": "HAS-GPU/validation/result/HAS/3-bert-stress/has-120-50-50-15-bert-stress.csv",
+      "request_rows": 4705,
+      "request_sha256": "7195d8c5a1622610cf0c9eaddf1f807bb398ed81c4adaf9e349dcd102a93288c",
+      "run": "3-bert-stress"
+    },
+    {
+      "model_family": "resnet",
+      "request_member": "HAS-GPU/validation/result/HAS/3-resnet/has-120-50-50-15.csv",
+      "request_rows": 2690,
+      "request_sha256": "4423edda6fc25bdfc5112da7eb224b6fa5c14537f321dfa0b37a05e85bda0e4e",
+      "run": "3-resnet"
+    },
+    {
+      "model_family": "bert",
+      "request_member": "HAS-GPU/validation/result/HAS/4-bert/has-120-50-50-15-bert.csv",
+      "request_rows": 2690,
+      "request_sha256": "941c2758aa9e2569c57548f17e24b4bbded319dfa5594e18a6ebce45efd206a9",
+      "run": "4-bert"
+    },
+    {
+      "model_family": "bert",
+      "request_member": "HAS-GPU/validation/result/HAS/4-bert-stress/has-120-50-50-15-bert-stress.csv",
+      "request_rows": 4655,
+      "request_sha256": "94a9ccdc122547851b5e721a264116cae7877b5b915452636910866ddef4d71e",
+      "run": "4-bert-stress"
+    },
+    {
+      "model_family": "resnet",
+      "request_member": "HAS-GPU/validation/result/HAS/4-resnet/has-120-50-50-15.csv",
+      "request_rows": 2690,
+      "request_sha256": "2a17e5ddd7034535ff53d9c4c80c3b94e6ee1f8398c0f20fa8ad35f74f10ed56",
+      "run": "4-resnet"
+    },
+    {
+      "model_family": "resnet",
+      "request_member": "HAS-GPU/validation/result/HAS/5-resnet/has-120-50-50-15.csv",
+      "request_rows": 2690,
+      "request_sha256": "d69ec2efedaf180fbed8cbb84efc79cd8e2c0fed88580ef04eb064f5268290a6",
+      "run": "5-resnet"
+    }
+  ],
+  "tests_sha256": "695445aca3dc46be9e4e09000267e709fb1ae09f616762a17631522aaf35b4e4"
+}

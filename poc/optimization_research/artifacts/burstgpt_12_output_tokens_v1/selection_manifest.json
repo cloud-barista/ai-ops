@@ -1,0 +1,29 @@
+{
+  "comparators": [
+    "rolling_cohort",
+    "static_cohort",
+    "static_global",
+    "hgb_base"
+  ],
+  "excluded_fixed_train_day": 60,
+  "feedback_rule": "for prediction day d, request days d-8 through d-2 are assumed delivered",
+  "fit_info_sha256": "4f175faf1d1f3fec03c55bcbfe128f83a432962d8f09f173b5a1df58fdf1a07a",
+  "fixed_train_days": [
+    0,
+    59
+  ],
+  "model_sha256": "a868017ecf9cc8525a040451afdacaa83a73654f0040e70f2e4d7164a9329def",
+  "primary_method": "rolling_bin",
+  "protocol_sha256": "1cd43727edc0165f837bde825333a9d49f4b2beb7a124ffbcd07a2723c5bbb45",
+  "script_sha256": "91e38010452870ede9628490abfef8982a9594b7e7b37a38cb1317f76a8ad600",
+  "selection_rule": "rolling_bin fixed from BurstGPT_3 post-hoc hypothesis; no validation selection on files 1 or 2",
+  "source_sha256": {
+    "BurstGPT_1.csv": "4bb3783693d0a435686fbfc885615d2349bd067239079fa4b749f2e679e12122",
+    "BurstGPT_2.csv": "44bf5942b03fca42c01a226a545ad3a750ec62688faecd67b6831c56a8928bf7"
+  },
+  "status": "primary_method_frozen_before_test",
+  "test_days": [
+    61,
+    120
+  ]
+}

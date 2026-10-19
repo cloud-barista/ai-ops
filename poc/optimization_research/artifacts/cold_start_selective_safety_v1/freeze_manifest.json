@@ -1,0 +1,5916 @@
+{
+  "fold_count": 10,
+  "folds": [
+    {
+      "candidate_summary": {
+        "0.05": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.2691458026509573,
+          "false_approvals": 1462,
+          "retained_success_fraction": 0.9870711089010442,
+          "selected": 5432,
+          "successful": 3970
+        },
+        "0.10": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.24952052167242042,
+          "false_approvals": 1301,
+          "retained_success_fraction": 0.9728990551964197,
+          "selected": 5214,
+          "successful": 3913
+        },
+        "0.20": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.22569808943942893,
+          "false_approvals": 1075,
+          "retained_success_fraction": 0.9169567379413227,
+          "selected": 4763,
+          "successful": 3688
+        },
+        "0.30": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.18035055350553506,
+          "false_approvals": 782,
+          "retained_success_fraction": 0.8836399801093983,
+          "selected": 4336,
+          "successful": 3554
+        },
+        "0.50": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.15404837013669823,
+          "false_approvals": 586,
+          "retained_success_fraction": 0.8000994530084535,
+          "selected": 3804,
+          "successful": 3218
+        }
+      },
+      "donor_models": [
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "fold": "FacebookAI/roberta-base",
+      "held_models": [
+        "FacebookAI/roberta-base"
+      ],
+      "inner_donor_scores": {
+        "Qwen/Qwen2.5-0.5B-Instruct": {
+          "0.00": {
+            "approved_groups": 63,
+            "exact_minimal": 49,
+            "false_approval_rate": 0.8689839572192514,
+            "false_approvals": 325,
+            "missed_feasible": 114,
+            "oracle_feasible": 163,
+            "queries": 1575,
+            "selected": 374,
+            "successful": 49
+          },
+          "0.05": {
+            "approved_groups": 63,
+            "exact_minimal": 51,
+            "false_approval_rate": 0.8621621621621621,
+            "false_approvals": 319,
+            "missed_feasible": 112,
+            "oracle_feasible": 163,
+            "queries": 1575,
+            "selected": 370,
+            "successful": 51
+          },
+          "0.10": {
+            "approved_groups": 57,
+            "exact_minimal": 54,
+            "false_approval_rate": 0.8461538461538461,
+            "false_approvals": 297,
+            "missed_feasible": 109,
+            "oracle_feasible": 163,
+            "queries": 1575,
+            "selected": 351,
+            "successful": 54
+          },
+          "0.20": {
+            "approved_groups": 56,
+            "exact_minimal": 64,
+            "false_approval_rate": 0.8123167155425219,
+            "false_approvals": 277,
+            "missed_feasible": 99,
+            "oracle_feasible": 163,
+            "queries": 1575,
+            "selected": 341,
+            "successful": 64
+          },
+          "0.30": {
+            "approved_groups": 56,
+            "exact_minimal": 93,
+            "false_approval_rate": 0.7056962025316456,
+            "false_approvals": 223,
+            "missed_feasible": 70,
+            "oracle_feasible": 163,
+            "queries": 1575,
+            "selected": 316,
+            "successful": 93
+          },
+          "0.50": {
+            "approved_groups": 46,
+            "exact_minimal": 87,
+            "false_approval_rate": 0.65748031496063,
+            "false_approvals": 167,
+            "missed_feasible": 76,
+            "oracle_feasible": 163,
+            "queries": 1575,
+            "selected": 254,
+            "successful": 87
+          }
+        },
+        "albert/albert-base-v2": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 191,
+            "false_approval_rate": 0.7972689075630253,
+            "false_approvals": 759,
+            "missed_feasible": 199,
+            "oracle_feasible": 392,
+            "queries": 1600,
+            "selected": 952,
+            "successful": 193
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 200,
+            "false_approval_rate": 0.7846481876332623,
+            "false_approvals": 736,
+            "missed_feasible": 190,
+            "oracle_feasible": 392,
+            "queries": 1600,
+            "selected": 938,
+            "successful": 202
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 220,
+            "false_approval_rate": 0.7494356659142212,
+            "false_approvals": 664,
+            "missed_feasible": 170,
+            "oracle_feasible": 392,
+            "queries": 1600,
+            "selected": 886,
+            "successful": 222
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 238,
+            "false_approval_rate": 0.696969696969697,
+            "false_approvals": 552,
+            "missed_feasible": 152,
+            "oracle_feasible": 392,
+            "queries": 1600,
+            "selected": 792,
+            "successful": 240
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 252,
+            "false_approval_rate": 0.6291970802919709,
+            "false_approvals": 431,
+            "missed_feasible": 138,
+            "oracle_feasible": 392,
+            "queries": 1600,
+            "selected": 685,
+            "successful": 254
+          },
+          "0.50": {
+            "approved_groups": 64,
+            "exact_minimal": 270,
+            "false_approval_rate": 0.5743348982785602,
+            "false_approvals": 367,
+            "missed_feasible": 120,
+            "oracle_feasible": 392,
+            "queries": 1600,
+            "selected": 639,
+            "successful": 272
+          }
+        },
+        "distilbert/distilbert-base-uncased": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 542,
+            "false_approval_rate": 0.07025411061285501,
+            "false_approvals": 47,
+            "missed_feasible": 80,
+            "oracle_feasible": 702,
+            "queries": 1600,
+            "selected": 669,
+            "successful": 622
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 512,
+            "false_approval_rate": 0.0483619344773791,
+            "false_approvals": 31,
+            "missed_feasible": 92,
+            "oracle_feasible": 702,
+            "queries": 1600,
+            "selected": 641,
+            "successful": 610
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 451,
+            "false_approval_rate": 0.034129692832764506,
+            "false_approvals": 20,
+            "missed_feasible": 136,
+            "oracle_feasible": 702,
+            "queries": 1600,
+            "selected": 586,
+            "successful": 566
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 394,
+            "false_approval_rate": 0.014953271028037384,
+            "false_approvals": 8,
+            "missed_feasible": 175,
+            "oracle_feasible": 702,
+            "queries": 1600,
+            "selected": 535,
+            "successful": 527
+          },
+          "0.30": {
+            "approved_groups": 63,
+            "exact_minimal": 342,
+            "false_approval_rate": 0.006109979633401222,
+            "false_approvals": 3,
+            "missed_feasible": 214,
+            "oracle_feasible": 702,
+            "queries": 1600,
+            "selected": 491,
+            "successful": 488
+          },
+          "0.50": {
+            "approved_groups": 63,
+            "exact_minimal": 261,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 261,
+            "oracle_feasible": 702,
+            "queries": 1600,
+            "selected": 441,
+            "successful": 441
+          }
+        },
+        "google-bert/bert-base-uncased": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 288,
+            "false_approval_rate": 0.5471698113207547,
+            "false_approvals": 348,
+            "missed_feasible": 141,
+            "oracle_feasible": 429,
+            "queries": 1600,
+            "selected": 636,
+            "successful": 288
+          },
+          "0.05": {
+            "approved_groups": 63,
+            "exact_minimal": 300,
+            "false_approval_rate": 0.5207667731629393,
+            "false_approvals": 326,
+            "missed_feasible": 129,
+            "oracle_feasible": 429,
+            "queries": 1600,
+            "selected": 626,
+            "successful": 300
+          },
+          "0.10": {
+            "approved_groups": 63,
+            "exact_minimal": 324,
+            "false_approval_rate": 0.4723127035830619,
+            "false_approvals": 290,
+            "missed_feasible": 105,
+            "oracle_feasible": 429,
+            "queries": 1600,
+            "selected": 614,
+            "successful": 324
+          },
+          "0.20": {
+            "approved_groups": 63,
+            "exact_minimal": 338,
+            "false_approval_rate": 0.3920863309352518,
+            "false_approvals": 218,
+            "missed_feasible": 91,
+            "oracle_feasible": 429,
+            "queries": 1600,
+            "selected": 556,
+            "successful": 338
+          },
+          "0.30": {
+            "approved_groups": 63,
+            "exact_minimal": 367,
+            "false_approval_rate": 0.23809523809523808,
+            "false_approvals": 115,
+            "missed_feasible": 61,
+            "oracle_feasible": 429,
+            "queries": 1600,
+            "selected": 483,
+            "successful": 368
+          },
+          "0.50": {
+            "approved_groups": 60,
+            "exact_minimal": 382,
+            "false_approval_rate": 0.11486486486486487,
+            "false_approvals": 51,
+            "missed_feasible": 36,
+            "oracle_feasible": 429,
+            "queries": 1600,
+            "selected": 444,
+            "successful": 393
+          }
+        },
+        "google/bert_uncased_L-2_H-128_A-2": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 996,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 68,
+            "oracle_feasible": 1315,
+            "queries": 1600,
+            "selected": 1247,
+            "successful": 1247
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 943,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 83,
+            "oracle_feasible": 1315,
+            "queries": 1600,
+            "selected": 1232,
+            "successful": 1232
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 889,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 119,
+            "oracle_feasible": 1315,
+            "queries": 1600,
+            "selected": 1196,
+            "successful": 1196
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 775,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 198,
+            "oracle_feasible": 1315,
+            "queries": 1600,
+            "selected": 1117,
+            "successful": 1117
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 674,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 285,
+            "oracle_feasible": 1315,
+            "queries": 1600,
+            "selected": 1030,
+            "successful": 1030
+          },
+          "0.50": {
+            "approved_groups": 64,
+            "exact_minimal": 563,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 411,
+            "oracle_feasible": 1315,
+            "queries": 1600,
+            "selected": 904,
+            "successful": 904
+          }
+        },
+        "google/bert_uncased_L-4_H-256_A-4": {
+          "0.00": {
+            "approved_groups": 59,
+            "exact_minimal": 210,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 730,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 471,
+            "successful": 471
+          },
+          "0.05": {
+            "approved_groups": 58,
+            "exact_minimal": 196,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 744,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 457,
+            "successful": 457
+          },
+          "0.10": {
+            "approved_groups": 58,
+            "exact_minimal": 184,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 756,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 445,
+            "successful": 445
+          },
+          "0.20": {
+            "approved_groups": 58,
+            "exact_minimal": 167,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 782,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 419,
+            "successful": 419
+          },
+          "0.30": {
+            "approved_groups": 54,
+            "exact_minimal": 131,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 815,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 386,
+            "successful": 386
+          },
+          "0.50": {
+            "approved_groups": 52,
+            "exact_minimal": 94,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 874,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 327,
+            "successful": 327
+          }
+        },
+        "google/bert_uncased_L-4_H-512_A-8": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 376,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 447,
+            "oracle_feasible": 1185,
+            "queries": 1600,
+            "selected": 738,
+            "successful": 738
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 352,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 474,
+            "oracle_feasible": 1185,
+            "queries": 1600,
+            "selected": 711,
+            "successful": 711
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 332,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 490,
+            "oracle_feasible": 1185,
+            "queries": 1600,
+            "selected": 695,
+            "successful": 695
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 280,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 590,
+            "oracle_feasible": 1185,
+            "queries": 1600,
+            "selected": 595,
+            "successful": 595
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 242,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 639,
+            "oracle_feasible": 1185,
+            "queries": 1600,
+            "selected": 546,
+            "successful": 546
+          },
+          "0.50": {
+            "approved_groups": 64,
+            "exact_minimal": 182,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 690,
+            "oracle_feasible": 1185,
+            "queries": 1600,
+            "selected": 495,
+            "successful": 495
+          }
+        },
+        "google/electra-small-discriminator": {
+          "0.00": {
+            "approved_groups": 61,
+            "exact_minimal": 373,
+            "false_approval_rate": 0.13025210084033614,
+            "false_approvals": 62,
+            "missed_feasible": 147,
+            "oracle_feasible": 561,
+            "queries": 1600,
+            "selected": 476,
+            "successful": 414
+          },
+          "0.05": {
+            "approved_groups": 60,
+            "exact_minimal": 363,
+            "false_approval_rate": 0.10940919037199125,
+            "false_approvals": 50,
+            "missed_feasible": 154,
+            "oracle_feasible": 561,
+            "queries": 1600,
+            "selected": 457,
+            "successful": 407
+          },
+          "0.10": {
+            "approved_groups": 60,
+            "exact_minimal": 353,
+            "false_approval_rate": 0.06802721088435375,
+            "false_approvals": 30,
+            "missed_feasible": 150,
+            "oracle_feasible": 561,
+            "queries": 1600,
+            "selected": 441,
+            "successful": 411
+          },
+          "0.20": {
+            "approved_groups": 60,
+            "exact_minimal": 320,
+            "false_approval_rate": 0.049019607843137254,
+            "false_approvals": 20,
+            "missed_feasible": 173,
+            "oracle_feasible": 561,
+            "queries": 1600,
+            "selected": 408,
+            "successful": 388
+          },
+          "0.30": {
+            "approved_groups": 60,
+            "exact_minimal": 314,
+            "false_approval_rate": 0.02506265664160401,
+            "false_approvals": 10,
+            "missed_feasible": 172,
+            "oracle_feasible": 561,
+            "queries": 1600,
+            "selected": 399,
+            "successful": 389
+          },
+          "0.50": {
+            "approved_groups": 58,
+            "exact_minimal": 182,
+            "false_approval_rate": 0.0033333333333333335,
+            "false_approvals": 1,
+            "missed_feasible": 262,
+            "oracle_feasible": 561,
+            "queries": 1600,
+            "selected": 300,
+            "successful": 299
+          }
+        }
+      },
+      "selected_margin": null,
+      "selection": "ABSTAIN_ALL"
+    },
+    {
+      "candidate_summary": {
+        "0.05": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.17637977614820533,
+          "false_approvals": 914,
+          "retained_success_fraction": 0.9800229621125144,
+          "selected": 5182,
+          "successful": 4268
+        },
+        "0.10": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.16311343523732905,
+          "false_approvals": 811,
+          "retained_success_fraction": 0.9554535017221585,
+          "selected": 4972,
+          "successful": 4161
+        },
+        "0.20": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.14517188526384936,
+          "false_approvals": 663,
+          "retained_success_fraction": 0.8964408725602755,
+          "selected": 4567,
+          "successful": 3904
+        },
+        "0.30": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.1276849642004773,
+          "false_approvals": 535,
+          "retained_success_fraction": 0.8392652123995408,
+          "selected": 4190,
+          "successful": 3655
+        },
+        "0.50": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.11373452346674345,
+          "false_approvals": 395,
+          "retained_success_fraction": 0.7067738231917337,
+          "selected": 3473,
+          "successful": 3078
+        }
+      },
+      "donor_models": [
+        "FacebookAI/roberta-base",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "fold": "Qwen/Qwen2.5-0.5B-Instruct",
+      "held_models": [
+        "Qwen/Qwen2.5-0.5B-Instruct"
+      ],
+      "inner_donor_scores": {
+        "FacebookAI/roberta-base": {
+          "0.00": {
+            "approved_groups": 54,
+            "exact_minimal": 361,
+            "false_approval_rate": 0.09523809523809523,
+            "false_approvals": 40,
+            "missed_feasible": 39,
+            "oracle_feasible": 419,
+            "queries": 1600,
+            "selected": 420,
+            "successful": 380
+          },
+          "0.05": {
+            "approved_groups": 53,
+            "exact_minimal": 341,
+            "false_approval_rate": 0.054404145077720206,
+            "false_approvals": 21,
+            "missed_feasible": 54,
+            "oracle_feasible": 419,
+            "queries": 1600,
+            "selected": 386,
+            "successful": 365
+          },
+          "0.10": {
+            "approved_groups": 51,
+            "exact_minimal": 317,
+            "false_approval_rate": 0.030470914127423823,
+            "false_approvals": 11,
+            "missed_feasible": 69,
+            "oracle_feasible": 419,
+            "queries": 1600,
+            "selected": 361,
+            "successful": 350
+          },
+          "0.20": {
+            "approved_groups": 51,
+            "exact_minimal": 286,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 73,
+            "oracle_feasible": 419,
+            "queries": 1600,
+            "selected": 346,
+            "successful": 346
+          },
+          "0.30": {
+            "approved_groups": 51,
+            "exact_minimal": 234,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 103,
+            "oracle_feasible": 419,
+            "queries": 1600,
+            "selected": 316,
+            "successful": 316
+          },
+          "0.50": {
+            "approved_groups": 46,
+            "exact_minimal": 120,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 196,
+            "oracle_feasible": 419,
+            "queries": 1600,
+            "selected": 223,
+            "successful": 223
+          }
+        },
+        "albert/albert-base-v2": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 164,
+            "false_approval_rate": 0.823404255319149,
+            "false_approvals": 774,
+            "missed_feasible": 204,
+            "oracle_feasible": 370,
+            "queries": 1600,
+            "selected": 940,
+            "successful": 166
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 172,
+            "false_approval_rate": 0.8129032258064516,
+            "false_approvals": 756,
+            "missed_feasible": 196,
+            "oracle_feasible": 370,
+            "queries": 1600,
+            "selected": 930,
+            "successful": 174
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 185,
+            "false_approval_rate": 0.7926829268292683,
+            "false_approvals": 715,
+            "missed_feasible": 183,
+            "oracle_feasible": 370,
+            "queries": 1600,
+            "selected": 902,
+            "successful": 187
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 210,
+            "false_approval_rate": 0.7414634146341463,
+            "false_approvals": 608,
+            "missed_feasible": 158,
+            "oracle_feasible": 370,
+            "queries": 1600,
+            "selected": 820,
+            "successful": 212
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 213,
+            "false_approval_rate": 0.7042640990371389,
+            "false_approvals": 512,
+            "missed_feasible": 155,
+            "oracle_feasible": 370,
+            "queries": 1600,
+            "selected": 727,
+            "successful": 215
+          },
+          "0.50": {
+            "approved_groups": 64,
+            "exact_minimal": 245,
+            "false_approval_rate": 0.6134585289514867,
+            "false_approvals": 392,
+            "missed_feasible": 123,
+            "oracle_feasible": 370,
+            "queries": 1600,
+            "selected": 639,
+            "successful": 247
+          }
+        },
+        "distilbert/distilbert-base-uncased": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 530,
+            "false_approval_rate": 0.022364217252396165,
+            "false_approvals": 14,
+            "missed_feasible": 67,
+            "oracle_feasible": 679,
+            "queries": 1600,
+            "selected": 626,
+            "successful": 612
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 479,
+            "false_approval_rate": 0.020202020202020204,
+            "false_approvals": 12,
+            "missed_feasible": 97,
+            "oracle_feasible": 679,
+            "queries": 1600,
+            "selected": 594,
+            "successful": 582
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 433,
+            "false_approval_rate": 0.007312614259597806,
+            "false_approvals": 4,
+            "missed_feasible": 136,
+            "oracle_feasible": 679,
+            "queries": 1600,
+            "selected": 547,
+            "successful": 543
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 378,
+            "false_approval_rate": 0.007782101167315175,
+            "false_approvals": 4,
+            "missed_feasible": 169,
+            "oracle_feasible": 679,
+            "queries": 1600,
+            "selected": 514,
+            "successful": 510
+          },
+          "0.30": {
+            "approved_groups": 62,
+            "exact_minimal": 344,
+            "false_approval_rate": 0.0081799591002045,
+            "false_approvals": 4,
+            "missed_feasible": 194,
+            "oracle_feasible": 679,
+            "queries": 1600,
+            "selected": 489,
+            "successful": 485
+          },
+          "0.50": {
+            "approved_groups": 58,
+            "exact_minimal": 233,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 256,
+            "oracle_feasible": 679,
+            "queries": 1600,
+            "selected": 423,
+            "successful": 423
+          }
+        },
+        "google-bert/bert-base-uncased": {
+          "0.00": {
+            "approved_groups": 55,
+            "exact_minimal": 373,
+            "false_approval_rate": 0.14414414414414414,
+            "false_approvals": 64,
+            "missed_feasible": 30,
+            "oracle_feasible": 410,
+            "queries": 1600,
+            "selected": 444,
+            "successful": 380
+          },
+          "0.05": {
+            "approved_groups": 55,
+            "exact_minimal": 366,
+            "false_approval_rate": 0.12814645308924486,
+            "false_approvals": 56,
+            "missed_feasible": 29,
+            "oracle_feasible": 410,
+            "queries": 1600,
+            "selected": 437,
+            "successful": 381
+          },
+          "0.10": {
+            "approved_groups": 54,
+            "exact_minimal": 360,
+            "false_approval_rate": 0.081145584725537,
+            "false_approvals": 34,
+            "missed_feasible": 25,
+            "oracle_feasible": 410,
+            "queries": 1600,
+            "selected": 419,
+            "successful": 385
+          },
+          "0.20": {
+            "approved_groups": 53,
+            "exact_minimal": 340,
+            "false_approval_rate": 0.046875,
+            "false_approvals": 18,
+            "missed_feasible": 44,
+            "oracle_feasible": 410,
+            "queries": 1600,
+            "selected": 384,
+            "successful": 366
+          },
+          "0.30": {
+            "approved_groups": 51,
+            "exact_minimal": 292,
+            "false_approval_rate": 0.025139664804469275,
+            "false_approvals": 9,
+            "missed_feasible": 61,
+            "oracle_feasible": 410,
+            "queries": 1600,
+            "selected": 358,
+            "successful": 349
+          },
+          "0.50": {
+            "approved_groups": 51,
+            "exact_minimal": 174,
+            "false_approval_rate": 0.007575757575757576,
+            "false_approvals": 2,
+            "missed_feasible": 148,
+            "oracle_feasible": 410,
+            "queries": 1600,
+            "selected": 264,
+            "successful": 262
+          }
+        },
+        "google/bert_uncased_L-2_H-128_A-2": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 978,
+            "false_approval_rate": 0.00400962309542903,
+            "false_approvals": 5,
+            "missed_feasible": 88,
+            "oracle_feasible": 1330,
+            "queries": 1600,
+            "selected": 1247,
+            "successful": 1242
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 921,
+            "false_approval_rate": 0.004081632653061225,
+            "false_approvals": 5,
+            "missed_feasible": 110,
+            "oracle_feasible": 1330,
+            "queries": 1600,
+            "selected": 1225,
+            "successful": 1220
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 868,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 134,
+            "oracle_feasible": 1330,
+            "queries": 1600,
+            "selected": 1196,
+            "successful": 1196
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 765,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 203,
+            "oracle_feasible": 1330,
+            "queries": 1600,
+            "selected": 1127,
+            "successful": 1127
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 641,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 288,
+            "oracle_feasible": 1330,
+            "queries": 1600,
+            "selected": 1042,
+            "successful": 1042
+          },
+          "0.50": {
+            "approved_groups": 64,
+            "exact_minimal": 523,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 426,
+            "oracle_feasible": 1330,
+            "queries": 1600,
+            "selected": 904,
+            "successful": 904
+          }
+        },
+        "google/bert_uncased_L-4_H-256_A-4": {
+          "0.00": {
+            "approved_groups": 58,
+            "exact_minimal": 198,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 732,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 469,
+            "successful": 469
+          },
+          "0.05": {
+            "approved_groups": 58,
+            "exact_minimal": 193,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 735,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 466,
+            "successful": 466
+          },
+          "0.10": {
+            "approved_groups": 56,
+            "exact_minimal": 184,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 745,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 456,
+            "successful": 456
+          },
+          "0.20": {
+            "approved_groups": 55,
+            "exact_minimal": 152,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 800,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 401,
+            "successful": 401
+          },
+          "0.30": {
+            "approved_groups": 54,
+            "exact_minimal": 133,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 825,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 376,
+            "successful": 376
+          },
+          "0.50": {
+            "approved_groups": 51,
+            "exact_minimal": 86,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 911,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 290,
+            "successful": 290
+          }
+        },
+        "google/bert_uncased_L-4_H-512_A-8": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 349,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 465,
+            "oracle_feasible": 1190,
+            "queries": 1600,
+            "selected": 725,
+            "successful": 725
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 323,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 491,
+            "oracle_feasible": 1190,
+            "queries": 1600,
+            "selected": 699,
+            "successful": 699
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 295,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 526,
+            "oracle_feasible": 1190,
+            "queries": 1600,
+            "selected": 664,
+            "successful": 664
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 250,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 608,
+            "oracle_feasible": 1190,
+            "queries": 1600,
+            "selected": 582,
+            "successful": 582
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 214,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 665,
+            "oracle_feasible": 1190,
+            "queries": 1600,
+            "selected": 525,
+            "successful": 525
+          },
+          "0.50": {
+            "approved_groups": 64,
+            "exact_minimal": 165,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 732,
+            "oracle_feasible": 1190,
+            "queries": 1600,
+            "selected": 458,
+            "successful": 458
+          }
+        },
+        "google/electra-small-discriminator": {
+          "0.00": {
+            "approved_groups": 60,
+            "exact_minimal": 334,
+            "false_approval_rate": 0.16993464052287582,
+            "false_approvals": 78,
+            "missed_feasible": 175,
+            "oracle_feasible": 556,
+            "queries": 1600,
+            "selected": 459,
+            "successful": 381
+          },
+          "0.05": {
+            "approved_groups": 60,
+            "exact_minimal": 332,
+            "false_approval_rate": 0.14382022471910114,
+            "false_approvals": 64,
+            "missed_feasible": 175,
+            "oracle_feasible": 556,
+            "queries": 1600,
+            "selected": 445,
+            "successful": 381
+          },
+          "0.10": {
+            "approved_groups": 60,
+            "exact_minimal": 327,
+            "false_approval_rate": 0.11007025761124122,
+            "false_approvals": 47,
+            "missed_feasible": 176,
+            "oracle_feasible": 556,
+            "queries": 1600,
+            "selected": 427,
+            "successful": 380
+          },
+          "0.20": {
+            "approved_groups": 58,
+            "exact_minimal": 301,
+            "false_approval_rate": 0.08396946564885496,
+            "false_approvals": 33,
+            "missed_feasible": 196,
+            "oracle_feasible": 556,
+            "queries": 1600,
+            "selected": 393,
+            "successful": 360
+          },
+          "0.30": {
+            "approved_groups": 58,
+            "exact_minimal": 272,
+            "false_approval_rate": 0.028011204481792718,
+            "false_approvals": 10,
+            "missed_feasible": 209,
+            "oracle_feasible": 556,
+            "queries": 1600,
+            "selected": 357,
+            "successful": 347
+          },
+          "0.50": {
+            "approved_groups": 55,
+            "exact_minimal": 163,
+            "false_approval_rate": 0.003676470588235294,
+            "false_approvals": 1,
+            "missed_feasible": 285,
+            "oracle_feasible": 556,
+            "queries": 1600,
+            "selected": 272,
+            "successful": 271
+          }
+        }
+      },
+      "selected_margin": null,
+      "selection": "ABSTAIN_ALL"
+    },
+    {
+      "candidate_summary": {
+        "0.05": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.22413175796634444,
+          "false_approvals": 1252,
+          "retained_success_fraction": 0.9689246590655042,
+          "selected": 5586,
+          "successful": 4334
+        },
+        "0.10": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.2139689578713969,
+          "false_approvals": 1158,
+          "retained_success_fraction": 0.9510395707578806,
+          "selected": 5412,
+          "successful": 4254
+        },
+        "0.20": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.19832402234636873,
+          "false_approvals": 994,
+          "retained_success_fraction": 0.8982785602503912,
+          "selected": 5012,
+          "successful": 4018
+        },
+        "0.30": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.183861301369863,
+          "false_approvals": 859,
+          "retained_success_fraction": 0.852448021462106,
+          "selected": 4672,
+          "successful": 3813
+        },
+        "0.50": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.13210406668350594,
+          "false_approvals": 523,
+          "retained_success_fraction": 0.7681645428124302,
+          "selected": 3959,
+          "successful": 3436
+        }
+      },
+      "donor_models": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "fold": "albert/albert-base-v2",
+      "held_models": [
+        "albert/albert-base-v2"
+      ],
+      "inner_donor_scores": {
+        "FacebookAI/roberta-base": {
+          "0.00": {
+            "approved_groups": 56,
+            "exact_minimal": 379,
+            "false_approval_rate": 0.050359712230215826,
+            "false_approvals": 21,
+            "missed_feasible": 40,
+            "oracle_feasible": 436,
+            "queries": 1600,
+            "selected": 417,
+            "successful": 396
+          },
+          "0.05": {
+            "approved_groups": 55,
+            "exact_minimal": 364,
+            "false_approval_rate": 0.030690537084398978,
+            "false_approvals": 12,
+            "missed_feasible": 57,
+            "oracle_feasible": 436,
+            "queries": 1600,
+            "selected": 391,
+            "successful": 379
+          },
+          "0.10": {
+            "approved_groups": 55,
+            "exact_minimal": 354,
+            "false_approval_rate": 0.02356020942408377,
+            "false_approvals": 9,
+            "missed_feasible": 63,
+            "oracle_feasible": 436,
+            "queries": 1600,
+            "selected": 382,
+            "successful": 373
+          },
+          "0.20": {
+            "approved_groups": 54,
+            "exact_minimal": 309,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 79,
+            "oracle_feasible": 436,
+            "queries": 1600,
+            "selected": 357,
+            "successful": 357
+          },
+          "0.30": {
+            "approved_groups": 53,
+            "exact_minimal": 261,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 116,
+            "oracle_feasible": 436,
+            "queries": 1600,
+            "selected": 320,
+            "successful": 320
+          },
+          "0.50": {
+            "approved_groups": 51,
+            "exact_minimal": 141,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 198,
+            "oracle_feasible": 436,
+            "queries": 1600,
+            "selected": 238,
+            "successful": 238
+          }
+        },
+        "Qwen/Qwen2.5-0.5B-Instruct": {
+          "0.00": {
+            "approved_groups": 63,
+            "exact_minimal": 50,
+            "false_approval_rate": 0.8774509803921569,
+            "false_approvals": 358,
+            "missed_feasible": 108,
+            "oracle_feasible": 158,
+            "queries": 1575,
+            "selected": 408,
+            "successful": 50
+          },
+          "0.05": {
+            "approved_groups": 63,
+            "exact_minimal": 59,
+            "false_approval_rate": 0.8451443569553806,
+            "false_approvals": 322,
+            "missed_feasible": 99,
+            "oracle_feasible": 158,
+            "queries": 1575,
+            "selected": 381,
+            "successful": 59
+          },
+          "0.10": {
+            "approved_groups": 63,
+            "exact_minimal": 61,
+            "false_approval_rate": 0.8373333333333334,
+            "false_approvals": 314,
+            "missed_feasible": 97,
+            "oracle_feasible": 158,
+            "queries": 1575,
+            "selected": 375,
+            "successful": 61
+          },
+          "0.20": {
+            "approved_groups": 56,
+            "exact_minimal": 73,
+            "false_approval_rate": 0.7840236686390533,
+            "false_approvals": 265,
+            "missed_feasible": 85,
+            "oracle_feasible": 158,
+            "queries": 1575,
+            "selected": 338,
+            "successful": 73
+          },
+          "0.30": {
+            "approved_groups": 54,
+            "exact_minimal": 89,
+            "false_approval_rate": 0.7183544303797469,
+            "false_approvals": 227,
+            "missed_feasible": 69,
+            "oracle_feasible": 158,
+            "queries": 1575,
+            "selected": 316,
+            "successful": 89
+          },
+          "0.50": {
+            "approved_groups": 46,
+            "exact_minimal": 99,
+            "false_approval_rate": 0.5805084745762712,
+            "false_approvals": 137,
+            "missed_feasible": 59,
+            "oracle_feasible": 158,
+            "queries": 1575,
+            "selected": 236,
+            "successful": 99
+          }
+        },
+        "distilbert/distilbert-base-uncased": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 518,
+            "false_approval_rate": 0.008183306055646482,
+            "false_approvals": 5,
+            "missed_feasible": 96,
+            "oracle_feasible": 702,
+            "queries": 1600,
+            "selected": 611,
+            "successful": 606
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 449,
+            "false_approval_rate": 0.0071174377224199285,
+            "false_approvals": 4,
+            "missed_feasible": 144,
+            "oracle_feasible": 702,
+            "queries": 1600,
+            "selected": 562,
+            "successful": 558
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 415,
+            "false_approval_rate": 0.007352941176470588,
+            "false_approvals": 4,
+            "missed_feasible": 162,
+            "oracle_feasible": 702,
+            "queries": 1600,
+            "selected": 544,
+            "successful": 540
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 367,
+            "false_approval_rate": 0.0019569471624266144,
+            "false_approvals": 1,
+            "missed_feasible": 192,
+            "oracle_feasible": 702,
+            "queries": 1600,
+            "selected": 511,
+            "successful": 510
+          },
+          "0.30": {
+            "approved_groups": 63,
+            "exact_minimal": 319,
+            "false_approval_rate": 0.002109704641350211,
+            "false_approvals": 1,
+            "missed_feasible": 229,
+            "oracle_feasible": 702,
+            "queries": 1600,
+            "selected": 474,
+            "successful": 473
+          },
+          "0.50": {
+            "approved_groups": 60,
+            "exact_minimal": 233,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 282,
+            "oracle_feasible": 702,
+            "queries": 1600,
+            "selected": 420,
+            "successful": 420
+          }
+        },
+        "google-bert/bert-base-uncased": {
+          "0.00": {
+            "approved_groups": 58,
+            "exact_minimal": 382,
+            "false_approval_rate": 0.16025641025641027,
+            "false_approvals": 75,
+            "missed_feasible": 36,
+            "oracle_feasible": 429,
+            "queries": 1600,
+            "selected": 468,
+            "successful": 393
+          },
+          "0.05": {
+            "approved_groups": 58,
+            "exact_minimal": 390,
+            "false_approval_rate": 0.11597374179431072,
+            "false_approvals": 53,
+            "missed_feasible": 25,
+            "oracle_feasible": 429,
+            "queries": 1600,
+            "selected": 457,
+            "successful": 404
+          },
+          "0.10": {
+            "approved_groups": 58,
+            "exact_minimal": 387,
+            "false_approval_rate": 0.08764044943820225,
+            "false_approvals": 39,
+            "missed_feasible": 23,
+            "oracle_feasible": 429,
+            "queries": 1600,
+            "selected": 445,
+            "successful": 406
+          },
+          "0.20": {
+            "approved_groups": 55,
+            "exact_minimal": 367,
+            "false_approval_rate": 0.05555555555555555,
+            "false_approvals": 23,
+            "missed_feasible": 38,
+            "oracle_feasible": 429,
+            "queries": 1600,
+            "selected": 414,
+            "successful": 391
+          },
+          "0.30": {
+            "approved_groups": 55,
+            "exact_minimal": 337,
+            "false_approval_rate": 0.046875,
+            "false_approvals": 18,
+            "missed_feasible": 63,
+            "oracle_feasible": 429,
+            "queries": 1600,
+            "selected": 384,
+            "successful": 366
+          },
+          "0.50": {
+            "approved_groups": 53,
+            "exact_minimal": 228,
+            "false_approval_rate": 0.006622516556291391,
+            "false_approvals": 2,
+            "missed_feasible": 129,
+            "oracle_feasible": 429,
+            "queries": 1600,
+            "selected": 302,
+            "successful": 300
+          }
+        },
+        "google/bert_uncased_L-2_H-128_A-2": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 1011,
+            "false_approval_rate": 0.003952569169960474,
+            "false_approvals": 5,
+            "missed_feasible": 55,
+            "oracle_feasible": 1315,
+            "queries": 1600,
+            "selected": 1265,
+            "successful": 1260
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 977,
+            "false_approval_rate": 0.00398406374501992,
+            "false_approvals": 5,
+            "missed_feasible": 65,
+            "oracle_feasible": 1315,
+            "queries": 1600,
+            "selected": 1255,
+            "successful": 1250
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 910,
+            "false_approval_rate": 0.0040192926045016075,
+            "false_approvals": 5,
+            "missed_feasible": 76,
+            "oracle_feasible": 1315,
+            "queries": 1600,
+            "selected": 1244,
+            "successful": 1239
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 811,
+            "false_approval_rate": 0.003418803418803419,
+            "false_approvals": 4,
+            "missed_feasible": 149,
+            "oracle_feasible": 1315,
+            "queries": 1600,
+            "selected": 1170,
+            "successful": 1166
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 724,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 220,
+            "oracle_feasible": 1315,
+            "queries": 1600,
+            "selected": 1095,
+            "successful": 1095
+          },
+          "0.50": {
+            "approved_groups": 64,
+            "exact_minimal": 566,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 387,
+            "oracle_feasible": 1315,
+            "queries": 1600,
+            "selected": 928,
+            "successful": 928
+          }
+        },
+        "google/bert_uncased_L-4_H-256_A-4": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 418,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 427,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 774,
+            "successful": 774
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 378,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 495,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 706,
+            "successful": 706
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 344,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 514,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 687,
+            "successful": 687
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 307,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 550,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 651,
+            "successful": 651
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 270,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 577,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 624,
+            "successful": 624
+          },
+          "0.50": {
+            "approved_groups": 64,
+            "exact_minimal": 182,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 625,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 576,
+            "successful": 576
+          }
+        },
+        "google/bert_uncased_L-4_H-512_A-8": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 362,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 453,
+            "oracle_feasible": 1185,
+            "queries": 1600,
+            "selected": 732,
+            "successful": 732
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 341,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 473,
+            "oracle_feasible": 1185,
+            "queries": 1600,
+            "selected": 712,
+            "successful": 712
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 326,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 505,
+            "oracle_feasible": 1185,
+            "queries": 1600,
+            "selected": 680,
+            "successful": 680
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 259,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 594,
+            "oracle_feasible": 1185,
+            "queries": 1600,
+            "selected": 591,
+            "successful": 591
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 235,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 639,
+            "oracle_feasible": 1185,
+            "queries": 1600,
+            "selected": 546,
+            "successful": 546
+          },
+          "0.50": {
+            "approved_groups": 64,
+            "exact_minimal": 185,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 691,
+            "oracle_feasible": 1185,
+            "queries": 1600,
+            "selected": 494,
+            "successful": 494
+          }
+        },
+        "google/electra-small-discriminator": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 262,
+            "false_approval_rate": 0.773356401384083,
+            "false_approvals": 894,
+            "missed_feasible": 299,
+            "oracle_feasible": 561,
+            "queries": 1600,
+            "selected": 1156,
+            "successful": 262
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 266,
+            "false_approval_rate": 0.7629233511586453,
+            "false_approvals": 856,
+            "missed_feasible": 295,
+            "oracle_feasible": 561,
+            "queries": 1600,
+            "selected": 1122,
+            "successful": 266
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 268,
+            "false_approval_rate": 0.7459715639810427,
+            "false_approvals": 787,
+            "missed_feasible": 293,
+            "oracle_feasible": 561,
+            "queries": 1600,
+            "selected": 1055,
+            "successful": 268
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 279,
+            "false_approval_rate": 0.7153061224489796,
+            "false_approvals": 701,
+            "missed_feasible": 282,
+            "oracle_feasible": 561,
+            "queries": 1600,
+            "selected": 980,
+            "successful": 279
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 300,
+            "false_approval_rate": 0.6714129244249726,
+            "false_approvals": 613,
+            "missed_feasible": 261,
+            "oracle_feasible": 561,
+            "queries": 1600,
+            "selected": 913,
+            "successful": 300
+          },
+          "0.50": {
+            "approved_groups": 64,
+            "exact_minimal": 381,
+            "false_approval_rate": 0.5019607843137255,
+            "false_approvals": 384,
+            "missed_feasible": 180,
+            "oracle_feasible": 561,
+            "queries": 1600,
+            "selected": 765,
+            "successful": 381
+          }
+        }
+      },
+      "selected_margin": null,
+      "selection": "ABSTAIN_ALL"
+    },
+    {
+      "candidate_summary": {
+        "0.05": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.223915592028136,
+          "false_approvals": 1146,
+          "retained_success_fraction": 0.9910179640718563,
+          "selected": 5118,
+          "successful": 3972
+        },
+        "0.10": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.2092283214001591,
+          "false_approvals": 1052,
+          "retained_success_fraction": 0.9920159680638723,
+          "selected": 5028,
+          "successful": 3976
+        },
+        "0.20": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.1880178457616316,
+          "false_approvals": 885,
+          "retained_success_fraction": 0.9535928143712575,
+          "selected": 4707,
+          "successful": 3822
+        },
+        "0.30": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.16278538812785387,
+          "false_approvals": 713,
+          "retained_success_fraction": 0.9149201596806387,
+          "selected": 4380,
+          "successful": 3667
+        },
+        "0.50": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.12068489367578017,
+          "false_approvals": 437,
+          "retained_success_fraction": 0.7944111776447106,
+          "selected": 3621,
+          "successful": 3184
+        }
+      },
+      "donor_models": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "fold": "distilbert/distilbert-base-uncased",
+      "held_models": [
+        "distilbert/distilbert-base-uncased"
+      ],
+      "inner_donor_scores": {
+        "FacebookAI/roberta-base": {
+          "0.00": {
+            "approved_groups": 58,
+            "exact_minimal": 401,
+            "false_approval_rate": 0.056433408577878104,
+            "false_approvals": 25,
+            "missed_feasible": 29,
+            "oracle_feasible": 447,
+            "queries": 1600,
+            "selected": 443,
+            "successful": 418
+          },
+          "0.05": {
+            "approved_groups": 58,
+            "exact_minimal": 396,
+            "false_approval_rate": 0.03009259259259259,
+            "false_approvals": 13,
+            "missed_feasible": 28,
+            "oracle_feasible": 447,
+            "queries": 1600,
+            "selected": 432,
+            "successful": 419
+          },
+          "0.10": {
+            "approved_groups": 58,
+            "exact_minimal": 381,
+            "false_approval_rate": 0.02857142857142857,
+            "false_approvals": 12,
+            "missed_feasible": 39,
+            "oracle_feasible": 447,
+            "queries": 1600,
+            "selected": 420,
+            "successful": 408
+          },
+          "0.20": {
+            "approved_groups": 55,
+            "exact_minimal": 334,
+            "false_approval_rate": 0.01881720430107527,
+            "false_approvals": 7,
+            "missed_feasible": 82,
+            "oracle_feasible": 447,
+            "queries": 1600,
+            "selected": 372,
+            "successful": 365
+          },
+          "0.30": {
+            "approved_groups": 54,
+            "exact_minimal": 297,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 94,
+            "oracle_feasible": 447,
+            "queries": 1600,
+            "selected": 353,
+            "successful": 353
+          },
+          "0.50": {
+            "approved_groups": 52,
+            "exact_minimal": 163,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 191,
+            "oracle_feasible": 447,
+            "queries": 1600,
+            "selected": 256,
+            "successful": 256
+          }
+        },
+        "Qwen/Qwen2.5-0.5B-Instruct": {
+          "0.00": {
+            "approved_groups": 63,
+            "exact_minimal": 141,
+            "false_approval_rate": 0.6579572446555819,
+            "false_approvals": 277,
+            "missed_feasible": 159,
+            "oracle_feasible": 303,
+            "queries": 1575,
+            "selected": 421,
+            "successful": 144
+          },
+          "0.05": {
+            "approved_groups": 63,
+            "exact_minimal": 157,
+            "false_approval_rate": 0.6144578313253012,
+            "false_approvals": 255,
+            "missed_feasible": 143,
+            "oracle_feasible": 303,
+            "queries": 1575,
+            "selected": 415,
+            "successful": 160
+          },
+          "0.10": {
+            "approved_groups": 63,
+            "exact_minimal": 183,
+            "false_approval_rate": 0.5396039603960396,
+            "false_approvals": 218,
+            "missed_feasible": 117,
+            "oracle_feasible": 303,
+            "queries": 1575,
+            "selected": 404,
+            "successful": 186
+          },
+          "0.20": {
+            "approved_groups": 63,
+            "exact_minimal": 184,
+            "false_approval_rate": 0.4765840220385675,
+            "false_approvals": 173,
+            "missed_feasible": 113,
+            "oracle_feasible": 303,
+            "queries": 1575,
+            "selected": 363,
+            "successful": 190
+          },
+          "0.30": {
+            "approved_groups": 63,
+            "exact_minimal": 200,
+            "false_approval_rate": 0.4164305949008499,
+            "false_approvals": 147,
+            "missed_feasible": 97,
+            "oracle_feasible": 303,
+            "queries": 1575,
+            "selected": 353,
+            "successful": 206
+          },
+          "0.50": {
+            "approved_groups": 54,
+            "exact_minimal": 185,
+            "false_approval_rate": 0.2852112676056338,
+            "false_approvals": 81,
+            "missed_feasible": 100,
+            "oracle_feasible": 303,
+            "queries": 1575,
+            "selected": 284,
+            "successful": 203
+          }
+        },
+        "albert/albert-base-v2": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 204,
+            "false_approval_rate": 0.7909836065573771,
+            "false_approvals": 772,
+            "missed_feasible": 218,
+            "oracle_feasible": 422,
+            "queries": 1600,
+            "selected": 976,
+            "successful": 204
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 209,
+            "false_approval_rate": 0.7829218106995884,
+            "false_approvals": 761,
+            "missed_feasible": 211,
+            "oracle_feasible": 422,
+            "queries": 1600,
+            "selected": 972,
+            "successful": 211
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 218,
+            "false_approval_rate": 0.7698744769874477,
+            "false_approvals": 736,
+            "missed_feasible": 202,
+            "oracle_feasible": 422,
+            "queries": 1600,
+            "selected": 956,
+            "successful": 220
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 239,
+            "false_approval_rate": 0.7334070796460177,
+            "false_approvals": 663,
+            "missed_feasible": 181,
+            "oracle_feasible": 422,
+            "queries": 1600,
+            "selected": 904,
+            "successful": 241
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 269,
+            "false_approval_rate": 0.6670761670761671,
+            "false_approvals": 543,
+            "missed_feasible": 151,
+            "oracle_feasible": 422,
+            "queries": 1600,
+            "selected": 814,
+            "successful": 271
+          },
+          "0.50": {
+            "approved_groups": 64,
+            "exact_minimal": 299,
+            "false_approval_rate": 0.5362095531587057,
+            "false_approvals": 348,
+            "missed_feasible": 121,
+            "oracle_feasible": 422,
+            "queries": 1600,
+            "selected": 649,
+            "successful": 301
+          }
+        },
+        "google-bert/bert-base-uncased": {
+          "0.00": {
+            "approved_groups": 60,
+            "exact_minimal": 388,
+            "false_approval_rate": 0.19175257731958764,
+            "false_approvals": 93,
+            "missed_feasible": 49,
+            "oracle_feasible": 441,
+            "queries": 1600,
+            "selected": 485,
+            "successful": 392
+          },
+          "0.05": {
+            "approved_groups": 60,
+            "exact_minimal": 390,
+            "false_approval_rate": 0.1504237288135593,
+            "false_approvals": 71,
+            "missed_feasible": 40,
+            "oracle_feasible": 441,
+            "queries": 1600,
+            "selected": 472,
+            "successful": 401
+          },
+          "0.10": {
+            "approved_groups": 60,
+            "exact_minimal": 393,
+            "false_approval_rate": 0.09911894273127753,
+            "false_approvals": 45,
+            "missed_feasible": 32,
+            "oracle_feasible": 441,
+            "queries": 1600,
+            "selected": 454,
+            "successful": 409
+          },
+          "0.20": {
+            "approved_groups": 58,
+            "exact_minimal": 393,
+            "false_approval_rate": 0.05191873589164785,
+            "false_approvals": 23,
+            "missed_feasible": 21,
+            "oracle_feasible": 441,
+            "queries": 1600,
+            "selected": 443,
+            "successful": 420
+          },
+          "0.30": {
+            "approved_groups": 58,
+            "exact_minimal": 362,
+            "false_approval_rate": 0.0297029702970297,
+            "false_approvals": 12,
+            "missed_feasible": 49,
+            "oracle_feasible": 441,
+            "queries": 1600,
+            "selected": 404,
+            "successful": 392
+          },
+          "0.50": {
+            "approved_groups": 55,
+            "exact_minimal": 274,
+            "false_approval_rate": 0.01440922190201729,
+            "false_approvals": 5,
+            "missed_feasible": 99,
+            "oracle_feasible": 441,
+            "queries": 1600,
+            "selected": 347,
+            "successful": 342
+          }
+        },
+        "google/bert_uncased_L-2_H-128_A-2": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 1040,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 70,
+            "oracle_feasible": 1345,
+            "queries": 1600,
+            "selected": 1275,
+            "successful": 1275
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 1006,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 84,
+            "oracle_feasible": 1345,
+            "queries": 1600,
+            "selected": 1261,
+            "successful": 1261
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 966,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 88,
+            "oracle_feasible": 1345,
+            "queries": 1600,
+            "selected": 1257,
+            "successful": 1257
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 861,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 150,
+            "oracle_feasible": 1345,
+            "queries": 1600,
+            "selected": 1195,
+            "successful": 1195
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 766,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 220,
+            "oracle_feasible": 1345,
+            "queries": 1600,
+            "selected": 1125,
+            "successful": 1125
+          },
+          "0.50": {
+            "approved_groups": 64,
+            "exact_minimal": 604,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 398,
+            "oracle_feasible": 1345,
+            "queries": 1600,
+            "selected": 947,
+            "successful": 947
+          }
+        },
+        "google/bert_uncased_L-4_H-256_A-4": {
+          "0.00": {
+            "approved_groups": 60,
+            "exact_minimal": 250,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 701,
+            "oracle_feasible": 1220,
+            "queries": 1600,
+            "selected": 519,
+            "successful": 519
+          },
+          "0.05": {
+            "approved_groups": 60,
+            "exact_minimal": 230,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 728,
+            "oracle_feasible": 1220,
+            "queries": 1600,
+            "selected": 492,
+            "successful": 492
+          },
+          "0.10": {
+            "approved_groups": 58,
+            "exact_minimal": 209,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 744,
+            "oracle_feasible": 1220,
+            "queries": 1600,
+            "selected": 476,
+            "successful": 476
+          },
+          "0.20": {
+            "approved_groups": 58,
+            "exact_minimal": 188,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 771,
+            "oracle_feasible": 1220,
+            "queries": 1600,
+            "selected": 449,
+            "successful": 449
+          },
+          "0.30": {
+            "approved_groups": 55,
+            "exact_minimal": 163,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 806,
+            "oracle_feasible": 1220,
+            "queries": 1600,
+            "selected": 414,
+            "successful": 414
+          },
+          "0.50": {
+            "approved_groups": 54,
+            "exact_minimal": 111,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 849,
+            "oracle_feasible": 1220,
+            "queries": 1600,
+            "selected": 371,
+            "successful": 371
+          }
+        },
+        "google/bert_uncased_L-4_H-512_A-8": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 276,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 562,
+            "oracle_feasible": 1194,
+            "queries": 1600,
+            "selected": 632,
+            "successful": 632
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 262,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 587,
+            "oracle_feasible": 1194,
+            "queries": 1600,
+            "selected": 607,
+            "successful": 607
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 244,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 593,
+            "oracle_feasible": 1194,
+            "queries": 1600,
+            "selected": 601,
+            "successful": 601
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 217,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 631,
+            "oracle_feasible": 1194,
+            "queries": 1600,
+            "selected": 563,
+            "successful": 563
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 188,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 676,
+            "oracle_feasible": 1194,
+            "queries": 1600,
+            "selected": 518,
+            "successful": 518
+          },
+          "0.50": {
+            "approved_groups": 64,
+            "exact_minimal": 130,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 738,
+            "oracle_feasible": 1194,
+            "queries": 1600,
+            "selected": 456,
+            "successful": 456
+          }
+        },
+        "google/electra-small-discriminator": {
+          "0.00": {
+            "approved_groups": 60,
+            "exact_minimal": 380,
+            "false_approval_rate": 0.1092436974789916,
+            "false_approvals": 52,
+            "missed_feasible": 177,
+            "oracle_feasible": 601,
+            "queries": 1600,
+            "selected": 476,
+            "successful": 424
+          },
+          "0.05": {
+            "approved_groups": 60,
+            "exact_minimal": 376,
+            "false_approval_rate": 0.09850107066381156,
+            "false_approvals": 46,
+            "missed_feasible": 180,
+            "oracle_feasible": 601,
+            "queries": 1600,
+            "selected": 467,
+            "successful": 421
+          },
+          "0.10": {
+            "approved_groups": 60,
+            "exact_minimal": 360,
+            "false_approval_rate": 0.0891304347826087,
+            "false_approvals": 41,
+            "missed_feasible": 182,
+            "oracle_feasible": 601,
+            "queries": 1600,
+            "selected": 460,
+            "successful": 419
+          },
+          "0.20": {
+            "approved_groups": 60,
+            "exact_minimal": 332,
+            "false_approval_rate": 0.045454545454545456,
+            "false_approvals": 19,
+            "missed_feasible": 202,
+            "oracle_feasible": 601,
+            "queries": 1600,
+            "selected": 418,
+            "successful": 399
+          },
+          "0.30": {
+            "approved_groups": 60,
+            "exact_minimal": 310,
+            "false_approval_rate": 0.02756892230576441,
+            "false_approvals": 11,
+            "missed_feasible": 213,
+            "oracle_feasible": 601,
+            "queries": 1600,
+            "selected": 399,
+            "successful": 388
+          },
+          "0.50": {
+            "approved_groups": 55,
+            "exact_minimal": 201,
+            "false_approval_rate": 0.00964630225080386,
+            "false_approvals": 3,
+            "missed_feasible": 293,
+            "oracle_feasible": 601,
+            "queries": 1600,
+            "selected": 311,
+            "successful": 308
+          }
+        }
+      },
+      "selected_margin": null,
+      "selection": "ABSTAIN_ALL"
+    },
+    {
+      "candidate_summary": {
+        "0.05": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.27259528130671506,
+          "false_approvals": 1502,
+          "retained_success_fraction": 0.9920792079207921,
+          "selected": 5510,
+          "successful": 4008
+        },
+        "0.10": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.2563813813813814,
+          "false_approvals": 1366,
+          "retained_success_fraction": 0.9806930693069307,
+          "selected": 5328,
+          "successful": 3962
+        },
+        "0.20": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.2252792718245759,
+          "false_approvals": 1089,
+          "retained_success_fraction": 0.926980198019802,
+          "selected": 4834,
+          "successful": 3745
+        },
+        "0.30": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.1784580498866213,
+          "false_approvals": 787,
+          "retained_success_fraction": 0.8967821782178218,
+          "selected": 4410,
+          "successful": 3623
+        },
+        "0.50": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.14723448454946766,
+          "false_approvals": 567,
+          "retained_success_fraction": 0.8128712871287128,
+          "selected": 3851,
+          "successful": 3284
+        }
+      },
+      "donor_models": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "fold": "google-bert/bert-base-uncased",
+      "held_models": [
+        "google-bert/bert-base-uncased"
+      ],
+      "inner_donor_scores": {
+        "FacebookAI/roberta-base": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 296,
+            "false_approval_rate": 0.5345911949685535,
+            "false_approvals": 340,
+            "missed_feasible": 141,
+            "oracle_feasible": 437,
+            "queries": 1600,
+            "selected": 636,
+            "successful": 296
+          },
+          "0.05": {
+            "approved_groups": 63,
+            "exact_minimal": 320,
+            "false_approval_rate": 0.48717948717948717,
+            "false_approvals": 304,
+            "missed_feasible": 117,
+            "oracle_feasible": 437,
+            "queries": 1600,
+            "selected": 624,
+            "successful": 320
+          },
+          "0.10": {
+            "approved_groups": 63,
+            "exact_minimal": 330,
+            "false_approval_rate": 0.45901639344262296,
+            "false_approvals": 280,
+            "missed_feasible": 107,
+            "oracle_feasible": 437,
+            "queries": 1600,
+            "selected": 610,
+            "successful": 330
+          },
+          "0.20": {
+            "approved_groups": 63,
+            "exact_minimal": 351,
+            "false_approval_rate": 0.3145631067961165,
+            "false_approvals": 162,
+            "missed_feasible": 84,
+            "oracle_feasible": 437,
+            "queries": 1600,
+            "selected": 515,
+            "successful": 353
+          },
+          "0.30": {
+            "approved_groups": 63,
+            "exact_minimal": 368,
+            "false_approval_rate": 0.2168421052631579,
+            "false_approvals": 103,
+            "missed_feasible": 65,
+            "oracle_feasible": 437,
+            "queries": 1600,
+            "selected": 475,
+            "successful": 372
+          },
+          "0.50": {
+            "approved_groups": 60,
+            "exact_minimal": 386,
+            "false_approval_rate": 0.09684684684684684,
+            "false_approvals": 43,
+            "missed_feasible": 36,
+            "oracle_feasible": 437,
+            "queries": 1600,
+            "selected": 444,
+            "successful": 401
+          }
+        },
+        "Qwen/Qwen2.5-0.5B-Instruct": {
+          "0.00": {
+            "approved_groups": 63,
+            "exact_minimal": 54,
+            "false_approval_rate": 0.8622448979591837,
+            "false_approvals": 338,
+            "missed_feasible": 115,
+            "oracle_feasible": 169,
+            "queries": 1575,
+            "selected": 392,
+            "successful": 54
+          },
+          "0.05": {
+            "approved_groups": 63,
+            "exact_minimal": 55,
+            "false_approval_rate": 0.8541114058355438,
+            "false_approvals": 322,
+            "missed_feasible": 114,
+            "oracle_feasible": 169,
+            "queries": 1575,
+            "selected": 377,
+            "successful": 55
+          },
+          "0.10": {
+            "approved_groups": 63,
+            "exact_minimal": 64,
+            "false_approval_rate": 0.8265582655826558,
+            "false_approvals": 305,
+            "missed_feasible": 105,
+            "oracle_feasible": 169,
+            "queries": 1575,
+            "selected": 369,
+            "successful": 64
+          },
+          "0.20": {
+            "approved_groups": 56,
+            "exact_minimal": 81,
+            "false_approval_rate": 0.7638483965014577,
+            "false_approvals": 262,
+            "missed_feasible": 88,
+            "oracle_feasible": 169,
+            "queries": 1575,
+            "selected": 343,
+            "successful": 81
+          },
+          "0.30": {
+            "approved_groups": 56,
+            "exact_minimal": 97,
+            "false_approval_rate": 0.692063492063492,
+            "false_approvals": 218,
+            "missed_feasible": 72,
+            "oracle_feasible": 169,
+            "queries": 1575,
+            "selected": 315,
+            "successful": 97
+          },
+          "0.50": {
+            "approved_groups": 51,
+            "exact_minimal": 114,
+            "false_approval_rate": 0.5762081784386617,
+            "false_approvals": 155,
+            "missed_feasible": 55,
+            "oracle_feasible": 169,
+            "queries": 1575,
+            "selected": 269,
+            "successful": 114
+          }
+        },
+        "albert/albert-base-v2": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 175,
+            "false_approval_rate": 0.8177083333333334,
+            "false_approvals": 785,
+            "missed_feasible": 218,
+            "oracle_feasible": 393,
+            "queries": 1600,
+            "selected": 960,
+            "successful": 175
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 178,
+            "false_approval_rate": 0.810126582278481,
+            "false_approvals": 768,
+            "missed_feasible": 213,
+            "oracle_feasible": 393,
+            "queries": 1600,
+            "selected": 948,
+            "successful": 180
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 193,
+            "false_approval_rate": 0.7840531561461794,
+            "false_approvals": 708,
+            "missed_feasible": 198,
+            "oracle_feasible": 393,
+            "queries": 1600,
+            "selected": 903,
+            "successful": 195
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 218,
+            "false_approval_rate": 0.7377830750893921,
+            "false_approvals": 619,
+            "missed_feasible": 173,
+            "oracle_feasible": 393,
+            "queries": 1600,
+            "selected": 839,
+            "successful": 220
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 247,
+            "false_approval_rate": 0.6437768240343348,
+            "false_approvals": 450,
+            "missed_feasible": 144,
+            "oracle_feasible": 393,
+            "queries": 1600,
+            "selected": 699,
+            "successful": 249
+          },
+          "0.50": {
+            "approved_groups": 64,
+            "exact_minimal": 270,
+            "false_approval_rate": 0.5743348982785602,
+            "false_approvals": 367,
+            "missed_feasible": 121,
+            "oracle_feasible": 393,
+            "queries": 1600,
+            "selected": 639,
+            "successful": 272
+          }
+        },
+        "distilbert/distilbert-base-uncased": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 587,
+            "false_approval_rate": 0.09773371104815864,
+            "false_approvals": 69,
+            "missed_feasible": 67,
+            "oracle_feasible": 704,
+            "queries": 1600,
+            "selected": 706,
+            "successful": 637
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 553,
+            "false_approval_rate": 0.08563134978229318,
+            "false_approvals": 59,
+            "missed_feasible": 74,
+            "oracle_feasible": 704,
+            "queries": 1600,
+            "selected": 689,
+            "successful": 630
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 524,
+            "false_approval_rate": 0.07142857142857142,
+            "false_approvals": 47,
+            "missed_feasible": 93,
+            "oracle_feasible": 704,
+            "queries": 1600,
+            "selected": 658,
+            "successful": 611
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 422,
+            "false_approval_rate": 0.044326241134751775,
+            "false_approvals": 25,
+            "missed_feasible": 165,
+            "oracle_feasible": 704,
+            "queries": 1600,
+            "selected": 564,
+            "successful": 539
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 389,
+            "false_approval_rate": 0.013409961685823755,
+            "false_approvals": 7,
+            "missed_feasible": 189,
+            "oracle_feasible": 704,
+            "queries": 1600,
+            "selected": 522,
+            "successful": 515
+          },
+          "0.50": {
+            "approved_groups": 63,
+            "exact_minimal": 293,
+            "false_approval_rate": 0.004329004329004329,
+            "false_approvals": 2,
+            "missed_feasible": 244,
+            "oracle_feasible": 704,
+            "queries": 1600,
+            "selected": 462,
+            "successful": 460
+          }
+        },
+        "google/bert_uncased_L-2_H-128_A-2": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 994,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 71,
+            "oracle_feasible": 1315,
+            "queries": 1600,
+            "selected": 1244,
+            "successful": 1244
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 941,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 92,
+            "oracle_feasible": 1315,
+            "queries": 1600,
+            "selected": 1223,
+            "successful": 1223
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 884,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 125,
+            "oracle_feasible": 1315,
+            "queries": 1600,
+            "selected": 1190,
+            "successful": 1190
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 785,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 193,
+            "oracle_feasible": 1315,
+            "queries": 1600,
+            "selected": 1122,
+            "successful": 1122
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 683,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 267,
+            "oracle_feasible": 1315,
+            "queries": 1600,
+            "selected": 1048,
+            "successful": 1048
+          },
+          "0.50": {
+            "approved_groups": 64,
+            "exact_minimal": 559,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 411,
+            "oracle_feasible": 1315,
+            "queries": 1600,
+            "selected": 904,
+            "successful": 904
+          }
+        },
+        "google/bert_uncased_L-4_H-256_A-4": {
+          "0.00": {
+            "approved_groups": 60,
+            "exact_minimal": 214,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 725,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 476,
+            "successful": 476
+          },
+          "0.05": {
+            "approved_groups": 58,
+            "exact_minimal": 202,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 728,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 473,
+            "successful": 473
+          },
+          "0.10": {
+            "approved_groups": 58,
+            "exact_minimal": 192,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 744,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 457,
+            "successful": 457
+          },
+          "0.20": {
+            "approved_groups": 58,
+            "exact_minimal": 168,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 775,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 426,
+            "successful": 426
+          },
+          "0.30": {
+            "approved_groups": 55,
+            "exact_minimal": 137,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 799,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 402,
+            "successful": 402
+          },
+          "0.50": {
+            "approved_groups": 53,
+            "exact_minimal": 95,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 860,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 341,
+            "successful": 341
+          }
+        },
+        "google/bert_uncased_L-4_H-512_A-8": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 374,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 443,
+            "oracle_feasible": 1185,
+            "queries": 1600,
+            "selected": 742,
+            "successful": 742
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 360,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 469,
+            "oracle_feasible": 1185,
+            "queries": 1600,
+            "selected": 716,
+            "successful": 716
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 338,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 485,
+            "oracle_feasible": 1185,
+            "queries": 1600,
+            "selected": 700,
+            "successful": 700
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 280,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 575,
+            "oracle_feasible": 1185,
+            "queries": 1600,
+            "selected": 610,
+            "successful": 610
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 243,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 637,
+            "oracle_feasible": 1185,
+            "queries": 1600,
+            "selected": 548,
+            "successful": 548
+          },
+          "0.50": {
+            "approved_groups": 64,
+            "exact_minimal": 186,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 691,
+            "oracle_feasible": 1185,
+            "queries": 1600,
+            "selected": 494,
+            "successful": 494
+          }
+        },
+        "google/electra-small-discriminator": {
+          "0.00": {
+            "approved_groups": 63,
+            "exact_minimal": 368,
+            "false_approval_rate": 0.12421052631578948,
+            "false_approvals": 59,
+            "missed_feasible": 145,
+            "oracle_feasible": 561,
+            "queries": 1600,
+            "selected": 475,
+            "successful": 416
+          },
+          "0.05": {
+            "approved_groups": 61,
+            "exact_minimal": 350,
+            "false_approval_rate": 0.10652173913043478,
+            "false_approvals": 49,
+            "missed_feasible": 150,
+            "oracle_feasible": 561,
+            "queries": 1600,
+            "selected": 460,
+            "successful": 411
+          },
+          "0.10": {
+            "approved_groups": 60,
+            "exact_minimal": 351,
+            "false_approval_rate": 0.05895691609977324,
+            "false_approvals": 26,
+            "missed_feasible": 146,
+            "oracle_feasible": 561,
+            "queries": 1600,
+            "selected": 441,
+            "successful": 415
+          },
+          "0.20": {
+            "approved_groups": 60,
+            "exact_minimal": 320,
+            "false_approval_rate": 0.05060240963855422,
+            "false_approvals": 21,
+            "missed_feasible": 167,
+            "oracle_feasible": 561,
+            "queries": 1600,
+            "selected": 415,
+            "successful": 394
+          },
+          "0.30": {
+            "approved_groups": 60,
+            "exact_minimal": 311,
+            "false_approval_rate": 0.022443890274314215,
+            "false_approvals": 9,
+            "missed_feasible": 169,
+            "oracle_feasible": 561,
+            "queries": 1600,
+            "selected": 401,
+            "successful": 392
+          },
+          "0.50": {
+            "approved_groups": 58,
+            "exact_minimal": 178,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 263,
+            "oracle_feasible": 561,
+            "queries": 1600,
+            "selected": 298,
+            "successful": 298
+          }
+        }
+      },
+      "selected_margin": null,
+      "selection": "ABSTAIN_ALL"
+    },
+    {
+      "candidate_summary": {
+        "0.05": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.26344182700953067,
+          "false_approvals": 1465,
+          "retained_success_fraction": 0.9874638379942141,
+          "selected": 5561,
+          "successful": 4096
+        },
+        "0.10": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.23798713583049566,
+          "false_approvals": 1258,
+          "retained_success_fraction": 0.9710703953712633,
+          "selected": 5286,
+          "successful": 4028
+        },
+        "0.20": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.1998336452484924,
+          "false_approvals": 961,
+          "retained_success_fraction": 0.9276759884281581,
+          "selected": 4809,
+          "successful": 3848
+        },
+        "0.30": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.19164072921298356,
+          "false_approvals": 862,
+          "retained_success_fraction": 0.8765670202507232,
+          "selected": 4498,
+          "successful": 3636
+        },
+        "0.50": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.16324981017463933,
+          "false_approvals": 645,
+          "retained_success_fraction": 0.7970106075216972,
+          "selected": 3951,
+          "successful": 3306
+        }
+      },
+      "donor_models": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "fold": "google/bert_uncased_L-2_H-128_A-2",
+      "held_models": [
+        "google/bert_uncased_L-2_H-128_A-2"
+      ],
+      "inner_donor_scores": {
+        "FacebookAI/roberta-base": {
+          "0.00": {
+            "approved_groups": 58,
+            "exact_minimal": 514,
+            "false_approval_rate": 0.060714285714285714,
+            "false_approvals": 34,
+            "missed_feasible": 47,
+            "oracle_feasible": 573,
+            "queries": 1600,
+            "selected": 560,
+            "successful": 526
+          },
+          "0.05": {
+            "approved_groups": 58,
+            "exact_minimal": 486,
+            "false_approval_rate": 0.045112781954887216,
+            "false_approvals": 24,
+            "missed_feasible": 65,
+            "oracle_feasible": 573,
+            "queries": 1600,
+            "selected": 532,
+            "successful": 508
+          },
+          "0.10": {
+            "approved_groups": 58,
+            "exact_minimal": 438,
+            "false_approval_rate": 0.03696098562628337,
+            "false_approvals": 18,
+            "missed_feasible": 104,
+            "oracle_feasible": 573,
+            "queries": 1600,
+            "selected": 487,
+            "successful": 469
+          },
+          "0.20": {
+            "approved_groups": 55,
+            "exact_minimal": 385,
+            "false_approval_rate": 0.016166281755196306,
+            "false_approvals": 7,
+            "missed_feasible": 147,
+            "oracle_feasible": 573,
+            "queries": 1600,
+            "selected": 433,
+            "successful": 426
+          },
+          "0.30": {
+            "approved_groups": 55,
+            "exact_minimal": 354,
+            "false_approval_rate": 0.007263922518159807,
+            "false_approvals": 3,
+            "missed_feasible": 163,
+            "oracle_feasible": 573,
+            "queries": 1600,
+            "selected": 413,
+            "successful": 410
+          },
+          "0.50": {
+            "approved_groups": 53,
+            "exact_minimal": 248,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 221,
+            "oracle_feasible": 573,
+            "queries": 1600,
+            "selected": 352,
+            "successful": 352
+          }
+        },
+        "Qwen/Qwen2.5-0.5B-Instruct": {
+          "0.00": {
+            "approved_groups": 63,
+            "exact_minimal": 184,
+            "false_approval_rate": 0.676056338028169,
+            "false_approvals": 384,
+            "missed_feasible": 182,
+            "oracle_feasible": 366,
+            "queries": 1575,
+            "selected": 568,
+            "successful": 184
+          },
+          "0.05": {
+            "approved_groups": 63,
+            "exact_minimal": 190,
+            "false_approval_rate": 0.6487985212569316,
+            "false_approvals": 351,
+            "missed_feasible": 176,
+            "oracle_feasible": 366,
+            "queries": 1575,
+            "selected": 541,
+            "successful": 190
+          },
+          "0.10": {
+            "approved_groups": 63,
+            "exact_minimal": 194,
+            "false_approval_rate": 0.6150793650793651,
+            "false_approvals": 310,
+            "missed_feasible": 172,
+            "oracle_feasible": 366,
+            "queries": 1575,
+            "selected": 504,
+            "successful": 194
+          },
+          "0.20": {
+            "approved_groups": 63,
+            "exact_minimal": 233,
+            "false_approval_rate": 0.449438202247191,
+            "false_approvals": 200,
+            "missed_feasible": 121,
+            "oracle_feasible": 366,
+            "queries": 1575,
+            "selected": 445,
+            "successful": 245
+          },
+          "0.30": {
+            "approved_groups": 63,
+            "exact_minimal": 240,
+            "false_approval_rate": 0.3808353808353808,
+            "false_approvals": 155,
+            "missed_feasible": 114,
+            "oracle_feasible": 366,
+            "queries": 1575,
+            "selected": 407,
+            "successful": 252
+          },
+          "0.50": {
+            "approved_groups": 56,
+            "exact_minimal": 220,
+            "false_approval_rate": 0.256797583081571,
+            "false_approvals": 85,
+            "missed_feasible": 120,
+            "oracle_feasible": 366,
+            "queries": 1575,
+            "selected": 331,
+            "successful": 246
+          }
+        },
+        "albert/albert-base-v2": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 210,
+            "false_approval_rate": 0.8173913043478261,
+            "false_approvals": 940,
+            "missed_feasible": 240,
+            "oracle_feasible": 450,
+            "queries": 1600,
+            "selected": 1150,
+            "successful": 210
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 210,
+            "false_approval_rate": 0.8053753475440223,
+            "false_approvals": 869,
+            "missed_feasible": 240,
+            "oracle_feasible": 450,
+            "queries": 1600,
+            "selected": 1079,
+            "successful": 210
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 219,
+            "false_approval_rate": 0.7827380952380952,
+            "false_approvals": 789,
+            "missed_feasible": 231,
+            "oracle_feasible": 450,
+            "queries": 1600,
+            "selected": 1008,
+            "successful": 219
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 234,
+            "false_approval_rate": 0.7510638297872341,
+            "false_approvals": 706,
+            "missed_feasible": 216,
+            "oracle_feasible": 450,
+            "queries": 1600,
+            "selected": 940,
+            "successful": 234
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 245,
+            "false_approval_rate": 0.7361111111111112,
+            "false_approvals": 689,
+            "missed_feasible": 203,
+            "oracle_feasible": 450,
+            "queries": 1600,
+            "selected": 936,
+            "successful": 247
+          },
+          "0.50": {
+            "approved_groups": 64,
+            "exact_minimal": 292,
+            "false_approval_rate": 0.6533018867924528,
+            "false_approvals": 554,
+            "missed_feasible": 156,
+            "oracle_feasible": 450,
+            "queries": 1600,
+            "selected": 848,
+            "successful": 294
+          }
+        },
+        "distilbert/distilbert-base-uncased": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 679,
+            "false_approval_rate": 0.06716417910447761,
+            "false_approvals": 54,
+            "missed_feasible": 126,
+            "oracle_feasible": 876,
+            "queries": 1600,
+            "selected": 804,
+            "successful": 750
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 654,
+            "false_approval_rate": 0.046632124352331605,
+            "false_approvals": 36,
+            "missed_feasible": 140,
+            "oracle_feasible": 876,
+            "queries": 1600,
+            "selected": 772,
+            "successful": 736
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 638,
+            "false_approval_rate": 0.0316622691292876,
+            "false_approvals": 24,
+            "missed_feasible": 142,
+            "oracle_feasible": 876,
+            "queries": 1600,
+            "selected": 758,
+            "successful": 734
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 587,
+            "false_approval_rate": 0.016877637130801686,
+            "false_approvals": 12,
+            "missed_feasible": 177,
+            "oracle_feasible": 876,
+            "queries": 1600,
+            "selected": 711,
+            "successful": 699
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 526,
+            "false_approval_rate": 0.005813953488372093,
+            "false_approvals": 4,
+            "missed_feasible": 192,
+            "oracle_feasible": 876,
+            "queries": 1600,
+            "selected": 688,
+            "successful": 684
+          },
+          "0.50": {
+            "approved_groups": 63,
+            "exact_minimal": 373,
+            "false_approval_rate": 0.0016556291390728477,
+            "false_approvals": 1,
+            "missed_feasible": 273,
+            "oracle_feasible": 876,
+            "queries": 1600,
+            "selected": 604,
+            "successful": 603
+          }
+        },
+        "google-bert/bert-base-uncased": {
+          "0.00": {
+            "approved_groups": 60,
+            "exact_minimal": 501,
+            "false_approval_rate": 0.18739903069466882,
+            "false_approvals": 116,
+            "missed_feasible": 53,
+            "oracle_feasible": 556,
+            "queries": 1600,
+            "selected": 619,
+            "successful": 503
+          },
+          "0.05": {
+            "approved_groups": 60,
+            "exact_minimal": 507,
+            "false_approval_rate": 0.1273344651952462,
+            "false_approvals": 75,
+            "missed_feasible": 42,
+            "oracle_feasible": 556,
+            "queries": 1600,
+            "selected": 589,
+            "successful": 514
+          },
+          "0.10": {
+            "approved_groups": 60,
+            "exact_minimal": 501,
+            "false_approval_rate": 0.09532062391681109,
+            "false_approvals": 55,
+            "missed_feasible": 34,
+            "oracle_feasible": 556,
+            "queries": 1600,
+            "selected": 577,
+            "successful": 522
+          },
+          "0.20": {
+            "approved_groups": 58,
+            "exact_minimal": 478,
+            "false_approval_rate": 0.051094890510948905,
+            "false_approvals": 28,
+            "missed_feasible": 36,
+            "oracle_feasible": 556,
+            "queries": 1600,
+            "selected": 548,
+            "successful": 520
+          },
+          "0.30": {
+            "approved_groups": 57,
+            "exact_minimal": 388,
+            "false_approval_rate": 0.015730337078651686,
+            "false_approvals": 7,
+            "missed_feasible": 118,
+            "oracle_feasible": 556,
+            "queries": 1600,
+            "selected": 445,
+            "successful": 438
+          },
+          "0.50": {
+            "approved_groups": 54,
+            "exact_minimal": 302,
+            "false_approval_rate": 0.007751937984496124,
+            "false_approvals": 3,
+            "missed_feasible": 172,
+            "oracle_feasible": 556,
+            "queries": 1600,
+            "selected": 387,
+            "successful": 384
+          }
+        },
+        "google/bert_uncased_L-4_H-256_A-4": {
+          "0.00": {
+            "approved_groups": 58,
+            "exact_minimal": 249,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 675,
+            "oracle_feasible": 1295,
+            "queries": 1600,
+            "selected": 620,
+            "successful": 620
+          },
+          "0.05": {
+            "approved_groups": 58,
+            "exact_minimal": 224,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 683,
+            "oracle_feasible": 1295,
+            "queries": 1600,
+            "selected": 612,
+            "successful": 612
+          },
+          "0.10": {
+            "approved_groups": 58,
+            "exact_minimal": 204,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 715,
+            "oracle_feasible": 1295,
+            "queries": 1600,
+            "selected": 580,
+            "successful": 580
+          },
+          "0.20": {
+            "approved_groups": 56,
+            "exact_minimal": 184,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 811,
+            "oracle_feasible": 1295,
+            "queries": 1600,
+            "selected": 484,
+            "successful": 484
+          },
+          "0.30": {
+            "approved_groups": 55,
+            "exact_minimal": 160,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 862,
+            "oracle_feasible": 1295,
+            "queries": 1600,
+            "selected": 433,
+            "successful": 433
+          },
+          "0.50": {
+            "approved_groups": 53,
+            "exact_minimal": 112,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 907,
+            "oracle_feasible": 1295,
+            "queries": 1600,
+            "selected": 388,
+            "successful": 388
+          }
+        },
+        "google/bert_uncased_L-4_H-512_A-8": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 481,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 434,
+            "oracle_feasible": 1297,
+            "queries": 1600,
+            "selected": 863,
+            "successful": 863
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 448,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 457,
+            "oracle_feasible": 1297,
+            "queries": 1600,
+            "selected": 840,
+            "successful": 840
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 436,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 471,
+            "oracle_feasible": 1297,
+            "queries": 1600,
+            "selected": 826,
+            "successful": 826
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 389,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 531,
+            "oracle_feasible": 1297,
+            "queries": 1600,
+            "selected": 766,
+            "successful": 766
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 330,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 562,
+            "oracle_feasible": 1297,
+            "queries": 1600,
+            "selected": 735,
+            "successful": 735
+          },
+          "0.50": {
+            "approved_groups": 64,
+            "exact_minimal": 224,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 665,
+            "oracle_feasible": 1297,
+            "queries": 1600,
+            "selected": 632,
+            "successful": 632
+          }
+        },
+        "google/electra-small-discriminator": {
+          "0.00": {
+            "approved_groups": 63,
+            "exact_minimal": 440,
+            "false_approval_rate": 0.21405750798722045,
+            "false_approvals": 134,
+            "missed_feasible": 198,
+            "oracle_feasible": 690,
+            "queries": 1600,
+            "selected": 626,
+            "successful": 492
+          },
+          "0.05": {
+            "approved_groups": 60,
+            "exact_minimal": 434,
+            "false_approval_rate": 0.18456375838926176,
+            "false_approvals": 110,
+            "missed_feasible": 204,
+            "oracle_feasible": 690,
+            "queries": 1600,
+            "selected": 596,
+            "successful": 486
+          },
+          "0.10": {
+            "approved_groups": 60,
+            "exact_minimal": 428,
+            "false_approval_rate": 0.11355311355311355,
+            "false_approvals": 62,
+            "missed_feasible": 206,
+            "oracle_feasible": 690,
+            "queries": 1600,
+            "selected": 546,
+            "successful": 484
+          },
+          "0.20": {
+            "approved_groups": 60,
+            "exact_minimal": 401,
+            "false_approval_rate": 0.016597510373443983,
+            "false_approvals": 8,
+            "missed_feasible": 216,
+            "oracle_feasible": 690,
+            "queries": 1600,
+            "selected": 482,
+            "successful": 474
+          },
+          "0.30": {
+            "approved_groups": 58,
+            "exact_minimal": 362,
+            "false_approval_rate": 0.009070294784580499,
+            "false_approvals": 4,
+            "missed_feasible": 253,
+            "oracle_feasible": 690,
+            "queries": 1600,
+            "selected": 441,
+            "successful": 437
+          },
+          "0.50": {
+            "approved_groups": 57,
+            "exact_minimal": 304,
+            "false_approval_rate": 0.004889975550122249,
+            "false_approvals": 2,
+            "missed_feasible": 283,
+            "oracle_feasible": 690,
+            "queries": 1600,
+            "selected": 409,
+            "successful": 407
+          }
+        }
+      },
+      "selected_margin": null,
+      "selection": "ABSTAIN_ALL"
+    },
+    {
+      "candidate_summary": {
+        "0.05": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.17725683734320377,
+          "false_approvals": 862,
+          "retained_success_fraction": 1.0010007505629221,
+          "selected": 4863,
+          "successful": 4001
+        },
+        "0.10": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.1561298590346006,
+          "false_approvals": 731,
+          "retained_success_fraction": 0.9884913685263947,
+          "selected": 4682,
+          "successful": 3951
+        },
+        "0.20": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.11920838183934808,
+          "false_approvals": 512,
+          "retained_success_fraction": 0.9464598448836627,
+          "selected": 4295,
+          "successful": 3783
+        },
+        "0.30": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.10215580597746203,
+          "false_approvals": 417,
+          "retained_success_fraction": 0.916937703277458,
+          "selected": 4082,
+          "successful": 3665
+        },
+        "0.50": {
+          "each_donor_floor_met": true,
+          "eligible": true,
+          "false_approval_rate": 0.07833047455688966,
+          "false_approvals": 274,
+          "retained_success_fraction": 0.8066049537152865,
+          "selected": 3498,
+          "successful": 3224
+        }
+      },
+      "donor_models": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-512_A-8",
+        "google/electra-small-discriminator"
+      ],
+      "fold": "google/bert_uncased_L-4_H-256_A-4",
+      "held_models": [
+        "google/bert_uncased_L-4_H-256_A-4"
+      ],
+      "inner_donor_scores": {
+        "FacebookAI/roberta-base": {
+          "0.00": {
+            "approved_groups": 58,
+            "exact_minimal": 412,
+            "false_approval_rate": 0.07510729613733906,
+            "false_approvals": 35,
+            "missed_feasible": 32,
+            "oracle_feasible": 463,
+            "queries": 1600,
+            "selected": 466,
+            "successful": 431
+          },
+          "0.05": {
+            "approved_groups": 58,
+            "exact_minimal": 412,
+            "false_approval_rate": 0.060085836909871244,
+            "false_approvals": 28,
+            "missed_feasible": 25,
+            "oracle_feasible": 463,
+            "queries": 1600,
+            "selected": 466,
+            "successful": 438
+          },
+          "0.10": {
+            "approved_groups": 58,
+            "exact_minimal": 390,
+            "false_approval_rate": 0.042505592841163314,
+            "false_approvals": 19,
+            "missed_feasible": 35,
+            "oracle_feasible": 463,
+            "queries": 1600,
+            "selected": 447,
+            "successful": 428
+          },
+          "0.20": {
+            "approved_groups": 55,
+            "exact_minimal": 369,
+            "false_approval_rate": 0.016826923076923076,
+            "false_approvals": 7,
+            "missed_feasible": 54,
+            "oracle_feasible": 463,
+            "queries": 1600,
+            "selected": 416,
+            "successful": 409
+          },
+          "0.30": {
+            "approved_groups": 54,
+            "exact_minimal": 331,
+            "false_approval_rate": 0.007653061224489796,
+            "false_approvals": 3,
+            "missed_feasible": 74,
+            "oracle_feasible": 463,
+            "queries": 1600,
+            "selected": 392,
+            "successful": 389
+          },
+          "0.50": {
+            "approved_groups": 53,
+            "exact_minimal": 237,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 122,
+            "oracle_feasible": 463,
+            "queries": 1600,
+            "selected": 341,
+            "successful": 341
+          }
+        },
+        "Qwen/Qwen2.5-0.5B-Instruct": {
+          "0.00": {
+            "approved_groups": 63,
+            "exact_minimal": 182,
+            "false_approval_rate": 0.6424361493123772,
+            "false_approvals": 327,
+            "missed_feasible": 175,
+            "oracle_feasible": 357,
+            "queries": 1575,
+            "selected": 509,
+            "successful": 182
+          },
+          "0.05": {
+            "approved_groups": 63,
+            "exact_minimal": 189,
+            "false_approval_rate": 0.6078838174273858,
+            "false_approvals": 293,
+            "missed_feasible": 168,
+            "oracle_feasible": 357,
+            "queries": 1575,
+            "selected": 482,
+            "successful": 189
+          },
+          "0.10": {
+            "approved_groups": 63,
+            "exact_minimal": 189,
+            "false_approval_rate": 0.564935064935065,
+            "false_approvals": 261,
+            "missed_feasible": 156,
+            "oracle_feasible": 357,
+            "queries": 1575,
+            "selected": 462,
+            "successful": 201
+          },
+          "0.20": {
+            "approved_groups": 63,
+            "exact_minimal": 221,
+            "false_approval_rate": 0.44786729857819907,
+            "false_approvals": 189,
+            "missed_feasible": 124,
+            "oracle_feasible": 357,
+            "queries": 1575,
+            "selected": 422,
+            "successful": 233
+          },
+          "0.30": {
+            "approved_groups": 63,
+            "exact_minimal": 225,
+            "false_approval_rate": 0.3720316622691293,
+            "false_approvals": 141,
+            "missed_feasible": 119,
+            "oracle_feasible": 357,
+            "queries": 1575,
+            "selected": 379,
+            "successful": 238
+          },
+          "0.50": {
+            "approved_groups": 56,
+            "exact_minimal": 212,
+            "false_approval_rate": 0.26791277258566976,
+            "false_approvals": 86,
+            "missed_feasible": 122,
+            "oracle_feasible": 357,
+            "queries": 1575,
+            "selected": 321,
+            "successful": 235
+          }
+        },
+        "albert/albert-base-v2": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 330,
+            "false_approval_rate": 0.5263908701854494,
+            "false_approvals": 369,
+            "missed_feasible": 117,
+            "oracle_feasible": 449,
+            "queries": 1600,
+            "selected": 701,
+            "successful": 332
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 357,
+            "false_approval_rate": 0.4782608695652174,
+            "false_approvals": 330,
+            "missed_feasible": 89,
+            "oracle_feasible": 449,
+            "queries": 1600,
+            "selected": 690,
+            "successful": 360
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 359,
+            "false_approval_rate": 0.46402349486049926,
+            "false_approvals": 316,
+            "missed_feasible": 84,
+            "oracle_feasible": 449,
+            "queries": 1600,
+            "selected": 681,
+            "successful": 365
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 355,
+            "false_approval_rate": 0.4265402843601896,
+            "false_approvals": 270,
+            "missed_feasible": 86,
+            "oracle_feasible": 449,
+            "queries": 1600,
+            "selected": 633,
+            "successful": 363
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 345,
+            "false_approval_rate": 0.41346153846153844,
+            "false_approvals": 258,
+            "missed_feasible": 83,
+            "oracle_feasible": 449,
+            "queries": 1600,
+            "selected": 624,
+            "successful": 366
+          },
+          "0.50": {
+            "approved_groups": 64,
+            "exact_minimal": 322,
+            "false_approval_rate": 0.3231046931407942,
+            "false_approvals": 179,
+            "missed_feasible": 74,
+            "oracle_feasible": 449,
+            "queries": 1600,
+            "selected": 554,
+            "successful": 375
+          }
+        },
+        "distilbert/distilbert-base-uncased": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 635,
+            "false_approval_rate": 0.037383177570093455,
+            "false_approvals": 28,
+            "missed_feasible": 99,
+            "oracle_feasible": 820,
+            "queries": 1600,
+            "selected": 749,
+            "successful": 721
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 610,
+            "false_approval_rate": 0.027700831024930747,
+            "false_approvals": 20,
+            "missed_feasible": 118,
+            "oracle_feasible": 820,
+            "queries": 1600,
+            "selected": 722,
+            "successful": 702
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 600,
+            "false_approval_rate": 0.01971830985915493,
+            "false_approvals": 14,
+            "missed_feasible": 124,
+            "oracle_feasible": 820,
+            "queries": 1600,
+            "selected": 710,
+            "successful": 696
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 547,
+            "false_approval_rate": 0.007363770250368188,
+            "false_approvals": 5,
+            "missed_feasible": 146,
+            "oracle_feasible": 820,
+            "queries": 1600,
+            "selected": 679,
+            "successful": 674
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 495,
+            "false_approval_rate": 0.0015151515151515152,
+            "false_approvals": 1,
+            "missed_feasible": 161,
+            "oracle_feasible": 820,
+            "queries": 1600,
+            "selected": 660,
+            "successful": 659
+          },
+          "0.50": {
+            "approved_groups": 63,
+            "exact_minimal": 296,
+            "false_approval_rate": 0.0019569471624266144,
+            "false_approvals": 1,
+            "missed_feasible": 310,
+            "oracle_feasible": 820,
+            "queries": 1600,
+            "selected": 511,
+            "successful": 510
+          }
+        },
+        "google-bert/bert-base-uncased": {
+          "0.00": {
+            "approved_groups": 60,
+            "exact_minimal": 436,
+            "false_approval_rate": 0.2724252491694352,
+            "false_approvals": 164,
+            "missed_feasible": 50,
+            "oracle_feasible": 488,
+            "queries": 1600,
+            "selected": 602,
+            "successful": 438
+          },
+          "0.05": {
+            "approved_groups": 60,
+            "exact_minimal": 438,
+            "false_approval_rate": 0.23924268502581755,
+            "false_approvals": 139,
+            "missed_feasible": 46,
+            "oracle_feasible": 488,
+            "queries": 1600,
+            "selected": 581,
+            "successful": 442
+          },
+          "0.10": {
+            "approved_groups": 60,
+            "exact_minimal": 445,
+            "false_approval_rate": 0.15065913370998116,
+            "false_approvals": 80,
+            "missed_feasible": 37,
+            "oracle_feasible": 488,
+            "queries": 1600,
+            "selected": 531,
+            "successful": 451
+          },
+          "0.20": {
+            "approved_groups": 58,
+            "exact_minimal": 404,
+            "false_approval_rate": 0.037037037037037035,
+            "false_approvals": 17,
+            "missed_feasible": 46,
+            "oracle_feasible": 488,
+            "queries": 1600,
+            "selected": 459,
+            "successful": 442
+          },
+          "0.30": {
+            "approved_groups": 56,
+            "exact_minimal": 375,
+            "false_approval_rate": 0.022935779816513763,
+            "false_approvals": 10,
+            "missed_feasible": 62,
+            "oracle_feasible": 488,
+            "queries": 1600,
+            "selected": 436,
+            "successful": 426
+          },
+          "0.50": {
+            "approved_groups": 54,
+            "exact_minimal": 312,
+            "false_approval_rate": 0.014925373134328358,
+            "false_approvals": 6,
+            "missed_feasible": 92,
+            "oracle_feasible": 488,
+            "queries": 1600,
+            "selected": 402,
+            "successful": 396
+          }
+        },
+        "google/bert_uncased_L-2_H-128_A-2": {
+          "0.00": {
+            "approved_groups": 58,
+            "exact_minimal": 234,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 765,
+            "oracle_feasible": 1385,
+            "queries": 1600,
+            "selected": 620,
+            "successful": 620
+          },
+          "0.05": {
+            "approved_groups": 58,
+            "exact_minimal": 213,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 773,
+            "oracle_feasible": 1385,
+            "queries": 1600,
+            "selected": 612,
+            "successful": 612
+          },
+          "0.10": {
+            "approved_groups": 58,
+            "exact_minimal": 193,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 805,
+            "oracle_feasible": 1385,
+            "queries": 1600,
+            "selected": 580,
+            "successful": 580
+          },
+          "0.20": {
+            "approved_groups": 56,
+            "exact_minimal": 178,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 901,
+            "oracle_feasible": 1385,
+            "queries": 1600,
+            "selected": 484,
+            "successful": 484
+          },
+          "0.30": {
+            "approved_groups": 55,
+            "exact_minimal": 154,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 952,
+            "oracle_feasible": 1385,
+            "queries": 1600,
+            "selected": 433,
+            "successful": 433
+          },
+          "0.50": {
+            "approved_groups": 53,
+            "exact_minimal": 106,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 997,
+            "oracle_feasible": 1385,
+            "queries": 1600,
+            "selected": 388,
+            "successful": 388
+          }
+        },
+        "google/bert_uncased_L-4_H-512_A-8": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 476,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 475,
+            "oracle_feasible": 1279,
+            "queries": 1600,
+            "selected": 804,
+            "successful": 804
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 458,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 484,
+            "oracle_feasible": 1279,
+            "queries": 1600,
+            "selected": 795,
+            "successful": 795
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 429,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 512,
+            "oracle_feasible": 1279,
+            "queries": 1600,
+            "selected": 767,
+            "successful": 767
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 356,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 548,
+            "oracle_feasible": 1279,
+            "queries": 1600,
+            "selected": 731,
+            "successful": 731
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 315,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 567,
+            "oracle_feasible": 1279,
+            "queries": 1600,
+            "selected": 712,
+            "successful": 712
+          },
+          "0.50": {
+            "approved_groups": 64,
+            "exact_minimal": 231,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 698,
+            "oracle_feasible": 1279,
+            "queries": 1600,
+            "selected": 581,
+            "successful": 581
+          }
+        },
+        "google/electra-small-discriminator": {
+          "0.00": {
+            "approved_groups": 63,
+            "exact_minimal": 414,
+            "false_approval_rate": 0.12987012987012986,
+            "false_approvals": 70,
+            "missed_feasible": 206,
+            "oracle_feasible": 675,
+            "queries": 1600,
+            "selected": 539,
+            "successful": 469
+          },
+          "0.05": {
+            "approved_groups": 63,
+            "exact_minimal": 406,
+            "false_approval_rate": 0.10097087378640776,
+            "false_approvals": 52,
+            "missed_feasible": 212,
+            "oracle_feasible": 675,
+            "queries": 1600,
+            "selected": 515,
+            "successful": 463
+          },
+          "0.10": {
+            "approved_groups": 63,
+            "exact_minimal": 405,
+            "false_approval_rate": 0.08134920634920635,
+            "false_approvals": 41,
+            "missed_feasible": 212,
+            "oracle_feasible": 675,
+            "queries": 1600,
+            "selected": 504,
+            "successful": 463
+          },
+          "0.20": {
+            "approved_groups": 60,
+            "exact_minimal": 375,
+            "false_approval_rate": 0.050955414012738856,
+            "false_approvals": 24,
+            "missed_feasible": 228,
+            "oracle_feasible": 675,
+            "queries": 1600,
+            "selected": 471,
+            "successful": 447
+          },
+          "0.30": {
+            "approved_groups": 60,
+            "exact_minimal": 360,
+            "false_approval_rate": 0.008968609865470852,
+            "false_approvals": 4,
+            "missed_feasible": 233,
+            "oracle_feasible": 675,
+            "queries": 1600,
+            "selected": 446,
+            "successful": 442
+          },
+          "0.50": {
+            "approved_groups": 56,
+            "exact_minimal": 298,
+            "false_approval_rate": 0.005,
+            "false_approvals": 2,
+            "missed_feasible": 277,
+            "oracle_feasible": 675,
+            "queries": 1600,
+            "selected": 400,
+            "successful": 398
+          }
+        }
+      },
+      "selected_margin": 0.5,
+      "selection": "0.50"
+    },
+    {
+      "candidate_summary": {
+        "0.05": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.23324646314221892,
+          "false_approvals": 1253,
+          "retained_success_fraction": 0.9797811607992388,
+          "selected": 5372,
+          "successful": 4119
+        },
+        "0.10": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.21158690176322417,
+          "false_approvals": 1092,
+          "retained_success_fraction": 0.9678877259752616,
+          "selected": 5161,
+          "successful": 4069
+        },
+        "0.20": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.187126057355065,
+          "false_approvals": 907,
+          "retained_success_fraction": 0.9372026641294006,
+          "selected": 4847,
+          "successful": 3940
+        },
+        "0.30": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.17712418300653596,
+          "false_approvals": 813,
+          "retained_success_fraction": 0.898430066603235,
+          "selected": 4590,
+          "successful": 3777
+        },
+        "0.50": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.1342248637939574,
+          "false_approvals": 542,
+          "retained_success_fraction": 0.8315889628924833,
+          "selected": 4038,
+          "successful": 3496
+        }
+      },
+      "donor_models": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/electra-small-discriminator"
+      ],
+      "fold": "google/bert_uncased_L-4_H-512_A-8",
+      "held_models": [
+        "google/bert_uncased_L-4_H-512_A-8"
+      ],
+      "inner_donor_scores": {
+        "FacebookAI/roberta-base": {
+          "0.00": {
+            "approved_groups": 58,
+            "exact_minimal": 413,
+            "false_approval_rate": 0.08898305084745763,
+            "false_approvals": 42,
+            "missed_feasible": 30,
+            "oracle_feasible": 460,
+            "queries": 1600,
+            "selected": 472,
+            "successful": 430
+          },
+          "0.05": {
+            "approved_groups": 58,
+            "exact_minimal": 411,
+            "false_approval_rate": 0.06823027718550106,
+            "false_approvals": 32,
+            "missed_feasible": 23,
+            "oracle_feasible": 460,
+            "queries": 1600,
+            "selected": 469,
+            "successful": 437
+          },
+          "0.10": {
+            "approved_groups": 58,
+            "exact_minimal": 388,
+            "false_approval_rate": 0.05530973451327434,
+            "false_approvals": 25,
+            "missed_feasible": 33,
+            "oracle_feasible": 460,
+            "queries": 1600,
+            "selected": 452,
+            "successful": 427
+          },
+          "0.20": {
+            "approved_groups": 55,
+            "exact_minimal": 369,
+            "false_approval_rate": 0.009685230024213076,
+            "false_approvals": 4,
+            "missed_feasible": 51,
+            "oracle_feasible": 460,
+            "queries": 1600,
+            "selected": 413,
+            "successful": 409
+          },
+          "0.30": {
+            "approved_groups": 55,
+            "exact_minimal": 328,
+            "false_approval_rate": 0.007614213197969543,
+            "false_approvals": 3,
+            "missed_feasible": 69,
+            "oracle_feasible": 460,
+            "queries": 1600,
+            "selected": 394,
+            "successful": 391
+          },
+          "0.50": {
+            "approved_groups": 53,
+            "exact_minimal": 229,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 125,
+            "oracle_feasible": 460,
+            "queries": 1600,
+            "selected": 335,
+            "successful": 335
+          }
+        },
+        "Qwen/Qwen2.5-0.5B-Instruct": {
+          "0.00": {
+            "approved_groups": 63,
+            "exact_minimal": 180,
+            "false_approval_rate": 0.653179190751445,
+            "false_approvals": 339,
+            "missed_feasible": 177,
+            "oracle_feasible": 357,
+            "queries": 1575,
+            "selected": 519,
+            "successful": 180
+          },
+          "0.05": {
+            "approved_groups": 63,
+            "exact_minimal": 185,
+            "false_approval_rate": 0.6113445378151261,
+            "false_approvals": 291,
+            "missed_feasible": 172,
+            "oracle_feasible": 357,
+            "queries": 1575,
+            "selected": 476,
+            "successful": 185
+          },
+          "0.10": {
+            "approved_groups": 63,
+            "exact_minimal": 175,
+            "false_approval_rate": 0.5661252900232019,
+            "false_approvals": 244,
+            "missed_feasible": 170,
+            "oracle_feasible": 357,
+            "queries": 1575,
+            "selected": 431,
+            "successful": 187
+          },
+          "0.20": {
+            "approved_groups": 63,
+            "exact_minimal": 223,
+            "false_approval_rate": 0.43825665859564167,
+            "false_approvals": 181,
+            "missed_feasible": 125,
+            "oracle_feasible": 357,
+            "queries": 1575,
+            "selected": 413,
+            "successful": 232
+          },
+          "0.30": {
+            "approved_groups": 63,
+            "exact_minimal": 221,
+            "false_approval_rate": 0.37433155080213903,
+            "false_approvals": 140,
+            "missed_feasible": 123,
+            "oracle_feasible": 357,
+            "queries": 1575,
+            "selected": 374,
+            "successful": 234
+          },
+          "0.50": {
+            "approved_groups": 56,
+            "exact_minimal": 212,
+            "false_approval_rate": 0.2670807453416149,
+            "false_approvals": 86,
+            "missed_feasible": 121,
+            "oracle_feasible": 357,
+            "queries": 1575,
+            "selected": 322,
+            "successful": 236
+          }
+        },
+        "albert/albert-base-v2": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 210,
+            "false_approval_rate": 0.7972972972972973,
+            "false_approvals": 826,
+            "missed_feasible": 236,
+            "oracle_feasible": 446,
+            "queries": 1600,
+            "selected": 1036,
+            "successful": 210
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 228,
+            "false_approval_rate": 0.7689969604863222,
+            "false_approvals": 759,
+            "missed_feasible": 218,
+            "oracle_feasible": 446,
+            "queries": 1600,
+            "selected": 987,
+            "successful": 228
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 227,
+            "false_approval_rate": 0.7624481327800829,
+            "false_approvals": 735,
+            "missed_feasible": 217,
+            "oracle_feasible": 446,
+            "queries": 1600,
+            "selected": 964,
+            "successful": 229
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 235,
+            "false_approval_rate": 0.7467948717948718,
+            "false_approvals": 699,
+            "missed_feasible": 209,
+            "oracle_feasible": 446,
+            "queries": 1600,
+            "selected": 936,
+            "successful": 237
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 249,
+            "false_approval_rate": 0.7241758241758242,
+            "false_approvals": 659,
+            "missed_feasible": 195,
+            "oracle_feasible": 446,
+            "queries": 1600,
+            "selected": 910,
+            "successful": 251
+          },
+          "0.50": {
+            "approved_groups": 64,
+            "exact_minimal": 286,
+            "false_approval_rate": 0.6086956521739131,
+            "false_approvals": 448,
+            "missed_feasible": 158,
+            "oracle_feasible": 446,
+            "queries": 1600,
+            "selected": 736,
+            "successful": 288
+          }
+        },
+        "distilbert/distilbert-base-uncased": {
+          "0.00": {
+            "approved_groups": 63,
+            "exact_minimal": 394,
+            "false_approval_rate": 0.0016750418760469012,
+            "false_approvals": 1,
+            "missed_feasible": 221,
+            "oracle_feasible": 817,
+            "queries": 1600,
+            "selected": 597,
+            "successful": 596
+          },
+          "0.05": {
+            "approved_groups": 63,
+            "exact_minimal": 323,
+            "false_approval_rate": 0.001869158878504673,
+            "false_approvals": 1,
+            "missed_feasible": 283,
+            "oracle_feasible": 817,
+            "queries": 1600,
+            "selected": 535,
+            "successful": 534
+          },
+          "0.10": {
+            "approved_groups": 63,
+            "exact_minimal": 304,
+            "false_approval_rate": 0.0019157088122605363,
+            "false_approvals": 1,
+            "missed_feasible": 296,
+            "oracle_feasible": 817,
+            "queries": 1600,
+            "selected": 522,
+            "successful": 521
+          },
+          "0.20": {
+            "approved_groups": 61,
+            "exact_minimal": 242,
+            "false_approval_rate": 0.002074688796680498,
+            "false_approvals": 1,
+            "missed_feasible": 336,
+            "oracle_feasible": 817,
+            "queries": 1600,
+            "selected": 482,
+            "successful": 481
+          },
+          "0.30": {
+            "approved_groups": 60,
+            "exact_minimal": 213,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 376,
+            "oracle_feasible": 817,
+            "queries": 1600,
+            "selected": 441,
+            "successful": 441
+          },
+          "0.50": {
+            "approved_groups": 58,
+            "exact_minimal": 135,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 414,
+            "oracle_feasible": 817,
+            "queries": 1600,
+            "selected": 403,
+            "successful": 403
+          }
+        },
+        "google-bert/bert-base-uncased": {
+          "0.00": {
+            "approved_groups": 60,
+            "exact_minimal": 431,
+            "false_approval_rate": 0.2689075630252101,
+            "false_approvals": 160,
+            "missed_feasible": 52,
+            "oracle_feasible": 487,
+            "queries": 1600,
+            "selected": 595,
+            "successful": 435
+          },
+          "0.05": {
+            "approved_groups": 60,
+            "exact_minimal": 432,
+            "false_approval_rate": 0.24305555555555555,
+            "false_approvals": 140,
+            "missed_feasible": 51,
+            "oracle_feasible": 487,
+            "queries": 1600,
+            "selected": 576,
+            "successful": 436
+          },
+          "0.10": {
+            "approved_groups": 58,
+            "exact_minimal": 433,
+            "false_approval_rate": 0.13043478260869565,
+            "false_approvals": 66,
+            "missed_feasible": 47,
+            "oracle_feasible": 487,
+            "queries": 1600,
+            "selected": 506,
+            "successful": 440
+          },
+          "0.20": {
+            "approved_groups": 58,
+            "exact_minimal": 416,
+            "false_approval_rate": 0.036637931034482756,
+            "false_approvals": 17,
+            "missed_feasible": 40,
+            "oracle_feasible": 487,
+            "queries": 1600,
+            "selected": 464,
+            "successful": 447
+          },
+          "0.30": {
+            "approved_groups": 55,
+            "exact_minimal": 382,
+            "false_approval_rate": 0.020689655172413793,
+            "false_approvals": 9,
+            "missed_feasible": 61,
+            "oracle_feasible": 487,
+            "queries": 1600,
+            "selected": 435,
+            "successful": 426
+          },
+          "0.50": {
+            "approved_groups": 54,
+            "exact_minimal": 305,
+            "false_approval_rate": 0.015463917525773196,
+            "false_approvals": 6,
+            "missed_feasible": 105,
+            "oracle_feasible": 487,
+            "queries": 1600,
+            "selected": 388,
+            "successful": 382
+          }
+        },
+        "google/bert_uncased_L-2_H-128_A-2": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 956,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 119,
+            "oracle_feasible": 1385,
+            "queries": 1600,
+            "selected": 1266,
+            "successful": 1266
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 899,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 136,
+            "oracle_feasible": 1385,
+            "queries": 1600,
+            "selected": 1249,
+            "successful": 1249
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 870,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 154,
+            "oracle_feasible": 1385,
+            "queries": 1600,
+            "selected": 1231,
+            "successful": 1231
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 827,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 176,
+            "oracle_feasible": 1385,
+            "queries": 1600,
+            "selected": 1209,
+            "successful": 1209
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 762,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 206,
+            "oracle_feasible": 1385,
+            "queries": 1600,
+            "selected": 1179,
+            "successful": 1179
+          },
+          "0.50": {
+            "approved_groups": 64,
+            "exact_minimal": 641,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 312,
+            "oracle_feasible": 1385,
+            "queries": 1600,
+            "selected": 1073,
+            "successful": 1073
+          }
+        },
+        "google/bert_uncased_L-4_H-256_A-4": {
+          "0.00": {
+            "approved_groups": 60,
+            "exact_minimal": 275,
+            "false_approval_rate": 0.006339144215530904,
+            "false_approvals": 4,
+            "missed_feasible": 648,
+            "oracle_feasible": 1275,
+            "queries": 1600,
+            "selected": 631,
+            "successful": 627
+          },
+          "0.05": {
+            "approved_groups": 60,
+            "exact_minimal": 250,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 674,
+            "oracle_feasible": 1275,
+            "queries": 1600,
+            "selected": 601,
+            "successful": 601
+          },
+          "0.10": {
+            "approved_groups": 60,
+            "exact_minimal": 229,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 693,
+            "oracle_feasible": 1275,
+            "queries": 1600,
+            "selected": 582,
+            "successful": 582
+          },
+          "0.20": {
+            "approved_groups": 59,
+            "exact_minimal": 197,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 777,
+            "oracle_feasible": 1275,
+            "queries": 1600,
+            "selected": 498,
+            "successful": 498
+          },
+          "0.30": {
+            "approved_groups": 58,
+            "exact_minimal": 176,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 822,
+            "oracle_feasible": 1275,
+            "queries": 1600,
+            "selected": 453,
+            "successful": 453
+          },
+          "0.50": {
+            "approved_groups": 55,
+            "exact_minimal": 127,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 868,
+            "oracle_feasible": 1275,
+            "queries": 1600,
+            "selected": 407,
+            "successful": 407
+          }
+        },
+        "google/electra-small-discriminator": {
+          "0.00": {
+            "approved_groups": 60,
+            "exact_minimal": 406,
+            "false_approval_rate": 0.08,
+            "false_approvals": 40,
+            "missed_feasible": 218,
+            "oracle_feasible": 678,
+            "queries": 1600,
+            "selected": 500,
+            "successful": 460
+          },
+          "0.05": {
+            "approved_groups": 58,
+            "exact_minimal": 382,
+            "false_approval_rate": 0.06263048016701461,
+            "false_approvals": 30,
+            "missed_feasible": 229,
+            "oracle_feasible": 678,
+            "queries": 1600,
+            "selected": 479,
+            "successful": 449
+          },
+          "0.10": {
+            "approved_groups": 58,
+            "exact_minimal": 369,
+            "false_approval_rate": 0.04439746300211417,
+            "false_approvals": 21,
+            "missed_feasible": 226,
+            "oracle_feasible": 678,
+            "queries": 1600,
+            "selected": 473,
+            "successful": 452
+          },
+          "0.20": {
+            "approved_groups": 58,
+            "exact_minimal": 336,
+            "false_approval_rate": 0.011574074074074073,
+            "false_approvals": 5,
+            "missed_feasible": 251,
+            "oracle_feasible": 678,
+            "queries": 1600,
+            "selected": 432,
+            "successful": 427
+          },
+          "0.30": {
+            "approved_groups": 55,
+            "exact_minimal": 313,
+            "false_approval_rate": 0.0049504950495049506,
+            "false_approvals": 2,
+            "missed_feasible": 276,
+            "oracle_feasible": 678,
+            "queries": 1600,
+            "selected": 404,
+            "successful": 402
+          },
+          "0.50": {
+            "approved_groups": 54,
+            "exact_minimal": 261,
+            "false_approval_rate": 0.0053475935828877,
+            "false_approvals": 2,
+            "missed_feasible": 306,
+            "oracle_feasible": 678,
+            "queries": 1600,
+            "selected": 374,
+            "successful": 372
+          }
+        }
+      },
+      "selected_margin": null,
+      "selection": "ABSTAIN_ALL"
+    },
+    {
+      "candidate_summary": {
+        "0.05": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.2355012043727997,
+          "false_approvals": 1271,
+          "retained_success_fraction": 0.9913503123498318,
+          "selected": 5397,
+          "successful": 4126
+        },
+        "0.10": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.22454859777180178,
+          "false_approvals": 1169,
+          "retained_success_fraction": 0.9699663623258049,
+          "selected": 5206,
+          "successful": 4037
+        },
+        "0.20": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.20606435643564355,
+          "false_approvals": 999,
+          "retained_success_fraction": 0.9247957712638155,
+          "selected": 4848,
+          "successful": 3849
+        },
+        "0.30": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.20307966971658112,
+          "false_approvals": 910,
+          "retained_success_fraction": 0.8580009610764056,
+          "selected": 4481,
+          "successful": 3571
+        },
+        "0.50": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.16570226196738558,
+          "false_approvals": 630,
+          "retained_success_fraction": 0.7621335896203748,
+          "selected": 3802,
+          "successful": 3172
+        }
+      },
+      "donor_models": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8"
+      ],
+      "fold": "google/electra-small-discriminator",
+      "held_models": [
+        "google/electra-small-discriminator"
+      ],
+      "inner_donor_scores": {
+        "FacebookAI/roberta-base": {
+          "0.00": {
+            "approved_groups": 58,
+            "exact_minimal": 397,
+            "false_approval_rate": 0.07029478458049887,
+            "false_approvals": 31,
+            "missed_feasible": 34,
+            "oracle_feasible": 444,
+            "queries": 1600,
+            "selected": 441,
+            "successful": 410
+          },
+          "0.05": {
+            "approved_groups": 58,
+            "exact_minimal": 374,
+            "false_approval_rate": 0.036855036855036855,
+            "false_approvals": 15,
+            "missed_feasible": 52,
+            "oracle_feasible": 444,
+            "queries": 1600,
+            "selected": 407,
+            "successful": 392
+          },
+          "0.10": {
+            "approved_groups": 58,
+            "exact_minimal": 365,
+            "false_approval_rate": 0.02295918367346939,
+            "false_approvals": 9,
+            "missed_feasible": 61,
+            "oracle_feasible": 444,
+            "queries": 1600,
+            "selected": 392,
+            "successful": 383
+          },
+          "0.20": {
+            "approved_groups": 55,
+            "exact_minimal": 341,
+            "false_approval_rate": 0.008021390374331552,
+            "false_approvals": 3,
+            "missed_feasible": 73,
+            "oracle_feasible": 444,
+            "queries": 1600,
+            "selected": 374,
+            "successful": 371
+          },
+          "0.30": {
+            "approved_groups": 54,
+            "exact_minimal": 282,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 115,
+            "oracle_feasible": 444,
+            "queries": 1600,
+            "selected": 329,
+            "successful": 329
+          },
+          "0.50": {
+            "approved_groups": 53,
+            "exact_minimal": 164,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 189,
+            "oracle_feasible": 444,
+            "queries": 1600,
+            "selected": 255,
+            "successful": 255
+          }
+        },
+        "Qwen/Qwen2.5-0.5B-Instruct": {
+          "0.00": {
+            "approved_groups": 63,
+            "exact_minimal": 130,
+            "false_approval_rate": 0.7018348623853211,
+            "false_approvals": 306,
+            "missed_feasible": 141,
+            "oracle_feasible": 271,
+            "queries": 1575,
+            "selected": 436,
+            "successful": 130
+          },
+          "0.05": {
+            "approved_groups": 63,
+            "exact_minimal": 156,
+            "false_approval_rate": 0.6195121951219512,
+            "false_approvals": 254,
+            "missed_feasible": 115,
+            "oracle_feasible": 271,
+            "queries": 1575,
+            "selected": 410,
+            "successful": 156
+          },
+          "0.10": {
+            "approved_groups": 63,
+            "exact_minimal": 161,
+            "false_approval_rate": 0.6044226044226044,
+            "false_approvals": 246,
+            "missed_feasible": 110,
+            "oracle_feasible": 271,
+            "queries": 1575,
+            "selected": 407,
+            "successful": 161
+          },
+          "0.20": {
+            "approved_groups": 63,
+            "exact_minimal": 168,
+            "false_approval_rate": 0.5177111716621253,
+            "false_approvals": 190,
+            "missed_feasible": 94,
+            "oracle_feasible": 271,
+            "queries": 1575,
+            "selected": 367,
+            "successful": 177
+          },
+          "0.30": {
+            "approved_groups": 63,
+            "exact_minimal": 171,
+            "false_approval_rate": 0.48011363636363635,
+            "false_approvals": 169,
+            "missed_feasible": 88,
+            "oracle_feasible": 271,
+            "queries": 1575,
+            "selected": 352,
+            "successful": 183
+          },
+          "0.50": {
+            "approved_groups": 56,
+            "exact_minimal": 157,
+            "false_approval_rate": 0.332089552238806,
+            "false_approvals": 89,
+            "missed_feasible": 92,
+            "oracle_feasible": 271,
+            "queries": 1575,
+            "selected": 268,
+            "successful": 179
+          }
+        },
+        "albert/albert-base-v2": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 184,
+            "false_approval_rate": 0.8416523235800344,
+            "false_approvals": 978,
+            "missed_feasible": 215,
+            "oracle_feasible": 399,
+            "queries": 1600,
+            "selected": 1162,
+            "successful": 184
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 186,
+            "false_approval_rate": 0.8330341113105925,
+            "false_approvals": 928,
+            "missed_feasible": 213,
+            "oracle_feasible": 399,
+            "queries": 1600,
+            "selected": 1114,
+            "successful": 186
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 186,
+            "false_approval_rate": 0.8228571428571428,
+            "false_approvals": 864,
+            "missed_feasible": 213,
+            "oracle_feasible": 399,
+            "queries": 1600,
+            "selected": 1050,
+            "successful": 186
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 191,
+            "false_approval_rate": 0.804902962206333,
+            "false_approvals": 788,
+            "missed_feasible": 208,
+            "oracle_feasible": 399,
+            "queries": 1600,
+            "selected": 979,
+            "successful": 191
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 194,
+            "false_approval_rate": 0.7891304347826087,
+            "false_approvals": 726,
+            "missed_feasible": 205,
+            "oracle_feasible": 399,
+            "queries": 1600,
+            "selected": 920,
+            "successful": 194
+          },
+          "0.50": {
+            "approved_groups": 64,
+            "exact_minimal": 236,
+            "false_approval_rate": 0.6929032258064516,
+            "false_approvals": 537,
+            "missed_feasible": 161,
+            "oracle_feasible": 399,
+            "queries": 1600,
+            "selected": 775,
+            "successful": 238
+          }
+        },
+        "distilbert/distilbert-base-uncased": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 553,
+            "false_approval_rate": 0.051593323216995446,
+            "false_approvals": 34,
+            "missed_feasible": 79,
+            "oracle_feasible": 704,
+            "queries": 1600,
+            "selected": 659,
+            "successful": 625
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 510,
+            "false_approval_rate": 0.025806451612903226,
+            "false_approvals": 16,
+            "missed_feasible": 100,
+            "oracle_feasible": 704,
+            "queries": 1600,
+            "selected": 620,
+            "successful": 604
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 482,
+            "false_approval_rate": 0.011804384485666104,
+            "false_approvals": 7,
+            "missed_feasible": 118,
+            "oracle_feasible": 704,
+            "queries": 1600,
+            "selected": 593,
+            "successful": 586
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 404,
+            "false_approval_rate": 0.0037593984962406013,
+            "false_approvals": 2,
+            "missed_feasible": 174,
+            "oracle_feasible": 704,
+            "queries": 1600,
+            "selected": 532,
+            "successful": 530
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 356,
+            "false_approval_rate": 0.00199203187250996,
+            "false_approvals": 1,
+            "missed_feasible": 203,
+            "oracle_feasible": 704,
+            "queries": 1600,
+            "selected": 502,
+            "successful": 501
+          },
+          "0.50": {
+            "approved_groups": 63,
+            "exact_minimal": 271,
+            "false_approval_rate": 0.002242152466367713,
+            "false_approvals": 1,
+            "missed_feasible": 259,
+            "oracle_feasible": 704,
+            "queries": 1600,
+            "selected": 446,
+            "successful": 445
+          }
+        },
+        "google-bert/bert-base-uncased": {
+          "0.00": {
+            "approved_groups": 60,
+            "exact_minimal": 393,
+            "false_approval_rate": 0.14285714285714285,
+            "false_approvals": 67,
+            "missed_feasible": 35,
+            "oracle_feasible": 437,
+            "queries": 1600,
+            "selected": 469,
+            "successful": 402
+          },
+          "0.05": {
+            "approved_groups": 60,
+            "exact_minimal": 389,
+            "false_approval_rate": 0.12473118279569892,
+            "false_approvals": 58,
+            "missed_feasible": 30,
+            "oracle_feasible": 437,
+            "queries": 1600,
+            "selected": 465,
+            "successful": 407
+          },
+          "0.10": {
+            "approved_groups": 60,
+            "exact_minimal": 387,
+            "false_approval_rate": 0.0957683741648107,
+            "false_approvals": 43,
+            "missed_feasible": 31,
+            "oracle_feasible": 437,
+            "queries": 1600,
+            "selected": 449,
+            "successful": 406
+          },
+          "0.20": {
+            "approved_groups": 58,
+            "exact_minimal": 374,
+            "false_approval_rate": 0.03855421686746988,
+            "false_approvals": 16,
+            "missed_feasible": 38,
+            "oracle_feasible": 437,
+            "queries": 1600,
+            "selected": 415,
+            "successful": 399
+          },
+          "0.30": {
+            "approved_groups": 56,
+            "exact_minimal": 349,
+            "false_approval_rate": 0.035897435897435895,
+            "false_approvals": 14,
+            "missed_feasible": 61,
+            "oracle_feasible": 437,
+            "queries": 1600,
+            "selected": 390,
+            "successful": 376
+          },
+          "0.50": {
+            "approved_groups": 54,
+            "exact_minimal": 252,
+            "false_approval_rate": 0.009375,
+            "false_approvals": 3,
+            "missed_feasible": 120,
+            "oracle_feasible": 437,
+            "queries": 1600,
+            "selected": 320,
+            "successful": 317
+          }
+        },
+        "google/bert_uncased_L-2_H-128_A-2": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 1021,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 60,
+            "oracle_feasible": 1325,
+            "queries": 1600,
+            "selected": 1265,
+            "successful": 1265
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 976,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 63,
+            "oracle_feasible": 1325,
+            "queries": 1600,
+            "selected": 1262,
+            "successful": 1262
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 914,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 82,
+            "oracle_feasible": 1325,
+            "queries": 1600,
+            "selected": 1243,
+            "successful": 1243
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 812,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 154,
+            "oracle_feasible": 1325,
+            "queries": 1600,
+            "selected": 1171,
+            "successful": 1171
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 726,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 224,
+            "oracle_feasible": 1325,
+            "queries": 1600,
+            "selected": 1101,
+            "successful": 1101
+          },
+          "0.50": {
+            "approved_groups": 64,
+            "exact_minimal": 583,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 393,
+            "oracle_feasible": 1325,
+            "queries": 1600,
+            "selected": 932,
+            "successful": 932
+          }
+        },
+        "google/bert_uncased_L-4_H-256_A-4": {
+          "0.00": {
+            "approved_groups": 60,
+            "exact_minimal": 234,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 706,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 495,
+            "successful": 495
+          },
+          "0.05": {
+            "approved_groups": 60,
+            "exact_minimal": 229,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 720,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 481,
+            "successful": 481
+          },
+          "0.10": {
+            "approved_groups": 58,
+            "exact_minimal": 214,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 737,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 464,
+            "successful": 464
+          },
+          "0.20": {
+            "approved_groups": 58,
+            "exact_minimal": 182,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 765,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 436,
+            "successful": 436
+          },
+          "0.30": {
+            "approved_groups": 56,
+            "exact_minimal": 170,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 786,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 415,
+            "successful": 415
+          },
+          "0.50": {
+            "approved_groups": 54,
+            "exact_minimal": 116,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 829,
+            "oracle_feasible": 1201,
+            "queries": 1600,
+            "selected": 372,
+            "successful": 372
+          }
+        },
+        "google/bert_uncased_L-4_H-512_A-8": {
+          "0.00": {
+            "approved_groups": 63,
+            "exact_minimal": 408,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 539,
+            "oracle_feasible": 1190,
+            "queries": 1600,
+            "selected": 651,
+            "successful": 651
+          },
+          "0.05": {
+            "approved_groups": 60,
+            "exact_minimal": 390,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 552,
+            "oracle_feasible": 1190,
+            "queries": 1600,
+            "selected": 638,
+            "successful": 638
+          },
+          "0.10": {
+            "approved_groups": 60,
+            "exact_minimal": 364,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 582,
+            "oracle_feasible": 1190,
+            "queries": 1600,
+            "selected": 608,
+            "successful": 608
+          },
+          "0.20": {
+            "approved_groups": 60,
+            "exact_minimal": 297,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 616,
+            "oracle_feasible": 1190,
+            "queries": 1600,
+            "selected": 574,
+            "successful": 574
+          },
+          "0.30": {
+            "approved_groups": 60,
+            "exact_minimal": 251,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 718,
+            "oracle_feasible": 1190,
+            "queries": 1600,
+            "selected": 472,
+            "successful": 472
+          },
+          "0.50": {
+            "approved_groups": 58,
+            "exact_minimal": 179,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 756,
+            "oracle_feasible": 1190,
+            "queries": 1600,
+            "selected": 434,
+            "successful": 434
+          }
+        }
+      },
+      "selected_margin": null,
+      "selection": "ABSTAIN_ALL"
+    },
+    {
+      "candidate_summary": {
+        "0.05": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.31295620437956206,
+          "false_approvals": 1372,
+          "retained_success_fraction": 1.0131180625630676,
+          "selected": 4384,
+          "successful": 3012
+        },
+        "0.10": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.2854401535140321,
+          "false_approvals": 1190,
+          "retained_success_fraction": 1.002018163471241,
+          "selected": 4169,
+          "successful": 2979
+        },
+        "0.20": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.24107142857142858,
+          "false_approvals": 945,
+          "retained_success_fraction": 1.0006727211570803,
+          "selected": 3920,
+          "successful": 2975
+        },
+        "0.30": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.20467185761957732,
+          "false_approvals": 736,
+          "retained_success_fraction": 0.9619912546249579,
+          "selected": 3596,
+          "successful": 2860
+        },
+        "0.50": {
+          "each_donor_floor_met": true,
+          "eligible": false,
+          "false_approval_rate": 0.1385913664394677,
+          "false_approvals": 427,
+          "retained_success_fraction": 0.8927009754456777,
+          "selected": 3081,
+          "successful": 2654
+        }
+      },
+      "donor_models": [
+        "FacebookAI/roberta-base",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "albert/albert-base-v2",
+        "distilbert/distilbert-base-uncased",
+        "google/electra-small-discriminator"
+      ],
+      "fold": "bert_family_4",
+      "held_models": [
+        "google-bert/bert-base-uncased",
+        "google/bert_uncased_L-2_H-128_A-2",
+        "google/bert_uncased_L-4_H-256_A-4",
+        "google/bert_uncased_L-4_H-512_A-8"
+      ],
+      "inner_donor_scores": {
+        "FacebookAI/roberta-base": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 538,
+            "false_approval_rate": 0.46890424481737414,
+            "false_approvals": 475,
+            "missed_feasible": 249,
+            "oracle_feasible": 787,
+            "queries": 1600,
+            "selected": 1013,
+            "successful": 538
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 573,
+            "false_approval_rate": 0.4258517034068136,
+            "false_approvals": 425,
+            "missed_feasible": 214,
+            "oracle_feasible": 787,
+            "queries": 1600,
+            "selected": 998,
+            "successful": 573
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 600,
+            "false_approval_rate": 0.38080495356037153,
+            "false_approvals": 369,
+            "missed_feasible": 187,
+            "oracle_feasible": 787,
+            "queries": 1600,
+            "selected": 969,
+            "successful": 600
+          },
+          "0.20": {
+            "approved_groups": 63,
+            "exact_minimal": 651,
+            "false_approval_rate": 0.2984913793103448,
+            "false_approvals": 277,
+            "missed_feasible": 136,
+            "oracle_feasible": 787,
+            "queries": 1600,
+            "selected": 928,
+            "successful": 651
+          },
+          "0.30": {
+            "approved_groups": 63,
+            "exact_minimal": 673,
+            "false_approval_rate": 0.2317351598173516,
+            "false_approvals": 203,
+            "missed_feasible": 114,
+            "oracle_feasible": 787,
+            "queries": 1600,
+            "selected": 876,
+            "successful": 673
+          },
+          "0.50": {
+            "approved_groups": 60,
+            "exact_minimal": 704,
+            "false_approval_rate": 0.089058524173028,
+            "false_approvals": 70,
+            "missed_feasible": 71,
+            "oracle_feasible": 787,
+            "queries": 1600,
+            "selected": 786,
+            "successful": 716
+          }
+        },
+        "Qwen/Qwen2.5-0.5B-Instruct": {
+          "0.00": {
+            "approved_groups": 63,
+            "exact_minimal": 215,
+            "false_approval_rate": 0.7123834886817576,
+            "false_approvals": 535,
+            "missed_feasible": 188,
+            "oracle_feasible": 404,
+            "queries": 1575,
+            "selected": 751,
+            "successful": 216
+          },
+          "0.05": {
+            "approved_groups": 63,
+            "exact_minimal": 250,
+            "false_approval_rate": 0.65283540802213,
+            "false_approvals": 472,
+            "missed_feasible": 153,
+            "oracle_feasible": 404,
+            "queries": 1575,
+            "selected": 723,
+            "successful": 251
+          },
+          "0.10": {
+            "approved_groups": 63,
+            "exact_minimal": 254,
+            "false_approval_rate": 0.6309696092619392,
+            "false_approvals": 436,
+            "missed_feasible": 149,
+            "oracle_feasible": 404,
+            "queries": 1575,
+            "selected": 691,
+            "successful": 255
+          },
+          "0.20": {
+            "approved_groups": 63,
+            "exact_minimal": 275,
+            "false_approval_rate": 0.5714285714285714,
+            "false_approvals": 368,
+            "missed_feasible": 128,
+            "oracle_feasible": 404,
+            "queries": 1575,
+            "selected": 644,
+            "successful": 276
+          },
+          "0.30": {
+            "approved_groups": 63,
+            "exact_minimal": 298,
+            "false_approval_rate": 0.5081699346405228,
+            "false_approvals": 311,
+            "missed_feasible": 103,
+            "oracle_feasible": 404,
+            "queries": 1575,
+            "selected": 612,
+            "successful": 301
+          },
+          "0.50": {
+            "approved_groups": 63,
+            "exact_minimal": 290,
+            "false_approval_rate": 0.3915547024952015,
+            "false_approvals": 204,
+            "missed_feasible": 87,
+            "oracle_feasible": 404,
+            "queries": 1575,
+            "selected": 521,
+            "successful": 317
+          }
+        },
+        "albert/albert-base-v2": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 527,
+            "false_approval_rate": 0.4175152749490835,
+            "false_approvals": 410,
+            "missed_feasible": 146,
+            "oracle_feasible": 718,
+            "queries": 1600,
+            "selected": 982,
+            "successful": 572
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 518,
+            "false_approval_rate": 0.4077568134171908,
+            "false_approvals": 389,
+            "missed_feasible": 153,
+            "oracle_feasible": 718,
+            "queries": 1600,
+            "selected": 954,
+            "successful": 565
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 512,
+            "false_approval_rate": 0.3846994535519126,
+            "false_approvals": 352,
+            "missed_feasible": 155,
+            "oracle_feasible": 718,
+            "queries": 1600,
+            "selected": 915,
+            "successful": 563
+          },
+          "0.20": {
+            "approved_groups": 64,
+            "exact_minimal": 495,
+            "false_approval_rate": 0.33372093023255817,
+            "false_approvals": 287,
+            "missed_feasible": 145,
+            "oracle_feasible": 718,
+            "queries": 1600,
+            "selected": 860,
+            "successful": 573
+          },
+          "0.30": {
+            "approved_groups": 64,
+            "exact_minimal": 436,
+            "false_approval_rate": 0.29301075268817206,
+            "false_approvals": 218,
+            "missed_feasible": 192,
+            "oracle_feasible": 718,
+            "queries": 1600,
+            "selected": 744,
+            "successful": 526
+          },
+          "0.50": {
+            "approved_groups": 64,
+            "exact_minimal": 328,
+            "false_approval_rate": 0.24401913875598086,
+            "false_approvals": 153,
+            "missed_feasible": 244,
+            "oracle_feasible": 718,
+            "queries": 1600,
+            "selected": 627,
+            "successful": 474
+          }
+        },
+        "distilbert/distilbert-base-uncased": {
+          "0.00": {
+            "approved_groups": 64,
+            "exact_minimal": 610,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 162,
+            "oracle_feasible": 1129,
+            "queries": 1600,
+            "selected": 967,
+            "successful": 967
+          },
+          "0.05": {
+            "approved_groups": 64,
+            "exact_minimal": 565,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 176,
+            "oracle_feasible": 1129,
+            "queries": 1600,
+            "selected": 953,
+            "successful": 953
+          },
+          "0.10": {
+            "approved_groups": 64,
+            "exact_minimal": 489,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 229,
+            "oracle_feasible": 1129,
+            "queries": 1600,
+            "selected": 900,
+            "successful": 900
+          },
+          "0.20": {
+            "approved_groups": 63,
+            "exact_minimal": 380,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 296,
+            "oracle_feasible": 1129,
+            "queries": 1600,
+            "selected": 833,
+            "successful": 833
+          },
+          "0.30": {
+            "approved_groups": 63,
+            "exact_minimal": 303,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 389,
+            "oracle_feasible": 1129,
+            "queries": 1600,
+            "selected": 740,
+            "successful": 740
+          },
+          "0.50": {
+            "approved_groups": 61,
+            "exact_minimal": 210,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 475,
+            "oracle_feasible": 1129,
+            "queries": 1600,
+            "selected": 654,
+            "successful": 654
+          }
+        },
+        "google/electra-small-discriminator": {
+          "0.00": {
+            "approved_groups": 60,
+            "exact_minimal": 573,
+            "false_approval_rate": 0.15737298636926889,
+            "false_approvals": 127,
+            "missed_feasible": 338,
+            "oracle_feasible": 1018,
+            "queries": 1600,
+            "selected": 807,
+            "successful": 680
+          },
+          "0.05": {
+            "approved_groups": 60,
+            "exact_minimal": 562,
+            "false_approval_rate": 0.11375661375661375,
+            "false_approvals": 86,
+            "missed_feasible": 348,
+            "oracle_feasible": 1018,
+            "queries": 1600,
+            "selected": 756,
+            "successful": 670
+          },
+          "0.10": {
+            "approved_groups": 60,
+            "exact_minimal": 540,
+            "false_approval_rate": 0.04755043227665706,
+            "false_approvals": 33,
+            "missed_feasible": 357,
+            "oracle_feasible": 1018,
+            "queries": 1600,
+            "selected": 694,
+            "successful": 661
+          },
+          "0.20": {
+            "approved_groups": 58,
+            "exact_minimal": 493,
+            "false_approval_rate": 0.01984732824427481,
+            "false_approvals": 13,
+            "missed_feasible": 376,
+            "oracle_feasible": 1018,
+            "queries": 1600,
+            "selected": 655,
+            "successful": 642
+          },
+          "0.30": {
+            "approved_groups": 56,
+            "exact_minimal": 456,
+            "false_approval_rate": 0.00641025641025641,
+            "false_approvals": 4,
+            "missed_feasible": 398,
+            "oracle_feasible": 1018,
+            "queries": 1600,
+            "selected": 624,
+            "successful": 620
+          },
+          "0.50": {
+            "approved_groups": 55,
+            "exact_minimal": 299,
+            "false_approval_rate": 0.0,
+            "false_approvals": 0,
+            "missed_feasible": 525,
+            "oracle_feasible": 1018,
+            "queries": 1600,
+            "selected": 493,
+            "successful": 493
+          }
+        }
+      },
+      "selected_margin": null,
+      "selection": "ABSTAIN_ALL"
+    }
+  ],
+  "model_spec": "ExtraTreesRegressor(200, min_leaf=2, max_features=1, seed=42, n_jobs=2)",
+  "outer_scores_seen": false,
+  "protocol_sha256": "ade14436de18da225cdb9c82d9f93ed106f0be3f1df48b0716ced114e3fa2359",
+  "script_sha256": "2f1f8d6d8b08b588badd31e5ce8e2a1279f5a8498b58f8db9037e7fde6ca90ca",
+  "source_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906"
+}

@@ -1,0 +1,238 @@
+{
+  "protocol_sha256": "492c510798a93260ede5d3f20662a7aa25a3dc33238a3230c4d8164795af4d2c",
+  "source": {
+    "path": "/home/researcher/ai-mcmp/research/data/external/pax_autoscale_feasibility/PAX.zip",
+    "sha256": "db15cfa75f05d44020a3f5c4f6f4930cbb1c2518dd3884391917615cea52a23a",
+    "md5": "56cf6c11f79e0cffadeb2414784a789b",
+    "bytes": 1307826,
+    "zip_crc_ok": true
+  },
+  "script_sha256": "d5a958d4bb687da8e1c73779eb883179de74e2c4918e4dcfeddc48ced1c5f562",
+  "created_utc": "2026-09-28T19:03:21.694785+00:00",
+  "results_outcome_columns_parsed_or_used": false,
+  "experiment_folders_with_running_vms": 9,
+  "complete_folders": 9,
+  "parsed_folders": 9,
+  "parse_errors": {},
+  "folders": [
+    {
+      "folder": "PAX/Aggressive strategies/Aggressive",
+      "node_samples": 128,
+      "client_samples": 10480,
+      "result_timestamps": 1048,
+      "time_start": "2017-10-06T12:27:35",
+      "time_end": "2017-10-06T15:22:14",
+      "raw_transitions": 2,
+      "eligible_transitions": 0,
+      "raw_by_direction": {
+        "out": 1,
+        "in": 1
+      },
+      "eligible_by_direction": {},
+      "transition_gap_seconds": {
+        "min": 5869.412718,
+        "median": 5869.412718
+      }
+    },
+    {
+      "folder": "PAX/Aggressive strategies/Conservative",
+      "node_samples": 412,
+      "client_samples": 35641,
+      "result_timestamps": 3564,
+      "time_start": "2017-10-04T11:12:29",
+      "time_end": "2017-10-04T22:06:44.456684",
+      "raw_transitions": 14,
+      "eligible_transitions": 0,
+      "raw_by_direction": {
+        "out": 9,
+        "in": 5
+      },
+      "eligible_by_direction": {},
+      "transition_gap_seconds": {
+        "min": 640.94148,
+        "median": 1805.457976
+      }
+    },
+    {
+      "folder": "PAX/Aggressive strategies/Normal",
+      "node_samples": 424,
+      "client_samples": 35554,
+      "result_timestamps": 3555,
+      "time_start": "2017-10-02T13:16:12",
+      "time_end": "2017-10-03T00:06:45.732146",
+      "raw_transitions": 17,
+      "eligible_transitions": 0,
+      "raw_by_direction": {
+        "out": 7,
+        "in": 10
+      },
+      "eligible_by_direction": {},
+      "transition_gap_seconds": {
+        "min": 564.538465,
+        "median": 1394.4781345000001
+      }
+    },
+    {
+      "folder": "PAX/HintHandoff_sinchronization",
+      "node_samples": 97,
+      "client_samples": 9430,
+      "result_timestamps": 943,
+      "time_start": "2017-08-26T12:30:12",
+      "time_end": "2017-08-26T15:07:21",
+      "raw_transitions": 3,
+      "eligible_transitions": 0,
+      "raw_by_direction": {
+        "out": 2,
+        "in": 1
+      },
+      "eligible_by_direction": {},
+      "transition_gap_seconds": {
+        "min": 1469.690028,
+        "median": 2363.539557
+      }
+    },
+    {
+      "folder": "PAX/Validation/Change Architecture Proactive",
+      "node_samples": 107,
+      "client_samples": 8746,
+      "result_timestamps": 875,
+      "time_start": "2017-08-28T19:07:17",
+      "time_end": "2017-08-28T21:33:02",
+      "raw_transitions": 2,
+      "eligible_transitions": 0,
+      "raw_by_direction": {
+        "out": 1,
+        "in": 1
+      },
+      "eligible_by_direction": {},
+      "transition_gap_seconds": {
+        "min": 902.384073,
+        "median": 902.384073
+      }
+    },
+    {
+      "folder": "PAX/Validation/Doble syn Proactive",
+      "node_samples": 678,
+      "client_samples": 32404,
+      "result_timestamps": 3240,
+      "time_start": "2017-08-23T23:03:17",
+      "time_end": "2017-08-24T23:05:01.871852",
+      "raw_transitions": 8,
+      "eligible_transitions": 0,
+      "raw_by_direction": {
+        "out": 4,
+        "in": 4
+      },
+      "eligible_by_direction": {},
+      "transition_gap_seconds": {
+        "min": 2572.284366,
+        "median": 2978.730481
+      }
+    },
+    {
+      "folder": "PAX/Validation/Step Proactive",
+      "node_samples": 260,
+      "client_samples": 25160,
+      "result_timestamps": 2516,
+      "time_start": "2017-08-21T09:17:21",
+      "time_end": "2017-08-21T16:16:40",
+      "raw_transitions": 8,
+      "eligible_transitions": 0,
+      "raw_by_direction": {
+        "out": 4,
+        "in": 4
+      },
+      "eligible_by_direction": {},
+      "transition_gap_seconds": {
+        "min": 1605.01442,
+        "median": 2831.197842
+      }
+    },
+    {
+      "folder": "PAX/Validation/Syn Proactive",
+      "node_samples": 113,
+      "client_samples": 10410,
+      "result_timestamps": 1041,
+      "time_start": "2017-08-30T17:11:43",
+      "time_end": "2017-08-30T20:05:12",
+      "raw_transitions": 2,
+      "eligible_transitions": 0,
+      "raw_by_direction": {
+        "out": 1,
+        "in": 1
+      },
+      "eligible_by_direction": {},
+      "transition_gap_seconds": {
+        "min": 5438.43826,
+        "median": 5438.43826
+      }
+    },
+    {
+      "folder": "PAX/Validation/Syn Reactive",
+      "node_samples": 123,
+      "client_samples": 10460,
+      "result_timestamps": 1045,
+      "time_start": "2017-08-30T10:39:20",
+      "time_end": "2017-08-30T13:33:39",
+      "raw_transitions": 2,
+      "eligible_transitions": 0,
+      "raw_by_direction": {
+        "out": 1,
+        "in": 1
+      },
+      "eligible_by_direction": {},
+      "transition_gap_seconds": {
+        "min": 3709.501179,
+        "median": 3709.501179
+      }
+    }
+  ],
+  "parsing_only_correction": {
+    "initial_failure_artifact": "first_parse_failure.json",
+    "reason": "Each complete experiment's clients.csv ends with one empty row; results.csv also ends with one empty row. The first parser rejected all nine clients.csv files at that terminal row.",
+    "trailing_blank_lines_by_file": {
+      "PAX/Aggressive strategies/Aggressive/results.csv": 1,
+      "PAX/Aggressive strategies/Aggressive/clients.csv": 1,
+      "PAX/Aggressive strategies/Conservative/results.csv": 1,
+      "PAX/Aggressive strategies/Conservative/clients.csv": 1,
+      "PAX/Aggressive strategies/Normal/results.csv": 1,
+      "PAX/Aggressive strategies/Normal/clients.csv": 1,
+      "PAX/HintHandoff_sinchronization/results.csv": 1,
+      "PAX/HintHandoff_sinchronization/clients.csv": 1,
+      "PAX/Validation/Change Architecture Proactive/results.csv": 1,
+      "PAX/Validation/Change Architecture Proactive/clients.csv": 1,
+      "PAX/Validation/Doble syn Proactive/results.csv": 1,
+      "PAX/Validation/Doble syn Proactive/clients.csv": 1,
+      "PAX/Validation/Step Proactive/results.csv": 1,
+      "PAX/Validation/Step Proactive/clients.csv": 1,
+      "PAX/Validation/Syn Proactive/results.csv": 1,
+      "PAX/Validation/Syn Proactive/clients.csv": 1,
+      "PAX/Validation/Syn Reactive/results.csv": 1,
+      "PAX/Validation/Syn Reactive/clients.csv": 1
+    }
+  },
+  "raw_transitions": 58,
+  "eligible_transitions": 0,
+  "raw_by_direction": {
+    "out": 30,
+    "in": 28
+  },
+  "eligible_by_direction": {},
+  "failure_reason_counts_nonexclusive": {
+    "observation_gap_gt_120s": 58,
+    "client_count_not_stable": 37
+  },
+  "adjacent_observation_seconds": {
+    "min": 185.001478,
+    "median": 186.71317349999998,
+    "max": 311.812484
+  },
+  "overlapping_time_range_pairs": [],
+  "best_nonoverlapping_folder_subset": {
+    "folders": [],
+    "transitions": 0,
+    "out": 0,
+    "in": 0
+  },
+  "limited_paired_observation_go": false
+}

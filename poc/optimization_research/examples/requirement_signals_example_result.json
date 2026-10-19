@@ -1,0 +1,42 @@
+{
+  "scope": "Offline research evidence on icns RTX PRO 5000 Blackwell GPU 0, CUDA replica 1, CPU affinity 2. No minimum VRAM, OOM, VM startup, deployment, or scaling decision.",
+  "metadata_provenance": "caller_declared",
+  "artifact_hashes_verified_at_load": true,
+  "source_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "training_sklearn_version": "1.6.1",
+  "runtime_sklearn_version": "1.6.1",
+  "runtime_numpy_version": "2.0.2",
+  "runtime_pandas_version": "2.3.0+4.g1dfc98e16a",
+  "runtime_joblib_version": "1.5.1",
+  "hardware_profile": {
+    "host": "icns",
+    "device": "cuda",
+    "device_name": "NVIDIA RTX PRO 5000 Blackwell",
+    "gpu_indices": [
+      0
+    ],
+    "replica_count": 1,
+    "cpu_core_limit": 2,
+    "cpu_threads": 2
+  },
+  "signals": {
+    "observed_cuda_reserved_peak_gib": {
+      "status": "RESEARCH_ESTIMATE",
+      "estimate": 0.20821557769515572,
+      "unit": "GiB",
+      "target_definition": "empirical_q90_of_observed_torch_cuda_max_memory_reserved",
+      "training_relation": "DECLARED_UNSEEN_MODEL",
+      "artifact_sha256": "21387fd6ba6b6185737ed9e10ba0930b9c2696e033ac532287bd84e8f6501e01",
+      "reasons": []
+    },
+    "cached_local_load_seconds": {
+      "status": "RESEARCH_ESTIMATE",
+      "estimate": 0.1875111137242485,
+      "unit": "seconds",
+      "target_definition": "cached_local_huggingface_model_and_tokenizer_load_seconds",
+      "training_relation": "DECLARED_UNSEEN_MODEL",
+      "artifact_sha256": "39a8d614c101a89d1ec65dca136a4c24415da3b0d41ff8f4209422fd9ee76131",
+      "reasons": []
+    }
+  }
+}

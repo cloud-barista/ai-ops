@@ -1,0 +1,65 @@
+{
+  "baseline_validation_brier": {
+    "age_24h_beta": 0.04911777572591969,
+    "recent_2h_beta": 0.048078321776613184,
+    "train_beta": 0.046015034063580054
+  },
+  "development_eligibility_sha256": "f801c104c9a3df0784617d9820ef5b99b59721abcf898eac7cc4a1dc1609a65f",
+  "development_source_sha256": "15f1af4669acb9823d0e6d96291e799cf33f8a9c1813d4faf51b0b9eb618ad58",
+  "feature_names": [
+    "idle_u_1",
+    "idle_u_2",
+    "idle_u_3",
+    "idle_u_4",
+    "idle_u_5",
+    "idle_u_6",
+    "past_2h_mean",
+    "past_2h_max",
+    "past_2h_valid_fraction",
+    "past_24h_mean",
+    "past_24h_max",
+    "past_24h_valid_fraction",
+    "last_high_age_hours_capped_24",
+    "no_observed_high_24h",
+    "expected_gpu_slots",
+    "utc_hour_sin",
+    "utc_hour_cos"
+  ],
+  "freeze_manifest_sha256": "6ff43a1045c39f30e4c422dcadb224ea6ed37f09ab3575f93681e6fc2b14d388",
+  "kind": "philly_idle_rebound_validation_selection_v1",
+  "model_validation_brier_by_c": {
+    "0.1": 0.05083091398850282,
+    "1": 0.051190397254333116,
+    "10": 0.051215086297563585
+  },
+  "model_validation_diagnostics_by_c": {
+    "0.1": {
+      "average_precision": 0.08378524386347039,
+      "converged": true,
+      "iterations": 30,
+      "mean_probability": 0.07773750279201717
+    },
+    "1": {
+      "average_precision": 0.08387738365236652,
+      "converged": true,
+      "iterations": 29,
+      "mean_probability": 0.07675678192778096
+    },
+    "10": {
+      "average_precision": 0.08385850676350698,
+      "converged": true,
+      "iterations": 49,
+      "mean_probability": 0.07664149283076649
+    }
+  },
+  "notes": "Only pre-December development train/validation labels were read; no December score or model prediction.",
+  "protocol_sha256": "828e906af43963a9bfefdb564812edce0f7b4711ee5cc67da2ddd7ad45f96fb2",
+  "selected_baseline": "train_beta",
+  "selected_c": "0.1",
+  "selected_model_sha256": "642280bef32c0faa828e8b1226a71671dc240ae3335ad902013d36196fb5ed02",
+  "selection_code_sha256": "c5ee213bc464fd35f95f4a90af4f501f13c9e12f05a2349ba10ce331d076ee06",
+  "train_n": 6345,
+  "train_positive": 493,
+  "validation_n": 4839,
+  "validation_positive": 229
+}

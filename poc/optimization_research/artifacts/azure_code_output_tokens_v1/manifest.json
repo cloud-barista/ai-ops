@@ -1,0 +1,81 @@
+{
+  "bin_boundary_side": "left",
+  "bin_edges_context_tokens": [
+    704,
+    1464,
+    2330,
+    3769
+  ],
+  "heldout_labels_inspected": false,
+  "hgb_params": {
+    "early_stopping": false,
+    "l2_regularization": 10,
+    "learning_rate": 0.05,
+    "loss": "quantile",
+    "max_iter": 140,
+    "max_leaf_nodes": 15,
+    "min_samples_leaf": 60,
+    "quantile": 0.9,
+    "random_state": 42
+  },
+  "hgb_sample_count_by_train_day": [
+    50000,
+    50000,
+    50000,
+    50000
+  ],
+  "hgb_sample_seed": 42,
+  "input_audit_sha256": "c7c936ea337746ac31f41e927eefd74a263890502fa2363e9cb1dd7ca80c7ebc",
+  "methods": [
+    "rolling_bin",
+    "rolling_global",
+    "static_hgb_length",
+    "static_bin",
+    "static_global"
+  ],
+  "min_bin_support": 100,
+  "model_sha256": "e7f2e479fa30340b6970877a7e5581858f83cf24eefaac83d21b7c404f6a3df7",
+  "numpy_version": "2.2.6",
+  "protocol_sha256": "916f1e156559ca140b1397931f52b6078ba61f58e38e94affa7ffb2f8f787570",
+  "quantile": 0.9,
+  "rolling_history": "[max(0,d-8),d-2] inclusive",
+  "script_sha256": "38d4d9fd9451602febd0e71da10eea54279925183709395f3a78c84c11140545",
+  "sklearn_version": "1.5.2",
+  "source_bytes": 691989454,
+  "source_sha256": "71de5c55cbc35f8f1ed0b6b7806b4cd1e9764b0058469725a6aac98023a1448f",
+  "split": {
+    "test_days": [
+      4,
+      5,
+      6
+    ],
+    "train_days": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "static_bin_p90": [
+    45.0,
+    46.0,
+    46.0,
+    43.0,
+    43.0
+  ],
+  "static_global_p90": 45.0,
+  "train_eligible_by_day": [
+    2490144,
+    969781,
+    929659,
+    2937292
+  ],
+  "train_histograms_sha256": "c42110bc0b602b682df64f496d11ee9a00fcef0019c91e46bd033633343e1908",
+  "train_rows_by_day": [
+    2490144,
+    969781,
+    929659,
+    2937292
+  ],
+  "version": 1
+}

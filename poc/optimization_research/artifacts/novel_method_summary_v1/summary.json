@@ -1,0 +1,136 @@
+{
+  "source_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "script_sha256": "4adc5f0419ca6a3ccd1f0eeb8f322dfca8031b1f6ff0a81765d3513d0a99feaf",
+  "paired_prediction": {
+    "latency_mae_log/Static + anchor shift": {
+      "macro_mae_log": 0.27621288240947917,
+      "baseline_minus_conditional": 0.057384976578277534,
+      "model_bootstrap_95_percent_ci_exploratory": [
+        0.028392043684981126,
+        0.09182207254944101
+      ],
+      "conditional_better_models": 8,
+      "heldout_models": 9
+    },
+    "latency_mae_log/Anchor-conditioned ExtraTrees": {
+      "macro_mae_log": 0.21882790583120168,
+      "baseline_minus_conditional": 0.0,
+      "model_bootstrap_95_percent_ci_exploratory": [
+        0.0,
+        0.0
+      ],
+      "conditional_better_models": 0,
+      "heldout_models": 9
+    },
+    "latency_mae_log/Anchor-conditioned RandomForest": {
+      "macro_mae_log": 0.22243523278556265,
+      "baseline_minus_conditional": 0.003607326954360973,
+      "model_bootstrap_95_percent_ci_exploratory": [
+        -0.006092680152244772,
+        0.011809365146344218
+      ],
+      "conditional_better_models": 5,
+      "heldout_models": 9
+    },
+    "latency_mae_log/Direct ExtraTrees": {
+      "macro_mae_log": 0.20577756746314857,
+      "baseline_minus_conditional": -0.01305033836805311,
+      "model_bootstrap_95_percent_ci_exploratory": [
+        -0.03268356172742277,
+        0.015107439780052334
+      ],
+      "conditional_better_models": 2,
+      "heldout_models": 9
+    },
+    "throughput_mae_log/Static + anchor shift": {
+      "macro_mae_log": 0.11437523757449533,
+      "baseline_minus_conditional": 0.024817081007998135,
+      "model_bootstrap_95_percent_ci_exploratory": [
+        0.006273991799108397,
+        0.04504198260641055
+      ],
+      "conditional_better_models": 6,
+      "heldout_models": 9
+    },
+    "throughput_mae_log/Anchor-conditioned ExtraTrees": {
+      "macro_mae_log": 0.08955815656649718,
+      "baseline_minus_conditional": 0.0,
+      "model_bootstrap_95_percent_ci_exploratory": [
+        0.0,
+        0.0
+      ],
+      "conditional_better_models": 0,
+      "heldout_models": 9
+    },
+    "throughput_mae_log/Anchor-conditioned RandomForest": {
+      "macro_mae_log": 0.08962740740516698,
+      "baseline_minus_conditional": 6.925083866978704e-05,
+      "model_bootstrap_95_percent_ci_exploratory": [
+        -0.005695878245935022,
+        0.0047933251946726835
+      ],
+      "conditional_better_models": 5,
+      "heldout_models": 9
+    },
+    "throughput_mae_log/Direct ExtraTrees": {
+      "macro_mae_log": 0.13093542787788268,
+      "baseline_minus_conditional": 0.041377271311385494,
+      "model_bootstrap_95_percent_ci_exploratory": [
+        0.008637407168736342,
+        0.09170115661281787
+      ],
+      "conditional_better_models": 7,
+      "heldout_models": 9
+    }
+  },
+  "probe_budgets": [
+    25,
+    50,
+    100,
+    150,
+    200
+  ],
+  "verified_recoveries": {
+    "Static + anchor shift": [
+      25,
+      50,
+      95,
+      107,
+      108
+    ],
+    "Anchor-conditioned ExtraTrees": [
+      25,
+      50,
+      98,
+      107,
+      108
+    ],
+    "Anchor-conditioned RandomForest": [
+      25,
+      50,
+      98,
+      108,
+      108
+    ],
+    "Direct ExtraTrees": [
+      25,
+      50,
+      97,
+      106,
+      108
+    ],
+    "Direct feasibility classifier": [
+      24,
+      49,
+      94,
+      106,
+      108
+    ]
+  },
+  "crossfit_rejected": {
+    "latency_mae_log": 0.2572923830270535,
+    "throughput_mae_log": 0.18543164215774496,
+    "top_100_recoveries": 91
+  },
+  "notes": "Model bootstrap is descriptive after exploratory method selection; plotted probe outcomes are measured offline."
+}

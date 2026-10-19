@@ -1,0 +1,22 @@
+{
+  "kind": "khu.philly_idle_rebound_adaptive_v3.validation_score_authorization",
+  "frozen_at_utc": "2026-09-28 21:12:58 UTC",
+  "status": "validation_only_pre_score_frozen",
+  "authorized_scope": "Original <5 Philly machines, development validation decisions in [2017-11-16,2017-12-01) only. No December or other-machine idle-rebound label access.",
+  "score_free_freeze_sha256": "d0d0f24915773d0f7536d2737c9fabe65d1d3b18d90999d8e8a2c6c8815a55d4",
+  "score_free_support_sha256": "1eddb9f400c7aefa0a5260743a71cd3a672cd24c3377ef36331664f17c96f7fa",
+  "original_audit_sha256": "a2597040751c9723632a0cabc9e494c53697b07ba066215be321e61e846bb599",
+  "development_source_sha256": "15f1af4669acb9823d0e6d96291e799cf33f8a9c1813d4faf51b0b9eb618ad58",
+  "scorer_sha256": "8276a352a33ecf7d8f9eed218fefded57bbc719c3a94483af706fddef79023a0",
+  "test_sha256": "3bee35b838bb585bd74f0bb289cfcbe89af4d11afcae48d08b3699a2efe83928",
+  "scoring_note_sha256": "9465a55b7263e56b5989939fd867996437c105e9e8183ab36bd0a5b23faf2fd3",
+  "versions": {
+    "python": "3.10.12",
+    "numpy": "2.2.6",
+    "pandas": "2.2.3",
+    "pyarrow": "18.0.0"
+  },
+  "validation_score_executed_at_freeze": false,
+  "reviewed_digest_required_on_cli": true,
+  "prior_exposure": "v3 designed after original validation Brier and same-machine December aggregate positive count; validation outcome will be exploratory."
+}

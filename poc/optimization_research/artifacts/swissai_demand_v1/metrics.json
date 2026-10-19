@@ -1,0 +1,653 @@
+{
+  "status": "scored",
+  "scope": "exploratory_demand_signal_only",
+  "hashes": {
+    "raw_sha256": "79c92fd40752e40a6cac1fc897491ea2f54f37939dc4dcc48c96ea06383c81b7",
+    "compact_sha256": "d5c2bf4cc038f936a9713f8fc7c0430703ddd1c03ed0518fb65aaf68e160997b",
+    "audit_sha256": "c03b7c7c0f517eea8301113feed83fda94a8701d8c68a592da0c3de0cd6f8aab",
+    "protocol_sha256": "a50ded6b5d29ec83dc84efbd7635dd63a0f05d832175e362d174ad71495fed8d"
+  },
+  "script_sha256": "955033b50da0a5bd53b07bc17d39441219813152f8db652f92deaafbe6359b09",
+  "dataset_sha256": "d8443b67a500ca443e8d556152e5da299d63ebb1f81f05f4e5661c17af418c89",
+  "source_rows": 18893,
+  "train_rows": 12426,
+  "validation_rows": 3039,
+  "test_rows": 3428,
+  "selected_aliases": [
+    "45363f1dab",
+    "99668f5da8"
+  ],
+  "features": {
+    "arrival_only": [
+      "model_code",
+      "m5",
+      "m10",
+      "m30",
+      "m60",
+      "m120",
+      "g5",
+      "g10",
+      "g30",
+      "g60",
+      "g120",
+      "sin_day",
+      "cos_day",
+      "sin_week",
+      "cos_week"
+    ],
+    "with_completion": [
+      "model_code",
+      "m5",
+      "m10",
+      "m30",
+      "m60",
+      "m120",
+      "g5",
+      "g10",
+      "g30",
+      "g60",
+      "g120",
+      "sin_day",
+      "cos_day",
+      "sin_week",
+      "cos_week",
+      "c30",
+      "c120",
+      "duration_p90_logsec",
+      "error_rate120",
+      "completion_empty120"
+    ]
+  },
+  "validation": {
+    "arrival_only": {
+      "equal_model_mean_pinball": 169.52716692930773,
+      "pooled": {
+        "rows": 3039,
+        "mean_pinball": 170.14232199407382,
+        "coverage": 0.8914116485686081,
+        "mean_prediction": 1034.4738540321919,
+        "mean_actual": 825.6926620598881
+      },
+      "by_model": {
+        "45363f1dab": {
+          "rows": 1526,
+          "mean_pinball": 313.3314932234867,
+          "coverage": 0.8197903014416776,
+          "mean_prediction": 1970.1970654108243,
+          "mean_actual": 1599.6094364351245
+        },
+        "99668f5da8": {
+          "rows": 1513,
+          "mean_pinball": 25.722840635128737,
+          "coverage": 0.9636483807005949,
+          "mean_prediction": 90.71072081091387,
+          "mean_actual": 45.12623925974884
+        }
+      }
+    },
+    "with_completion": {
+      "equal_model_mean_pinball": 171.94019817499867,
+      "pooled": {
+        "rows": 3039,
+        "mean_pinball": 172.5652745826058,
+        "coverage": 0.8894373149062191,
+        "mean_prediction": 1008.3032683186997,
+        "mean_actual": 825.6926620598881
+      },
+      "by_model": {
+        "45363f1dab": {
+          "rows": 1526,
+          "mean_pinball": 318.06382915331596,
+          "coverage": 0.8119266055045872,
+          "mean_prediction": 1919.0520997007163,
+          "mean_actual": 1599.6094364351245
+        },
+        "99668f5da8": {
+          "rows": 1513,
+          "mean_pinball": 25.81656719668136,
+          "coverage": 0.9676140118968936,
+          "mean_prediction": 89.72909998495413,
+          "mean_actual": 45.12623925974884
+        }
+      }
+    },
+    "recent_p90": {
+      "equal_model_mean_pinball": 207.23705329260864,
+      "pooled": {
+        "rows": 3039,
+        "mean_pinball": 207.95830865416258,
+        "coverage": 0.8196775255018098,
+        "mean_prediction": 1565.6179664363278,
+        "mean_actual": 825.6926620598881
+      },
+      "by_model": {
+        "45363f1dab": {
+          "rows": 1526,
+          "mean_pinball": 375.844364351245,
+          "coverage": 0.7889908256880734,
+          "mean_prediction": 3024.9141546526866,
+          "mean_actual": 1599.6094364351245
+        },
+        "99668f5da8": {
+          "rows": 1513,
+          "mean_pinball": 38.629742233972244,
+          "coverage": 0.8506278916060807,
+          "mean_prediction": 93.783212161269,
+          "mean_actual": 45.12623925974884
+        }
+      }
+    },
+    "persistence": {
+      "equal_model_mean_pinball": 196.66502955166195,
+      "pooled": {
+        "rows": 3039,
+        "mean_pinball": 197.38759460348797,
+        "coverage": 0.7022046725896677,
+        "mean_prediction": 834.8005923000987,
+        "mean_actual": 825.6926620598881
+      },
+      "by_model": {
+        "45363f1dab": {
+          "rows": 1526,
+          "mean_pinball": 365.578505897772,
+          "coverage": 0.6376146788990825,
+          "mean_prediction": 1614.608125819135,
+          "mean_actual": 1599.6094364351245
+        },
+        "99668f5da8": {
+          "rows": 1513,
+          "mean_pinball": 27.75155320555188,
+          "coverage": 0.767349636483807,
+          "mean_prediction": 48.29279576999339,
+          "mean_actual": 45.12623925974884
+        }
+      }
+    },
+    "fixed_p90": {
+      "equal_model_mean_pinball": 869.724584834449,
+      "pooled": {
+        "rows": 3039,
+        "mean_pinball": 872.1011516946363,
+        "coverage": 0.6334320500164528,
+        "mean_prediction": 1506.6219151036526,
+        "mean_actual": 825.6926620598881
+      },
+      "by_model": {
+        "45363f1dab": {
+          "rows": 1526,
+          "mean_pinball": 1425.2927916120575,
+          "coverage": 0.27391874180865006,
+          "mean_prediction": 22.0,
+          "mean_actual": 1599.6094364351245
+        },
+        "99668f5da8": {
+          "rows": 1513,
+          "mean_pinball": 314.15637805684065,
+          "coverage": 0.9960343688037012,
+          "mean_prediction": 3004.0,
+          "mean_actual": 45.12623925974884
+        }
+      }
+    }
+  },
+  "selected_simple_baseline": "persistence",
+  "test": {
+    "arrival_only": {
+      "equal_model_mean_pinball": 1594.6549905866782,
+      "pooled": {
+        "rows": 3428,
+        "mean_pinball": 1596.285695275557,
+        "coverage": 0.8004667444574096,
+        "mean_prediction": 1880.1290769558827,
+        "mean_actual": 3103.255250875146
+      },
+      "by_model": {
+        "45363f1dab": {
+          "rows": 1747,
+          "mean_pinball": 1679.3528038211632,
+          "coverage": 0.750429307384087,
+          "mean_prediction": 2442.155270315842,
+          "mean_actual": 3641.167143674871
+        },
+        "99668f5da8": {
+          "rows": 1681,
+          "mean_pinball": 1509.957177352193,
+          "coverage": 0.8524687685901249,
+          "mean_prediction": 1296.036417943481,
+          "mean_actual": 2544.223676383105
+        }
+      }
+    },
+    "with_completion": {
+      "equal_model_mean_pinball": 1614.0811549560576,
+      "pooled": {
+        "rows": 3428,
+        "mean_pinball": 1615.8237190515604,
+        "coverage": 0.7972578763127188,
+        "mean_prediction": 1836.0687379415576,
+        "mean_actual": 3103.255250875146
+      },
+      "by_model": {
+        "45363f1dab": {
+          "rows": 1747,
+          "mean_pinball": 1704.5888779770148,
+          "coverage": 0.7384087006296508,
+          "mean_prediction": 2385.550252951731,
+          "mean_actual": 3641.167143674871
+        },
+        "99668f5da8": {
+          "rows": 1681,
+          "mean_pinball": 1523.5734319351002,
+          "coverage": 0.8584176085663295,
+          "mean_prediction": 1265.0132907537095,
+          "mean_actual": 2544.223676383105
+        }
+      }
+    },
+    "recent_p90": {
+      "equal_model_mean_pinball": 727.8845388559362,
+      "pooled": {
+        "rows": 3428,
+        "mean_pinball": 729.5803675612602,
+        "coverage": 0.7855892648774796,
+        "mean_prediction": 4972.0665110851805,
+        "mean_actual": 3103.255250875146
+      },
+      "by_model": {
+        "45363f1dab": {
+          "rows": 1747,
+          "mean_pinball": 815.9648540354892,
+          "coverage": 0.7853463079564968,
+          "mean_prediction": 6046.442472810532,
+          "mean_actual": 3641.167143674871
+        },
+        "99668f5da8": {
+          "rows": 1681,
+          "mean_pinball": 639.804223676383,
+          "coverage": 0.7858417608566329,
+          "mean_prediction": 3855.508030933968,
+          "mean_actual": 2544.223676383105
+        }
+      }
+    },
+    "persistence": {
+      "equal_model_mean_pinball": 779.6085524194276,
+      "pooled": {
+        "rows": 3428,
+        "mean_pinball": 782.083284714119,
+        "coverage": 0.7149941656942824,
+        "mean_prediction": 3258.8518086347726,
+        "mean_actual": 3103.255250875146
+      },
+      "by_model": {
+        "45363f1dab": {
+          "rows": 1747,
+          "mean_pinball": 908.144647967945,
+          "coverage": 0.7012020606754437,
+          "mean_prediction": 3863.953062392673,
+          "mean_actual": 3641.167143674871
+        },
+        "99668f5da8": {
+          "rows": 1681,
+          "mean_pinball": 651.0724568709102,
+          "coverage": 0.7293277810826889,
+          "mean_prediction": 2629.9928613920288,
+          "mean_actual": 2544.223676383105
+        }
+      }
+    },
+    "fixed_p90": {
+      "equal_model_mean_pinball": 2696.7809950567084,
+      "pooled": {
+        "rows": 3428,
+        "mean_pinball": 2707.7803092182025,
+        "coverage": 0.7106184364060677,
+        "mean_prediction": 1484.2934655775962,
+        "mean_actual": 3103.255250875146
+      },
+      "by_model": {
+        "45363f1dab": {
+          "rows": 1747,
+          "mean_pinball": 3268.07870635375,
+          "coverage": 0.5300515168860904,
+          "mean_prediction": 22.0,
+          "mean_actual": 3641.167143674871
+        },
+        "99668f5da8": {
+          "rows": 1681,
+          "mean_pinball": 2125.483283759667,
+          "coverage": 0.8982748364069006,
+          "mean_prediction": 3004.0,
+          "mean_actual": 2544.223676383105
+        }
+      }
+    }
+  },
+  "weekly_test": [
+    {
+      "week": 1,
+      "start_us": 1752624000000000,
+      "end_us": 1753228800000000,
+      "complete_7d": true,
+      "rows": 334,
+      "arrival_only": {
+        "equal_model_mean_pinball": 7.518635807068053,
+        "pooled": {
+          "rows": 334,
+          "mean_pinball": 6.656045389433844,
+          "coverage": 0.8862275449101796,
+          "mean_prediction": 82.08329504259267,
+          "mean_actual": 31.535928143712574
+        },
+        "by_model": {
+          "45363f1dab": {
+            "rows": 226,
+            "mean_pinball": 5.077066319866141,
+            "coverage": 0.8362831858407079,
+            "mean_prediction": 48.165263014907325,
+            "mean_actual": 19.32300884955752
+          },
+          "99668f5da8": {
+            "rows": 108,
+            "mean_pinball": 9.960205294269965,
+            "coverage": 0.9907407407407407,
+            "mean_prediction": 153.0599176190453,
+            "mean_actual": 57.092592592592595
+          }
+        }
+      },
+      "with_completion": {
+        "equal_model_mean_pinball": 7.852081315039242,
+        "pooled": {
+          "rows": 334,
+          "mean_pinball": 7.05730637014854,
+          "coverage": 0.8652694610778443,
+          "mean_prediction": 83.39277597599767,
+          "mean_actual": 31.535928143712574
+        },
+        "by_model": {
+          "45363f1dab": {
+            "rows": 226,
+            "mean_pinball": 5.602464098145221,
+            "coverage": 0.8053097345132744,
+            "mean_prediction": 48.59971736169492,
+            "mean_actual": 19.32300884955752
+          },
+          "99668f5da8": {
+            "rows": 108,
+            "mean_pinball": 10.101698531933263,
+            "coverage": 0.9907407407407407,
+            "mean_prediction": 156.20047270592747,
+            "mean_actual": 57.092592592592595
+          }
+        }
+      }
+    },
+    {
+      "week": 2,
+      "start_us": 1753228800000000,
+      "end_us": 1753833600000000,
+      "complete_7d": true,
+      "rows": 1000,
+      "arrival_only": {
+        "equal_model_mean_pinball": 1000.8687936915616,
+        "pooled": {
+          "rows": 1000,
+          "mean_pinball": 1314.2605029155698,
+          "coverage": 0.812,
+          "mean_prediction": 1699.0247977330778,
+          "mean_actual": 2528.832
+        },
+        "by_model": {
+          "45363f1dab": {
+            "rows": 330,
+            "mean_pinball": 79.12847244447875,
+            "coverage": 0.9090909090909091,
+            "mean_prediction": 557.6048426000372,
+            "mean_actual": 241.3121212121212
+          },
+          "99668f5da8": {
+            "rows": 670,
+            "mean_pinball": 1922.6091149386443,
+            "coverage": 0.764179104477612,
+            "mean_prediction": 2261.2167159329333,
+            "mean_actual": 3655.520895522388
+          }
+        }
+      },
+      "with_completion": {
+        "equal_model_mean_pinball": 1012.5016768780048,
+        "pooled": {
+          "rows": 1000,
+          "mean_pinball": 1330.253336356513,
+          "coverage": 0.808,
+          "mean_prediction": 1660.2417142833092,
+          "mean_actual": 2528.832
+        },
+        "by_model": {
+          "45363f1dab": {
+            "rows": 330,
+            "mean_pinball": 77.93797252945132,
+            "coverage": 0.8878787878787879,
+            "mean_prediction": 555.9108174143554,
+            "mean_actual": 241.3121212121212
+          },
+          "99668f5da8": {
+            "rows": 670,
+            "mean_pinball": 1947.0653812265582,
+            "coverage": 0.7686567164179104,
+            "mean_prediction": 2204.1658873680176,
+            "mean_actual": 3655.520895522388
+          }
+        }
+      }
+    },
+    {
+      "week": 3,
+      "start_us": 1753833600000000,
+      "end_us": 1754438400000000,
+      "complete_7d": true,
+      "rows": 680,
+      "arrival_only": {
+        "equal_model_mean_pinball": 3569.2958553897315,
+        "pooled": {
+          "rows": 680,
+          "mean_pinball": 3199.7123019443443,
+          "coverage": 0.8691176470588236,
+          "mean_prediction": 770.7292075641424,
+          "mean_actual": 4200.845588235294
+        },
+        "by_model": {
+          "45363f1dab": {
+            "rows": 226,
+            "mean_pinball": 4671.562593735625,
+            "coverage": 0.8584070796460177,
+            "mean_prediction": 1018.0511810459213,
+            "mean_actual": 5984.548672566371
+          },
+          "99668f5da8": {
+            "rows": 454,
+            "mean_pinball": 2467.0291170438377,
+            "coverage": 0.8744493392070485,
+            "mean_prediction": 647.6129828793802,
+            "mean_actual": 3312.9229074889868
+          }
+        }
+      },
+      "with_completion": {
+        "equal_model_mean_pinball": 3581.4064168610994,
+        "pooled": {
+          "rows": 680,
+          "mean_pinball": 3212.1146328438444,
+          "coverage": 0.8735294117647059,
+          "mean_prediction": 754.9742316908564,
+          "mean_actual": 4200.845588235294
+        },
+        "by_model": {
+          "45363f1dab": {
+            "rows": 226,
+            "mean_pinball": 4682.802965684492,
+            "coverage": 0.8539823008849557,
+            "mean_prediction": 1000.5408667971374,
+            "mean_actual": 5984.548672566371
+          },
+          "99668f5da8": {
+            "rows": 454,
+            "mean_pinball": 2480.0098680377064,
+            "coverage": 0.8832599118942731,
+            "mean_prediction": 632.7318098097562,
+            "mean_actual": 3312.9229074889868
+          }
+        }
+      }
+    },
+    {
+      "week": 4,
+      "start_us": 1754438400000000,
+      "end_us": 1755043200000000,
+      "complete_7d": true,
+      "rows": 1085,
+      "arrival_only": {
+        "equal_model_mean_pinball": 1200.458652586576,
+        "pooled": {
+          "rows": 1085,
+          "mean_pinball": 1609.908967514415,
+          "coverage": 0.727188940092166,
+          "mean_prediction": 3118.348558224486,
+          "mean_actual": 4151.203686635945
+        },
+        "by_model": {
+          "45363f1dab": {
+            "rows": 730,
+            "mean_pinball": 2385.1348971111247,
+            "coverage": 0.6150684931506849,
+            "mean_prediction": 4548.136403947622,
+            "mean_actual": 6133.176712328767
+          },
+          "99668f5da8": {
+            "rows": 355,
+            "mean_pinball": 15.782408062027107,
+            "coverage": 0.9577464788732394,
+            "mean_prediction": 178.22143885014836,
+            "mean_actual": 75.59718309859154
+          }
+        }
+      },
+      "with_completion": {
+        "equal_model_mean_pinball": 1225.6069596248697,
+        "pooled": {
+          "rows": 1085,
+          "mean_pinball": 1643.9119213768615,
+          "coverage": 0.7290322580645161,
+          "mean_prediction": 3042.68366202465,
+          "mean_actual": 4151.203686635945
+        },
+        "by_model": {
+          "45363f1dab": {
+            "rows": 730,
+            "mean_pinball": 2435.902648960633,
+            "coverage": 0.6123287671232877,
+            "mean_prediction": 4436.884907046358,
+            "mean_actual": 6133.176712328767
+          },
+          "99668f5da8": {
+            "rows": 355,
+            "mean_pinball": 15.311270289106416,
+            "coverage": 0.9690140845070423,
+            "mean_prediction": 175.73462296592598,
+            "mean_actual": 75.59718309859154
+          }
+        }
+      }
+    },
+    {
+      "week": 5,
+      "start_us": 1755043200000000,
+      "end_us": 1755302400000000,
+      "complete_7d": false,
+      "rows": 329,
+      "arrival_only": {
+        "equal_model_mean_pinball": 889.5712642049702,
+        "pooled": {
+          "rows": 329,
+          "mean_pinball": 708.2922378531125,
+          "coverage": 0.7781155015197568,
+          "mean_prediction": 2465.4644702440073,
+          "mean_actual": 2243.048632218845
+        },
+        "by_model": {
+          "45363f1dab": {
+            "rows": 235,
+            "mean_pinball": 466.5868693839684,
+            "coverage": 0.7617021276595745,
+            "mean_prediction": 2218.43050189043,
+            "mean_actual": 1903.7957446808512
+          },
+          "99668f5da8": {
+            "rows": 94,
+            "mean_pinball": 1312.555659025972,
+            "coverage": 0.8191489361702128,
+            "mean_prediction": 3083.0493911279527,
+            "mean_actual": 3091.18085106383
+          }
+        }
+      },
+      "with_completion": {
+        "equal_model_mean_pinball": 903.753406305872,
+        "pooled": {
+          "rows": 329,
+          "mean_pinball": 725.0785629085003,
+          "coverage": 0.7629179331306991,
+          "mean_prediction": 2405.028818716837,
+          "mean_actual": 2243.048632218845
+        },
+        "by_model": {
+          "45363f1dab": {
+            "rows": 235,
+            "mean_pinball": 486.8454383786712,
+            "coverage": 0.7446808510638298,
+            "mean_prediction": 2162.016885090211,
+            "mean_actual": 1903.7957446808512
+          },
+          "99668f5da8": {
+            "rows": 94,
+            "mean_pinball": 1320.6613742330728,
+            "coverage": 0.8085106382978723,
+            "mean_prediction": 3012.558652783402,
+            "mean_actual": 3091.18085106383
+          }
+        }
+      }
+    }
+  ],
+  "success": {
+    "passes": false,
+    "augmented_vs_arrival_relative_gain": -0.012182048458163655,
+    "augmented_vs_simple_relative_gain": -1.0703738433178265,
+    "qualifying_full_weeks": 4,
+    "qualifying_full_week_wins": 0
+  },
+  "timing": {
+    "arrival_only": {
+      "fit_seconds": 1.421551935840398,
+      "predict_all_seconds": 0.1369641199707985,
+      "predict_test_seconds": 0.02639786619693041,
+      "predict_test_ms_per_decision": 0.0077006610842854165,
+      "peak_process_rss_mib": 731.41796875
+    },
+    "with_completion": {
+      "fit_seconds": 1.412788580171764,
+      "predict_all_seconds": 0.13911352399736643,
+      "predict_test_seconds": 0.026605150662362576,
+      "predict_test_ms_per_decision": 0.007761129131377648,
+      "peak_process_rss_mib": 731.41796875
+    }
+  },
+  "sklearn_version": "1.6.1",
+  "reserved_holdout_begins_utc": "2025-08-16",
+  "prediction_sha256": "ac94fbb3d707958637cbdf2247ded49d8e983b3785b556c3b288521b5d0e873a",
+  "model_sha256": {
+    "arrival_only": "94becde1c5b2c8e638cd4446a818d2f0ed9fc3865075f192304f132a9137ed1d",
+    "with_completion": "a2e50f3da957dae76435995ccc22e45cd11a7ed5ff911714db2bbcde13ef772b"
+  }
+}

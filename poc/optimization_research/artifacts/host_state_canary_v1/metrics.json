@@ -1,0 +1,981 @@
+{
+  "input_db": "/home/researcher/aiops/runs/khu-hf-live/executions.sqlite3",
+  "input_db_sha256": "499e0d391dce28ff22932390a8b5c2424920a535010d7d04ca36bee2bba45bf5",
+  "script_sha256": "f9a86a29ea517552c0fa92f0d0c1abb2376e833fb021bdf637796ab9e9fde6f5",
+  "canary_profile": "bert-tiny-long-burst",
+  "collector_version_rounds": {
+    "khu-hf-direct-collector/v1": 63,
+    "khu-hf-direct-collector/v2": 47
+  },
+  "paired_target_profiles": [
+    "bert-base-long-sustained",
+    "distilbert-base-long-sustained",
+    "electra-small-long-burst",
+    "qwen2.5-0.5b-long-burst",
+    "roberta-base-long-sustained"
+  ],
+  "splits": [
+    {
+      "scenario": "mixed_70_40",
+      "held_model": "FacebookAI/roberta-base",
+      "train_rows": 280,
+      "test_rows": 40,
+      "train_round_max": 69,
+      "test_round_min": 70,
+      "train_version_counts": {
+        "khu-hf-direct-collector/v1": 252,
+        "khu-hf-direct-collector/v2": 28
+      },
+      "test_version_counts": {
+        "khu-hf-direct-collector/v2": 40
+      }
+    },
+    {
+      "scenario": "mixed_70_40",
+      "held_model": "Qwen/Qwen2.5-0.5B-Instruct",
+      "train_rows": 280,
+      "test_rows": 40,
+      "train_round_max": 69,
+      "test_round_min": 70,
+      "train_version_counts": {
+        "khu-hf-direct-collector/v1": 252,
+        "khu-hf-direct-collector/v2": 28
+      },
+      "test_version_counts": {
+        "khu-hf-direct-collector/v2": 40
+      }
+    },
+    {
+      "scenario": "mixed_70_40",
+      "held_model": "distilbert/distilbert-base-uncased",
+      "train_rows": 280,
+      "test_rows": 40,
+      "train_round_max": 69,
+      "test_round_min": 70,
+      "train_version_counts": {
+        "khu-hf-direct-collector/v1": 252,
+        "khu-hf-direct-collector/v2": 28
+      },
+      "test_version_counts": {
+        "khu-hf-direct-collector/v2": 40
+      }
+    },
+    {
+      "scenario": "mixed_70_40",
+      "held_model": "google-bert/bert-base-uncased",
+      "train_rows": 280,
+      "test_rows": 40,
+      "train_round_max": 69,
+      "test_round_min": 70,
+      "train_version_counts": {
+        "khu-hf-direct-collector/v1": 252,
+        "khu-hf-direct-collector/v2": 28
+      },
+      "test_version_counts": {
+        "khu-hf-direct-collector/v2": 40
+      }
+    },
+    {
+      "scenario": "mixed_70_40",
+      "held_model": "google/electra-small-discriminator",
+      "train_rows": 280,
+      "test_rows": 40,
+      "train_round_max": 69,
+      "test_round_min": 70,
+      "train_version_counts": {
+        "khu-hf-direct-collector/v1": 252,
+        "khu-hf-direct-collector/v2": 28
+      },
+      "test_version_counts": {
+        "khu-hf-direct-collector/v2": 40
+      }
+    },
+    {
+      "scenario": "v1_forward_43_20",
+      "held_model": "FacebookAI/roberta-base",
+      "train_rows": 172,
+      "test_rows": 20,
+      "train_round_max": 42,
+      "test_round_min": 43,
+      "train_version_counts": {
+        "khu-hf-direct-collector/v1": 172
+      },
+      "test_version_counts": {
+        "khu-hf-direct-collector/v1": 20
+      }
+    },
+    {
+      "scenario": "v1_forward_43_20",
+      "held_model": "Qwen/Qwen2.5-0.5B-Instruct",
+      "train_rows": 172,
+      "test_rows": 20,
+      "train_round_max": 42,
+      "test_round_min": 43,
+      "train_version_counts": {
+        "khu-hf-direct-collector/v1": 172
+      },
+      "test_version_counts": {
+        "khu-hf-direct-collector/v1": 20
+      }
+    },
+    {
+      "scenario": "v1_forward_43_20",
+      "held_model": "distilbert/distilbert-base-uncased",
+      "train_rows": 172,
+      "test_rows": 20,
+      "train_round_max": 42,
+      "test_round_min": 43,
+      "train_version_counts": {
+        "khu-hf-direct-collector/v1": 172
+      },
+      "test_version_counts": {
+        "khu-hf-direct-collector/v1": 20
+      }
+    },
+    {
+      "scenario": "v1_forward_43_20",
+      "held_model": "google-bert/bert-base-uncased",
+      "train_rows": 172,
+      "test_rows": 20,
+      "train_round_max": 42,
+      "test_round_min": 43,
+      "train_version_counts": {
+        "khu-hf-direct-collector/v1": 172
+      },
+      "test_version_counts": {
+        "khu-hf-direct-collector/v1": 20
+      }
+    },
+    {
+      "scenario": "v1_forward_43_20",
+      "held_model": "google/electra-small-discriminator",
+      "train_rows": 172,
+      "test_rows": 20,
+      "train_round_max": 42,
+      "test_round_min": 43,
+      "train_version_counts": {
+        "khu-hf-direct-collector/v1": 172
+      },
+      "test_version_counts": {
+        "khu-hf-direct-collector/v1": 20
+      }
+    },
+    {
+      "scenario": "v2_forward_27_20",
+      "held_model": "FacebookAI/roberta-base",
+      "train_rows": 108,
+      "test_rows": 20,
+      "train_round_max": 89,
+      "test_round_min": 90,
+      "train_version_counts": {
+        "khu-hf-direct-collector/v2": 108
+      },
+      "test_version_counts": {
+        "khu-hf-direct-collector/v2": 20
+      }
+    },
+    {
+      "scenario": "v2_forward_27_20",
+      "held_model": "Qwen/Qwen2.5-0.5B-Instruct",
+      "train_rows": 108,
+      "test_rows": 20,
+      "train_round_max": 89,
+      "test_round_min": 90,
+      "train_version_counts": {
+        "khu-hf-direct-collector/v2": 108
+      },
+      "test_version_counts": {
+        "khu-hf-direct-collector/v2": 20
+      }
+    },
+    {
+      "scenario": "v2_forward_27_20",
+      "held_model": "distilbert/distilbert-base-uncased",
+      "train_rows": 108,
+      "test_rows": 20,
+      "train_round_max": 89,
+      "test_round_min": 90,
+      "train_version_counts": {
+        "khu-hf-direct-collector/v2": 108
+      },
+      "test_version_counts": {
+        "khu-hf-direct-collector/v2": 20
+      }
+    },
+    {
+      "scenario": "v2_forward_27_20",
+      "held_model": "google-bert/bert-base-uncased",
+      "train_rows": 108,
+      "test_rows": 20,
+      "train_round_max": 89,
+      "test_round_min": 90,
+      "train_version_counts": {
+        "khu-hf-direct-collector/v2": 108
+      },
+      "test_version_counts": {
+        "khu-hf-direct-collector/v2": 20
+      }
+    },
+    {
+      "scenario": "v2_forward_27_20",
+      "held_model": "google/electra-small-discriminator",
+      "train_rows": 108,
+      "test_rows": 20,
+      "train_round_max": 89,
+      "test_round_min": 90,
+      "train_version_counts": {
+        "khu-hf-direct-collector/v2": 108
+      },
+      "test_version_counts": {
+        "khu-hf-direct-collector/v2": 20
+      }
+    },
+    {
+      "scenario": "v1_to_v2",
+      "held_model": "FacebookAI/roberta-base",
+      "train_rows": 252,
+      "test_rows": 47,
+      "train_round_max": 62,
+      "test_round_min": 63,
+      "train_version_counts": {
+        "khu-hf-direct-collector/v1": 252
+      },
+      "test_version_counts": {
+        "khu-hf-direct-collector/v2": 47
+      }
+    },
+    {
+      "scenario": "v1_to_v2",
+      "held_model": "Qwen/Qwen2.5-0.5B-Instruct",
+      "train_rows": 252,
+      "test_rows": 47,
+      "train_round_max": 62,
+      "test_round_min": 63,
+      "train_version_counts": {
+        "khu-hf-direct-collector/v1": 252
+      },
+      "test_version_counts": {
+        "khu-hf-direct-collector/v2": 47
+      }
+    },
+    {
+      "scenario": "v1_to_v2",
+      "held_model": "distilbert/distilbert-base-uncased",
+      "train_rows": 252,
+      "test_rows": 47,
+      "train_round_max": 62,
+      "test_round_min": 63,
+      "train_version_counts": {
+        "khu-hf-direct-collector/v1": 252
+      },
+      "test_version_counts": {
+        "khu-hf-direct-collector/v2": 47
+      }
+    },
+    {
+      "scenario": "v1_to_v2",
+      "held_model": "google-bert/bert-base-uncased",
+      "train_rows": 252,
+      "test_rows": 47,
+      "train_round_max": 62,
+      "test_round_min": 63,
+      "train_version_counts": {
+        "khu-hf-direct-collector/v1": 252
+      },
+      "test_version_counts": {
+        "khu-hf-direct-collector/v2": 47
+      }
+    },
+    {
+      "scenario": "v1_to_v2",
+      "held_model": "google/electra-small-discriminator",
+      "train_rows": 252,
+      "test_rows": 47,
+      "train_round_max": 62,
+      "test_round_min": 63,
+      "train_version_counts": {
+        "khu-hf-direct-collector/v1": 252
+      },
+      "test_version_counts": {
+        "khu-hf-direct-collector/v2": 47
+      }
+    }
+  ],
+  "metrics": {
+    "mixed_70_40": {
+      "anchor_canary_et": {
+        "test_rows": 200,
+        "unique_test_rounds": 40,
+        "model_macro_latency_mae_log": 0.41800283127397686,
+        "model_macro_rps_mae_log": 0.11422292380275997,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 2,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8509705,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9198442,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.18652085,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.268595625,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 37.30417,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 53.719125,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 7.460834
+      },
+      "anchor_canary_ridge": {
+        "test_rows": 200,
+        "unique_test_rounds": 40,
+        "model_macro_latency_mae_log": 0.46104874561335707,
+        "model_macro_rps_mae_log": 0.0483103668486511,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 2,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8509705,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9198442,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.18652085,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.268595625,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 37.30417,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 53.719125,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 7.460834
+      },
+      "anchor_et": {
+        "test_rows": 200,
+        "unique_test_rounds": 40,
+        "model_macro_latency_mae_log": 0.944679016367626,
+        "model_macro_rps_mae_log": 0.10718403682607913,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8509705,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9198442,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      },
+      "anchor_et_rolling_cal10": {
+        "test_rows": 200,
+        "unique_test_rounds": 40,
+        "model_macro_latency_mae_log": 0.3646524490470962,
+        "model_macro_rps_mae_log": 0.10468974558703555,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8509705,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9198442,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      },
+      "anchor_et_rolling_cal20": {
+        "test_rows": 200,
+        "unique_test_rounds": 40,
+        "model_macro_latency_mae_log": 0.4495156259931858,
+        "model_macro_rps_mae_log": 0.10294755209167583,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8509705,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9198442,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      },
+      "anchor_version_et": {
+        "test_rows": 200,
+        "unique_test_rounds": 40,
+        "model_macro_latency_mae_log": 0.1815436293010146,
+        "model_macro_rps_mae_log": 0.11867338887509545,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8509705,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9198442,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      },
+      "canary_only_et": {
+        "test_rows": 200,
+        "unique_test_rounds": 40,
+        "model_macro_latency_mae_log": 0.4985357431274253,
+        "model_macro_rps_mae_log": 0.1541446607528131,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 2,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8509705,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9198442,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.18652085,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.268595625,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 37.30417,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 53.719125,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 7.460834
+      },
+      "history_last_ratio": {
+        "test_rows": 200,
+        "unique_test_rounds": 40,
+        "model_macro_latency_mae_log": 0.2532204057759305,
+        "model_macro_rps_mae_log": 0.040092872300500335,
+        "cold_start_eligible": false,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8509705,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9198442,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      },
+      "history_rolling5_ratio": {
+        "test_rows": 200,
+        "unique_test_rounds": 40,
+        "model_macro_latency_mae_log": 0.20071269661597385,
+        "model_macro_rps_mae_log": 0.037341752510608395,
+        "cold_start_eligible": false,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8509705,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9198442,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      },
+      "ratio_canary_linear": {
+        "test_rows": 200,
+        "unique_test_rounds": 40,
+        "model_macro_latency_mae_log": 0.5702828778439734,
+        "model_macro_rps_mae_log": 0.1051901789242691,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 2,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8509705,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9198442,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.18652085,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.268595625,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 37.30417,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 53.719125,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 7.460834
+      },
+      "ratio_global": {
+        "test_rows": 200,
+        "unique_test_rounds": 40,
+        "model_macro_latency_mae_log": 1.172905173526959,
+        "model_macro_rps_mae_log": 0.11332251671837912,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8509705,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9198442,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      }
+    },
+    "v1_forward_43_20": {
+      "anchor_canary_et": {
+        "test_rows": 100,
+        "unique_test_rounds": 20,
+        "model_macro_latency_mae_log": 0.11711563894005421,
+        "model_macro_rps_mae_log": 0.04873565055008657,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 2,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.9126526600000001,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9776817999999998,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.22611205,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.30337759999999997,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 22.611205,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 30.33776,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 4.522241
+      },
+      "anchor_canary_ridge": {
+        "test_rows": 100,
+        "unique_test_rounds": 20,
+        "model_macro_latency_mae_log": 0.2829660998660075,
+        "model_macro_rps_mae_log": 0.11528512382883042,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 2,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.9126526600000001,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9776817999999998,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.22611205,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.30337759999999997,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 22.611205,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 30.33776,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 4.522241
+      },
+      "anchor_et": {
+        "test_rows": 100,
+        "unique_test_rounds": 20,
+        "model_macro_latency_mae_log": 0.11638028967726981,
+        "model_macro_rps_mae_log": 0.04991251014806589,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.9126526600000001,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9776817999999998,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      },
+      "anchor_et_rolling_cal10": {
+        "test_rows": 100,
+        "unique_test_rounds": 20,
+        "model_macro_latency_mae_log": 0.120334511775766,
+        "model_macro_rps_mae_log": 0.05032155216941864,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.9126526600000001,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9776817999999998,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      },
+      "anchor_et_rolling_cal20": {
+        "test_rows": 100,
+        "unique_test_rounds": 20,
+        "model_macro_latency_mae_log": 0.11877419162927609,
+        "model_macro_rps_mae_log": 0.050109734811799776,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.9126526600000001,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9776817999999998,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      },
+      "anchor_version_et": {
+        "test_rows": 100,
+        "unique_test_rounds": 20,
+        "model_macro_latency_mae_log": 0.11634706201286966,
+        "model_macro_rps_mae_log": 0.049830556420427864,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.9126526600000001,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9776817999999998,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      },
+      "canary_only_et": {
+        "test_rows": 100,
+        "unique_test_rounds": 20,
+        "model_macro_latency_mae_log": 0.2018747502247169,
+        "model_macro_rps_mae_log": 0.10289221838656608,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 2,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.9126526600000001,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9776817999999998,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.22611205,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.30337759999999997,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 22.611205,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 30.33776,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 4.522241
+      },
+      "history_last_ratio": {
+        "test_rows": 100,
+        "unique_test_rounds": 20,
+        "model_macro_latency_mae_log": 0.17179475562692184,
+        "model_macro_rps_mae_log": 0.06119924609545231,
+        "cold_start_eligible": false,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.9126526600000001,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9776817999999998,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      },
+      "history_rolling5_ratio": {
+        "test_rows": 100,
+        "unique_test_rounds": 20,
+        "model_macro_latency_mae_log": 0.13340067638177958,
+        "model_macro_rps_mae_log": 0.04913824228033211,
+        "cold_start_eligible": false,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.9126526600000001,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9776817999999998,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      },
+      "ratio_canary_linear": {
+        "test_rows": 100,
+        "unique_test_rounds": 20,
+        "model_macro_latency_mae_log": 0.12465963111826847,
+        "model_macro_rps_mae_log": 0.04364723988382649,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 2,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.9126526600000001,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9776817999999998,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.22611205,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.30337759999999997,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 22.611205,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 30.33776,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 4.522241
+      },
+      "ratio_global": {
+        "test_rows": 100,
+        "unique_test_rounds": 20,
+        "model_macro_latency_mae_log": 0.11969283488852374,
+        "model_macro_rps_mae_log": 0.0409611872847713,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.9126526600000001,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9776817999999998,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      }
+    },
+    "v1_to_v2": {
+      "anchor_canary_et": {
+        "test_rows": 235,
+        "unique_test_rounds": 47,
+        "model_macro_latency_mae_log": 1.330997163123879,
+        "model_macro_rps_mae_log": 0.10504002847564653,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 2,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8484123914893618,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9171383659574468,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.1861933404255319,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.2673305744680851,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 43.755435,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 62.82268500000001,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 8.751086999999998
+      },
+      "anchor_canary_ridge": {
+        "test_rows": 235,
+        "unique_test_rounds": 47,
+        "model_macro_latency_mae_log": 1.2226631540045694,
+        "model_macro_rps_mae_log": 0.0873058943676924,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 2,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8484123914893618,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9171383659574468,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.1861933404255319,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.2673305744680851,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 43.755435,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 62.82268500000001,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 8.751086999999998
+      },
+      "anchor_et": {
+        "test_rows": 235,
+        "unique_test_rounds": 47,
+        "model_macro_latency_mae_log": 1.3351958348978918,
+        "model_macro_rps_mae_log": 0.10258912907888659,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8484123914893618,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9171383659574468,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      },
+      "anchor_et_rolling_cal10": {
+        "test_rows": 235,
+        "unique_test_rounds": 47,
+        "model_macro_latency_mae_log": 0.45161842863460355,
+        "model_macro_rps_mae_log": 0.1234672645982132,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8484123914893618,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9171383659574468,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      },
+      "anchor_et_rolling_cal20": {
+        "test_rows": 235,
+        "unique_test_rounds": 47,
+        "model_macro_latency_mae_log": 0.5684058780764857,
+        "model_macro_rps_mae_log": 0.11364226412618694,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8484123914893618,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9171383659574468,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      },
+      "anchor_version_et": {
+        "test_rows": 235,
+        "unique_test_rounds": 47,
+        "model_macro_latency_mae_log": 1.334289969719647,
+        "model_macro_rps_mae_log": 0.10405680885324127,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8484123914893618,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9171383659574468,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      },
+      "canary_only_et": {
+        "test_rows": 235,
+        "unique_test_rounds": 47,
+        "model_macro_latency_mae_log": 1.456145669369731,
+        "model_macro_rps_mae_log": 0.13384106737970763,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 2,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8484123914893618,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9171383659574468,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.1861933404255319,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.2673305744680851,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 43.755435,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 62.82268500000001,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 8.751086999999998
+      },
+      "history_last_ratio": {
+        "test_rows": 235,
+        "unique_test_rounds": 47,
+        "model_macro_latency_mae_log": 0.2751385037666708,
+        "model_macro_rps_mae_log": 0.04006672807394128,
+        "cold_start_eligible": false,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8484123914893618,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9171383659574468,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      },
+      "history_rolling5_ratio": {
+        "test_rows": 235,
+        "unique_test_rounds": 47,
+        "model_macro_latency_mae_log": 0.2552628119652881,
+        "model_macro_rps_mae_log": 0.037920228356231524,
+        "cold_start_eligible": false,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8484123914893618,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9171383659574468,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      },
+      "ratio_canary_linear": {
+        "test_rows": 235,
+        "unique_test_rounds": 47,
+        "model_macro_latency_mae_log": 1.3005846834588712,
+        "model_macro_rps_mae_log": 0.11370875787294243,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 2,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8484123914893618,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9171383659574468,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.1861933404255319,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.2673305744680851,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 43.755435,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 62.82268500000001,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 8.751086999999998
+      },
+      "ratio_global": {
+        "test_rows": 235,
+        "unique_test_rounds": 47,
+        "model_macro_latency_mae_log": 1.1697480482405342,
+        "model_macro_rps_mae_log": 0.11223251241923855,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8484123914893618,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9171383659574468,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      }
+    },
+    "v2_forward_27_20": {
+      "anchor_canary_et": {
+        "test_rows": 100,
+        "unique_test_rounds": 20,
+        "model_macro_latency_mae_log": 0.17976527969700123,
+        "model_macro_rps_mae_log": 0.1512505170500374,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 2,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8453811,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9143574200000001,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.19258480000000003,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.27542989999999995,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 19.258480000000002,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 27.542989999999996,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 3.851696
+      },
+      "anchor_canary_ridge": {
+        "test_rows": 100,
+        "unique_test_rounds": 20,
+        "model_macro_latency_mae_log": 0.1847230752331092,
+        "model_macro_rps_mae_log": 0.14042300673465102,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 2,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8453811,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9143574200000001,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.19258480000000003,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.27542989999999995,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 19.258480000000002,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 27.542989999999996,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 3.851696
+      },
+      "anchor_et": {
+        "test_rows": 100,
+        "unique_test_rounds": 20,
+        "model_macro_latency_mae_log": 0.17653079367096022,
+        "model_macro_rps_mae_log": 0.14941497578097857,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8453811,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9143574200000001,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      },
+      "anchor_et_rolling_cal10": {
+        "test_rows": 100,
+        "unique_test_rounds": 20,
+        "model_macro_latency_mae_log": 0.17748793511205524,
+        "model_macro_rps_mae_log": 0.1491492562913233,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8453811,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9143574200000001,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      },
+      "anchor_et_rolling_cal20": {
+        "test_rows": 100,
+        "unique_test_rounds": 20,
+        "model_macro_latency_mae_log": 0.17745205460167285,
+        "model_macro_rps_mae_log": 0.14920998023234994,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8453811,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9143574200000001,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      },
+      "anchor_version_et": {
+        "test_rows": 100,
+        "unique_test_rounds": 20,
+        "model_macro_latency_mae_log": 0.17552139915289242,
+        "model_macro_rps_mae_log": 0.1497535714085231,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8453811,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9143574200000001,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      },
+      "canary_only_et": {
+        "test_rows": 100,
+        "unique_test_rounds": 20,
+        "model_macro_latency_mae_log": 0.24553631472069454,
+        "model_macro_rps_mae_log": 0.13957435932151174,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 2,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8453811,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9143574200000001,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.19258480000000003,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.27542989999999995,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 19.258480000000002,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 27.542989999999996,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 3.851696
+      },
+      "history_last_ratio": {
+        "test_rows": 100,
+        "unique_test_rounds": 20,
+        "model_macro_latency_mae_log": 0.26839212386134803,
+        "model_macro_rps_mae_log": 0.040171585450752535,
+        "cold_start_eligible": false,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8453811,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9143574200000001,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      },
+      "history_rolling5_ratio": {
+        "test_rows": 100,
+        "unique_test_rounds": 20,
+        "model_macro_latency_mae_log": 0.20867227305515462,
+        "model_macro_rps_mae_log": 0.04344924842602673,
+        "cold_start_eligible": false,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8453811,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9143574200000001,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      },
+      "ratio_canary_linear": {
+        "test_rows": 100,
+        "unique_test_rounds": 20,
+        "model_macro_latency_mae_log": 0.2240133055112919,
+        "model_macro_rps_mae_log": 0.10869831848248568,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 2,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8453811,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9143574200000001,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.19258480000000003,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.27542989999999995,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 19.258480000000002,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 27.542989999999996,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 3.851696
+      },
+      "ratio_global": {
+        "test_rows": 100,
+        "unique_test_rounds": 20,
+        "model_macro_latency_mae_log": 0.21781877294816523,
+        "model_macro_rps_mae_log": 0.10868267193544637,
+        "cold_start_eligible": true,
+        "probes_per_independent_decision": 1,
+        "anchor_gpu_wall_seconds_per_decision_mean": 0.8453811,
+        "anchor_observed_elapsed_seconds_per_decision_mean": 0.9143574200000001,
+        "extra_canary_gpu_wall_seconds_per_decision_mean": 0.0,
+        "extra_canary_observed_elapsed_seconds_per_decision_mean": 0.0,
+        "total_extra_canary_gpu_wall_seconds_as_independent_decisions": 0.0,
+        "total_extra_canary_observed_elapsed_seconds_as_independent_decisions": 0.0,
+        "canary_gpu_wall_seconds_if_shared_once_per_round": 0.0
+      }
+    }
+  },
+  "cautions": [
+    "mixed_70_40 and v1_to_v2 cross an observed collector version change.",
+    "The live campaign is one host, fixed order, and fixed workloads.",
+    "The canary adds one current one-GPU execution per independent decision.",
+    "History baselines use target outcomes from previous rounds and are unavailable for a truly new application.",
+    "Current generated SLOs nearly never flip; this is a prediction experiment, not a scale policy evaluation."
+  ]
+}

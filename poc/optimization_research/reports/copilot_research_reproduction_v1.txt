@@ -1,0 +1,63 @@
+Copilot source audit and call-count demand models — reproduction
+
+Authoritative installed root: /home/researcher/ai-mcmp/research
+Raw compressed files: data/external/ghcp_coding_agent_2026_days05_07/
+Source audit: artifacts/copilot_transfer_v1_1/
+Call-count models: artifacts/copilot_call_demand_v1/
+Findings: reports/copilot_research_findings_2026_10_06.txt
+
+1. What happened
+The first pre-download freeze preserved six fixed token-demand models and
+June5 calibration / June6-7 external assessment. ID grouping caused an initial
+aggregation error. The failed audit and executed code are retained in
+initial_schema_failure/. The corrected aggregation counted all call
+occurrences and was frozen BEFORE any external forecast score. It then
+failed the unchanged 1% missing-prompt gate. NO TOKEN MODEL SCORE WAS COMPUTED.
+The known-token column is a lower bound, not complete token demand.
+
+A DIFFERENT task uses all recorded call timestamps. Three new HGBq90 models
+predict peak CALL COUNTS with preparation delays5/10/30min. TrainJune5,
+validationJune6, testJune7; no test-based retuning, no residual correction.
+This is a one-day service-specific exploratory test, not broad generalization,
+GPU/VM demand, user SLO, or action-effect evidence.
+
+2. Environment
+/usr/bin/python, NumPy2.0.2, scikit-learn1.6.1; pandas, joblib and orjson.
+Set PYTHONDONTWRITEBYTECODE=1, OPENBLAS_NUM_THREADS=1, OMP_NUM_THREADS=1,
+MKL_NUM_THREADS=1 and PYTHONPATH=<fresh_stage>/scripts:<research_root>/scripts.
+Do not overwrite the installed evidence.
+
+3. Replay audits/models in a fresh stage
+Create <fresh_stage>/scripts, tests, reports, data, artifacts.
+Copy the published scripts/tests/protocols to those matching folders.
+Copy published artifacts/copilot_transfer_v1_1 and copilot_call_demand_v1 to
+<fresh_stage>/artifacts/. Link compressed raw archives into <fresh_stage>/data.
+Before replay, remove ONLY generated audit JSON files from COPIED fresh-stage
+artifacts (independent_source_audit.json, complete_call_counts_and_known_tokens.parquet,
+independent_model_audit.json); leave the published originals intact. Copy the
+source input freeze if checking an existing model instead of fitting new models.
+
+Source verification (streams raw data again and recreates complete call bins):
+/usr/bin/python <fresh_stage>/scripts/verify_copilot_source_audit.py \
+ --research-root /home/researcher/ai-mcmp/research --stage <fresh_stage>
+Model refit/replay verification:
+/usr/bin/python <fresh_stage>/scripts/verify_copilot_call_demand.py --stage <fresh_stage>
+Tests:
+/usr/bin/python -m unittest discover -s <fresh_stage>/tests -p 'test_copilot*.py' -v
+
+The source audit checks raw size/provider SHA256, separate nanosecond timestamp
+parsing, integer bin totals, grouping-ID reuse/exact-record repeats, missing
+prompt type/status, and the unchanged token quality failure. The model audit
+checks code/source hashes, training boundaries, exact refit predictions,
+validation-only baseline choice, all test losses/coverage/gates and future
+feature mutation. All source scripts remain frozen; reruns on known data are
+reproduction, not fresh independent validation.
+
+4. New fits
+Use a separate fresh stage with audited source artifacts but WITHOUT an
+existing artifacts/copilot_call_demand_v1 directory, then:
+/usr/bin/python <fresh_stage>/scripts/train_copilot_call_demand.py prepare --stage <fresh_stage>
+/usr/bin/python <fresh_stage>/scripts/train_copilot_call_demand.py train --stage <fresh_stage>
+/usr/bin/python <fresh_stage>/scripts/verify_copilot_call_demand.py --stage <fresh_stage>
+Model fitting uses fixed PARAMS from train_evaluate_delay_capacity.py. The
+training source snapshot and hashes preserve the exact helper version.

@@ -1,0 +1,367 @@
+{
+  "by_model": {
+    "Deci/DeciLM-7B": {
+      "anchor_conditioned": {
+        "direction_accuracy": 0.873015873015873,
+        "male": 0.1114007071423537
+      },
+      "anchor_copy": {
+        "direction_accuracy": 0.0,
+        "male": 0.3191969958210688
+      },
+      "anchor_residual": {
+        "direction_accuracy": 0.9523809523809523,
+        "male": 0.08984605781700217
+      },
+      "candidate_rows": 63,
+      "direct": {
+        "direction_accuracy": 0.9365079365079365,
+        "male": 0.11901392487441474
+      }
+    },
+    "Qwen/Qwen2-72B": {
+      "anchor_conditioned": {
+        "direction_accuracy": 1.0,
+        "male": 0.5969003043073113
+      },
+      "anchor_copy": {
+        "direction_accuracy": 0.0,
+        "male": 0.8358031606113098
+      },
+      "anchor_residual": {
+        "direction_accuracy": 1.0,
+        "male": 0.019636371626519395
+      },
+      "candidate_rows": 9,
+      "direct": {
+        "direction_accuracy": 1.0,
+        "male": 0.04171468285857433
+      }
+    },
+    "Qwen/Qwen2-7B": {
+      "anchor_conditioned": {
+        "direction_accuracy": 0.946524064171123,
+        "male": 0.11525967448589285
+      },
+      "anchor_copy": {
+        "direction_accuracy": 0.0,
+        "male": 0.6876153542036116
+      },
+      "anchor_residual": {
+        "direction_accuracy": 0.9411764705882353,
+        "male": 0.10798971802240163
+      },
+      "candidate_rows": 187,
+      "direct": {
+        "direction_accuracy": 0.9572192513368984,
+        "male": 0.09197022111830665
+      }
+    },
+    "meta-llama/Llama-2-70b-hf": {
+      "anchor_conditioned": {
+        "direction_accuracy": 0.9758064516129032,
+        "male": 0.13020073120625722
+      },
+      "anchor_copy": {
+        "direction_accuracy": 0.0,
+        "male": 0.9360885996878765
+      },
+      "anchor_residual": {
+        "direction_accuracy": 0.9838709677419355,
+        "male": 0.2530136987507806
+      },
+      "candidate_rows": 124,
+      "direct": {
+        "direction_accuracy": 0.9516129032258065,
+        "male": 0.14206664361528382
+      }
+    },
+    "meta-llama/Llama-2-7b-hf": {
+      "anchor_conditioned": {
+        "direction_accuracy": 0.9625,
+        "male": 0.18527574424129034
+      },
+      "anchor_copy": {
+        "direction_accuracy": 0.0,
+        "male": 0.6841427158078304
+      },
+      "anchor_residual": {
+        "direction_accuracy": 0.9375,
+        "male": 0.2501953394540524
+      },
+      "candidate_rows": 320,
+      "direct": {
+        "direction_accuracy": 0.95625,
+        "male": 0.18890573207284544
+      }
+    },
+    "meta-llama/Meta-Llama-3-70B": {
+      "anchor_conditioned": {
+        "direction_accuracy": 0.9663865546218487,
+        "male": 0.1295691695657044
+      },
+      "anchor_copy": {
+        "direction_accuracy": 0.0,
+        "male": 1.0302249580863938
+      },
+      "anchor_residual": {
+        "direction_accuracy": 0.9747899159663865,
+        "male": 0.27351538986786816
+      },
+      "candidate_rows": 119,
+      "direct": {
+        "direction_accuracy": 0.957983193277311,
+        "male": 0.1434707537790164
+      }
+    },
+    "meta-llama/Meta-Llama-3-8B": {
+      "anchor_conditioned": {
+        "direction_accuracy": 0.9807692307692307,
+        "male": 0.09229218983344428
+      },
+      "anchor_copy": {
+        "direction_accuracy": 0.0,
+        "male": 0.7157253555806387
+      },
+      "anchor_residual": {
+        "direction_accuracy": 0.9576923076923077,
+        "male": 0.12564700926472236
+      },
+      "candidate_rows": 260,
+      "direct": {
+        "direction_accuracy": 0.9769230769230769,
+        "male": 0.0744593624318991
+      }
+    },
+    "mistralai/Mistral-7B-v0.1": {
+      "anchor_conditioned": {
+        "direction_accuracy": 0.9402173913043478,
+        "male": 0.10660261821473513
+      },
+      "anchor_copy": {
+        "direction_accuracy": 0.0,
+        "male": 0.6299768971634044
+      },
+      "anchor_residual": {
+        "direction_accuracy": 0.9239130434782609,
+        "male": 0.14619053003780685
+      },
+      "candidate_rows": 184,
+      "direct": {
+        "direction_accuracy": 0.9565217391304348,
+        "male": 0.08413046877723757
+      }
+    },
+    "mistralai/Mixtral-8x7B-v0.1": {
+      "anchor_conditioned": {
+        "direction_accuracy": 0.9696969696969697,
+        "male": 0.3310581628792242
+      },
+      "anchor_copy": {
+        "direction_accuracy": 0.0,
+        "male": 0.9696384281362563
+      },
+      "anchor_residual": {
+        "direction_accuracy": 0.9696969696969697,
+        "male": 0.33356674895240196
+      },
+      "candidate_rows": 132,
+      "direct": {
+        "direction_accuracy": 0.7272727272727273,
+        "male": 0.7186356837468093
+      }
+    }
+  },
+  "candidate_rows": 1398,
+  "eligible_csv_sha256": "3e80ee27b1f44fa40b4cd5712c0b25f6b3c7a233a2eb0a8207bf30b63ca6fcdd",
+  "folds": [
+    {
+      "held_model": "Deci/DeciLM-7B",
+      "test_candidate_rows": 63,
+      "test_groups": 20,
+      "train_models": [
+        "Qwen/Qwen2-72B",
+        "Qwen/Qwen2-7B",
+        "meta-llama/Llama-2-70b-hf",
+        "meta-llama/Llama-2-7b-hf",
+        "meta-llama/Meta-Llama-3-70B",
+        "meta-llama/Meta-Llama-3-8B",
+        "mistralai/Mistral-7B-v0.1",
+        "mistralai/Mixtral-8x7B-v0.1"
+      ],
+      "train_rows": 1484
+    },
+    {
+      "held_model": "Qwen/Qwen2-72B",
+      "test_candidate_rows": 9,
+      "test_groups": 9,
+      "train_models": [
+        "Deci/DeciLM-7B",
+        "Qwen/Qwen2-7B",
+        "meta-llama/Llama-2-70b-hf",
+        "meta-llama/Llama-2-7b-hf",
+        "meta-llama/Meta-Llama-3-70B",
+        "meta-llama/Meta-Llama-3-8B",
+        "mistralai/Mistral-7B-v0.1",
+        "mistralai/Mixtral-8x7B-v0.1"
+      ],
+      "train_rows": 1549
+    },
+    {
+      "held_model": "Qwen/Qwen2-7B",
+      "test_candidate_rows": 187,
+      "test_groups": 20,
+      "train_models": [
+        "Deci/DeciLM-7B",
+        "Qwen/Qwen2-72B",
+        "meta-llama/Llama-2-70b-hf",
+        "meta-llama/Llama-2-7b-hf",
+        "meta-llama/Meta-Llama-3-70B",
+        "meta-llama/Meta-Llama-3-8B",
+        "mistralai/Mistral-7B-v0.1",
+        "mistralai/Mixtral-8x7B-v0.1"
+      ],
+      "train_rows": 1360
+    },
+    {
+      "held_model": "meta-llama/Llama-2-70b-hf",
+      "test_candidate_rows": 124,
+      "test_groups": 20,
+      "train_models": [
+        "Deci/DeciLM-7B",
+        "Qwen/Qwen2-72B",
+        "Qwen/Qwen2-7B",
+        "meta-llama/Llama-2-7b-hf",
+        "meta-llama/Meta-Llama-3-70B",
+        "meta-llama/Meta-Llama-3-8B",
+        "mistralai/Mistral-7B-v0.1",
+        "mistralai/Mixtral-8x7B-v0.1"
+      ],
+      "train_rows": 1423
+    },
+    {
+      "held_model": "meta-llama/Llama-2-7b-hf",
+      "test_candidate_rows": 320,
+      "test_groups": 20,
+      "train_models": [
+        "Deci/DeciLM-7B",
+        "Qwen/Qwen2-72B",
+        "Qwen/Qwen2-7B",
+        "meta-llama/Llama-2-70b-hf",
+        "meta-llama/Meta-Llama-3-70B",
+        "meta-llama/Meta-Llama-3-8B",
+        "mistralai/Mistral-7B-v0.1",
+        "mistralai/Mixtral-8x7B-v0.1"
+      ],
+      "train_rows": 1227
+    },
+    {
+      "held_model": "meta-llama/Meta-Llama-3-70B",
+      "test_candidate_rows": 119,
+      "test_groups": 20,
+      "train_models": [
+        "Deci/DeciLM-7B",
+        "Qwen/Qwen2-72B",
+        "Qwen/Qwen2-7B",
+        "meta-llama/Llama-2-70b-hf",
+        "meta-llama/Llama-2-7b-hf",
+        "meta-llama/Meta-Llama-3-8B",
+        "mistralai/Mistral-7B-v0.1",
+        "mistralai/Mixtral-8x7B-v0.1"
+      ],
+      "train_rows": 1428
+    },
+    {
+      "held_model": "meta-llama/Meta-Llama-3-8B",
+      "test_candidate_rows": 260,
+      "test_groups": 20,
+      "train_models": [
+        "Deci/DeciLM-7B",
+        "Qwen/Qwen2-72B",
+        "Qwen/Qwen2-7B",
+        "meta-llama/Llama-2-70b-hf",
+        "meta-llama/Llama-2-7b-hf",
+        "meta-llama/Meta-Llama-3-70B",
+        "mistralai/Mistral-7B-v0.1",
+        "mistralai/Mixtral-8x7B-v0.1"
+      ],
+      "train_rows": 1287
+    },
+    {
+      "held_model": "mistralai/Mistral-7B-v0.1",
+      "test_candidate_rows": 184,
+      "test_groups": 20,
+      "train_models": [
+        "Deci/DeciLM-7B",
+        "Qwen/Qwen2-72B",
+        "Qwen/Qwen2-7B",
+        "meta-llama/Llama-2-70b-hf",
+        "meta-llama/Llama-2-7b-hf",
+        "meta-llama/Meta-Llama-3-70B",
+        "meta-llama/Meta-Llama-3-8B",
+        "mistralai/Mixtral-8x7B-v0.1"
+      ],
+      "train_rows": 1363
+    },
+    {
+      "held_model": "mistralai/Mixtral-8x7B-v0.1",
+      "test_candidate_rows": 132,
+      "test_groups": 20,
+      "train_models": [
+        "Deci/DeciLM-7B",
+        "Qwen/Qwen2-72B",
+        "Qwen/Qwen2-7B",
+        "meta-llama/Llama-2-70b-hf",
+        "meta-llama/Llama-2-7b-hf",
+        "meta-llama/Meta-Llama-3-70B",
+        "meta-llama/Meta-Llama-3-8B",
+        "mistralai/Mistral-7B-v0.1"
+      ],
+      "train_rows": 1415
+    }
+  ],
+  "gate": {
+    "beats_every_comparator_by_five_percent": false,
+    "direction_no_worse_than_conditioned": false,
+    "wins_vs_conditioned_models": 3,
+    "wins_vs_conditioned_required": 6
+  },
+  "groups": 169,
+  "hardware_names": [
+    "AMD MI250 GPU",
+    "AMD MI300X GPU",
+    "Intel Max 1550",
+    "Intel PVC GPU",
+    "Nvidia A100 GPU",
+    "Nvidia GH200 GPU",
+    "Nvidia H100 GPU"
+  ],
+  "models": 9,
+  "predictions_sha256": "833e8ef32f9b9c5f12006038f133c8dd9ae41a49513ba4e7e9c46550542632a1",
+  "protocol_sha256": "85bcaec917df710952e5c3e2d9ad7b8f9ac6ef53f682e88a4b8b31db27ad0e7a",
+  "scores": {
+    "anchor_conditioned": {
+      "model_equal_male": 0.1998399224306904,
+      "row_direction_accuracy": 0.9592274678111588,
+      "row_male": 0.1517212410808069
+    },
+    "anchor_copy": {
+      "model_equal_male": 0.756490273899821,
+      "row_direction_accuracy": 0.0,
+      "row_male": 0.7466450285360557
+    },
+    "anchor_residual": {
+      "model_equal_male": 0.17773342931039504,
+      "row_direction_accuracy": 0.9513590844062947,
+      "row_male": 0.19571797977072256
+    },
+    "direct": {
+      "model_equal_male": 0.17826305258604302,
+      "row_direction_accuracy": 0.9377682403433476,
+      "row_male": 0.178762667578778
+    }
+  },
+  "script_sha256": "422b2e06820419ce08e13a0e6163331431c79d9a91dc7be00d55f985892f2d5c",
+  "source_sha256": "631a12e08c786ce2d4bdfdc0f67b93234360682cb4b36c93806270ddcfd58412",
+  "status": "DO_NOT_ADOPT"
+}

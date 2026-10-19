@@ -1,0 +1,42 @@
+{
+  "evidence_type": "khu.research.philly_gpu_risk_evidence",
+  "schema_version": "0.1.0",
+  "evidence_id": "sha256:b36f81804c75e429f93809b72a622b5f5e2fbf5c1e68686298f12606c2dd27ff",
+  "request_sha256": "7e5f828d556fde99b96f01f082138abbac251a884f9d3ad1d7e347f01635fce2",
+  "generated_at": "2026-09-28T22:25:30Z",
+  "status": "RESEARCH_ESTIMATE",
+  "event": "any_next_six_5min_gpu_slot_mean_windows_at_least_80_percent",
+  "horizon_seconds": 1800,
+  "source_domain": "msr_philly_2017_gpu_trace",
+  "model_name": "pooled_quality_logistic",
+  "baseline_name": "state_recent_beta",
+  "input_observation_verified": false,
+  "scope": {
+    "kind": "same_trace_single_gpu_slot_risk_estimate",
+    "evaluated_population": "Microsoft Philly 2017 GPU trace, complete/below_80",
+    "future_label_requires_all_six_windows_observed": true,
+    "deployment_authority": false
+  },
+  "provenance": {
+    "model_spec_sha256": "861005a57cbf9f370a8f36682ca9004a3301af01f45e9c797949bf6319ad76a3",
+    "normalized_source_sha256": "15f1af4669acb9823d0e6d96291e799cf33f8a9c1813d4faf51b0b9eb618ad58",
+    "frozen_code_sha256": {
+      "candidate_builder": "e89fd8a48c8491d02194540fc362a1d50f264f589a60e52e6c3dfd3fdc25d795",
+      "holdout_scorer": "c394d8aecdaea796809633b6e8b50d8bd5e79d2f2d18ace9c09aeb6737cd92a4",
+      "original_scorer": "0fad08527467fab39f03acae914c1c009a6c6a80852ab7701f06e068ea4f1c4f",
+      "risk_metrics": "bc9bf2dfbd78e9e88405fe531d9163402c19309d2eaa05f0e994e1aaba81de72",
+      "risk_models": "27eee299b7b4a30844712200e85696719aea116699711e4620a12672dfed5606"
+    },
+    "api_code_sha256": "fe87858d542e083d5f564a864a67e7f0b8a9e7c90c81cab9dfbc0d0c813d63d0",
+    "artifact_hashes_verified_at_load": true,
+    "window_metadata_provenance": "caller_declared"
+  },
+  "decision_context": {
+    "decision_utc_s": 1512086400,
+    "machine_hash": "fb02b5cebeb1cb83018f93ee31f226a07883df7c9100ceeed0d481eee350f637",
+    "gpu_index": 0,
+    "expected_gpu_slots": 8
+  },
+  "pooled_probability": 0.8156130235216689,
+  "selected_beta_probability": 0.841413078666235
+}

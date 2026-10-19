@@ -1,0 +1,292 @@
+{
+  "status": "RETROSPECTIVE_EXPLORATORY_GO",
+  "scope": "observed public Coding subset input-token sums; no SLO or VM action",
+  "source_sha256": "71de5c55cbc35f8f1ed0b6b7806b4cd1e9764b0058469725a6aac98023a1448f",
+  "protocol_sha256": "748513fd859357bf1aed639b010c3dac79e534617d0d6ca8052103cc903fe35f",
+  "script_sha256": "c4e923bf3980923b6188ea939e2aebe1511034ed8f9356bb55dd883c1109251b",
+  "test_sha256": "f6c6c7f93f61bc3d2458aa9540f2e96de0092c15bf2d47e4bc015be2aa558dcf",
+  "freeze_sha256": "45773ffa5937e7e881e6b1c47c3fb5823e8034df66a0162f8169696b5f3cc2ce",
+  "model_sha256": "72c3c812192abcd02cc4095d87f77b75da83935900d5f6a4e51afc37f77582b4",
+  "code_environment": {
+    "script_sha256": "c4e923bf3980923b6188ea939e2aebe1511034ed8f9356bb55dd883c1109251b",
+    "test_sha256": "f6c6c7f93f61bc3d2458aa9540f2e96de0092c15bf2d47e4bc015be2aa558dcf",
+    "python": "3.9.25",
+    "numpy": "2.0.2",
+    "pandas": "2.3.0+4.g1dfc98e16a",
+    "sklearn": "1.6.1"
+  },
+  "raw_request_rows": 16803695,
+  "complete_five_minute_bins": 2016,
+  "training_eligible_bins": 852,
+  "training_previous_day_residual_bins": 564,
+  "pre_score_support": {
+    "training_eligible": 852,
+    "expected_training_eligible": 852,
+    "evaluation_days": {
+      "2024-05-13": {
+        "eligible": 288,
+        "ineligible": 0
+      },
+      "2024-05-14": {
+        "eligible": 288,
+        "ineligible": 0
+      },
+      "2024-05-15": {
+        "eligible": 288,
+        "ineligible": 0
+      },
+      "2024-05-16": {
+        "eligible": 288,
+        "ineligible": 0
+      }
+    },
+    "all_passed": true
+  },
+  "training_global_ratio_q90": 1.20047475425906,
+  "training_previous_day_ratio_residual_q90": 0.24907000778096056,
+  "training_mean_scale": 12216947.367370892,
+  "validation": {
+    "per_day": {
+      "2024-05-13": {
+        "eligible_bins": 288,
+        "ineligible_bins": 0,
+        "methods": {
+          "relative_q90_hgb": {
+            "bins": 288,
+            "absolute_token_pinball": 436001.36318851705,
+            "relative_ratio_pinball": 0.01898323817959923,
+            "coverage": 0.90625,
+            "underprediction_fraction": 0.09375,
+            "mean_predicted_tokens": 29102732.57298554,
+            "mean_observed_tokens": 25737090.357638888
+          },
+          "train_weighted_ratio_q90": {
+            "bins": 288,
+            "absolute_token_pinball": 826834.4263634261,
+            "relative_ratio_pinball": 0.03772325262787052,
+            "coverage": 0.8541666666666666,
+            "underprediction_fraction": 0.14583333333333334,
+            "mean_predicted_tokens": 30633468.99587114,
+            "mean_observed_tokens": 25737090.357638888
+          },
+          "past_hour_empirical_q90": {
+            "bins": 288,
+            "absolute_token_pinball": 717198.9836805556,
+            "relative_ratio_pinball": 0.03401097711386728,
+            "coverage": 0.7534722222222222,
+            "underprediction_fraction": 0.2465277777777778,
+            "mean_predicted_tokens": 28121046.34722222,
+            "mean_observed_tokens": 25737090.357638888
+          },
+          "previous_day_ratio": {
+            "bins": 288,
+            "absolute_token_pinball": 1633252.8640024455,
+            "relative_ratio_pinball": 0.08023395832209108,
+            "coverage": 0.46875,
+            "underprediction_fraction": 0.53125,
+            "mean_predicted_tokens": 26337950.349966392,
+            "mean_observed_tokens": 25737090.357638888
+          },
+          "previous_day_ratio_plus_train_residual_q90": {
+            "bins": 288,
+            "absolute_token_pinball": 856755.1162522812,
+            "relative_ratio_pinball": 0.03571910963486435,
+            "coverage": 0.8993055555555556,
+            "underprediction_fraction": 0.10069444444444445,
+            "mean_predicted_tokens": 32693667.81431961,
+            "mean_observed_tokens": 25737090.357638888
+          }
+        }
+      }
+    },
+    "equal_day_mean_absolute_token_pinball": {
+      "relative_q90_hgb": 436001.36318851705,
+      "train_weighted_ratio_q90": 826834.4263634261,
+      "past_hour_empirical_q90": 717198.9836805556,
+      "previous_day_ratio": 1633252.8640024455,
+      "previous_day_ratio_plus_train_residual_q90": 856755.1162522812
+    },
+    "support_fraction_each_day_at_least_0_95": true
+  },
+  "retrospective_assessment": {
+    "per_day": {
+      "2024-05-14": {
+        "eligible_bins": 288,
+        "ineligible_bins": 0,
+        "methods": {
+          "relative_q90_hgb": {
+            "bins": 288,
+            "absolute_token_pinball": 414611.0652499549,
+            "relative_ratio_pinball": 0.016267075406111695,
+            "coverage": 0.9375,
+            "underprediction_fraction": 0.0625,
+            "mean_predicted_tokens": 31892458.937619142,
+            "mean_observed_tokens": 28193306.888888888
+          },
+          "train_weighted_ratio_q90": {
+            "bins": 288,
+            "absolute_token_pinball": 902860.337918794,
+            "relative_ratio_pinball": 0.037641486734947875,
+            "coverage": 0.8645833333333334,
+            "underprediction_fraction": 0.13541666666666666,
+            "mean_predicted_tokens": 33877220.17073056,
+            "mean_observed_tokens": 28193306.888888888
+          },
+          "past_hour_empirical_q90": {
+            "bins": 288,
+            "absolute_token_pinball": 831540.3615625,
+            "relative_ratio_pinball": 0.03439749505429497,
+            "coverage": 0.7708333333333334,
+            "underprediction_fraction": 0.22916666666666666,
+            "mean_predicted_tokens": 31181052.692013893,
+            "mean_observed_tokens": 28193306.888888888
+          },
+          "previous_day_ratio": {
+            "bins": 288,
+            "absolute_token_pinball": 876430.6433868994,
+            "relative_ratio_pinball": 0.0403400784962773,
+            "coverage": 0.53125,
+            "underprediction_fraction": 0.46875,
+            "mean_predicted_tokens": 28701667.046533797,
+            "mean_observed_tokens": 28193306.888888888
+          },
+          "previous_day_ratio_plus_train_residual_q90": {
+            "bins": 288,
+            "absolute_token_pinball": 764110.9092749885,
+            "relative_ratio_pinball": 0.027654730315947635,
+            "coverage": 0.9826388888888888,
+            "underprediction_fraction": 0.017361111111111112,
+            "mean_predicted_tokens": 35730385.860974036,
+            "mean_observed_tokens": 28193306.888888888
+          }
+        }
+      },
+      "2024-05-15": {
+        "eligible_bins": 288,
+        "ineligible_bins": 0,
+        "methods": {
+          "relative_q90_hgb": {
+            "bins": 288,
+            "absolute_token_pinball": 420360.91692061897,
+            "relative_ratio_pinball": 0.016748003867013042,
+            "coverage": 0.9201388888888888,
+            "underprediction_fraction": 0.0798611111111111,
+            "mean_predicted_tokens": 32338556.94790605,
+            "mean_observed_tokens": 28636239.611111112
+          },
+          "train_weighted_ratio_q90": {
+            "bins": 288,
+            "absolute_token_pinball": 843721.7786616199,
+            "relative_ratio_pinball": 0.03597153397219401,
+            "coverage": 0.8819444444444444,
+            "underprediction_fraction": 0.11805555555555555,
+            "mean_predicted_tokens": 34298623.852249876,
+            "mean_observed_tokens": 28636239.611111112
+          },
+          "past_hour_empirical_q90": {
+            "bins": 288,
+            "absolute_token_pinball": 791241.0869097221,
+            "relative_ratio_pinball": 0.03355797530391854,
+            "coverage": 0.7604166666666666,
+            "underprediction_fraction": 0.23958333333333334,
+            "mean_predicted_tokens": 31420999.639930554,
+            "mean_observed_tokens": 28636239.611111112
+          },
+          "previous_day_ratio": {
+            "bins": 288,
+            "absolute_token_pinball": 1188175.6449330163,
+            "relative_ratio_pinball": 0.04746111238380073,
+            "coverage": 0.4895833333333333,
+            "underprediction_fraction": 0.5104166666666666,
+            "mean_predicted_tokens": 28472926.35047534,
+            "mean_observed_tokens": 28636239.611111112
+          },
+          "previous_day_ratio_plus_train_residual_q90": {
+            "bins": 288,
+            "absolute_token_pinball": 716983.877328264,
+            "relative_ratio_pinball": 0.02604075632408084,
+            "coverage": 0.9756944444444444,
+            "underprediction_fraction": 0.024305555555555556,
+            "mean_predicted_tokens": 35589076.42314285,
+            "mean_observed_tokens": 28636239.611111112
+          }
+        }
+      },
+      "2024-05-16": {
+        "eligible_bins": 288,
+        "ineligible_bins": 0,
+        "methods": {
+          "relative_q90_hgb": {
+            "bins": 288,
+            "absolute_token_pinball": 420909.69972745876,
+            "relative_ratio_pinball": 0.016900567646067434,
+            "coverage": 0.9375,
+            "underprediction_fraction": 0.0625,
+            "mean_predicted_tokens": 30787026.110461507,
+            "mean_observed_tokens": 27245070.805555556
+          },
+          "train_weighted_ratio_q90": {
+            "bins": 288,
+            "absolute_token_pinball": 820428.7830087489,
+            "relative_ratio_pinball": 0.034577425015380775,
+            "coverage": 0.875,
+            "underprediction_fraction": 0.125,
+            "mean_predicted_tokens": 32759837.03139993,
+            "mean_observed_tokens": 27245070.805555556
+          },
+          "past_hour_empirical_q90": {
+            "bins": 288,
+            "absolute_token_pinball": 773725.0113888887,
+            "relative_ratio_pinball": 0.032891990401212594,
+            "coverage": 0.7708333333333334,
+            "underprediction_fraction": 0.22916666666666666,
+            "mean_predicted_tokens": 30122729.21458333,
+            "mean_observed_tokens": 27245070.805555556
+          },
+          "previous_day_ratio": {
+            "bins": 288,
+            "absolute_token_pinball": 963295.5433120757,
+            "relative_ratio_pinball": 0.04580577077161473,
+            "coverage": 0.5625,
+            "underprediction_fraction": 0.4375,
+            "mean_predicted_tokens": 27468116.789237183,
+            "mean_observed_tokens": 27245070.805555556
+          },
+          "previous_day_ratio_plus_train_residual_q90": {
+            "bins": 288,
+            "absolute_token_pinball": 745048.9851068645,
+            "relative_ratio_pinball": 0.029002617920163138,
+            "coverage": 0.9652777777777778,
+            "underprediction_fraction": 0.034722222222222224,
+            "mean_predicted_tokens": 34265005.13309067,
+            "mean_observed_tokens": 27245070.805555556
+          }
+        }
+      }
+    },
+    "equal_day_mean_absolute_token_pinball": {
+      "relative_q90_hgb": 418627.22729934426,
+      "train_weighted_ratio_q90": 855670.2998630543,
+      "past_hour_empirical_q90": 798835.4866203703,
+      "previous_day_ratio": 1009300.610543997,
+      "previous_day_ratio_plus_train_residual_q90": 742047.9239033723
+    },
+    "support_fraction_each_day_at_least_0_95": true
+  },
+  "assessment_gate": {
+    "all_passed": true,
+    "checks": {
+      "mean_pinball_5pct_below_train_weighted_ratio_q90": true,
+      "mean_pinball_5pct_below_past_hour_empirical_q90": true,
+      "mean_pinball_5pct_below_previous_day_ratio": true,
+      "mean_pinball_5pct_below_previous_day_ratio_plus_train_residual_q90": true,
+      "at_least_two_of_three_daily_wins": true,
+      "coverage_each_day_0_85_to_0_95": true,
+      "support_each_day_at_least_0_95": true
+    },
+    "daily_wins": 3,
+    "failed": []
+  },
+  "blind_or_independent_test": false,
+  "Conversation_source_accessed": false
+}

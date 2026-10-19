@@ -1,0 +1,798 @@
+{
+  "scope": "exploratory; 25 correlated synthetic threshold pairs per workload; no real user SLO",
+  "threshold_source": "other eight models in each outer fold",
+  "prediction_source": "frozen K=8 space-probe outer-fold predictions",
+  "same_probe_count_for_all_policies": 8,
+  "selection": "fewest GPUs then fewest CPU cores among predicted feasible",
+  "margin_interpretation": "log margin m: latency prediction times exp(m), RPS prediction divided by exp(m)",
+  "margins_log": [
+    0.0,
+    0.05,
+    0.1,
+    0.2,
+    0.3
+  ],
+  "policies": {
+    "covariance": [
+      "space_cov_transfer"
+    ],
+    "kernel": [
+      "space_kernel_transfer"
+    ],
+    "ridge": [
+      "space_ridge"
+    ],
+    "covariance_and_kernel": [
+      "space_cov_transfer",
+      "space_kernel_transfer"
+    ],
+    "covariance_and_ridge": [
+      "space_cov_transfer",
+      "space_ridge"
+    ],
+    "kernel_and_ridge": [
+      "space_kernel_transfer",
+      "space_ridge"
+    ],
+    "all_three": [
+      "space_cov_transfer",
+      "space_kernel_transfer",
+      "space_ridge"
+    ]
+  },
+  "slo_scenarios": 225,
+  "snapshot_sha256": "b7bba7963e8a309b6a8502a1d98eefb150476b1381ec016beeb68cbf63fae906",
+  "predictions_sha256": "a1b110a6941b18bd52d0f45a07fcd6b89ea12de066baba47197a938b1ff480fb",
+  "script_sha256": "d4909f13e212ad6d0a199498633be750f14c1e277355d0732a42118af05f64bd",
+  "retrospective_dominance_caveat": "Dominance uses held-out results for description only; it cannot select a deployable margin.",
+  "aggregate": [
+    {
+      "policy": "all_three",
+      "components": "space_cov_transfer+space_kernel_transfer+space_ridge",
+      "margin_log": 0.0,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 6523,
+      "successful_choices": 6073,
+      "false_approvals": 450,
+      "missed_feasible": 673,
+      "false_approval_rate_among_selected": 0.06898666257856814,
+      "success_fraction_of_oracle": 0.9002371775867181
+    },
+    {
+      "policy": "all_three",
+      "components": "space_cov_transfer+space_kernel_transfer+space_ridge",
+      "margin_log": 0.05,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 6321,
+      "successful_choices": 5975,
+      "false_approvals": 346,
+      "missed_feasible": 771,
+      "false_approval_rate_among_selected": 0.054738174339503246,
+      "success_fraction_of_oracle": 0.8857100504002372
+    },
+    {
+      "policy": "all_three",
+      "components": "space_cov_transfer+space_kernel_transfer+space_ridge",
+      "margin_log": 0.1,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 6119,
+      "successful_choices": 5869,
+      "false_approvals": 250,
+      "missed_feasible": 877,
+      "false_approval_rate_among_selected": 0.04085634907664651,
+      "success_fraction_of_oracle": 0.869997035280166
+    },
+    {
+      "policy": "all_three",
+      "components": "space_cov_transfer+space_kernel_transfer+space_ridge",
+      "margin_log": 0.2,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 5812,
+      "successful_choices": 5667,
+      "false_approvals": 145,
+      "missed_feasible": 1079,
+      "false_approval_rate_among_selected": 0.024948382656572607,
+      "success_fraction_of_oracle": 0.8400533649570116
+    },
+    {
+      "policy": "all_three",
+      "components": "space_cov_transfer+space_kernel_transfer+space_ridge",
+      "margin_log": 0.3,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 5502,
+      "successful_choices": 5421,
+      "false_approvals": 81,
+      "missed_feasible": 1325,
+      "false_approval_rate_among_selected": 0.014721919302071973,
+      "success_fraction_of_oracle": 0.8035873109991106
+    },
+    {
+      "policy": "covariance",
+      "components": "space_cov_transfer",
+      "margin_log": 0.0,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 6717,
+      "successful_choices": 6143,
+      "false_approvals": 574,
+      "missed_feasible": 603,
+      "false_approval_rate_among_selected": 0.08545481613815692,
+      "success_fraction_of_oracle": 0.910613697005633
+    },
+    {
+      "policy": "covariance",
+      "components": "space_cov_transfer",
+      "margin_log": 0.05,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 6523,
+      "successful_choices": 6056,
+      "false_approvals": 467,
+      "missed_feasible": 690,
+      "false_approval_rate_among_selected": 0.07159282538709183,
+      "success_fraction_of_oracle": 0.8977171657278388
+    },
+    {
+      "policy": "covariance",
+      "components": "space_cov_transfer",
+      "margin_log": 0.1,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 6389,
+      "successful_choices": 6023,
+      "false_approvals": 366,
+      "missed_feasible": 723,
+      "false_approval_rate_among_selected": 0.05728596024416967,
+      "success_fraction_of_oracle": 0.8928253780017789
+    },
+    {
+      "policy": "covariance",
+      "components": "space_cov_transfer",
+      "margin_log": 0.2,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 6100,
+      "successful_choices": 5885,
+      "false_approvals": 215,
+      "missed_feasible": 861,
+      "false_approval_rate_among_selected": 0.03524590163934426,
+      "success_fraction_of_oracle": 0.8723688111473465
+    },
+    {
+      "policy": "covariance",
+      "components": "space_cov_transfer",
+      "margin_log": 0.3,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 5710,
+      "successful_choices": 5585,
+      "false_approvals": 125,
+      "missed_feasible": 1161,
+      "false_approval_rate_among_selected": 0.021891418563922942,
+      "success_fraction_of_oracle": 0.8278980136377112
+    },
+    {
+      "policy": "covariance_and_kernel",
+      "components": "space_cov_transfer+space_kernel_transfer",
+      "margin_log": 0.0,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 6635,
+      "successful_choices": 6099,
+      "false_approvals": 536,
+      "missed_feasible": 647,
+      "false_approval_rate_among_selected": 0.08078372268274303,
+      "success_fraction_of_oracle": 0.9040913133708864
+    },
+    {
+      "policy": "covariance_and_kernel",
+      "components": "space_cov_transfer+space_kernel_transfer",
+      "margin_log": 0.05,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 6443,
+      "successful_choices": 6011,
+      "false_approvals": 432,
+      "missed_feasible": 735,
+      "false_approval_rate_among_selected": 0.06704951109731491,
+      "success_fraction_of_oracle": 0.8910465461013934
+    },
+    {
+      "policy": "covariance_and_kernel",
+      "components": "space_cov_transfer+space_kernel_transfer",
+      "margin_log": 0.1,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 6313,
+      "successful_choices": 5981,
+      "false_approvals": 332,
+      "missed_feasible": 765,
+      "false_approval_rate_among_selected": 0.052589893869792494,
+      "success_fraction_of_oracle": 0.8865994663504299
+    },
+    {
+      "policy": "covariance_and_kernel",
+      "components": "space_cov_transfer+space_kernel_transfer",
+      "margin_log": 0.2,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 6008,
+      "successful_choices": 5813,
+      "false_approvals": 195,
+      "missed_feasible": 933,
+      "false_approval_rate_among_selected": 0.03245672436750999,
+      "success_fraction_of_oracle": 0.8616958197450341
+    },
+    {
+      "policy": "covariance_and_kernel",
+      "components": "space_cov_transfer+space_kernel_transfer",
+      "margin_log": 0.3,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 5638,
+      "successful_choices": 5526,
+      "false_approvals": 112,
+      "missed_feasible": 1220,
+      "false_approval_rate_among_selected": 0.019865200425682867,
+      "success_fraction_of_oracle": 0.8191520901274829
+    },
+    {
+      "policy": "covariance_and_ridge",
+      "components": "space_cov_transfer+space_ridge",
+      "margin_log": 0.0,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 6555,
+      "successful_choices": 6090,
+      "false_approvals": 465,
+      "missed_feasible": 656,
+      "false_approval_rate_among_selected": 0.07093821510297482,
+      "success_fraction_of_oracle": 0.9027571894455974
+    },
+    {
+      "policy": "covariance_and_ridge",
+      "components": "space_cov_transfer+space_ridge",
+      "margin_log": 0.05,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 6336,
+      "successful_choices": 5982,
+      "false_approvals": 354,
+      "missed_feasible": 764,
+      "false_approval_rate_among_selected": 0.05587121212121212,
+      "success_fraction_of_oracle": 0.8867477023421286
+    },
+    {
+      "policy": "covariance_and_ridge",
+      "components": "space_cov_transfer+space_ridge",
+      "margin_log": 0.1,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 6136,
+      "successful_choices": 5877,
+      "false_approvals": 259,
+      "missed_feasible": 869,
+      "false_approval_rate_among_selected": 0.042209908735332466,
+      "success_fraction_of_oracle": 0.8711829232137563
+    },
+    {
+      "policy": "covariance_and_ridge",
+      "components": "space_cov_transfer+space_ridge",
+      "margin_log": 0.2,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 5834,
+      "successful_choices": 5687,
+      "false_approvals": 147,
+      "missed_feasible": 1059,
+      "false_approval_rate_among_selected": 0.025197120329105246,
+      "success_fraction_of_oracle": 0.8430180847909873
+    },
+    {
+      "policy": "covariance_and_ridge",
+      "components": "space_cov_transfer+space_ridge",
+      "margin_log": 0.3,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 5519,
+      "successful_choices": 5434,
+      "false_approvals": 85,
+      "missed_feasible": 1312,
+      "false_approval_rate_among_selected": 0.015401340822612792,
+      "success_fraction_of_oracle": 0.8055143788911948
+    },
+    {
+      "policy": "kernel",
+      "components": "space_kernel_transfer",
+      "margin_log": 0.0,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 6709,
+      "successful_choices": 6074,
+      "false_approvals": 635,
+      "missed_feasible": 672,
+      "false_approval_rate_among_selected": 0.09464897898345506,
+      "success_fraction_of_oracle": 0.9003854135784168
+    },
+    {
+      "policy": "kernel",
+      "components": "space_kernel_transfer",
+      "margin_log": 0.05,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 6535,
+      "successful_choices": 6011,
+      "false_approvals": 524,
+      "missed_feasible": 735,
+      "false_approval_rate_among_selected": 0.08018362662586075,
+      "success_fraction_of_oracle": 0.8910465461013934
+    },
+    {
+      "policy": "kernel",
+      "components": "space_kernel_transfer",
+      "margin_log": 0.1,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 6383,
+      "successful_choices": 5982,
+      "false_approvals": 401,
+      "missed_feasible": 764,
+      "false_approval_rate_among_selected": 0.06282312392292026,
+      "success_fraction_of_oracle": 0.8867477023421286
+    },
+    {
+      "policy": "kernel",
+      "components": "space_kernel_transfer",
+      "margin_log": 0.2,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 6071,
+      "successful_choices": 5832,
+      "false_approvals": 239,
+      "missed_feasible": 914,
+      "false_approval_rate_among_selected": 0.039367484763630375,
+      "success_fraction_of_oracle": 0.864512303587311
+    },
+    {
+      "policy": "kernel",
+      "components": "space_kernel_transfer",
+      "margin_log": 0.3,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 5721,
+      "successful_choices": 5576,
+      "false_approvals": 145,
+      "missed_feasible": 1170,
+      "false_approval_rate_among_selected": 0.025345219367243488,
+      "success_fraction_of_oracle": 0.8265638897124222
+    },
+    {
+      "policy": "kernel_and_ridge",
+      "components": "space_kernel_transfer+space_ridge",
+      "margin_log": 0.0,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 6560,
+      "successful_choices": 6068,
+      "false_approvals": 492,
+      "missed_feasible": 678,
+      "false_approval_rate_among_selected": 0.075,
+      "success_fraction_of_oracle": 0.8994959976282242
+    },
+    {
+      "policy": "kernel_and_ridge",
+      "components": "space_kernel_transfer+space_ridge",
+      "margin_log": 0.05,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 6362,
+      "successful_choices": 5969,
+      "false_approvals": 393,
+      "missed_feasible": 777,
+      "false_approval_rate_among_selected": 0.06177302734988997,
+      "success_fraction_of_oracle": 0.8848206344500444
+    },
+    {
+      "policy": "kernel_and_ridge",
+      "components": "space_kernel_transfer+space_ridge",
+      "margin_log": 0.1,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 6139,
+      "successful_choices": 5861,
+      "false_approvals": 278,
+      "missed_feasible": 885,
+      "false_approval_rate_among_selected": 0.045284248248900476,
+      "success_fraction_of_oracle": 0.8688111473465757
+    },
+    {
+      "policy": "kernel_and_ridge",
+      "components": "space_kernel_transfer+space_ridge",
+      "margin_log": 0.2,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 5850,
+      "successful_choices": 5684,
+      "false_approvals": 166,
+      "missed_feasible": 1062,
+      "false_approval_rate_among_selected": 0.028376068376068375,
+      "success_fraction_of_oracle": 0.842573376815891
+    },
+    {
+      "policy": "kernel_and_ridge",
+      "components": "space_kernel_transfer+space_ridge",
+      "margin_log": 0.3,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 5542,
+      "successful_choices": 5443,
+      "false_approvals": 99,
+      "missed_feasible": 1303,
+      "false_approval_rate_among_selected": 0.01786358715265247,
+      "success_fraction_of_oracle": 0.8068485028164838
+    },
+    {
+      "policy": "ridge",
+      "components": "space_ridge",
+      "margin_log": 0.0,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 6659,
+      "successful_choices": 6069,
+      "false_approvals": 590,
+      "missed_feasible": 677,
+      "false_approval_rate_among_selected": 0.08860189217600241,
+      "success_fraction_of_oracle": 0.899644233619923
+    },
+    {
+      "policy": "ridge",
+      "components": "space_ridge",
+      "margin_log": 0.05,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 6468,
+      "successful_choices": 5989,
+      "false_approvals": 479,
+      "missed_feasible": 757,
+      "false_approval_rate_among_selected": 0.07405689548546691,
+      "success_fraction_of_oracle": 0.8877853542840202
+    },
+    {
+      "policy": "ridge",
+      "components": "space_ridge",
+      "margin_log": 0.1,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 6254,
+      "successful_choices": 5883,
+      "false_approvals": 371,
+      "missed_feasible": 863,
+      "false_approval_rate_among_selected": 0.059322033898305086,
+      "success_fraction_of_oracle": 0.872072339163949
+    },
+    {
+      "policy": "ridge",
+      "components": "space_ridge",
+      "margin_log": 0.2,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 5941,
+      "successful_choices": 5712,
+      "false_approvals": 229,
+      "missed_feasible": 1034,
+      "false_approval_rate_among_selected": 0.038545699377209225,
+      "success_fraction_of_oracle": 0.8467239845834569
+    },
+    {
+      "policy": "ridge",
+      "components": "space_ridge",
+      "margin_log": 0.3,
+      "model_slo_scenarios": 225,
+      "oracle_feasible": 6746,
+      "selected": 5636,
+      "successful_choices": 5512,
+      "false_approvals": 124,
+      "missed_feasible": 1234,
+      "false_approval_rate_among_selected": 0.0220014194464159,
+      "success_fraction_of_oracle": 0.8170767862437
+    }
+  ],
+  "single_margin_dominance_of_consensus": [
+    {
+      "policy": "all_three",
+      "margin_log": 0.0,
+      "dominated_by_single_fixed_margin": false,
+      "dominating_single_policies": []
+    },
+    {
+      "policy": "all_three",
+      "margin_log": 0.05,
+      "dominated_by_single_fixed_margin": false,
+      "dominating_single_policies": []
+    },
+    {
+      "policy": "all_three",
+      "margin_log": 0.1,
+      "dominated_by_single_fixed_margin": true,
+      "dominating_single_policies": [
+        {
+          "policy": "covariance",
+          "margin_log": 0.2,
+          "successful_choices": 5885,
+          "false_approvals": 215
+        }
+      ]
+    },
+    {
+      "policy": "all_three",
+      "margin_log": 0.2,
+      "dominated_by_single_fixed_margin": false,
+      "dominating_single_policies": []
+    },
+    {
+      "policy": "all_three",
+      "margin_log": 0.3,
+      "dominated_by_single_fixed_margin": false,
+      "dominating_single_policies": []
+    },
+    {
+      "policy": "covariance_and_kernel",
+      "margin_log": 0.0,
+      "dominated_by_single_fixed_margin": false,
+      "dominating_single_policies": []
+    },
+    {
+      "policy": "covariance_and_kernel",
+      "margin_log": 0.05,
+      "dominated_by_single_fixed_margin": true,
+      "dominating_single_policies": [
+        {
+          "policy": "covariance",
+          "margin_log": 0.1,
+          "successful_choices": 6023,
+          "false_approvals": 366
+        }
+      ]
+    },
+    {
+      "policy": "covariance_and_kernel",
+      "margin_log": 0.1,
+      "dominated_by_single_fixed_margin": false,
+      "dominating_single_policies": []
+    },
+    {
+      "policy": "covariance_and_kernel",
+      "margin_log": 0.2,
+      "dominated_by_single_fixed_margin": false,
+      "dominating_single_policies": []
+    },
+    {
+      "policy": "covariance_and_kernel",
+      "margin_log": 0.3,
+      "dominated_by_single_fixed_margin": false,
+      "dominating_single_policies": []
+    },
+    {
+      "policy": "covariance_and_ridge",
+      "margin_log": 0.0,
+      "dominated_by_single_fixed_margin": false,
+      "dominating_single_policies": []
+    },
+    {
+      "policy": "covariance_and_ridge",
+      "margin_log": 0.05,
+      "dominated_by_single_fixed_margin": false,
+      "dominating_single_policies": []
+    },
+    {
+      "policy": "covariance_and_ridge",
+      "margin_log": 0.1,
+      "dominated_by_single_fixed_margin": true,
+      "dominating_single_policies": [
+        {
+          "policy": "covariance",
+          "margin_log": 0.2,
+          "successful_choices": 5885,
+          "false_approvals": 215
+        }
+      ]
+    },
+    {
+      "policy": "covariance_and_ridge",
+      "margin_log": 0.2,
+      "dominated_by_single_fixed_margin": false,
+      "dominating_single_policies": []
+    },
+    {
+      "policy": "covariance_and_ridge",
+      "margin_log": 0.3,
+      "dominated_by_single_fixed_margin": false,
+      "dominating_single_policies": []
+    },
+    {
+      "policy": "kernel_and_ridge",
+      "margin_log": 0.0,
+      "dominated_by_single_fixed_margin": false,
+      "dominating_single_policies": []
+    },
+    {
+      "policy": "kernel_and_ridge",
+      "margin_log": 0.05,
+      "dominated_by_single_fixed_margin": true,
+      "dominating_single_policies": [
+        {
+          "policy": "covariance",
+          "margin_log": 0.1,
+          "successful_choices": 6023,
+          "false_approvals": 366
+        }
+      ]
+    },
+    {
+      "policy": "kernel_and_ridge",
+      "margin_log": 0.1,
+      "dominated_by_single_fixed_margin": true,
+      "dominating_single_policies": [
+        {
+          "policy": "covariance",
+          "margin_log": 0.2,
+          "successful_choices": 5885,
+          "false_approvals": 215
+        }
+      ]
+    },
+    {
+      "policy": "kernel_and_ridge",
+      "margin_log": 0.2,
+      "dominated_by_single_fixed_margin": false,
+      "dominating_single_policies": []
+    },
+    {
+      "policy": "kernel_and_ridge",
+      "margin_log": 0.3,
+      "dominated_by_single_fixed_margin": false,
+      "dominating_single_policies": []
+    }
+  ],
+  "matched_aggregate_approval_count_comparison": {
+    "left": {
+      "policy": "all_three",
+      "margin_log": 0.0
+    },
+    "right": {
+      "policy": "covariance",
+      "margin_log": 0.05
+    },
+    "interval_caveat": "descriptive after method exploration; model folds are the resampling units",
+    "selected": {
+      "difference_total": 0,
+      "difference_mean_per_model": 0.0,
+      "descriptive_model_bootstrap_95_interval_for_mean": [
+        -16.555555555555557,
+        11.666666666666666
+      ],
+      "per_model_difference": {
+        "FacebookAI/roberta-base": 14,
+        "Qwen/Qwen2.5-0.5B-Instruct": 15,
+        "albert/albert-base-v2": 6,
+        "distilbert/distilbert-base-uncased": 20,
+        "google-bert/bert-base-uncased": 12,
+        "google/bert_uncased_L-2_H-128_A-2": 0,
+        "google/bert_uncased_L-4_H-256_A-4": -58,
+        "google/bert_uncased_L-4_H-512_A-8": -10,
+        "google/electra-small-discriminator": 1
+      }
+    },
+    "successful_choices": {
+      "difference_total": 17,
+      "difference_mean_per_model": 1.8888888888888888,
+      "descriptive_model_bootstrap_95_interval_for_mean": [
+        -8.11111111111111,
+        8.222222222222221
+      ],
+      "per_model_difference": {
+        "FacebookAI/roberta-base": 7,
+        "Qwen/Qwen2.5-0.5B-Instruct": 12,
+        "albert/albert-base-v2": 1,
+        "distilbert/distilbert-base-uncased": 9,
+        "google-bert/bert-base-uncased": 8,
+        "google/bert_uncased_L-2_H-128_A-2": 9,
+        "google/bert_uncased_L-4_H-256_A-4": -35,
+        "google/bert_uncased_L-4_H-512_A-8": 3,
+        "google/electra-small-discriminator": 3
+      }
+    },
+    "false_approvals": {
+      "difference_total": -17,
+      "difference_mean_per_model": -1.8888888888888888,
+      "descriptive_model_bootstrap_95_interval_for_mean": [
+        -9.11111111111111,
+        4.444444444444445
+      ],
+      "per_model_difference": {
+        "FacebookAI/roberta-base": 7,
+        "Qwen/Qwen2.5-0.5B-Instruct": 3,
+        "albert/albert-base-v2": 5,
+        "distilbert/distilbert-base-uncased": 11,
+        "google-bert/bert-base-uncased": 4,
+        "google/bert_uncased_L-2_H-128_A-2": -9,
+        "google/bert_uncased_L-4_H-256_A-4": -23,
+        "google/bert_uncased_L-4_H-512_A-8": -13,
+        "google/electra-small-discriminator": -2
+      }
+    }
+  },
+  "same_zero_margin_comparison": {
+    "left": {
+      "policy": "all_three",
+      "margin_log": 0.0
+    },
+    "right": {
+      "policy": "covariance",
+      "margin_log": 0.0
+    },
+    "interval_caveat": "descriptive after method exploration; model folds are the resampling units",
+    "selected": {
+      "difference_total": -194,
+      "difference_mean_per_model": -21.555555555555557,
+      "descriptive_model_bootstrap_95_interval_for_mean": [
+        -39.11388888888889,
+        -7.111111111111111
+      ],
+      "per_model_difference": {
+        "FacebookAI/roberta-base": -6,
+        "Qwen/Qwen2.5-0.5B-Instruct": 0,
+        "albert/albert-base-v2": -10,
+        "distilbert/distilbert-base-uncased": -9,
+        "google-bert/bert-base-uncased": -7,
+        "google/bert_uncased_L-2_H-128_A-2": 0,
+        "google/bert_uncased_L-4_H-256_A-4": -76,
+        "google/bert_uncased_L-4_H-512_A-8": -48,
+        "google/electra-small-discriminator": -38
+      }
+    },
+    "successful_choices": {
+      "difference_total": -70,
+      "difference_mean_per_model": -7.777777777777778,
+      "descriptive_model_bootstrap_95_interval_for_mean": [
+        -18.444444444444443,
+        1.4444444444444444
+      ],
+      "per_model_difference": {
+        "FacebookAI/roberta-base": 0,
+        "Qwen/Qwen2.5-0.5B-Instruct": 4,
+        "albert/albert-base-v2": 0,
+        "distilbert/distilbert-base-uncased": -5,
+        "google-bert/bert-base-uncased": -6,
+        "google/bert_uncased_L-2_H-128_A-2": 14,
+        "google/bert_uncased_L-4_H-256_A-4": -42,
+        "google/bert_uncased_L-4_H-512_A-8": -22,
+        "google/electra-small-discriminator": -13
+      }
+    },
+    "false_approvals": {
+      "difference_total": -124,
+      "difference_mean_per_model": -13.777777777777779,
+      "descriptive_model_bootstrap_95_interval_for_mean": [
+        -21.333333333333332,
+        -6.888888888888889
+      ],
+      "per_model_difference": {
+        "FacebookAI/roberta-base": -6,
+        "Qwen/Qwen2.5-0.5B-Instruct": -4,
+        "albert/albert-base-v2": -10,
+        "distilbert/distilbert-base-uncased": -4,
+        "google-bert/bert-base-uncased": -1,
+        "google/bert_uncased_L-2_H-128_A-2": -14,
+        "google/bert_uncased_L-4_H-256_A-4": -34,
+        "google/bert_uncased_L-4_H-512_A-8": -26,
+        "google/electra-small-discriminator": -25
+      }
+    }
+  }
+}

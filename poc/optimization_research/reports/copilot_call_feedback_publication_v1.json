@@ -1,0 +1,94 @@
+{
+  "files": {
+    "scripts/copilot_call_feedback.py": {
+      "sha256": "89516faa0c89fa5c638cd6834ca4a3275826b6521b8b39964c69495fa0fdac2c"
+    },
+    "scripts/verify_copilot_call_feedback.py": {
+      "sha256": "898d66089057194fce1b185080ecc31d919d3340e1674cd1e77e2a9ade4e29bb"
+    },
+    "scripts/summarize_copilot_call_feedback.py": {
+      "sha256": "5ca05a08472baa608215fe52cfee01b44727c74e11585a800b2073c8fb7ffa81"
+    },
+    "scripts/evaluate_copilot_call_feedback.py": {
+      "sha256": "f0f61394683960860492591db77788c7066bc8e4c23358953f5624d03658268e"
+    },
+    "tests/test_copilot_call_feedback.py": {
+      "sha256": "c9bb8966ce04c2fdea7641f54748158f52f8b390b415c4c2d44f844625f3c47c"
+    },
+    "reports/copilot_call_feedback_tests_v1.log": {
+      "sha256": "91c41d7549e41da98e2b53ff35688fea60440d603f0ed9c7eb84bb3286af0808"
+    },
+    "reports/copilot_call_feedback_protocol_v1.json": {
+      "sha256": "b7c8f7d79fb13ed45452258ff01544c4d96d5558e3c98f08b69fe1fef587c21d"
+    },
+    "reports/copilot_call_feedback_findings_2026_10_06.txt": {
+      "sha256": "fe8ce5a6469d8461b5bb232f937be7c64096c9a4971c97c2a0d5d0345d8e4126"
+    },
+    "reports/verify_copilot_call_feedback_v1.log": {
+      "sha256": "0d1be6fb7ca8826c4ea8fb795063433912c62b4087a2aee42c613e5279ce81a8"
+    },
+    "reports/evaluate_copilot_call_feedback_v1.log": {
+      "sha256": "e13da39b0ca52960cca2a6f136a02f976c7746324521f88d01aee3295789aa55"
+    },
+    "artifacts/copilot_call_feedback_v1/comparison.png": {
+      "sha256": "f732747db043881e0aca59381e5aea01638dcfb369fde7c34eb28578b7f482c2"
+    },
+    "artifacts/copilot_call_feedback_v1/verification.json": {
+      "sha256": "3a70df9c4bcfcb0b3392b55f237ecfeb254bc2684a47a7bd34292dc5b8dc7b46"
+    },
+    "artifacts/copilot_call_feedback_v1/comparison.pdf": {
+      "sha256": "054b0039f3661450d12e880bd3674e9d8936ab930a25e5465758266d8685d92c"
+    },
+    "artifacts/copilot_call_feedback_v1/release_manifest.json": {
+      "sha256": "f49237c5388bb8f4a4cd57492fcda62838bca2fbfb970e6e98ca928f4fe47f76"
+    },
+    "artifacts/copilot_call_feedback_v1/results.json": {
+      "sha256": "333c69055cb22ae4fd3f99e57bfa5e433ab11d8d2479cf8aa5a0f897e5d85e67"
+    },
+    "artifacts/copilot_call_feedback_v1/replay.parquet": {
+      "sha256": "1db0ef304d511098ec226349ed10c5c58215f07ffee6059fbc08db30118397a5"
+    },
+    "artifacts/copilot_call_feedback_v1/FREEZE.json": {
+      "sha256": "7875adcb38cf18a0604b20f8fbfd32c77cc014f2154638b7c8c514361a2c1130"
+    },
+    "artifacts/copilot_call_feedback_v1/SELECTION.json": {
+      "sha256": "b8b1761ed51ad290789e5ff1f8b78c1ae49f979a5a58ef74b9c1776915e0ae6d"
+    },
+    "artifacts/copilot_call_feedback_v1/source_snapshot/reports/copilot_call_feedback_tests_v1.log": {
+      "sha256": "91c41d7549e41da98e2b53ff35688fea60440d603f0ed9c7eb84bb3286af0808"
+    },
+    "artifacts/copilot_call_feedback_v1/source_snapshot/reports/tests.log": {
+      "sha256": "91c41d7549e41da98e2b53ff35688fea60440d603f0ed9c7eb84bb3286af0808"
+    },
+    "artifacts/copilot_call_feedback_v1/source_snapshot/reports/copilot_call_feedback_protocol_v1.json": {
+      "sha256": "b7c8f7d79fb13ed45452258ff01544c4d96d5558e3c98f08b69fe1fef587c21d"
+    },
+    "artifacts/copilot_call_feedback_v1/source_snapshot/reports/copilot_call_feedback_findings_2026_10_06.txt": {
+      "sha256": "fe8ce5a6469d8461b5bb232f937be7c64096c9a4971c97c2a0d5d0345d8e4126"
+    },
+    "artifacts/copilot_call_feedback_v1/source_snapshot/reports/verify_copilot_call_feedback_v1.log": {
+      "sha256": "0d1be6fb7ca8826c4ea8fb795063433912c62b4087a2aee42c613e5279ce81a8"
+    },
+    "artifacts/copilot_call_feedback_v1/source_snapshot/reports/evaluate_copilot_call_feedback_v1.log": {
+      "sha256": "e13da39b0ca52960cca2a6f136a02f976c7746324521f88d01aee3295789aa55"
+    },
+    "artifacts/copilot_call_feedback_v1/source_snapshot/scripts/copilot_call_feedback.py": {
+      "sha256": "89516faa0c89fa5c638cd6834ca4a3275826b6521b8b39964c69495fa0fdac2c"
+    },
+    "artifacts/copilot_call_feedback_v1/source_snapshot/scripts/verify_copilot_call_feedback.py": {
+      "sha256": "898d66089057194fce1b185080ecc31d919d3340e1674cd1e77e2a9ade4e29bb"
+    },
+    "artifacts/copilot_call_feedback_v1/source_snapshot/scripts/summarize_copilot_call_feedback.py": {
+      "sha256": "5ca05a08472baa608215fe52cfee01b44727c74e11585a800b2073c8fb7ffa81"
+    },
+    "artifacts/copilot_call_feedback_v1/source_snapshot/scripts/evaluate_copilot_call_feedback.py": {
+      "sha256": "f0f61394683960860492591db77788c7066bc8e4c23358953f5624d03658268e"
+    },
+    "artifacts/copilot_call_feedback_v1/source_snapshot/tests/test_copilot_call_feedback.py": {
+      "sha256": "c9bb8966ce04c2fdea7641f54748158f52f8b390b415c4c2d44f844625f3c47c"
+    }
+  },
+  "all_verified": true,
+  "test_previously_seen": true,
+  "operational_adoption": false
+}

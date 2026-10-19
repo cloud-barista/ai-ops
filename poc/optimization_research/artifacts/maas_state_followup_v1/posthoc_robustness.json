@@ -1,0 +1,201 @@
+{
+  "status": "post_score_descriptive_sensitivity",
+  "not_part_of_frozen_success_criterion": true,
+  "script_sha256": "c86a35bebc9ea8b510503840bb2da624b3025dba4331f6b1ed44d5927b6c63a8",
+  "dry_run_sha256": "29d595efa881f14f1203a425cb1b324f7184ea418ede631051669c51d877d1a7",
+  "metrics_sha256": "a8e09c03bcedf78a1dc8011072cda7262b86f8c5102ffdbad72b8bde0664d5b3",
+  "test_predictions_sha256": "0c9c208e8ad122b09a6cfb4cb9fc294c265ef01c87a4abd56c6e25746cc680e8",
+  "bootstrap_unit": "instance_hash; all its eligible test rows sampled together",
+  "bootstrap_limitation": "shared cluster/day shocks and the reused week remain untested",
+  "current_normal": {
+    "complete": {
+      "label_observation_bounds": {
+        "candidates": 65191,
+        "labeled": 53513,
+        "observed_positive": 1899,
+        "label_observation_rate": 0.8208648433065914,
+        "observed_positive_rate": 0.035486704165343004,
+        "all_unobserved_negative_lower": 0.029129787854151646,
+        "all_unobserved_positive_upper": 0.20826494454756025
+      },
+      "paired_brier_by_comparator": {
+        "pred_old_any_recent_threshold": {
+          "overall": {
+            "rows": 53513,
+            "instances": 786,
+            "new_minus_comparator_brier": -0.001299412344331198,
+            "instance_bootstrap_percentile_95": [
+              -0.002171731013493171,
+              -0.0003934070982884944
+            ],
+            "resamples": 2000,
+            "seed": 42
+          },
+          "by_day": {
+            "145": {
+              "rows": 25546,
+              "instances": 494,
+              "new_minus_comparator_brier": -0.0019403768388492422,
+              "instance_bootstrap_percentile_95": [
+                -0.003309391582104744,
+                -0.0005799589251261856
+              ],
+              "resamples": 2000,
+              "seed": 187
+            },
+            "146": {
+              "rows": 27967,
+              "instances": 414,
+              "new_minus_comparator_brier": -0.0007139337811332161,
+              "instance_bootstrap_percentile_95": [
+                -0.001597055565144645,
+                0.00019617712107787162
+              ],
+              "resamples": 2000,
+              "seed": 188
+            }
+          }
+        },
+        "pred_posthoc_normal_recent_beta": {
+          "overall": {
+            "rows": 53513,
+            "instances": 786,
+            "new_minus_comparator_brier": -0.0009358928434028413,
+            "instance_bootstrap_percentile_95": [
+              -0.0014662109652343448,
+              -0.0004344507650528181
+            ],
+            "resamples": 2000,
+            "seed": 43
+          },
+          "by_day": {
+            "145": {
+              "rows": 25546,
+              "instances": 494,
+              "new_minus_comparator_brier": -0.0013138247922552004,
+              "instance_bootstrap_percentile_95": [
+                -0.002047590351239566,
+                -0.0006093168733873359
+              ],
+              "resamples": 2000,
+              "seed": 188
+            },
+            "146": {
+              "rows": 27967,
+              "instances": 414,
+              "new_minus_comparator_brier": -0.0005906770689049555,
+              "instance_bootstrap_percentile_95": [
+                -0.0011437746388262247,
+                -6.13679652053322e-05
+              ],
+              "resamples": 2000,
+              "seed": 189
+            }
+          }
+        }
+      }
+    },
+    "partial_past": {
+      "label_observation_bounds": {
+        "candidates": 9571,
+        "labeled": 4727,
+        "observed_positive": 2119,
+        "label_observation_rate": 0.49388778602026956,
+        "observed_positive_rate": 0.4482758620689655,
+        "all_unobserved_negative_lower": 0.22139797304356912,
+        "all_unobserved_positive_upper": 0.7275101870232995
+      },
+      "paired_brier_by_comparator": {
+        "pred_partial_beta": {
+          "overall": {
+            "rows": 4727,
+            "instances": 2258,
+            "new_minus_comparator_brier": -0.11977819035376042,
+            "instance_bootstrap_percentile_95": [
+              -0.125610783602545,
+              -0.11308042020722417
+            ],
+            "resamples": 2000,
+            "seed": 42
+          },
+          "by_day": {
+            "145": {
+              "rows": 2444,
+              "instances": 1224,
+              "new_minus_comparator_brier": -0.1097868096523609,
+              "instance_bootstrap_percentile_95": [
+                -0.11826711608089893,
+                -0.10048264573237776
+              ],
+              "resamples": 2000,
+              "seed": 187
+            },
+            "146": {
+              "rows": 2283,
+              "instances": 1128,
+              "new_minus_comparator_brier": -0.13047417565127264,
+              "instance_bootstrap_percentile_95": [
+                -0.1380641569650349,
+                -0.12244724406009633
+              ],
+              "resamples": 2000,
+              "seed": 188
+            }
+          }
+        },
+        "pred_posthoc_state_age_beta": {
+          "overall": {
+            "rows": 4727,
+            "instances": 2258,
+            "new_minus_comparator_brier": -0.03890113849894842,
+            "instance_bootstrap_percentile_95": [
+              -0.04391912025474595,
+              -0.03367110390051616
+            ],
+            "resamples": 2000,
+            "seed": 43
+          },
+          "by_day": {
+            "145": {
+              "rows": 2444,
+              "instances": 1224,
+              "new_minus_comparator_brier": -0.03887097149095729,
+              "instance_bootstrap_percentile_95": [
+                -0.04627640598011723,
+                -0.031841239371772204
+              ],
+              "resamples": 2000,
+              "seed": 188
+            },
+            "146": {
+              "rows": 2283,
+              "instances": 1128,
+              "new_minus_comparator_brier": -0.03893343292187015,
+              "instance_bootstrap_percentile_95": [
+                -0.04585743814672549,
+                -0.03246043680578028
+              ],
+              "resamples": 2000,
+              "seed": 189
+            }
+          }
+        }
+      }
+    }
+  },
+  "posthoc_complete_normal_recent_beta": {
+    "status": "proposed after reading test scores; never used in frozen selection or success",
+    "train_only_rates": {
+      "0": {
+        "train_rows": 99601,
+        "train_positive": 3292,
+        "beta_1_1_rate": 0.033061253175105165
+      },
+      "1": {
+        "train_rows": 2756,
+        "train_positive": 1989,
+        "beta_1_1_rate": 0.7215373459028281
+      }
+    }
+  }
+}

@@ -1,0 +1,510 @@
+{
+  "adoption_gates": {
+    "all_pass": false,
+    "both_cohorts_coverage_at_least_85pct": false,
+    "both_cohorts_lower_pinball": true,
+    "relative_pinball_improvement_at_least_5pct": true,
+    "wins_at_least_12_of_20_days": true
+  },
+  "by_cohort": {
+    "ChatGPT": {
+      "last_available_residual_p90": {
+        "coverage": 0.8645833333333334,
+        "mean_prediction": 77492.10833333334,
+        "pinball": 8647.295624999999
+      },
+      "same_hour_yesterday_residual_p90": {
+        "coverage": 0.8895833333333333,
+        "mean_prediction": 72534.06875,
+        "pinball": 6558.179166666666
+      },
+      "trailing_24h_p90": {
+        "coverage": 0.8895833333333333,
+        "mean_prediction": 87492.69375,
+        "pinball": 8517.71458333333
+      },
+      "train_fixed_p90": {
+        "coverage": 0.8458333333333333,
+        "mean_prediction": 75958.0,
+        "pinball": 8831.226458333333
+      },
+      "v1_quantile_hgb_40d": {
+        "coverage": 0.8416666666666667,
+        "mean_prediction": 56438.35848065424,
+        "pinball": 5757.76520581829
+      },
+      "v2_calibrated_hgb_30d": {
+        "coverage": 0.8708333333333333,
+        "mean_prediction": 61775.78230914179,
+        "pinball": 5654.687160765306
+      },
+      "v2_uncalibrated_hgb_30d": {
+        "coverage": 0.8541666666666666,
+        "mean_prediction": 57304.7432390923,
+        "pinball": 5811.462117926401
+      }
+    },
+    "GPT-4": {
+      "last_available_residual_p90": {
+        "coverage": 0.86875,
+        "mean_prediction": 67144.925,
+        "pinball": 7523.662291666666
+      },
+      "same_hour_yesterday_residual_p90": {
+        "coverage": 0.8354166666666667,
+        "mean_prediction": 62095.9625,
+        "pinball": 7245.526458333333
+      },
+      "trailing_24h_p90": {
+        "coverage": 0.8708333333333333,
+        "mean_prediction": 77386.4625,
+        "pinball": 8000.049374999999
+      },
+      "train_fixed_p90": {
+        "coverage": 0.81875,
+        "mean_prediction": 59829.0,
+        "pinball": 8467.530208333334
+      },
+      "v1_quantile_hgb_40d": {
+        "coverage": 0.8145833333333333,
+        "mean_prediction": 50426.72076277565,
+        "pinball": 6603.491134809916
+      },
+      "v2_calibrated_hgb_30d": {
+        "coverage": 0.8291666666666667,
+        "mean_prediction": 50840.03959696726,
+        "pinball": 6649.3297056805695
+      },
+      "v2_uncalibrated_hgb_30d": {
+        "coverage": 0.825,
+        "mean_prediction": 49809.896210057006,
+        "pinball": 6724.993371418696
+      }
+    }
+  },
+  "calibration": {
+    "ChatGPT": {
+      "calibration_hours": 239,
+      "calibration_rank_1_based": 216,
+      "calibration_raw_coverage": 0.8786610878661087,
+      "calibration_shifted_coverage": 0.9037656903765691,
+      "fit_hours": 694,
+      "nonnegative_residual_shift": 4471.039070049497
+    },
+    "GPT-4": {
+      "calibration_hours": 239,
+      "calibration_rank_1_based": 216,
+      "calibration_raw_coverage": 0.891213389121339,
+      "calibration_shifted_coverage": 0.9037656903765691,
+      "fit_hours": 694,
+      "nonnegative_residual_shift": 1030.143386910262
+    }
+  },
+  "calibration_hours_per_cohort": 239,
+  "daily_pinball": {
+    "ChatGPT": {
+      "265": {
+        "last_available_residual_p90": 8178.75,
+        "same_hour_yesterday_residual_p90": 5115.699999999998,
+        "trailing_24h_p90": 7944.216666666667,
+        "train_fixed_p90": 6356.545833333333,
+        "v1_quantile_hgb_40d": 3226.2750995143438,
+        "v2_calibrated_hgb_30d": 2602.2573452181036,
+        "v2_uncalibrated_hgb_30d": 2424.4321060509974
+      },
+      "266": {
+        "last_available_residual_p90": 15267.133333333333,
+        "same_hour_yesterday_residual_p90": 15697.991666666667,
+        "trailing_24h_p90": 17750.5125,
+        "train_fixed_p90": 20766.637499999997,
+        "v1_quantile_hgb_40d": 13761.673959350612,
+        "v2_calibrated_hgb_30d": 14081.547226412831,
+        "v2_uncalibrated_hgb_30d": 14938.496381505649
+      },
+      "267": {
+        "last_available_residual_p90": 6391.683333333332,
+        "same_hour_yesterday_residual_p90": 5774.4124999999985,
+        "trailing_24h_p90": 10566.27083333333,
+        "train_fixed_p90": 8036.024999999999,
+        "v1_quantile_hgb_40d": 2845.910246553587,
+        "v2_calibrated_hgb_30d": 3318.9595209308895,
+        "v2_uncalibrated_hgb_30d": 3487.534911460602
+      },
+      "268": {
+        "last_available_residual_p90": 6804.7666666666655,
+        "same_hour_yesterday_residual_p90": 5303.541666666665,
+        "trailing_24h_p90": 6141.2249999999985,
+        "train_fixed_p90": 5920.666666666665,
+        "v1_quantile_hgb_40d": 4323.036157441688,
+        "v2_calibrated_hgb_30d": 3525.3788688879335,
+        "v2_uncalibrated_hgb_30d": 3450.8615510537747
+      },
+      "269": {
+        "last_available_residual_p90": 11357.929166666667,
+        "same_hour_yesterday_residual_p90": 6762.158333333333,
+        "trailing_24h_p90": 10772.591666666665,
+        "train_fixed_p90": 10123.966666666667,
+        "v1_quantile_hgb_40d": 8065.511382015575,
+        "v2_calibrated_hgb_30d": 6400.122134041919,
+        "v2_uncalibrated_hgb_30d": 6325.6048162077595
+      },
+      "270": {
+        "last_available_residual_p90": 6816.004166666666,
+        "same_hour_yesterday_residual_p90": 4642.041666666665,
+        "trailing_24h_p90": 6271.495833333332,
+        "train_fixed_p90": 6075.024999999999,
+        "v1_quantile_hgb_40d": 3844.157718251224,
+        "v2_calibrated_hgb_30d": 3734.039346126609,
+        "v2_uncalibrated_hgb_30d": 3718.063531235981
+      },
+      "271": {
+        "last_available_residual_p90": 14940.491666666667,
+        "same_hour_yesterday_residual_p90": 12071.166666666666,
+        "trailing_24h_p90": 16865.495833333334,
+        "train_fixed_p90": 17676.25,
+        "v1_quantile_hgb_40d": 11363.318611603188,
+        "v2_calibrated_hgb_30d": 13658.013613751087,
+        "v2_uncalibrated_hgb_30d": 14142.376179673114
+      },
+      "272": {
+        "last_available_residual_p90": 10087.533333333333,
+        "same_hour_yesterday_residual_p90": 5531.408333333333,
+        "trailing_24h_p90": 8411.220833333331,
+        "train_fixed_p90": 14174.508333333333,
+        "v1_quantile_hgb_40d": 6934.244992736715,
+        "v2_calibrated_hgb_30d": 6371.97953154477,
+        "v2_uncalibrated_hgb_30d": 7042.635392052197
+      },
+      "273": {
+        "last_available_residual_p90": 9351.529166666665,
+        "same_hour_yesterday_residual_p90": 5210.220833333332,
+        "trailing_24h_p90": 7619.970833333332,
+        "train_fixed_p90": 6659.454166666666,
+        "v1_quantile_hgb_40d": 4146.440911255708,
+        "v2_calibrated_hgb_30d": 3759.1737154675297,
+        "v2_uncalibrated_hgb_30d": 3870.9496922187677
+      },
+      "274": {
+        "last_available_residual_p90": 9069.316666666666,
+        "same_hour_yesterday_residual_p90": 5458.974999999999,
+        "trailing_24h_p90": 8474.108333333332,
+        "train_fixed_p90": 9695.4875,
+        "v1_quantile_hgb_40d": 6050.16889595328,
+        "v2_calibrated_hgb_30d": 4626.706623037109,
+        "v2_uncalibrated_hgb_30d": 5297.3624835445335
+      },
+      "275": {
+        "last_available_residual_p90": 6315.041666666667,
+        "same_hour_yesterday_residual_p90": 6574.083333333332,
+        "trailing_24h_p90": 7126.679166666665,
+        "train_fixed_p90": 6182.545833333333,
+        "v1_quantile_hgb_40d": 4748.998321431877,
+        "v2_calibrated_hgb_30d": 4799.42099284468,
+        "v2_uncalibrated_hgb_30d": 4538.610380425126
+      },
+      "276": {
+        "last_available_residual_p90": 4173.687499999999,
+        "same_hour_yesterday_residual_p90": 4707.004166666666,
+        "trailing_24h_p90": 3648.920833333332,
+        "train_fixed_p90": 6281.108333333333,
+        "v1_quantile_hgb_40d": 3818.1816277393323,
+        "v2_calibrated_hgb_30d": 4527.191132015053,
+        "v2_uncalibrated_hgb_30d": 4266.380519595499
+      },
+      "277": {
+        "last_available_residual_p90": 4051.295833333332,
+        "same_hour_yesterday_residual_p90": 3636.5999999999985,
+        "trailing_24h_p90": 2410.191666666666,
+        "train_fixed_p90": 6283.808333333332,
+        "v1_quantile_hgb_40d": 2207.138084454529,
+        "v2_calibrated_hgb_30d": 3019.3040169886667,
+        "v2_uncalibrated_hgb_30d": 2572.200109983717
+      },
+      "278": {
+        "last_available_residual_p90": 5320.099999999999,
+        "same_hour_yesterday_residual_p90": 8337.541666666666,
+        "trailing_24h_p90": 11782.050000000001,
+        "train_fixed_p90": 7226.825,
+        "v1_quantile_hgb_40d": 6088.567723155083,
+        "v2_calibrated_hgb_30d": 5837.057664624037,
+        "v2_uncalibrated_hgb_30d": 6694.006819716858
+      },
+      "279": {
+        "last_available_residual_p90": 13877.449999999999,
+        "same_hour_yesterday_residual_p90": 7512.104166666667,
+        "trailing_24h_p90": 7729.825,
+        "train_fixed_p90": 9696.195833333331,
+        "v1_quantile_hgb_40d": 6720.928923542234,
+        "v2_calibrated_hgb_30d": 6192.99130198792,
+        "v2_uncalibrated_hgb_30d": 6677.35386790995
+      },
+      "280": {
+        "last_available_residual_p90": 8719.562499999998,
+        "same_hour_yesterday_residual_p90": 4390.866666666666,
+        "trailing_24h_p90": 7132.083333333333,
+        "train_fixed_p90": 7671.745833333333,
+        "v1_quantile_hgb_40d": 5790.254241389855,
+        "v2_calibrated_hgb_30d": 4230.038453297621,
+        "v2_uncalibrated_hgb_30d": 4361.092923726242
+      },
+      "281": {
+        "last_available_residual_p90": 8661.687499999998,
+        "same_hour_yesterday_residual_p90": 6391.220833333333,
+        "trailing_24h_p90": 6154.737499999998,
+        "train_fixed_p90": 6682.316666666666,
+        "v1_quantile_hgb_40d": 6691.826546439395,
+        "v2_calibrated_hgb_30d": 6340.5031049762,
+        "v2_uncalibrated_hgb_30d": 6345.467204755948
+      },
+      "282": {
+        "last_available_residual_p90": 12772.112500000001,
+        "same_hour_yesterday_residual_p90": 4976.991666666666,
+        "trailing_24h_p90": 8971.933333333332,
+        "train_fixed_p90": 9362.283333333333,
+        "v1_quantile_hgb_40d": 5113.687662111453,
+        "v2_calibrated_hgb_30d": 5248.665539355391,
+        "v2_uncalibrated_hgb_30d": 5404.455039281857
+      },
+      "283": {
+        "last_available_residual_p90": 4966.399999999999,
+        "same_hour_yesterday_residual_p90": 7724.129166666666,
+        "trailing_24h_p90": 7888.587499999999,
+        "train_fixed_p90": 5720.845833333333,
+        "v1_quantile_hgb_40d": 4834.005714361594,
+        "v2_calibrated_hgb_30d": 6200.713138305134,
+        "v2_uncalibrated_hgb_30d": 6126.195820470976
+      },
+      "284": {
+        "last_available_residual_p90": 5823.437499999999,
+        "same_hour_yesterday_residual_p90": 5345.424999999999,
+        "trailing_24h_p90": 6692.174999999999,
+        "train_fixed_p90": 6032.2874999999985,
+        "v1_quantile_hgb_40d": 4580.977297064538,
+        "v2_calibrated_hgb_30d": 4619.679945492641,
+        "v2_uncalibrated_hgb_30d": 4545.162627658482
+      }
+    },
+    "GPT-4": {
+      "265": {
+        "last_available_residual_p90": 6538.916666666667,
+        "same_hour_yesterday_residual_p90": 4836.216666666666,
+        "trailing_24h_p90": 7556.216666666666,
+        "train_fixed_p90": 7111.445833333332,
+        "v1_quantile_hgb_40d": 5120.771317882503,
+        "v2_calibrated_hgb_30d": 5278.112772854337,
+        "v2_uncalibrated_hgb_30d": 5346.788998648354
+      },
+      "266": {
+        "last_available_residual_p90": 7292.5166666666655,
+        "same_hour_yesterday_residual_p90": 3456.4125,
+        "trailing_24h_p90": 8106.254166666666,
+        "train_fixed_p90": 6982.991666666666,
+        "v1_quantile_hgb_40d": 3314.348425545761,
+        "v2_calibrated_hgb_30d": 2615.0293611408547,
+        "v2_uncalibrated_hgb_30d": 2554.9376635710896
+      },
+      "267": {
+        "last_available_residual_p90": 5996.816666666666,
+        "same_hour_yesterday_residual_p90": 4489.624999999999,
+        "trailing_24h_p90": 5627.733333333333,
+        "train_fixed_p90": 5447.958333333333,
+        "v1_quantile_hgb_40d": 4430.565492520771,
+        "v2_calibrated_hgb_30d": 4484.109949648915,
+        "v2_uncalibrated_hgb_30d": 4548.484249096007
+      },
+      "268": {
+        "last_available_residual_p90": 7349.362499999999,
+        "same_hour_yesterday_residual_p90": 5222.541666666666,
+        "trailing_24h_p90": 9815.483333333332,
+        "train_fixed_p90": 9589.05,
+        "v1_quantile_hgb_40d": 5792.06390554105,
+        "v2_calibrated_hgb_30d": 4685.8813282525625,
+        "v2_uncalibrated_hgb_30d": 4711.6349129253185
+      },
+      "269": {
+        "last_available_residual_p90": 3666.7374999999993,
+        "same_hour_yesterday_residual_p90": 5132.154166666665,
+        "trailing_24h_p90": 8121.7874999999985,
+        "train_fixed_p90": 4456.170833333333,
+        "v1_quantile_hgb_40d": 3772.994768025894,
+        "v2_calibrated_hgb_30d": 3878.158982133924,
+        "v2_uncalibrated_hgb_30d": 3818.0672845641584
+      },
+      "270": {
+        "last_available_residual_p90": 5845.066666666666,
+        "same_hour_yesterday_residual_p90": 5987.166666666665,
+        "trailing_24h_p90": 5553.349999999999,
+        "train_fixed_p90": 5266.429166666666,
+        "v1_quantile_hgb_40d": 4447.075404345224,
+        "v2_calibrated_hgb_30d": 4367.12370595532,
+        "v2_uncalibrated_hgb_30d": 4392.8772906280765
+      },
+      "271": {
+        "last_available_residual_p90": 6585.791666666667,
+        "same_hour_yesterday_residual_p90": 8319.204166666668,
+        "trailing_24h_p90": 7138.541666666667,
+        "train_fixed_p90": 7638.141666666667,
+        "v1_quantile_hgb_40d": 6081.480313279516,
+        "v2_calibrated_hgb_30d": 5835.27902626117,
+        "v2_uncalibrated_hgb_30d": 5946.877893176446
+      },
+      "272": {
+        "last_available_residual_p90": 5896.666666666665,
+        "same_hour_yesterday_residual_p90": 4800.762499999999,
+        "trailing_24h_p90": 6436.591666666666,
+        "train_fixed_p90": 6130.0374999999985,
+        "v1_quantile_hgb_40d": 4980.193925022962,
+        "v2_calibrated_hgb_30d": 4816.907224126519,
+        "v2_uncalibrated_hgb_30d": 4885.583449920537
+      },
+      "273": {
+        "last_available_residual_p90": 9898.704166666665,
+        "same_hour_yesterday_residual_p90": 9698.141666666666,
+        "trailing_24h_p90": 8740.387499999999,
+        "train_fixed_p90": 12551.770833333334,
+        "v1_quantile_hgb_40d": 10170.57179176624,
+        "v2_calibrated_hgb_30d": 10210.624769949689,
+        "v2_uncalibrated_hgb_30d": 10493.914201350011
+      },
+      "274": {
+        "last_available_residual_p90": 12626.89583333333,
+        "same_hour_yesterday_residual_p90": 10234.183333333332,
+        "trailing_24h_p90": 8334.65,
+        "train_fixed_p90": 13012.170833333332,
+        "v1_quantile_hgb_40d": 11403.459199445022,
+        "v2_calibrated_hgb_30d": 11296.030620771076,
+        "v2_uncalibrated_hgb_30d": 11536.397411050139
+      },
+      "275": {
+        "last_available_residual_p90": 6274.154166666666,
+        "same_hour_yesterday_residual_p90": 7145.633333333332,
+        "trailing_24h_p90": 7173.0999999999985,
+        "train_fixed_p90": 6763.6875,
+        "v1_quantile_hgb_40d": 5878.635304091408,
+        "v2_calibrated_hgb_30d": 6133.189070332373,
+        "v2_uncalibrated_hgb_30d": 6201.865296126391
+      },
+      "276": {
+        "last_available_residual_p90": 3713.6666666666656,
+        "same_hour_yesterday_residual_p90": 5844.087499999999,
+        "trailing_24h_p90": 5769.495833333332,
+        "train_fixed_p90": 4862.491666666666,
+        "v1_quantile_hgb_40d": 3597.672399222966,
+        "v2_calibrated_hgb_30d": 4125.08037492084,
+        "v2_uncalibrated_hgb_30d": 4022.0660362298136
+      },
+      "277": {
+        "last_available_residual_p90": 3258.108333333333,
+        "same_hour_yesterday_residual_p90": 2750.704166666666,
+        "trailing_24h_p90": 3282.0541666666663,
+        "train_fixed_p90": 4497.287499999999,
+        "v1_quantile_hgb_40d": 2291.780725799857,
+        "v2_calibrated_hgb_30d": 2321.4251644607048,
+        "v2_uncalibrated_hgb_30d": 2261.3334668909397
+      },
+      "278": {
+        "last_available_residual_p90": 7558.362499999998,
+        "same_hour_yesterday_residual_p90": 12741.800000000001,
+        "trailing_24h_p90": 12970.870833333334,
+        "train_fixed_p90": 11928.637499999999,
+        "v1_quantile_hgb_40d": 11153.714291524497,
+        "v2_calibrated_hgb_30d": 10256.601177367576,
+        "v2_uncalibrated_hgb_30d": 10512.250769511973
+      },
+      "279": {
+        "last_available_residual_p90": 9121.691666666668,
+        "same_hour_yesterday_residual_p90": 10142.941666666666,
+        "trailing_24h_p90": 8210.979166666664,
+        "train_fixed_p90": 10413.795833333334,
+        "v1_quantile_hgb_40d": 6491.2757582755185,
+        "v2_calibrated_hgb_30d": 7818.048066564364,
+        "v2_uncalibrated_hgb_30d": 7972.569574600904
+      },
+      "280": {
+        "last_available_residual_p90": 22116.295833333334,
+        "same_hour_yesterday_residual_p90": 15582.091666666665,
+        "trailing_24h_p90": 15988.895833333334,
+        "train_fixed_p90": 27141.479166666668,
+        "v1_quantile_hgb_40d": 19813.489526607653,
+        "v2_calibrated_hgb_30d": 21189.330513417357,
+        "v2_uncalibrated_hgb_30d": 21515.54258593894
+      },
+      "281": {
+        "last_available_residual_p90": 5690.587499999999,
+        "same_hour_yesterday_residual_p90": 6962.679166666665,
+        "trailing_24h_p90": 11723.824999999997,
+        "train_fixed_p90": 6740.75,
+        "v1_quantile_hgb_40d": 2586.7174705848706,
+        "v2_calibrated_hgb_30d": 3075.4250193165776,
+        "v2_uncalibrated_hgb_30d": 3058.2559628680733
+      },
+      "282": {
+        "last_available_residual_p90": 8610.2125,
+        "same_hour_yesterday_residual_p90": 7031.383333333334,
+        "trailing_24h_p90": 5966.0166666666655,
+        "train_fixed_p90": 6282.0999999999985,
+        "v1_quantile_hgb_40d": 5645.946910803154,
+        "v2_calibrated_hgb_30d": 5557.528232288841,
+        "v2_uncalibrated_hgb_30d": 5583.2818169615975
+      },
+      "283": {
+        "last_available_residual_p90": 5577.558333333332,
+        "same_hour_yesterday_residual_p90": 5683.683333333332,
+        "trailing_24h_p90": 3516.4125,
+        "train_fixed_p90": 3471.9999999999986,
+        "v1_quantile_hgb_40d": 6652.180917911061,
+        "v2_calibrated_hgb_30d": 6743.0195653638,
+        "v2_uncalibrated_hgb_30d": 6725.850508915296
+      },
+      "284": {
+        "last_available_residual_p90": 6855.133333333331,
+        "same_hour_yesterday_residual_p90": 8849.116666666667,
+        "trailing_24h_p90": 9968.341666666665,
+        "train_fixed_p90": 9062.208333333334,
+        "v1_quantile_hgb_40d": 8444.884848002408,
+        "v2_calibrated_hgb_30d": 8299.689188484585,
+        "v2_uncalibrated_hgb_30d": 8411.288055399864
+      }
+    }
+  },
+  "daily_wins_against_selected_baseline": 17,
+  "exploratory_validation_after_v1_exposure": true,
+  "fit_hours_per_cohort": 694,
+  "freeze_manifest_sha256": "055b8c1c1cfba05bbb8d6de69e3a18193c16e7955e0184c8953d6502c120f5b4",
+  "kind": "burstgpt_input_demand_v2_train_only_block_calibration_validation",
+  "models_sha256": "c3f73632fcef4ca7244b4ce0222f70e4871b6d9fa5da04bd8456145821141e1a",
+  "overall_equal_cohort_pinball": {
+    "last_available_residual_p90": 8085.478958333332,
+    "same_hour_yesterday_residual_p90": 6901.852812499999,
+    "trailing_24h_p90": 8258.881979166665,
+    "train_fixed_p90": 8649.378333333334,
+    "v1_quantile_hgb_40d": 6180.628170314103,
+    "v2_calibrated_hgb_30d": 6152.008433222938,
+    "v2_uncalibrated_hgb_30d": 6268.227744672549
+  },
+  "protocol_sha256": "d84319c71799a47ab05dbbb977a373421767b7ce3cf3916d16e584a3695f43d5",
+  "script_sha256": "25ab26d408f795f1f825e2b95ad9e668c4579f1ac5bc1f1c302df4df4021c320",
+  "selected_baseline": "same_hour_yesterday_residual_p90",
+  "source_sha256": "2299986a07388aa303ec2c41d1131e756db650a39ed6ef9dfe7cc3d7f9a43b8f",
+  "support_sha256": "d53aefa6872e2dccb2dafd7dd79a4fbc26b83110fa394168dee38abb8229d906",
+  "test_target_read": false,
+  "tradeoff": {
+    "ChatGPT": {
+      "coverage_change_due_to_calibration": 0.01666666666666672,
+      "coverage_change_vs_v1_40d": 0.029166666666666674,
+      "mean_prediction_change_vs_v1_40d": 5337.423828487546,
+      "pinball_change_due_to_calibration": -156.7749571610957,
+      "pinball_change_vs_v1_40d": -103.07804505298463
+    },
+    "GPT-4": {
+      "coverage_change_due_to_calibration": 0.004166666666666763,
+      "coverage_change_vs_v1_40d": 0.014583333333333393,
+      "mean_prediction_change_vs_v1_40d": 413.3188341916102,
+      "pinball_change_due_to_calibration": -75.66366573812684,
+      "pinball_change_vs_v1_40d": 45.83857087065371
+    }
+  },
+  "v1_validation_predictions_sha256": "b856d3dcc5e6a407a92caf054e282fba5d6b7416fb3b4609e427b2440f02a8b2",
+  "validation_hours_per_cohort": 480,
+  "validation_predictions_sha256": "b9503efe7d35bd1c92f006fb47857d4e55bd68de51c04ce8673c9d1012172730"
+}

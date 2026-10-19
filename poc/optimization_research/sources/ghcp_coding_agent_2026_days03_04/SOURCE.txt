@@ -1,0 +1,8 @@
+GitHub Copilot Coding Agent Traces 2026
+
+Official description: https://github.com/Azure/AzurePublicDataset/blob/master/GitHubCopilotCodingAgentDataset2026.md
+Release: https://github.com/Azure/AzurePublicDataset/releases/tag/ghcp-coding-agent-2026
+License: CC-BY Attribution License; https://github.com/Azure/AzurePublicDataset/blob/master/LICENSE
+Attribution: Liu, Banruo; Qiu, Haoran; Goiri, Inigo; Fonseca, Rodrigo; Bianchini, Ricardo; Choukse, Esha (2026). Agentic Coding in the Wild: Characterizing GitHub Copilot Traces at Production Scale. arXiv:2608.00101.
+
+This folder stores ONLY June3 and June4 compressed archives (1,191,175,553 bytes). Provider digests/sizes are in the v2 FREEZE.json and release_metadata.json. Prior June5-7 archives are preserved in their original folder. Counting all five selected session partitions does not recover full population demand. Other-date sessions can have missing calls in this window. Call counts include unsuccessful attempts and are not token demand, GPU/VM requirements, or SLO outcomes.

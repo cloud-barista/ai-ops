@@ -1,0 +1,138 @@
+{
+  "by_gate": {
+    "gate_off": {
+      "baseline_ap": 0.7805854359826879,
+      "baseline_brier": 0.10547501262262772,
+      "baseline_mean": 0.21619351881412183,
+      "delta_brier_method_minus_baseline": -3.385839362102979e-20,
+      "event_rate": 0.2494716442636953,
+      "machines": 24,
+      "method_ap": 0.7805854359826879,
+      "method_brier": 0.10547501262262772,
+      "method_mean": 0.21619351881412183,
+      "rows": 387523
+    },
+    "gate_on": {
+      "baseline_ap": 0.6805027626851696,
+      "baseline_brier": 0.1166116770512355,
+      "baseline_mean": 0.2089681974245218,
+      "delta_brier_method_minus_baseline": -0.0007150790656174218,
+      "event_rate": 0.22469125331599357,
+      "machines": 9,
+      "method_ap": 0.6643371699074051,
+      "method_brier": 0.11589659798561809,
+      "method_mean": 0.23848142643660064,
+      "rows": 212229
+    }
+  },
+  "by_gate_and_calendar_half": {
+    "first": {
+      "gate_off": {
+        "baseline_ap": 0.8850945764709309,
+        "baseline_brier": 0.09916570778102068,
+        "baseline_mean": 0.27789244749954173,
+        "delta_brier_method_minus_baseline": -9.444311108154529e-21,
+        "event_rate": 0.33500804117079447,
+        "machines": 24,
+        "method_ap": 0.8850945764709309,
+        "method_brier": 0.09916570778102068,
+        "method_mean": 0.27789244749954173,
+        "rows": 155450
+      },
+      "gate_on": {
+        "baseline_ap": 0.8066911219289552,
+        "baseline_brier": 0.11721672227799389,
+        "baseline_mean": 0.25733882261897073,
+        "delta_brier_method_minus_baseline": -0.006249177243716213,
+        "event_rate": 0.3023899932990842,
+        "machines": 9,
+        "method_ap": 0.7952547982125509,
+        "method_brier": 0.11096754503427769,
+        "method_mean": 0.2853616161030733,
+        "rows": 89540
+      }
+    },
+    "second": {
+      "gate_off": {
+        "baseline_ap": 0.6274308645123077,
+        "baseline_brier": 0.10970118903103288,
+        "baseline_mean": 0.17486558120764228,
+        "delta_brier_method_minus_baseline": -5.021173557216783e-20,
+        "event_rate": 0.1921765996044348,
+        "machines": 24,
+        "method_ap": 0.6274308645123077,
+        "method_brier": 0.10970118903103288,
+        "method_mean": 0.17486558120764228,
+        "rows": 232073
+      },
+      "gate_on": {
+        "baseline_ap": 0.4982479391948532,
+        "baseline_brier": 0.11617010731308502,
+        "baseline_mean": 0.17366669704624046,
+        "delta_brier_method_minus_baseline": 0.0033237765030722385,
+        "event_rate": 0.16798571999119727,
+        "machines": 9,
+        "method_ap": 0.4847803060056698,
+        "method_brier": 0.11949388381615728,
+        "method_mean": 0.20426766495239304,
+        "rows": 122689
+      }
+    }
+  },
+  "kind": "posthoc_philly_calibration_failure_analysis",
+  "largest_harmful_machine_contributions": [
+    {
+      "loss_delta_sum": 583.4165956887003,
+      "machine_hash": "109c864c3853b7062a80fdda0fdfaeb276127bd1bc3ec67952c4fee81d954766",
+      "rows": 18920
+    },
+    {
+      "loss_delta_sum": 469.51421518977673,
+      "machine_hash": "8496f539f6a4666005463e3069a2c231fbe1ea85cf9e924f67c4dd644e7bb48e",
+      "rows": 25580
+    },
+    {
+      "loss_delta_sum": 267.52600186390737,
+      "machine_hash": "39a68a38cc237153b9312900437d477933ce4484fb757a8ed93d2877ac4540bd",
+      "rows": 29859
+    }
+  ],
+  "largest_helpful_machine_contributions": [
+    {
+      "loss_delta_sum": -915.5571091700217,
+      "machine_hash": "02d0654cd380a426b7fd7eb116acce0078ac23240fb09076cf67024cbc12c50d",
+      "rows": 30244
+    },
+    {
+      "loss_delta_sum": -452.69753225638993,
+      "machine_hash": "793c130b1ba62303b9f784e9fa351ee484ad1a6754c72827a924a9a59095d6e7",
+      "rows": 5005
+    },
+    {
+      "loss_delta_sum": -155.89834450496357,
+      "machine_hash": "685b40ee6454028e8d776ba1adcd745763f4975a9c17c01c3cf14f0e8ca864ac",
+      "rows": 25642
+    }
+  ],
+  "overall": {
+    "baseline_ap": 0.7486543324328452,
+    "baseline_brier": 0.10941584675910243,
+    "baseline_mean": 0.21363675746410818,
+    "delta_brier_method_minus_baseline": -0.00025303878105770324,
+    "event_rate": 0.24070282383385133,
+    "machines": 33,
+    "method_ap": 0.724085592849866,
+    "method_brier": 0.10916280797804473,
+    "method_mean": 0.2240803459473554,
+    "rows": 599752
+  },
+  "selection_allowed": false,
+  "test_metrics_sha256": "8ed38886f60753ccd0758996c382de5f3a1ffd20d3a08f8b97281d6579320ddc",
+  "test_predictions_sha256": "5e570375ed7bd8639f38ba75301c34880e9772fb62b9cc7b580d8e6e42fe375b",
+  "within_machine_ap": {
+    "baseline_machine_equal_mean": 0.7110178653034043,
+    "eligible_machines": 32,
+    "max_absolute_difference": 0.0,
+    "method_machine_equal_mean": 0.7110178653034043
+  }
+}

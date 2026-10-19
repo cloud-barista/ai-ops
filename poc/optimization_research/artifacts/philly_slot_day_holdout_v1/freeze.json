@@ -1,0 +1,32 @@
+{
+  "status": "FROZEN_BEFORE_BUCKET_35_45_COLLECTION",
+  "source_commit": "29a1b87fa2d9ed80b83c9e3a37f3a88d382b031d",
+  "source_archive_sha256": "2037ccf63a725a02be718b0e1aeee6142c90b7f62d0d849295120e9f6ba13d2c",
+  "source_archive_bytes": 1055988361,
+  "source_gpu_csv_rows": 44750640,
+  "sample_lower_inclusive": 35,
+  "sample_upper_exclusive": 45,
+  "minimum_free_bytes": 2800000000,
+  "maximum_compact_sample_bytes": 300000000,
+  "prior_audit_sha256": {
+    "msr_philly_2017": "438b6e7359daa2a219564ced5f0f31435f949b651dd080fe647a4fe6cd311c9d",
+    "msr_philly_2017_holdout": "5563e385f477ca091831dd48413ec24a39b2fa1cb955209c6992664e19bcd55f",
+    "msr_philly_2017_calibration_holdout": "d0651f320c7c2ea0cd13ab04abe09b60dc165153ce7cc576035a57586413fdde",
+    "msr_philly_2017_day_ahead_holdout": "318fb8ddfb773b97915cf894f7f9f72bb7f00cbe4090a5e0617935231dbbcc03"
+  },
+  "protocol_sha256": "caa39a53c61e59db6b43aa40a723774035fd73782b4e1cf7d8c81946115915e2",
+  "evaluator_sha256": "cd1b8f4271853e619f3054adfd9b094e6724a878be84eeccc420dbc7aeaebfe9",
+  "development_code_sha256": "685b86b3c51965e04a66dfaae025bfa1ca4b2d04bb3b1d6e8444ddf2640e6a27",
+  "development_protocol_sha256": "3d44abdfeafec30ea71634b75f16597b834c75fec93eb54f25a4066cdf1128a3",
+  "development_results_sha256": "86741061d9a374fb4c0eca9ca9f326a5473c82f5409cad4a388061dc4713511a",
+  "source_parser_sha256": "f58d42c68f2db651e8cc157938a3f029d54758afbc6551373f89eac7af0ce0ea",
+  "inner_collector_sha256": "4049fcc1fa0ec2a023b35281ed7d7515e4e74a4dabbc8fbfe046a630fb036fa2",
+  "normalizer_sha256": "547d1fd9f48c71ef62e75ddbfae2b7f45811b80d95b681910a0f4d4f720c0a01",
+  "candidate_builder_sha256": "e89fd8a48c8491d02194540fc362a1d50f264f589a60e52e6c3dfd3fdc25d795",
+  "replay_sha256": "d415b895f11cfef7c43f1210ef58c76069c004601aa3a5515677f713d2d5fb55",
+  "old_evaluator_sha256": "a37b1db10a7739fc33444dea207982346435c28cf0b753d6ece4ab66dd81a461",
+  "old_baseline_sha256": "1d811b65aa43bac14022f979c3d6346093d65d48ee317f677560014adb2b8351",
+  "model_spec_sha256": "861005a57cbf9f370a8f36682ca9004a3301af01f45e9c797949bf6319ad76a3",
+  "method_test_sha256": "4983dc4ac301ef961f8c5d43acbaa07967972a93229401eb6b8a0cadf3ca4073",
+  "holdout_test_sha256": "c294aeaf6a80bc09f002bbe7a196ab2614ba8ed26a4789c8151c9f390e0d833b"
+}
