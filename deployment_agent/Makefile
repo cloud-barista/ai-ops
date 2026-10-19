@@ -1,5 +1,5 @@
 GO ?= $(shell if command -v go >/dev/null 2>&1; then command -v go; elif [ -x /usr/local/go/bin/go ]; then echo /usr/local/go/bin/go; else echo go; fi)
-GOLANGCI_LINT ?= $(shell if command -v golangci-lint >/dev/null 2>&1; then command -v golangci-lint; elif [ -x /home/geonhae/go/bin/golangci-lint ]; then echo /home/geonhae/go/bin/golangci-lint; else echo golangci-lint; fi)
+GOLANGCI_LINT ?= golangci-lint
 GO_BIN_DIR := $(dir $(GO))
 SWAG_VERSION ?= v1.16.6
 SERVICE_CONTROL_DIR := go/service-control-api
