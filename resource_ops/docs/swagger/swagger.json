@@ -1,0 +1,774 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Discover, normalize, filter, and rank infrastructure resources from an ApplicationProfile and resource observations.",
+        "title": "AI-MCMP Resource Ops API",
+        "contact": {},
+        "license": {
+            "name": "Apache 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "0.2.0"
+    },
+    "basePath": "/",
+    "paths": {
+        "/api/v1/resource-recommendations": {
+            "post": {
+                "description": "Project application requirements into resource constraints, collect and normalize observations, filter unavailable or insufficient resources, and rank the remaining candidates. This endpoint returns recommendations without deploying applications.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resource Recommendations"
+                ],
+                "summary": "Recommend infrastructure resources for an ApplicationProfile",
+                "operationId": "RecommendResourcesFromProfile",
+                "parameters": [
+                    {
+                        "description": "ApplicationProfile, selectors, and ranking preferences",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/resource.ProfileRecommendationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/resource.ResourceRecommendation"
+                        }
+                    },
+                    "400": {
+                        "description": "Malformed JSON, unknown fields, or request body over 1 MiB",
+                        "schema": {
+                            "$ref": "#/definitions/api.errorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid ApplicationProfile or resource query",
+                        "schema": {
+                            "$ref": "#/definitions/api.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.errorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Resource source unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/api.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Service"
+                ],
+                "summary": "Check Resource Ops health and capabilities",
+                "operationId": "GetResourceOpsHealth",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/legacy/api/v1/resource-recommendations": {
+            "post": {
+                "description": "Compatibility endpoint for clients that supply resource constraints directly.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Legacy"
+                ],
+                "summary": "Recommend resources from a legacy ResourceQuery",
+                "operationId": "RecommendResourcesFromLegacyQuery",
+                "deprecated": true,
+                "parameters": [
+                    {
+                        "description": "Legacy resource query",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/resource.ResourceQuery"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/resource.ResourceRecommendation"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.errorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/api.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.errorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/api.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/openapi.yaml": {
+            "get": {
+                "produces": [
+                    "text/yaml"
+                ],
+                "tags": [
+                    "Service"
+                ],
+                "summary": "Download the Resource Ops API specification",
+                "operationId": "GetResourceOpsOpenAPI",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "api.errorDetail": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "details": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.errorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "$ref": "#/definitions/api.errorDetail"
+                },
+                "schema_version": {
+                    "type": "string"
+                }
+            }
+        },
+        "resource.AcceleratorConstraint": {
+            "type": "object",
+            "properties": {
+                "count_min": {
+                    "type": "integer"
+                },
+                "memory_mib_min_per_device": {
+                    "type": "number"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "required": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "resource.AcceleratorProfile": {
+            "type": "object",
+            "properties": {
+                "device_id": {
+                    "type": "string"
+                },
+                "healthy": {
+                    "type": "boolean"
+                },
+                "index": {
+                    "type": "string"
+                },
+                "memory_available_mib": {
+                    "type": "number"
+                },
+                "memory_total_mib": {
+                    "type": "number"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "utilization_percent": {
+                    "type": "number"
+                }
+            }
+        },
+        "resource.AcceleratorRequirements": {
+            "type": "object",
+            "properties": {
+                "count_min": {
+                    "type": "integer"
+                },
+                "memory_mib_min_per_device": {
+                    "type": "integer"
+                },
+                "required": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "resource.AnalysisSummary": {
+            "type": "object",
+            "properties": {
+                "assumptions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "confidence": {
+                    "type": "number"
+                },
+                "missing_fields": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "warnings": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "resource.ApplicationProfile": {
+            "type": "object",
+            "properties": {
+                "analysis": {
+                    "$ref": "#/definitions/resource.AnalysisSummary"
+                },
+                "app_id": {
+                    "type": "string"
+                },
+                "app_version": {
+                    "type": "string"
+                },
+                "artifact": {
+                    "$ref": "#/definitions/resource.Artifact"
+                },
+                "profile_id": {
+                    "type": "string"
+                },
+                "requirements": {
+                    "$ref": "#/definitions/resource.ApplicationRequirements"
+                },
+                "workload": {
+                    "$ref": "#/definitions/resource.WorkloadProfile"
+                }
+            }
+        },
+        "resource.ApplicationRequirements": {
+            "type": "object",
+            "properties": {
+                "accelerator": {
+                    "$ref": "#/definitions/resource.AcceleratorRequirements"
+                },
+                "compute": {
+                    "$ref": "#/definitions/resource.ComputeRequirements"
+                },
+                "cost": {
+                    "$ref": "#/definitions/resource.CostRequirements"
+                },
+                "deployment": {
+                    "$ref": "#/definitions/resource.DeploymentRequirements"
+                },
+                "slo": {
+                    "$ref": "#/definitions/resource.SLORequirements"
+                }
+            }
+        },
+        "resource.Artifact": {
+            "type": "object",
+            "properties": {
+                "entrypoint": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "type": {
+                    "type": "string"
+                },
+                "uri": {
+                    "type": "string"
+                }
+            }
+        },
+        "resource.CPUProfile": {
+            "type": "object",
+            "properties": {
+                "available_cores": {
+                    "type": "number"
+                },
+                "logical_cores": {
+                    "type": "integer"
+                },
+                "utilization_percent": {
+                    "type": "number"
+                }
+            }
+        },
+        "resource.ComputeRequirements": {
+            "type": "object",
+            "properties": {
+                "cpu_cores_min": {
+                    "type": "integer"
+                },
+                "memory_mib_min": {
+                    "type": "integer"
+                },
+                "storage_gib_min": {
+                    "type": "integer"
+                }
+            }
+        },
+        "resource.ConditionFailure": {
+            "type": "object",
+            "properties": {
+                "actual": {},
+                "code": {
+                    "type": "string"
+                },
+                "field": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "required": {}
+            }
+        },
+        "resource.CostRequirements": {
+            "type": "object",
+            "properties": {
+                "cost_per_hour_max": {
+                    "type": "number"
+                },
+                "currency": {
+                    "type": "string"
+                }
+            }
+        },
+        "resource.DeploymentRequirements": {
+            "type": "object",
+            "properties": {
+                "isolation": {
+                    "type": "string"
+                },
+                "replicas_max": {
+                    "type": "integer"
+                },
+                "replicas_min": {
+                    "type": "integer"
+                }
+            }
+        },
+        "resource.ExcludedResource": {
+            "type": "object",
+            "properties": {
+                "failures": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/resource.ConditionFailure"
+                    }
+                },
+                "resource_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "resource.MemoryProfile": {
+            "type": "object",
+            "properties": {
+                "available_mib": {
+                    "type": "number"
+                },
+                "total_mib": {
+                    "type": "number"
+                }
+            }
+        },
+        "resource.ProfileRecommendationRequest": {
+            "type": "object",
+            "properties": {
+                "application_profile": {
+                    "$ref": "#/definitions/resource.ApplicationProfile"
+                },
+                "preferences": {
+                    "$ref": "#/definitions/resource.QueryPreferences"
+                },
+                "request_id": {
+                    "type": "string"
+                },
+                "schema_version": {
+                    "type": "string"
+                },
+                "selectors": {
+                    "$ref": "#/definitions/resource.ResourceSelectors"
+                }
+            }
+        },
+        "resource.QueryConstraints": {
+            "type": "object",
+            "properties": {
+                "accelerator": {
+                    "$ref": "#/definitions/resource.AcceleratorConstraint"
+                },
+                "cpu_cores_min": {
+                    "type": "integer"
+                },
+                "memory_mib_min": {
+                    "type": "integer"
+                },
+                "storage_gib_min": {
+                    "type": "number"
+                }
+            }
+        },
+        "resource.QueryPreferences": {
+            "type": "object",
+            "properties": {
+                "max_results": {
+                    "type": "integer"
+                }
+            }
+        },
+        "resource.RankedResource": {
+            "type": "object",
+            "properties": {
+                "rank": {
+                    "type": "integer"
+                },
+                "reasons": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/resource.RecommendationReason"
+                    }
+                },
+                "resource": {
+                    "$ref": "#/definitions/resource.ResourceProfile"
+                },
+                "score": {
+                    "type": "number"
+                },
+                "score_breakdown": {
+                    "$ref": "#/definitions/resource.ScoreBreakdown"
+                }
+            }
+        },
+        "resource.RecommendationReason": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "resource.RecommendationSummary": {
+            "type": "object",
+            "properties": {
+                "discovered": {
+                    "type": "integer"
+                },
+                "excluded": {
+                    "type": "integer"
+                },
+                "feasible": {
+                    "type": "integer"
+                },
+                "returned": {
+                    "type": "integer"
+                }
+            }
+        },
+        "resource.ResourceProfile": {
+            "type": "object",
+            "properties": {
+                "accelerators": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/resource.AcceleratorProfile"
+                    }
+                },
+                "address": {
+                    "type": "string"
+                },
+                "architecture": {
+                    "type": "string"
+                },
+                "cpu": {
+                    "$ref": "#/definitions/resource.CPUProfile"
+                },
+                "healthy": {
+                    "type": "boolean"
+                },
+                "hostname": {
+                    "type": "string"
+                },
+                "labels": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "memory": {
+                    "$ref": "#/definitions/resource.MemoryProfile"
+                },
+                "observed_at": {
+                    "type": "string"
+                },
+                "operating_system": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "region": {
+                    "type": "string"
+                },
+                "resource_id": {
+                    "type": "string"
+                },
+                "resource_type": {
+                    "type": "string"
+                },
+                "storage": {
+                    "$ref": "#/definitions/resource.StorageProfile"
+                },
+                "warnings": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "resource.ResourceQuery": {
+            "type": "object",
+            "properties": {
+                "constraints": {
+                    "$ref": "#/definitions/resource.QueryConstraints"
+                },
+                "preferences": {
+                    "$ref": "#/definitions/resource.QueryPreferences"
+                },
+                "profile_id": {
+                    "type": "string"
+                },
+                "request_id": {
+                    "type": "string"
+                },
+                "schema_version": {
+                    "type": "string"
+                },
+                "selectors": {
+                    "$ref": "#/definitions/resource.ResourceSelectors"
+                }
+            }
+        },
+        "resource.ResourceRecommendation": {
+            "type": "object",
+            "properties": {
+                "excluded_resources": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/resource.ExcludedResource"
+                    }
+                },
+                "observed_at": {
+                    "type": "string"
+                },
+                "profile_id": {
+                    "type": "string"
+                },
+                "query": {
+                    "$ref": "#/definitions/resource.ResourceQuery"
+                },
+                "recommendations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/resource.RankedResource"
+                    }
+                },
+                "request_id": {
+                    "type": "string"
+                },
+                "schema_version": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "summary": {
+                    "$ref": "#/definitions/resource.RecommendationSummary"
+                },
+                "warnings": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "resource.ResourceSelectors": {
+            "type": "object",
+            "properties": {
+                "architectures": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "providers": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "regions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "required_labels": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "resource_types": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "resource.SLORequirements": {
+            "type": "object",
+            "properties": {
+                "latency_p95_ms_max": {
+                    "type": "number"
+                },
+                "throughput_rps_min": {
+                    "type": "number"
+                }
+            }
+        },
+        "resource.ScoreBreakdown": {
+            "type": "object",
+            "properties": {
+                "accelerator": {
+                    "type": "number"
+                },
+                "cpu": {
+                    "type": "number"
+                },
+                "health": {
+                    "type": "number"
+                },
+                "memory": {
+                    "type": "number"
+                },
+                "storage": {
+                    "type": "number"
+                },
+                "total": {
+                    "type": "number"
+                }
+            }
+        },
+        "resource.StorageProfile": {
+            "type": "object",
+            "properties": {
+                "available_gib": {
+                    "type": "number"
+                },
+                "total_gib": {
+                    "type": "number"
+                }
+            }
+        },
+        "resource.WorkloadProfile": {
+            "type": "object",
+            "properties": {
+                "expected_rps": {
+                    "type": "number"
+                },
+                "request_pattern": {
+                    "type": "string"
+                },
+                "task_type": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

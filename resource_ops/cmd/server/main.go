@@ -8,6 +8,12 @@ import (
 	"ai-mcmp/internal/api"
 )
 
+// @title AI-MCMP Resource Ops API
+// @version 0.2.0
+// @description Discover, normalize, filter, and rank infrastructure resources from an ApplicationProfile and resource observations.
+// @license.name Apache 2.0
+// @license.url https://www.apache.org/licenses/LICENSE-2.0.html
+// @BasePath /
 func main() {
 	host := envDefault("HOST", "0.0.0.0")
 	port := envDefault("PORT", "8000")

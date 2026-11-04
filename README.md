@@ -88,7 +88,7 @@ cd ai-ops
 go -C llmop/go/service-control-api run ./cmd/llmop-api
 ```
 
-기본 주소는 `http://127.0.0.1:8080`입니다. `/healthz`에서 서비스 상태를, `/openapi.yaml`에서 API 명세를 확인합니다. 구조화 입력은 외부 LLM 호출 없이 사용할 수 있습니다.
+기본 주소는 `http://127.0.0.1:8080`입니다. `/healthz`에서 서비스 상태를, `/swagger`에서 Swagger UI를, `/openapi.yaml`에서 API 명세를 확인합니다. 구조화 입력은 외부 LLM 호출 없이 사용할 수 있습니다.
 
 자원 추천과 배포 판단 API는 독립적으로 실행할 수 있습니다. 동시 실행 시 포트와 API 연결 주소를 설정해야 합니다. [독립 서비스 실행](docs/getting-started.md#독립-서비스)을 참고하세요.
 
@@ -194,6 +194,22 @@ python -m unittest discover -s platform/runtime-vm -p 'test_*.py'
 GitHub CI는 Go 4개 모듈, 플랫폼과 데이터 없이 실행 가능한 연구 검사를 수행합니다. 실제 모델, 원본 DB 또는 클라우드가 필요한 실험은 별도 환경에서 수행하며 CI 결과와 구분합니다. 전체 검사와 해석상 제한은 [검증 문서](docs/validation.md)를 참고하세요.
 
 ## Documentation
+
+통합 [Swagger UI](http://127.0.0.1:18100/swagger)에서 LLM_Op, Resource Ops, Deployment Agent의 API를 함께 조회하고 `Try it out`으로 호출할 수 있습니다. `node platform/server/index.mjs`로 실행하며, `/swagger/`와 `/swagger/index.html`도 같은 화면을 엽니다. 통합 명세는 [`platform/data/openapi.json`](platform/data/openapi.json)과 `GET /openapi.json`에서 제공합니다.
+
+| 서비스 | 통합 실행 시 API 포트 | 원본 명세 |
+| --- | --- | --- |
+| LLM_Op | 18110 | [Swagger YAML](llmop/go/service-control-api/docs/swagger/swagger.yaml) |
+| Resource Ops | 18120 | [Swagger YAML](resource_ops/docs/swagger/swagger.yaml) |
+| Deployment Agent | 18130 | [OpenAPI YAML](deployment_agent/docs/openapi_deployment_agent.yaml) |
+
+통합 화면은 서비스별 태그로 API를 구분합니다. 호출은 `/swagger/services/{서비스}`를 거쳐 전달하며, 연결 주소는 기존 `KHU_LLMOP_URL`, `KHU_RESOURCE_OPS_URL`, `KHU_GEON_URL` 설정을 사용합니다. 문서는 API가 꺼져 있어도 조회할 수 있지만 호출하려면 해당 서비스를 실행해야 합니다. Swagger UI의 JS/CSS는 고정 버전 CDN에서 불러오므로 브라우저의 인터넷 연결이 필요합니다. 플랫폼 웹 PoC와 외부 AppDeploy API는 명세에 포함하지 않습니다.
+
+Go 주석에서 생성하는 JSON/YAML은 각 컴포넌트 루트의 `make swag`로 갱신합니다. Deployment Agent의 `docs/openapi_deployment_agent.yaml`도 함께 갱신한 뒤 `python platform/scripts/generate-openapi.py`로 통합 명세를 생성하고 플랫폼을 재시작합니다. 생성 스크립트는 연구용 Python 의존성에 포함된 PyYAML을 사용합니다.
+
+GitHub Pages에서 서버 실행 없이 문서를 공개하려면 저장소의 **Settings → Pages → Build and deployment → Source**를 **GitHub Actions**로 선택합니다. 변경 사항을 `main`에 push하거나 Actions의 **Publish Swagger documentation**을 수동 실행하면 [배포 workflow](.github/workflows/swagger-pages.yml)가 문서 화면과 통합 명세 두 파일을 게시합니다. 기본 공개 주소는 `https://cloud-barista.github.io/ai-ops/`이며, 최초 배포가 완료된 후 사용할 수 있습니다. 설정 방법은 [GitHub 공식 안내](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)를 참고하세요.
+
+Pages 화면은 조회 전용입니다. API 호출은 로컬 통합 Swagger에서 수행합니다. 공개 배포 파일은 `python platform/scripts/generate-openapi.py --pages`로 `output/swagger-pages/`에 생성할 수 있습니다.
 
 - [설치와 실행](docs/getting-started.md)
 - [구성 요소와 연동 구조](docs/architecture.md)

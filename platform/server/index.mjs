@@ -17,6 +17,7 @@ import {loadValidationResults} from './validation-results.mjs';
 import {replicaTargets} from './prometheus-targets.mjs';
 import {refreshResources} from './resource-refresh.mjs';
 import {boundCloudMetrics} from './cloud-metrics-proxy.mjs';
+import {serveSwagger} from './swagger.mjs';
 
 export const digest=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 export function fault(status,code){return Object.assign(Error(code),{status,code});}
@@ -41,6 +42,7 @@ export function createPlatformServer({clients,store,catalog,snapshots,routeExten
   return createServer(async(request,response)=>{
     try{
       const url=new URL(request.url,'http://localhost');const path=url.pathname;
+      if(path==='/openapi.json'||path==='/swagger'||path.startsWith('/swagger/'))return await serveSwagger(request,response,clients);
       if(path==='/api/v1/monitoring/targets'){
         if(request.method!=='GET')throw fault(405,'method_not_allowed');
         return send(response,200,replicaTargets(await clients.groupList()));

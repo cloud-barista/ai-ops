@@ -386,6 +386,10 @@ paths:
           description: Request Entity Too Large
           schema:
             $ref: '#/definitions/profileapi.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/profileapi.ErrorResponse'
         "502":
           description: Bad Gateway
           schema:

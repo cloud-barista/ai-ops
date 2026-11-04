@@ -20,6 +20,8 @@ cd deployment_agent/go/service-control-api
 go run ./cmd/service-control-api
 ```
 
+API 문서는 플랫폼의 [통합 Swagger UI](http://127.0.0.1:18100/swagger)에서 확인하고 요청을 실행할 수 있습니다. 통합 문서에는 기본 모드의 정식 배포 판단 API를 포함합니다. 이 서비스의 원본 명세는 `/openapi.yaml`에서 내려받습니다.
+
 ## 검증
 
 서비스 모듈과 `go/aiops-guard`에서 각각 `go test ./...`와 `go vet ./...`를 실행합니다.

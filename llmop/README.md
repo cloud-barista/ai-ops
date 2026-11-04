@@ -19,6 +19,8 @@ cd llmop/go/service-control-api
 go run ./cmd/llmop-api
 ```
 
+API 문서는 플랫폼의 [통합 Swagger UI](http://127.0.0.1:18100/swagger)에서 확인하고 요청을 실행할 수 있습니다. 이 서비스의 원본 명세는 `/openapi.yaml`에서 내려받습니다.
+
 ## 검증
 
 ```bash

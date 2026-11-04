@@ -1730,6 +1730,61 @@
                 }
             }
         },
+        "/api/v1/deployment-plans": {
+            "post": {
+                "description": "Correlate the ApplicationProfile and ResourceRecommendation, recheck resource feasibility, run the bounded deployment Agent and Guards, and return the correlated Flow. Identical requests with the same correlation_id are replayed; changed content requires a new correlation_id.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Deployment Planning"
+                ],
+                "summary": "Generate a guarded deployment plan from upstream results",
+                "operationId": "CreateDeploymentPlanFromResults",
+                "parameters": [
+                    {
+                        "description": "ApplicationProfile and ResourceRecommendation",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.DeploymentPlanningRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "REJECT/RETRY decision or idempotent replay",
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.Flow"
+                        }
+                    },
+                    "201": {
+                        "description": "DEPLOY or UPDATE plan generated",
+                        "schema": {
+                            "$ref": "#/definitions/agentcontrol.Flow"
+                        }
+                    },
+                    "400": {
+                        "description": "schema_version and error with code and message",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "422": {
+                        "description": "schema_version and error with code and message",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/ops-llm/select": {
             "post": {
                 "description": "Rank Ops LLM candidates using the configured service-control benchmark policy.",
@@ -4239,6 +4294,32 @@
                 }
             }
         },
+        "api.DeploymentPlanningRequest": {
+            "type": "object",
+            "properties": {
+                "application_profile": {
+                    "$ref": "#/definitions/agentcontrol.ApplicationProfile"
+                },
+                "correlation_id": {
+                    "type": "string"
+                },
+                "decision_agent": {
+                    "type": "string"
+                },
+                "deployment_context": {
+                    "$ref": "#/definitions/agentcontrol.DeploymentContext"
+                },
+                "resource_recommendation": {
+                    "$ref": "#/definitions/api.ResourceOpsRecommendation"
+                },
+                "schema_version": {
+                    "type": "string"
+                },
+                "trace_id": {
+                    "type": "string"
+                }
+            }
+        },
         "api.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -4618,6 +4699,281 @@
                 "status": {
                     "type": "string",
                     "example": "ready"
+                }
+            }
+        },
+        "api.ResourceOpsAccelerator": {
+            "type": "object",
+            "properties": {
+                "device_id": {
+                    "type": "string"
+                },
+                "healthy": {
+                    "type": "boolean"
+                },
+                "index": {
+                    "type": "string"
+                },
+                "memory_available_mib": {
+                    "type": "number"
+                },
+                "memory_total_mib": {
+                    "type": "number"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "utilization_percent": {
+                    "type": "number"
+                }
+            }
+        },
+        "api.ResourceOpsCPU": {
+            "type": "object",
+            "properties": {
+                "available_cores": {
+                    "type": "number"
+                },
+                "logical_cores": {
+                    "type": "integer"
+                },
+                "utilization_percent": {
+                    "type": "number"
+                }
+            }
+        },
+        "api.ResourceOpsConditionFailure": {
+            "type": "object",
+            "properties": {
+                "actual": {},
+                "code": {
+                    "type": "string"
+                },
+                "field": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "required": {}
+            }
+        },
+        "api.ResourceOpsExcludedResource": {
+            "type": "object",
+            "properties": {
+                "failures": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.ResourceOpsConditionFailure"
+                    }
+                },
+                "resource_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.ResourceOpsMemory": {
+            "type": "object",
+            "properties": {
+                "available_mib": {
+                    "type": "number"
+                },
+                "total_mib": {
+                    "type": "number"
+                }
+            }
+        },
+        "api.ResourceOpsProfile": {
+            "type": "object",
+            "properties": {
+                "accelerators": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.ResourceOpsAccelerator"
+                    }
+                },
+                "address": {
+                    "type": "string"
+                },
+                "architecture": {
+                    "type": "string"
+                },
+                "cpu": {
+                    "$ref": "#/definitions/api.ResourceOpsCPU"
+                },
+                "healthy": {
+                    "type": "boolean"
+                },
+                "hostname": {
+                    "type": "string"
+                },
+                "labels": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "memory": {
+                    "$ref": "#/definitions/api.ResourceOpsMemory"
+                },
+                "observed_at": {
+                    "type": "string"
+                },
+                "operating_system": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "region": {
+                    "type": "string"
+                },
+                "resource_id": {
+                    "type": "string"
+                },
+                "resource_type": {
+                    "type": "string"
+                },
+                "storage": {
+                    "$ref": "#/definitions/api.ResourceOpsStorage"
+                },
+                "warnings": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "api.ResourceOpsRankedResource": {
+            "type": "object",
+            "properties": {
+                "rank": {
+                    "type": "integer"
+                },
+                "reasons": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.ResourceOpsReason"
+                    }
+                },
+                "resource": {
+                    "$ref": "#/definitions/api.ResourceOpsProfile"
+                },
+                "score": {
+                    "type": "number"
+                },
+                "score_breakdown": {
+                    "$ref": "#/definitions/api.ResourceOpsScoreBreakdown"
+                }
+            }
+        },
+        "api.ResourceOpsReason": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.ResourceOpsRecommendation": {
+            "type": "object",
+            "properties": {
+                "excluded_resources": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.ResourceOpsExcludedResource"
+                    }
+                },
+                "observed_at": {
+                    "type": "string"
+                },
+                "profile_id": {
+                    "type": "string"
+                },
+                "query": {
+                    "type": "object"
+                },
+                "recommendations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.ResourceOpsRankedResource"
+                    }
+                },
+                "request_id": {
+                    "type": "string"
+                },
+                "schema_version": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "summary": {
+                    "$ref": "#/definitions/api.ResourceOpsSummary"
+                },
+                "warnings": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "api.ResourceOpsScoreBreakdown": {
+            "type": "object",
+            "properties": {
+                "accelerator": {
+                    "type": "number"
+                },
+                "cpu": {
+                    "type": "number"
+                },
+                "health": {
+                    "type": "number"
+                },
+                "memory": {
+                    "type": "number"
+                },
+                "storage": {
+                    "type": "number"
+                },
+                "total": {
+                    "type": "number"
+                }
+            }
+        },
+        "api.ResourceOpsStorage": {
+            "type": "object",
+            "properties": {
+                "available_gib": {
+                    "type": "number"
+                },
+                "total_gib": {
+                    "type": "number"
+                }
+            }
+        },
+        "api.ResourceOpsSummary": {
+            "type": "object",
+            "properties": {
+                "discovered": {
+                    "type": "integer"
+                },
+                "excluded": {
+                    "type": "integer"
+                },
+                "feasible": {
+                    "type": "integer"
+                },
+                "returned": {
+                    "type": "integer"
                 }
             }
         },

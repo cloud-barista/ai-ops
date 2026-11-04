@@ -42,7 +42,7 @@ type ResourceOpsRecommendation struct {
 	ProfileID         string                        `json:"profile_id,omitempty"`
 	Source            string                        `json:"source"`
 	ObservedAt        string                        `json:"observed_at"`
-	Query             json.RawMessage               `json:"query"`
+	Query             json.RawMessage               `json:"query" swaggertype:"object"`
 	Recommendations   []ResourceOpsRankedResource   `json:"recommendations"`
 	ExcludedResources []ResourceOpsExcludedResource `json:"excluded_resources"`
 	Summary           ResourceOpsSummary            `json:"summary"`
@@ -137,6 +137,19 @@ type ResourceOpsSummary struct {
 	Returned   int `json:"returned"`
 }
 
+// RestPostDeploymentPlanFromResults godoc
+// @ID CreateDeploymentPlanFromResults
+// @Summary Generate a guarded deployment plan from upstream results
+// @Description Correlate the ApplicationProfile and ResourceRecommendation, recheck resource feasibility, run the bounded deployment Agent and Guards, and return the correlated Flow. Identical requests with the same correlation_id are replayed; changed content requires a new correlation_id.
+// @Tags Deployment Planning
+// @Accept json
+// @Produce json
+// @Param request body DeploymentPlanningRequest true "ApplicationProfile and ResourceRecommendation"
+// @Success 201 {object} agentcontrol.Flow "DEPLOY or UPDATE plan generated"
+// @Success 200 {object} agentcontrol.Flow "REJECT/RETRY decision or idempotent replay"
+// @Failure 400 {object} map[string]interface{} "schema_version and error with code and message"
+// @Failure 422 {object} map[string]interface{} "schema_version and error with code and message"
+// @Router /api/v1/deployment-plans [post]
 func (handler restHandler) RestPostDeploymentPlanFromResults(context echo.Context) error {
 	var request DeploymentPlanningRequest
 	if err := decodeFocusedRequest(context, &request); err != nil {

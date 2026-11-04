@@ -1534,6 +1534,23 @@ definitions:
       workload:
         type: string
     type: object
+  api.DeploymentPlanningRequest:
+    properties:
+      application_profile:
+        $ref: '#/definitions/agentcontrol.ApplicationProfile'
+      correlation_id:
+        type: string
+      decision_agent:
+        type: string
+      deployment_context:
+        $ref: '#/definitions/agentcontrol.DeploymentContext'
+      resource_recommendation:
+        $ref: '#/definitions/api.ResourceOpsRecommendation'
+      schema_version:
+        type: string
+      trace_id:
+        type: string
+    type: object
   api.ErrorResponse:
     properties:
       message:
@@ -1796,6 +1813,186 @@ definitions:
       status:
         example: ready
         type: string
+    type: object
+  api.ResourceOpsAccelerator:
+    properties:
+      device_id:
+        type: string
+      healthy:
+        type: boolean
+      index:
+        type: string
+      memory_available_mib:
+        type: number
+      memory_total_mib:
+        type: number
+      model:
+        type: string
+      type:
+        type: string
+      utilization_percent:
+        type: number
+    type: object
+  api.ResourceOpsCPU:
+    properties:
+      available_cores:
+        type: number
+      logical_cores:
+        type: integer
+      utilization_percent:
+        type: number
+    type: object
+  api.ResourceOpsConditionFailure:
+    properties:
+      actual: {}
+      code:
+        type: string
+      field:
+        type: string
+      reason:
+        type: string
+      required: {}
+    type: object
+  api.ResourceOpsExcludedResource:
+    properties:
+      failures:
+        items:
+          $ref: '#/definitions/api.ResourceOpsConditionFailure'
+        type: array
+      resource_id:
+        type: string
+    type: object
+  api.ResourceOpsMemory:
+    properties:
+      available_mib:
+        type: number
+      total_mib:
+        type: number
+    type: object
+  api.ResourceOpsProfile:
+    properties:
+      accelerators:
+        items:
+          $ref: '#/definitions/api.ResourceOpsAccelerator'
+        type: array
+      address:
+        type: string
+      architecture:
+        type: string
+      cpu:
+        $ref: '#/definitions/api.ResourceOpsCPU'
+      healthy:
+        type: boolean
+      hostname:
+        type: string
+      labels:
+        additionalProperties:
+          type: string
+        type: object
+      memory:
+        $ref: '#/definitions/api.ResourceOpsMemory'
+      observed_at:
+        type: string
+      operating_system:
+        type: string
+      provider:
+        type: string
+      region:
+        type: string
+      resource_id:
+        type: string
+      resource_type:
+        type: string
+      storage:
+        $ref: '#/definitions/api.ResourceOpsStorage'
+      warnings:
+        items:
+          type: string
+        type: array
+    type: object
+  api.ResourceOpsRankedResource:
+    properties:
+      rank:
+        type: integer
+      reasons:
+        items:
+          $ref: '#/definitions/api.ResourceOpsReason'
+        type: array
+      resource:
+        $ref: '#/definitions/api.ResourceOpsProfile'
+      score:
+        type: number
+      score_breakdown:
+        $ref: '#/definitions/api.ResourceOpsScoreBreakdown'
+    type: object
+  api.ResourceOpsReason:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+    type: object
+  api.ResourceOpsRecommendation:
+    properties:
+      excluded_resources:
+        items:
+          $ref: '#/definitions/api.ResourceOpsExcludedResource'
+        type: array
+      observed_at:
+        type: string
+      profile_id:
+        type: string
+      query:
+        type: object
+      recommendations:
+        items:
+          $ref: '#/definitions/api.ResourceOpsRankedResource'
+        type: array
+      request_id:
+        type: string
+      schema_version:
+        type: string
+      source:
+        type: string
+      summary:
+        $ref: '#/definitions/api.ResourceOpsSummary'
+      warnings:
+        items:
+          type: string
+        type: array
+    type: object
+  api.ResourceOpsScoreBreakdown:
+    properties:
+      accelerator:
+        type: number
+      cpu:
+        type: number
+      health:
+        type: number
+      memory:
+        type: number
+      storage:
+        type: number
+      total:
+        type: number
+    type: object
+  api.ResourceOpsStorage:
+    properties:
+      available_gib:
+        type: number
+      total_gib:
+        type: number
+    type: object
+  api.ResourceOpsSummary:
+    properties:
+      discovered:
+        type: integer
+      excluded:
+        type: integer
+      feasible:
+        type: integer
+      returned:
+        type: integer
     type: object
   api.ServiceOperationsRequest:
     properties:
@@ -4462,6 +4659,46 @@ paths:
       summary: Package and register an application before generating a guarded DeploymentManifest
       tags:
       - AI Application Automation
+  /api/v1/deployment-plans:
+    post:
+      consumes:
+      - application/json
+      description: Correlate the ApplicationProfile and ResourceRecommendation, recheck
+        resource feasibility, run the bounded deployment Agent and Guards, and return
+        the correlated Flow. Identical requests with the same correlation_id are replayed;
+        changed content requires a new correlation_id.
+      operationId: CreateDeploymentPlanFromResults
+      parameters:
+      - description: ApplicationProfile and ResourceRecommendation
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.DeploymentPlanningRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: REJECT/RETRY decision or idempotent replay
+          schema:
+            $ref: '#/definitions/agentcontrol.Flow'
+        "201":
+          description: DEPLOY or UPDATE plan generated
+          schema:
+            $ref: '#/definitions/agentcontrol.Flow'
+        "400":
+          description: schema_version and error with code and message
+          schema:
+            additionalProperties: true
+            type: object
+        "422":
+          description: schema_version and error with code and message
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Generate a guarded deployment plan from upstream results
+      tags:
+      - Deployment Planning
   /api/v1/ops-llm/select:
     post:
       consumes:

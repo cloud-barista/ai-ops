@@ -92,6 +92,9 @@ func newServer(config Config, generator profileGenerator) *echo.Echo {
 
 	server.GET(pathHealthz, handler.getHealthz)
 	server.GET(pathOpenAPI, handler.getOpenAPI)
+	server.GET("/swagger", serveSwagger)
+	server.GET("/swagger/", serveSwagger)
+	server.GET("/swagger/index.html", serveSwagger)
 	server.POST(pathApplicationProfiles, handler.postApplicationProfile)
 	server.POST(pathOpsLLMSelect, handler.postOpsLLMSelect)
 	return server
@@ -181,6 +184,7 @@ func (handler handler) getOpenAPI(context echo.Context) error {
 // @Success 201 {object} applicationprofile.GenerateResult
 // @Failure 400 {object} ErrorResponse
 // @Failure 413 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
 // @Failure 502 {object} ErrorResponse
 // @Failure 503 {object} ErrorResponse
 // @Router /api/v1/application-profiles [post]

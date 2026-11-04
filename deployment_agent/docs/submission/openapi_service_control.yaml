@@ -12,7 +12,7 @@ info:
     conversion remain external responsibilities. Legacy ControlRun, runtime Agent
     execution, and post-deployment controls are retained as optional PoC tools.
 servers:
-  - url: http://127.0.0.1:18080
+  - url: /
 paths:
   /api/v1/agent-control/external-flows:
     post:
@@ -74,7 +74,7 @@ paths:
             application/json:
               schema: {$ref: '#/components/schemas/FlowDelivery'}
         '400': {description: Invalid request}
-        '409': {description: Submission disabled, invalid binding, unapproved Flow or unconfirmed upstream response}
+        '409': {description: "Submission disabled, invalid binding, unapproved Flow or unconfirmed upstream response"}
   /api/v1/agent-control/flows/{correlation_id}/appdeploy:
     get:
       summary: Query AppDeployer-reported deployment state and raw metrics for a recorded delivery
@@ -87,7 +87,7 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/FlowDelivery'}
-        '409': {description: Missing receipt, changed destination or upstream query failure}
+        '409': {description: "Missing receipt, changed destination or upstream query failure"}
   /healthz:
     get:
       summary: Check service health
@@ -1684,7 +1684,7 @@ components:
         observation_id: {type: string}
         deployment_id: {type: string}
         status: {type: string}
-        source_updated_at: {type: string, description: Raw AppDeployer-declared status update time, including invalid or future values when provided.}
+        source_updated_at: {type: string, description: "Raw AppDeployer-declared status update time, including invalid or future values when provided."}
         fetched_at: {type: string, format: date-time, description: Local time the status was fetched.}
         effective_updated_at: {type: string, format: date-time, description: Time attached to the in-memory Agent Control status.}
         time_basis: {type: string, enum: [source_updated_at, local_fetched_at]}

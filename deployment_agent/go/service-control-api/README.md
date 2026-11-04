@@ -39,6 +39,8 @@ Git Bash, Linux 또는 macOS:
 
 실행 후 [healthz](http://127.0.0.1:18080/healthz)와 [focused OpenAPI](http://127.0.0.1:18080/openapi.yaml)를 확인합니다. 종료할 때는 `Ctrl+C`를 누릅니다.
 
+[통합 Swagger UI](http://127.0.0.1:18100/swagger)에서 세 핵심 서비스의 API 목록과 요청·응답 모델을 함께 조회하고 API를 호출할 수 있습니다. 저장소 루트에서 `node platform/server/index.mjs`로 실행하며, 독립 실행 주소가 다른 경우 `KHU_GEON_URL`을 해당 주소로 설정합니다.
+
 ## Legacy all-in-one 실행
 
 아래의 LLM_Op safeguard, 내부 Requirement Analyzer, Mock Resource Recommender, 웹 UI, Autonomy 설명은 보존된 legacy prototype에만 해당합니다. 기본 서버에는 이 route들이 등록되지 않습니다.

@@ -50,6 +50,9 @@ func NewRouterWithSource(source resource.Source) (*gin.Engine, error) {
 		return nil, err
 	}
 	router.GET("/health", handler.health)
+	router.GET("/openapi.yaml", getOpenAPI)
+	router.GET("/swagger", serveSwagger)
+	router.GET("/swagger/*any", serveSwagger)
 	router.POST("/api/v1/resource-recommendations", handler.recommendFromProfile)
 	// ResourceQuery was the prototype HTTP input. Keep it explicitly isolated
 	// for old clients while the focused path accepts llmop's ApplicationProfile.
@@ -57,6 +60,13 @@ func NewRouterWithSource(source resource.Source) (*gin.Engine, error) {
 	return router, nil
 }
 
+// health godoc
+// @ID GetResourceOpsHealth
+// @Summary Check Resource Ops health and capabilities
+// @Tags Service
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Router /health [get]
 func (handler handler) health(requestContext *gin.Context) {
 	requestContext.JSON(http.StatusOK, gin.H{
 		"status":          "ok",
@@ -75,6 +85,20 @@ func (handler handler) health(requestContext *gin.Context) {
 	})
 }
 
+// recommendFromProfile godoc
+// @ID RecommendResourcesFromProfile
+// @Summary Recommend infrastructure resources for an ApplicationProfile
+// @Description Project application requirements into resource constraints, collect and normalize observations, filter unavailable or insufficient resources, and rank the remaining candidates. This endpoint returns recommendations without deploying applications.
+// @Tags Resource Recommendations
+// @Accept json
+// @Produce json
+// @Param request body resource.ProfileRecommendationRequest true "ApplicationProfile, selectors, and ranking preferences"
+// @Success 200 {object} resource.ResourceRecommendation
+// @Failure 400 {object} errorResponse "Malformed JSON, unknown fields, or request body over 1 MiB"
+// @Failure 422 {object} errorResponse "Invalid ApplicationProfile or resource query"
+// @Failure 500 {object} errorResponse
+// @Failure 502 {object} errorResponse "Resource source unavailable"
+// @Router /api/v1/resource-recommendations [post]
 func (handler handler) recommendFromProfile(requestContext *gin.Context) {
 	var request resource.ProfileRecommendationRequest
 	if err := decodeJSONRequest(requestContext, &request); err != nil {
@@ -89,6 +113,21 @@ func (handler handler) recommendFromProfile(requestContext *gin.Context) {
 	handler.writeRecommendation(requestContext, query)
 }
 
+// recommendFromQuery godoc
+// @ID RecommendResourcesFromLegacyQuery
+// @Summary Recommend resources from a legacy ResourceQuery
+// @Description Compatibility endpoint for clients that supply resource constraints directly.
+// @Tags Legacy
+// @Accept json
+// @Produce json
+// @Param request body resource.ResourceQuery true "Legacy resource query"
+// @Success 200 {object} resource.ResourceRecommendation
+// @Failure 400 {object} errorResponse
+// @Failure 422 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure 502 {object} errorResponse
+// @Deprecated
+// @Router /legacy/api/v1/resource-recommendations [post]
 func (handler handler) recommendFromQuery(requestContext *gin.Context) {
 	var query resource.ResourceQuery
 	if err := decodeJSONRequest(requestContext, &query); err != nil {
@@ -146,10 +185,15 @@ type errorDetail struct {
 	Details []string `json:"details,omitempty"`
 }
 
+type errorResponse struct {
+	SchemaVersion string      `json:"schema_version"`
+	Error         errorDetail `json:"error"`
+}
+
 func writeError(requestContext *gin.Context, status int, code, message string, details []string) {
-	requestContext.JSON(status, gin.H{
-		"schema_version": resource.SchemaVersion,
-		"error": errorDetail{
+	requestContext.JSON(status, errorResponse{
+		SchemaVersion: resource.SchemaVersion,
+		Error: errorDetail{
 			Code:    code,
 			Message: message,
 			Details: details,

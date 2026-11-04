@@ -1,0 +1,511 @@
+basePath: /
+definitions:
+  api.errorDetail:
+    properties:
+      code:
+        type: string
+      details:
+        items:
+          type: string
+        type: array
+      message:
+        type: string
+    type: object
+  api.errorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/api.errorDetail'
+      schema_version:
+        type: string
+    type: object
+  resource.AcceleratorConstraint:
+    properties:
+      count_min:
+        type: integer
+      memory_mib_min_per_device:
+        type: number
+      model:
+        type: string
+      required:
+        type: boolean
+      type:
+        type: string
+    type: object
+  resource.AcceleratorProfile:
+    properties:
+      device_id:
+        type: string
+      healthy:
+        type: boolean
+      index:
+        type: string
+      memory_available_mib:
+        type: number
+      memory_total_mib:
+        type: number
+      model:
+        type: string
+      type:
+        type: string
+      utilization_percent:
+        type: number
+    type: object
+  resource.AcceleratorRequirements:
+    properties:
+      count_min:
+        type: integer
+      memory_mib_min_per_device:
+        type: integer
+      required:
+        type: boolean
+      type:
+        type: string
+    type: object
+  resource.AnalysisSummary:
+    properties:
+      assumptions:
+        items:
+          type: string
+        type: array
+      confidence:
+        type: number
+      missing_fields:
+        items:
+          type: string
+        type: array
+      warnings:
+        items:
+          type: string
+        type: array
+    type: object
+  resource.ApplicationProfile:
+    properties:
+      analysis:
+        $ref: '#/definitions/resource.AnalysisSummary'
+      app_id:
+        type: string
+      app_version:
+        type: string
+      artifact:
+        $ref: '#/definitions/resource.Artifact'
+      profile_id:
+        type: string
+      requirements:
+        $ref: '#/definitions/resource.ApplicationRequirements'
+      workload:
+        $ref: '#/definitions/resource.WorkloadProfile'
+    type: object
+  resource.ApplicationRequirements:
+    properties:
+      accelerator:
+        $ref: '#/definitions/resource.AcceleratorRequirements'
+      compute:
+        $ref: '#/definitions/resource.ComputeRequirements'
+      cost:
+        $ref: '#/definitions/resource.CostRequirements'
+      deployment:
+        $ref: '#/definitions/resource.DeploymentRequirements'
+      slo:
+        $ref: '#/definitions/resource.SLORequirements'
+    type: object
+  resource.Artifact:
+    properties:
+      entrypoint:
+        items:
+          type: string
+        type: array
+      type:
+        type: string
+      uri:
+        type: string
+    type: object
+  resource.CPUProfile:
+    properties:
+      available_cores:
+        type: number
+      logical_cores:
+        type: integer
+      utilization_percent:
+        type: number
+    type: object
+  resource.ComputeRequirements:
+    properties:
+      cpu_cores_min:
+        type: integer
+      memory_mib_min:
+        type: integer
+      storage_gib_min:
+        type: integer
+    type: object
+  resource.ConditionFailure:
+    properties:
+      actual: {}
+      code:
+        type: string
+      field:
+        type: string
+      reason:
+        type: string
+      required: {}
+    type: object
+  resource.CostRequirements:
+    properties:
+      cost_per_hour_max:
+        type: number
+      currency:
+        type: string
+    type: object
+  resource.DeploymentRequirements:
+    properties:
+      isolation:
+        type: string
+      replicas_max:
+        type: integer
+      replicas_min:
+        type: integer
+    type: object
+  resource.ExcludedResource:
+    properties:
+      failures:
+        items:
+          $ref: '#/definitions/resource.ConditionFailure'
+        type: array
+      resource_id:
+        type: string
+    type: object
+  resource.MemoryProfile:
+    properties:
+      available_mib:
+        type: number
+      total_mib:
+        type: number
+    type: object
+  resource.ProfileRecommendationRequest:
+    properties:
+      application_profile:
+        $ref: '#/definitions/resource.ApplicationProfile'
+      preferences:
+        $ref: '#/definitions/resource.QueryPreferences'
+      request_id:
+        type: string
+      schema_version:
+        type: string
+      selectors:
+        $ref: '#/definitions/resource.ResourceSelectors'
+    type: object
+  resource.QueryConstraints:
+    properties:
+      accelerator:
+        $ref: '#/definitions/resource.AcceleratorConstraint'
+      cpu_cores_min:
+        type: integer
+      memory_mib_min:
+        type: integer
+      storage_gib_min:
+        type: number
+    type: object
+  resource.QueryPreferences:
+    properties:
+      max_results:
+        type: integer
+    type: object
+  resource.RankedResource:
+    properties:
+      rank:
+        type: integer
+      reasons:
+        items:
+          $ref: '#/definitions/resource.RecommendationReason'
+        type: array
+      resource:
+        $ref: '#/definitions/resource.ResourceProfile'
+      score:
+        type: number
+      score_breakdown:
+        $ref: '#/definitions/resource.ScoreBreakdown'
+    type: object
+  resource.RecommendationReason:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+    type: object
+  resource.RecommendationSummary:
+    properties:
+      discovered:
+        type: integer
+      excluded:
+        type: integer
+      feasible:
+        type: integer
+      returned:
+        type: integer
+    type: object
+  resource.ResourceProfile:
+    properties:
+      accelerators:
+        items:
+          $ref: '#/definitions/resource.AcceleratorProfile'
+        type: array
+      address:
+        type: string
+      architecture:
+        type: string
+      cpu:
+        $ref: '#/definitions/resource.CPUProfile'
+      healthy:
+        type: boolean
+      hostname:
+        type: string
+      labels:
+        additionalProperties:
+          type: string
+        type: object
+      memory:
+        $ref: '#/definitions/resource.MemoryProfile'
+      observed_at:
+        type: string
+      operating_system:
+        type: string
+      provider:
+        type: string
+      region:
+        type: string
+      resource_id:
+        type: string
+      resource_type:
+        type: string
+      storage:
+        $ref: '#/definitions/resource.StorageProfile'
+      warnings:
+        items:
+          type: string
+        type: array
+    type: object
+  resource.ResourceQuery:
+    properties:
+      constraints:
+        $ref: '#/definitions/resource.QueryConstraints'
+      preferences:
+        $ref: '#/definitions/resource.QueryPreferences'
+      profile_id:
+        type: string
+      request_id:
+        type: string
+      schema_version:
+        type: string
+      selectors:
+        $ref: '#/definitions/resource.ResourceSelectors'
+    type: object
+  resource.ResourceRecommendation:
+    properties:
+      excluded_resources:
+        items:
+          $ref: '#/definitions/resource.ExcludedResource'
+        type: array
+      observed_at:
+        type: string
+      profile_id:
+        type: string
+      query:
+        $ref: '#/definitions/resource.ResourceQuery'
+      recommendations:
+        items:
+          $ref: '#/definitions/resource.RankedResource'
+        type: array
+      request_id:
+        type: string
+      schema_version:
+        type: string
+      source:
+        type: string
+      summary:
+        $ref: '#/definitions/resource.RecommendationSummary'
+      warnings:
+        items:
+          type: string
+        type: array
+    type: object
+  resource.ResourceSelectors:
+    properties:
+      architectures:
+        items:
+          type: string
+        type: array
+      providers:
+        items:
+          type: string
+        type: array
+      regions:
+        items:
+          type: string
+        type: array
+      required_labels:
+        additionalProperties:
+          type: string
+        type: object
+      resource_types:
+        items:
+          type: string
+        type: array
+    type: object
+  resource.SLORequirements:
+    properties:
+      latency_p95_ms_max:
+        type: number
+      throughput_rps_min:
+        type: number
+    type: object
+  resource.ScoreBreakdown:
+    properties:
+      accelerator:
+        type: number
+      cpu:
+        type: number
+      health:
+        type: number
+      memory:
+        type: number
+      storage:
+        type: number
+      total:
+        type: number
+    type: object
+  resource.StorageProfile:
+    properties:
+      available_gib:
+        type: number
+      total_gib:
+        type: number
+    type: object
+  resource.WorkloadProfile:
+    properties:
+      expected_rps:
+        type: number
+      request_pattern:
+        type: string
+      task_type:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Discover, normalize, filter, and rank infrastructure resources from
+    an ApplicationProfile and resource observations.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  title: AI-MCMP Resource Ops API
+  version: 0.2.0
+paths:
+  /api/v1/resource-recommendations:
+    post:
+      consumes:
+      - application/json
+      description: Project application requirements into resource constraints, collect
+        and normalize observations, filter unavailable or insufficient resources,
+        and rank the remaining candidates. This endpoint returns recommendations without
+        deploying applications.
+      operationId: RecommendResourcesFromProfile
+      parameters:
+      - description: ApplicationProfile, selectors, and ranking preferences
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/resource.ProfileRecommendationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/resource.ResourceRecommendation'
+        "400":
+          description: Malformed JSON, unknown fields, or request body over 1 MiB
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "422":
+          description: Invalid ApplicationProfile or resource query
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "502":
+          description: Resource source unavailable
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Recommend infrastructure resources for an ApplicationProfile
+      tags:
+      - Resource Recommendations
+  /health:
+    get:
+      operationId: GetResourceOpsHealth
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Check Resource Ops health and capabilities
+      tags:
+      - Service
+  /legacy/api/v1/resource-recommendations:
+    post:
+      consumes:
+      - application/json
+      deprecated: true
+      description: Compatibility endpoint for clients that supply resource constraints
+        directly.
+      operationId: RecommendResourcesFromLegacyQuery
+      parameters:
+      - description: Legacy resource query
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/resource.ResourceQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/resource.ResourceRecommendation'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Recommend resources from a legacy ResourceQuery
+      tags:
+      - Legacy
+  /openapi.yaml:
+    get:
+      operationId: GetResourceOpsOpenAPI
+      produces:
+      - text/yaml
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+      summary: Download the Resource Ops API specification
+      tags:
+      - Service
+swagger: "2.0"

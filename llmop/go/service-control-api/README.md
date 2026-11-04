@@ -16,7 +16,10 @@ POST /api/v1/application-profiles
 POST /api/v1/ops-llm/select
 GET  /healthz
 GET  /openapi.yaml
+GET  /swagger
 ```
+
+[통합 Swagger UI](http://127.0.0.1:18100/swagger)에서 세 핵심 서비스의 요청·응답 모델을 함께 조회하고 API를 호출합니다. Go 주석을 수정한 뒤 `llmop` 루트에서 `make swag`로 원본 명세를 갱신하고, 저장소 루트에서 `python platform/scripts/generate-openapi.py`로 통합 명세를 재생성합니다.
 
 `POST /api/v1/application-profiles`는 다음 두 입력을 지원합니다.
 

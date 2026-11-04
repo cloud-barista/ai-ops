@@ -1,0 +1,51 @@
+name: Publish Swagger documentation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/swagger-pages.yml'
+      - 'platform/swagger.html'
+      - 'platform/scripts/generate-openapi.py'
+      - 'platform/tests/test_swagger_pages.py'
+      - 'llmop/go/service-control-api/docs/swagger/swagger.json'
+      - 'resource_ops/docs/swagger/swagger.json'
+      - 'deployment_agent/docs/openapi_deployment_agent.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swagger-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install the YAML parser
+        run: python -m pip install PyYAML==6.0.2
+      - name: Verify the Pages build
+        run: python -m unittest discover -s platform/tests -p 'test_swagger_pages.py'
+      - name: Build Swagger documentation
+        run: python platform/scripts/generate-openapi.py --pages
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: output/swagger-pages
+      - name: Publish GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

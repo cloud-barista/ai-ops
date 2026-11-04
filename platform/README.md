@@ -19,6 +19,12 @@ node platform/server/index.mjs
 
 기본 주소는 `http://127.0.0.1:18100/`입니다. 위 명령은 웹/API만 시작합니다. 실제 분석·배포·실측에는 각 역할의 API와 실행 모듈이 필요합니다.
 
+통합 [Swagger UI](http://127.0.0.1:18100/swagger)는 LLM_Op, Resource Ops, Deployment Agent의 요청·응답 모델과 오류 응답을 한 화면에 표시합니다. `Try it out`은 기존 역할별 API 연결 설정을 사용해 요청을 전달합니다. 통합 명세는 `/openapi.json`에서 내려받으며, 화면의 JS/CSS를 불러오려면 인터넷 연결이 필요합니다.
+
+원본 명세를 변경하면 저장소 루트에서 `python platform/scripts/generate-openapi.py`를 실행한 뒤 플랫폼을 재시작합니다. PyYAML은 `poc/optimization_research/requirements.txt`에 포함되어 있습니다.
+
+GitHub Pages 공개용 파일은 `python platform/scripts/generate-openapi.py --pages`로 생성합니다. `output/swagger-pages/`에는 조회 전용 `index.html`과 `openapi.json`만 포함됩니다. 저장소의 Pages 소스를 GitHub Actions로 선택하면 `.github/workflows/swagger-pages.yml`이 `main`의 문서 변경 시 자동 배포합니다.
+
 Windows 통합 실행은 [`scripts/Run-KhuResearchPoc.ps1`](scripts/Run-KhuResearchPoc.ps1)을 사용하며, AppDeploy와 모델·연구 정책의 사전 준비가 필요합니다.
 
 ## 검증

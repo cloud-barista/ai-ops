@@ -38,7 +38,8 @@ class WorkspaceSections(unittest.TestCase):
 
     def test_overview_contains_no_duplicate_experiment_result_cards(self):
         self.assertFalse(self.root.xpath('//*[@id="validation-overview" or @id="policy-validation-overview"]'))
-        self.assertEqual(len(self.root.xpath('//nav[contains(@class,"sidebar-nav")]/a')), 9)
+        self.assertEqual(len(self.root.xpath('//nav[contains(@class,"sidebar-nav")]/a[starts-with(@href,"#")]')), 9)
+        self.assertEqual(len(self.root.xpath('//nav[contains(@class,"sidebar-nav")]/a[@href="/swagger" and @target="_blank"]')), 1)
 
     def test_result_summary_precedes_collapsed_research_and_agent_settings(self):
         current = self.root.get_element_by_id('experiment-result')

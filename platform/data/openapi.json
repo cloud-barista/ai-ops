@@ -1,0 +1,4900 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "AI-Ops API",
+    "version": "1.0.0",
+    "description": "응용 요구사항 분석, 자원 추천, 배포 및 운영 판단 API."
+  },
+  "servers": [
+    {
+      "url": "/swagger/services"
+    }
+  ],
+  "tags": [
+    {
+      "name": "LLM_Op"
+    },
+    {
+      "name": "Resource Ops"
+    },
+    {
+      "name": "Deployment Agent"
+    }
+  ],
+  "paths": {
+    "/llmop/api/v1/application-profiles": {
+      "post": {
+        "description": "Validate natural-language or structured App Spec input and return a bounded ApplicationProfile. Natural-language analysis selects an LLM by policy, retries invalid output, and labels bounded local-rule fallback; structured input is converted without an LLM. This endpoint does not recommend infrastructure, select an Agent, create a manifest, submit a deployment, or process runtime feedback.",
+        "tags": [
+          "LLM_Op"
+        ],
+        "summary": "Generate an ApplicationProfile",
+        "operationId": "llmop.GenerateApplicationProfile",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/llmop.applicationprofile.GenerateResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/llmop.profileapi.ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/llmop.profileapi.ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/llmop.profileapi.ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/llmop.profileapi.ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/llmop.profileapi.ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "Natural-language application requirements",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/llmop.applicationprofile.GenerateRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/llmop/api/v1/ops-llm/select": {
+      "post": {
+        "description": "Rank configured Ops LLM candidates with a weighted policy. benchmark_status states whether the source metrics came from an executed benchmark; a not_executed result is a policy baseline, not a measured model-quality claim. This endpoint does not invoke the selected model or perform deployment work.",
+        "tags": [
+          "LLM_Op"
+        ],
+        "summary": "Rank and select an Ops LLM candidate",
+        "operationId": "llmop.SelectOpsLLM",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/llmop.llmselection.SelectionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/llmop.profileapi.ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/llmop.profileapi.ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/llmop.profileapi.ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "Ops LLM selection policy",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/llmop.llmselection.SelectRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/llmop/healthz": {
+      "get": {
+        "description": "Return process readiness and the bounded LLM_Op role.",
+        "tags": [
+          "LLM_Op"
+        ],
+        "summary": "Check LLM_Op API health",
+        "operationId": "llmop.GetLLMOpHealthz",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/llmop/openapi.yaml": {
+      "get": {
+        "tags": [
+          "LLM_Op"
+        ],
+        "summary": "Get the LLM_Op OpenAPI specification",
+        "operationId": "llmop.GetLLMOpOpenAPI",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/yaml": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/llmop.profileapi.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/resource-ops/api/v1/resource-recommendations": {
+      "post": {
+        "description": "Project application requirements into resource constraints, collect and normalize observations, filter unavailable or insufficient resources, and rank the remaining candidates. This endpoint returns recommendations without deploying applications.",
+        "tags": [
+          "Resource Ops"
+        ],
+        "summary": "Recommend infrastructure resources for an ApplicationProfile",
+        "operationId": "resource-ops.RecommendResourcesFromProfile",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resource-ops.resource.ResourceRecommendation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed JSON, unknown fields, or request body over 1 MiB",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resource-ops.api.errorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid ApplicationProfile or resource query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resource-ops.api.errorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resource-ops.api.errorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Resource source unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resource-ops.api.errorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "ApplicationProfile, selectors, and ranking preferences",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/resource-ops.resource.ProfileRecommendationRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/resource-ops/health": {
+      "get": {
+        "tags": [
+          "Resource Ops"
+        ],
+        "summary": "Check Resource Ops health and capabilities",
+        "operationId": "resource-ops.GetResourceOpsHealth",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/resource-ops/legacy/api/v1/resource-recommendations": {
+      "post": {
+        "description": "Compatibility endpoint for clients that supply resource constraints directly.",
+        "tags": [
+          "Resource Ops"
+        ],
+        "summary": "Recommend resources from a legacy ResourceQuery",
+        "operationId": "resource-ops.RecommendResourcesFromLegacyQuery",
+        "deprecated": true,
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resource-ops.resource.ResourceRecommendation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resource-ops.api.errorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resource-ops.api.errorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resource-ops.api.errorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resource-ops.api.errorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "Legacy resource query",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/resource-ops.resource.ResourceQuery"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/resource-ops/openapi.yaml": {
+      "get": {
+        "tags": [
+          "Resource Ops"
+        ],
+        "summary": "Download the Resource Ops API specification",
+        "operationId": "resource-ops.GetResourceOpsOpenAPI",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/yaml": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/deployment-agent/healthz": {
+      "get": {
+        "operationId": "deployment-agent.GetDeploymentAgentHealth",
+        "responses": {
+          "200": {
+            "description": "Focused deployment-agent readiness",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "service": {
+                      "type": "string",
+                      "example": "deployment-agent"
+                    },
+                    "role": {
+                      "type": "string",
+                      "example": "validated_deployment_decision_and_planning"
+                    },
+                    "input": {
+                      "type": "string",
+                      "example": "application_profile_plus_resource_recommendation"
+                    },
+                    "legacy_api_enabled": {
+                      "type": "boolean",
+                      "example": false
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Check Deployment Agent health and role",
+        "tags": [
+          "Deployment Agent"
+        ]
+      }
+    },
+    "/deployment-agent/api/v1/deployment-plans": {
+      "post": {
+        "operationId": "deployment-agent.CreateDeploymentPlanFromResults",
+        "summary": "Generate a guarded deployment plan from upstream results",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/deployment-agent.DeploymentPlanningRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "DEPLOY or UPDATE decision and deployment plan generated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/deployment-agent.AgentControlFlow"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Valid REJECT/RETRY decision or an idempotent replay of an unchanged focused request",
+            "headers": {
+              "Idempotent-Replayed": {
+                "description": "Set to true only when the same correlation_id and full decoded request were already accepted.",
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "true"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/deployment-agent.AgentControlFlow"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/deployment-agent.FocusedErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Correlation or domain validation failed. A changed request under an existing correlation_id is rejected; use a new correlation_id. Duplicate resource IDs, nonsequential ranks, and contradictory optional accelerator requirements are also rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/deployment-agent.FocusedErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "description": "Accept one JSON object up to 4 MiB. A changed request under an existing correlation_id is rejected; use a new correlation_id.",
+        "tags": [
+          "Deployment Agent"
+        ]
+      }
+    },
+    "/deployment-agent/api/v1/agent-control/deployment-status": {
+      "post": {
+        "summary": "Receive a deployment status message",
+        "description": "Attaches a deployment.status.changed Common JSON v1.0 message to its correlation flow and summarizes the current outcome.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/deployment-agent.DeploymentStatusEnvelope"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Deployment result attached to the correlated flow",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/deployment-agent.AgentControlFlow"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/deployment-agent.BadRequest",
+            "description": "Invalid status or reuse of a message_id with changed content"
+          }
+        },
+        "operationId": "deployment-agent.ReceiveDeploymentStatus",
+        "tags": [
+          "Deployment Agent"
+        ]
+      }
+    },
+    "/deployment-agent/api/v1/agent-control/optimization-feedback": {
+      "post": {
+        "summary": "Receive optimization feedback",
+        "description": "Attaches an optimization.feedback.created Common JSON v1.0 message, joins it with deployment.status.changed, and records the selected Operation Optimization Agent evidence. A resulting scaling decision is a guarded recommendation only; geon does not execute VM, Kubernetes, AppDeploy, or other infrastructure control from this endpoint.\n",
+        "parameters": [
+          {
+            "name": "operation_agent",
+            "in": "query",
+            "required": false,
+            "description": "Optional Registry-authorized Operation Optimization Agent name. When omitted, the Registry default is used.\n",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/deployment-agent.OptimizationFeedbackEnvelope"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Feedback validated and summarized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/deployment-agent.AgentControlFlow"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/deployment-agent.BadRequest"
+          }
+        },
+        "operationId": "deployment-agent.ReceiveOptimizationFeedback",
+        "tags": [
+          "Deployment Agent"
+        ]
+      }
+    },
+    "/deployment-agent/api/v1/agent-control/flows": {
+      "get": {
+        "summary": "List Agent Control input flows",
+        "responses": {
+          "200": {
+            "description": "Correlated deployment flows",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "count",
+                    "flows"
+                  ],
+                  "properties": {
+                    "count": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "flows": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/deployment-agent.AgentControlFlow"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "deployment-agent.ListDeploymentFlows",
+        "tags": [
+          "Deployment Agent"
+        ]
+      },
+      "delete": {
+        "summary": "Delete all Agent Control experiment flows",
+        "description": "Clears the in-memory Agent Control experiment records.",
+        "responses": {
+          "200": {
+            "description": "All experiment flows deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "deleted",
+                    "flows"
+                  ],
+                  "properties": {
+                    "deleted": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "flows": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/deployment-agent.AgentControlFlow"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "deployment-agent.DeleteApiVAgentControlFlows",
+        "tags": [
+          "Deployment Agent"
+        ]
+      }
+    },
+    "/deployment-agent/api/v1/agent-control/flows/{correlation_id}": {
+      "get": {
+        "summary": "Get one Agent Control input flow",
+        "parameters": [
+          {
+            "name": "correlation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deployment flow",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/deployment-agent.AgentControlFlow"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Flow not found"
+          }
+        },
+        "operationId": "deployment-agent.GetDeploymentFlow",
+        "tags": [
+          "Deployment Agent"
+        ]
+      },
+      "delete": {
+        "summary": "Delete one Agent Control experiment flow",
+        "description": "Deletes one in-memory experiment record by correlation_id.",
+        "parameters": [
+          {
+            "name": "correlation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Experiment flow deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "deleted",
+                    "correlation_id"
+                  ],
+                  "properties": {
+                    "deleted": {
+                      "type": "integer",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    "correlation_id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Flow not found"
+          }
+        },
+        "operationId": "deployment-agent.DeleteApiVAgentControlFlowsCorrelationId",
+        "tags": [
+          "Deployment Agent"
+        ]
+      }
+    },
+    "/deployment-agent/api/v1/agent-control/flows/{correlation_id}/reasoning-comparisons": {
+      "post": {
+        "summary": "Compare simple and validated Qwen reasoning",
+        "description": "Returns the deterministic rule result, raw Qwen proposal, and the final proposal after Go Guard validation.",
+        "parameters": [
+          {
+            "name": "correlation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/deployment-agent.AgentControlReasoningComparisonRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rule-based, simple-inference, and validated-inference comparison",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/deployment-agent.ReasoningComparison"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/deployment-agent.BadRequest"
+          }
+        },
+        "operationId": "deployment-agent.CompareDeploymentReasoning",
+        "tags": [
+          "Deployment Agent"
+        ]
+      }
+    },
+    "/deployment-agent/geon/readyz": {
+      "get": {
+        "operationId": "deployment-agent.GetGeonReadiness",
+        "summary": "Check whether geon runtime dependencies are ready",
+        "responses": {
+          "200": {
+            "description": "Ready to accept geon automation requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/deployment-agent.ReadinessResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Configuration or a required local dependency is not ready",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/deployment-agent.ReadinessResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Deployment Agent"
+        ]
+      }
+    },
+    "/deployment-agent/openapi.yaml": {
+      "get": {
+        "summary": "Download this contract",
+        "responses": {
+          "200": {
+            "description": "OpenAPI YAML"
+          }
+        },
+        "operationId": "deployment-agent.GetOpenapiYaml",
+        "tags": [
+          "Deployment Agent"
+        ]
+      }
+    },
+    "/deployment-agent/api/v1/agents": {
+      "get": {
+        "summary": "List configured and runtime agents",
+        "responses": {
+          "200": {
+            "description": "Agent list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "operationId": "deployment-agent.GetApiVAgents",
+        "tags": [
+          "Deployment Agent"
+        ]
+      },
+      "post": {
+        "summary": "Register an external agent",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/deployment-agent.ExternalAgentRegistrationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Registered agent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/deployment-agent.AgentProfile"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/deployment-agent.BadRequest"
+          }
+        },
+        "operationId": "deployment-agent.PostApiVAgents",
+        "tags": [
+          "Deployment Agent"
+        ]
+      }
+    },
+    "/deployment-agent/api/v1/agents/{name}": {
+      "get": {
+        "summary": "Get a registered agent",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/deployment-agent.AgentName"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agent profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/deployment-agent.AgentProfile"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agent not found"
+          }
+        },
+        "operationId": "deployment-agent.GetApiVAgentsName",
+        "tags": [
+          "Deployment Agent"
+        ]
+      },
+      "delete": {
+        "summary": "Delete a runtime Agent",
+        "description": "Deletes only an Agent registered in the current geon process. Configuration-backed Agents are protected.",
+        "security": [
+          {
+            "deployment-agent.AutonomyAdminToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/deployment-agent.AgentName"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Runtime Agent deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "deleted": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "source": {
+                      "type": "string",
+                      "enum": [
+                        "runtime"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or missing admin token for an external request"
+          },
+          "403": {
+            "description": "Configuration Agent is protected or external mutations are disabled"
+          },
+          "404": {
+            "description": "Runtime Agent not found"
+          }
+        },
+        "operationId": "deployment-agent.DeleteApiVAgentsName",
+        "tags": [
+          "Deployment Agent"
+        ]
+      }
+    },
+    "/deployment-agent/api/v1/agent-control/external-flows": {
+      "post": {
+        "summary": "Validate and join an external input pair atomically",
+        "description": "Matching correlation_id, trace_id and profile_id are required. Identical replays return the existing Flow; conflicting reuse is rejected.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "application_context",
+                  "resource_recommendation"
+                ],
+                "properties": {
+                  "application_context": {
+                    "$ref": "#/components/schemas/deployment-agent.ApplicationContextEnvelope"
+                  },
+                  "resource_recommendation": {
+                    "$ref": "#/components/schemas/deployment-agent.ResourceRecommendationEnvelope"
+                  },
+                  "decision_agent": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Joined Flow and guarded Agent decision",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/deployment-agent.AgentControlFlow"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or conflicting external pair"
+          }
+        },
+        "operationId": "deployment-agent.PostApiVAgentControlExternalFlows",
+        "tags": [
+          "Deployment Agent"
+        ]
+      }
+    },
+    "/deployment-agent/api/v1/agent-control/integration": {
+      "get": {
+        "summary": "Inspect configured AppDeployer integration",
+        "responses": {
+          "200": {
+            "description": "Availability without exposing destination credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "configured": {
+                      "type": "boolean"
+                    },
+                    "submit_enabled": {
+                      "type": "boolean"
+                    },
+                    "external_input_path": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "deployment-agent.GetApiVAgentControlIntegration",
+        "tags": [
+          "Deployment Agent"
+        ]
+      }
+    },
+    "/deployment-agent/api/v1/agent-control/flows/{correlation_id}/appdeploy/{action}": {
+      "post": {
+        "summary": "Prepare or explicitly submit approved initial Revision 1",
+        "description": "Requires an App Registry identity match. Only one node and one replica are supported. Registered AppSpec settings and AppDeployer placement are used; inference settings and GPU VRAM minima are not enforced. Local KHU request IDs are not AppDeployer action acknowledgements. Submission attempts are journaled and uncertain results are not automatically retried.",
+        "parameters": [
+          {
+            "name": "correlation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "prepare",
+                "submit"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "app_version_id"
+                ],
+                "properties": {
+                  "app_version_id": {
+                    "type": "string"
+                  },
+                  "accept_projection_limits": {
+                    "type": "boolean",
+                    "description": "Must be true for submission"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Prepared request or durable delivery receipt",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/deployment-agent.FlowDelivery"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "409": {
+            "description": "Submission disabled, invalid binding, unapproved Flow or unconfirmed upstream response"
+          }
+        },
+        "operationId": "deployment-agent.PostApiVAgentControlFlowsCorrelationIdAppdeployAction",
+        "tags": [
+          "Deployment Agent"
+        ]
+      }
+    },
+    "/deployment-agent/api/v1/agent-control/flows/{correlation_id}/appdeploy": {
+      "get": {
+        "summary": "Query AppDeployer-reported deployment state and raw metrics for a recorded delivery",
+        "description": "Source-declared status and local fetch time are journaled before Flow attachment. RUNNING does not prove ready replicas or user SLO success.",
+        "parameters": [
+          {
+            "name": "correlation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Receipt with status and available metrics; no synthetic optimization feedback",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/deployment-agent.FlowDelivery"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Missing receipt, changed destination or upstream query failure"
+          }
+        },
+        "operationId": "deployment-agent.GetApiVAgentControlFlowsCorrelationIdAppdeploy",
+        "tags": [
+          "Deployment Agent"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "llmop.applicationprofile.AcceleratorRequirements": {
+        "type": "object",
+        "required": [
+          "count_min",
+          "memory_mib_min_per_device",
+          "required"
+        ],
+        "properties": {
+          "count_min": {
+            "type": "integer"
+          },
+          "memory_mib_min_per_device": {
+            "type": "integer"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "llmop.applicationprofile.AnalysisEvidence": {
+        "type": "object",
+        "required": [
+          "mode"
+        ],
+        "properties": {
+          "actual_model": {
+            "type": "string"
+          },
+          "attempts": {
+            "type": "integer"
+          },
+          "candidate_id": {
+            "type": "string"
+          },
+          "fallback_reason": {
+            "type": "string"
+          },
+          "latency_ms": {
+            "type": "integer"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "selection_policy": {
+            "type": "string"
+          }
+        }
+      },
+      "llmop.applicationprofile.AnalysisSummary": {
+        "type": "object",
+        "required": [
+          "confidence"
+        ],
+        "properties": {
+          "assumptions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "confidence": {
+            "type": "number"
+          },
+          "missing_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "llmop.applicationprofile.ApplicationMetadata": {
+        "type": "object",
+        "properties": {
+          "app_id": {
+            "type": "string"
+          },
+          "app_version": {
+            "type": "string"
+          },
+          "artifact": {
+            "$ref": "#/components/schemas/llmop.applicationprofile.Artifact"
+          }
+        }
+      },
+      "llmop.applicationprofile.ApplicationProfile": {
+        "type": "object",
+        "required": [
+          "analysis",
+          "app_id",
+          "app_version",
+          "profile_id",
+          "requirements",
+          "workload"
+        ],
+        "properties": {
+          "analysis": {
+            "$ref": "#/components/schemas/llmop.applicationprofile.AnalysisSummary"
+          },
+          "app_id": {
+            "type": "string"
+          },
+          "app_version": {
+            "type": "string"
+          },
+          "artifact": {
+            "$ref": "#/components/schemas/llmop.applicationprofile.Artifact"
+          },
+          "profile_id": {
+            "type": "string"
+          },
+          "requirements": {
+            "$ref": "#/components/schemas/llmop.applicationprofile.ApplicationRequirements"
+          },
+          "workload": {
+            "$ref": "#/components/schemas/llmop.applicationprofile.WorkloadProfile"
+          }
+        }
+      },
+      "llmop.applicationprofile.ApplicationRequirements": {
+        "type": "object",
+        "required": [
+          "accelerator",
+          "compute",
+          "cost",
+          "deployment",
+          "slo"
+        ],
+        "properties": {
+          "accelerator": {
+            "$ref": "#/components/schemas/llmop.applicationprofile.AcceleratorRequirements"
+          },
+          "compute": {
+            "$ref": "#/components/schemas/llmop.applicationprofile.ComputeRequirements"
+          },
+          "cost": {
+            "$ref": "#/components/schemas/llmop.applicationprofile.CostRequirements"
+          },
+          "deployment": {
+            "$ref": "#/components/schemas/llmop.applicationprofile.DeploymentRequirements"
+          },
+          "slo": {
+            "$ref": "#/components/schemas/llmop.applicationprofile.SLORequirements"
+          }
+        }
+      },
+      "llmop.applicationprofile.Artifact": {
+        "type": "object",
+        "required": [
+          "type",
+          "uri"
+        ],
+        "properties": {
+          "entrypoint": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "type": {
+            "type": "string"
+          },
+          "uri": {
+            "type": "string"
+          }
+        }
+      },
+      "llmop.applicationprofile.ComputeRequirements": {
+        "type": "object",
+        "required": [
+          "cpu_cores_min",
+          "memory_mib_min",
+          "storage_gib_min"
+        ],
+        "properties": {
+          "cpu_cores_min": {
+            "type": "integer"
+          },
+          "memory_mib_min": {
+            "type": "integer"
+          },
+          "storage_gib_min": {
+            "type": "integer"
+          }
+        }
+      },
+      "llmop.applicationprofile.CostRequirements": {
+        "type": "object",
+        "properties": {
+          "cost_per_hour_max": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          }
+        }
+      },
+      "llmop.applicationprofile.DeploymentRequirements": {
+        "type": "object",
+        "required": [
+          "isolation",
+          "replicas_max",
+          "replicas_min"
+        ],
+        "properties": {
+          "isolation": {
+            "type": "string"
+          },
+          "replicas_max": {
+            "type": "integer"
+          },
+          "replicas_min": {
+            "type": "integer"
+          }
+        }
+      },
+      "llmop.applicationprofile.GenerateRequest": {
+        "type": "object",
+        "properties": {
+          "app_spec": {
+            "$ref": "#/components/schemas/llmop.applicationprofile.StructuredAppSpec"
+          },
+          "application": {
+            "$ref": "#/components/schemas/llmop.applicationprofile.ApplicationMetadata"
+          },
+          "candidate_id": {
+            "type": "string"
+          },
+          "input_type": {
+            "type": "string",
+            "enum": [
+              "natural_language",
+              "structured"
+            ]
+          },
+          "request": {
+            "type": "string",
+            "maxLength": 8000
+          },
+          "selection_policy": {
+            "type": "string",
+            "example": "quality_first"
+          }
+        }
+      },
+      "llmop.applicationprofile.GenerateResult": {
+        "type": "object",
+        "required": [
+          "analysis",
+          "application_profile"
+        ],
+        "properties": {
+          "analysis": {
+            "$ref": "#/components/schemas/llmop.applicationprofile.AnalysisEvidence"
+          },
+          "application_profile": {
+            "$ref": "#/components/schemas/llmop.applicationprofile.ApplicationProfile"
+          }
+        }
+      },
+      "llmop.applicationprofile.SLORequirements": {
+        "type": "object",
+        "properties": {
+          "latency_p95_ms_max": {
+            "type": "number"
+          },
+          "throughput_rps_min": {
+            "type": "number"
+          }
+        }
+      },
+      "llmop.applicationprofile.StructuredAppSpec": {
+        "type": "object",
+        "required": [
+          "app_id",
+          "app_version",
+          "cpu_cores",
+          "memory_mib",
+          "storage_gib",
+          "workload_type"
+        ],
+        "properties": {
+          "accelerator_count": {
+            "type": "integer"
+          },
+          "accelerator_memory_mib_per_device": {
+            "type": "integer"
+          },
+          "accelerator_type": {
+            "type": "string"
+          },
+          "app_id": {
+            "type": "string"
+          },
+          "app_version": {
+            "type": "string"
+          },
+          "artifact": {
+            "$ref": "#/components/schemas/llmop.applicationprofile.Artifact"
+          },
+          "cost_currency": {
+            "type": "string"
+          },
+          "cost_per_hour_max": {
+            "type": "number"
+          },
+          "cpu_cores": {
+            "type": "integer"
+          },
+          "expected_rps": {
+            "type": "number"
+          },
+          "isolation": {
+            "type": "string"
+          },
+          "latency_p95_ms_max": {
+            "type": "number"
+          },
+          "memory_mib": {
+            "type": "integer"
+          },
+          "replicas_max": {
+            "type": "integer"
+          },
+          "replicas_min": {
+            "type": "integer"
+          },
+          "request_pattern": {
+            "type": "string",
+            "enum": [
+              "ONLINE",
+              "BATCH",
+              "STREAMING"
+            ]
+          },
+          "storage_gib": {
+            "type": "integer"
+          },
+          "throughput_rps_min": {
+            "type": "number"
+          },
+          "workload_type": {
+            "type": "string"
+          }
+        }
+      },
+      "llmop.applicationprofile.WorkloadProfile": {
+        "type": "object",
+        "required": [
+          "request_pattern",
+          "task_type"
+        ],
+        "properties": {
+          "expected_rps": {
+            "type": "number"
+          },
+          "request_pattern": {
+            "type": "string"
+          },
+          "task_type": {
+            "type": "string"
+          }
+        }
+      },
+      "llmop.llmselection.RankedItem": {
+        "type": "object",
+        "properties": {
+          "actual_model": {
+            "type": "string"
+          },
+          "benchmark_status": {
+            "type": "string"
+          },
+          "candidate_id": {
+            "type": "string"
+          },
+          "evaluation_source": {
+            "type": "string"
+          },
+          "evaluation_type": {
+            "type": "string"
+          },
+          "metrics": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number",
+              "format": "float64"
+            }
+          },
+          "model": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "provider": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number"
+          }
+        }
+      },
+      "llmop.llmselection.SelectRequest": {
+        "type": "object",
+        "properties": {
+          "policy": {
+            "type": "string",
+            "example": "quality_first"
+          }
+        }
+      },
+      "llmop.llmselection.SelectionResponse": {
+        "type": "object",
+        "required": [
+          "benchmark_status",
+          "evaluation_source",
+          "evaluation_type",
+          "policy",
+          "ranking",
+          "rationale",
+          "selected_actual_model",
+          "selected_model",
+          "selected_provider",
+          "valid"
+        ],
+        "properties": {
+          "benchmark_status": {
+            "type": "string"
+          },
+          "evaluation_source": {
+            "type": "string"
+          },
+          "evaluation_type": {
+            "type": "string"
+          },
+          "policy": {
+            "type": "string"
+          },
+          "ranking": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/llmop.llmselection.RankedItem"
+            }
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "selected_actual_model": {
+            "type": "string"
+          },
+          "selected_candidate_id": {
+            "type": "string"
+          },
+          "selected_model": {
+            "type": "string"
+          },
+          "selected_provider": {
+            "type": "string"
+          },
+          "selected_score": {
+            "type": "number"
+          },
+          "valid": {
+            "type": "boolean"
+          }
+        }
+      },
+      "llmop.profileapi.ErrorResponse": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "resource-ops.api.errorDetail": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "resource-ops.api.errorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/resource-ops.api.errorDetail"
+          },
+          "schema_version": {
+            "type": "string"
+          }
+        }
+      },
+      "resource-ops.resource.AcceleratorConstraint": {
+        "type": "object",
+        "properties": {
+          "count_min": {
+            "type": "integer"
+          },
+          "memory_mib_min_per_device": {
+            "type": "number"
+          },
+          "model": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "resource-ops.resource.AcceleratorProfile": {
+        "type": "object",
+        "properties": {
+          "device_id": {
+            "type": "string"
+          },
+          "healthy": {
+            "type": "boolean"
+          },
+          "index": {
+            "type": "string"
+          },
+          "memory_available_mib": {
+            "type": "number"
+          },
+          "memory_total_mib": {
+            "type": "number"
+          },
+          "model": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "utilization_percent": {
+            "type": "number"
+          }
+        }
+      },
+      "resource-ops.resource.AcceleratorRequirements": {
+        "type": "object",
+        "properties": {
+          "count_min": {
+            "type": "integer"
+          },
+          "memory_mib_min_per_device": {
+            "type": "integer"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "resource-ops.resource.AnalysisSummary": {
+        "type": "object",
+        "properties": {
+          "assumptions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "confidence": {
+            "type": "number"
+          },
+          "missing_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "resource-ops.resource.ApplicationProfile": {
+        "type": "object",
+        "properties": {
+          "analysis": {
+            "$ref": "#/components/schemas/resource-ops.resource.AnalysisSummary"
+          },
+          "app_id": {
+            "type": "string"
+          },
+          "app_version": {
+            "type": "string"
+          },
+          "artifact": {
+            "$ref": "#/components/schemas/resource-ops.resource.Artifact"
+          },
+          "profile_id": {
+            "type": "string"
+          },
+          "requirements": {
+            "$ref": "#/components/schemas/resource-ops.resource.ApplicationRequirements"
+          },
+          "workload": {
+            "$ref": "#/components/schemas/resource-ops.resource.WorkloadProfile"
+          }
+        }
+      },
+      "resource-ops.resource.ApplicationRequirements": {
+        "type": "object",
+        "properties": {
+          "accelerator": {
+            "$ref": "#/components/schemas/resource-ops.resource.AcceleratorRequirements"
+          },
+          "compute": {
+            "$ref": "#/components/schemas/resource-ops.resource.ComputeRequirements"
+          },
+          "cost": {
+            "$ref": "#/components/schemas/resource-ops.resource.CostRequirements"
+          },
+          "deployment": {
+            "$ref": "#/components/schemas/resource-ops.resource.DeploymentRequirements"
+          },
+          "slo": {
+            "$ref": "#/components/schemas/resource-ops.resource.SLORequirements"
+          }
+        }
+      },
+      "resource-ops.resource.Artifact": {
+        "type": "object",
+        "properties": {
+          "entrypoint": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "type": {
+            "type": "string"
+          },
+          "uri": {
+            "type": "string"
+          }
+        }
+      },
+      "resource-ops.resource.CPUProfile": {
+        "type": "object",
+        "properties": {
+          "available_cores": {
+            "type": "number"
+          },
+          "logical_cores": {
+            "type": "integer"
+          },
+          "utilization_percent": {
+            "type": "number"
+          }
+        }
+      },
+      "resource-ops.resource.ComputeRequirements": {
+        "type": "object",
+        "properties": {
+          "cpu_cores_min": {
+            "type": "integer"
+          },
+          "memory_mib_min": {
+            "type": "integer"
+          },
+          "storage_gib_min": {
+            "type": "integer"
+          }
+        }
+      },
+      "resource-ops.resource.ConditionFailure": {
+        "type": "object",
+        "properties": {
+          "actual": {},
+          "code": {
+            "type": "string"
+          },
+          "field": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "required": {}
+        }
+      },
+      "resource-ops.resource.CostRequirements": {
+        "type": "object",
+        "properties": {
+          "cost_per_hour_max": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          }
+        }
+      },
+      "resource-ops.resource.DeploymentRequirements": {
+        "type": "object",
+        "properties": {
+          "isolation": {
+            "type": "string"
+          },
+          "replicas_max": {
+            "type": "integer"
+          },
+          "replicas_min": {
+            "type": "integer"
+          }
+        }
+      },
+      "resource-ops.resource.ExcludedResource": {
+        "type": "object",
+        "properties": {
+          "failures": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/resource-ops.resource.ConditionFailure"
+            }
+          },
+          "resource_id": {
+            "type": "string"
+          }
+        }
+      },
+      "resource-ops.resource.MemoryProfile": {
+        "type": "object",
+        "properties": {
+          "available_mib": {
+            "type": "number"
+          },
+          "total_mib": {
+            "type": "number"
+          }
+        }
+      },
+      "resource-ops.resource.ProfileRecommendationRequest": {
+        "type": "object",
+        "properties": {
+          "application_profile": {
+            "$ref": "#/components/schemas/resource-ops.resource.ApplicationProfile"
+          },
+          "preferences": {
+            "$ref": "#/components/schemas/resource-ops.resource.QueryPreferences"
+          },
+          "request_id": {
+            "type": "string"
+          },
+          "schema_version": {
+            "type": "string"
+          },
+          "selectors": {
+            "$ref": "#/components/schemas/resource-ops.resource.ResourceSelectors"
+          }
+        }
+      },
+      "resource-ops.resource.QueryConstraints": {
+        "type": "object",
+        "properties": {
+          "accelerator": {
+            "$ref": "#/components/schemas/resource-ops.resource.AcceleratorConstraint"
+          },
+          "cpu_cores_min": {
+            "type": "integer"
+          },
+          "memory_mib_min": {
+            "type": "integer"
+          },
+          "storage_gib_min": {
+            "type": "number"
+          }
+        }
+      },
+      "resource-ops.resource.QueryPreferences": {
+        "type": "object",
+        "properties": {
+          "max_results": {
+            "type": "integer"
+          }
+        }
+      },
+      "resource-ops.resource.RankedResource": {
+        "type": "object",
+        "properties": {
+          "rank": {
+            "type": "integer"
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/resource-ops.resource.RecommendationReason"
+            }
+          },
+          "resource": {
+            "$ref": "#/components/schemas/resource-ops.resource.ResourceProfile"
+          },
+          "score": {
+            "type": "number"
+          },
+          "score_breakdown": {
+            "$ref": "#/components/schemas/resource-ops.resource.ScoreBreakdown"
+          }
+        }
+      },
+      "resource-ops.resource.RecommendationReason": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "resource-ops.resource.RecommendationSummary": {
+        "type": "object",
+        "properties": {
+          "discovered": {
+            "type": "integer"
+          },
+          "excluded": {
+            "type": "integer"
+          },
+          "feasible": {
+            "type": "integer"
+          },
+          "returned": {
+            "type": "integer"
+          }
+        }
+      },
+      "resource-ops.resource.ResourceProfile": {
+        "type": "object",
+        "properties": {
+          "accelerators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/resource-ops.resource.AcceleratorProfile"
+            }
+          },
+          "address": {
+            "type": "string"
+          },
+          "architecture": {
+            "type": "string"
+          },
+          "cpu": {
+            "$ref": "#/components/schemas/resource-ops.resource.CPUProfile"
+          },
+          "healthy": {
+            "type": "boolean"
+          },
+          "hostname": {
+            "type": "string"
+          },
+          "labels": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "memory": {
+            "$ref": "#/components/schemas/resource-ops.resource.MemoryProfile"
+          },
+          "observed_at": {
+            "type": "string"
+          },
+          "operating_system": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "resource_id": {
+            "type": "string"
+          },
+          "resource_type": {
+            "type": "string"
+          },
+          "storage": {
+            "$ref": "#/components/schemas/resource-ops.resource.StorageProfile"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "resource-ops.resource.ResourceQuery": {
+        "type": "object",
+        "properties": {
+          "constraints": {
+            "$ref": "#/components/schemas/resource-ops.resource.QueryConstraints"
+          },
+          "preferences": {
+            "$ref": "#/components/schemas/resource-ops.resource.QueryPreferences"
+          },
+          "profile_id": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": "string"
+          },
+          "schema_version": {
+            "type": "string"
+          },
+          "selectors": {
+            "$ref": "#/components/schemas/resource-ops.resource.ResourceSelectors"
+          }
+        }
+      },
+      "resource-ops.resource.ResourceRecommendation": {
+        "type": "object",
+        "properties": {
+          "excluded_resources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/resource-ops.resource.ExcludedResource"
+            }
+          },
+          "observed_at": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "string"
+          },
+          "query": {
+            "$ref": "#/components/schemas/resource-ops.resource.ResourceQuery"
+          },
+          "recommendations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/resource-ops.resource.RankedResource"
+            }
+          },
+          "request_id": {
+            "type": "string"
+          },
+          "schema_version": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/resource-ops.resource.RecommendationSummary"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "resource-ops.resource.ResourceSelectors": {
+        "type": "object",
+        "properties": {
+          "architectures": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "providers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "regions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "required_labels": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "resource_types": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "resource-ops.resource.SLORequirements": {
+        "type": "object",
+        "properties": {
+          "latency_p95_ms_max": {
+            "type": "number"
+          },
+          "throughput_rps_min": {
+            "type": "number"
+          }
+        }
+      },
+      "resource-ops.resource.ScoreBreakdown": {
+        "type": "object",
+        "properties": {
+          "accelerator": {
+            "type": "number"
+          },
+          "cpu": {
+            "type": "number"
+          },
+          "health": {
+            "type": "number"
+          },
+          "memory": {
+            "type": "number"
+          },
+          "storage": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          }
+        }
+      },
+      "resource-ops.resource.StorageProfile": {
+        "type": "object",
+        "properties": {
+          "available_gib": {
+            "type": "number"
+          },
+          "total_gib": {
+            "type": "number"
+          }
+        }
+      },
+      "resource-ops.resource.WorkloadProfile": {
+        "type": "object",
+        "properties": {
+          "expected_rps": {
+            "type": "number"
+          },
+          "request_pattern": {
+            "type": "string"
+          },
+          "task_type": {
+            "type": "string"
+          }
+        }
+      },
+      "deployment-agent.DeploymentPlanningRequest": {
+        "type": "object",
+        "required": [
+          "correlation_id",
+          "trace_id",
+          "application_profile",
+          "resource_recommendation"
+        ],
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "enum": [
+              "1.0"
+            ],
+            "default": "1.0"
+          },
+          "correlation_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Must equal resource_recommendation.request_id. The full decoded request is immutable for this ID; use a new ID if any field changes."
+          },
+          "trace_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "decision_agent": {
+            "type": "string"
+          },
+          "deployment_context": {
+            "type": "object",
+            "properties": {
+              "deployment_ref": {
+                "type": "string"
+              },
+              "current_spec_digest": {
+                "type": "string"
+              },
+              "current_replicas": {
+                "type": "integer"
+              },
+              "spec_drift": {
+                "type": "boolean"
+              },
+              "cooldown_active": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          },
+          "application_profile": {
+            "$ref": "#/components/schemas/deployment-agent.ApplicationProfile"
+          },
+          "resource_recommendation": {
+            "$ref": "#/components/schemas/deployment-agent.ResourceOpsRecommendation"
+          }
+        },
+        "additionalProperties": false
+      },
+      "deployment-agent.ApplicationProfile": {
+        "type": "object",
+        "required": [
+          "profile_id",
+          "app_id",
+          "app_version",
+          "requirements"
+        ],
+        "properties": {
+          "profile_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "app_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "app_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "artifact": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "uri": {
+                "type": "string"
+              },
+              "entrypoint": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "workload": {
+            "type": "object",
+            "properties": {
+              "task_type": {
+                "type": "string"
+              },
+              "request_pattern": {
+                "type": "string"
+              },
+              "expected_rps": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          },
+          "requirements": {
+            "type": "object",
+            "required": [
+              "compute",
+              "accelerator",
+              "deployment"
+            ],
+            "properties": {
+              "compute": {
+                "type": "object",
+                "required": [
+                  "cpu_cores_min",
+                  "memory_mib_min",
+                  "storage_gib_min"
+                ],
+                "properties": {
+                  "cpu_cores_min": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "memory_mib_min": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "storage_gib_min": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              },
+              "accelerator": {
+                "type": "object",
+                "description": "When required is false, type must be empty or omitted and count_min and memory_mib_min_per_device must be zero or omitted.",
+                "required": [
+                  "required"
+                ],
+                "properties": {
+                  "required": {
+                    "type": "boolean"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "count_min": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "memory_mib_min_per_device": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              },
+              "deployment": {
+                "type": "object",
+                "required": [
+                  "replicas_min",
+                  "replicas_max",
+                  "isolation"
+                ],
+                "properties": {
+                  "replicas_min": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "replicas_max": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "isolation": {
+                    "type": "string"
+                  }
+                }
+              },
+              "slo": {
+                "type": "object"
+              },
+              "cost": {
+                "type": "object"
+              }
+            }
+          },
+          "analysis": {
+            "type": "object"
+          }
+        }
+      },
+      "deployment-agent.ResourceOpsRecommendation": {
+        "type": "object",
+        "description": "Resource Ops owns ranking. Deployment Agent checks each ranked node's total and available CPU, memory, required storage, and required GPU count, type, health, and memory before accepting it as feasible. Insufficient or missing capacity remains rejection evidence in the Flow; selection uses the first feasible nodes in the original order. Duplicate resource IDs and nonsequential ranks are invalid input.",
+        "required": [
+          "schema_version",
+          "request_id",
+          "profile_id",
+          "source",
+          "observed_at",
+          "query",
+          "recommendations",
+          "excluded_resources",
+          "summary",
+          "warnings"
+        ],
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "enum": [
+              "1.0"
+            ]
+          },
+          "request_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Must equal the outer correlation_id."
+          },
+          "profile_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Must equal application_profile.profile_id."
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "query": {
+            "type": "object"
+          },
+          "recommendations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/deployment-agent.RankedResource"
+            }
+          },
+          "excluded_resources": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "summary": {
+            "type": "object",
+            "required": [
+              "discovered",
+              "feasible",
+              "excluded",
+              "returned"
+            ],
+            "properties": {
+              "discovered": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "feasible": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "excluded": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "returned": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "deployment-agent.RankedResource": {
+        "type": "object",
+        "required": [
+          "rank",
+          "score",
+          "resource",
+          "score_breakdown",
+          "reasons"
+        ],
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "resource": {
+            "type": "object",
+            "required": [
+              "resource_id",
+              "healthy",
+              "observed_at",
+              "cpu",
+              "memory",
+              "storage",
+              "accelerators",
+              "warnings"
+            ],
+            "properties": {
+              "resource_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "hostname": {
+                "type": "string"
+              },
+              "address": {
+                "type": "string"
+              },
+              "provider": {
+                "type": "string"
+              },
+              "region": {
+                "type": "string"
+              },
+              "resource_type": {
+                "type": "string"
+              },
+              "architecture": {
+                "type": "string"
+              },
+              "operating_system": {
+                "type": "string"
+              },
+              "healthy": {
+                "type": "boolean"
+              },
+              "observed_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "cpu": {
+                "type": "object",
+                "required": [
+                  "logical_cores"
+                ],
+                "properties": {
+                  "logical_cores": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "available_cores": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Omission or insufficient availability makes the resource infeasible."
+                  },
+                  "utilization_percent": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                  }
+                },
+                "additionalProperties": false
+              },
+              "memory": {
+                "type": "object",
+                "required": [
+                  "total_mib"
+                ],
+                "properties": {
+                  "total_mib": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "available_mib": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Omission or insufficient availability makes the resource infeasible."
+                  }
+                },
+                "additionalProperties": false
+              },
+              "storage": {
+                "type": "object",
+                "required": [
+                  "total_gib"
+                ],
+                "properties": {
+                  "total_gib": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "available_gib": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Required when storage_gib_min is positive."
+                  }
+                },
+                "additionalProperties": false
+              },
+              "accelerators": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "device_id",
+                    "type",
+                    "memory_total_mib",
+                    "healthy"
+                  ],
+                  "properties": {
+                    "device_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "index": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "memory_total_mib": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "memory_available_mib": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Required for a matching device to count as available."
+                    },
+                    "utilization_percent": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "healthy": {
+                      "type": "boolean"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "labels": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "warnings": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "score_breakdown": {
+            "type": "object",
+            "required": [
+              "health",
+              "total"
+            ],
+            "properties": {
+              "cpu": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "memory": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "storage": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "accelerator": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "health": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "total": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              }
+            }
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "deployment-agent.FocusedErrorResponse": {
+        "type": "object",
+        "required": [
+          "schema_version",
+          "error"
+        ],
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "enum": [
+              "1.0"
+            ]
+          },
+          "error": {
+            "type": "object",
+            "required": [
+              "code",
+              "message"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "deployment-agent.FlowDelivery": {
+        "type": "object",
+        "description": "Initial Revision 1 submission receipt. Status observations do not prove service readiness or applied replica count; optimized revisions are not submitted by this endpoint.",
+        "properties": {
+          "correlation_id": {
+            "type": "string"
+          },
+          "decision_id": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "integer",
+            "enum": [
+              1
+            ]
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Immutable local KHU approved initial DeploymentRequest ID; AppDeployer does not echo it as an execution action ID."
+          },
+          "request_message_id": {
+            "type": "string",
+            "description": "Immutable local KHU approved initial Common JSON message ID; AppDeployer does not echo it."
+          },
+          "request_occurred_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PREPARED",
+              "SUBMISSION_UNKNOWN",
+              "SUBMITTED"
+            ]
+          },
+          "reserved_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Local time before the outbound POST; an unknown attempt may never have reached AppDeployer."
+          },
+          "receipt_received_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Local time when a matching AppDeployer response was confirmed."
+          },
+          "manifest_sha256": {
+            "type": "string"
+          },
+          "destination_sha256": {
+            "type": "string"
+          },
+          "request": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "deployment": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "status_observations": {
+            "type": "array",
+            "description": "Source-declared deployment states fetched by KHU. A source time earlier than the local reservation is rejected for reconciliation, not silently treated as local fallback.",
+            "items": {
+              "$ref": "#/components/schemas/deployment-agent.FlowDeliveryStatusObservation"
+            }
+          },
+          "metrics": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "limitations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "flow": {
+            "$ref": "#/components/schemas/deployment-agent.AgentControlFlow"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "deployment-agent.AgentControlFlow": {
+        "type": "object",
+        "required": [
+          "correlation_id",
+          "trace_id",
+          "state",
+          "updated_at"
+        ],
+        "properties": {
+          "correlation_id": {
+            "type": "string"
+          },
+          "trace_id": {
+            "type": "string"
+          },
+          "automation_run_id": {
+            "type": "string"
+          },
+          "requested_decision_agent": {
+            "type": "string"
+          },
+          "requested_operation_agent": {
+            "type": "string",
+            "description": "Operation Optimization Agent requested for the joined deployment status and Feedback."
+          },
+          "profile_id": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "WAITING_FOR_APPLICATION_CONTEXT",
+              "WAITING_FOR_RESOURCE_RECOMMENDATION",
+              "READY",
+              "AGENT_AUTHORIZATION_REJECTED",
+              "AGENT_EXECUTION_FAILED",
+              "AGENT_RESULT_REJECTED",
+              "DEPLOY_APPROVED",
+              "REJECTED",
+              "RETRY_REQUIRED"
+            ]
+          },
+          "application_context": {
+            "$ref": "#/components/schemas/deployment-agent.ApplicationContextEnvelope"
+          },
+          "resource_recommendation": {
+            "$ref": "#/components/schemas/deployment-agent.ResourceRecommendationEnvelope"
+          },
+          "agent_authorization": {
+            "$ref": "#/components/schemas/deployment-agent.AgentAuthorization"
+          },
+          "agent_execution": {
+            "$ref": "#/components/schemas/deployment-agent.DecisionAgentResult"
+          },
+          "decision": {
+            "$ref": "#/components/schemas/deployment-agent.AutomationDecision"
+          },
+          "deployment_plan": {
+            "$ref": "#/components/schemas/deployment-agent.AgentControlDeploymentPlan"
+          },
+          "guard": {
+            "$ref": "#/components/schemas/deployment-agent.AgentControlGuardResult"
+          },
+          "deployment_request": {
+            "$ref": "#/components/schemas/deployment-agent.DeploymentCreateRequestEnvelope"
+          },
+          "manifest_revisions": {
+            "type": "array",
+            "description": "Ordered guarded manifest revisions in this Flow.",
+            "items": {
+              "$ref": "#/components/schemas/deployment-agent.AgentControlManifestRevision"
+            }
+          },
+          "deployment_status": {
+            "$ref": "#/components/schemas/deployment-agent.DeploymentStatusEnvelope"
+          },
+          "optimization_feedback": {
+            "$ref": "#/components/schemas/deployment-agent.OptimizationFeedbackEnvelope"
+          },
+          "feedback_summary": {
+            "$ref": "#/components/schemas/deployment-agent.FeedbackSummary"
+          },
+          "operation_agent_execution": {
+            "$ref": "#/components/schemas/deployment-agent.OperationOptimizationResult"
+          },
+          "scaling_decision": {
+            "$ref": "#/components/schemas/deployment-agent.ScalingDecision"
+          },
+          "scaling_decision_history": {
+            "type": "array",
+            "maxItems": 128,
+            "description": "Newest Guard-approved KEEP, SCALE_OUT, and SCALE_IN recommendations retained in this in-memory Flow. Older entries are evicted and counted in scaling_decision_history_dropped. This is not a durable action or research outcome journal; deleting the Flow or restarting loses it.\n",
+            "items": {
+              "$ref": "#/components/schemas/deployment-agent.ScalingDecisionRecord"
+            }
+          },
+          "scaling_decision_history_dropped": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of older approved decision records evicted from this Flow."
+          },
+          "reasoning_comparison": {
+            "$ref": "#/components/schemas/deployment-agent.ReasoningComparison"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "deployment-agent.ReasoningComparison": {
+        "type": "object",
+        "required": [
+          "correlation_id",
+          "candidate_id",
+          "rule_based",
+          "simple_inference",
+          "validated_inference",
+          "agreement",
+          "created_at"
+        ],
+        "properties": {
+          "correlation_id": {
+            "type": "string"
+          },
+          "candidate_id": {
+            "type": "string"
+          },
+          "rule_based": {
+            "$ref": "#/components/schemas/deployment-agent.ReasoningTrial"
+          },
+          "simple_inference": {
+            "$ref": "#/components/schemas/deployment-agent.ReasoningTrial"
+          },
+          "validated_inference": {
+            "$ref": "#/components/schemas/deployment-agent.ReasoningTrial"
+          },
+          "agreement": {
+            "type": "object",
+            "required": [
+              "action_match",
+              "candidate_match"
+            ],
+            "properties": {
+              "action_match": {
+                "type": "boolean"
+              },
+              "candidate_match": {
+                "type": "boolean"
+              }
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "deployment-agent.ReasoningTrial": {
+        "type": "object",
+        "required": [
+          "mode",
+          "execution_status",
+          "latency_ms",
+          "guard_status"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "rule_based",
+              "simple_inference",
+              "validated_inference"
+            ]
+          },
+          "execution_status": {
+            "type": "string",
+            "enum": [
+              "executed",
+              "skipped",
+              "provider_unavailable",
+              "rejected"
+            ]
+          },
+          "candidate_id": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "actual_model": {
+            "type": "string"
+          },
+          "latency_ms": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "DEPLOY",
+              "REJECT",
+              "RETRY"
+            ]
+          },
+          "proposed_action": {
+            "type": "string",
+            "enum": [
+              "DEPLOY",
+              "REJECT",
+              "RETRY"
+            ]
+          },
+          "selected_candidate_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "guard_status": {
+            "type": "string",
+            "enum": [
+              "APPROVED",
+              "REJECTED",
+              "RETRY_REQUIRED",
+              "NOT_APPLIED"
+            ]
+          },
+          "guard_reason": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "deployment-agent.ScalingDecisionRecord": {
+        "type": "object",
+        "description": "Immutable-in-Flow snapshot of one approved local scaling recommendation. Upstream occurred_at and updated_at values are sender-declared; the accepted_at and committed_at values are KHU service local timestamps. No field confirms command acceptance, replica readiness, or user SLO effect.\n",
+        "required": [
+          "decision_id",
+          "operation_run_id",
+          "decision",
+          "profile_id",
+          "app_id",
+          "app_version",
+          "application_context_message_id",
+          "application_context",
+          "application_context_accepted_at",
+          "resource_recommendation_message_id",
+          "resource_recommendation",
+          "resource_recommendation_accepted_at",
+          "input_manifest_revision",
+          "input_manifest_request_id",
+          "input_manifest_request_message_id",
+          "deployment_status",
+          "deployment_status_accepted_at",
+          "optimization_feedback",
+          "optimization_feedback_accepted_at",
+          "slo",
+          "replicas_min",
+          "replicas_max",
+          "committed_at"
+        ],
+        "properties": {
+          "decision_id": {
+            "type": "string",
+            "description": "Stable local ID derived from correlation_id and feedback message_id; not an action ID."
+          },
+          "operation_run_id": {
+            "type": "string"
+          },
+          "decision": {
+            "$ref": "#/components/schemas/deployment-agent.ScalingDecision"
+          },
+          "profile_id": {
+            "type": "string"
+          },
+          "app_id": {
+            "type": "string"
+          },
+          "app_version": {
+            "type": "string"
+          },
+          "input_origin": {
+            "type": "string"
+          },
+          "application_context_message_id": {
+            "type": "string"
+          },
+          "application_context": {
+            "$ref": "#/components/schemas/deployment-agent.ApplicationContextEnvelope"
+          },
+          "application_context_accepted_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Local time this application context was accepted by KHU."
+          },
+          "resource_recommendation_message_id": {
+            "type": "string"
+          },
+          "resource_recommendation": {
+            "$ref": "#/components/schemas/deployment-agent.ResourceRecommendationEnvelope"
+          },
+          "resource_recommendation_accepted_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Local time this recommendation was accepted by KHU."
+          },
+          "input_manifest_revision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "input_manifest_request_id": {
+            "type": "string"
+          },
+          "input_manifest_request_message_id": {
+            "type": "string",
+            "description": "Common JSON message ID named by deployment status causation_id."
+          },
+          "deployment_status": {
+            "$ref": "#/components/schemas/deployment-agent.DeploymentStatusEnvelope"
+          },
+          "deployment_status_accepted_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Local time this status message was accepted by KHU."
+          },
+          "optimization_feedback": {
+            "$ref": "#/components/schemas/deployment-agent.OptimizationFeedbackEnvelope"
+          },
+          "optimization_feedback_accepted_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Local time this feedback message was accepted by KHU."
+          },
+          "slo": {
+            "type": "object",
+            "properties": {
+              "latency_p95_ms_max": {
+                "type": "number"
+              },
+              "throughput_rps_min": {
+                "type": "number"
+              }
+            }
+          },
+          "replicas_min": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "replicas_max": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "committed_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Local time KHU committed the Guard-approved decision."
+          },
+          "output_manifest_revision": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Present for SCALE_OUT or SCALE_IN when an optimized revision was generated."
+          },
+          "output_manifest_request_id": {
+            "type": "string",
+            "description": "Local request ID of that optimized revision; not an execution acknowledgement."
+          },
+          "output_manifest_request_message_id": {
+            "type": "string",
+            "description": "Common JSON message ID of that optimized revision; not an execution acknowledgement."
+          }
+        }
+      },
+      "deployment-agent.OptimizationFeedbackEnvelope": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/deployment-agent.CommonMessageEnvelope"
+          },
+          {
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "message_type": {
+                "type": "string",
+                "enum": [
+                  "optimization.feedback.created"
+                ]
+              },
+              "data": {
+                "type": "object",
+                "required": [
+                  "optimization_feedback"
+                ],
+                "properties": {
+                  "optimization_feedback": {
+                    "$ref": "#/components/schemas/deployment-agent.OptimizationFeedback"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "deployment-agent.OptimizationFeedback": {
+        "type": "object",
+        "required": [
+          "feedback_id",
+          "decision_id",
+          "deployment_id",
+          "outcome",
+          "observation_window",
+          "metrics",
+          "created_at"
+        ],
+        "properties": {
+          "feedback_id": {
+            "type": "string"
+          },
+          "decision_id": {
+            "type": "string"
+          },
+          "deployment_id": {
+            "type": "string"
+          },
+          "outcome": {
+            "type": "string",
+            "example": "SUCCEEDED"
+          },
+          "observation_window": {
+            "type": "object",
+            "required": [
+              "started_at",
+              "ended_at"
+            ],
+            "properties": {
+              "started_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "ended_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/deployment-agent.OptimizationMetrics"
+          },
+          "slo_violations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "deployment-agent.OptimizationMetrics": {
+        "type": "object",
+        "required": [
+          "resource",
+          "inference",
+          "cost"
+        ],
+        "properties": {
+          "resource": {
+            "type": "object",
+            "properties": {
+              "cpu_average_percent": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "memory_peak_mib": {
+                "type": "number",
+                "minimum": 0
+              },
+              "accelerator_average_percent": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "accelerator_memory_peak_mib": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          },
+          "inference": {
+            "type": "object",
+            "properties": {
+              "latency_p95_ms": {
+                "type": "number",
+                "minimum": 0
+              },
+              "throughput_rps": {
+                "type": "number",
+                "minimum": 0
+              },
+              "error_rate_percent": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              }
+            }
+          },
+          "cost": {
+            "type": "object",
+            "properties": {
+              "currency": {
+                "type": "string"
+              },
+              "estimated_cost": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      },
+      "deployment-agent.CommonMessageEnvelope": {
+        "type": "object",
+        "required": [
+          "contract_version",
+          "message_id",
+          "message_type",
+          "occurred_at",
+          "correlation_id",
+          "trace_id",
+          "source",
+          "target"
+        ],
+        "properties": {
+          "contract_version": {
+            "type": "string",
+            "enum": [
+              "1.0"
+            ]
+          },
+          "message_id": {
+            "type": "string"
+          },
+          "message_type": {
+            "type": "string"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "correlation_id": {
+            "type": "string"
+          },
+          "trace_id": {
+            "type": "string"
+          },
+          "causation_id": {
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/deployment-agent.CommonMessageEndpoint"
+          },
+          "target": {
+            "$ref": "#/components/schemas/deployment-agent.CommonMessageEndpoint"
+          }
+        }
+      },
+      "deployment-agent.CommonMessageEndpoint": {
+        "type": "object",
+        "required": [
+          "system",
+          "component"
+        ],
+        "properties": {
+          "system": {
+            "type": "string"
+          },
+          "component": {
+            "type": "string"
+          }
+        }
+      },
+      "deployment-agent.DeploymentStatusEnvelope": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/deployment-agent.CommonMessageEnvelope"
+          },
+          {
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "message_type": {
+                "type": "string",
+                "enum": [
+                  "deployment.status.changed"
+                ]
+              },
+              "data": {
+                "type": "object",
+                "required": [
+                  "deployment_status"
+                ],
+                "properties": {
+                  "deployment_status": {
+                    "$ref": "#/components/schemas/deployment-agent.DeploymentStatus"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "deployment-agent.DeploymentStatus": {
+        "type": "object",
+        "required": [
+          "deployment_id",
+          "decision_id",
+          "state",
+          "updated_at"
+        ],
+        "properties": {
+          "deployment_id": {
+            "type": "string"
+          },
+          "decision_id": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "QUEUED",
+              "PROVISIONING",
+              "DEPLOYING",
+              "RUNNING",
+              "FAILED",
+              "STOPPING",
+              "STOPPED"
+            ]
+          },
+          "actual_infrastructure": {
+            "type": "object",
+            "properties": {
+              "provider": {
+                "type": "string"
+              },
+              "region": {
+                "type": "string"
+              },
+              "resource_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "message": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "deployment-agent.ResourceRecommendationEnvelope": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/deployment-agent.CommonMessageEnvelope"
+          },
+          {
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "message_type": {
+                "type": "string",
+                "enum": [
+                  "resource.recommendation.created"
+                ]
+              },
+              "data": {
+                "type": "object",
+                "required": [
+                  "resource_recommendation"
+                ],
+                "properties": {
+                  "resource_recommendation": {
+                    "$ref": "#/components/schemas/deployment-agent.ResourceRecommendation"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "deployment-agent.ResourceRecommendation": {
+        "type": "object",
+        "required": [
+          "recommendation_id",
+          "profile_id",
+          "snapshot_id",
+          "status",
+          "selected_candidate_id",
+          "candidates"
+        ],
+        "properties": {
+          "recommendation_id": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "string"
+          },
+          "snapshot_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "selected_candidate_id": {
+            "type": "string"
+          },
+          "candidates": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/deployment-agent.ResourceCandidate"
+            }
+          }
+        }
+      },
+      "deployment-agent.ResourceCandidate": {
+        "type": "object",
+        "required": [
+          "candidate_id",
+          "rank",
+          "feasible",
+          "desired_infrastructure",
+          "scores"
+        ],
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "rank": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "feasible": {
+            "type": "boolean"
+          },
+          "desired_infrastructure": {
+            "$ref": "#/components/schemas/deployment-agent.DesiredInfrastructure"
+          },
+          "resource_hints": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "scores": {
+            "type": "object",
+            "required": [
+              "resource_fit",
+              "slo_headroom",
+              "cost_efficiency",
+              "availability",
+              "total"
+            ],
+            "properties": {
+              "resource_fit": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "slo_headroom": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "cost_efficiency": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "availability": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "total": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            }
+          },
+          "rejection_reasons": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "deployment-agent.DesiredInfrastructure": {
+        "type": "object",
+        "required": [
+          "node_count",
+          "cpu_cores_per_node",
+          "memory_mib_per_node",
+          "storage_gib_per_node",
+          "isolation"
+        ],
+        "properties": {
+          "node_count": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "cpu_cores_per_node": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "memory_mib_per_node": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "storage_gib_per_node": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "accelerator": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "count": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "memory_mib_min_per_device": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "isolation": {
+            "type": "string"
+          }
+        }
+      },
+      "deployment-agent.ApplicationContextEnvelope": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/deployment-agent.CommonMessageEnvelope"
+          },
+          {
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "message_type": {
+                "type": "string",
+                "enum": [
+                  "application.context.created"
+                ]
+              },
+              "data": {
+                "type": "object",
+                "required": [
+                  "application_profile",
+                  "model_recommendation"
+                ],
+                "properties": {
+                  "application_profile": {
+                    "$ref": "#/components/schemas/deployment-agent.ApplicationProfile"
+                  },
+                  "model_recommendation": {
+                    "$ref": "#/components/schemas/deployment-agent.ApplicationModelRecommendation"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "deployment-agent.ApplicationModelRecommendation": {
+        "type": "object",
+        "required": [
+          "selected_model",
+          "inference_configuration"
+        ],
+        "properties": {
+          "recommendation_id": {
+            "type": "string"
+          },
+          "selected_model": {
+            "type": "object",
+            "required": [
+              "model_id",
+              "model_version",
+              "source"
+            ],
+            "properties": {
+              "model_id": {
+                "type": "string"
+              },
+              "model_version": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              }
+            }
+          },
+          "inference_configuration": {
+            "type": "object",
+            "required": [
+              "runtime_engine",
+              "precision",
+              "max_batch_size",
+              "max_concurrency",
+              "tensor_parallel_size",
+              "replicas"
+            ],
+            "properties": {
+              "runtime_engine": {
+                "type": "string"
+              },
+              "precision": {
+                "type": "string"
+              },
+              "max_batch_size": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "max_concurrency": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "tensor_parallel_size": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "replicas": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        }
+      },
+      "deployment-agent.ScalingDecision": {
+        "type": "object",
+        "required": [
+          "action",
+          "reason",
+          "current_replicas",
+          "desired_replicas",
+          "created_at"
+        ],
+        "properties": {
+          "decision_id": {
+            "type": "string",
+            "description": "Local decision identity assigned after Guard approval. This is not an execution action ID and is absent from rejected proposals.\n"
+          },
+          "action": {
+            "type": "string",
+            "description": "Canonical scaling recommendation. KEEP preserves the latest guarded plan's desired replica count. Legacy NO_ACTION is accepted only as an Operation Agent proposal/result value and is normalized to KEEP before Guard validation; new responses use KEEP.\n",
+            "enum": [
+              "KEEP",
+              "SCALE_OUT",
+              "SCALE_IN"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8000
+          },
+          "current_replicas": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Latest guarded plan's desired count; an applied replica count is not independently observed here."
+          },
+          "desired_replicas": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "deployment-agent.OperationOptimizationResult": {
+        "type": "object",
+        "required": [
+          "run_id",
+          "status"
+        ],
+        "description": "Evidence returned by the Operation Optimization Agent after deployment status and optimization Feedback are joined. run_id is a deterministic, auditable operation execution identifier derived from the Flow and Feedback event. A completed result carries source, request_guard, result_guard, scaling_guard, and decision; all Guards remain outside the Agent. Terminal failed or rejected evidence may omit unavailable identity, Guard, latency, and decision fields and contains only terminal-safe evidence. Only a completed result with approved Guards can populate scaling_decision.\n",
+        "properties": {
+          "run_id": {
+            "type": "string"
+          },
+          "agent_name": {
+            "type": "string",
+            "description": "Present when the selected Agent identity is known.",
+            "example": "OperationOptimizationAgent"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "configuration",
+              "runtime"
+            ],
+            "description": "Present for a resolved Agent."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "completed",
+              "rejected",
+              "failed"
+            ]
+          },
+          "latency_ms": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Present when execution latency is available."
+          },
+          "request_guard": {
+            "$ref": "#/components/schemas/deployment-agent.AgentControlGuardResult"
+          },
+          "result_guard": {
+            "$ref": "#/components/schemas/deployment-agent.AgentControlGuardResult"
+          },
+          "scaling_guard": {
+            "$ref": "#/components/schemas/deployment-agent.AgentControlGuardResult"
+          },
+          "decision": {
+            "$ref": "#/components/schemas/deployment-agent.ScalingDecision"
+          },
+          "message": {
+            "type": "string",
+            "description": "Terminal-safe execution summary."
+          }
+        }
+      },
+      "deployment-agent.AgentControlGuardResult": {
+        "type": "object",
+        "required": [
+          "status",
+          "checks"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "APPROVED",
+              "REJECTED",
+              "RETRY_REQUIRED"
+            ]
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "passed",
+                "reason"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "passed": {
+                  "type": "boolean"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/deployment-agent.ValidationIssue"
+            }
+          }
+        }
+      },
+      "deployment-agent.ValidationIssue": {
+        "type": "object",
+        "required": [
+          "field",
+          "code",
+          "reason"
+        ],
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "expected": {},
+          "actual": {}
+        }
+      },
+      "deployment-agent.FeedbackSummary": {
+        "type": "object",
+        "required": [
+          "deployment_id",
+          "decision_id",
+          "deployment_state",
+          "success",
+          "cause",
+          "updated_at"
+        ],
+        "properties": {
+          "deployment_id": {
+            "type": "string"
+          },
+          "decision_id": {
+            "type": "string"
+          },
+          "deployment_state": {
+            "type": "string"
+          },
+          "outcome": {
+            "type": "string"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "cause": {
+            "type": "string"
+          },
+          "slo_violations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/deployment-agent.OptimizationMetrics"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "deployment-agent.AgentControlManifestRevision": {
+        "type": "object",
+        "required": [
+          "revision",
+          "phase",
+          "trigger_action",
+          "created_at",
+          "desired_deployment_spec",
+          "deployment_request"
+        ],
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "phase": {
+            "type": "string",
+            "enum": [
+              "INITIAL",
+              "OPTIMIZED"
+            ]
+          },
+          "trigger_action": {
+            "type": "string"
+          },
+          "trigger_decision_id": {
+            "type": "string",
+            "description": "Local scaling decision ID for an optimized revision; absent from the initial revision. It is not an execution action ID."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "desired_deployment_spec": {
+            "$ref": "#/components/schemas/deployment-agent.DesiredDeploymentSpec"
+          },
+          "deployment_request": {
+            "$ref": "#/components/schemas/deployment-agent.DeploymentCreateRequestEnvelope"
+          }
+        }
+      },
+      "deployment-agent.DeploymentCreateRequestEnvelope": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/deployment-agent.CommonMessageEnvelope"
+          },
+          {
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "message_type": {
+                "type": "string",
+                "enum": [
+                  "deployment.create.request"
+                ]
+              },
+              "data": {
+                "type": "object",
+                "required": [
+                  "deployment_request"
+                ],
+                "properties": {
+                  "deployment_request": {
+                    "$ref": "#/components/schemas/deployment-agent.AgentControlDeploymentRequest"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "deployment-agent.AgentControlDeploymentRequest": {
+        "type": "object",
+        "required": [
+          "request_id",
+          "decision_id",
+          "application",
+          "deployment_manifest"
+        ],
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "description": "Idempotency key for deployment execution."
+          },
+          "decision_id": {
+            "type": "string"
+          },
+          "application": {
+            "$ref": "#/components/schemas/deployment-agent.AgentControlDeploymentApplication"
+          },
+          "deployment_manifest": {
+            "$ref": "#/components/schemas/deployment-agent.AgentControlDeploymentManifest"
+          }
+        }
+      },
+      "deployment-agent.AgentControlDeploymentManifest": {
+        "type": "object",
+        "required": [
+          "manifest_id",
+          "manifest_version",
+          "decision_id",
+          "application",
+          "target_runtime",
+          "desired_infrastructure",
+          "inference_configuration",
+          "metadata"
+        ],
+        "properties": {
+          "manifest_id": {
+            "type": "string"
+          },
+          "manifest_version": {
+            "type": "string",
+            "enum": [
+              "1.0"
+            ]
+          },
+          "decision_id": {
+            "type": "string"
+          },
+          "application": {
+            "type": "object",
+            "required": [
+              "app_id",
+              "app_version"
+            ],
+            "properties": {
+              "app_id": {
+                "type": "string"
+              },
+              "app_version": {
+                "type": "string"
+              }
+            }
+          },
+          "target_runtime": {
+            "type": "string",
+            "enum": [
+              "VM"
+            ]
+          },
+          "desired_infrastructure": {
+            "$ref": "#/components/schemas/deployment-agent.DesiredInfrastructure"
+          },
+          "inference_configuration": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "runtime": {
+            "type": "object",
+            "properties": {
+              "command": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "args": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "environment": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "ports": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "port",
+                    "protocol"
+                  ],
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "port": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 65535
+                    },
+                    "protocol": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "restart_policy": {
+                "type": "string"
+              }
+            }
+          },
+          "resource_hints": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "required": [
+              "profile_id"
+            ],
+            "properties": {
+              "profile_id": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "deployment-agent.AgentControlDeploymentApplication": {
+        "type": "object",
+        "required": [
+          "app_id",
+          "app_version"
+        ],
+        "properties": {
+          "app_id": {
+            "type": "string"
+          },
+          "app_version": {
+            "type": "string"
+          },
+          "artifact": {
+            "type": "object",
+            "required": [
+              "type",
+              "uri"
+            ],
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "uri": {
+                "type": "string"
+              },
+              "entrypoint": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "deployment-agent.DesiredDeploymentSpec": {
+        "type": "object",
+        "required": [
+          "spec_version",
+          "decision_id",
+          "application",
+          "target_runtime",
+          "desired_infrastructure",
+          "inference_configuration",
+          "metadata"
+        ],
+        "properties": {
+          "spec_version": {
+            "type": "string",
+            "enum": [
+              "1.0"
+            ]
+          },
+          "decision_id": {
+            "type": "string"
+          },
+          "application": {
+            "type": "object",
+            "required": [
+              "app_id",
+              "app_version"
+            ],
+            "properties": {
+              "app_id": {
+                "type": "string"
+              },
+              "app_version": {
+                "type": "string"
+              }
+            }
+          },
+          "target_runtime": {
+            "type": "string",
+            "enum": [
+              "VM"
+            ]
+          },
+          "desired_infrastructure": {
+            "$ref": "#/components/schemas/deployment-agent.DesiredInfrastructure"
+          },
+          "inference_configuration": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "runtime": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "policy_hints": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "required": [
+              "profile_id"
+            ],
+            "properties": {
+              "profile_id": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "deployment-agent.AgentControlDeploymentPlan": {
+        "type": "object",
+        "required": [
+          "plan_id",
+          "profile_id",
+          "app_id",
+          "app_version",
+          "selected_candidate_id",
+          "target_runtime",
+          "desired_infrastructure",
+          "inference_configuration",
+          "reasoning_mode",
+          "created_at"
+        ],
+        "properties": {
+          "plan_id": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "string"
+          },
+          "app_id": {
+            "type": "string"
+          },
+          "app_version": {
+            "type": "string"
+          },
+          "selected_candidate_id": {
+            "type": "string"
+          },
+          "target_runtime": {
+            "type": "string",
+            "enum": [
+              "VM"
+            ]
+          },
+          "desired_infrastructure": {
+            "$ref": "#/components/schemas/deployment-agent.DesiredInfrastructure"
+          },
+          "inference_configuration": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "resource_hints": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "reasoning_mode": {
+            "type": "string",
+            "enum": [
+              "rule_based"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "deployment-agent.AutomationDecision": {
+        "type": "object",
+        "required": [
+          "decision_id",
+          "action",
+          "reason",
+          "reasoning_mode",
+          "confidence",
+          "created_at"
+        ],
+        "properties": {
+          "decision_id": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "DEPLOY",
+              "REJECT",
+              "RETRY"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "reasoning_mode": {
+            "type": "string",
+            "enum": [
+              "rule_based"
+            ]
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "selected_candidate_id": {
+            "type": "string"
+          },
+          "correction_request": {
+            "$ref": "#/components/schemas/deployment-agent.CorrectionRequest"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "deployment-agent.CorrectionRequest": {
+        "type": "object",
+        "required": [
+          "target",
+          "reason",
+          "issues"
+        ],
+        "properties": {
+          "target": {
+            "type": "string",
+            "enum": [
+              "application_profile",
+              "resource_recommendation"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/deployment-agent.ValidationIssue"
+            }
+          }
+        }
+      },
+      "deployment-agent.DecisionAgentResult": {
+        "type": "object",
+        "required": [
+          "agent_name",
+          "source",
+          "status",
+          "request_guard",
+          "result_guard",
+          "decision",
+          "latency_ms"
+        ],
+        "properties": {
+          "agent_name": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "configuration",
+              "runtime"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "completed",
+              "rejected",
+              "failed"
+            ]
+          },
+          "request_guard": {
+            "$ref": "#/components/schemas/deployment-agent.AgentControlGuardResult"
+          },
+          "result_guard": {
+            "$ref": "#/components/schemas/deployment-agent.AgentControlGuardResult"
+          },
+          "decision": {
+            "$ref": "#/components/schemas/deployment-agent.AutomationDecision"
+          },
+          "latency_ms": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "deployment-agent.AgentAuthorization": {
+        "type": "object",
+        "required": [
+          "agent_name",
+          "capability",
+          "action",
+          "authorized",
+          "reason"
+        ],
+        "properties": {
+          "agent_name": {
+            "type": "string",
+            "description": "Selected configuration or Runtime Agent name"
+          },
+          "capability": {
+            "type": "string",
+            "enum": [
+              "ai_application_automation"
+            ]
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "generate_deployment_decision"
+            ]
+          },
+          "authorized": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "deployment-agent.FlowDeliveryStatusObservation": {
+        "type": "object",
+        "description": "A fetched AppDeployer deployment state; RUNNING is not proof of service readiness or user SLO success.",
+        "required": [
+          "observation_id",
+          "deployment_id",
+          "status",
+          "fetched_at",
+          "effective_updated_at",
+          "time_basis"
+        ],
+        "properties": {
+          "observation_id": {
+            "type": "string"
+          },
+          "deployment_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "source_updated_at": {
+            "type": "string",
+            "description": "Raw AppDeployer-declared status update time, including invalid or future values when provided."
+          },
+          "fetched_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Local time the status was fetched."
+          },
+          "effective_updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Time attached to the in-memory Agent Control status."
+          },
+          "time_basis": {
+            "type": "string",
+            "enum": [
+              "source_updated_at",
+              "local_fetched_at"
+            ]
+          },
+          "fallback_reason": {
+            "type": "string",
+            "enum": [
+              "source_updated_at_missing",
+              "source_updated_at_invalid",
+              "source_updated_at_future"
+            ]
+          }
+        }
+      },
+      "deployment-agent.AgentProfile": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "korean_name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "responsibilities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "capabilities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "bounded_actions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "endpoint": {
+            "type": "string",
+            "format": "uri"
+          },
+          "invocation_path": {
+            "type": "string"
+          },
+          "auth_token_env": {
+            "type": "string",
+            "description": "Environment variable name containing an optional bearer token. The token value is never returned."
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "configuration",
+              "runtime"
+            ]
+          }
+        }
+      },
+      "deployment-agent.ErrorResponse": {
+        "type": "object",
+        "required": [
+          "valid",
+          "message"
+        ],
+        "properties": {
+          "valid": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "deployment-agent.ExternalAgentRegistrationRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "version",
+          "role",
+          "endpoint",
+          "invocation_path",
+          "capabilities",
+          "bounded_actions"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "korean_name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "responsibilities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "endpoint": {
+            "type": "string",
+            "format": "uri"
+          },
+          "invocation_path": {
+            "type": "string",
+            "example": "/v1/actions"
+          },
+          "auth_token_env": {
+            "type": "string",
+            "description": "Optional environment variable name containing a bearer token."
+          },
+          "capabilities": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "bounded_actions": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "enabled": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "deployment-agent.ReadinessResponse": {
+        "type": "object",
+        "required": [
+          "status",
+          "service"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "not_ready"
+            ]
+          },
+          "service": {
+            "type": "string",
+            "example": "geon"
+          }
+        }
+      },
+      "deployment-agent.AgentControlReasoningComparisonRequest": {
+        "type": "object",
+        "required": [
+          "candidate_id"
+        ],
+        "properties": {
+          "candidate_id": {
+            "type": "string",
+            "example": "qwen3.5-ops-planner"
+          }
+        }
+      }
+    },
+    "parameters": {
+      "deployment-agent.AgentName": {
+        "name": "name",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "responses": {
+      "deployment-agent.BadRequest": {
+        "description": "Invalid request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/deployment-agent.ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "deployment-agent.AutonomyAdminToken": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "opaque admin token"
+      }
+    }
+  }
+}

@@ -19,6 +19,10 @@ cd resource_ops
 go run ./cmd/server
 ```
 
+API 문서는 플랫폼의 [통합 Swagger UI](http://127.0.0.1:18100/swagger)에서 확인하고 요청을 실행할 수 있습니다. 이 서비스의 원본 명세는 `/openapi.yaml`에서 내려받습니다.
+
+`ApplicationProfile` 요청과 추천 응답, 오류 코드 및 legacy `ResourceQuery` 입력을 문서화합니다. Go 주석을 변경한 뒤 이 폴더에서 `make swag`를 실행하면 [`docs/swagger/`](docs/swagger/)의 JSON/YAML을 갱신합니다.
+
 ## 검증
 
 ```bash

@@ -91,6 +91,9 @@ func newServer(
 	if registerWebUI {
 		webui.Register(server)
 	}
+	server.GET("/swagger", serveSwagger)
+	server.GET("/swagger/", serveSwagger)
+	server.GET("/swagger/index.html", serveSwagger)
 	registerRoutes(server, handler)
 
 	return server
