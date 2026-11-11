@@ -3,6 +3,7 @@ package profileapi
 import (
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -31,15 +32,17 @@ func TestSwaggerAndOpenAPIMatchRegisteredRoutes(t *testing.T) {
 		t.Fatal(err)
 	}
 	registered := make(map[string]bool)
+	pathParam := regexp.MustCompile(`/:(\w+)`)
 	for _, route := range server.Routes() {
 		if strings.HasPrefix(route.Path, "/swagger") {
 			continue
 		}
 		method := strings.ToLower(route.Method)
-		if document.Paths[route.Path][method] == nil {
+		path := pathParam.ReplaceAllString(route.Path, `/{$1}`)
+		if document.Paths[path][method] == nil {
 			t.Errorf("undocumented route: %s %s", route.Method, route.Path)
 		}
-		registered[method+" "+route.Path] = true
+		registered[method+" "+path] = true
 	}
 	for path, methods := range document.Paths {
 		for method := range methods {

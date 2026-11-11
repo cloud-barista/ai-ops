@@ -97,6 +97,8 @@ func newServer(config Config, generator profileGenerator) *echo.Echo {
 	server.GET("/swagger/index.html", serveSwagger)
 	server.POST(pathApplicationProfiles, handler.postApplicationProfile)
 	server.POST(pathOpsLLMSelect, handler.postOpsLLMSelect)
+	server.POST(pathOpsLLMInterpret, handler.postOpsLLMInterpret, handler.requireOpsLLM)
+	server.GET(pathOpsLLMRuns+"/:run_id", handler.getOpsLLMRun, handler.requireOpsLLM)
 	return server
 }
 

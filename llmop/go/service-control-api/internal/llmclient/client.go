@@ -8,14 +8,22 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 )
 
 const maxResponseBytes = 4 << 20
 
+var credentialPattern = regexp.MustCompile(`(?i)(-----BEGIN [A-Z ]*PRIVATE KEY-----|authorization\s*:\s*bearer|(?:password|secret|token|api[_-]?key|access[_-]?key|private[_-]?key)\s*[:=])`)
+
+func ContainsCredential(value string) bool {
+	return credentialPattern.MatchString(value)
+}
+
 type Candidate struct {
 	CandidateID     string `json:"candidate_id"`
+	LLMType         string `json:"llm_type,omitempty"`
 	RoleLabel       string `json:"role_label"`
 	Provider        string `json:"provider"`
 	ActualModel     string `json:"actual_model"`

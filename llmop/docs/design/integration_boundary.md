@@ -11,12 +11,12 @@
   → LLM 요구 분석, 재시도, 명시적 local-rule fallback
   → ApplicationProfile 검증/생성
   → resource_ops 조회 조건 투영·후보 추천
-  → ApplicationProfile + ResourceRecommendation를 deployment_agent에 전달
+  → ApplicationProfile + ResourceRecommendation를 app_automation_agent에 전달
 ```
 
 ## 책임 표
 
-| 기능 | LLM_Op | resource_ops | deployment_agent / 외부 시스템 |
+| 기능 | LLM_Op | resource_ops | app_automation_agent / 외부 시스템 |
 | --- | --- | --- | --- |
 | 자연어 요청 형식·민감정보 검증 | 수행 | 수행하지 않음 | 필요 시 추가 검증 |
 | structured App Spec 검증·결정적 변환 | 수행 | 수행하지 않음 | 입력으로 소비 |
@@ -60,4 +60,4 @@
 
 ## downstream 규칙
 
-`ApplicationProfile`을 받은 시스템은 이를 실제 capacity, 배포 가능성, 권한 또는 비용 보장으로 해석하면 안 됩니다. `resource_ops`가 실제 snapshot과 결합해 후보를 추천하고, `deployment_agent`가 Profile과 추천 결과의 상관관계·적합성을 다시 검증한 후에만 계획을 생성해야 합니다.
+`ApplicationProfile`을 받은 시스템은 이를 실제 capacity, 배포 가능성, 권한 또는 비용 보장으로 해석하면 안 됩니다. `resource_ops`가 실제 snapshot과 결합해 후보를 추천하고, `app_automation_agent`가 Profile과 추천 결과의 상관관계·적합성을 다시 검증한 후에만 계획을 생성해야 합니다.

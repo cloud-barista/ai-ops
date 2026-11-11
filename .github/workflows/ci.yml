@@ -35,7 +35,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        module: [llmop/go/service-control-api, resource_ops, deployment_agent/go/service-control-api, deployment_agent/go/aiops-guard]
+        module: [llmop/go/service-control-api, resource_ops, app_automation_agent/go/service-control-api, app_automation_agent/go/aiops-guard]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5

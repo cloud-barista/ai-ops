@@ -2,7 +2,7 @@
 
 ## 저장소에서 실행하는 검사
 
-각 Go 모듈에서 `go test ./...`와 `go vet ./...`를 실행합니다. 모듈은 `llmop/go/service-control-api`, `resource_ops`, `deployment_agent/go/service-control-api`, `deployment_agent/go/aiops-guard`입니다.
+각 Go 모듈에서 `go test ./...`와 `go vet ./...`를 실행합니다. 모듈은 `llmop/go/service-control-api`, `resource_ops`, `app_automation_agent/go/service-control-api`, `app_automation_agent/go/aiops-guard`입니다.
 
 플랫폼 전체 검사는 Windows와 PowerShell이 필요합니다. 아래 명령은 Windows의 Git Bash 기준입니다. 일부 실행 소유권 및 mutex 검사는 Linux와 macOS에서 지원하지 않습니다.
 

@@ -88,7 +88,7 @@ curl -fsS \
 }
 ```
 
-실제 `application_profile`은 LLM_Op 응답의 값을 변경 없이 전달한다. `request_id`는 downstream deployment_agent의 `correlation_id`와 같아야 하며, 없으면 `profile_id`를 사용한다.
+실제 `application_profile`은 LLM_Op 응답의 값을 변경 없이 전달한다. `request_id`는 downstream app_automation_agent의 `correlation_id`와 같아야 하며, 없으면 `profile_id`를 사용한다.
 
 LLM_Op ApplicationProfile에서의 기본 투영은 다음과 같다.
 

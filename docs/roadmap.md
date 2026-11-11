@@ -2,7 +2,7 @@
 
 기준일: **2026-10-19**
 
-경희대학교의 개발 범위는 AI 응용 요구사항 분석, 인프라 형상 추천, 배포 및 운영 판단 메커니즘입니다. 이 저장소의 웹 PoC는 해당 알고리즘을 실제 응용 실행과 연결해 시험하는 도구입니다.
+경희대학교의 개발 범위는 AI 응용 요구사항 분석, 인프라 형상 추천, 배포 및 운영 판단 메커니즘입니다. 이 저장소의 연구 PoC API와 스크립트는 해당 알고리즘을 실제 응용 실행과 연결해 시험하는 도구입니다.
 
 ## 근거 문서
 
@@ -23,7 +23,7 @@
 - [x] 판단, Guard 검증, 계획 기록과 실제 실행 요청의 분리
 - [x] Flow별 단계 결과와 실행 이력 추적
 
-관련 코드: [llmop](../llmop/), [resource_ops](../resource_ops/), [deployment_agent](../deployment_agent/), [platform](../platform/)
+관련 코드: [llmop](../llmop/), [resource_ops](../resource_ops/), [app_automation_agent](../app_automation_agent/), [platform](../platform/)
 
 ### 2. CPU/GPU VM 응용 등록 및 배포 PoC
 
@@ -46,7 +46,7 @@
 
 현재 Registry와 실행 검사는 프로토타입 범위입니다. 기관 전체의 사용자별 접근 권한, 정책 운영과 외부 Agent 복구까지 완성한 것은 아닙니다. LLM 선택 기능이 있다는 사실과 모든 모델의 실측 품질 우위는 구분합니다.
 
-관련 문서: [Agent 등록 관리](../deployment_agent/docs/deliverables/02_agent_registration_management_prototype.md), [LLM_Op](../llmop/)
+관련 문서: [Agent 등록 관리](../app_automation_agent/docs/deliverables/02_agent_registration_management_prototype.md), [LLM_Op](../llmop/)
 
 ### 4. 추천 및 추론 최적화 연구
 
@@ -75,7 +75,7 @@
 - [ ] 기존 구성, 새 Revision과 실제 적용 상태를 연결해 검증
 - [ ] 연계 기관의 실행 API에서 배포와 업데이트 결과 확인
 
-주요 연계: `deployment_agent`, `platform`의 실행 어댑터. 실제 응용 배포와 VM 제어는 기관별 역할에 따라 연계합니다.
+주요 연계: `app_automation_agent`, `platform`의 실행 어댑터. 실제 응용 배포와 VM 제어는 기관별 역할에 따라 연계합니다.
 
 ### 2. GPU/TPU 응용 요구 분석과 추천
 

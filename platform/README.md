@@ -1,8 +1,8 @@
 # KHU Integrated PoC
 
-경희대의 요구사항 분석, 자원 추천, 배포·운영 판단을 실제 응용 실행과 연결하는 연구용 웹 PoC입니다.
+경희대의 요구사항 분석, 자원 추천, 배포·운영 판단을 실제 응용 실행과 연결하는 연구용 PoC API입니다. AI-App 연동의 운영 화면은 8090 콘솔을 사용합니다. [AI-App 연동](../docs/getting-started.md#ai-app-8090-자연어-연동)
 
-## 시연 흐름
+## 연구 Flow
 
 1. LLM 선택과 요구사항 분석
 2. 자원 추천과 실행 대상 선택
@@ -17,7 +17,7 @@
 node platform/server/index.mjs
 ```
 
-기본 주소는 `http://127.0.0.1:18100/`입니다. 위 명령은 웹/API만 시작합니다. 실제 분석·배포·실측에는 각 역할의 API와 실행 모듈이 필요합니다.
+기동 상태는 `http://127.0.0.1:18100/healthz`에서 확인하고, 저장된 Flow는 `GET /api/v1/flows`로 조회합니다. 분석·배포·실측에는 각 역할의 API와 실행 모듈이 필요합니다.
 
 통합 [Swagger UI](http://127.0.0.1:18100/swagger)는 LLM_Op, Resource Ops, Deployment Agent의 요청·응답 모델과 오류 응답을 한 화면에 표시합니다. `Try it out`은 기존 역할별 API 연결 설정을 사용해 요청을 전달합니다. 통합 명세는 `/openapi.json`에서 내려받으며, 화면의 JS/CSS를 불러오려면 인터넷 연결이 필요합니다.
 
@@ -34,6 +34,6 @@ node --test platform/tests/*.test.mjs
 python -m unittest discover -s platform/tests -p 'test_*.py'
 ```
 
-[설치와 외부 의존성](../docs/getting-started.md) / [버튼 안내](docs/POC_BUTTON_GUIDE.md) / [검증 범위](../docs/validation.md)
+[설치와 외부 의존성](../docs/getting-started.md) · [이전 운영 화면 기록](docs/POC_BUTTON_GUIDE.md) · [검증 범위](../docs/validation.md)
 
 클라우드 설정 예시는 비활성 상태입니다. 비밀키와 실제 연결 설정은 커밋하지 않습니다.

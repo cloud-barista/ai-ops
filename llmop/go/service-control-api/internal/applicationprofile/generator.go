@@ -43,7 +43,6 @@ var (
 
 	identifierPattern = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$`)
 	currencyPattern   = regexp.MustCompile(`^[A-Z]{3}$`)
-	secretPattern     = regexp.MustCompile(`(?i)(-----BEGIN [A-Z ]*PRIVATE KEY-----|authorization\s*:\s*bearer|(?:password|secret|token|api[_-]?key|access[_-]?key|private[_-]?key)\s*[:=])`)
 )
 
 // The profile validator expects typed fields; plain JSON mode only guarantees valid JSON.
@@ -316,7 +315,7 @@ func validateRequest(request GenerateRequest, inputType string) error {
 		if utf8.RuneCountInString(request.Request) > maxRequestRunes {
 			return fmt.Errorf("request exceeds %d Unicode characters", maxRequestRunes)
 		}
-		if secretPattern.MatchString(request.Request) {
+		if llmclient.ContainsCredential(request.Request) {
 			return fmt.Errorf("request contains credential-like content")
 		}
 		if negativeQuantityPattern.MatchString(request.Request) {
@@ -369,7 +368,7 @@ func validateArtifact(artifact *Artifact, path string) error {
 	}
 	if utf8.RuneCountInString(artifact.URI) > 4096 ||
 		containsControlCharacter(artifact.URI) ||
-		secretPattern.MatchString(artifact.URI) {
+		llmclient.ContainsCredential(artifact.URI) {
 		return fmt.Errorf("%s.uri is invalid", path)
 	}
 	if len(artifact.Entrypoint) > 32 {
@@ -379,7 +378,7 @@ func validateArtifact(artifact *Artifact, path string) error {
 		if strings.TrimSpace(item) == "" ||
 			utf8.RuneCountInString(item) > 1024 ||
 			containsControlCharacter(item) ||
-			secretPattern.MatchString(item) {
+			llmclient.ContainsCredential(item) {
 			return fmt.Errorf("%s.entrypoint contains an invalid item", path)
 		}
 	}
@@ -633,7 +632,7 @@ func validateProfile(profile ApplicationProfile) error {
 			return fmt.Errorf("analysis.%s contains too many items", name)
 		}
 		for _, item := range items {
-			if strings.TrimSpace(item) == "" || utf8.RuneCountInString(item) > maxAnalysisItemRunes || secretPattern.MatchString(item) {
+			if strings.TrimSpace(item) == "" || utf8.RuneCountInString(item) > maxAnalysisItemRunes || llmclient.ContainsCredential(item) {
 				return fmt.Errorf("analysis.%s contains an invalid item", name)
 			}
 		}

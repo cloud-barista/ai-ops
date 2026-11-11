@@ -27,6 +27,7 @@ test('one Swagger page exposes all three services with namespaced schemas and va
   assert.ok(spec.paths['/llmop/api/v1/application-profiles'].post.requestBody);
   assert.ok(spec.paths['/resource-ops/api/v1/resource-recommendations'].post.requestBody);
   assert.ok(spec.paths['/deployment-agent/api/v1/deployment-plans'].post.requestBody);
+  assert.equal(spec.paths['/deployment-agent/aiapp/partner/nl/mcp'].post.parameters[0].name,'X-AIMCMP-Namespace');
   assert.equal(spec.paths['/deployment-agent/api/v1/planner/deployments'],undefined);
   assert.equal(spec.components.securitySchemes['deployment-agent.AutonomyAdminToken'].scheme,'bearer');
   assert.deepEqual(spec.paths['/deployment-agent/api/v1/agents/{name}'].delete.security,[{'deployment-agent.AutonomyAdminToken':[]}]);
@@ -49,7 +50,9 @@ test('Try it out reaches the selected service and preserves methods, query, auth
   const seen=[];
   async function upstream(service){return listen(t,createServer(async(request,response)=>{
     let body='';for await(const part of request)body+=part;
-    seen.push({service,method:request.method,path:request.url,body,authorization:request.headers.authorization,cookie:request.headers.cookie});
+    seen.push({service,method:request.method,path:request.url,body,authorization:request.headers.authorization,cookie:request.headers.cookie,
+      namespace:request.headers['x-aimcmp-namespace'],mcpVersion:request.headers['mcp-protocol-version'],
+      mcpMethod:request.headers['mcp-method'],mcpName:request.headers['mcp-name']});
     response.writeHead(service==='deployment-agent'?409:200,{'content-type':'application/json','idempotent-replayed':'true'});
     response.end(JSON.stringify({service}));
   }));}
@@ -61,11 +64,16 @@ test('Try it out reaches the selected service and preserves methods, query, auth
   assert.equal(response.status,200);assert.equal(seen.at(-1).body,body);
   response=await fetch(base+'/swagger/services/deployment-agent/api/v1/agents/demo?source=runtime',{method:'DELETE',headers:{authorization:'Bearer test-placeholder',cookie:'private=do-not-forward'}});
   assert.equal(response.status,409);assert.equal(response.headers.get('idempotent-replayed'),'true');
-  assert.deepEqual(seen.at(-1),{service:'deployment-agent',method:'DELETE',path:'/api/v1/agents/demo?source=runtime',body:'',authorization:'Bearer test-placeholder',cookie:undefined});
+  assert.deepEqual(seen.at(-1),{service:'deployment-agent',method:'DELETE',path:'/api/v1/agents/demo?source=runtime',body:'',authorization:'Bearer test-placeholder',cookie:undefined,namespace:undefined,mcpVersion:undefined,mcpMethod:undefined,mcpName:undefined});
+  await fetch(base+'/swagger/services/deployment-agent/aiapp/partner/nl/mcp',{method:'POST',
+    headers:{'content-type':'application/json','x-aimcmp-namespace':'khu-test','mcp-protocol-version':'2026-07-28','mcp-method':'tools/call','mcp-name':'get_application_intent_run'},
+    body:JSON.stringify({jsonrpc:'2.0',id:1,method:'tools/call',params:{name:'get_application_intent_run'}})});
+  assert.equal(seen.at(-1).namespace,'khu-test');assert.equal(seen.at(-1).mcpVersion,'2026-07-28');
+  assert.equal(seen.at(-1).mcpMethod,'tools/call');assert.equal(seen.at(-1).mcpName,'get_application_intent_run');
   assert.equal((await fetch(base+'/swagger/services/llmop/not-documented')).status,404);
   assert.equal((await fetch(base+'/swagger/services/other/healthz')).status,404);
   assert.equal((await fetch(base+'/swagger/services/llmop/healthz',{method:'POST',body:'{}'})).status,405);
-  assert.equal(seen.length,3);
+  assert.equal(seen.length,4);
 });
 
 test('Swagger gateway bounds request bodies and reports unavailable services without internal errors',async t=>{

@@ -10,7 +10,7 @@
 
 AI-Ops는 AI-MCMP의 AI 응용 요구사항 분석, 자원 추천, 배포 및 운영 판단을 개발하는 경희대학교 AIOps 프레임워크입니다. 자연어로 입력한 실행 조건을 구조화하고, 적합한 자원과 실행 구성을 제안합니다. 연구용 PoC에서는 이 판단을 실제 응용 배포와 관측까지 연결해 검증합니다.
 
-핵심 판단 모듈은 Go API로 제공하며, 통합 웹 PoC와 Python 연구 코드를 함께 관리합니다. 현재 공개 버전은 연구용 프로토타입입니다.
+핵심 판단 모듈은 Go API로 제공하며, 연구 PoC API와 Python 연구 코드를 함께 관리합니다. 운영 화면은 AI-App 콘솔을 사용합니다.
 
 ## Contents
 
@@ -59,12 +59,14 @@ flowchart LR
 
 - **[llmop](llmop/)**: 요구사항 분석과 `ApplicationProfile` 생성, 분석용 LLM 선택 및 비교
 - **[resource_ops](resource_ops/)**: 자원 정규화, 조건 검사, 후보 점수화와 `ResourceRecommendation` 생성
-- **[deployment_agent](deployment_agent/)**: Agent 등록과 호출, 배포 및 운영 판단, Guard 검증과 실행 구성 관리
-- **[platform](platform/)**: 역할별 API, 외부 실행 모듈과 Prometheus를 연결하는 웹 PoC
+- **[app_automation_agent](app_automation_agent/)**: Agent 등록과 호출, 배포 및 운영 판단, Guard 검증과 실행 구성 관리
+- **[platform](platform/)**: 역할별 API, 외부 실행 모듈과 Prometheus를 연결하는 연구 PoC API
 - **[poc/research_policy](poc/research_policy/)**: 실측 기록 수집, 후보별 보상 학습과 불확실한 판단의 보류
 - **[poc/optimization_research](poc/optimization_research/)**: 성능 예측, GPU 구성 평가, 판단 추론 효율화와 공개 워크로드 분석
 
 각 폴더의 README에서 API, 실행 방법과 테스트를 확인할 수 있습니다. [산출물 안내](docs/deliverables.md)는 역할별 코드, 설계 문서와 실험 보고서의 위치를 설명합니다.
+
+AI-App 자연어 연동은 `llmop`과 `app_automation_agent`로 실행합니다. [AI-App 실행 안내](docs/getting-started.md#ai-app-8090-자연어-연동)
 
 ## Quick Start
 
@@ -94,13 +96,13 @@ go -C llmop/go/service-control-api run ./cmd/llmop-api
 
 ### 통합 PoC 실행
 
-화면과 플랫폼 API만 확인하려면 다음 명령을 사용합니다.
+연구 PoC API와 통합 Swagger를 시작합니다.
 
 ```bash
 node platform/server/index.mjs
 ```
 
-웹 주소는 `http://127.0.0.1:18100/`입니다. 요구사항 분석, 자원 추천과 실제 배포까지 사용하려면 각 API와 실행 모듈도 준비해야 합니다.
+기동 상태는 `GET http://127.0.0.1:18100/healthz`에서 확인합니다. 요구사항 분석, 자원 추천과 PoC 배포에는 각 API와 실행 모듈도 준비해야 합니다.
 
 Windows 통합 실행은 AppDeploy, 모델 실행 환경, Prometheus와 연구 정책을 준비한 뒤 사용합니다.
 
@@ -124,16 +126,7 @@ curl -sS http://127.0.0.1:8080/api/v1/application-profiles \
 
 자연어 분석은 [입력 예시](llmop/examples/application-profile/generate-request.json)와 [LLM 후보 설정](llmop/config/application_profile_llm_candidates.json)을 사용합니다. 분석에 사용하는 LLM과 실제 배포할 응용 모델은 별도로 선택합니다.
 
-웹 PoC에서는 다음 순서로 진행합니다.
-
-1. **요구사항:** 분석용 LLM을 선택하고 응용 요구사항을 분석합니다.
-2. **자원 추천과 선택:** 조건 충족 여부와 후보 점수를 확인하고 실행 대상을 선택합니다.
-3. **배포 계획:** Agent 판단과 Guard 검증 결과를 확인합니다.
-4. **배포 실행:** 승인된 구성을 별도로 실행하고 응용의 `RUNNING` 상태를 확인합니다.
-5. **모니터링과 운영 판단:** 실제 추론과 관측을 수행하고 유지, 확장 또는 축소 판단을 확인합니다.
-6. **실험 결과와 실행 기록:** 같은 Flow의 단계별 결과를 확인하고 시험 자원을 종료합니다.
-
-각 버튼의 조건과 동작은 [PoC 버튼 안내](platform/docs/POC_BUTTON_GUIDE.md)에 정리했습니다.
+AI-App 콘솔 `http://127.0.0.1:8090/aiapp/ui`에서 자연어 카탈로그·배포 상태 조회를 확인할 수 있습니다. 기존 연구 Flow는 PoC API와 재현 스크립트를 사용합니다. [AI-App 연동](docs/getting-started.md#ai-app-8090-자연어-연동) · [PoC API](platform/README.md)
 
 ## Research
 
@@ -201,9 +194,9 @@ GitHub CI는 Go 4개 모듈, 플랫폼과 데이터 없이 실행 가능한 연�
 | --- | --- | --- |
 | LLM_Op | 18110 | [Swagger YAML](llmop/go/service-control-api/docs/swagger/swagger.yaml) |
 | Resource Ops | 18120 | [Swagger YAML](resource_ops/docs/swagger/swagger.yaml) |
-| Deployment Agent | 18130 | [OpenAPI YAML](deployment_agent/docs/openapi_deployment_agent.yaml) |
+| App Automation Agent | 18130 | [OpenAPI YAML](app_automation_agent/docs/openapi_deployment_agent.yaml) |
 
-통합 화면은 서비스별 태그로 API를 구분합니다. 호출은 `/swagger/services/{서비스}`를 거쳐 전달하며, 연결 주소는 기존 `KHU_LLMOP_URL`, `KHU_RESOURCE_OPS_URL`, `KHU_GEON_URL` 설정을 사용합니다. 문서는 API가 꺼져 있어도 조회할 수 있지만 호출하려면 해당 서비스를 실행해야 합니다. Swagger UI의 JS/CSS는 고정 버전 CDN에서 불러오므로 브라우저의 인터넷 연결이 필요합니다. 플랫폼 웹 PoC와 외부 AppDeploy API는 명세에 포함하지 않습니다.
+통합 화면은 서비스별 태그로 API를 구분합니다. 호출은 `/swagger/services/{서비스}`를 거쳐 전달하며, 연결 주소는 기존 `KHU_LLMOP_URL`, `KHU_RESOURCE_OPS_URL`, `KHU_GEON_URL` 설정을 사용합니다. 문서는 API가 꺼져 있어도 조회할 수 있지만 호출하려면 해당 서비스를 실행해야 합니다. Swagger UI의 JS/CSS는 고정 버전 CDN에서 불러오므로 브라우저의 인터넷 연결이 필요합니다. 통합 명세의 범위는 세 역할별 API입니다.
 
 Go 주석에서 생성하는 JSON/YAML은 각 컴포넌트 루트의 `make swag`로 갱신합니다. Deployment Agent의 `docs/openapi_deployment_agent.yaml`도 함께 갱신한 뒤 `python platform/scripts/generate-openapi.py`로 통합 명세를 생성하고 플랫폼을 재시작합니다. 생성 스크립트는 연구용 Python 의존성에 포함된 PyYAML을 사용합니다.
 

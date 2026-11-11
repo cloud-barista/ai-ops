@@ -10,7 +10,7 @@ on:
       - 'platform/tests/test_swagger_pages.py'
       - 'llmop/go/service-control-api/docs/swagger/swagger.json'
       - 'resource_ops/docs/swagger/swagger.json'
-      - 'deployment_agent/docs/openapi_deployment_agent.yaml'
+      - 'app_automation_agent/docs/openapi_deployment_agent.yaml'
   workflow_dispatch:
 
 permissions:

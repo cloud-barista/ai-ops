@@ -9,11 +9,11 @@
 구조화 App Spec ───────────────────────┴─→ 결정적 검증/변환 ──────────────→ ApplicationProfile
 ```
 
-이 저장소는 인프라 후보 추천, Agent 선택·실행, Manifest 생성, AppDeploy 호출, 배포 실행, 상태 polling, 운영 feedback 또는 scaling을 수행하지 않습니다. 생성된 `ApplicationProfile`은 `resource_ops`로 전달되고, Profile과 추천 결과는 이후 `deployment_agent`가 소비합니다.
+이 저장소는 인프라 후보 추천, Agent 선택·실행, Manifest 생성, AppDeploy 호출, 배포 실행, 상태 polling, 운영 feedback 또는 scaling을 수행하지 않습니다. 생성된 `ApplicationProfile`은 `resource_ops`로 전달되고, Profile과 추천 결과는 이후 `app_automation_agent`가 소비합니다.
 
 ```text
 LLM_Op ApplicationProfile → resource_ops ResourceRecommendation
-ApplicationProfile + ResourceRecommendation → deployment_agent DeploymentPlan
+ApplicationProfile + ResourceRecommendation → app_automation_agent DeploymentPlan
 ```
 
 ## 제공 기능
@@ -33,6 +33,8 @@ fallback 결과는 `analysis.mode=local_rule` 및 `fallback_reason`으로 표시
 | --- | --- | --- |
 | `POST` | `/api/v1/application-profiles` | 자연어 또는 App Spec을 분석해 `ApplicationProfile` 생성 |
 | `POST` | `/api/v1/ops-llm/select` | 정책에 따라 Ops LLM 후보 랭킹과 선택 결과 반환 |
+| `POST` | `/api/v1/ops-llm/interpret` | 선택한 모델 유형으로 작업 의도를 분류하고 실행 결과 저장 |
+| `GET` | `/api/v1/ops-llm/runs/{run_id}` | 실행 ID로 결과 조회. [인증과 재조회](../go/service-control-api/README.md#opsllm-실행-기록-조회) |
 | `GET` | `/healthz` | 프로세스 상태와 역할 확인 |
 | `GET` | `/openapi.yaml` | API 계약 조회 |
 

@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {mkdtemp,rm} from 'node:fs/promises';import {tmpdir} from 'node:os';import {join} from 'node:path';
-import {createWorkflowStore} from '../server/workflow-store.mjs';import {createReplicaExecutionRoutes} from '../server/replica-execution.mjs';import {operationErrorModel} from '../view-model.mjs';
+import {createWorkflowStore} from '../server/workflow-store.mjs';import {createReplicaExecutionRoutes} from '../server/replica-execution.mjs';
 async function fixture(t,{changed=false,diagnosed=true}={}){
  const directory=await mkdtemp(join(tmpdir(),'khu-replica-capacity-'));t.after(()=>rm(directory,{recursive:true,force:true}));const store=createWorkflowStore(directory);
  const m={application:{app_id:'app',app_version:'1'},desired_infrastructure:{node_count:1,cpu_cores_per_node:2,memory_mib_per_node:2048,storage_gib_per_node:20},inference_configuration:{replicas:1,max_batch_size:1}};
@@ -13,7 +13,6 @@ async function fixture(t,{changed=false,diagnosed=true}={}){
 test('a confirmed capacity rejection preserves the running replica and reports the constraint',async t=>{
  const f=await fixture(t);await assert.rejects(f.apply(),e=>e.code==='replica_capacity_insufficient'&&e.status===409);
  const r=await f.store.read('flow-test');assert.equal(r.replica_group.operation_state,'IDLE');assert.equal(r.execution.status,'RUNNING');assert.equal(r.replica_group.actual_replicas,1);assert.equal(r.replica_apply_rejection.code,'RESOURCE_INSUFFICIENT');assert.equal(r.history.at(-1).event,'replica_change_rejected');
- const view=operationErrorModel('replica_capacity_insufficient',{operation:'execution'});assert.match(view.detail,/자원|메모리/);assert.match(view.detail,/유지/);
 });
 test('a resource error after a group mutation remains uncertain rather than claiming a harmless rejection',async t=>{
  const f=await fixture(t,{changed:true});await assert.rejects(f.apply(),e=>e.code==='group_unknown');assert.equal((await f.store.read('flow-test')).replica_group.operation_state,'UNKNOWN');

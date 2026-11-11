@@ -6,7 +6,7 @@
 
 `resource_ops`는 Profile을 자원 조회 조건으로 투영하고, 소스별 관측을 정규화한 뒤 필수 조건을 통과한 후보를 추천합니다. 결과는 `ResourceRecommendation`입니다.
 
-`deployment_agent`는 두 결과를 함께 받아 실행 가능 여부와 목표 구성을 판단합니다. Guard가 검사한 계획을 Revision으로 기록하고, 별도 적용 요청이 실행 모듈로 전달됩니다. 실행 결과와 목표값을 구분합니다.
+`app_automation_agent`는 두 결과를 함께 받아 실행 가능 여부와 목표 구성을 판단합니다. Guard가 검사한 계획을 Revision으로 기록하고, 별도 적용 요청이 실행 모듈로 전달됩니다. 실행 결과와 목표값을 구분합니다.
 
 `platform`은 이 API들과 외부 AppDeploy 실행 모듈, Prometheus를 하나의 실험 Flow로 연결합니다. 요구사항부터 자원 선택, 배포, 관측과 운영 판단까지 같은 Flow에서 추적합니다.
 

@@ -10,12 +10,16 @@ import (
 	"github.com/spf13/viper"
 )
 
-// @title LLM_Op ApplicationProfile and Model Selection API
+// @title LLM_Op ApplicationProfile and Ops LLM API
 // @version 1.0
-// @description Analyze natural-language or structured application requirements, select a configured LLM when needed, and generate a bounded ApplicationProfile. The service also exposes Ops LLM policy ranking; deployment planning and execution remain outside this service.
+// @description Generate a bounded ApplicationProfile, rank Ops LLM candidates, and interpret an operations request with a configured Ops LLM. Deployment planning and execution remain outside this service.
 // @license.name Apache 2.0
 // @license.url https://www.apache.org/licenses/LICENSE-2.0.html
 // @BasePath /
+// @securityDefinitions.apikey OpsLLMBearer
+// @in header
+// @name Authorization
+// @description Bearer token configured for Ops LLM interpretation.
 func main() {
 	viper.SetDefault("PORT", "8080")
 	_ = viper.BindEnv("PORT")

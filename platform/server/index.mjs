@@ -2,7 +2,7 @@ import {loadVmCatalog} from './vm-catalog.mjs';
 import {createServer} from 'node:http';
 import {readFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
-import {resolve,extname} from 'node:path';
+import {resolve} from 'node:path';
 import {createHash,randomUUID} from 'node:crypto';
 import {buildCandidates} from './candidates.mjs';
 import {createWorkflowStore} from './workflow-store.mjs';
@@ -22,7 +22,6 @@ import {serveSwagger} from './swagger.mjs';
 export const digest=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 export function fault(status,code){return Object.assign(Error(code),{status,code});}
 const publicRoot=fileURLToPath(new URL('../',import.meta.url));
-const publicFiles=new Set(['index.html','research-theme.css','styles.css','navigation.css','navigation.mjs','app.js','validation-ui.mjs','analysis-input.mjs','profile-llm.mjs','llm-comparison-ui.mjs','prometheus-ui.mjs','agents-ui.mjs','replicas-ui.mjs','cloud-ui.mjs','cloud-campaign-ui.mjs','cloud-state.mjs','cloud-types.mjs','policy.mjs','evidence.mjs','view-model.mjs','infrastructure-context.mjs','panels.mjs','reasoning.mjs','pipeline.mjs','deployment.mjs','history.mjs','data/khu-cpu-policy.json','data/khu-campaign-evidence.json','data/khu-vm-spec-catalog.json']);
 function validate(value){
   const {application:a,model:m,analysis_input:i,workload:w}=value??{};
   if(value?.execution_target&&!['historical','local','cloud'].includes(value.execution_target))throw fault(400,'invalid_execution_target');
@@ -117,10 +116,6 @@ export function createPlatformServer({clients,store,catalog,snapshots,routeExten
         }catch(error){await store.write({...receipt,state:'STOPPED',history:[...receipt.history,{event:'analysis_stopped',at:new Date().toISOString()}],error:{code:error.code??'provider_unavailable'}});return send(response,error.status??502,{flow_id,error:{code:error.code??'provider_unavailable'}});}
       }
       if(routeExtension&&path.startsWith('/api/')){const value=request.method==='POST'?await body(request):undefined;const result=await routeExtension({request,path,value,store,clients});if(result)return send(response,result.status??200,result.data);}
-      if(request.method==='GET'&&!path.startsWith('/api/')){
-        const name=path==='/'?'index.html':path.slice(1);if(!publicFiles.has(name))throw fault(404,'not_found');
-        const data=await readFile(resolve(publicRoot,name));response.writeHead(200,{'cache-control':'no-store','content-type':({'.html':'text/html','.css':'text/css','.js':'text/javascript','.mjs':'text/javascript','.json':'application/json'})[extname(name)]+'; charset=utf-8'});response.end(data);return;
-      }
       throw fault(404,'not_found');
     }catch(error){send(response,error.code==='ENOENT'?404:error.status??500,{error:{code:error.code==='ENOENT'?'not_found':error.status?error.code:'internal_error'}});}
   });
@@ -129,6 +124,6 @@ export function createPlatformServer({clients,store,catalog,snapshots,routeExten
 export async function startPlatform(options={}){
   const load=async name=>JSON.parse(await readFile(resolve(publicRoot,'data',name),'utf8'));
   const server=createPlatformServer({clients:createClients(),store:createWorkflowStore(process.env.KHU_FLOW_DIR??resolve(publicRoot,'../output/khu-poc/flows')),catalog:await loadVmCatalog(),snapshots:{cpuPolicy:await load('khu-cpu-policy.json'),evidence:await load('khu-campaign-evidence.json')},routeExtension:createWorkflowRoutes(),...options});
-  server.listen(Number(process.env.PORT??18100),'127.0.0.1',()=>process.stdout.write('KHU Research PoC http://127.0.0.1:'+server.address().port+'\n'));return server;
+  server.listen(Number(process.env.PORT??18100),'127.0.0.1',()=>process.stdout.write('KHU Research PoC API http://127.0.0.1:'+server.address().port+'/healthz\n'));return server;
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url))await startPlatform();

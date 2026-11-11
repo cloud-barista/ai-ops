@@ -8,7 +8,7 @@
 - Qwen, Gemma, Llama 등 분석용 LLM 후보의 비교와 선택
 - 입력·출력 계약 검증과 분석 실패 구분
 
-인프라 추천은 `resource_ops`, 배포 및 운영 판단은 `deployment_agent`가 담당합니다.
+인프라 추천은 `resource_ops`, 배포 및 운영 판단은 `app_automation_agent`가 담당합니다.
 
 ## 실행
 

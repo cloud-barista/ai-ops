@@ -25,7 +25,7 @@ export async function serveSwagger(request,response,clients){
   if(!route)throw fault(404,'not_found');
   if(!route.methods.includes(request.method.toLowerCase()))throw fault(405,'method_not_allowed');
   const [,service]=targetPath.split('/'),headers={};
-  for(const name of ['content-type','accept','authorization'])if(request.headers[name])headers[name]=request.headers[name];
+  for(const name of ['content-type','accept','authorization','x-aimcmp-namespace','mcp-protocol-version','mcp-method','mcp-name'])if(request.headers[name])headers[name]=request.headers[name];
   let body;
   if(!['GET','HEAD'].includes(request.method)){
     const parts=[];let size=0;

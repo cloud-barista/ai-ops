@@ -15,6 +15,8 @@ func TestOpenAPIContainsOnlyFocusedLLMOpPaths(t *testing.T) {
 	for _, path := range []string{
 		"/api/v1/application-profiles:",
 		"/api/v1/ops-llm/select:",
+		"/api/v1/ops-llm/interpret:",
+		"/api/v1/ops-llm/runs/{run_id}:",
 		"/healthz:",
 		"/openapi.yaml:",
 	} {

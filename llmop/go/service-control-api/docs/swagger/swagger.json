@@ -1,8 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Analyze natural-language or structured application requirements, select a configured LLM when needed, and generate a bounded ApplicationProfile. The service also exposes Ops LLM policy ranking; deployment planning and execution remain outside this service.",
-        "title": "LLM_Op ApplicationProfile and Model Selection API",
+        "description": "Generate a bounded ApplicationProfile, rank Ops LLM candidates, and interpret an operations request with a configured Ops LLM. Deployment planning and execution remain outside this service.",
+        "title": "LLM_Op ApplicationProfile and Ops LLM API",
         "contact": {},
         "license": {
             "name": "Apache 2.0",
@@ -64,6 +64,153 @@
                     },
                     "502": {
                         "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/profileapi.ErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/profileapi.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/ops-llm/interpret": {
+            "post": {
+                "security": [
+                    {
+                        "OpsLLMBearer": []
+                    }
+                ],
+                "description": "Select a subscription, open-weights, or self-hosted endpoint from server configuration. Return the execution evidence and a bounded proposal for the caller to validate.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ops LLM"
+                ],
+                "summary": "Interpret an operations request using an enabled Ops LLM",
+                "operationId": "InterpretOpsLLMIntent",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Caller-known OpsLLM run ID for recovery and duplicate detection",
+                        "name": "X-AIMCMP-OpsLLM-Run-ID",
+                        "in": "header"
+                    },
+                    {
+                        "description": "Natural-language request and optional LLM type",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/profileapi.OpsLLMIntentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/profileapi.OpsLLMIntentResult"
+                        }
+                    },
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/profileapi.OpsLLMIntentResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/profileapi.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/profileapi.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/profileapi.ErrorResponse"
+                        }
+                    },
+                    "413": {
+                        "description": "Request Entity Too Large",
+                        "schema": {
+                            "$ref": "#/definitions/profileapi.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/profileapi.OpsLLMIntentResult"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/profileapi.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/ops-llm/runs/{run_id}": {
+            "get": {
+                "security": [
+                    {
+                        "OpsLLMBearer": []
+                    }
+                ],
+                "description": "Return the bounded result or completion_unconfirmed for an execution without a stored result.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ops LLM"
+                ],
+                "summary": "Read recorded Ops LLM execution evidence",
+                "operationId": "GetOpsLLMRun",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "OpsLLM execution ID",
+                        "name": "run_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/profileapi.OpsLLMIntentResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/profileapi.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/profileapi.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/profileapi.ErrorResponse"
                         }
@@ -682,6 +829,109 @@
                     "type": "string"
                 }
             }
+        },
+        "profileapi.OpsLLMIntentRequest": {
+            "type": "object",
+            "required": [
+                "intent"
+            ],
+            "properties": {
+                "intent": {
+                    "type": "string",
+                    "maxLength": 4000,
+                    "example": "구축형 LLM으로 배포 가능한 응용을 보여줘"
+                },
+                "llm_type": {
+                    "type": "string",
+                    "enum": [
+                        "subscription",
+                        "open_weights",
+                        "self_hosted"
+                    ]
+                }
+            }
+        },
+        "profileapi.OpsLLMIntentResult": {
+            "type": "object",
+            "properties": {
+                "actual_model": {
+                    "type": "string"
+                },
+                "candidate_id": {
+                    "type": "string"
+                },
+                "latency_ms": {
+                    "type": "integer"
+                },
+                "llm_type": {
+                    "type": "string",
+                    "enum": [
+                        "subscription",
+                        "open_weights",
+                        "self_hosted"
+                    ]
+                },
+                "proposal": {
+                    "$ref": "#/definitions/profileapi.OpsLLMProposal"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "run_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "completion_unconfirmed",
+                        "completed",
+                        "provider_error",
+                        "invalid_model_output"
+                    ]
+                }
+            }
+        },
+        "profileapi.OpsLLMProposal": {
+            "type": "object",
+            "required": [
+                "action"
+            ],
+            "properties": {
+                "action": {
+                    "type": "string",
+                    "enum": [
+                        "list_applications",
+                        "application_status",
+                        "deploy_application",
+                        "update_application",
+                        "heal_application",
+                        "control_application",
+                        "remove_application",
+                        "optimize_inference",
+                        "clarify"
+                    ]
+                },
+                "control_action": {
+                    "type": "string",
+                    "enum": [
+                        "suspend",
+                        "resume",
+                        "reboot",
+                        "terminate"
+                    ]
+                },
+                "deployment_id": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "OpsLLMBearer": {
+            "description": "Bearer token configured for Ops LLM interpretation.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

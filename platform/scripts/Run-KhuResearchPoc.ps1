@@ -95,7 +95,7 @@ try { & $Go build -overlay $Overlay -o (Join-Path $Runtime 'appdeploy.exe') ./cm
 $Services=@(
     @{name='llmop';repo='llmop';module='llmop\go\service-control-api';target='./cmd/llmop-api';port=18110},
     @{name='resource_ops';repo='resource_ops';module='resource_ops';target='./cmd/server';port=18120},
-    @{name='geon';repo='deployment_agent';module='deployment_agent\go\service-control-api';target='./cmd/service-control-api';port=18130}
+    @{name='geon';repo='app_automation_agent';module='app_automation_agent\go\service-control-api';target='./cmd/service-control-api';port=18130}
 )
 foreach ($Service in $Services) {
     Write-Output "Building $($Service.name) from this workspace..."
@@ -103,6 +103,7 @@ foreach ($Service in $Services) {
     try { & $Go build -o (Join-Path $Runtime ($Service.name+'.exe')) $Service.target; if ($LASTEXITCODE -ne 0) { throw "Build failed: $($Service.name)" } } finally { Pop-Location }
 }
 $Names=@('KHU_PROMETHEUS_URL','KHU_POLICY_MODE','KHU_POLICY_URL','PORT','HOST','AIOPS_BIND_ADDRESS','AIOPS_REPO_ROOT','RESOURCE_PROMETHEUS_URL','AIOPS_APPDEPLOY_SUBMIT_ENABLED','AIOPS_APPDEPLOY_BASE_URL','AIOPS_LLMOP_ALLOW_LIVE_COMPLETION','AIOPS_DEPLOYMENT_ADAPTER','AIOPS_LEGACY_API_ENABLED','RESOURCE_PROMETHEUS_BEARER_TOKEN','AIOPS_LLM_CANDIDATES_PATH','AIOPS_LLMOP_CANDIDATE_ID','AIOPS_APPDEPLOY_DELIVERY_DIR','RESOURCE_PROVIDER','PLACEMENT_PROVIDER','AIAPP_CONFIG_PATH','AIAPP_SERVER_PORT','AIAPP_CPUVM_RUNNER','AIAPP_GPUVM_RUNNER','AIAPP_STORE_PATH','AIAPP_LOCAL_RUNTIME_WORK_DIR','AIAPP_AIOPS_ROOT','AIAPP_PACKAGE_OUTPUT_DIR','AIAPP_CREDENTIAL_API_ALLOW_REMOTE','AIAPP_SSH_SOCKS_PROXY')
+$Names += 'AIOPS_AIAPP_BASE_URL','AIOPS_APPDEPLOY_POC_ENABLED'
 $Saved=@{};foreach($Name in $Names){$Saved[$Name]=[Environment]::GetEnvironmentVariable($Name,'Process')}
 $Started=@($Entries | Where-Object {$_.name -eq 'cloud-cleanup-watcher' -and (Own-Process $_)})
 function Spawn($Name,$Executable,$Arguments,$Directory,$Port) {
@@ -158,19 +159,21 @@ try {
             Write-Output 'Cloud runtime SSH route: local relay through authenticated lab server.'
         }
     }}
-    $env:AIAPP_STORE_PATH=Join-Path $Runtime 'appdeploy-store.json';$env:AIAPP_LOCAL_RUNTIME_WORK_DIR=Join-Path $Runtime 'app-runtime';$env:AIAPP_AIOPS_ROOT=Join-Path $Workspace 'deployment_agent';$env:AIAPP_PACKAGE_OUTPUT_DIR=Join-Path $Runtime 'packages'
+    $env:AIAPP_STORE_PATH=Join-Path $Runtime 'appdeploy-store.json';$env:AIAPP_LOCAL_RUNTIME_WORK_DIR=Join-Path $Runtime 'app-runtime';$env:AIAPP_AIOPS_ROOT=Join-Path $Workspace 'app_automation_agent';$env:AIAPP_PACKAGE_OUTPUT_DIR=Join-Path $Runtime 'packages'
     Spawn 'appdeploy' (Join-Path $Runtime 'appdeploy.exe') @() $AppDeployModule 18150
     $Ready=$false;for($Attempt=0;$Attempt -lt 40;$Attempt++){try{$null=Invoke-RestMethod 'http://127.0.0.1:18150/api/v1/healthz' -TimeoutSec 2;$Ready=$true;break}catch{Start-Sleep -Milliseconds 300}};if(-not $Ready){throw 'AppDeploy did not become ready'}
     & $Node (Join-Path $Workspace 'platform\scripts\Register-LocalTarget.mjs');if($LASTEXITCODE -ne 0){throw 'Local target registration failed'}
     & $Node (Join-Path $Workspace 'platform\server\runtime-reconcile.mjs') reconcile;if($LASTEXITCODE -ne 0){throw 'Owned group reconciliation failed'}
     if(-not($Started | Where-Object {$_.name -eq 'cloud-cleanup-watcher'})){Spawn 'cloud-cleanup-watcher' $Node @('"'+(Join-Path $Workspace 'platform\server\cloud-watcher.mjs')+'"') $Workspace 0}
+    [Environment]::SetEnvironmentVariable('AIOPS_AIAPP_BASE_URL',$null,'Process')
+    $env:AIOPS_APPDEPLOY_POC_ENABLED='true'
     $env:AIOPS_APPDEPLOY_SUBMIT_ENABLED='true';$env:AIOPS_APPDEPLOY_BASE_URL='http://127.0.0.1:18150/api/v1';$env:AIOPS_APPDEPLOY_DELIVERY_DIR=Join-Path $Runtime 'appdeploy-deliveries';$env:AIOPS_LLMOP_ALLOW_LIVE_COMPLETION='false';$env:AIOPS_DEPLOYMENT_ADAPTER='mock';$env:AIOPS_LEGACY_API_ENABLED='false'
     Spawn 'demo-observations' $Node @('"'+(Join-Path $Workspace 'platform\server\demo-observations.mjs')+'"') $Workspace 18140
     foreach($Service in $Services){$env:PORT=[string]$Service.port;$env:AIOPS_REPO_ROOT=Join-Path $Workspace $Service.repo;Spawn $Service.name (Join-Path $Runtime ($Service.name+'.exe')) @() (Join-Path $Workspace $Service.repo) $Service.port}
     Spawn 'reference-agent' $Node @('"'+(Join-Path $Workspace 'platform\runtime-agent\reference-agent.mjs')+'"') $Workspace 18185
     $env:PORT='18100';Spawn 'platform' $Node @('"'+(Join-Path $Workspace 'platform\server\index.mjs')+'"') $Workspace 18100
     foreach($Port in ($Ports | Where-Object {$_ -ne 18195})){$Path=if($Port -eq 18190){'/-/ready'}elseif($Port -eq 18150){'/api/v1/healthz'}elseif($Port -eq 18120 -or $Port -eq 18140){'/health'}else{'/healthz'};$Ready=$false;for($Attempt=0;$Attempt -lt 30;$Attempt++){try{$null=Invoke-RestMethod -Uri "http://127.0.0.1:$Port$Path" -TimeoutSec 2;$Ready=$true;break}catch{Start-Sleep -Milliseconds 300}};if(-not $Ready){throw "Service did not become ready on $Port. See $Runtime"}}
-    Write-Output 'KHU Research PoC: http://127.0.0.1:18100/'
+    Write-Output 'KHU Research PoC API: http://127.0.0.1:18100/healthz'
     Write-Output 'Local apps, Agent dispatch and Prometheus are connected. Startup creates no cloud VM; cloud execution requires its reviewed approval.'
 }catch{
     $TaskRetainCloudRuntime=$false

@@ -1,0 +1,3383 @@
+openapi: 3.0.3
+info:
+  title: AI-MCMP Deployment Agent API
+  version: 1.0.0
+  description: >-
+    Focused deployment-agent boundary. It accepts the ApplicationProfile from
+    llmop and ResourceRecommendation from resource-ops, validates correlation,
+    rechecks ranked resource capacity and availability, runs the bounded Agent
+    and Go Guards, and returns a deployment plan or a REJECT/RETRY decision.
+    The default routes prepare requests for AI-App. The separate AppDeploy PoC
+    uses AIOPS_APPDEPLOY_POC_ENABLED and its own AppDeploy base URL.
+paths:
+  /healthz:
+    get:
+      operationId: GetDeploymentAgentHealth
+      responses:
+        '200':
+          description: Focused deployment-agent readiness
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  service:
+                    type: string
+                    example: deployment-agent
+                  role:
+                    type: string
+                    example: validated_deployment_decision_and_planning
+                  input:
+                    type: string
+                    example: application_profile_plus_resource_recommendation
+                  legacy_api_enabled:
+                    type: boolean
+                    example: false
+      summary: Check Deployment Agent health and role
+      tags:
+      - Service
+  /api/v1/deployment-plans:
+    post:
+      operationId: CreateDeploymentPlanFromResults
+      summary: Generate a guarded deployment plan from upstream results
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentPlanningRequest'
+      responses:
+        '201':
+          description: DEPLOY or UPDATE decision and deployment plan generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentControlFlow'
+        '200':
+          description: Valid REJECT/RETRY decision or an idempotent replay of an unchanged focused request
+          headers:
+            Idempotent-Replayed:
+              description: Set to true only when the same correlation_id and full decoded request were
+                already accepted.
+              schema:
+                type: string
+                enum:
+                - 'true'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentControlFlow'
+        '400':
+          description: Malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FocusedErrorResponse'
+        '422':
+          description: Correlation or domain validation failed. A changed request under an existing correlation_id
+            is rejected; use a new correlation_id. Duplicate resource IDs, nonsequential ranks, and contradictory
+            optional accelerator requirements are also rejected.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FocusedErrorResponse'
+      description: Accept one JSON object up to 4 MiB. A changed request under an existing correlation_id
+        is rejected; use a new correlation_id.
+      tags:
+      - Deployment Planning
+  /api/v1/agent-control/deployment-status:
+    post:
+      summary: Receive a deployment status message
+      description: Attaches a deployment.status.changed Common JSON v1.0 message to its correlation flow
+        and summarizes the current outcome.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentStatusEnvelope'
+      responses:
+        '202':
+          description: Deployment result attached to the correlated flow
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentControlFlow'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Invalid status or reuse of a message_id with changed content
+      operationId: ReceiveDeploymentStatus
+      tags:
+      - Deployment Flows
+  /api/v1/agent-control/optimization-feedback:
+    post:
+      summary: Receive optimization feedback
+      description: 'Attaches an optimization.feedback.created Common JSON v1.0 message, joins it with
+        deployment.status.changed, and records the selected Operation Optimization Agent evidence. A resulting
+        scaling decision is a guarded recommendation only; geon does not execute VM, Kubernetes, AppDeploy,
+        or other infrastructure control from this endpoint.
+
+        '
+      parameters:
+      - name: operation_agent
+        in: query
+        required: false
+        description: 'Optional Registry-authorized Operation Optimization Agent name. When omitted, the
+          Registry default is used.
+
+          '
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OptimizationFeedbackEnvelope'
+      responses:
+        '202':
+          description: Feedback validated and summarized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentControlFlow'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+      operationId: ReceiveOptimizationFeedback
+      tags:
+      - Deployment Flows
+  /api/v1/agent-control/flows:
+    get:
+      summary: List Agent Control input flows
+      responses:
+        '200':
+          description: Correlated deployment flows
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - count
+                - flows
+                properties:
+                  count:
+                    type: integer
+                    minimum: 0
+                  flows:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AgentControlFlow'
+      operationId: ListDeploymentFlows
+      tags:
+      - Deployment Flows
+    delete:
+      summary: Delete all Agent Control experiment flows
+      description: Clears the in-memory Agent Control experiment records.
+      responses:
+        '200':
+          description: All experiment flows deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - deleted
+                - flows
+                properties:
+                  deleted:
+                    type: integer
+                    minimum: 0
+                  flows:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AgentControlFlow'
+      operationId: DeleteApiVAgentControlFlows
+      tags:
+      - Deployment Flows
+  /api/v1/agent-control/flows/{correlation_id}:
+    get:
+      summary: Get one Agent Control input flow
+      parameters:
+      - name: correlation_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Deployment flow
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentControlFlow'
+        '404':
+          description: Flow not found
+      operationId: GetDeploymentFlow
+      tags:
+      - Deployment Flows
+    delete:
+      summary: Delete one Agent Control experiment flow
+      description: Deletes one in-memory experiment record by correlation_id.
+      parameters:
+      - name: correlation_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Experiment flow deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - deleted
+                - correlation_id
+                properties:
+                  deleted:
+                    type: integer
+                    enum:
+                    - 1
+                  correlation_id:
+                    type: string
+        '404':
+          description: Flow not found
+      operationId: DeleteApiVAgentControlFlowsCorrelationId
+      tags:
+      - Deployment Flows
+  /api/v1/agent-control/flows/{correlation_id}/reasoning-comparisons:
+    post:
+      summary: Compare simple and validated Qwen reasoning
+      description: Returns the deterministic rule result, raw Qwen proposal, and the final proposal after
+        Go Guard validation.
+      parameters:
+      - name: correlation_id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentControlReasoningComparisonRequest'
+      responses:
+        '200':
+          description: Rule-based, simple-inference, and validated-inference comparison
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReasoningComparison'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+      operationId: CompareDeploymentReasoning
+      tags:
+      - Deployment Flows
+  /geon/readyz:
+    get:
+      operationId: GetGeonReadiness
+      summary: Check whether geon runtime dependencies are ready
+      responses:
+        '200':
+          description: Ready to accept geon automation requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadinessResponse'
+        '503':
+          description: Configuration or a required local dependency is not ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadinessResponse'
+      tags:
+      - Service
+  /openapi.yaml:
+    get:
+      summary: Download this contract
+      responses:
+        '200':
+          description: OpenAPI YAML
+      operationId: GetOpenapiYaml
+      tags:
+      - Service
+  /api/v1/agents:
+    get:
+      summary: List configured agents, runtime agents and the registered AI-App engine
+      responses:
+        '200':
+          description: Agent list
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+      operationId: GetApiVAgents
+      tags:
+      - Agent Registry
+    post:
+      summary: Register an external agent
+      description: Loopback requests to a loopback-bound service may omit the admin token.
+      security:
+      - {}
+      - AutonomyAdminToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExternalAgentRegistrationRequest'
+      responses:
+        '201':
+          description: Registered agent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentProfile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Invalid admin token
+        '403':
+          description: Admin access is required
+      operationId: PostApiVAgents
+      tags:
+      - Agent Registry
+  /api/v1/framework-agents/{agent}:
+    put:
+      summary: Register or refresh an operator-configured MCP agent
+      operationId: PutFrameworkMCPRegistration
+      description: Requires registry.manage. Verifies the server identity and allowed tool declarations before saving the registration.
+      tags: [Agent Registry]
+      parameters:
+      - $ref: '#/components/parameters/FrameworkAgentName'
+      security:
+      - FrameworkPrincipalBearer: []
+      responses:
+        '200':
+          description: Verified registration
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/FrameworkMCPRegistration'}
+        '401': {description: Invalid principal bearer}
+        '403': {description: Missing registration grant}
+        '409': {description: Peer identity or tool declaration conflicts with the policy}
+        '500': {description: Registration could not be saved}
+        '502': {description: Peer did not provide a usable MCP response}
+        '503': {description: Framework access policy is unavailable}
+    get:
+      summary: Read a stored MCP agent registration
+      operationId: GetFrameworkMCPRegistration
+      description: Requires registry.read. Reads the saved registration without contacting the peer.
+      tags: [Agent Registry]
+      parameters:
+      - $ref: '#/components/parameters/FrameworkAgentName'
+      security:
+      - FrameworkPrincipalBearer: []
+      responses:
+        '200':
+          description: Stored registration
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/FrameworkMCPRegistration'}
+        '401': {description: Invalid principal bearer}
+        '403': {description: Missing registration read grant}
+        '404': {description: Agent has no saved registration}
+        '409': {description: The configured binding changed since registration}
+        '500': {description: Registration could not be read}
+        '503': {description: Framework access policy is unavailable}
+    delete:
+      summary: Unregister an MCP agent
+      operationId: DeleteFrameworkMCPRegistration
+      description: Requires registry.manage.
+      tags: [Agent Registry]
+      parameters:
+      - $ref: '#/components/parameters/FrameworkAgentName'
+      security:
+      - FrameworkPrincipalBearer: []
+      responses:
+        '204': {description: Registration is absent}
+        '401': {description: Invalid principal bearer}
+        '403': {description: Missing registration grant}
+        '500': {description: Registration could not be removed}
+        '503': {description: Framework access policy is unavailable}
+  /api/v1/framework-agents/{agent}/actions/{action}/invoke:
+    post:
+      summary: Invoke a registered framework MCP read action
+      operationId: PostFrameworkMCPInvocation
+      description: Requires the exact read action grant. The registry supplies the destination and namespace.
+      tags: [Agent Registry]
+      security:
+      - FrameworkPrincipalBearer: []
+      parameters:
+      - $ref: '#/components/parameters/FrameworkAgentName'
+      - name: action
+        in: path
+        required: true
+        schema: {type: string, example: read.infras}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Supply exactly the configured identifier arguments. Use an empty object when there are no caller arguments.
+              additionalProperties: {type: string, pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$'}
+      responses:
+        '200':
+          description: JSON object returned by the registered tool
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/FrameworkMCPInvocation'}
+        '400': {description: Invalid caller arguments}
+        '401': {description: Invalid principal bearer}
+        '403': {description: Missing read grant or action outside the peer binding}
+        '404': {description: Agent has no saved registration}
+        '409': {description: Peer binding or live MCP contract differs from the saved registration}
+        '500': {description: Registration could not be read}
+        '502': {description: Peer did not provide a usable MCP response}
+        '503': {description: Framework access policy is unavailable}
+  /api/v1/integrations/ai-app/agents:
+    post:
+      summary: Register the Innogrid AI-App automation engine
+      description: >-
+        Persist the engine card and grant advertised read actions for the
+        operator-configured AI-App origin and CB-Tumblebug namespace.
+      operationId: PostAIAppEngineCard
+      tags:
+      - Agent Registry
+      security:
+      - AIAppEngineRegistryBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AIAppEngineCard'
+      responses:
+        '200':
+          description: Existing or refreshed engine registration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentProfile'
+        '201':
+          description: Persisted engine registration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentProfile'
+        '400':
+          description: Invalid engine card
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FocusedErrorResponse'
+        '401':
+          description: Invalid engine registration token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FocusedErrorResponse'
+        '500':
+          description: Registration could not be saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FocusedErrorResponse'
+        '503':
+          description: Engine registry is unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FocusedErrorResponse'
+  /api/v1/agents/{name}:
+    get:
+      summary: Get a registered agent
+      parameters:
+      - $ref: '#/components/parameters/AgentName'
+      responses:
+        '200':
+          description: Agent profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentProfile'
+        '404':
+          description: Agent not found
+      operationId: GetApiVAgentsName
+      tags:
+      - Agent Registry
+    delete:
+      summary: Delete a runtime Agent
+      description: Deletes only an Agent registered in the current geon process. Configuration-backed
+        Agents are protected.
+      security:
+      - AutonomyAdminToken: []
+      parameters:
+      - $ref: '#/components/parameters/AgentName'
+      responses:
+        '200':
+          description: Runtime Agent deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted:
+                    type: boolean
+                    example: true
+                  name:
+                    type: string
+                  source:
+                    type: string
+                    enum:
+                    - runtime
+        '401':
+          description: Invalid or missing admin token for an external request
+        '403':
+          description: Configuration Agent is protected or external mutations are disabled
+        '404':
+          description: Runtime Agent not found
+      operationId: DeleteApiVAgentsName
+      tags:
+      - Agent Registry
+  /api/v1/agent-control/external-flows:
+    post:
+      summary: Validate and join an external input pair atomically
+      description: Matching correlation_id, trace_id and profile_id are required. Identical replays return
+        the existing Flow; conflicting reuse is rejected.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - application_context
+              - resource_recommendation
+              properties:
+                application_context:
+                  $ref: '#/components/schemas/ApplicationContextEnvelope'
+                resource_recommendation:
+                  $ref: '#/components/schemas/ResourceRecommendationEnvelope'
+                decision_agent:
+                  type: string
+      responses:
+        '202':
+          description: Joined Flow and guarded Agent decision
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentControlFlow'
+        '400':
+          description: Invalid or conflicting external pair
+      operationId: PostApiVAgentControlExternalFlows
+      tags:
+      - Deployment Flows
+  /api/v1/agent-control/flows/{correlation_id}/aiapp/prepare:
+    post:
+      operationId: PrepareAIAppDeployment
+      summary: Prepare AI-App requests for an approved initial revision
+      description: >-
+        Project an approved initial single-node, single-replica revision to inference and app request
+        bodies for POST /aiapp/deployments. The selected resource_id must be nsId/infraId/nodeId.
+        The approved application name and version must match AI-App catalog identifiers. The caller
+        supplies model and artifact IDs and can pin the initial vLLM scheduler limit. Verify the catalog
+        and node and bind the application environment before submission. This operation only prepares request bodies.
+      parameters:
+      - name: correlation_id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AIAppPreparationRequest'
+      responses:
+        '200':
+          description: Prepared inference and application requests in deployment order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIAppPreparation'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Flow approval or AI-App binding is incomplete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FocusedErrorResponse'
+        '422':
+          description: Invalid model or artifact ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FocusedErrorResponse'
+      tags:
+      - AI-App Integration
+  /api/v1/agent-control/flows/{correlation_id}/aiapp/stage:
+    post:
+      operationId: StageApprovedAIAppDeployment
+      summary: Approve and stage an exact initial AI-App inference request
+      description: Stage the prepared one-node inference request through the AI-App approval MCP tool under dry-run.
+      security:
+      - AutonomyAdminToken: []
+      tags:
+      - AI-App Integration
+      parameters:
+      - name: correlation_id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AIAppStageRequest'
+      responses:
+        '200':
+          description: Saved staging receipt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIAppStageReceipt'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Missing or invalid operator token
+        '409':
+          description: Unapproved or changed deployment request
+        '500':
+          description: Approval journal unavailable
+        '502':
+          description: Staging receipt could not be confirmed
+        '503':
+          description: Approval configuration or engine registry unavailable
+  /api/v1/agent-control/flows/{correlation_id}/aiapp/apply:
+    post:
+      operationId: ApplyApprovedAIAppRevision
+      summary: Approve and queue a live AI-App revision
+      security:
+      - AutonomyAdminToken: []
+      tags:
+      - AI-App Integration
+      parameters:
+      - name: correlation_id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AIAppApplyRequest'
+      responses:
+        '202':
+          description: Queued or recorded apply receipt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIAppApplyReceipt'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Missing or invalid operator token
+        '409':
+          description: The requested revision does not match an approved placement
+        '500':
+          description: Approval journal unavailable
+        '502':
+          description: Apply receipt could not be confirmed
+        '503':
+          description: Approval configuration or engine registry unavailable
+  /api/v1/agent-control/flows/{correlation_id}/aiapp/apply/{revision}:
+    get:
+      operationId: GetAppliedAIAppRevision
+      summary: Read the engine and deployment IDs of an approved revision
+      security:
+      - AutonomyAdminToken: []
+      tags:
+      - AI-App Integration
+      parameters:
+      - name: correlation_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: revision
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Current apply receipt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIAppApplyReceipt'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Missing or invalid operator token
+        '404':
+          description: The operator has no approved request for this revision
+        '409':
+          description: AI-App has no matching receipt
+        '502':
+          description: Apply receipt could not be confirmed
+        '503':
+          description: Approval configuration or engine registry unavailable
+  /api/v1/agent-control/flows/{correlation_id}/aiapp/optimizations/{proposal_id}:
+    get:
+      operationId: ReviewAIAppOptimization
+      summary: Read a published vLLM optimization and its exact next revision
+      security:
+      - FrameworkPrincipalBearer: []
+      tags: [AI-App Integration]
+      parameters:
+      - $ref: '#/components/parameters/AIAppFlowID'
+      - $ref: '#/components/parameters/AIAppOptimizationProposalID'
+      responses:
+        '200':
+          description: Published decision, eligibility and optional next revision or approval receipt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIAppOptimizationReview'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401': {description: Invalid principal bearer}
+        '403': {description: Principal grant or proposal scope differs}
+        '404': {description: Published proposal unavailable}
+        '409': {description: Published evidence differs from the approved revision}
+        '500': {description: Optimization journal unavailable}
+        '502': {description: AI-App evidence could not be confirmed}
+        '503': {description: Required integration or policy unavailable}
+  /api/v1/agent-control/flows/{correlation_id}/aiapp/optimizations/{proposal_id}/approve:
+    post:
+      operationId: ApproveAIAppOptimization
+      summary: Approve a reviewed model proposal and queue only its vLLM setting change
+      security:
+      - FrameworkPrincipalBearer: []
+      tags: [AI-App Integration]
+      parameters:
+      - $ref: '#/components/parameters/AIAppFlowID'
+      - $ref: '#/components/parameters/AIAppOptimizationProposalID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AIAppOptimizationApprovalRequest'
+      responses:
+        '202':
+          description: Saved approval and current apply status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIAppOptimizationApproval'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401': {description: Invalid principal bearer}
+        '403': {description: Principal grant or proposal scope differs}
+        '404': {description: Published proposal unavailable}
+        '409': {description: Proposal is ineligible or the approved baseline differs}
+        '500': {description: Optimization journal unavailable}
+        '502': {description: AI-App evidence could not be confirmed}
+        '503': {description: Required integration or policy unavailable}
+  /api/v1/agent-control/flows/{correlation_id}/aiapp/optimizations/{proposal_id}/compare:
+    post:
+      operationId: CompareAIAppOptimization
+      summary: Record the applied optimization's measured SLO and throughput comparison
+      security:
+      - FrameworkPrincipalBearer: []
+      tags: [AI-App Integration]
+      parameters:
+      - $ref: '#/components/parameters/AIAppFlowID'
+      - $ref: '#/components/parameters/AIAppOptimizationProposalID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AIAppOptimizationCompareRequest'
+      responses:
+        '200':
+          description: Saved comparison and optional rollback draft
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIAppOptimizationAssessment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401': {description: Invalid principal bearer}
+        '403': {description: Principal grant differs}
+        '409': {description: Apply or post-apply evidence does not match the optimization}
+        '500': {description: Comparison journal unavailable}
+        '502': {description: AI-App comparison could not be confirmed}
+        '503': {description: Required integration or policy unavailable}
+  /api/v1/integrations/ai-app/intent-changes/{run_id}/prepare:
+    post:
+      operationId: PrepareAIAppIntentChange
+      summary: Bind a saved natural-language proposal to an exact AI-App change
+      security:
+      - FrameworkPrincipalBearer: []
+      tags: [AI-App Integration]
+      parameters:
+      - $ref: '#/components/parameters/AIAppIntentRunID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AIAppIntentChangeRequest'
+      responses:
+        '200':
+          description: Persisted plan with the digest for operator review
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIAppIntentChangePlan'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401': {description: Invalid principal bearer}
+        '403': {description: Principal grant or engine tool does not permit the change}
+        '404': {description: Intent run unavailable}
+        '409': {description: Proposed action or revision cannot be bound to this request}
+        '500': {description: Plan or intent store unavailable}
+        '502': {description: AI-App target information could not be confirmed}
+        '503': {description: Required integration or policy unavailable}
+  /api/v1/integrations/ai-app/intent-changes/{run_id}/approve:
+    post:
+      operationId: ApproveAIAppIntentChange
+      summary: Approve the reviewed AI-App change and dispatch its exact MCP input
+      security:
+      - FrameworkPrincipalBearer: []
+      tags: [AI-App Integration]
+      parameters:
+      - $ref: '#/components/parameters/AIAppIntentRunID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AIAppIntentApprovalRequest'
+      responses:
+        '202':
+          description: Recorded approval and dispatch receipt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIAppIntentChangeApproval'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401': {description: Invalid principal bearer}
+        '403': {description: Principal grant or engine tool does not permit the change}
+        '404': {description: Reviewed plan unavailable}
+        '409': {description: Confirmation or current state differs from the reviewed plan}
+        '500': {description: Approval store unavailable}
+        '502': {description: AI-App target information could not be confirmed}
+        '503': {description: Required integration or policy unavailable}
+  /api/v1/integrations/ai-app/intent-changes/{run_id}:
+    get:
+      operationId: GetAIAppIntentChange
+      summary: Read a reviewed AI-App plan and its approval receipt
+      security:
+      - FrameworkPrincipalBearer: []
+      tags: [AI-App Integration]
+      parameters:
+      - $ref: '#/components/parameters/AIAppIntentRunID'
+      responses:
+        '200':
+          description: Reviewed plan and current approval status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIAppIntentChange'
+        '401': {description: Invalid principal bearer}
+        '403': {description: The principal is outside this plan's scope}
+        '404': {description: Reviewed plan unavailable}
+        '500': {description: Approval or plan store unavailable}
+        '503': {description: Principal policy unavailable}
+  /aiapp/partner/nl/card:
+    get:
+      security:
+      - AIAppBearer: []
+      - FrameworkPrincipalBearer: []
+      tags:
+      - AI-App Integration
+      summary: Describe the AI-Ops natural-language agent
+      operationId: GetAIAppIntentCard
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FocusedErrorResponse'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FocusedErrorResponse'
+  /aiapp/partner/nl/mcp:
+    post:
+      operationId: AIAppIntentMCP
+      summary: Call the AI-Ops natural-language agent over MCP
+      description: >-
+        Stateless Streamable HTTP endpoint. Use tools/list to discover
+        run_application_intent and get_application_intent_run. Each request
+        requires the gateway bearer and the configured namespace. Set Accept
+        to application/json, text/event-stream.
+      tags:
+      - AI-App Integration
+      security:
+      - AIAppBearer: []
+      - FrameworkPrincipalBearer: []
+      parameters:
+      - name: X-AIMCMP-Namespace
+        in: header
+        required: true
+        description: Configured CB-Tumblebug namespace
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+            example:
+              jsonrpc: "2.0"
+              id: 1
+              method: tools/list
+              params: {}
+      responses:
+        '200':
+          description: MCP JSON-RPC response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '202':
+          description: Notification accepted
+        '400':
+          description: Invalid JSON-RPC message, protocol version, or Accept header
+        '401':
+          description: Invalid AI-App bearer
+        '403':
+          description: Namespace or origin rejected
+        '413':
+          description: Request body is too large
+        '415':
+          description: Content-Type must be application/json
+        '503':
+          description: AI-App intent integration is unavailable
+  /aiapp/partner/nl/ns/{ns_id}/intents:
+    post:
+      security:
+      - AIAppBearer: []
+      - FrameworkPrincipalBearer: []
+      description: Catalog and status queries use the registered Innogrid engine and
+        its allowed actions. Mutating intents are returned as proposals.
+      tags:
+      - AI-App Integration
+      summary: Interpret an AI-App intent and execute an authorized read tool
+      operationId: PostAIAppIntent
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIAppIntentRun'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FocusedErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FocusedErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FocusedErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FocusedErrorResponse'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FocusedErrorResponse'
+      parameters:
+      - description: Configured CB-Tumblebug namespace
+        name: ns_id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AIAppIntentRequest'
+  /aiapp/partner/nl/readyz:
+    get:
+      tags:
+      - AI-App Integration
+      summary: Check AI-App intent configuration and engine registration
+      operationId: GetAIAppIntentReady
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FocusedErrorResponse'
+  /aiapp/partner/nl/runs:
+    get:
+      security:
+      - AIAppBearer: []
+      - FrameworkPrincipalBearer: []
+      tags:
+      - AI-App Integration
+      summary: List the latest AI-App intent run records
+      operationId: ListAIAppIntentRuns
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIAppIntentRunList'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FocusedErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FocusedErrorResponse'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FocusedErrorResponse'
+  /aiapp/partner/nl/runs/{run_id}:
+    get:
+      security:
+      - AIAppBearer: []
+      - FrameworkPrincipalBearer: []
+      tags:
+      - AI-App Integration
+      summary: Read one AI-App intent run record
+      operationId: GetAIAppIntentRun
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIAppIntentRun'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FocusedErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FocusedErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FocusedErrorResponse'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FocusedErrorResponse'
+      parameters:
+      - description: Intent run ID
+        name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+components:
+  parameters:
+    AIAppFlowID:
+      name: correlation_id
+      in: path
+      required: true
+      schema: {type: string}
+    AIAppOptimizationProposalID:
+      name: proposal_id
+      in: path
+      required: true
+      schema: {type: string, pattern: '^[0-9a-f]{64}$'}
+    AIAppIntentRunID:
+      name: run_id
+      in: path
+      required: true
+      schema: {type: string}
+    AgentName:
+      name: name
+      in: path
+      required: true
+      schema:
+        type: string
+    FrameworkAgentName:
+      name: agent
+      in: path
+      required: true
+      schema: {type: string, pattern: '^[A-Za-z][A-Za-z0-9_-]{2,63}$'}
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  securitySchemes:
+    FrameworkPrincipalBearer:
+      type: http
+      scheme: bearer
+      description: Principal credential for the exact agent, framework, namespace and action grant.
+    AIAppBearer:
+      type: http
+      scheme: bearer
+    AIAppEngineRegistryBearer:
+      type: http
+      scheme: bearer
+      description: Dedicated registration token shared with the Innogrid automation engine.
+    AutonomyAdminToken:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque admin token
+  schemas:
+    FrameworkMCPRegistration:
+      type: object
+      required: [schema_version, name, framework, namespace, role, endpoint, server_name, server_version, read_tools, peer_digest, contract_digest, registered_by, registered_at]
+      properties:
+        schema_version: {type: integer, enum: [1]}
+        name: {type: string}
+        framework: {type: string, enum: [AI-Infra, AI-HA, AI-Conn]}
+        namespace: {type: string}
+        role: {type: string}
+        endpoint: {type: string, format: uri}
+        server_name: {type: string}
+        server_version: {type: string}
+        read_tools:
+          type: object
+          additionalProperties:
+            type: object
+            required: [name, namespace_argument]
+            properties:
+              name: {type: string}
+              namespace_argument: {type: string}
+              arguments:
+                type: array
+                items: {type: string}
+        peer_digest: {type: string, pattern: '^[0-9a-f]{64}$'}
+        contract_digest: {type: string, pattern: '^[0-9a-f]{64}$'}
+        registered_by: {type: string}
+        registered_at: {type: string, format: date-time}
+    FrameworkMCPInvocation:
+      type: object
+      required: [agent, action, result]
+      properties:
+        agent: {type: string}
+        action: {type: string}
+        result: {type: object, additionalProperties: true}
+    AIAppOptimizationReview:
+      type: object
+      required: [proposalId, proposal, eligible]
+      properties:
+        proposalId: {type: string}
+        proposal: {type: object, description: AI-App published model decision and evidence}
+        eligible: {type: boolean}
+        reason: {type: string}
+        nextRevision:
+          $ref: '#/components/schemas/AIAppApplyRequest'
+        approval:
+          $ref: '#/components/schemas/AIAppOptimizationApproval'
+    AIAppOptimizationApprovalRequest:
+      type: object
+      additionalProperties: false
+      required: [digest]
+      properties:
+        digest: {type: string, pattern: '^[0-9a-f]{64}$'}
+    AIAppOptimizationApproval:
+      type: object
+      required: [proposalId, correlationId, approvedBy, approvedAt, status, request]
+      properties:
+        proposalId: {type: string}
+        correlationId: {type: string}
+        approvedBy: {type: string}
+        approvedAt: {type: string, format: date-time}
+        status: {type: string, enum: [confirmation_pending, queued, succeeded, failed, rejected]}
+        request:
+          $ref: '#/components/schemas/AIAppApplyRequest'
+        receipt:
+          $ref: '#/components/schemas/AIAppApplyReceipt'
+    AIAppOptimizationCompareRequest:
+      type: object
+      additionalProperties: false
+      required: [load]
+      oneOf:
+      - required: [transitionEvidence]
+      - required: [downtimeSeconds]
+      properties:
+        load:
+          $ref: '#/components/schemas/AIAppOptimizationLoad'
+        downtimeSeconds: {type: number, minimum: 0, description: Measured duration for a legacy proposal.}
+        transitionEvidence:
+          $ref: '#/components/schemas/AIAppOptimizationTransitionEvidence'
+    AIAppOptimizationTransitionEvidence:
+      type: object
+      additionalProperties: false
+      required: [correlationId, previousRevision, revision, baselineApplicationDeploymentId, candidateApplicationDeploymentId, runtimeImage, gpuUUIDs, lastBaselineResponseAt, firstCandidateResponseAt]
+      properties:
+        correlationId: {type: string}
+        previousRevision: {type: integer, minimum: 1}
+        revision: {type: integer, minimum: 2}
+        baselineApplicationDeploymentId: {type: string, format: uuid}
+        candidateApplicationDeploymentId: {type: string, format: uuid}
+        runtimeImage: {type: string}
+        gpuUUIDs: {type: array, minItems: 1, uniqueItems: true, items: {type: string}}
+        lastBaselineResponseAt: {type: string, format: date-time}
+        firstCandidateResponseAt: {type: string, format: date-time}
+    AIAppOptimizationLoad:
+      type: object
+      additionalProperties: false
+      required: [observationId, workloadId, runtimeImage, window, promptTokensP50, maxOutputTokens, offeredRps, sloSeconds, attempted, failed, withinSLO]
+      properties:
+        observationId: {type: string, pattern: '^[0-9a-f]{64}$'}
+        workloadId: {type: string}
+        runtimeImage: {type: string}
+        window:
+          type: object
+          required: [start, end]
+          properties:
+            start: {type: string, format: date-time}
+            end: {type: string, format: date-time}
+        promptTokensP50: {type: integer, minimum: 1}
+        maxOutputTokens: {type: integer, minimum: 1}
+        offeredRps: {type: number, exclusiveMinimum: true, minimum: 0}
+        sloSeconds: {type: number, exclusiveMinimum: true, minimum: 0}
+        attempted: {type: integer, minimum: 1}
+        failed: {type: integer, minimum: 0}
+        withinSLO: {type: integer, minimum: 0}
+    AIAppOptimizationAssessment:
+      type: object
+      required: [proposalId, observationId, recordedBy, recordedAt, comparison]
+      properties:
+        proposalId: {type: string}
+        observationId: {type: string}
+        recordedBy: {type: string}
+        recordedAt: {type: string, format: date-time}
+        comparison: {type: object, description: AI-App outcome and metric evidence for the applied revision}
+        rollbackDraft:
+          $ref: '#/components/schemas/AIAppApplyRequest'
+    AIAppIntentChangeRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        correlation_id: {type: string}
+        apply:
+          $ref: '#/components/schemas/AIAppApplyRequest'
+        deployment_type: {type: string, enum: [app, inference]}
+    AIAppIntentApprovalRequest:
+      type: object
+      additionalProperties: false
+      required: [digest]
+      properties:
+        digest: {type: string, pattern: '^[0-9a-f]{64}$'}
+        confirm_termination: {type: boolean}
+    AIAppIntentChangePlan:
+      type: object
+      required: [run_id, namespace, agent, engine_version, action, tool, target, request, prepared_by, prepared_at, policy_digest, engine_digest, digest]
+      properties:
+        run_id: {type: string}
+        namespace: {type: string}
+        agent: {type: string}
+        engine_version: {type: string}
+        action: {type: string}
+        tool: {type: string}
+        control_action: {type: string, enum: [suspend, resume, reboot, terminate]}
+        deployment_id: {type: string}
+        deployment_status: {type: string}
+        target:
+          $ref: '#/components/schemas/AIAppNodeTarget'
+        request:
+          $ref: '#/components/schemas/AIAppIntentChangeRequest'
+        prepared_by: {type: string}
+        prepared_at: {type: string, format: date-time}
+        policy_digest: {type: string}
+        engine_digest: {type: string}
+        digest: {type: string}
+    AIAppIntentChangeApproval:
+      type: object
+      required: [digest, approved_by, approved_at, status]
+      properties:
+        digest: {type: string}
+        approved_by: {type: string}
+        approved_at: {type: string, format: date-time}
+        status: {type: string, enum: [confirmation_pending, queued, blocked, succeeded, failed]}
+        apply:
+          $ref: '#/components/schemas/AIAppApplyReceipt'
+        engine_run_id: {type: string}
+        deployment_id: {type: string}
+        deployment_status: {type: string}
+    AIAppIntentChange:
+      type: object
+      required: [plan]
+      properties:
+        plan:
+          $ref: '#/components/schemas/AIAppIntentChangePlan'
+        approval:
+          $ref: '#/components/schemas/AIAppIntentChangeApproval'
+    AIAppNodeTarget:
+      type: object
+      required: [kind, nsId, infraId, nodeId]
+      properties:
+        kind: {type: string, enum: [node]}
+        nsId: {type: string}
+        infraId: {type: string}
+        nodeId: {type: string}
+    AIAppEngineCard:
+      type: object
+      required: [name, displayName, version, owner, framework, servesFramework, workflowEndpoint, mcpEndpoint, mcp]
+      properties:
+        name:
+          type: string
+          example: ai-mcmp-app-automation-engine
+        displayName:
+          type: string
+        version:
+          type: string
+          example: 0.1.0
+        owner:
+          type: string
+          example: innogrid
+        framework:
+          type: string
+          example: AI-Ops
+        servesFramework:
+          type: string
+          example: AI-App
+        description:
+          type: string
+        usesLLM:
+          type: boolean
+        workflows:
+          type: array
+          items:
+            type: string
+          example: [deploy, heal, control, status]
+        workflowEndpoint:
+          type: string
+          example: /aiapp/engine/workflows/{workflow}?ns={nsId}
+        mcpEndpoint:
+          type: string
+          example: /aiapp/engine/mcp
+        mcp:
+          type: object
+          required: [appServer]
+          properties:
+            appServer:
+              type: object
+              required: [url]
+              properties:
+                url:
+                  type: string
+                  format: uri
+                connected:
+                  type: boolean
+                toolCount:
+                  type: integer
+                  minimum: 0
+        tools:
+          type: object
+          properties:
+            exposed:
+              type: array
+              items:
+                $ref: '#/components/schemas/AIAppEngineCardTool'
+            uses:
+              type: array
+              items:
+                $ref: '#/components/schemas/AIAppEngineCardTool'
+        dryRun:
+          type: boolean
+    AIAppEngineCardTool:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        grade:
+          type: string
+          enum: [read, review, write, destructive, ""]
+        guardedByDryRun:
+          type: boolean
+    AIAppIntentProposal:
+      type: object
+      properties:
+        action:
+          type: string
+        control_action:
+          type: string
+        deployment_id:
+          type: string
+    AIAppIntentRequest:
+      type: object
+      required:
+      - intent
+      properties:
+        intent:
+          type: string
+          maxLength: 4000
+          example: 구축형 LLM으로 배포 가능한 응용을 보여줘
+        llmType:
+          type: string
+          enum:
+          - subscription
+          - open_weights
+          - self_hosted
+    AIAppIntentRun:
+      type: object
+      properties:
+        caller:
+          type: string
+          example: ai-app-gateway
+        answer:
+          type: string
+        dryRun:
+          type: boolean
+        endedAt:
+          type: string
+        kind:
+          type: string
+        nsId:
+          type: string
+        opsLlm:
+          $ref: '#/components/schemas/AIAppOpsLLMRun'
+        runId:
+          type: string
+        source:
+          type: string
+        startedAt:
+          type: string
+        status:
+          type: string
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/AIAppIntentStep'
+    AIAppIntentRunList:
+      type: object
+      properties:
+        runs:
+          type: array
+          items:
+            $ref: '#/components/schemas/AIAppIntentRun'
+    AIAppIntentStep:
+      type: object
+      properties:
+        agent:
+          type: string
+        engineRunId:
+          type: string
+        engineStatus:
+          type: string
+        error:
+          type: string
+        executed:
+          type: boolean
+        grade:
+          type: string
+        input:
+          type: object
+          additionalProperties:
+            type: string
+        output: {}
+        tool:
+          type: string
+    AIAppOpsLLMRun:
+      type: object
+      properties:
+        actual_model:
+          type: string
+        candidate_id:
+          type: string
+        latency_ms:
+          type: integer
+        llm_type:
+          type: string
+        proposal:
+          $ref: '#/components/schemas/AIAppIntentProposal'
+        provider:
+          type: string
+        run_id:
+          type: string
+        status:
+          type: string
+    DeploymentPlanningRequest:
+      type: object
+      required:
+        - correlation_id
+        - trace_id
+        - application_profile
+        - resource_recommendation
+      properties:
+        schema_version: {type: string, enum: ["1.0"], default: "1.0"}
+        correlation_id:
+          type: string
+          minLength: 1
+          description: >-
+            Must equal resource_recommendation.request_id. The full decoded
+            request is immutable for this ID; use a new ID if any field changes.
+        trace_id: {type: string, minLength: 1}
+        decision_agent: {type: string}
+        runtime_id:
+          type: string
+          enum: [vllm, ollama]
+          default: vllm
+          description: AI-App runtime pinned by the approved plan.
+        deployment_context:
+          type: object
+          properties:
+            deployment_ref: {type: string}
+            current_spec_digest: {type: string}
+            current_replicas: {type: integer}
+            spec_drift: {type: boolean}
+            cooldown_active: {type: boolean}
+          additionalProperties: false
+        application_profile:
+          $ref: "#/components/schemas/ApplicationProfile"
+        resource_recommendation:
+          $ref: "#/components/schemas/ResourceOpsRecommendation"
+      additionalProperties: false
+    ApplicationProfile:
+      type: object
+      required: [profile_id, app_id, app_version, requirements]
+      properties:
+        profile_id: {type: string, minLength: 1}
+        app_id: {type: string, minLength: 1}
+        app_version: {type: string, minLength: 1}
+        artifact:
+          type: object
+          properties:
+            type: {type: string}
+            uri: {type: string}
+            entrypoint: {type: array, items: {type: string}}
+        workload:
+          type: object
+          properties:
+            task_type: {type: string}
+            request_pattern: {type: string}
+            expected_rps: {type: number, minimum: 0}
+        requirements:
+          type: object
+          required: [compute, accelerator, deployment]
+          properties:
+            compute:
+              type: object
+              required: [cpu_cores_min, memory_mib_min, storage_gib_min]
+              properties:
+                cpu_cores_min: {type: integer, minimum: 1}
+                memory_mib_min: {type: integer, minimum: 1}
+                storage_gib_min: {type: integer, minimum: 0}
+            accelerator:
+              type: object
+              description: >-
+                When required is false, type must be empty or omitted and
+                count_min and memory_mib_min_per_device must be zero or omitted.
+              required: [required]
+              properties:
+                required: {type: boolean}
+                type: {type: string}
+                count_min: {type: integer, minimum: 0}
+                memory_mib_min_per_device: {type: integer, minimum: 0}
+            deployment:
+              type: object
+              required: [replicas_min, replicas_max, isolation]
+              properties:
+                replicas_min: {type: integer, minimum: 1}
+                replicas_max: {type: integer, minimum: 1}
+                isolation: {type: string}
+            slo: {type: object}
+            cost: {type: object}
+        analysis: {type: object}
+    ResourceOpsRecommendation:
+      type: object
+      description: >-
+        Resource Ops owns ranking. Deployment Agent checks each ranked node's
+        total and available CPU, memory, required storage, and required GPU
+        count, type, health, and memory before accepting it as feasible.
+        Insufficient or missing capacity remains rejection evidence in the
+        Flow; selection uses the first feasible nodes in the original order.
+        Duplicate resource IDs and nonsequential ranks are invalid input.
+      required:
+        - schema_version
+        - request_id
+        - profile_id
+        - source
+        - observed_at
+        - query
+        - recommendations
+        - excluded_resources
+        - summary
+        - warnings
+      properties:
+        schema_version: {type: string, enum: ["1.0"]}
+        request_id:
+          type: string
+          minLength: 1
+          description: Must equal the outer correlation_id.
+        profile_id:
+          type: string
+          minLength: 1
+          description: Must equal application_profile.profile_id.
+        source: {type: string, minLength: 1}
+        observed_at: {type: string, format: date-time}
+        query: {type: object}
+        recommendations:
+          type: array
+          items:
+            $ref: "#/components/schemas/RankedResource"
+        excluded_resources: {type: array, items: {type: object}}
+        summary:
+          type: object
+          required: [discovered, feasible, excluded, returned]
+          properties:
+            discovered: {type: integer, minimum: 0}
+            feasible: {type: integer, minimum: 0}
+            excluded: {type: integer, minimum: 0}
+            returned: {type: integer, minimum: 0}
+        warnings: {type: array, items: {type: string}}
+      additionalProperties: false
+    RankedResource:
+      type: object
+      required: [rank, score, resource, score_breakdown, reasons]
+      properties:
+        rank: {type: integer, minimum: 1}
+        score: {type: number, minimum: 0, maximum: 100}
+        resource:
+          type: object
+          required: [resource_id, healthy, observed_at, cpu, memory, storage, accelerators, warnings]
+          properties:
+            resource_id: {type: string, minLength: 1}
+            hostname: {type: string}
+            address: {type: string}
+            provider: {type: string}
+            region: {type: string}
+            resource_type: {type: string}
+            architecture: {type: string}
+            operating_system: {type: string}
+            healthy: {type: boolean}
+            observed_at: {type: string, format: date-time}
+            cpu:
+              type: object
+              required: [logical_cores]
+              properties:
+                logical_cores: {type: integer, minimum: 0}
+                available_cores:
+                  type: number
+                  minimum: 0
+                  description: Omission or insufficient availability makes the resource infeasible.
+                utilization_percent: {type: number, minimum: 0, maximum: 100}
+              additionalProperties: false
+            memory:
+              type: object
+              required: [total_mib]
+              properties:
+                total_mib: {type: number, minimum: 0}
+                available_mib:
+                  type: number
+                  minimum: 0
+                  description: Omission or insufficient availability makes the resource infeasible.
+              additionalProperties: false
+            storage:
+              type: object
+              required: [total_gib]
+              properties:
+                total_gib: {type: number, minimum: 0}
+                available_gib:
+                  type: number
+                  minimum: 0
+                  description: Required when storage_gib_min is positive.
+              additionalProperties: false
+            accelerators:
+              type: array
+              items:
+                type: object
+                required: [device_id, type, memory_total_mib, healthy]
+                properties:
+                  device_id: {type: string, minLength: 1}
+                  index: {type: string}
+                  type: {type: string, minLength: 1}
+                  model: {type: string}
+                  memory_total_mib: {type: number, minimum: 0}
+                  memory_available_mib:
+                    type: number
+                    minimum: 0
+                    description: Required for a matching device to count as available.
+                  utilization_percent: {type: number, minimum: 0, maximum: 100}
+                  healthy: {type: boolean}
+                additionalProperties: false
+            labels: {type: object, additionalProperties: {type: string}}
+            warnings: {type: array, items: {type: string}}
+        score_breakdown:
+          type: object
+          required: [health, total]
+          properties:
+            cpu: {type: number, minimum: 0, maximum: 100}
+            memory: {type: number, minimum: 0, maximum: 100}
+            storage: {type: number, minimum: 0, maximum: 100}
+            accelerator: {type: number, minimum: 0, maximum: 100}
+            health: {type: number, minimum: 0, maximum: 100}
+            total: {type: number, minimum: 0, maximum: 100}
+        reasons: {type: array, items: {type: object}}
+    FocusedErrorResponse:
+      type: object
+      required:
+      - schema_version
+      - error
+      properties:
+        schema_version:
+          type: string
+          enum:
+          - '1.0'
+        error:
+          type: object
+          required:
+          - code
+          - message
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+    AIAppPreparationRequest:
+      type: object
+      additionalProperties: false
+      required: [model_id, artifact_id]
+      properties:
+        model_id:
+          type: string
+          example: ministral-3-8b
+        artifact_id:
+          type: string
+          example: hf-fp8
+        max_num_seqs:
+          type: integer
+          minimum: 1
+          example: 16
+          description: Initial vLLM scheduler limit to include in the prepared inference arguments.
+        placement_review:
+          $ref: '#/components/schemas/AIAppPlacementReview'
+    AIAppPlacementReview:
+      type: object
+      additionalProperties: false
+      required: [nsId, specId, imageId, status, specStatus, imageStatus, reviewedAt]
+      description: Selected CB-Tumblebug node group's review summary. AI-App compares the IDs with the existing node.
+      properties:
+        nsId: {type: string, example: etri}
+        specId: {type: string, example: aws+ap-northeast-2+g4dn.xlarge}
+        imageId: {type: string, example: aws+ap-northeast-2+ami-example}
+        status: {type: string, enum: [Ready, Warning]}
+        specStatus: {type: string, example: Available}
+        imageStatus: {type: string, example: Available}
+        estimatedCost: {type: string, example: '$0.50/hour'}
+        reviewedAt: {type: string, format: date-time}
+    AIAppPreparation:
+      type: object
+      required: [correlation_id, revision, deployments]
+      properties:
+        correlation_id:
+          type: string
+        revision:
+          type: integer
+          enum: [1]
+        deployments:
+          type: array
+          minItems: 2
+          maxItems: 2
+          items:
+            $ref: '#/components/schemas/AIAppNodeDeployment'
+    AIAppStageRequest:
+      type: object
+      required: [revision, deployment]
+      properties:
+        revision:
+          type: integer
+          enum: [1]
+        deployment:
+          $ref: '#/components/schemas/AIAppNodeDeployment'
+    AIAppStageReceipt:
+      type: object
+      required: [correlationId, revision, nsId, target, status, updatedAt]
+      properties:
+        correlationId:
+          type: string
+        revision:
+          type: integer
+        nsId:
+          type: string
+        target:
+          type: string
+        status:
+          type: string
+          enum: [blocked, failed, confirmation_pending]
+        engineRunId:
+          type: string
+        deploymentId:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+    AIAppApplyRequest:
+      type: object
+      required: [revision, previousRevision, inference, application]
+      properties:
+        revision:
+          type: integer
+          minimum: 1
+        previousRevision:
+          type: integer
+          minimum: 0
+        inference:
+          $ref: '#/components/schemas/AIAppNodeDeployment'
+        application:
+          $ref: '#/components/schemas/AIAppNodeDeployment'
+    AIAppApplyReceipt:
+      type: object
+      required: [correlationId, revision, previousRevision, nsId, target, status, inference, application, updatedAt]
+      properties:
+        correlationId:
+          type: string
+        revision:
+          type: integer
+        previousRevision:
+          type: integer
+        nsId:
+          type: string
+        target:
+          type: string
+        status:
+          type: string
+          enum: [queued, succeeded, failed, confirmation_pending]
+        inference:
+          $ref: '#/components/schemas/AIAppApplyStep'
+        application:
+          $ref: '#/components/schemas/AIAppApplyStep'
+        updatedAt:
+          type: string
+          format: date-time
+    AIAppApplyStep:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [waiting, succeeded, failed, confirmation_pending]
+        engineRunId:
+          type: string
+        deploymentId:
+          type: string
+    AIAppNodeDeployment:
+      type: object
+      required: [type, targets]
+      properties:
+        placementReview:
+          $ref: '#/components/schemas/AIAppPlacementReview'
+        type:
+          type: string
+          enum: [inference, app]
+        targets:
+          type: array
+          items:
+            type: object
+            required: [kind, nsId, infraId, nodeId]
+            properties:
+              kind:
+                type: string
+                enum: [node]
+              nsId:
+                type: string
+              infraId:
+                type: string
+              nodeId:
+                type: string
+        inference:
+          type: object
+          required: [modelId, artifactId, runtimeId, gpu]
+          properties:
+            modelId:
+              type: string
+            artifactId:
+              type: string
+            runtimeId:
+              type: string
+            gpu:
+              type: boolean
+            args:
+              type: array
+              items:
+                type: string
+        app:
+          type: object
+          required: [name, version]
+          properties:
+            name:
+              type: string
+            version:
+              type: integer
+              minimum: 1
+            inferenceBinding:
+              type: object
+              required: [baseUrlEnv]
+              properties:
+                baseUrlEnv:
+                  type: string
+                apiKeyEnv:
+                  type: string
+                native:
+                  type: boolean
+            envFrom:
+              type: object
+              additionalProperties:
+                type: string
+    AgentControlFlow:
+      type: object
+      required:
+      - correlation_id
+      - trace_id
+      - state
+      - updated_at
+      properties:
+        correlation_id:
+          type: string
+        trace_id:
+          type: string
+        automation_run_id:
+          type: string
+        requested_decision_agent:
+          type: string
+        requested_operation_agent:
+          type: string
+          description: Operation Optimization Agent requested for the joined deployment status and Feedback.
+        profile_id:
+          type: string
+        state:
+          type: string
+          enum:
+          - WAITING_FOR_APPLICATION_CONTEXT
+          - WAITING_FOR_RESOURCE_RECOMMENDATION
+          - READY
+          - AGENT_AUTHORIZATION_REJECTED
+          - AGENT_EXECUTION_FAILED
+          - AGENT_RESULT_REJECTED
+          - DEPLOY_APPROVED
+          - REJECTED
+          - RETRY_REQUIRED
+        application_context:
+          $ref: '#/components/schemas/ApplicationContextEnvelope'
+        resource_recommendation:
+          $ref: '#/components/schemas/ResourceRecommendationEnvelope'
+        agent_authorization:
+          $ref: '#/components/schemas/AgentAuthorization'
+        agent_execution:
+          $ref: '#/components/schemas/DecisionAgentResult'
+        decision:
+          $ref: '#/components/schemas/AutomationDecision'
+        deployment_plan:
+          $ref: '#/components/schemas/AgentControlDeploymentPlan'
+        guard:
+          $ref: '#/components/schemas/AgentControlGuardResult'
+        deployment_request:
+          $ref: '#/components/schemas/DeploymentCreateRequestEnvelope'
+        manifest_revisions:
+          type: array
+          description: Ordered guarded manifest revisions in this Flow.
+          items:
+            $ref: '#/components/schemas/AgentControlManifestRevision'
+        deployment_status:
+          $ref: '#/components/schemas/DeploymentStatusEnvelope'
+        optimization_feedback:
+          $ref: '#/components/schemas/OptimizationFeedbackEnvelope'
+        feedback_summary:
+          $ref: '#/components/schemas/FeedbackSummary'
+        operation_agent_execution:
+          $ref: '#/components/schemas/OperationOptimizationResult'
+        scaling_decision:
+          $ref: '#/components/schemas/ScalingDecision'
+        scaling_decision_history:
+          type: array
+          maxItems: 128
+          description: 'Newest Guard-approved KEEP, SCALE_OUT, and SCALE_IN recommendations retained in this
+            in-memory Flow. Older entries are evicted and counted in scaling_decision_history_dropped. This
+            is not a durable action or research outcome journal; deleting the Flow or restarting loses it.
+
+            '
+          items:
+            $ref: '#/components/schemas/ScalingDecisionRecord'
+        scaling_decision_history_dropped:
+          type: integer
+          minimum: 0
+          description: Number of older approved decision records evicted from this Flow.
+        reasoning_comparison:
+          $ref: '#/components/schemas/ReasoningComparison'
+        updated_at:
+          type: string
+          format: date-time
+    ReasoningComparison:
+      type: object
+      required:
+      - correlation_id
+      - candidate_id
+      - rule_based
+      - simple_inference
+      - validated_inference
+      - agreement
+      - created_at
+      properties:
+        correlation_id:
+          type: string
+        candidate_id:
+          type: string
+        rule_based:
+          $ref: '#/components/schemas/ReasoningTrial'
+        simple_inference:
+          $ref: '#/components/schemas/ReasoningTrial'
+        validated_inference:
+          $ref: '#/components/schemas/ReasoningTrial'
+        agreement:
+          type: object
+          required:
+          - action_match
+          - candidate_match
+          properties:
+            action_match:
+              type: boolean
+            candidate_match:
+              type: boolean
+        created_at:
+          type: string
+          format: date-time
+    ReasoningTrial:
+      type: object
+      required:
+      - mode
+      - execution_status
+      - latency_ms
+      - guard_status
+      properties:
+        mode:
+          type: string
+          enum:
+          - rule_based
+          - simple_inference
+          - validated_inference
+        execution_status:
+          type: string
+          enum:
+          - executed
+          - skipped
+          - provider_unavailable
+          - rejected
+        candidate_id:
+          type: string
+        provider:
+          type: string
+        actual_model:
+          type: string
+        latency_ms:
+          type: integer
+          format: int64
+          minimum: 0
+        action:
+          type: string
+          enum:
+          - DEPLOY
+          - REJECT
+          - RETRY
+        proposed_action:
+          type: string
+          enum:
+          - DEPLOY
+          - REJECT
+          - RETRY
+        selected_candidate_id:
+          type: string
+        reason:
+          type: string
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        guard_status:
+          type: string
+          enum:
+          - APPROVED
+          - REJECTED
+          - RETRY_REQUIRED
+          - NOT_APPLIED
+        guard_reason:
+          type: string
+        error:
+          type: string
+    ScalingDecisionRecord:
+      type: object
+      description: 'Immutable-in-Flow snapshot of one approved local scaling recommendation. Upstream occurred_at
+        and updated_at values are sender-declared; the accepted_at and committed_at values are KHU service
+        local timestamps. No field confirms command acceptance, replica readiness, or user SLO effect.
+
+        '
+      required:
+      - decision_id
+      - operation_run_id
+      - decision
+      - profile_id
+      - app_id
+      - app_version
+      - application_context_message_id
+      - application_context
+      - application_context_accepted_at
+      - resource_recommendation_message_id
+      - resource_recommendation
+      - resource_recommendation_accepted_at
+      - input_manifest_revision
+      - input_manifest_request_id
+      - input_manifest_request_message_id
+      - deployment_status
+      - deployment_status_accepted_at
+      - optimization_feedback
+      - optimization_feedback_accepted_at
+      - slo
+      - replicas_min
+      - replicas_max
+      - committed_at
+      properties:
+        decision_id:
+          type: string
+          description: Stable local ID derived from correlation_id and feedback message_id; not an action
+            ID.
+        operation_run_id:
+          type: string
+        decision:
+          $ref: '#/components/schemas/ScalingDecision'
+        profile_id:
+          type: string
+        app_id:
+          type: string
+        app_version:
+          type: string
+        input_origin:
+          type: string
+        application_context_message_id:
+          type: string
+        application_context:
+          $ref: '#/components/schemas/ApplicationContextEnvelope'
+        application_context_accepted_at:
+          type: string
+          format: date-time
+          description: Local time this application context was accepted by KHU.
+        resource_recommendation_message_id:
+          type: string
+        resource_recommendation:
+          $ref: '#/components/schemas/ResourceRecommendationEnvelope'
+        resource_recommendation_accepted_at:
+          type: string
+          format: date-time
+          description: Local time this recommendation was accepted by KHU.
+        input_manifest_revision:
+          type: integer
+          minimum: 1
+        input_manifest_request_id:
+          type: string
+        input_manifest_request_message_id:
+          type: string
+          description: Common JSON message ID named by deployment status causation_id.
+        deployment_status:
+          $ref: '#/components/schemas/DeploymentStatusEnvelope'
+        deployment_status_accepted_at:
+          type: string
+          format: date-time
+          description: Local time this status message was accepted by KHU.
+        optimization_feedback:
+          $ref: '#/components/schemas/OptimizationFeedbackEnvelope'
+        optimization_feedback_accepted_at:
+          type: string
+          format: date-time
+          description: Local time this feedback message was accepted by KHU.
+        slo:
+          type: object
+          properties:
+            latency_p95_ms_max:
+              type: number
+            throughput_rps_min:
+              type: number
+        replicas_min:
+          type: integer
+          minimum: 1
+        replicas_max:
+          type: integer
+          minimum: 1
+        committed_at:
+          type: string
+          format: date-time
+          description: Local time KHU committed the Guard-approved decision.
+        output_manifest_revision:
+          type: integer
+          minimum: 1
+          description: Present for SCALE_OUT or SCALE_IN when an optimized revision was generated.
+        output_manifest_request_id:
+          type: string
+          description: Local request ID of that optimized revision; not an execution acknowledgement.
+        output_manifest_request_message_id:
+          type: string
+          description: Common JSON message ID of that optimized revision; not an execution acknowledgement.
+    OptimizationFeedbackEnvelope:
+      allOf:
+      - $ref: '#/components/schemas/CommonMessageEnvelope'
+      - type: object
+        required:
+        - data
+        properties:
+          message_type:
+            type: string
+            enum:
+            - optimization.feedback.created
+          data:
+            type: object
+            required:
+            - optimization_feedback
+            properties:
+              optimization_feedback:
+                $ref: '#/components/schemas/OptimizationFeedback'
+    OptimizationFeedback:
+      type: object
+      required:
+      - feedback_id
+      - decision_id
+      - deployment_id
+      - outcome
+      - observation_window
+      - metrics
+      - created_at
+      properties:
+        feedback_id:
+          type: string
+        decision_id:
+          type: string
+        deployment_id:
+          type: string
+        outcome:
+          type: string
+          example: SUCCEEDED
+        observation_window:
+          type: object
+          required:
+          - started_at
+          - ended_at
+          properties:
+            started_at:
+              type: string
+              format: date-time
+            ended_at:
+              type: string
+              format: date-time
+        metrics:
+          $ref: '#/components/schemas/OptimizationMetrics'
+        slo_violations:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+    OptimizationMetrics:
+      type: object
+      required:
+      - resource
+      - inference
+      - cost
+      properties:
+        resource:
+          type: object
+          properties:
+            cpu_average_percent:
+              type: number
+              minimum: 0
+              maximum: 100
+            memory_peak_mib:
+              type: number
+              minimum: 0
+            accelerator_average_percent:
+              type: number
+              minimum: 0
+              maximum: 100
+            accelerator_memory_peak_mib:
+              type: number
+              minimum: 0
+        inference:
+          type: object
+          properties:
+            latency_p95_ms:
+              type: number
+              minimum: 0
+            throughput_rps:
+              type: number
+              minimum: 0
+            error_rate_percent:
+              type: number
+              minimum: 0
+              maximum: 100
+        cost:
+          type: object
+          properties:
+            currency:
+              type: string
+            estimated_cost:
+              type: number
+              minimum: 0
+    CommonMessageEnvelope:
+      type: object
+      required:
+      - contract_version
+      - message_id
+      - message_type
+      - occurred_at
+      - correlation_id
+      - trace_id
+      - source
+      - target
+      properties:
+        contract_version:
+          type: string
+          enum:
+          - '1.0'
+        message_id:
+          type: string
+        message_type:
+          type: string
+        occurred_at:
+          type: string
+          format: date-time
+        correlation_id:
+          type: string
+        trace_id:
+          type: string
+        causation_id:
+          type: string
+        source:
+          $ref: '#/components/schemas/CommonMessageEndpoint'
+        target:
+          $ref: '#/components/schemas/CommonMessageEndpoint'
+    CommonMessageEndpoint:
+      type: object
+      required:
+      - system
+      - component
+      properties:
+        system:
+          type: string
+        component:
+          type: string
+    DeploymentStatusEnvelope:
+      allOf:
+      - $ref: '#/components/schemas/CommonMessageEnvelope'
+      - type: object
+        required:
+        - data
+        properties:
+          message_type:
+            type: string
+            enum:
+            - deployment.status.changed
+          data:
+            type: object
+            required:
+            - deployment_status
+            properties:
+              deployment_status:
+                $ref: '#/components/schemas/DeploymentStatus'
+    DeploymentStatus:
+      type: object
+      required:
+      - deployment_id
+      - decision_id
+      - state
+      - updated_at
+      properties:
+        deployment_id:
+          type: string
+        decision_id:
+          type: string
+        state:
+          type: string
+          enum:
+          - QUEUED
+          - PROVISIONING
+          - DEPLOYING
+          - RUNNING
+          - FAILED
+          - STOPPING
+          - STOPPED
+        actual_infrastructure:
+          type: object
+          properties:
+            provider:
+              type: string
+            region:
+              type: string
+            resource_ids:
+              type: array
+              items:
+                type: string
+        message:
+          type: string
+        updated_at:
+          type: string
+          format: date-time
+    ResourceRecommendationEnvelope:
+      allOf:
+      - $ref: '#/components/schemas/CommonMessageEnvelope'
+      - type: object
+        required:
+        - data
+        properties:
+          message_type:
+            type: string
+            enum:
+            - resource.recommendation.created
+          data:
+            type: object
+            required:
+            - resource_recommendation
+            properties:
+              resource_recommendation:
+                $ref: '#/components/schemas/ResourceRecommendation'
+    ResourceRecommendation:
+      type: object
+      required:
+      - recommendation_id
+      - profile_id
+      - snapshot_id
+      - status
+      - selected_candidate_id
+      - candidates
+      properties:
+        recommendation_id:
+          type: string
+        profile_id:
+          type: string
+        snapshot_id:
+          type: string
+        status:
+          type: string
+        selected_candidate_id:
+          type: string
+        candidates:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ResourceCandidate'
+    ResourceCandidate:
+      type: object
+      required:
+      - candidate_id
+      - rank
+      - feasible
+      - desired_infrastructure
+      - scores
+      properties:
+        candidate_id:
+          type: string
+        rank:
+          type: integer
+          minimum: 1
+        feasible:
+          type: boolean
+        desired_infrastructure:
+          $ref: '#/components/schemas/DesiredInfrastructure'
+        resource_hints:
+          type: array
+          items:
+            type: string
+        scores:
+          type: object
+          required:
+          - resource_fit
+          - slo_headroom
+          - cost_efficiency
+          - availability
+          - total
+          properties:
+            resource_fit:
+              type: number
+              minimum: 0
+              maximum: 1
+            slo_headroom:
+              type: number
+              minimum: 0
+              maximum: 1
+            cost_efficiency:
+              type: number
+              minimum: 0
+              maximum: 1
+            availability:
+              type: number
+              minimum: 0
+              maximum: 1
+            total:
+              type: number
+              minimum: 0
+              maximum: 1
+        rejection_reasons:
+          type: array
+          items:
+            type: string
+    DesiredInfrastructure:
+      type: object
+      required:
+      - node_count
+      - cpu_cores_per_node
+      - memory_mib_per_node
+      - storage_gib_per_node
+      - isolation
+      properties:
+        node_count:
+          type: integer
+          minimum: 1
+        cpu_cores_per_node:
+          type: integer
+          minimum: 1
+        memory_mib_per_node:
+          type: integer
+          minimum: 1
+        storage_gib_per_node:
+          type: integer
+          minimum: 0
+        accelerator:
+          type: object
+          properties:
+            type:
+              type: string
+            count:
+              type: integer
+              minimum: 0
+            memory_mib_min_per_device:
+              type: integer
+              minimum: 0
+        isolation:
+          type: string
+    ApplicationContextEnvelope:
+      allOf:
+      - $ref: '#/components/schemas/CommonMessageEnvelope'
+      - type: object
+        required:
+        - data
+        properties:
+          message_type:
+            type: string
+            enum:
+            - application.context.created
+          data:
+            type: object
+            required:
+            - application_profile
+            - model_recommendation
+            properties:
+              application_profile:
+                $ref: '#/components/schemas/ApplicationProfile'
+              model_recommendation:
+                $ref: '#/components/schemas/ApplicationModelRecommendation'
+    ApplicationModelRecommendation:
+      type: object
+      required:
+      - selected_model
+      - inference_configuration
+      properties:
+        recommendation_id:
+          type: string
+        selected_model:
+          type: object
+          required:
+          - model_id
+          - model_version
+          - source
+          properties:
+            model_id:
+              type: string
+            model_version:
+              type: string
+            source:
+              type: string
+        inference_configuration:
+          type: object
+          required:
+          - runtime_engine
+          - precision
+          - max_batch_size
+          - max_concurrency
+          - tensor_parallel_size
+          - replicas
+          properties:
+            runtime_engine:
+              type: string
+            precision:
+              type: string
+            max_batch_size:
+              type: integer
+              minimum: 1
+            max_concurrency:
+              type: integer
+              minimum: 1
+            tensor_parallel_size:
+              type: integer
+              minimum: 1
+            replicas:
+              type: integer
+              minimum: 1
+    ScalingDecision:
+      type: object
+      required:
+      - action
+      - reason
+      - current_replicas
+      - desired_replicas
+      - created_at
+      properties:
+        decision_id:
+          type: string
+          description: 'Local decision identity assigned after Guard approval. This is not an execution action
+            ID and is absent from rejected proposals.
+
+            '
+        action:
+          type: string
+          description: 'Canonical scaling recommendation. KEEP preserves the latest guarded plan''s desired
+            replica count. Legacy NO_ACTION is accepted only as an Operation Agent proposal/result value and
+            is normalized to KEEP before Guard validation; new responses use KEEP.
+
+            '
+          enum:
+          - KEEP
+          - SCALE_OUT
+          - SCALE_IN
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 8000
+        current_replicas:
+          type: integer
+          minimum: 1
+          description: Latest guarded plan's desired count; an applied replica count is not independently
+            observed here.
+        desired_replicas:
+          type: integer
+          minimum: 1
+        evidence:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+    OperationOptimizationResult:
+      type: object
+      required:
+      - run_id
+      - status
+      description: 'Evidence returned by the Operation Optimization Agent after deployment status and optimization
+        Feedback are joined. run_id is a deterministic, auditable operation execution identifier derived from
+        the Flow and Feedback event. A completed result carries source, request_guard, result_guard, scaling_guard,
+        and decision; all Guards remain outside the Agent. Terminal failed or rejected evidence may omit unavailable
+        identity, Guard, latency, and decision fields and contains only terminal-safe evidence. Only a completed
+        result with approved Guards can populate scaling_decision.
+
+        '
+      properties:
+        run_id:
+          type: string
+        agent_name:
+          type: string
+          description: Present when the selected Agent identity is known.
+          example: OperationOptimizationAgent
+        source:
+          type: string
+          enum:
+          - configuration
+          - runtime
+          description: Present for a resolved Agent.
+        status:
+          type: string
+          enum:
+          - completed
+          - rejected
+          - failed
+        latency_ms:
+          type: integer
+          format: int64
+          description: Present when execution latency is available.
+        request_guard:
+          $ref: '#/components/schemas/AgentControlGuardResult'
+        result_guard:
+          $ref: '#/components/schemas/AgentControlGuardResult'
+        scaling_guard:
+          $ref: '#/components/schemas/AgentControlGuardResult'
+        decision:
+          $ref: '#/components/schemas/ScalingDecision'
+        message:
+          type: string
+          description: Terminal-safe execution summary.
+    AgentControlGuardResult:
+      type: object
+      required:
+      - status
+      - checks
+      properties:
+        status:
+          type: string
+          enum:
+          - APPROVED
+          - REJECTED
+          - RETRY_REQUIRED
+        checks:
+          type: array
+          items:
+            type: object
+            required:
+            - name
+            - passed
+            - reason
+            properties:
+              name:
+                type: string
+              passed:
+                type: boolean
+              reason:
+                type: string
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationIssue'
+    ValidationIssue:
+      type: object
+      required:
+      - field
+      - code
+      - reason
+      properties:
+        field:
+          type: string
+        code:
+          type: string
+        reason:
+          type: string
+        expected: {}
+        actual: {}
+    FeedbackSummary:
+      type: object
+      required:
+      - deployment_id
+      - decision_id
+      - deployment_state
+      - success
+      - cause
+      - updated_at
+      properties:
+        deployment_id:
+          type: string
+        decision_id:
+          type: string
+        deployment_state:
+          type: string
+        outcome:
+          type: string
+        success:
+          type: boolean
+        cause:
+          type: string
+        slo_violations:
+          type: array
+          items:
+            type: string
+        metrics:
+          $ref: '#/components/schemas/OptimizationMetrics'
+        updated_at:
+          type: string
+          format: date-time
+    AgentControlManifestRevision:
+      type: object
+      required:
+      - revision
+      - phase
+      - trigger_action
+      - created_at
+      - desired_deployment_spec
+      - deployment_request
+      properties:
+        revision:
+          type: integer
+          minimum: 1
+        phase:
+          type: string
+          enum:
+          - INITIAL
+          - OPTIMIZED
+        trigger_action:
+          type: string
+        trigger_decision_id:
+          type: string
+          description: Local scaling decision ID for an optimized revision; absent from the initial revision.
+            It is not an execution action ID.
+        created_at:
+          type: string
+          format: date-time
+        desired_deployment_spec:
+          $ref: '#/components/schemas/DesiredDeploymentSpec'
+        deployment_request:
+          $ref: '#/components/schemas/DeploymentCreateRequestEnvelope'
+    DeploymentCreateRequestEnvelope:
+      allOf:
+      - $ref: '#/components/schemas/CommonMessageEnvelope'
+      - type: object
+        required:
+        - data
+        properties:
+          message_type:
+            type: string
+            enum:
+            - deployment.create.request
+          data:
+            type: object
+            required:
+            - deployment_request
+            properties:
+              deployment_request:
+                $ref: '#/components/schemas/AgentControlDeploymentRequest'
+    AgentControlDeploymentRequest:
+      type: object
+      required:
+      - request_id
+      - decision_id
+      - application
+      - deployment_manifest
+      properties:
+        request_id:
+          type: string
+          description: Idempotency key for deployment execution.
+        decision_id:
+          type: string
+        application:
+          $ref: '#/components/schemas/AgentControlDeploymentApplication'
+        deployment_manifest:
+          $ref: '#/components/schemas/AgentControlDeploymentManifest'
+    AgentControlDeploymentManifest:
+      type: object
+      required:
+      - manifest_id
+      - manifest_version
+      - decision_id
+      - application
+      - target_runtime
+      - desired_infrastructure
+      - inference_configuration
+      - metadata
+      properties:
+        manifest_id:
+          type: string
+        manifest_version:
+          type: string
+          enum:
+          - '1.0'
+        decision_id:
+          type: string
+        application:
+          type: object
+          required:
+          - app_id
+          - app_version
+          properties:
+            app_id:
+              type: string
+            app_version:
+              type: string
+        target_runtime:
+          type: string
+          enum:
+          - VM
+        desired_infrastructure:
+          $ref: '#/components/schemas/DesiredInfrastructure'
+        inference_configuration:
+          type: object
+          additionalProperties: true
+        runtime:
+          type: object
+          properties:
+            command:
+              type: array
+              items:
+                type: string
+            args:
+              type: array
+              items:
+                type: string
+            environment:
+              type: object
+              additionalProperties:
+                type: string
+            ports:
+              type: array
+              items:
+                type: object
+                required:
+                - name
+                - port
+                - protocol
+                properties:
+                  name:
+                    type: string
+                  port:
+                    type: integer
+                    minimum: 1
+                    maximum: 65535
+                  protocol:
+                    type: string
+            restart_policy:
+              type: string
+        resource_hints:
+          type: array
+          items:
+            type: string
+        metadata:
+          type: object
+          required:
+          - profile_id
+          properties:
+            profile_id:
+              type: string
+    AgentControlDeploymentApplication:
+      type: object
+      required:
+      - app_id
+      - app_version
+      properties:
+        app_id:
+          type: string
+        app_version:
+          type: string
+        artifact:
+          type: object
+          required:
+          - type
+          - uri
+          properties:
+            type:
+              type: string
+            uri:
+              type: string
+            entrypoint:
+              type: array
+              items:
+                type: string
+    DesiredDeploymentSpec:
+      type: object
+      required:
+      - spec_version
+      - decision_id
+      - application
+      - target_runtime
+      - desired_infrastructure
+      - inference_configuration
+      - metadata
+      properties:
+        spec_version:
+          type: string
+          enum:
+          - '1.0'
+        decision_id:
+          type: string
+        application:
+          type: object
+          required:
+          - app_id
+          - app_version
+          properties:
+            app_id:
+              type: string
+            app_version:
+              type: string
+        target_runtime:
+          type: string
+          enum:
+          - VM
+        desired_infrastructure:
+          $ref: '#/components/schemas/DesiredInfrastructure'
+        inference_configuration:
+          type: object
+          additionalProperties: true
+        runtime:
+          type: object
+          additionalProperties: true
+        policy_hints:
+          type: array
+          items:
+            type: string
+        metadata:
+          type: object
+          required:
+          - profile_id
+          properties:
+            profile_id:
+              type: string
+    AgentControlDeploymentPlan:
+      type: object
+      required:
+      - plan_id
+      - profile_id
+      - app_id
+      - app_version
+      - selected_candidate_id
+      - target_runtime
+      - desired_infrastructure
+      - inference_configuration
+      - reasoning_mode
+      - created_at
+      properties:
+        plan_id:
+          type: string
+        profile_id:
+          type: string
+        app_id:
+          type: string
+        app_version:
+          type: string
+        selected_candidate_id:
+          type: string
+        target_runtime:
+          type: string
+          enum:
+          - VM
+        desired_infrastructure:
+          $ref: '#/components/schemas/DesiredInfrastructure'
+        inference_configuration:
+          type: object
+          additionalProperties: true
+        resource_hints:
+          type: array
+          items:
+            type: string
+        reasoning_mode:
+          type: string
+          enum:
+          - rule_based
+        created_at:
+          type: string
+          format: date-time
+    AutomationDecision:
+      type: object
+      required:
+      - decision_id
+      - action
+      - reason
+      - reasoning_mode
+      - confidence
+      - created_at
+      properties:
+        decision_id:
+          type: string
+        action:
+          type: string
+          enum:
+          - DEPLOY
+          - REJECT
+          - RETRY
+        reason:
+          type: string
+        reasoning_mode:
+          type: string
+          enum:
+          - rule_based
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        selected_candidate_id:
+          type: string
+        correction_request:
+          $ref: '#/components/schemas/CorrectionRequest'
+        created_at:
+          type: string
+          format: date-time
+    CorrectionRequest:
+      type: object
+      required:
+      - target
+      - reason
+      - issues
+      properties:
+        target:
+          type: string
+          enum:
+          - application_profile
+          - resource_recommendation
+        reason:
+          type: string
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationIssue'
+    DecisionAgentResult:
+      type: object
+      required:
+      - agent_name
+      - source
+      - status
+      - request_guard
+      - result_guard
+      - decision
+      - latency_ms
+      properties:
+        agent_name:
+          type: string
+        source:
+          type: string
+          enum:
+          - configuration
+          - runtime
+        status:
+          type: string
+          enum:
+          - completed
+          - rejected
+          - failed
+        request_guard:
+          $ref: '#/components/schemas/AgentControlGuardResult'
+        result_guard:
+          $ref: '#/components/schemas/AgentControlGuardResult'
+        decision:
+          $ref: '#/components/schemas/AutomationDecision'
+        latency_ms:
+          type: integer
+          format: int64
+          minimum: 0
+        message:
+          type: string
+    AgentAuthorization:
+      type: object
+      required:
+      - agent_name
+      - capability
+      - action
+      - authorized
+      - reason
+      properties:
+        agent_name:
+          type: string
+          description: Selected configuration or Runtime Agent name
+        capability:
+          type: string
+          enum:
+          - ai_application_automation
+        action:
+          type: string
+          enum:
+          - generate_deployment_decision
+        authorized:
+          type: boolean
+        reason:
+          type: string
+    AgentProfile:
+      type: object
+      properties:
+        name:
+          type: string
+        korean_name:
+          type: string
+        version:
+          type: string
+        owner:
+          type: string
+        framework:
+          type: string
+        serves_framework:
+          type: string
+        namespace:
+          type: string
+        role:
+          type: string
+        responsibilities:
+          type: array
+          items:
+            type: string
+        capabilities:
+          type: array
+          items:
+            type: string
+        bounded_actions:
+          type: array
+          items:
+            type: string
+        enabled:
+          type: boolean
+        endpoint:
+          type: string
+          format: uri
+        invocation_path:
+          type: string
+        auth_token_env:
+          type: string
+          description: Environment variable name containing an optional bearer token. The token value is never
+            returned.
+        source:
+          type: string
+          enum:
+          - configuration
+          - runtime
+          - ai_app_engine
+        registered_at:
+          type: string
+          format: date-time
+    ErrorResponse:
+      type: object
+      required:
+      - valid
+      - message
+      properties:
+        valid:
+          type: boolean
+          example: false
+        message:
+          type: string
+    ExternalAgentRegistrationRequest:
+      type: object
+      required:
+      - name
+      - version
+      - role
+      - endpoint
+      - invocation_path
+      - capabilities
+      - bounded_actions
+      properties:
+        name:
+          type: string
+        korean_name:
+          type: string
+        version:
+          type: string
+        role:
+          type: string
+        responsibilities:
+          type: array
+          items:
+            type: string
+        endpoint:
+          type: string
+          format: uri
+        invocation_path:
+          type: string
+          example: /v1/actions
+        auth_token_env:
+          type: string
+          description: Optional environment variable name containing a bearer token.
+        capabilities:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        bounded_actions:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        enabled:
+          type: boolean
+          default: true
+    ReadinessResponse:
+      type: object
+      required:
+      - status
+      - service
+      properties:
+        status:
+          type: string
+          enum:
+          - ready
+          - not_ready
+        service:
+          type: string
+          example: geon
+    AgentControlReasoningComparisonRequest:
+      type: object
+      required:
+      - candidate_id
+      properties:
+        candidate_id:
+          type: string
+          example: qwen3.5-ops-planner

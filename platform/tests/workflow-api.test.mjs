@@ -15,8 +15,12 @@ async function harness(t,upstream=clients()){
   const send=async(path,body)=>{const r=await fetch(url+path,body===undefined?{}:{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});return{status:r.status,data:await r.json()};};
   return{send,store,directory,url};
 }
-test('browser modules can load the shared cloud lifecycle display contract over HTTP',async t=>{
- const h=await harness(t),response=await fetch(h.url+'/cloud-state.mjs');assert.equal(response.status,200);assert.match(response.headers.get('content-type'),/javascript/);assert.match(await response.text(),/export function cloudPreparationFailed/);
+test('the research API serves health checks without serving the operator dashboard or its modules',async t=>{
+  const h=await harness(t);
+  assert.equal((await h.send('/healthz')).status,200);
+  for(const path of ['/','/index.html','/app.js','/cloud-state.mjs']){
+    assert.deepEqual(await h.send(path),{status:404,data:{error:{code:'not_found'}}});
+  }
 });
 
 test('cloud manual feedback cannot bypass real worker measurement',async t=>{
@@ -75,14 +79,6 @@ test('store serializes writes and rejects traversal IDs',async t=>{
   assert.equal((await h.store.read(r.data.flow_id)).counter,5);
   await assert.rejects(()=>h.store.read('../secret'));
 });
-test('the served interface does not retain old menu code or panel layout in the browser cache',async t=>{
-  const h=await harness(t);
-  for(const name of ['index.html','app.js','navigation.mjs','research-theme.css','infrastructure-context.mjs']){
-    const response=await fetch(h.url+'/'+name);assert.equal(response.status,200);
-    assert.equal(response.headers.get('cache-control'),'no-store');
-  }
-});
-
 test('natural-language analysis stops before recommending when LLM_Op falls back to rules',async t=>{
   let recommended=false;
   const h=await harness(t,clients({profile:async()=>({application_profile:profile(),analysis:{mode:'local_rule',fallback_reason:'invalid_model_output'}}),recommend:async()=>{recommended=true;}}));

@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import {writeFile} from 'node:fs/promises';
 import {input} from './fixtures.mjs';
 import {load} from './fixtures.mjs';
-const deployment=await import('../deployment.mjs').catch(error=>{if(error.code==='ERR_MODULE_NOT_FOUND')return {};throw error;});
 const active=process.env.KHU_SMOKE==='1',base='http://127.0.0.1:18100/api/v1';
 async function request(path,body){const response=await fetch(base+path,{method:body===undefined?'GET':'POST',headers:{'content-type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});const json=await response.json();assert.ok(response.ok,`${path}: ${JSON.stringify(json)}`);return json;}
 for(const batchSize of [1,8])test(`AppDeploy runs pinned BERT Tiny batch ${batchSize}, binds GEON feedback and stops it`,{skip:!active},async()=>{
@@ -13,8 +12,8 @@ for(const batchSize of [1,8])test(`AppDeploy runs pinned BERT Tiny batch ${batch
   let r=await request('/flows',value);assert.equal(r.observation_origin,'observed');assert.equal(r.candidates.primary.length,1);assert.equal(r.candidates.primary[0].candidate_id,'khu-local-pc');assert.equal(r.candidates.primary[0].measurement,null);const id=r.flow_id;
   try{
     r=await request(`/flows/${id}/selection`,{candidate_id:'khu-local-pc',expected_selection_version:0});r=await request(`/flows/${id}/plan`,{selection_version:1});assert.equal(r.geon.guard.status,'APPROVED');
-    assert.equal(typeof deployment.deploySelectedApp,'function');
-    r=await deployment.deploySelectedApp(r,request);assert.ok(r.appdeploy.app_version_id);assert.equal(r.execution.status,'RUNNING');assert.equal(r.execution.target_profile_id,'khu-local-pc');
+    r=await request(`/flows/${id}/appdeploy/prepare`,{selection_version:1});assert.equal(r.appdeploy.status,'PREPARED');
+    r=await request(`/flows/${id}/appdeploy/submit`,{selection_version:1});assert.ok(r.appdeploy.app_version_id);assert.equal(r.execution.status,'RUNNING');assert.equal(r.execution.target_profile_id,'khu-local-pc');
     for(const [route,body,code] of [['selection',{candidate_id:'khu-local-pc',expected_selection_version:1},'stop_local_worker_first'],['mock-executions',{selection_version:1},'real_execution_required'],['feedback',{selection_version:1,observation:{source:'demo_input'}},'measured_feedback_required']]){
       const blocked=await fetch(base+`/flows/${id}/${route}`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});assert.ok(!blocked.ok);assert.equal((await blocked.json()).error.code,code);
     }

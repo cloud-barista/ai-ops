@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SOURCES = [
     ("llmop", "LLM_Op", "llmop/go/service-control-api/docs/swagger/swagger.json"),
     ("resource-ops", "Resource Ops", "resource_ops/docs/swagger/swagger.json"),
-    ("deployment-agent", "Deployment Agent", "deployment_agent/docs/openapi_deployment_agent.yaml"),
+    ("deployment-agent", "Deployment Agent", "app_automation_agent/docs/openapi_deployment_agent.yaml"),
 ]
 
 
@@ -19,12 +19,17 @@ def to_openapi(document):
     if "openapi" in document:
         return document
     assert document["swagger"] == "2.0"
-    # shortcut: these Swagger 2 sources use body parameters only; extend this conversion when other parameter kinds are added.
     for methods in document["paths"].values():
         for operation in methods.values():
             consumes = operation.pop("consumes", ["application/json"])
             produces = operation.pop("produces", ["application/json"])
             for parameter in operation.pop("parameters", []):
+                if parameter["in"] in ("header", "path"):
+                    # shortcut: these parameters are plain strings, move constraints into schema if the contract adds them.
+                    assert parameter.pop("type") == "string", parameter
+                    parameter["schema"] = {"type": "string"}
+                    operation.setdefault("parameters", []).append(parameter)
+                    continue
                 assert parameter["in"] == "body", parameter
                 operation["requestBody"] = {
                     "required": parameter.get("required", False),
@@ -36,6 +41,8 @@ def to_openapi(document):
                     schema = response.pop("schema")
                     response["content"] = {mime: {"schema": schema} for mime in produces}
     document["components"] = {"schemas": document.pop("definitions", {})}
+    if "securityDefinitions" in document:
+        document["components"]["securitySchemes"] = document.pop("securityDefinitions")
     return document
 
 

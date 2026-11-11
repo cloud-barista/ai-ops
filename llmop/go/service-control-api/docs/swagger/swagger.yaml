@@ -341,16 +341,84 @@ definitions:
     - code
     - message
     type: object
+  profileapi.OpsLLMIntentRequest:
+    properties:
+      intent:
+        example: 구축형 LLM으로 배포 가능한 응용을 보여줘
+        maxLength: 4000
+        type: string
+      llm_type:
+        enum:
+        - subscription
+        - open_weights
+        - self_hosted
+        type: string
+    required:
+    - intent
+    type: object
+  profileapi.OpsLLMIntentResult:
+    properties:
+      actual_model:
+        type: string
+      candidate_id:
+        type: string
+      latency_ms:
+        type: integer
+      llm_type:
+        enum:
+        - subscription
+        - open_weights
+        - self_hosted
+        type: string
+      proposal:
+        $ref: '#/definitions/profileapi.OpsLLMProposal'
+      provider:
+        type: string
+      run_id:
+        type: string
+      status:
+        enum:
+        - completion_unconfirmed
+        - completed
+        - provider_error
+        - invalid_model_output
+        type: string
+    type: object
+  profileapi.OpsLLMProposal:
+    properties:
+      action:
+        enum:
+        - list_applications
+        - application_status
+        - deploy_application
+        - update_application
+        - heal_application
+        - control_application
+        - remove_application
+        - optimize_inference
+        - clarify
+        type: string
+      control_action:
+        enum:
+        - suspend
+        - resume
+        - reboot
+        - terminate
+        type: string
+      deployment_id:
+        type: string
+    required:
+    - action
+    type: object
 info:
   contact: {}
-  description: Analyze natural-language or structured application requirements, select
-    a configured LLM when needed, and generate a bounded ApplicationProfile. The service
-    also exposes Ops LLM policy ranking; deployment planning and execution remain
-    outside this service.
+  description: Generate a bounded ApplicationProfile, rank Ops LLM candidates, and
+    interpret an operations request with a configured Ops LLM. Deployment planning
+    and execution remain outside this service.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
-  title: LLM_Op ApplicationProfile and Model Selection API
+  title: LLM_Op ApplicationProfile and Ops LLM API
   version: "1.0"
 paths:
   /api/v1/application-profiles:
@@ -401,6 +469,104 @@ paths:
       summary: Generate an ApplicationProfile
       tags:
       - Application Profiles
+  /api/v1/ops-llm/interpret:
+    post:
+      consumes:
+      - application/json
+      description: Select a subscription, open-weights, or self-hosted endpoint from
+        server configuration. Return the execution evidence and a bounded proposal
+        for the caller to validate.
+      operationId: InterpretOpsLLMIntent
+      parameters:
+      - description: Caller-known OpsLLM run ID for recovery and duplicate detection
+        in: header
+        name: X-AIMCMP-OpsLLM-Run-ID
+        type: string
+      - description: Natural-language request and optional LLM type
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/profileapi.OpsLLMIntentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/profileapi.OpsLLMIntentResult'
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/profileapi.OpsLLMIntentResult'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/profileapi.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/profileapi.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/profileapi.ErrorResponse'
+        "413":
+          description: Request Entity Too Large
+          schema:
+            $ref: '#/definitions/profileapi.ErrorResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/profileapi.OpsLLMIntentResult'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/profileapi.ErrorResponse'
+      security:
+      - OpsLLMBearer: []
+      summary: Interpret an operations request using an enabled Ops LLM
+      tags:
+      - Ops LLM
+  /api/v1/ops-llm/runs/{run_id}:
+    get:
+      description: Return the bounded result or completion_unconfirmed for an execution
+        without a stored result.
+      operationId: GetOpsLLMRun
+      parameters:
+      - description: OpsLLM execution ID
+        in: path
+        name: run_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/profileapi.OpsLLMIntentResult'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/profileapi.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/profileapi.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/profileapi.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/profileapi.ErrorResponse'
+      security:
+      - OpsLLMBearer: []
+      summary: Read recorded Ops LLM execution evidence
+      tags:
+      - Ops LLM
   /api/v1/ops-llm/select:
     post:
       consumes:
@@ -472,4 +638,10 @@ paths:
       summary: Get the LLM_Op OpenAPI specification
       tags:
       - LLM_Op
+securityDefinitions:
+  OpsLLMBearer:
+    description: Bearer token configured for Ops LLM interpretation.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

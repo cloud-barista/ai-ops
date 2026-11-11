@@ -1,12 +1,12 @@
 # 연구용 GPU 형상 증거 계약의 구현 가능성
 
-2026-09-28 현재 코드 기준의 **연동 제안**이다. 기관 간 API 또는 배포 승인 계약을 확정한 문서가 아니다. 입력은 [8후보 오프라인 평가기](../scripts/assess_gpu_shape.py)의 결과이며, 출력은 이노그리드·ETRI가 판독할 수 있는 별도 JSON 증거 객체다. 기존 Go 계약 (`../../deployment_agent/go/service-control-api/internal/agentcontrol/models.go`)에 이 필드가 이미 있다는 뜻은 아니다.
+2026-09-28 현재 코드 기준의 **연동 제안**이다. 기관 간 API 또는 배포 승인 계약을 확정한 문서가 아니다. 입력은 [8후보 오프라인 평가기](../scripts/assess_gpu_shape.py)의 결과이며, 출력은 이노그리드·ETRI가 판독할 수 있는 별도 JSON 증거 객체다. 기존 Go 계약 (`../../app_automation_agent/go/service-control-api/internal/agentcontrol/models.go`)에 이 필드가 이미 있다는 뜻은 아니다.
 
 ## 현재 계약과의 대조
 
 평가기는 알려진 모델·호스트·입력 조건 하나에서 GPU 프로세스 복제본 `1/2` × 프로세스 CPU affinity `2/4/8/16`의 정확히 8개 후보를 평가한다. 출력은 배치 벤치마크 `latency_p95_ms`와 `examples_per_second / batch_size`로 만든 요청/초 **보정 전 점추정치**다. 후보 하나라도 학습 지원 범위 밖이거나 예측이 비정상이면 전체 선택을 `ABSTAIN`한다. 모든 후보가 예측 기준을 못 채워도 `ABSTAIN`한다. `RESEARCH_ESTIMATE`는 GPU 복제본 수, 그다음 CPU affinity 코어 수가 최소인 추정 합격 후보다. [기능 시연 결과](../artifacts/gpu_shape_assessment_v1/example_result.json)의 SLO는 시연용 입력이고 사용자 서비스 SLO가 아니다.
 
-Go의 `ApplicationProfile.Requirements.SLO`는 `latency_p95_ms_max`, `throughput_rps_min`을 갖고, `ModelRecommendation.InferenceConfiguration`은 batch·동시성·`replicas`를 갖는다. 그러나 이름이 비슷해도 서비스 p95와 배치 p95, 서비스 replica와 같은 호스트 GPU 프로세스 복제본은 같은 측정 대상이 아니다. `ResourceRecommendation` 후보는 `candidate_id`, `feasible`, 완전한 `DesiredInfrastructure`(노드·VM CPU/메모리/스토리지·가속기), 점수와 자원 스냅샷을 갖는다. `DesiredDeploymentSpec`은 Guard를 통과한 판단·계획을 바탕으로 생성된다. Go 선택 검증 (`../../deployment_agent/go/service-control-api/internal/agentcontrol/service.go`)은 `node_count`, `cpu_cores_per_node`, 메모리·스토리지·가속기 최소치와 `feasible`을 확인한다. 판단 Guard (`../../deployment_agent/go/service-control-api/internal/agentcontrol/decision_runtime.go`)는 후보 ID가 실제 추천 후보에 존재하고 요구를 충족해야 `DEPLOY`를 승인한다. `ShadowPolicyAssessment`에는 모델 증거를 별도로 기록하는 경로가 있지만 `proposed_action`, `selected_candidate_id`, `guard_status`가 중심이므로 이 정적 벤치마크 예측을 그대로 대입할 필드는 아니다.
+Go의 `ApplicationProfile.Requirements.SLO`는 `latency_p95_ms_max`, `throughput_rps_min`을 갖고, `ModelRecommendation.InferenceConfiguration`은 batch·동시성·`replicas`를 갖는다. 그러나 이름이 비슷해도 서비스 p95와 배치 p95, 서비스 replica와 같은 호스트 GPU 프로세스 복제본은 같은 측정 대상이 아니다. `ResourceRecommendation` 후보는 `candidate_id`, `feasible`, 완전한 `DesiredInfrastructure`(노드·VM CPU/메모리/스토리지·가속기), 점수와 자원 스냅샷을 갖는다. `DesiredDeploymentSpec`은 Guard를 통과한 판단·계획을 바탕으로 생성된다. Go 선택 검증 (`../../app_automation_agent/go/service-control-api/internal/agentcontrol/service.go`)은 `node_count`, `cpu_cores_per_node`, 메모리·스토리지·가속기 최소치와 `feasible`을 확인한다. 판단 Guard (`../../app_automation_agent/go/service-control-api/internal/agentcontrol/decision_runtime.go`)는 후보 ID가 실제 추천 후보에 존재하고 요구를 충족해야 `DEPLOY`를 승인한다. `ShadowPolicyAssessment`에는 모델 증거를 별도로 기록하는 경로가 있지만 `proposed_action`, `selected_candidate_id`, `guard_status`가 중심이므로 이 정적 벤치마크 예측을 그대로 대입할 필드는 아니다.
 
 | 평가기 값 | Go의 유사 필드 | 안전한 연결 방식 |
 | --- | --- | --- |

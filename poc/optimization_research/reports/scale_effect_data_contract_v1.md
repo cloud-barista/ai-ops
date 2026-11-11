@@ -4,7 +4,7 @@
 
 ## 현재 계약과 부족한 연결
 
-현재 Resource Ops 계약 (`../../resource_ops/docs/contracts.md`)은 `ApplicationProfile`을 받아 자원 후보를 추천하며 `request_id`, `profile_id`, 후보 `resource_id`, `observed_at`을 제공한다. Deployment Agent 계약 (`../../deployment_agent/docs/openapi_deployment_agent.yaml`)은 같은 `correlation_id=request_id`와 `profile_id`의 일치를 검사한다. 배포 연계 경계 (`../../deployment_agent/docs/design/integration_boundary.md`)는 실행을 AppDeploy, 자원 조회를 Resource Ops에 둔다. 이 식별자들은 연구 로그의 연결 키로 재사용할 수 있다.
+현재 Resource Ops 계약 (`../../resource_ops/docs/contracts.md`)은 `ApplicationProfile`을 받아 자원 후보를 추천하며 `request_id`, `profile_id`, 후보 `resource_id`, `observed_at`을 제공한다. Deployment Agent 계약 (`../../app_automation_agent/docs/openapi_deployment_agent.yaml`)은 같은 `correlation_id=request_id`와 `profile_id`의 일치를 검사한다. 배포 연계 경계 (`../../app_automation_agent/docs/design/integration_boundary.md`)는 실행을 AppDeploy, 자원 조회를 Resource Ops에 둔다. 이 식별자들은 연구 로그의 연결 키로 재사용할 수 있다.
 
 현재 공개 [GenTD26 요청 자료](gentd26_request_latency_findings.md)에는 요청 생성 시각과 실행시간만 있고 실제 완료·결과 수집 시각이 없다. [모니터링 자료](gentd26_monitoring_findings.md)에는 부하·대기열은 있지만 VM 수 변화와 명령 결과가 없다. 기존 [SQLite 감사](untapped_signal_audit.md)의 scale 라벨은 정적 복제 측정에서 파생돼 실제 전환 정답이 아니다. 다음 표의 사건들을 함께 기록해야 이 간극이 좁혀진다.
 

@@ -17,6 +17,7 @@ type Config struct {
 	OpenAPIPath         string
 	LLMCandidatesPath   string
 	OpsLLMBenchmarkPath string
+	OpsLLMToken         string
 	CandidateID         string
 	MaxLLMAttempts      int
 	MaxRequestBytes     int64
@@ -72,6 +73,7 @@ func NewConfig() Config {
 		OpenAPIPath:         openAPIPath,
 		LLMCandidatesPath:   candidatesPath,
 		OpsLLMBenchmarkPath: benchmarkPath,
+		OpsLLMToken:         strings.TrimSpace(viper.GetString("OPS_LLM_TOKEN")),
 		CandidateID:         candidateID,
 		MaxLLMAttempts:      maxLLMAttempts,
 		MaxRequestBytes:     maxRequestBytes,

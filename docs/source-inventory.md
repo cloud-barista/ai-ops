@@ -4,8 +4,8 @@
 
 - `llmop`: Go 요구사항 분석 API, LLM 후보 설정, 테스트와 설계·제출 문서
 - `resource_ops`: Go 자원 정규화·추천 API, 스키마와 테스트
-- `deployment_agent`: Go 배포·운영 판단 API와 Guard, 테스트, 설계/API/시험 문서
-- `platform`: 통합 웹/API, 실행 어댑터, CPU/GPU 실행기, 관측과 플랫폼 시험
+- `app_automation_agent`: Go 배포·운영 판단 API와 Guard, 테스트, 설계/API/시험 문서
+- `platform`: 연구 PoC API, 통합 Swagger, 실행 어댑터, CPU/GPU 실행기, 관측과 플랫폼 시험
 - `poc/research_policy`: 보상 학습, 추론 서비스, 실측 수집, 데이터 변환, CLI와 수집 도구
 - `poc/optimization_research`: 연구 스크립트 327개, 연구 시험 파일 211개, 정책 계산 모듈, 계약·예시, 연구 보고서와 공개 가능한 결과 요약·그림
 

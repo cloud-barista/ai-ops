@@ -20,8 +20,8 @@
 | --- | --- | --- |
 | `llmop/` | 자연어·App Spec → ApplicationProfile, LLM 비교 | 요구 분석 기준선과 기존 입력·출력 계약 |
 | `resource_ops/` | 자원 정규화, 필수 조건 필터, 점수 추천 | 호환성 필터와 기존 가중 점수 기준선 |
-| `deployment_agent/` | Profile·추천 → 판단·Guard·DesiredDeploymentSpec, 운영 판단 | 정책 연동 및 판단 결과 검증 |
-| `deployment_agent/go/service-control-api/internal/api/shadow_policy_api.go` | 외부 정책 제안을 기록하는 shadow 클라이언트 | 학습 모델과 기존 규칙의 비교 진입점 |
+| `app_automation_agent/` | Profile·추천 → 판단·Guard·DesiredDeploymentSpec, 운영 판단 | 정책 연동 및 판단 결과 검증 |
+| `app_automation_agent/go/service-control-api/internal/api/shadow_policy_api.go` | 외부 정책 제안을 기록하는 shadow 클라이언트 | 학습 모델과 기존 규칙의 비교 진입점 |
 | `/home/researcher/aiops/khu_policy_agent/` | SQLite ETL, Random Forest 보상 예측, 정책 API | 기존 학습 기준선과 데이터 변환의 재사용 후보 |
 
 `KHU_POLICY_MODE=shadow`, `KHU_POLICY_URL`, `/api/v1/khu-policy/evaluate`가 코드에 존재한다. 2026-09-28부터 현재 Flow에 관측 가용량·자원 건강 상태·검증된 시간당 가격의 출처가 없으면 shadow 평가는 `ABSTAIN`을 기록하고 정책 서버를 호출하지 않는다. **현재 모든 Flow 생성 경로가 이 원본 필드를 보존하지 않으므로 shadow 정책 서버 호출은 중단된 상태다.** 재개하려면 원본 계측·가격·시각·출처를 보존하는 입력 계약과 학습 라벨의 지원 범위 검증이 필요하다. 기본 Go 배포 판단은 그대로 진행된다. 실제 정책 성능이나 배포 효과를 검증했다는 뜻은 아니다.
@@ -200,7 +200,7 @@ ablation: 응용 컨텍스트 제거, 불확실성 제거, 운영 이력 제거�
 ai-mcmp/
   llmop/                      # 기존 Go 요구 분석
   resource_ops/               # 기존 Go 자원 필터·추천
-  deployment_agent/           # 기존 Go 판단 계약·Guard
+  app_automation_agent/           # 기존 Go 판단 계약·Guard
   poc/optimization_research/                   # 신규 Python 학습·실험 영역
     data/                     # SQLite 추출, 검증, 분할
     features/                 # 응용·형상·시계열 특성
@@ -240,7 +240,7 @@ ai-mcmp/
 
 ## 참고 근거
 
-기존 구조 판단: `llmop/README.md`, `resource_ops/README.md`, `resource_ops/docs/formulas.md`, `deployment_agent/README.md`, `deployment_agent/go/service-control-api/internal/api/shadow_policy_api.go`, `/home/researcher/aiops/khu_policy_agent/{README.md,learning.py,live_dataset.py}`. 데이터 수치는 위 SQLite의 읽기 전용 조회 결과다. 서비스 실행 검증은 포함하지 않았다.
+기존 구조 판단: `llmop/README.md`, `resource_ops/README.md`, `resource_ops/docs/formulas.md`, `app_automation_agent/README.md`, `app_automation_agent/go/service-control-api/internal/api/shadow_policy_api.go`, `/home/researcher/aiops/khu_policy_agent/{README.md,learning.py,live_dataset.py}`. 데이터 수치는 위 SQLite의 읽기 전용 조회 결과다. 서비스 실행 검증은 포함하지 않았다.
 
 - [CatBoost 범주형 특성 처리](https://catboost.ai/docs/en/concepts/algorithm-main-stages_cat-to-numberic): 표 데이터 학습 후보의 기술적 근거. 이 데이터에서의 성능 우위를 의미하지 않는다.
 - [MAPIE 회귀 예측 구간](https://mapie.readthedocs.io/en/stable/api/regression/): 불확실성 추정 구현 후보.

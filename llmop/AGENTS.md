@@ -5,7 +5,7 @@
 ## Project Scope
 
 - 본 브랜치는 자연어/structured 배포 추론 요구를 분석해 `ApplicationProfile`을 생성하고, Profile 생성용 LLM 후보를 비교·선정하는 Go 기반 LLM_Op prototype이다.
-- Agent 선택·실행, resource recommendation, Manifest 생성, AppDeploy 호출, 배포 실행과 운영 최적화는 `deployment_agent` 책임이므로 이 저장소에 다시 구현하지 않는다.
+- Agent 선택·실행, resource recommendation, Manifest 생성, AppDeploy 호출, 배포 실행과 운영 최적화는 `app_automation_agent` 책임이므로 이 저장소에 다시 구현하지 않는다.
 - 기존 구조를 갈아엎지 말고 최소 변경으로 수정한다.
 - production-ready platform 또는 실제 운영 배포 완료를 임의로 주장하지 않는다.
 

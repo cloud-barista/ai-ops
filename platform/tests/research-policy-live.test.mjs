@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import {readFile,writeFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {input} from './fixtures.mjs';
-import {policyComparisonSummary} from '../panels.mjs';
 const enabled=process.env.KHU_SMOKE==='1';
 const root=new URL('../../output/khu-platform-validation/research-policy/',import.meta.url);
 async function call(path,body){const response=await fetch('http://127.0.0.1:18100/api/v1'+path,body===undefined?{}:{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});const result=await response.json();assert.ok(response.ok,JSON.stringify(result));return result;}
@@ -38,6 +37,5 @@ test('original artifacts and held-out cases feed real planning and operational s
   }
   const reloaded=await call(`/flows/${id}`);assert.equal(reloaded.research_validations.length,report.cases.length);
   assert.equal(reloaded.execution.mode,'mock');assert.equal(reloaded.execution.cloud_vm_created,false);
-  const comparison=policyComparisonSummary(reloaded);assert.equal(comparison.caseCount,report.cases.length);
-  await writeFile(new URL('live-verification.json',root),JSON.stringify({verified_at:new Date().toISOString(),origins_unchanged:true,holdout_groups_disjoint:true,case_count:report.cases.length,comparison,receipt:reloaded},null,2));
+  await writeFile(new URL('live-verification.json',root),JSON.stringify({verified_at:new Date().toISOString(),origins_unchanged:true,holdout_groups_disjoint:true,case_count:report.cases.length,receipt:reloaded},null,2));
 });

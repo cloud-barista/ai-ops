@@ -18,20 +18,20 @@
 
 ## 배포 및 운영 판단
 
-- [구현과 실행 방법](../deployment_agent/README.md)
-- [연동 흐름](../deployment_agent/docs/integration_pipeline.md)
-- [API 계약](../deployment_agent/docs/openapi_deployment_agent.yaml)
-- [설계 자료](../deployment_agent/docs/design/)
-- [실행 코드 안내](../deployment_agent/docs/submission/execution_code_guide.md)
-- [시험 안내](../deployment_agent/docs/submission/test_guide.md)
-- [구조 그림](../deployment_agent/docs/images/)
+- [구현과 실행 방법](../app_automation_agent/README.md)
+- [연동 흐름](../app_automation_agent/docs/integration_pipeline.md)
+- [API 계약](../app_automation_agent/docs/openapi_deployment_agent.yaml)
+- [설계 자료](../app_automation_agent/docs/design/)
+- [실행 코드 안내](../app_automation_agent/docs/submission/execution_code_guide.md)
+- [시험 안내](../app_automation_agent/docs/submission/test_guide.md)
+- [구조 그림](../app_automation_agent/docs/images/)
 
 초기 설계·제출 문서는 당시 개발 단계를 기록한 자료입니다. 현재 역할 경계와 통합 실행 방법은 [연동 구조](architecture.md)와 [설치 안내](getting-started.md)를 기준으로 확인합니다.
 
 ## 통합 플랫폼
 
-- [화면과 실행 코드](../platform/README.md)
-- [버튼별 사용 방법](../platform/docs/POC_BUTTON_GUIDE.md)
+- [연구 PoC API와 실행 코드](../platform/README.md)
+- [이전 운영 화면 기록](../platform/docs/POC_BUTTON_GUIDE.md)
 - [Node와 Python 시험](../platform/tests/)
 - [CPU/GPU VM 실행 코드](../platform/runtime-vm/)
 

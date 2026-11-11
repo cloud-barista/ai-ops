@@ -20,6 +20,13 @@ node_modules/
 *.joblib
 *.pkl
 
+# Local development plans and experiment records
+/plan.md
+/mincheol/
+/docs/development-record.md
+/docs/workshop-scope-audit.md
+AI-MCMP-Project-Skills.md
+
 # Local configuration and secrets
 .env
 .env.*
