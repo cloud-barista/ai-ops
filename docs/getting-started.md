@@ -1,5 +1,9 @@
 # 설치와 실행
 
+현재 저장소별 책임과 우리 측 추가 코드는 [AI-Ops 구현·연동 기록](khu-implementation.md)과 [AI-App 구현 기록](../../ai-app/docs/api/khu-implementation.md)에 정리했습니다. AI-App 자연어 연동은 `llmop`과 `app_automation_agent`를 사용합니다. 이 문서의 연구 PoC·AppDeploy 실행은 별도 경로입니다.
+
+CB-Tumblebug와 AI-App을 새로 설치해 GPU VM에서 모델을 실행하려면 [GPU 설치·시험 가이드](../../ai-app/docs/api/gpu-installation.md)를 따릅니다. 호스트 준비, CSP 계정 등록, VM 생성, dry-run, 실배포와 종료 절차를 포함합니다.
+
 ## AI-App 8090 자연어 연동
 
 8090의 자연어 프록시 `AIAPP_MOCK_NL_URL`에는 AI-App에서 접속할 수 있는 `app_automation_agent` 주소를 지정합니다. `llmop`과 `app_automation_agent`를 먼저 실행하면 Innogrid 엔진이 기동할 때 카드를 등록할 수 있습니다. 두 서비스를 호스트에서 직접 실행할 때는 아래 포트를 쓸 수 있습니다. [AI-App 연동 설정](../app_automation_agent/README.md#ai-app-자연어-연동)
@@ -23,6 +27,8 @@ AI-App을 Compose로 실행하고 Deployment Agent를 같은 호스트에서 실
 MCP 클라이언트는 `/aiapp/partner/nl/mcp`에서 같은 자연어 에이전트를 호출합니다. 게이트웨이 bearer와 `X-AIMCMP-Namespace`를 지정한 뒤 `tools/list`로 요청 처리와 실행 기록 조회 도구를 확인합니다. [자연어 에이전트 MCP](../app_automation_agent/README.md#자연어-에이전트-mcp)
 
 AI-App 운영 화면은 `http://127.0.0.1:8090/aiapp/ui`입니다. 이 구성에서 자연어 카탈로그·배포 상태를 조회하고 변경 제안을 기록할 수 있습니다. 관측 자원 추천이나 연구 PoC의 추천→배포 계획을 사용할 때 `resource_ops`를 추가합니다. AI-App 콘솔의 GPU 스펙·이미지 조회는 현재 설정된 CB-Tumblebug 추천 경로를 사용합니다. [기존 PoC 호출](../platform/server/upstream.mjs)
+
+기동 후에는 `AIAPP_AUTH_TOKEN`을 지정한 셸에서 `platform/scripts/verify-aiapp-integration.sh <nsId> <실제 배포 ID> self_hosted`로 자연어·엔진 MCP 조회와 REST·MCP 실행 기록의 일치를 확인합니다. GPU 모델 후보와 `18110`·`18131` 포트를 사용하는 실행 예시는 [GPU 통합 설정](../../ai-app/docs/api/gpu-installation.md#9-ai-ops-연결)에 있습니다.
 
 ## 독립 서비스
 
